@@ -1,0 +1,28 @@
+<Project DefaultTargets="ScanCleanSource">
+  <!-- Runs the already-built upstream task without rebuilding the warm VMR. -->
+  <PropertyGroup>
+    <BinaryToolKitAssembly Condition="'$(BinaryToolKitAssembly)' == ''">/vmr/artifacts/bin/BinaryToolKit/Release/BinaryToolKit.dll</BinaryToolKitAssembly>
+    <CleanSourceDirectory Condition="'$(CleanSourceDirectory)' == ''">/clean</CleanSourceDirectory>
+    <AllowedBinariesFile Condition="'$(AllowedBinariesFile)' == ''">$(CleanSourceDirectory)/eng/allowed-vmr-binaries.txt</AllowedBinariesFile>
+  </PropertyGroup>
+
+  <UsingTask TaskName="BinaryToolTask" AssemblyFile="$(BinaryToolKitAssembly)" TaskFactory="TaskHostFactory" />
+
+  <Target Name="ScanCleanSource">
+    <Error Condition="!Exists('$(BinaryToolKitAssembly)')" Text="The built upstream BinaryToolKit assembly is required." />
+    <Error Condition="!Exists('$(CleanSourceDirectory)/.git')" Text="A separate clean Git checkout is required." />
+    <Error Condition="!Exists('$(AllowedBinariesFile)')" Text="The checkout's unchanged upstream allowed-binaries file is required." />
+    <Error Condition="'$(ScanReportDirectory)' == ''" Text="ScanReportDirectory is required and must be outside the source checkout." />
+    <Error Condition="Exists('$(ScanReportDirectory)/NewBinaries.txt')" Text="Refusing to overwrite an existing NewBinaries report; choose a new report directory." />
+    <BinaryToolTask Mode="Validate"
+                    TargetDirectory="$(CleanSourceDirectory)"
+                    AllowedBinariesFile="$(AllowedBinariesFile)"
+                    OutputReportDirectory="$(ScanReportDirectory)" />
+    <Error Condition="!Exists('$(ScanReportDirectory)/NewBinaries.txt')" Text="The upstream task did not generate its NewBinaries report." />
+    <ReadLinesFromFile File="$(ScanReportDirectory)/NewBinaries.txt">
+      <Output TaskParameter="Lines" ItemName="UnexpectedBinary" />
+    </ReadLinesFromFile>
+    <Error Condition="'@(UnexpectedBinary)' != ''" Text="Upstream binary scan found unexpected source binaries. See $(ScanReportDirectory)/NewBinaries.txt." />
+    <Message Importance="High" Text="Upstream clean-source binary scan passed: $(ScanReportDirectory)/NewBinaries.txt" />
+  </Target>
+</Project>

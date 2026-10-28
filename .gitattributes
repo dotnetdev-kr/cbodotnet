@@ -1,0 +1,4 @@
+# Keep scripts portable while preserving native CMD line endings on checkout.
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf

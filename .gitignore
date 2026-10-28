@@ -1,0 +1,51 @@
+# Generated SDK archives, reports, build workspaces, and downloaded inputs.
+/artifacts/
+/.build/
+/work/
+/inputs/
+
+# Local compiler outputs and test results.
+bin/
+obj/
+TestResults/
+*.binlog
+*.trx
+*.log
+
+# Python environments and caches used by the build helpers.
+__pycache__/
+*.py[cod]
+/.venv/
+/venv/
+/.cache/
+
+# Downloaded packages and release archives belong in artifact storage.
+*.tar.gz
+*.tar.xz
+*.tgz
+*.zip
+*.nupkg
+*.snupkg
+*.deb
+*.rpm
+
+# Local WSL/container disks and virtual-machine images.
+*.ext4
+*.vhd
+*.vhdx
+*.qcow2
+
+# Machine-specific configuration and editor state.
+/.vs/
+/.idea/
+*.user
+*.suo
+*.swp
+*.tmp
+.DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+!.env.sample
+/.aws/

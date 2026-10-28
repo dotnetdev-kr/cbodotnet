@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "selectedAt": "2026-10-28",
+  "sdkVersion": "10.0.403",
+  "source": {
+    "repository": "https://github.com/dotnet/dotnet",
+    "tag": "v10.0.403",
+    "commit": "5a2162bea6845eabc1fc721624a43568c65db3b1"
+  },
+  "host": { "os": "linux", "architecture": "arm64", "emulation": false },
+  "target": { "rid": "linux-arm64", "libc": "glibc", "intendedMaximumGlibcRequirement": "2.27" },
+  "container": {
+    "repository": "mcr.microsoft.com/dotnet-buildtools/prereqs",
+    "referenceTag": "ubuntu-24.04-arm64",
+    "digest": "sha256:7ef8f6ee1b9982511349757443eb4844f0db4f8cef1aff6148a7ba1c25d7c6f4"
+  },
+  "sysroot": {
+    "architecture": "arm64",
+    "suite": "bionic",
+    "generator": "eng/common/cross/build-rootfs.sh",
+    "generatorArguments": ["arm64", "bionic", "--skipemulation"],
+    "packageSignatureVerification": true
+  },
+  "build": {
+    "configuration": "Release",
+    "branding": "release",
+    "officialBuildId": "20261028.1",
+    "sourceOnly": false,
+    "crossBuild": true,
+    "portableBuild": true,
+    "maxCpuCount": 2,
+    "sharedComponents": "Public upstream portable packages pinned by the VMR; not rebuilt from 1xx sources in this profile"
+  },
+  "additionalPackages": [
+    {
+      "id": "NETStandard.Library.NETFramework",
+      "version": "2.0.1-servicing-26011-01",
+      "fileName": "netstandard.library.netframework.2.0.1-servicing-26011-01.nupkg",
+      "url": "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/flat2/netstandard.library.netframework/2.0.1-servicing-26011-01/netstandard.library.netframework.2.0.1-servicing-26011-01.nupkg",
+      "sha256": "218dd4c63d3f800de697bca41178827a52df0a9ec7a9b47520327d91ebc7051c"
+    }
+  ],
+  "upstreamInputs": {
+    "bootstrapSdk": "10.0.401",
+    "sharedSdkPackage": "10.0.114-servicing.26522.126",
+    "sharedVmrCommit": "0427b9abbead3fa64c6655eb4290c537397131fa",
+    "runtime": "10.0.14"
+  }
+}
