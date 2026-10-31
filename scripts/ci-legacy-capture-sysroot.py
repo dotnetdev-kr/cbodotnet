@@ -17,7 +17,7 @@ def main():
     args = parser.parse_args()
     reports = args.reports_dir; helper = Path(__file__).parent / ('verify-sysroot' + ('5' if args.family == 'net5' else '-' + args.family) + '.py')
     result = subprocess.run([sys.executable, str(helper), '--sysroot', str(args.inputs_dir / 'arm64-xenial'),
-                             '--reports-dir', str(reports)], check=True, stdout=subprocess.PIPE, text=True)
+                             '--reports-dir', str(reports)], check=True, stdout=subprocess.PIPE, universal_newlines=True)
     verified = json.loads(result.stdout)
     if verified.get('status') != 'passed' or verified['files'] <= 0 or verified['symlinks'] <= 0:
         raise ValueError('Whole sysroot revalidation did not pass')

@@ -224,6 +224,14 @@ class CI:
         ordinary(path, True)
         return path
 
+    def sysroot_report_directory(self):
+        """The privileged producer may create files, but the runner owns the directory."""
+        path = ordinary(self.reports / 'sysroot')
+        path.mkdir()
+        require(path.stat().st_uid == os.getuid() and path.stat().st_gid == os.getgid(),
+                'The current runner must own the new sysroot report directory')
+        return path
+
     def prepare(self):
         self.run(['git', 'clone', '--no-checkout', 'https://github.com/dotnet/source-build.git', self.source])
         self.run(['git', '-C', self.source, 'checkout', '--detach', self.commit])
@@ -250,8 +258,11 @@ class CI:
         else:
             for action in ('acquire', 'prepare'):
                 self.container(self.product_command(action, self.reports / 'prepare' / action))
+        sysroot_reports = self.sysroot_report_directory()
         self.container(['bash', self.snapshot / ('scripts/prepare-sysroot' + ('5' if self.family == 'net5' else '-' + self.family) + '.sh'),
-                        self.source, self.inputs, self.reports / 'sysroot', str(os.getuid()), str(os.getgid())], privileged=True)
+                        self.source, self.inputs, sysroot_reports, str(os.getuid()), str(os.getgid())], privileged=True)
+        require(sysroot_reports.stat().st_uid == os.getuid() and sysroot_reports.stat().st_gid == os.getgid(),
+                'The privileged producer changed sysroot report directory ownership')
         self.container(['python3', self.snapshot / 'scripts/ci-legacy-capture-sysroot.py', '--family', self.family,
                         '--inputs-dir', self.inputs, '--reports-dir', self.reports / 'sysroot'])
         write(self.state, dict(self.identity(), imageId=self.image,

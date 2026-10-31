@@ -10,6 +10,8 @@ import shutil
 import subprocess
 import sys
 import traceback
+sys.dont_write_bytecode = True
+os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
 import ci_vmr89_support as S
 
 PROJECT = Path(__file__).resolve().parents[1]
@@ -57,6 +59,7 @@ class Driver:
                              '--env', 'XDG_RUNTIME_DIR=/home/build/.xdg', '--env', 'LANG=C.UTF-8', '--env', 'LC_ALL=C.UTF-8',
                              '--env', 'DOTNET_CLI_TELEMETRY_OPTOUT=1', '--env', 'DOTNET_GENERATE_ASPNET_CERTIFICATE=false',
                              '--env', 'DOTNET_PROCESSOR_COUNT=2', '--volume', source,
+                             '--env', 'PYTHONDONTWRITEBYTECODE=1',
                              '--volume', str(self.inputs) + ':/inputs',
                              '--volume', str(self.home) + ':/home/build', '--volume', str(self.output) + ':/delivery',
                              '--volume', str(self.reports / 'sysroot') + ':/reports' + ('' if root else ':ro'),
@@ -208,6 +211,7 @@ class Driver:
             script = S.userland_script()
             self.run(self.engine + ['run', '--rm', '--interactive', '--network=none', '--user', str(os.getuid()) + ':' + str(os.getgid()),
                       '--env', 'LANG=C.UTF-8', '--env', 'LC_ALL=C.UTF-8', '--env', 'DOTNET_GENERATE_ASPNET_CERTIFICATE=false',
+                      '--env', 'PYTHONDONTWRITEBYTECODE=1',
                       '--volume', str(self.candidate) + ':/candidate:ro', '--volume', str(self.output) + ':/delivery', '--workdir', '/tmp', image,
                       'taskset', '--cpu-list', self.cpus, 'bash', '-s', '--', image, name, icu, ssl, self.config['sdk'], self.identity['buildRevision'], self.version], stdin=script)
 

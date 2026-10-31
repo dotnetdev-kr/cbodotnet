@@ -11,12 +11,15 @@ import posixpath
 import re
 import shutil
 import subprocess
+import sys
 import tarfile
 import threading
 import time
 from urllib.parse import unquote, urlsplit
 import xml.etree.ElementTree as ET
 
+sys.dont_write_bytecode = True
+os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
 HERE = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location('ci10_primitives', HERE / 'ci-net10-evidence.py')
 G = importlib.util.module_from_spec(spec); spec.loader.exec_module(G)

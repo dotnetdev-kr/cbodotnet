@@ -15,7 +15,10 @@ from pathlib import Path, PurePosixPath
 import posixpath
 import re
 import subprocess
+import sys
 import tarfile
+
+sys.dont_write_bytecode = True
 
 REPOSITORY='https://github.com/dotnet/dotnet'
 SDK='10.0.403'

@@ -18,6 +18,9 @@ on:
 permissions:
   contents: read
 
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
 concurrency:
   group: sdk-arm64-matrix-${{ github.repository }}-${{ inputs.target }}
   cancel-in-progress: false

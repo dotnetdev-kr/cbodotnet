@@ -18,6 +18,9 @@ import time
 import urllib.request
 import xml.etree.ElementTree as ET
 
+sys.dont_write_bytecode = True
+os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
+
 HELPERS = Path(__file__).resolve().parent
 SPEC = importlib.util.spec_from_file_location('net67_evidence', HELPERS / 'ci-net67-evidence.py')
 E = importlib.util.module_from_spec(SPEC); SPEC.loader.exec_module(E)
@@ -122,6 +125,7 @@ class Run:
                  '--env','LANG=C.UTF-8','--env','LC_ALL=C.UTF-8','--env','DOTNET_PROCESSOR_COUNT=2',
                  '--env','DOTNET_CLI_TELEMETRY_OPTOUT=1','--env','DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1',
                  '--env','DOTNET_GENERATE_ASPNET_CERTIFICATE=false','--env','NUGET_XMLDOC_MODE=none',
+                 '--env','PYTHONDONTWRITEBYTECODE=1',
                  '--volume',str(self.project)+':/project:ro','--volume',str(self.work)+':/work'+suffix,
                  '--volume',str(self.installer)+':/installer'+suffix,'--volume',str(self.inputs)+':/inputs'+(':ro' if readonly else ''),
                  '--volume',str(self.home)+':/home/build','--volume',str(self.output)+':/delivery',

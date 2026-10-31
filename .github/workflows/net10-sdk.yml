@@ -12,6 +12,9 @@ on:
 permissions:
   contents: read
 
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
 concurrency:
   group: net10-sdk-arm64-${{ github.repository }}
   cancel-in-progress: false

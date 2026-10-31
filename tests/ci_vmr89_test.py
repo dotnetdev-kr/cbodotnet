@@ -3,6 +3,7 @@
 import copy
 import io
 import json
+import os
 from pathlib import Path
 import shutil
 import sys
@@ -203,6 +204,21 @@ class Tests(unittest.TestCase):
         self.assertEqual(S.test_results('8',trx(self.root/'8.trx','8'))['passed'],44)
         result=S.test_results('9',trx(self.root/'9.trx','9'),scenarios(self.root/'scenario.xml'))
         self.assertEqual(result['passed'],500);self.assertEqual(result['scenarios']['passed'],32)
+
+    def test_standalone_frozen_helpers_never_add_bytecode_files(self):
+        for entry in ('ci-vmr89.py','ci_vmr89_support.py'):
+            with self.subTest(entry=entry):
+                directory=self.root/entry/'scripts';directory.mkdir(parents=True)
+                names=['ci-vmr89.py','ci_vmr89_support.py','ci-net10-evidence.py']
+                for name in names:shutil.copyfile(ROOT/'scripts'/name,directory/name)
+                before={path.relative_to(directory).as_posix() for path in directory.rglob('*') if path.is_file()}
+                environment=os.environ.copy();environment.pop('PYTHONDONTWRITEBYTECODE',None);environment.pop('PYTHONPYCACHEPREFIX',None)
+                result=subprocess.run([sys.executable,str(directory/entry),'--help'],env=environment,
+                                      stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True)
+                self.assertEqual(result.returncode,0,result.stderr)
+                after={path.relative_to(directory).as_posix() for path in directory.rglob('*') if path.is_file()}
+                self.assertEqual(after,before)
+                self.assertFalse(list(directory.rglob('__pycache__')))
 
     def test_complete_version_gates_and_portable_reread(self):
         for version in ('8','9'):

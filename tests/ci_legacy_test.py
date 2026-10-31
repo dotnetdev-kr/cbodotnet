@@ -4,8 +4,10 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
 import signal
+import shutil
 import subprocess
 import sys
 import tarfile
@@ -177,6 +179,45 @@ class LegacyFixtures(unittest.TestCase):
     def test_all_legacy_clis_parse_without_product_access(self):
         for name in ('ci-net5.sh', 'ci-core31.sh', 'ci-core30.sh'):
             subprocess.run(['bash', str(ROOT / 'scripts' / name), '--help'], check=True, stdout=subprocess.DEVNULL)
+
+    def test_runner_owns_sysroot_report_directory_before_privileged_producer(self):
+        runner = driver.CI.__new__(driver.CI); runner.reports = self.root
+        report = runner.sysroot_report_directory()
+        self.assertEqual(report.stat().st_uid, os.getuid())
+        self.assertEqual(report.stat().st_gid, os.getgid())
+        (report / 'current-validation.json').write_text('{}')
+        with self.assertRaises(FileExistsError):
+            runner.sysroot_report_directory()
+
+    def test_sysroot_report_directory_refuses_link(self):
+        destination = self.root / 'elsewhere'; destination.mkdir()
+        (self.root / 'sysroot').symlink_to(destination, target_is_directory=True)
+        runner = driver.CI.__new__(driver.CI); runner.reports = self.root
+        with self.assertRaises(ValueError):
+            runner.sysroot_report_directory()
+
+    def test_capture_helper_preserves_real_verifier_output_and_keyring_bytes(self):
+        scripts = self.root / 'scripts'; scripts.mkdir()
+        helper = scripts / 'ci-legacy-capture-sysroot.py'
+        shutil.copyfile(ROOT / 'scripts/ci-legacy-capture-sysroot.py', helper)
+        # Model only the external whole-tree verifier; run the real capture
+        # helper, subprocess decoding, keyring hashing/copying and file writes.
+        (scripts / 'verify-sysroot-core30.py').write_text(
+            "import json\nprint(json.dumps({'status':'passed','files':17026,'symlinks':5225}))\n")
+        reports = self.root / 'reports'; reports.mkdir()
+        inputs = self.root / 'inputs'; inputs.mkdir()
+        keys = []
+        for index in range(3):
+            path = self.root / ('keyring-' + str(index)); path.write_bytes(('authenticated-key-' + str(index)).encode())
+            keys.append({'path': str(path), 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()})
+        (reports / 'sysroot-provenance.json').write_text(json.dumps({'keyrings': keys}))
+        subprocess.run([sys.executable, str(helper), '--family', 'core30', '--inputs-dir', str(inputs), '--reports-dir', str(reports)], check=True)
+        self.assertEqual(json.loads((reports / 'current-validation.json').read_text())['files'], 17026)
+        result = json.loads((reports / 'producer-inputs.json').read_text())
+        self.assertEqual(result['status'], 'passed')
+        for index, row in enumerate(result['keyrings']):
+            self.assertEqual(row['sha256'], keys[index]['sha256'])
+            self.assertEqual((reports / ('signing-keyring-' + str(index) + '.gpg')).read_bytes(), Path(keys[index]['path']).read_bytes())
 
 
 if __name__ == '__main__':

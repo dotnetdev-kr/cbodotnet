@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Run the pinned .NET 10 profile on a fresh native ARM64 Linux CI worker.
 set -euo pipefail
+export PYTHONDONTWRITEBYTECODE=1
 
 usage() {
   cat <<'HELP'
@@ -211,6 +212,7 @@ container() {
   run "${engine[@]}" run --rm --interactive --network="$network" --user "$uid:$gid" \
     --env HOME=/home/build --env DOTNET_CLI_HOME=/home/build --env XDG_RUNTIME_DIR=/home/build/.xdg \
     --env LANG=C.UTF-8 --env LC_ALL=C.UTF-8 --env DOTNET_PROCESSOR_COUNT=2 \
+    --env PYTHONDONTWRITEBYTECODE=1 \
     --env DOTNET_CLI_TELEMETRY_OPTOUT=1 --env DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 \
     --env DOTNET_GENERATE_ASPNET_CERTIFICATE=false \
     --volume "$project:/project:ro" --volume "$source_mount" --volume "$inputs_mount" \
