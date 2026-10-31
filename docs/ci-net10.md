@@ -1,25 +1,43 @@
 # .NET 10 ARM64 CI and draft delivery
 
-The [workflow](../.github/workflows/net10-sdk.yml) builds the pinned SDK 10.0.403 profile on a native Linux ARM64 GitHub Actions worker. Implementation and fixture validation do not establish a successful hosted build: a fresh workflow run must complete every gate before it can produce a validated delivery. Historical local release manifests remain evidence of their original builds.
+The [workflow](../.github/workflows/net10-sdk.yml) builds the pinned SDK 10.0.403 profile on a native Linux ARM64 GitHub Actions worker. Each fresh run must complete every gate before it can produce a validated delivery. Historical local release manifests remain evidence of their original builds.
 
 This is the regular VMR 4xx build. It consumes the pinned upstream shared runtime and ASP.NET inputs declared in the profile. It does not establish a source-only build, Stage 2, zero prebuilt usage, x64 coverage, workload support, or compatibility with every Linux distribution.
 
-## First hosted pilot
+## Hosted qualification
+
+The [successful hosted run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41191037279), at orchestration commit `1d24bc32770753f13e59c6a0927585ac0d3805d6`, passed preparation, SDK build, pristine-source scan, upstream tests, all six functional checks on each of Ubuntu 22.04, Ubuntu 24.04 and Debian 13, final collection, the complete evidence gate, and artifact upload. All 13 common tests passed; the 36 scenarios contained 34 passes and the two declared skips. All 24 shipped ELF files were AArch64, with maximum requirements GLIBC 2.27, GLIBCXX 3.4.22 and CXXABI 1.3.7.
+
+The downloaded artifact ZIP matched its API SHA-256. Its transport checksums, the exact committed draft extraction step and `verify-release` also passed independently in local WSL. The SDK archive was copied unchanged:
+
+```text
+File: cbodotnet-sdk-10.0.403-linux-arm64-build.41191037279.tar.gz
+Bytes: 217811134
+SHA-256: fc17e73548d5c135bafa13a898e739fa8db58687723063a4cec4c5a97a51405b
+```
+
+The run used `create_draft=false`. Draft creation and release-asset upload were not exercised; the downloaded artifact and local qualification did not create a release.
+
+| Observation from the qualified run | Value |
+| --- | --- |
+| Preparation stage | 1 min 29.85 sec |
+| SDK build stage | 45 min 30.01 sec |
+| Pristine-source scan stage | 32.28 sec |
+| Upstream test stage | 7 min 4.51 sec |
+| Three-user-space verification stage | 1 min 32.66 sec |
+| Final collection stage | 3.22 sec |
+| Preparation start through final collection | 56 min 13.37 sec |
+| Free disk after host preparation | 120.943 GiB |
+| Minimum free disk in 220 periodic samples | 94.732 GiB |
+| Maximum sampled host memory usage | 8.032 GiB |
+
+The elapsed interval excludes earlier host preparation and later upload/local qualification. The resource monitor covers build, scan, tests and user-space verification; it stops before final collection. Memory usage is the sampled host `MemTotal - MemAvailable`, including the operating system and other runner activity. Disk observations cover the host filesystem. Neither value is an isolated build-process peak or a guaranteed minimum capacity.
+
+### Initial pilot correction
 
 The [first hosted run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41186712404), at orchestration commit `719ddffe39c02bcbb9a8c87e228c694f18c3ec17`, completed the SDK build, pristine-source binary scan and upstream tests. All 13 common tests passed; the 36 scenarios contained 34 passes and the two declared skips. It did not produce a validated delivery: verification stopped before running its first user-space test because Podman legitimately retained both a platform manifest and an OCI index in `RepoDigests`.
 
 The corrected selector uses the exact inspected `Digest` with its matching repository reference. Additional valid index references are allowed. Regression tests replay the original inspection, and the delivery gate binds that digest to the actual verification image build and execution.
-
-| Observation from the first run | Value |
-| --- | --- |
-| SDK build stage | 43 min 39 sec |
-| Pristine-source scan stage | 31 sec |
-| Upstream test stage | 7 min 7 sec |
-| Free disk after host preparation | 120.958 GiB |
-| Minimum free disk in 207 periodic samples | 94.873 GiB |
-| Maximum sampled host memory usage | 8.393 GiB |
-
-Memory usage here is the sampled host `MemTotal - MemAvailable`, including the operating system and other runner activity. Disk observations cover the host filesystem. Neither value is an isolated build-process peak or a guaranteed minimum capacity. The first run stopped before constructing the three verification images; its resource observations do not qualify that remaining work.
 
 ## Run the workflow
 
