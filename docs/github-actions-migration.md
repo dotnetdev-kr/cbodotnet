@@ -2,6 +2,8 @@
 
 Assessment snapshot: **2026-10-31, Asia/Seoul**. This review covers the actual Linux ARM64 profiles for Core 3.0/3.1 and .NET 5–10, their wrappers/containers, retained resource records and current official GitHub documentation. No workflow, remote CI run or publication is implemented by this assessment.
 
+**Implementation follow-up:** the [.NET 10 CI guide](ci-net10.md) now describes the Linux driver and manual ARM64 workflow added after this assessment. The requirements below remain the migration checklist; execution status is recorded separately in that guide. The other version adapters and native x64 have not thereby been migrated.
+
 **The Linux stages can move to GitHub Actions, but the current repository is not yet an unattended full-matrix pipeline.** Native hosted ARM64 and x64 machines exist. Remaining work includes Linux orchestration, durable historical inputs, a clean run of each final configuration and capacity measurements. A larger native Linux runner is the recommended first full-build pilot. Standard runners can validate produced SDKs, but their advertised 14 GB disk allocation is not an established full-build budget.
 
 The current local results cover ARM64 only. Native x64 needs independent profiles, images, bootstrap/sysroot inputs and validation; changing `runs-on` or adding a matrix does not implement it. Community availability remains independent of Microsoft's support lifecycle. See [version coverage](dotnet-version-coverage.md), the [Linux portability review](linux-portability-review.md) and the separate [version-floor assessment](architecture-version-floor.md).

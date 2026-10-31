@@ -1,0 +1,284 @@
+name: .NET 10 Linux ARM64 SDK
+
+on:
+  workflow_dispatch:
+    inputs:
+      create_draft:
+        description: Create an unpublished draft release after every validation gate passes
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: net10-sdk-arm64-${{ github.repository }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: Build and validate the pinned ARM64 profile
+    runs-on: ${{ fromJSON(vars.NET10_BUILD_RUNNER_JSON || '["ubuntu-24.04-arm"]') }}
+    timeout-minutes: 360
+    outputs:
+      artifact_id: ${{ steps.upload.outputs.artifact-id }}
+      validated: ${{ steps.gate.outputs.passed }}
+      build_id: ${{ steps.paths.outputs.build_id }}
+    steps:
+      - name: Check out the exact orchestration revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Select isolated paths and build identity
+        id: paths
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REF" == refs/heads/main && "$GITHUB_SHA" =~ ^[a-f0-9]{40}$ ]]
+          [[ "$GITHUB_WORKFLOW_SHA" == "$GITHUB_SHA" ]]
+          [[ $(git rev-parse HEAD) == "$GITHUB_SHA" ]]
+          [[ "$GITHUB_RUN_ID" =~ ^[1-9][0-9]*$ && "$GITHUB_RUN_NUMBER" =~ ^[1-9][0-9]*$ && "$GITHUB_RUN_ATTEMPT" =~ ^[1-9][0-9]*$ ]]
+          build_id="$(date -u +%Y%m%d).$GITHUB_RUN_NUMBER"
+          {
+            echo "NET10_WORKSPACE=$RUNNER_TEMP/cbodotnet-net10-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+            echo "NET10_RELEASE=$GITHUB_WORKSPACE/artifacts/10.0.403-linux-arm64"
+            echo "NET10_HOST_REPORTS=$RUNNER_TEMP/cbodotnet-net10-host-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+            echo "NET10_BUNDLE_DIR=$RUNNER_TEMP/cbodotnet-net10-bundle-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+            echo "NET10_BUILD_ID=$build_id"
+          } >> "$GITHUB_ENV"
+          echo "build_id=$build_id" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare native host tools and measure reclaimed disk
+        timeout-minutes: 25
+        run: |
+          bash scripts/ci-net10-host.sh prepare \
+            --workspace "$NET10_WORKSPACE" --reports-dir "$NET10_HOST_REPORTS" \
+            --minimum-free-gib 30
+
+      - name: Freeze inputs and prepare the pinned container, source and sysroot
+        timeout-minutes: 40
+        run: |
+          set -euo pipefail
+          bash scripts/ci-net10.sh prepare \
+            --workspace "$NET10_WORKSPACE" --output-dir "$NET10_RELEASE" \
+            --build-id "$NET10_BUILD_ID" --build-revision "$GITHUB_RUN_ID"
+          [[ ! -e "$NET10_RELEASE/reports/ci-host" ]]
+          cp -a -- "$NET10_HOST_REPORTS" "$NET10_RELEASE/reports/ci-host"
+
+      - name: Build, scan pristine source, run upstream tests and verify three user spaces
+        timeout-minutes: 270
+        run: |
+          set -euo pipefail
+          bash scripts/ci-net10-host.sh monitor \
+            --workspace "$NET10_WORKSPACE" --reports-dir "$NET10_RELEASE/reports/ci-host" &
+          monitor_pid=$!
+          stop_monitor() {
+            if [[ -n "${monitor_pid:-}" ]]; then
+              kill -TERM "$monitor_pid" 2>/dev/null || true
+              wait "$monitor_pid"
+              monitor_pid=''
+            fi
+          }
+          trap stop_monitor EXIT
+          for stage in build scan test verify; do
+            bash scripts/ci-net10.sh "$stage" \
+              --workspace "$NET10_WORKSPACE" --output-dir "$NET10_RELEASE" \
+              --build-id "$NET10_BUILD_ID" --build-revision "$GITHUB_RUN_ID"
+          done
+          stop_monitor
+          trap - EXIT
+          # Every report writer is stopped before the final digest inventory.
+          bash scripts/ci-net10.sh collect \
+            --workspace "$NET10_WORKSPACE" --output-dir "$NET10_RELEASE" \
+            --build-id "$NET10_BUILD_ID" --build-revision "$GITHUB_RUN_ID"
+
+      - name: Require complete build, scan, upstream and native evidence
+        id: gate
+        run: |
+          set -euo pipefail
+          /usr/bin/python3 scripts/ci-net10-evidence.py validate \
+            --release-dir "$NET10_RELEASE" --project-root "$GITHUB_WORKSPACE" \
+            --output "$NET10_RELEASE/ci-validation.json"
+          echo 'passed=true' >> "$GITHUB_OUTPUT"
+
+      - name: Bundle unchanged SDK and complete evidence, including failed attempts
+        id: bundle
+        if: always() && steps.paths.outcome == 'success'
+        run: |
+          set -euo pipefail
+          mkdir -p -- "$NET10_RELEASE"
+          # Only failed preparation may need its completed external host reports copied.
+          if [[ ! -e "$NET10_RELEASE/collect-receipt.json" && -d "$NET10_HOST_REPORTS" && ! -e "$NET10_RELEASE/reports/ci-host" ]]; then
+            mkdir -p -- "$NET10_RELEASE/reports"
+            cp -a -- "$NET10_HOST_REPORTS" "$NET10_RELEASE/reports/ci-host"
+          fi
+          [[ ! -e "$NET10_BUNDLE_DIR" ]]
+          mkdir -- "$NET10_BUNDLE_DIR"
+          bundle="cbodotnet-net10-linux-arm64-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.tar.gz"
+          tar --hard-dereference -czf "$NET10_BUNDLE_DIR/$bundle" \
+            -C "$GITHUB_WORKSPACE/artifacts" 10.0.403-linux-arm64
+          (
+            cd "$NET10_BUNDLE_DIR"
+            sha256sum -- "$bundle" > "$bundle.sha256"
+            sha512sum -- "$bundle" > "$bundle.sha512"
+          )
+
+      - name: Upload this run's SDK and evidence bundle
+        id: upload
+        if: always() && steps.bundle.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: net10-linux-arm64-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.NET10_BUNDLE_DIR }}/*
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 14
+          overwrite: false
+
+  draft:
+    name: Prepare an unpublished draft from the verified artifact
+    needs: build
+    if: >-
+      github.event_name == 'workflow_dispatch' && inputs.create_draft &&
+      github.ref == 'refs/heads/main' && github.repository == 'dotnetdev-kr/cbodotnet' &&
+      needs.build.result == 'success' && needs.build.outputs.validated == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - name: Check out the same trusted verifier revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Download the exact build artifact from this run
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          artifact-ids: ${{ needs.build.outputs.artifact_id }}
+          path: ${{ runner.temp }}/net10-download
+          merge-multiple: true
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.run_id }}
+
+      - name: Check transport hashes and extract only the expected release tree
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REF" == refs/heads/main && "$GITHUB_WORKFLOW_SHA" == "$GITHUB_SHA" && $(git rev-parse HEAD) == "$GITHUB_SHA" ]]
+          /usr/bin/python3 - "$RUNNER_TEMP" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path, PurePosixPath
+          import posixpath
+          import re
+          import shutil
+          import sys
+          import tarfile
+          root = Path(sys.argv[1])
+          download = root / 'net10-download'
+          name = 'cbodotnet-net10-linux-arm64-{}-{}.tar.gz'.format(*sys.argv[2:])
+          bundle = download / name
+          expected = {name, name + '.sha256', name + '.sha512'}
+          if {p.name for p in download.iterdir()} != expected or any(not p.is_file() or p.is_symlink() for p in download.iterdir()):
+              raise SystemExit('Unexpected artifact files')
+          for algorithm, size in [('sha256', 64), ('sha512', 128)]:
+              text = (download / (name + '.' + algorithm)).read_text()
+              match = re.fullmatch(r'([a-f0-9]{' + str(size) + r'})  ' + re.escape(name) + r'\n', text)
+              digest = hashlib.new(algorithm)
+              with bundle.open('rb') as stream:
+                  for block in iter(lambda: stream.read(1024 * 1024), b''):
+                      digest.update(block)
+              if match is None or match.group(1) != digest.hexdigest():
+                  raise SystemExit('Transport checksum mismatch')
+          destination = root / 'net10-verified'
+          if destination.exists() or destination.is_symlink():
+              raise SystemExit('Refusing an existing extraction path')
+          with tarfile.open(bundle, 'r:gz') as archive:
+              entries = archive.getmembers()
+              seen = set()
+              total = 0
+              for entry in entries:
+                  name = entry.name[:-1] if entry.isdir() and entry.name.endswith('/') else entry.name
+                  path = PurePosixPath(name)
+                  if (not name or not path.parts or path.is_absolute() or posixpath.normpath(name) != name or '\\' in name or
+                      '..' in path.parts or path.parts[0] != '10.0.403-linux-arm64' or name in seen or
+                      not (entry.isdir() or entry.isfile())):
+                      raise SystemExit('Unsafe or duplicate outer bundle member')
+                  if name == '10.0.403-linux-arm64' and not entry.isdir():
+                      raise SystemExit('The release root must be a directory')
+                  seen.add(name)
+                  total += entry.size
+              if len(entries) > 100000 or total + 512 * 1024**2 > shutil.disk_usage(root).free:
+                  raise SystemExit('Insufficient extraction capacity')
+              destination.mkdir(mode=0o700)
+              for entry in entries:
+                  path = destination / entry.name
+                  if entry.isdir():
+                      path.mkdir(parents=True, exist_ok=True)
+                  else:
+                      path.parent.mkdir(parents=True, exist_ok=True)
+                      with archive.extractfile(entry) as source, path.open('xb') as output:
+                          shutil.copyfileobj(source, output)
+                  os.chmod(path, entry.mode & 0o777)
+          PY
+
+      - name: Revalidate every delivered byte and validation gate
+        run: |
+          /usr/bin/python3 scripts/ci-net10-evidence.py verify-release \
+            --release-dir "$RUNNER_TEMP/net10-verified/10.0.403-linux-arm64" \
+            --expected-project-commit "$GITHUB_SHA" --expected-run-id "$GITHUB_RUN_ID" \
+            --expected-run-attempt "$GITHUB_RUN_ATTEMPT"
+
+      - name: Create a new unpublished draft without overwriting any tag or release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          tag="sdk-10.0.403-linux-arm64-run-$GITHUB_RUN_ID-attempt-$GITHUB_RUN_ATTEMPT"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo 'Refusing an existing release.' >&2; exit 1
+          fi
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" > /dev/null; then
+            echo 'Refusing an existing tag.' >&2; exit 1
+          else
+            code=$?
+            [[ $code == 2 ]] || exit "$code"
+          fi
+          release="$RUNNER_TEMP/net10-verified/10.0.403-linux-arm64"
+          notes="$RUNNER_TEMP/net10-draft-notes.md"
+          {
+            echo 'Community .NET SDK 10.0.403 for native Linux ARM64.'
+            echo
+            echo "Orchestration commit: $GITHUB_SHA"
+            echo "Upstream VMR: 5a2162bea6845eabc1fc721624a43568c65db3b1"
+            echo "Workflow run: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            echo 'The regular 4xx build reuses the exact upstream shared runtime/ASP.NET inputs.'
+            echo 'The build, pristine-source scan, upstream tests and three native user-space gates passed.'
+            echo 'This is a draft; publication requires a separate deliberate action.'
+            echo 'Draft assets remain mutable; this workflow never overwrites existing assets or tags.'
+          } > "$notes"
+          assets=("$release"/cbodotnet-sdk-10.0.403-linux-arm64-build.*.tar.gz)
+          [[ ${#assets[@]} == 1 && -f ${assets[0]} ]]
+          assets+=("$release/SHA256SUMS" "$release/SHA512SUMS" "$release/build-manifest.json"
+            "$release/collect-receipt.json" "$release/ci-validation.json")
+          for path in "$RUNNER_TEMP/net10-download"/*; do assets+=("$path"); done
+          for path in "${assets[@]}"; do
+            [[ -f $path && ! -L $path && $(stat -c %s -- "$path") -lt 2147483648 ]] || {
+              echo 'A release asset is missing, linked or exceeds the under-2-GiB limit.' >&2; exit 1;
+            }
+          done
+          gh release create "$tag" "${assets[@]}" --draft --latest=false \
+            --target "$GITHUB_SHA" --title '.NET SDK 10.0.403 Linux ARM64 community build' \
+            --notes-file "$notes"
+          [[ $(gh release view "$tag" --json isDraft --jq .isDraft) == true ]]
