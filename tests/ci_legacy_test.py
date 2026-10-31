@@ -299,6 +299,88 @@ class LegacyFixtures(unittest.TestCase):
             with self.subTest(key=key), self.assertRaises(ValueError):
                 gate.cold_feed_proof(changed, retry.COMMIT)
 
+    def component_runner(self):
+        runner = driver.CI.__new__(driver.CI)
+        runner.source = self.root / 'source'; runner.source.mkdir()
+        runner.layout = 'bin'; runner.family = 'core30'; runner.workspace = self.root / 'workspace'
+        runner.output = self.root / 'output'; runner.reports = runner.output / 'reports'
+        (runner.reports / 'build').mkdir(parents=True)
+        runner.snapshot = self.root / 'frozen'; runner.log = io.StringIO()
+        runner.product_command = lambda *_: ['isolated-fake-producer']
+        archive = self.root / 'sdk-fixture'; archive.write_bytes(b'not a product SDK; control-flow fixture')
+        runner.raw_sdk = lambda: archive
+        return runner
+
+    def test_component_logs_are_byte_exact_and_scoped(self):
+        runner = self.component_runner(); logs = runner.source / 'bin/logs'; (logs / 'nested').mkdir(parents=True)
+        (logs / 'roslyn.log').write_bytes(b'actual producer exit139\n')
+        (logs / 'nested/pack.binlog').write_bytes(b'actual binary log\0bytes')
+        (logs / 'unrelated.nupkg').write_bytes(b'not a log')
+        result = driver.capture_component_logs(runner.source, runner.layout, runner.reports)
+        self.assertEqual(result['status'], 'captured'); self.assertEqual(result['selectedFileCount'], 2)
+        for row in result['files']:
+            self.assertEqual((runner.output / row['path']).read_bytes(), Path(row['original']).read_bytes())
+        self.assertFalse((runner.reports / 'build/component-logs/unrelated.nupkg').exists())
+
+    def test_failed_producer_keeps_original_exception_and_captures_logs(self):
+        runner = self.component_runner(); logs = runner.source / 'bin/logs'; logs.mkdir(parents=True)
+        (logs / 'roslyn.log').write_text('Segmentation fault\n')
+        failure = RuntimeError('original producer exit139')
+        runner.container = mock.Mock(side_effect=failure)
+        observer = mock.Mock(); observer.wait.return_value = 0
+        with mock.patch.object(driver.subprocess, 'Popen', return_value=observer):
+            with self.assertRaises(RuntimeError) as raised:
+                runner.build()
+        self.assertIs(raised.exception, failure)
+        self.assertEqual(runner.container.call_count, 1)
+        self.assertEqual((runner.reports / 'build/component-logs/roslyn.log').read_text(), 'Segmentation fault\n')
+
+    def test_missing_component_logs_are_reported_without_masking_failure(self):
+        runner = self.component_runner(); failure = RuntimeError('before component logs')
+        runner.container = mock.Mock(side_effect=failure)
+        observer = mock.Mock(); observer.wait.return_value = 0
+        with mock.patch.object(driver.subprocess, 'Popen', return_value=observer):
+            with self.assertRaises(RuntimeError) as raised:
+                runner.build()
+        self.assertIs(raised.exception, failure)
+        receipt = json.loads((runner.reports / 'build/component-log-capture.json').read_text())
+        self.assertEqual(receipt['status'], 'not-produced'); self.assertEqual(receipt['files'], [])
+        self.assertFalse((runner.source / 'bin/logs').exists())
+
+    def test_log_capture_rejects_links_and_preserves_producer_failure(self):
+        runner = self.component_runner(); logs = runner.source / 'bin/logs'; logs.mkdir(parents=True)
+        outside = self.root / 'outside.log'; outside.write_text('never copy outside declared logs')
+        (logs / 'linked.log').symlink_to(outside)
+        failure = RuntimeError('original producer failure')
+        runner.container = mock.Mock(side_effect=failure)
+        observer = mock.Mock(); observer.wait.return_value = 0
+        with mock.patch.object(driver.subprocess, 'Popen', return_value=observer):
+            with self.assertRaises(RuntimeError) as raised:
+                runner.build()
+        self.assertIs(raised.exception, failure)
+        receipt = json.loads((runner.reports / 'build/component-log-capture.json').read_text())
+        self.assertEqual(receipt['status'], 'failed'); self.assertEqual(receipt['files'], [])
+        self.assertFalse((runner.reports / 'build/component-logs').exists())
+        self.assertEqual(outside.read_text(), 'never copy outside declared logs')
+
+    def test_log_capture_failure_does_not_replace_successful_producer_status(self):
+        runner = self.component_runner(); runner.container = mock.Mock()
+        observer = mock.Mock(); observer.wait.return_value = 0
+        with mock.patch.object(driver.subprocess, 'Popen', return_value=observer), mock.patch.object(driver, 'capture_component_logs', side_effect=OSError('diagnostic copy failed')):
+            runner.build()
+        self.assertEqual(runner.container.call_count, 1)
+        self.assertIn('Component log capture failed', runner.log.getvalue())
+
+    def test_unwritable_diagnostic_warning_keeps_original_producer_exception(self):
+        runner = self.component_runner(); failure = RuntimeError('original producer failure')
+        runner.container = mock.Mock(side_effect=failure)
+        runner.log = mock.Mock(); runner.log.write.side_effect = OSError('full diagnostic volume')
+        observer = mock.Mock(); observer.wait.return_value = 0
+        with mock.patch.object(driver.subprocess, 'Popen', return_value=observer), mock.patch.object(driver, 'capture_component_logs', side_effect=OSError('cannot preserve log')):
+            with self.assertRaises(RuntimeError) as raised:
+                runner.build()
+        self.assertIs(raised.exception, failure)
+
 
 if __name__ == '__main__':
     unittest.main()

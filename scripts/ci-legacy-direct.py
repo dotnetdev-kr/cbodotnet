@@ -83,6 +83,45 @@ def download(url, target, expected, report):
     write(report, dict(status='passed', url=url, path=str(target), **actual))
 
 
+def capture_component_logs(source, layout, reports):
+    """Retain closed root component logs without altering any producer files."""
+    require(layout in ('bin', 'artifacts'), 'Unknown legacy log layout')
+    root = ordinary(source / layout / 'logs')
+    destination = ordinary(reports / 'build/component-logs')
+    receipt = ordinary(reports / 'build/component-log-capture.json')
+    result = {'schemaVersion': 1, 'sourceLogRoot': str(root), 'files': [],
+              'scope': 'Copies of completed root component .log/.binlog files only; no SDK/source/cache writes or product retry.'}
+    require(not receipt.exists() and not receipt.is_symlink(), 'Component log receipt must be fresh')
+    try:
+        if not root.exists():
+            result.update(status='not-produced', sourceLogRootExists=False,
+                          reason='The product action ended before its root component log directory existed.')
+            return result
+        require(root.is_dir(), 'The root component log path is not a directory')
+        entries = sorted(root.rglob('*'))
+        require(all(not path.is_symlink() and (path.is_dir() or path.is_file()) for path in entries),
+                'Component logs contain linked or special entries')
+        require(not destination.exists() and not destination.is_symlink(), 'Component log copies must use a fresh destination')
+        selected = [path for path in entries if path.is_file() and path.suffix.lower() in ('.log', '.binlog')]
+        destination.mkdir(parents=True)
+        for path in selected:
+            relative = path.relative_to(root); before = fingerprint(path)
+            target = destination / relative; target.parent.mkdir(parents=True, exist_ok=True)
+            with path.open('rb') as incoming, target.open('xb') as output:
+                shutil.copyfileobj(incoming, output, 1024 * 1024)
+            require(fingerprint(path) == before and fingerprint(target) == before,
+                    'A component log changed during preservation: ' + str(path))
+            result['files'].append(dict(path=target.relative_to(reports.parent).as_posix(), original=str(path), **before))
+        result.update(status='captured' if selected else 'empty', sourceLogRootExists=True,
+                      selectedFileCount=len(selected), sourceLogFilesUnchanged=True)
+        return result
+    except Exception as error:
+        result.update(status='failed', error=str(error))
+        raise
+    finally:
+        write(receipt, result)
+
+
 class CI:
     def __init__(self, args):
         self.args = args
@@ -274,11 +313,30 @@ class CI:
         observer = subprocess.Popen([sys.executable, str(self.snapshot / 'scripts/ci-legacy-origin.py'), 'observe',
                                      '--family', self.family, '--source-dir', str(self.source), '--output-dir', str(self.output),
                                      '--workspace', str(self.workspace)])
+        failure = None; traceback = None; observer_failure = None
         try:
             self.container(self.product_command('build', self.reports / 'build/product'))
+        except BaseException as error:
+            failure, traceback = error, sys.exc_info()[2]
         finally:
-            observer.terminate()
-            require(observer.wait(timeout=30) == 0, 'The consumer observer failed')
+            try:
+                observer.terminate()
+                require(observer.wait(timeout=30) == 0, 'The consumer observer failed')
+            except Exception as error:
+                observer_failure = error
+            try:
+                capture_component_logs(self.source, self.layout, self.reports)
+            except Exception as error:
+                # Diagnostic retention must never replace the producing command's
+                # actual exception/exit status. Its separate receipt records failure.
+                try:
+                    self.log.write('Component log capture failed: ' + str(error) + '\n'); self.log.flush()
+                except Exception:
+                    pass
+        if failure is not None:
+            raise failure.with_traceback(traceback)
+        if observer_failure is not None:
+            raise observer_failure
         fingerprint(self.raw_sdk())
 
     def scan(self):
