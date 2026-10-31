@@ -306,6 +306,76 @@ class LegacyFixtures(unittest.TestCase):
                     with self.assertRaisesRegex(ValueError, 'isolated test root'):
                         exec(code, dict(context, root=self.root / 'outside' / reports.name))
 
+    def test_official_sdk_transport_diagnostics_keep_exact_integrity(self):
+        expected = b'\x1f\x8bexact SDK response fixture'
+        for name, status, body in (('partial206', 206, expected[:7]), ('short200', 200, expected[:9]),
+                                   ('html200', 200, b'<html>unexpected CDN response</html>'), ('exact200', 200, expected)):
+            with self.subTest(response=name):
+                inputs = self.root / name / 'inputs'; reports = self.root / name / 'reports'
+                inputs.mkdir(parents=True); reports.mkdir()
+                response = io.BytesIO(body)
+                response.getcode = lambda status=status: status
+                response.geturl = lambda: bootstrap.SDK_URL + '?unrecorded-credential=value'
+                response.headers = {'Content-Length': str(len(body)), 'Content-Type': 'application/octet-stream',
+                                    'Content-Range': 'bytes 0-6/' + str(len(expected)) if status == 206 else None,
+                                    'Set-Cookie': 'unrecorded-cookie', 'Authorization': 'unrecorded-token'}
+                with mock.patch.object(bootstrap, 'SDK_SHA512', hashlib.sha512(expected).hexdigest()), \
+                        mock.patch.object(bootstrap, 'SDK_BYTES', len(expected)), \
+                        mock.patch.object(bootstrap.urllib.request, 'urlopen', return_value=response) as download:
+                    if name == 'exact200':
+                        target, info = bootstrap.official_sdk_archive(inputs, reports)
+                        self.assertEqual(target.read_bytes(), expected)
+                        self.assertEqual(info['sha512'], hashlib.sha512(expected).hexdigest())
+                    else:
+                        with self.assertRaisesRegex(ValueError, 'differs from official release metadata'):
+                            bootstrap.official_sdk_archive(inputs, reports)
+                        self.assertFalse((inputs / 'official-sdk' / bootstrap.SDK_NAME).exists())
+                        self.assertEqual((reports / 'rejected-sdk-download.bin').read_bytes(), body)
+                    self.assertEqual(download.call_count, 1)
+                receipt = json.loads((reports / 'sdk-download.json').read_text())
+                self.assertEqual(receipt['httpStatus'], status)
+                self.assertEqual(receipt['responseBody']['bytes'], len(body))
+                self.assertEqual(receipt['responseBody']['sha512'], hashlib.sha512(body).hexdigest())
+                self.assertEqual(receipt['expectedBytes'], len(expected))
+                self.assertEqual(receipt['hashMatchesOfficialMetadata'], name == 'exact200')
+                self.assertEqual(receipt['status'], 'passed' if name == 'exact200' else 'rejected')
+                self.assertTrue(receipt['finalUrlQueryOmitted'])
+                self.assertNotIn('unrecorded-', (reports / 'sdk-download.json').read_text())
+                self.assertEqual(list((inputs / 'official-sdk').glob('.core30-sdk-download-*')), [])
+
+    def test_sdk_download_diagnostics_refuse_existing_controls_and_links(self):
+        outside = self.root / 'outside'; outside.write_bytes(b'never overwrite')
+        for name, kind in (('sdk-download.json', 'file'), ('rejected-sdk-download.bin', 'file'),
+                           ('sdk-download.json', 'link'), ('rejected-sdk-download.bin', 'link')):
+            reports = self.root / (name + '-' + kind); reports.mkdir()
+            path = reports / name
+            path.symlink_to(outside) if kind == 'link' else path.write_bytes(b'original control')
+            with mock.patch.object(bootstrap.urllib.request, 'urlopen') as download:
+                with self.assertRaisesRegex(ValueError, 'existing SDK download diagnostics'):
+                    bootstrap.official_sdk_archive(self.root / 'unused-inputs', reports)
+                download.assert_not_called()
+            self.assertEqual(outside.read_bytes(), b'never overwrite')
+            self.assertEqual(path.read_bytes(), b'never overwrite' if kind == 'link' else b'original control')
+        linked_reports = self.root / 'linked-reports'; linked_reports.symlink_to(reports, target_is_directory=True)
+        with mock.patch.object(bootstrap.urllib.request, 'urlopen') as download:
+            with self.assertRaisesRegex(ValueError, 'symlink'):
+                bootstrap.official_sdk_archive(self.root / 'unused-inputs', linked_reports)
+            download.assert_not_called()
+
+    def test_existing_sdk_input_is_never_overwritten_or_followed(self):
+        for kind in ('file', 'link'):
+            inputs = self.root / kind / 'inputs'; reports = self.root / kind / 'reports'
+            cache = inputs / 'official-sdk'; cache.mkdir(parents=True); reports.mkdir()
+            outside = self.root / ('sdk-outside-' + kind); outside.write_bytes(b'original unverified archive')
+            target = cache / bootstrap.SDK_NAME
+            target.symlink_to(outside) if kind == 'link' else target.write_bytes(outside.read_bytes())
+            with mock.patch.object(bootstrap.urllib.request, 'urlopen') as download:
+                with self.assertRaises(ValueError):
+                    bootstrap.official_sdk_archive(inputs, reports)
+                download.assert_not_called()
+            self.assertEqual(target.read_bytes(), b'original unverified archive')
+            self.assertEqual(outside.read_bytes(), b'original unverified archive')
+
     def test_real_cold_helper_report_and_gate_require_absence_without_outputs(self):
         source = self.root / 'empty-source'; source.mkdir()
         inputs = self.root / 'inputs'; inputs.mkdir()

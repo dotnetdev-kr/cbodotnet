@@ -14,11 +14,13 @@ import os
 from pathlib import Path, PurePosixPath
 import platform
 import shlex
+import shutil
 import stat
 import subprocess
 import tarfile
 import tempfile
 import urllib.request
+import urllib.parse
 import uuid
 import xml.etree.ElementTree as ET
 import zipfile
@@ -30,6 +32,7 @@ SDK_VERSION = "3.0.100"
 SDK_NAME = "dotnet-sdk-3.0.100-linux-arm64.tar.gz"
 SDK_URL = "https://builds.dotnet.microsoft.com/dotnet/Sdk/3.0.100/" + SDK_NAME
 SDK_SHA512 = "18c3bc07c4486381f54d4b40eb8401bf56c14fef5febc4639e3134d74ce66172d1e66c2dea9684ad727f08e9dd7e89d74535a8642fb2a2203445483293f3b3c3"
+SDK_BYTES = 113669548
 PSB_NAME = "Private.SourceBuilt.Artifacts.0.1.0-3.0.100.tar.gz"
 PSB_BYTES = 469688508
 PSB_SHA256 = "e8542ab2d6c4383b8c2aee8cdb86cd1952a542f8633df57082054bf48588a09b"
@@ -211,16 +214,40 @@ def extract_sdk(archive, stage):
         raise ValueError("The SDK archive lacks the pinned driver and SDK")
 
 
-def official_sdk_archive(inputs):
+def official_sdk_archive(inputs, reports=None):
+    diagnostics = directory(reports) if reports is not None else None
+    if diagnostics:
+        for name in ("sdk-download.json", "rejected-sdk-download.bin"):
+            path = diagnostics / name
+            if path.exists() or path.is_symlink():
+                raise ValueError("Refusing existing SDK download diagnostics: " + str(path))
+    receipt = {"schemaVersion": 1, "requestUrl": SDK_URL, "expectedBytes": SDK_BYTES,
+               "expectedSha512": SDK_SHA512, "startedAtUtc": now(), "status": "running",
+               "downloadAttempted": False,
+               "scope": "One official SDK response or retained archive. Exact original SHA-512 remains mandatory; no retries, alternate URLs or product execution."}
     cache = directory(inputs / "official-sdk", create=True)
     target = cache / SDK_NAME
-    if not target.exists() and not target.is_symlink():
-        descriptor, temporary = tempfile.mkstemp(prefix=".core30-sdk-download-", dir=str(cache))
-        os.close(descriptor)
-        staged = Path(temporary)
-        try:
+    staged, failure = None, None
+    try:
+        if not target.exists() and not target.is_symlink():
+            descriptor, temporary = tempfile.mkstemp(prefix=".core30-sdk-download-", dir=str(cache))
+            os.close(descriptor)
+            staged = Path(temporary)
+            receipt["downloadAttempted"] = True
             with urllib.request.urlopen(SDK_URL, timeout=120) as response, staged.open("wb") as output:
-                if not response.geturl().startswith("https://"):
+                final_url = response.geturl()
+                parsed = urllib.parse.urlsplit(final_url)
+                safe_host = parsed.hostname or ""
+                if parsed.port:
+                    safe_host += ":" + str(parsed.port)
+                headers = ("Content-Type", "Content-Length", "Content-Range", "Content-Encoding", "ETag",
+                           "Last-Modified", "Date", "Server", "Age", "Via", "X-Cache", "X-Cache-Hits",
+                           "Cache-Control", "Transfer-Encoding")
+                receipt.update({"httpStatus": response.getcode(),
+                                "finalUrl": urllib.parse.urlunsplit((parsed.scheme, safe_host, parsed.path, "", "")),
+                                "finalUrlQueryOmitted": bool(parsed.query),
+                                "responseHeaders": {name: response.headers.get(name) for name in headers}})
+                if not final_url.startswith("https://"):
                     raise ValueError("The official SDK URL redirected outside HTTPS")
                 size = 0
                 for data in iter(lambda: response.read(1024 * 1024), b""):
@@ -228,18 +255,48 @@ def official_sdk_archive(inputs):
                     if size > 1024 * 1024 * 1024:
                         raise ValueError("The SDK download exceeds the input size bound")
                     output.write(data)
-            if fingerprint(staged)["sha512"] != SDK_SHA512:
+            response_info = fingerprint(staged)
+            receipt.update({"responseBody": response_info,
+                            "hashMatchesOfficialMetadata": response_info["sha512"] == SDK_SHA512})
+            if response_info["sha512"] != SDK_SHA512:
                 raise ValueError("The downloaded SDK differs from official release metadata")
             try:
                 os.link(str(staged), str(target))
             except FileExistsError:
                 pass
-        finally:
+        record = fingerprint(ordinary_file(target))
+        if record["sha512"] != SDK_SHA512:
+            raise ValueError("The retained SDK archive differs from official release metadata")
+        receipt.update({"status": "passed", "archive": record, "hashMatchesOfficialMetadata": True})
+        return target, record
+    except Exception as error:
+        failure = error
+        receipt.update({"status": "rejected", "error": str(error)})
+        if staged is not None and staged.is_file():
+            try:
+                response_info = fingerprint(ordinary_file(staged))
+                receipt.update({"responseBody": response_info,
+                                "hashMatchesOfficialMetadata": response_info["sha512"] == SDK_SHA512})
+                if diagnostics:
+                    rejected = diagnostics / "rejected-sdk-download.bin"
+                    with staged.open("rb") as source, rejected.open("xb") as output:
+                        shutil.copyfileobj(source, output, 1024 * 1024)
+                    if fingerprint(staged) != response_info or fingerprint(rejected) != response_info:
+                        raise ValueError("Rejected SDK response changed during preservation")
+                    receipt["rejectedResponse"] = dict({"path": rejected.name}, **response_info)
+            except Exception as diagnostic_error:
+                receipt["diagnosticError"] = str(diagnostic_error)
+        raise
+    finally:
+        if staged is not None:
             staged.unlink()
-    record = fingerprint(ordinary_file(target))
-    if record["sha512"] != SDK_SHA512:
-        raise ValueError("The retained SDK archive differs from official release metadata")
-    return target, record
+        if diagnostics:
+            receipt["finishedAtUtc"] = now()
+            try:
+                write_json(diagnostics / "sdk-download.json", receipt)
+            except Exception:
+                if failure is None:
+                    raise
 
 
 def retained_arcade(inputs, state):
@@ -444,7 +501,7 @@ def main():
             ordinary_file(inputs / "bootstrap-packages" / ARCADE_NAME)
             directory(inputs / "bootstrap-packages/microsoft.dotnet.arcade.sdk" / ARCADE_VERSION)
             directory(source / ".dotnet")
-        sdk_archive, sdk_info = official_sdk_archive(inputs)
+        sdk_archive, sdk_info = official_sdk_archive(inputs, reports)
         arcade, arcade_archive, arcade_info, psb_info = retained_arcade(inputs, state)
         sdk, sdk_receipt = sdk_tree(source, inputs, state, sdk_archive, sdk_info)
         contract = environment_contract(source, inputs, sdk, arcade)
