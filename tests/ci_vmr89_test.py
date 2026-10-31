@@ -396,6 +396,29 @@ class Tests(unittest.TestCase):
             with contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(S.qualify(fixture.args()),0);self.assertEqual(S.qualify(fixture.args('verify-release')),0)
 
+    def test_portable_gate_accepts_later_trusted_checkout_without_skipping_frozen_authentication(self):
+        fixture=FullFixture(self.root/'portable-producer','8')
+        frozen=fixture.release/'reports/ci-inputs/project';project=self.root/'trusted-checkout';shutil.copytree(frozen,project)
+        def git(*args,input=None):return subprocess.check_output(['git','-C',str(project),*args],input=input)
+        git('init','-q');git('config','user.name','Fixture');git('config','user.email','fixture@example.invalid');git('add','.')
+        original_commit=(fixture.release/'reports/ci-inputs/project-commit.txt').read_bytes()
+        git('write-tree');actual=git('hash-object','-t','commit','-w','--stdin',input=original_commit).decode().strip()
+        self.assertEqual(actual,fixture.identity['projectCommit']);git('update-ref','HEAD',actual)
+        live=fixture.args();live.project_root=project
+        with contextlib.redirect_stdout(io.StringIO()):self.assertEqual(S.qualify(live),0)
+        target=project/'scripts/ci-net10.sh';target.write_text(target.read_text()+'\n# Uncommitted live change\n')
+        with self.assertRaisesRegex(ValueError,'does not clean'):
+            S.qualify(live)
+        git('add','.');git('commit','-qm','Later trusted verifier checkout')
+        self.assertNotEqual(git('rev-parse','HEAD').decode().strip(),fixture.identity['projectCommit'])
+        with self.assertRaisesRegex(ValueError,'Live orchestration commit differs'):
+            S.qualify(live)
+        portable=fixture.args('verify-release');portable.project_root=project
+        with contextlib.redirect_stdout(io.StringIO()):self.assertEqual(S.qualify(portable),0)
+        original=frozen/'scripts/ci-net10.sh';original.write_text(original.read_text()+'\n# Forged old frozen input\n')
+        with self.assertRaisesRegex(ValueError,'Evidence digest mismatch'):
+            S.qualify(portable)
+
     def test_complete_gate_rejects_sdk_tamper_and_missing_used_source(self):
         fixture=FullFixture(self.root,'8');source=fixture.release/'sources/source-manifest.json';original=source.read_bytes();source.unlink()
         with self.assertRaises(ValueError):S.qualify(fixture.args())

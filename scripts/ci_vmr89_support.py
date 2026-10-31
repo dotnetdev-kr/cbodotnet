@@ -432,6 +432,7 @@ def verify_frozen(release, version, project=None):
     frozen = release / 'reports/ci-inputs/project'
     require(names == {p.relative_to(frozen).as_posix() for p in G.tree_files(frozen)}, 'Frozen project membership differs')
     if project is not None:
+        require(git(project, 'rev-parse', 'HEAD') == snapshot['projectCommit'], 'Live orchestration commit differs from the frozen producer')
         for row in snapshot['projectFiles']:
             name = row['path'][len('reports/ci-inputs/project/'):]
             require(G.checkout_details(project, name, row['gitBlobSha1'], checked(release, row).read_bytes()) ==
@@ -484,7 +485,10 @@ exec bash /delivery/reports/ci-inputs/project/scripts/verify-sdk.sh \
 
 def qualify(args):
     version, release = args.version, args.output_dir.absolute()
-    snapshot = verify_frozen(release, version, args.project_root.absolute() if args.project_root is not None else None)
+    # A portable download is checked by trusted current code, not by requiring
+    # that its historical producer inputs equal today's trusted working tree.
+    project = args.project_root.absolute() if args.stage == 'validate' and args.project_root is not None else None
+    snapshot = verify_frozen(release, version, project)
     require(snapshot['executionContext'] == 'github-actions', 'Only actual GitHub Actions evidence qualifies')
     require(all(isinstance(snapshot[key],str) and re.fullmatch('[1-9][0-9]*',snapshot[key]) for key in ('runId','runAttempt','buildRevision'))
             and re.fullmatch(r'20\d{6}\.[1-9]\d*',snapshot['buildId']), 'Valid actual CI build/run identity required')
