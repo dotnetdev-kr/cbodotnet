@@ -14,6 +14,8 @@ import tarfile
 import tempfile
 import time
 import unittest
+from unittest import mock
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -27,6 +29,8 @@ def module(name):
 origin = module('ci-legacy-origin')
 gate = module('ci-legacy-evidence')
 driver = module('ci-legacy-direct')
+retry = module('prepare-core30-retry')
+bootstrap = module('prepare-core30-bootstrap')
 
 
 class LegacyFixtures(unittest.TestCase):
@@ -218,6 +222,81 @@ class LegacyFixtures(unittest.TestCase):
         for index, row in enumerate(result['keyrings']):
             self.assertEqual(row['sha256'], keys[index]['sha256'])
             self.assertEqual((reports / ('signing-keyring-' + str(index) + '.gpg')).read_bytes(), Path(keys[index]['path']).read_bytes())
+
+    def inspect_feed(self, path, allow=False):
+        return retry.inspect_feed(path, allow, bootstrap.directory, bootstrap.ordinary_file, bootstrap.fingerprint)
+
+    def test_explicit_cold_feed_opt_in_never_creates_synthetic_outputs(self):
+        source = self.root / 'source'; source.mkdir()
+        feed = source / 'bin/obj/arm64/Release/blob-feed/packages'
+        with self.assertRaises(ValueError):
+            self.inspect_feed(feed)
+        entries, absent = self.inspect_feed(feed, True)
+        self.assertEqual(entries, [])
+        self.assertIs(absent, True)
+        self.assertEqual(list(source.iterdir()), [])
+
+    def test_existing_empty_feed_preserves_default_retry_semantics(self):
+        feed = self.root / 'packages'; feed.mkdir()
+        for allow in (False, True):
+            self.assertEqual(self.inspect_feed(feed, allow), ([], False))
+
+    def test_cold_opt_in_does_not_accept_linked_or_malformed_feeds(self):
+        target = self.root / 'target'; target.mkdir()
+        link = self.root / 'linked'; link.symlink_to(target, target_is_directory=True)
+        with self.assertRaises(ValueError):
+            self.inspect_feed(link / 'packages', True)
+        (target / 'unexpected.txt').write_text('not a source-built package')
+        with self.assertRaises(ValueError):
+            self.inspect_feed(target, True)
+
+    def test_cold_opt_in_retains_existing_package_producer_proof(self):
+        feed = self.root / 'packages'; feed.mkdir()
+        package = feed / 'Unproven.1.0.0.nupkg'
+        with zipfile.ZipFile(package, 'w') as archive:
+            archive.writestr('Unproven.nuspec', '<package><metadata><id>Unproven</id><version>1.0.0</version></metadata></package>')
+        entries, absent = self.inspect_feed(feed, True)
+        self.assertIs(absent, False)
+        self.assertEqual(len(entries), 1)
+        destination = self.root / 'quarantine'; destination.mkdir()
+        with self.assertRaises(retry.UnprovenPackagesError):
+            retry.package_plan(entries, {package.name: []}, destination)
+        self.assertTrue(package.is_file())
+        self.assertEqual(list(destination.iterdir()), [])
+
+    def test_only_core30_ci_build_opts_into_cold_feed(self):
+        for family in ('net5', 'core31', 'core30'):
+            runner = driver.CI.__new__(driver.CI)
+            runner.family = family; runner.source = self.root / 'source'; runner.inputs = self.root / 'inputs'
+            runner.snapshot = self.root / 'frozen'; runner.profile = self.root / 'profile.json'; runner.reports = self.root / family
+            runner.product = driver.CONFIG[family][4]; runner.cpus = '0,1'; runner.raw_sdk = lambda: self.root / 'sdk.tar.gz'
+            for action in ('prepare', 'build', 'test'):
+                command = runner.product_command(action, self.root / family / action / 'product')
+                self.assertEqual('--allow-cold-feed' in command, family == 'core30' and action == 'build')
+
+    def test_real_cold_helper_report_and_gate_require_absence_without_outputs(self):
+        source = self.root / 'empty-source'; source.mkdir()
+        inputs = self.root / 'inputs'; inputs.mkdir()
+        reports = self.root / 'reports'; reports.mkdir()
+        arguments = ['prepare-core30-retry.py', '--source-dir', str(source), '--inputs-dir', str(inputs),
+                     '--reports-dir', str(reports), '--profile', str(self.root / 'profile.json'), '--allow-cold-feed']
+        # Isolate only the external pinned-source verifier. All directory
+        # inspection, branching, report generation and portable gate code runs.
+        def external(path):
+            if str(path).endswith('prepare-core30-bootstrap.py'):
+                return vars(bootstrap)
+            return {'verify': lambda *_: {'sourceCommit': retry.COMMIT}}
+        with mock.patch.object(sys, 'argv', arguments), mock.patch.object(retry.runpy, 'run_path', side_effect=external):
+            self.assertEqual(retry.main(), 0)
+        result = json.loads((reports / 'core30-retry-inputs.json').read_text())
+        gate.cold_feed_proof(result, retry.COMMIT)
+        self.assertEqual(list(source.iterdir()), [])
+        self.assertEqual(list(inputs.iterdir()), [])
+        for key, value in (('feedInitiallyAbsent', False), ('planOnly', True), ('syntheticPackageOutputsCreated', True),
+                           ('publishedPackagesQuarantined', 1), ('moved', [{'original': 'old'}])):
+            changed = copy.deepcopy(result); changed[key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                gate.cold_feed_proof(changed, retry.COMMIT)
 
 
 if __name__ == '__main__':

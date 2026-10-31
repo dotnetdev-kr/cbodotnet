@@ -217,6 +217,8 @@ class CI:
             command += ['--root-pipeline-logger', 'true']
         if self.family == 'core30' and action == 'test':
             command += ['--sdk-archive', self.raw_sdk()]
+        if self.family == 'core30' and action == 'build':
+            command += ['--allow-cold-feed', 'true']
         return command
 
     def raw_sdk(self):

@@ -10,6 +10,7 @@ action=build
 cpu_affinity=2,3
 max_cpu=2
 sdk_archive=''
+allow_cold_feed=false
 while (($#)); do
   (($# >= 2)) || { echo 'Every option requires a value.' >&2; exit 2; }
   case "$1" in
@@ -22,11 +23,14 @@ while (($#)); do
     --cpu-affinity) cpu_affinity=$2 ;;
     --max-cpu-count) max_cpu=$2 ;;
     --sdk-archive) sdk_archive=$2 ;;
+    --allow-cold-feed) allow_cold_feed=$2 ;;
     *) echo "Unknown option: $1" >&2; exit 2 ;;
   esac
   shift 2
 done
 [[ $action == acquire || $action == prepare || $action == build || $action == test ]]
+[[ $allow_cold_feed == true || $allow_cold_feed == false ]]
+[[ $allow_cold_feed == false || $action == build ]]
 [[ $(uname -s) == Linux && $(uname -m) == aarch64 && $(id -u) != 0 ]]
 [[ $max_cpu == 2 && $cpu_affinity =~ ^[0-9]+,[0-9]+$ ]]
 for path in "$source_dir" "$inputs_dir" "$reports_dir" "$profile"; do
@@ -130,7 +134,9 @@ else
   python3 "$helpers/prepare-core30-framework-refs.py" --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir/net472-references" --profile "$profile"
   mkdir "$reports_dir/genapi-validation"
   mkdir "$reports_dir/retry-inputs"
-  python3 "$helpers/prepare-core30-retry.py" --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir/retry-inputs" --profile "$profile"
+  retry_args=(python3 "$helpers/prepare-core30-retry.py" --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir/retry-inputs" --profile "$profile")
+  [[ $allow_cold_feed != true ]] || retry_args+=(--allow-cold-feed)
+  "${retry_args[@]}"
   # Arcade's old shell driver reparses whitespace in MSBuild properties. Give
   # it a single executable path; the wrapper retains the frozen argument list
   # and passes upstream FetchSources' appended arguments through unchanged.

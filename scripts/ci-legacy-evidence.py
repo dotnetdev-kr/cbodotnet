@@ -87,6 +87,15 @@ def snapshot_tree(release, rows):
     return digest(tree)
 
 
+def cold_feed_proof(cold, commit):
+    require(cold['status'] == 'passed' and cold['sourceCommit'] == commit and cold['planOnly'] is False
+            and cold['allowColdFeed'] is True and cold['feedInitiallyAbsent'] is True and cold['emptyFeed'] is True
+            and cold['publishedPackagesProven'] == cold['publishedPackagesQuarantined'] == 0
+            and cold['packages'] == cold['moved'] == [] and cold['recoveryDirectory'] is None
+            and cold['feedCreated'] is False and cold['syntheticPackageOutputsCreated'] is False,
+            'Fresh Core3.0 CI must begin with a genuinely absent feed and no historical package quarantine')
+
+
 def validate(release, family, expected):
     sdk, runtime, commit = CONFIG[family]
     require(release.is_absolute() and release.is_dir() and not any(p.is_symlink() for p in [release] + list(release.parents)), 'Ordinary release directory required')
@@ -168,6 +177,8 @@ def validate(release, family, expected):
     require(tests['status'] == 'passed' and tests['upstreamExitCode'] == 0 and tests['suiteExclusions'] == []
             and tests['sdkArchive']['sha256'] == archive['sha256'], 'Complete upstream suite did not pass on the delivered SDK')
     if family == 'core30':
+        cold = load(member(release, 'reports/build/product-build/retry-inputs/core30-retry-inputs.json'))
+        cold_feed_proof(cold, commit)
         require(tests['casesStarted'] == tests['casesFinished'] == tests['expectedCases'] == 52
                 and tests['commandsSucceeded'] == 156 and tests['certificateSetups'] == 2, 'Original Core3.0 suite coverage differs')
     else:

@@ -131,6 +131,27 @@ def nuspec(path):
             'repositoryCommit': repository.get('commit') if repository is not None else None}
 
 
+def inspect_feed(feed, allow_cold_feed, directory, ordinary, fingerprint):
+    """Accept a genuinely absent first-build feed only through explicit CI opt-in."""
+    if not feed.is_absolute() or feed == Path(feed.anchor) or '..' in feed.parts:
+        raise ValueError('An absolute ordinary source-built feed path is required')
+    for path in [feed] + list(feed.parents):
+        if path.is_symlink() or (path.exists() and not path.is_dir()):
+            raise ValueError('A source-built feed path or ancestor is linked or not a directory')
+    if not feed.exists():
+        if not allow_cold_feed:
+            raise ValueError('The published retry feed is absent; a fresh CI build must explicitly opt into --allow-cold-feed')
+        return [], True
+    feed = directory(feed)
+    feeds = []
+    for path in sorted(feed.iterdir()):
+        if path.is_symlink() or not path.is_file() or path.suffix != '.nupkg':
+            raise ValueError('Unexpected source-built feed entry: ' + str(path))
+        ordinary(path)
+        feeds.append((path, fingerprint(path), nuspec(path)))
+    return feeds, False
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source-dir', type=Path, required=True)
@@ -138,6 +159,8 @@ def main():
     parser.add_argument('--reports-dir', type=Path, required=True)
     parser.add_argument('--profile', type=Path, required=True)
     parser.add_argument('--plan-only', action='store_true')
+    parser.add_argument('--allow-cold-feed', action='store_true',
+                        help='Allow a genuinely absent initial feed without creating it; retain all existing-feed producer checks.')
     args = parser.parse_args()
     helpers = Path(__file__).resolve().parent
     bootstrap = runpy.run_path(str(helpers / 'prepare-core30-bootstrap.py'))
@@ -150,21 +173,19 @@ def main():
     report_path = reports / 'core30-retry-inputs.json'
     if report_path.exists() or report_path.is_symlink():
         raise ValueError('Use a new retry report directory')
-    feed = directory(source / 'bin/obj/arm64/Release/blob-feed/packages')
-    feeds = []
-    for path in sorted(feed.iterdir()):
-        if path.is_symlink() or not path.is_file() or path.suffix != '.nupkg':
-            raise ValueError('Unexpected source-built feed entry: ' + str(path))
-        ordinary(path)
-        feeds.append((path, fingerprint(path), nuspec(path)))
+    feed = source / 'bin/obj/arm64/Release/blob-feed/packages'
+    feeds, initially_absent = inspect_feed(feed, args.allow_cold_feed, directory, ordinary, fingerprint)
     record = {'schemaVersion': 1, 'status': 'running', 'sourceCommit': COMMIT,
               'startedAtUtc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
               'sourceDirectory': str(source), 'feedDirectory': str(feed), 'planOnly': args.plan_only,
+              'allowColdFeed': args.allow_cold_feed, 'feedInitiallyAbsent': initially_absent,
               'commands': [], 'componentOutputs': [], 'packages': [], 'moved': [],
               'scope': 'Retry input preparation only. Preserve the original new-package guard; accept byte-equal pinned-component outputs and two explicit pinned upstream FSharp producer contracts. The root text-only SDK shim is packed directly into the feed and is identified as such. No native cache or independent producer output is removed.'}
     try:
         if not feeds:
-            record.update({'status': 'passed', 'emptyFeed': True})
+            record.update({'status': 'passed', 'emptyFeed': True, 'publishedPackagesProven': 0,
+                           'publishedPackagesQuarantined': 0, 'recoveryDirectory': None,
+                           'feedCreated': False, 'syntheticPackageOutputsCreated': False})
             return 0
         owner_root = directory(inputs / 'retry-quarantine', create=True)
         owner = owner_root / 'owner.json'
