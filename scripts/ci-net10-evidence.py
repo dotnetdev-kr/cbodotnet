@@ -267,16 +267,35 @@ def image_check(path, expected):
     return image
 
 
+def verification_base(image, distribution):
+    digest = image.get('Digest'); references = image.get('RepoDigests')
+    require(image.get('Architecture') == 'arm64' and image.get('Os') == 'linux'
+            and isinstance(digest, str) and re.fullmatch(r'sha256:[a-f0-9]{64}', digest)
+            and isinstance(references, list) and references
+            and all(isinstance(value, str) and re.fullmatch(r'[a-z0-9][a-z0-9._:/-]*/[a-z0-9._/-]+@sha256:[a-f0-9]{64}', value)
+                    for value in references) and len(references) == len(set(references)),
+            'A valid immutable native verification base inspection is required')
+    reference = 'docker.io/library/' + distribution + '@' + digest
+    require(references.count(reference) == 1, 'The actual verification base Digest is not bound to the expected repository')
+    return reference
+
+
 def userland_check(release, name, stage):
     distribution, version, icu, ssl = USERLANDS[name]
     data = load(member(release, 'reports/ci/' + name + '-userland.json'))
     require(data.get('architecture') == 'aarch64' and data.get('uid', 0) > 0
             and data.get('osRelease') == {'ID': distribution, 'VERSION_ID': version}, 'Actual native user-space identity differs: ' + name)
-    image_check(member(release, 'reports/ci/' + name + '-verification-image.json'), data['imageId'])
+    derived = image_check(member(release, 'reports/ci/' + name + '-verification-image.json'), data['imageId'])
     base = load(member(release, 'reports/ci/' + name + '-base-image.json'))
-    require(isinstance(base, list) and len(base) == 1 and base[0].get('Architecture') == 'arm64'
-            and base[0].get('Os') == 'linux' and any(re.fullmatch('docker.io/library/' + distribution + r'@sha256:[a-f0-9]{64}', x)
-            for x in base[0].get('RepoDigests', [])), 'An immutable native verification base must be recorded')
+    require(isinstance(base, list) and len(base) == 1, 'An exact verification base inspection is required')
+    reference = verification_base(base[0], distribution)
+    tag = 'localhost/cbodotnet-net10-verify-' + name + ':' + str(stage['runId']) + '-' + str(stage['runAttempt'])
+    require(tag in derived.get('RepoTags', []), 'The inspected derived verification image must carry this run/user-space tag')
+    require(any(isinstance(command, list) and ('--build-arg', 'BASE_IMAGE=' + reference) in list(zip(command, command[1:]))
+                and ('--tag', tag) in list(zip(command, command[1:]))
+                and any(argument.endswith('/containers/verify-net10.Containerfile') and prior == '--file'
+                        for prior, argument in zip(command, command[1:]))
+                for command in stage['commands']), 'The actual verification build must bind the inspected base Digest and original recipe')
     packages = {key.split(':', 1)[0]: value for key, value in data['installedPackages'].items()}
     require(all(packages.get(key) for key in (icu, ssl, 'libc6', 'libstdc++6', 'zlib1g', 'libgssapi-krb5-2')),
             'Actual system ICU, OpenSSL and native dependency package versions are required')
@@ -286,7 +305,7 @@ def userland_check(release, name, stage):
     require(any(isinstance(command, list) and data['imageId'] in command and '--network=none' in command
                 for command in stage['commands']), 'The actual isolated native verification image invocation is required')
     return {'imageId': data['imageId'], 'osRelease': data['osRelease'], 'installedPackages': data['installedPackages'],
-            'environmentOverrides': data['environmentOverrides']}
+            'environmentOverrides': data['environmentOverrides'], 'baseImage': reference}
 
 
 def freeze(args):

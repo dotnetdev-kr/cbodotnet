@@ -118,6 +118,81 @@ jobs:
             mkdir -p -- "$NET10_RELEASE/reports"
             cp -a -- "$NET10_HOST_REPORTS" "$NET10_RELEASE/reports/ci-host"
           fi
+          /usr/bin/python3 - "$NET10_WORKSPACE" "$NET10_RELEASE" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import re
+          import shutil
+          import sys
+          import tempfile
+
+          def fingerprint(path):
+              hashes = {name: hashlib.new(name) for name in ('sha256', 'sha512')}
+              size = 0
+              with path.open('rb') as stream:
+                  for block in iter(lambda: stream.read(1024 * 1024), b''):
+                      size += len(block)
+                      for value in hashes.values():
+                          value.update(block)
+              return dict(bytes=size, **{name: value.hexdigest() for name, value in hashes.items()})
+
+          def preserve_candidate(workspace, release, run_id, attempt):
+              # A sealed release is never changed, even if its gate later fails.
+              if any(p.exists() or p.is_symlink() for p in (release / 'collect-receipt.json', release / 'ci-validation.json')):
+                  return 'sealed-release-skipped'
+              candidate = workspace / 'candidate'
+              if not candidate.exists() and not candidate.is_symlink():
+                  return 'absent-candidate-skipped'
+              for root in (workspace, release, candidate):
+                  if not root.is_absolute() or not root.is_dir() or any(p.is_symlink() for p in [root] + list(root.parents)):
+                      raise ValueError('Candidate paths must be ordinary absolute directories')
+              destination = release / 'failure-candidate'
+              if destination.exists() or destination.is_symlink():
+                  raise ValueError('Refusing an existing failure-candidate directory')
+              if not re.fullmatch(r'[1-9][0-9]*', run_id) or not re.fullmatch(r'[1-9][0-9]*', attempt):
+                  raise ValueError('Invalid run identity')
+              sdk_name = 'cbodotnet-sdk-10.0.403-linux-arm64-build.' + run_id + '.tar.gz'
+              names = {sdk_name, 'build-manifest.json', 'SHA256SUMS', 'SHA512SUMS'}
+              if {p.name for p in candidate.iterdir()} != names or any(not p.is_file() or p.is_symlink() for p in candidate.iterdir()):
+                  raise ValueError('The provisional candidate must contain exactly four ordinary files')
+              manifest = json.loads((candidate / 'build-manifest.json').read_text())
+              archive = manifest['sdkArchive']
+              actual = fingerprint(candidate / sdk_name)
+              if (manifest.get('sdkVersion') != '10.0.403' or manifest.get('targetRid') != 'linux-arm64'
+                  or str(manifest.get('buildRevision')) != run_id or archive.get('path') != sdk_name
+                  or any(archive.get(key) != value for key, value in actual.items())):
+                  raise ValueError('The provisional SDK bytes or identity differ from its manifest')
+              for algorithm in ('sha256', 'sha512'):
+                  if (candidate / (algorithm.upper() + 'SUMS')).read_text() != actual[algorithm] + '  ' + sdk_name + '\n':
+                      raise ValueError('The provisional SDK checksum sidecar differs')
+              original = {name: fingerprint(candidate / name) for name in names}
+              staging = Path(tempfile.mkdtemp(prefix='.failure-candidate-', dir=release))
+              try:
+                  for name in sorted(names):
+                      shutil.copyfile(candidate / name, staging / name)
+                      if fingerprint(staging / name) != original[name] or fingerprint(candidate / name) != original[name]:
+                          raise ValueError('Candidate bytes changed during preservation')
+                  (staging / 'status.json').write_text(json.dumps({
+                      'schemaVersion': 1, 'status': 'unvalidated-candidate', 'runId': run_id, 'runAttempt': attempt,
+                      'reason': 'Verification/final collection did not complete; this is not a validated delivery.',
+                      'sdkArchive': dict(path=sdk_name, **actual), 'finalValidationPassed': False}, indent=2) + '\n')
+                  if destination.exists() or destination.is_symlink():
+                      raise ValueError('Refusing an existing preservation destination')
+                  os.rename(staging, destination)
+              finally:
+                  if staging.exists():
+                      shutil.rmtree(staging)
+              return 'unvalidated-candidate-preserved'
+
+          if __name__ == '__main__':
+              try:
+                  print(preserve_candidate(Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3], sys.argv[4]))
+              except Exception as error:
+                  # Diagnostic preservation must not suppress the ordinary failure reports.
+                  print('::warning::Candidate preservation skipped: ' + str(error).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
+          PY
           [[ ! -e "$NET10_BUNDLE_DIR" ]]
           mkdir -- "$NET10_BUNDLE_DIR"
           bundle="cbodotnet-net10-linux-arm64-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.tar.gz"

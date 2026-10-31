@@ -419,11 +419,16 @@ verify)
     run "${engine[@]}" pull "$reference"
     base_id=$(inspect_image "$reference" "$reports/ci/$name-base-image.json")
     pinned=$(python3 - "$reports/ci/$name-base-image.json" "$distribution" <<'PY'
-import json, sys
+import json, re, sys
 r = json.load(open(sys.argv[1]))[0]
-matching = [v for v in r.get('RepoDigests', []) if v.startswith('docker.io/library/' + sys.argv[2] + '@sha256:')]
-if len(matching) != 1: raise SystemExit('An unambiguous immutable verification base is required')
-print(matching[0])
+digest = r.get('Digest')
+if not isinstance(digest, str) or not re.fullmatch(r'sha256:[a-f0-9]{64}', digest):
+    raise SystemExit('The inspected verification manifest digest is required')
+selected = 'docker.io/library/' + sys.argv[2] + '@' + digest
+references = r.get('RepoDigests')
+if not isinstance(references, list) or references.count(selected) != 1:
+    raise SystemExit('The inspected manifest must have one exact repository digest binding')
+print(selected)
 PY
 )
     tag=localhost/cbodotnet-net10-verify-$name:$run_id-$run_attempt

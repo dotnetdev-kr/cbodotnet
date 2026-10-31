@@ -131,6 +131,7 @@ class Bundle:
                  'scan': {'scanExecution': 'reports/scan/scan-execution.json'},
                  'test': {'testStatus': 'reports/test/test-status.json', 'commonTrx': 'reports/test/common.trx',
                           'scenarioXml': 'reports/test/scenarios.xml'}, 'verify': {}}
+        verify_commands = []
         for name in ('ubuntu22', 'ubuntu24', 'debian13'):
             path = 'reports/verify-' + name + '/verification.json'
             paths['verify'][name] = path
@@ -141,9 +142,15 @@ class Bundle:
                                   abi=dict(elfFileCount=24, machines={'AArch64': 24}, glibcCeiling='2.27', glibcCeilingPassed=True,
                                            symbolicGlibcRequirements=[], maximumRequiredVersions={'GLIBC': '2.27', 'GLIBCXX': '3.4.22', 'CXXABI': '1.3.7'})))
             distribution, version, icu, ssl = GATE.USERLANDS[name]
-            image = {'Id': 'b' * 64, 'Architecture': 'arm64', 'Os': 'linux'}
+            tag = 'localhost/cbodotnet-net10-verify-' + name + ':12345-1'
+            image = {'Id': 'b' * 64, 'Architecture': 'arm64', 'Os': 'linux', 'RepoTags': [tag]}
+            base = 'docker.io/library/' + distribution + '@sha256:' + 'c' * 64
             dump(root / ('reports/ci/' + name + '-verification-image.json'), [image])
-            dump(root / ('reports/ci/' + name + '-base-image.json'), [dict(image, RepoDigests=['docker.io/library/' + distribution + '@sha256:' + 'c' * 64])])
+            dump(root / ('reports/ci/' + name + '-base-image.json'), [dict(image, Digest='sha256:' + 'c' * 64,
+                 RepoDigests=[base, 'docker.io/library/' + distribution + '@sha256:' + 'd' * 64])])
+            verify_commands.extend([['podman', 'build', '--file', '/project/containers/verify-net10.Containerfile',
+                                     '--build-arg', 'BASE_IMAGE=' + base, '--tag', tag, '/project'],
+                                    ['podman', 'run', '--network=none', image['Id']]])
             dump(root / ('reports/ci/' + name + '-userland.json'), dict(imageId=image['Id'], architecture='aarch64', uid=1000,
                  osRelease={'ID': distribution, 'VERSION_ID': version},
                  installedPackages=dict.fromkeys([icu, ssl, 'libc6', 'libstdc++6', 'zlib1g', 'libgssapi-krb5-2'], 'fixture-1'),
@@ -153,7 +160,8 @@ class Bundle:
         dump(root / 'reports/prepare/build-image.json', [{'Id': self.image, 'Architecture': 'arm64', 'Os': 'linux'}])
         for index, name in enumerate(('prepare', 'build', 'scan', 'test', 'verify')):
             dump(root / ('reports/ci/stages/' + name + '.json'), dict(self.identity, stage=name, status='passed', exitCode=0,
-                 commands=[['fixture', name, '--network=none', 'b' * 64]], imageId=self.image, paths=paths[name], environment={'nativeArchitecture': 'aarch64', 'uid': 1000},
+                 commands=verify_commands if name == 'verify' else [['fixture', name, '--network=none', 'b' * 64]],
+                 imageId=self.image, paths=paths[name], environment={'nativeArchitecture': 'aarch64', 'uid': 1000},
                  startedAtUtc='2026-10-31T00:%02d:00Z' % index, finishedAtUtc='2026-10-31T00:%02d:30Z' % index))
         write(root / 'collect.log', 'Actual fixture collector output\n')
         write(root / 'collect-commands.jsonl', '["fixture", "collect"]\n')
@@ -304,6 +312,38 @@ class EvidenceTests(unittest.TestCase):
         bundle = Bundle(self.root)
         bundle.alter('reports/ci/debian13-userland.json', lambda data: data.update(osRelease={'ID': 'ubuntu', 'VERSION_ID': '24.04'}))
         with self.assertRaisesRegex(ValueError, 'user-space identity'):
+            GATE.validate_bundle(self.root)
+
+    def test_platform_digest_binding_allows_extra_index_but_rejects_invalid_metadata(self):
+        digest = 'sha256:076e7bf82319619f28dd0aa9c02ab34b055ad37100395b4f49a2ffba04fb5e11'
+        expected = 'docker.io/library/ubuntu@' + digest
+        base = {'Architecture': 'arm64', 'Os': 'linux', 'Digest': digest,
+                'RepoDigests': [expected, 'docker.io/library/ubuntu@sha256:' + 'a' * 64]}
+        self.assertEqual(GATE.verification_base(base, 'ubuntu'), expected)
+        mutations = [dict(Digest='sha256:short'), dict(Digest='sha256:' + 'e' * 64),
+                     dict(RepoDigests=['docker.io/library/debian@' + digest]),
+                     dict(RepoDigests=[expected, expected]), dict(RepoDigests=[expected, 'malformed']),
+                     dict(Architecture='amd64')]
+        for change in mutations:
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                GATE.verification_base(dict(base, **change), 'ubuntu')
+
+    def test_verifier_build_cannot_substitute_index_digest_or_another_tag(self):
+        bundle = Bundle(self.root)
+        path = 'reports/ci/stages/verify.json'
+        original = GATE.load(self.root / path)
+
+        def substitute_index(data):
+            command = data['commands'][0]
+            index = command.index('--build-arg') + 1
+            command[index] = 'BASE_IMAGE=docker.io/library/ubuntu@sha256:' + 'd' * 64
+
+        bundle.alter(path, substitute_index)
+        with self.assertRaisesRegex(ValueError, 'bind the inspected base Digest'):
+            GATE.validate_bundle(self.root)
+        dump(self.root / path, original); bundle.seal()
+        bundle.alter('reports/ci/ubuntu22-verification-image.json', lambda images: images[0].update(RepoTags=['localhost/another-image:tag']))
+        with self.assertRaisesRegex(ValueError, 'run/user-space tag'):
             GATE.validate_bundle(self.root)
 
     def test_unsigned_sysroot_and_source_mutation_rejected(self):

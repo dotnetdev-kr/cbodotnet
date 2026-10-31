@@ -4,6 +4,23 @@ The [workflow](../.github/workflows/net10-sdk.yml) builds the pinned SDK 10.0.40
 
 This is the regular VMR 4xx build. It consumes the pinned upstream shared runtime and ASP.NET inputs declared in the profile. It does not establish a source-only build, Stage 2, zero prebuilt usage, x64 coverage, workload support, or compatibility with every Linux distribution.
 
+## First hosted pilot
+
+The [first hosted run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41186712404), at orchestration commit `719ddffe39c02bcbb9a8c87e228c694f18c3ec17`, completed the SDK build, pristine-source binary scan and upstream tests. All 13 common tests passed; the 36 scenarios contained 34 passes and the two declared skips. It did not produce a validated delivery: verification stopped before running its first user-space test because Podman legitimately retained both a platform manifest and an OCI index in `RepoDigests`.
+
+The corrected selector uses the exact inspected `Digest` with its matching repository reference. Additional valid index references are allowed. Regression tests replay the original inspection, and the delivery gate binds that digest to the actual verification image build and execution.
+
+| Observation from the first run | Value |
+| --- | --- |
+| SDK build stage | 43 min 39 sec |
+| Pristine-source scan stage | 31 sec |
+| Upstream test stage | 7 min 7 sec |
+| Free disk after host preparation | 120.958 GiB |
+| Minimum free disk in 207 periodic samples | 94.873 GiB |
+| Maximum sampled host memory usage | 8.393 GiB |
+
+Memory usage here is the sampled host `MemTotal - MemAvailable`, including the operating system and other runner activity. Disk observations cover the host filesystem. Neither value is an isolated build-process peak or a guaranteed minimum capacity. The first run stopped before constructing the three verification images; its resource observations do not qualify that remaining work.
+
 ## Run the workflow
 
 The workflow uses `workflow_dispatch` on `main`. From an authenticated checkout:
@@ -54,6 +71,8 @@ They test a real clean Git checkout with CRLF-smudged CMD files, raw result omis
 ## Download and revalidate
 
 The workflow uploads a run-specific outer `.tar.gz` bundle and its transport SHA-256/SHA-512 files, including failed-run evidence when available. A successful bundle contains the unchanged SDK tarball, its two checksum files, `build-manifest.json`, `collect-receipt.json`, `ci-validation.json`, and the complete reports/source snapshot. Artifact retention is 14 days.
+
+If verification fails after provisional collection, the failure bundle also preserves a complete candidate under `failure-candidate/`, after checking its SDK hashes and sidecars. Its `status.json` explicitly marks it `unvalidated-candidate`. This diagnostic copy does not establish a validated delivery. Failed or incomplete candidate preservation emits a warning while ordinary failure reports remain available.
 
 After checking transport hashes and safely extracting the outer bundle, use the trusted verifier from the same orchestration commit:
 
