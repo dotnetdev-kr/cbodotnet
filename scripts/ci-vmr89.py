@@ -126,10 +126,7 @@ class Driver:
             original_manifest=subprocess.check_output(['git','-C',str(self.source),'show','HEAD:src/source-manifest.json'])
             S.require(source_manifest.read_bytes()==original_manifest,'The original component source manifest changed')
             (self.reports/'construction/component-source-manifest.json').write_bytes(original_manifest)
-            relative = ('src/installer/artifacts/buildLogs/source-build/self/src/artifacts/sourcebuild.binlog' if self.version == '8'
-                        else 'src/sdk/artifacts/buildLogs/log/Release/source-inner-build.binlog')
-            target = self.reports / 'construction/consumer.binlog'; shutil.copyfile(S.G.ordinary(self.source / relative), target)
-            S.dump(self.reports / 'construction/binlog-input.json', dict(sourceRelativePath=relative, sourceCommit=self.config['commit'], archive=S.record(self.output, target)))
+            S.capture_consumer_binlog(self.source, self.output, self.version)
             return
         destination = self.reports / 'test/upstream-results'
         if self.version == '8':

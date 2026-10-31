@@ -44,6 +44,23 @@ def git(root, *args):
     return subprocess.check_output(['git', '-C', str(root), *args]).decode().strip()
 
 
+def capture_consumer_binlog(source, release, version):
+    # NET8 retains consumer source, so CleanupRepo never creates its buildLogs copy.
+    # Capture the original SourceBuildArcadeBuild producer, rather than that copy.
+    relative = ('src/installer/artifacts/source-build/self/src/artifacts/sourcebuild.binlog' if version == '8'
+                else 'src/sdk/artifacts/buildLogs/log/Release/source-inner-build.binlog')
+    require(version in V, 'Unsupported consumer binlog version')
+    producer = G.ordinary(source / relative)
+    require(producer.stat().st_size > 0, 'The original consumer binlog must be nonempty')
+    target = release / 'reports/construction/consumer.binlog'
+    require(not target.exists(), 'The preserved consumer binlog must be new')
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(producer, target)
+    require(fingerprint(producer) == fingerprint(target), 'The preserved consumer binlog changed')
+    dump(release / 'reports/construction/binlog-input.json', dict(sourceRelativePath=relative,
+         sourceCommit=V[version]['commit'], archive=record(release, target)))
+
+
 def effective(original, version):
     result = copy.deepcopy(original)
     result['build']['cleanWhileBuilding'] = version != '8'

@@ -168,7 +168,8 @@ def pristine_blob(row, actual_blob, windows_bytes):
     baseline = row.get('baseline')
     if baseline == {'mode': row['mode'], 'blob': actual_blob}:
         return True
-    if (not row['path'].lower().endswith(('.cmd', '.bat')) or windows_bytes is None
+    if (row['mode'] not in ('100644', '100755')
+            or not row['path'].lower().endswith(('.cmd', '.bat')) or windows_bytes is None
             or not baseline or baseline.get('mode') != row['mode']):
         return False
     canonical = windows_bytes.replace(b'\r\n', b'\n')

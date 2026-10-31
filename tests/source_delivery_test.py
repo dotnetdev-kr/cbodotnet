@@ -161,6 +161,8 @@ class SourceDeliveryTests(unittest.TestCase):
         for extension in ['.py', '.sh', '.proj']:
             alternate = dict(row, path='orchestration/scripts/test' + extension)
             self.assertFalse(SOURCE.pristine_blob(alternate, digest(checkout), checkout))
+        linked = dict(row, mode='120000', baseline={'mode': '120000', 'blob': digest(canonical)})
+        self.assertFalse(SOURCE.pristine_blob(linked, digest(checkout), checkout))
 
     def test_existing_output_and_wrong_source_commit_are_rejected(self):
         self.capture()

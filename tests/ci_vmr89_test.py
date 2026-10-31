@@ -200,6 +200,21 @@ class Tests(unittest.TestCase):
 
     def tearDown(self): self.temp.cleanup()
 
+    def test_net8_preserved_source_binlog_uses_original_producer_not_cleanup_copy(self):
+        source=self.root/'source';release=self.root/'delivery'
+        relative='src/installer/artifacts/source-build/self/src/artifacts/sourcebuild.binlog'
+        original=write(source/relative,b'Closed producer binlog fixture')
+        cleanup=source/'src/installer/artifacts/buildLogs/source-build/self/src/artifacts/sourcebuild.binlog'
+        self.assertFalse(cleanup.exists())
+        S.capture_consumer_binlog(source,release,'8')
+        receipt=S.load(release/'reports/construction/binlog-input.json')
+        self.assertEqual(receipt['sourceRelativePath'],relative)
+        self.assertEqual((release/'reports/construction/consumer.binlog').read_bytes(),original.read_bytes())
+        # A stale cleanup copy cannot substitute for a missing original producer.
+        original.unlink();write(cleanup,b'Stale cleanup copy')
+        with self.assertRaisesRegex(ValueError,'ordinary absolute file'):
+            S.capture_consumer_binlog(source,self.root/'missing-original','8')
+
     def test_actual_result_shapes_both_versions(self):
         self.assertEqual(S.test_results('8',trx(self.root/'8.trx','8'))['passed'],44)
         result=S.test_results('9',trx(self.root/'9.trx','9'),scenarios(self.root/'scenario.xml'))
