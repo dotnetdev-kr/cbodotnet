@@ -6,6 +6,7 @@ reports_dir=''
 action=build
 official_sdk=''
 max_cpu=2
+generation_reports=/project/artifacts/7.0.120-linux-arm64/reports/generation
 while (($#)); do
   (($# >= 2)) || { echo 'Every option requires a value.' >&2; exit 2; }
   case "$1" in
@@ -15,12 +16,13 @@ while (($#)); do
     --action) action=$2 ;;
     --official-sdk-archive) official_sdk=$2 ;;
     --max-cpu-count) max_cpu=$2 ;;
+    --generation-reports-dir) generation_reports=$2 ;;
     *) echo "Unknown option: $1" >&2; exit 2 ;;
   esac
   shift 2
 done
 [[ $action == generate || $action == prepare || $action == build || $action == test ]]
-[[ $installer_dir == /* && $source_dir == /* && $reports_dir == /* && $max_cpu =~ ^[1-9][0-9]?$ ]]
+[[ $installer_dir == /* && $source_dir == /* && $reports_dir == /* && $generation_reports == /* && $max_cpu =~ ^[1-9][0-9]?$ ]]
 [[ $(uname -s) == Linux && $(uname -m) == aarch64 && $(id -u) != 0 ]]
 installer_dir=$(realpath -e "$installer_dir")
 commit=25b977658c06fd0217ec0bc0714398bb9d0a7bb0
@@ -55,7 +57,7 @@ if [[ $action == generate ]]; then
   cd "$installer_dir"
 else
   source_dir=$(realpath -e "$source_dir")
-  python3 "$helpers/source7-provenance.py" verify --installer-dir "$installer_dir" --source-dir "$source_dir" --reports-dir /project/artifacts/7.0.120-linux-arm64/reports/generation
+  python3 "$helpers/source7-provenance.py" verify --installer-dir "$installer_dir" --source-dir "$source_dir" --reports-dir "$generation_reports"
   if [[ $action == prepare ]]; then
     args=(bash "$helpers/prepare-source7.sh" "$source_dir" /inputs "$reports_dir")
   else
@@ -97,7 +99,7 @@ code=${codes[0]}
 if ((code == 0 && codes[1] != 0)); then code=${codes[1]}; fi
 if [[ $action == generate && $code == 0 ]]; then
   set +e
-  python3 "$helpers/source7-provenance.py" snapshot --installer-dir "$installer_dir" --source-dir "$source_dir" --reports-dir /project/artifacts/7.0.120-linux-arm64/reports/generation
+  python3 "$helpers/source7-provenance.py" snapshot --installer-dir "$installer_dir" --source-dir "$source_dir" --reports-dir "$generation_reports"
   code=$?
   set -e
 fi
