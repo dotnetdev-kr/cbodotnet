@@ -83,6 +83,77 @@ def download(url, target, expected, report):
     write(report, dict(status='passed', url=url, path=str(target), **actual))
 
 
+def download_sdk_ranges(url, target, expected, report):
+    """Fetch the Core 3.0 bootstrap through bounded, fully verified byte ranges."""
+    ordinary(target); ordinary(report)
+    partial = ordinary(target.with_suffix(target.suffix + '.part'))
+    require(len({target, partial, report}) == 3, 'Range download controls must be separate')
+    require(not any(path.exists() for path in (target, partial, report)), 'Range download requires fresh controls')
+    total = expected['bytes']; chunk_bytes = 8 * 1024 * 1024
+    require(isinstance(total, int) and 0 < total <= 1024 * 1024 * 1024
+            and re.fullmatch(r'[0-9a-f]{128}', expected['sha512']), 'Pinned complete SDK identity is required')
+    target.parent.mkdir(parents=True, exist_ok=True)
+    receipt = dict(schemaVersion=1, status='running', url=url, path=str(target), expected=expected,
+                   maximumRequestBytes=chunk_bytes, requests=[], startedAtUtc=now(),
+                   scope='Same official SDK URL, one request per exact byte range, full original size/SHA512 before exclusive publication. No retries, alternate URLs or product changes.')
+    failure = None
+    try:
+        with partial.open('xb') as output:
+            for start in range(0, total, chunk_bytes):
+                end = min(start + chunk_bytes, total) - 1
+                requested = 'bytes={}-{}'.format(start, end)
+                row = dict(requestRange=requested, start=start, end=end, total=total,
+                           expectedBytes=end - start + 1, bytes=0, status='running')
+                receipt['requests'].append(row)
+                hashes = {name: hashlib.new(name) for name in ('sha256', 'sha512')}
+                request = urllib.request.Request(url, headers={'Range': requested, 'Accept-Encoding': 'identity'})
+                try:
+                    with urllib.request.urlopen(request, timeout=180) as incoming:
+                        row.update(httpStatus=incoming.getcode(), contentRange=incoming.headers.get('Content-Range'),
+                                   contentLength=incoming.headers.get('Content-Length'),
+                                   contentEncoding=incoming.headers.get('Content-Encoding'))
+                        require(incoming.geturl() == url and url.startswith('https://'), 'The SDK range URL changed')
+                        require(row['httpStatus'] == 206, 'The SDK server did not honor the byte range')
+                        require(row['contentRange'] == 'bytes {}-{}/{}'.format(start, end, total),
+                                'The SDK response range/total differs')
+                        require(row['contentLength'] == str(row['expectedBytes'])
+                                and row['contentEncoding'] in (None, 'identity'), 'The SDK response length/encoding differs')
+                        while True:
+                            block = incoming.read(min(1024 * 1024, row['expectedBytes'] - row['bytes'] + 1))
+                            if not block:
+                                break
+                            row['bytes'] += len(block)
+                            for value in hashes.values():
+                                value.update(block)
+                            require(row['bytes'] <= row['expectedBytes'], 'The SDK range response is oversized')
+                            output.write(block)
+                        require(row['bytes'] == row['expectedBytes'], 'The SDK range response ended early')
+                        row['status'] = 'passed'
+                finally:
+                    row.update({name: value.hexdigest() for name, value in hashes.items()})
+                    if row['status'] != 'passed':
+                        row['status'] = 'rejected'
+        actual = fingerprint(partial)
+        receipt['assembledArchive'] = actual
+        require(all(actual.get(key) == value for key, value in expected.items()), 'The complete ranged SDK differs from its original pin')
+        os.link(str(partial), str(target))
+        partial.unlink()
+        receipt.update(status='passed', publication='exclusive-hardlink-after-complete-integrity', **actual)
+    except Exception as error:
+        failure = error
+        receipt.update(status='rejected', error=str(error))
+        if partial.is_file() and not partial.is_symlink():
+            receipt['retainedPartial'] = fingerprint(partial)
+        raise
+    finally:
+        receipt['finishedAtUtc'] = now()
+        try:
+            write(report, receipt)
+        except Exception:
+            if failure is None:
+                raise
+
+
 def capture_component_logs(source, layout, reports):
     """Retain closed root component logs without altering any producer files."""
     require(layout in ('bin', 'artifacts'), 'Unknown legacy log layout')
@@ -281,9 +352,9 @@ class CI:
         # The old container's HTTPS transfer returned a proven 12 MiB prefix.
         # Use the host transport with the same frozen URL and exact integrity pins.
         helper = runpy.run_path(str(self.snapshot / 'scripts/prepare-core30-bootstrap.py'))
-        download(helper['SDK_URL'], self.inputs / 'official-sdk' / helper['SDK_NAME'],
-                 {'bytes': helper['SDK_BYTES'], 'sha512': helper['SDK_SHA512']},
-                 self.reports / 'prepare/official-sdk-download.json')
+        download_sdk_ranges(helper['SDK_URL'], self.inputs / 'official-sdk' / helper['SDK_NAME'],
+                            {'bytes': helper['SDK_BYTES'], 'sha512': helper['SDK_SHA512']},
+                            self.reports / 'prepare/official-sdk-download.json')
 
     def prepare(self):
         self.run(['git', 'clone', '--no-checkout', 'https://github.com/dotnet/source-build.git', self.source])

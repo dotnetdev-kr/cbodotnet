@@ -398,6 +398,7 @@ class LegacyFixtures(unittest.TestCase):
                 def record_download(url, target, expected, report):
                     events.append(('download', url, target, expected, report))
                 with mock.patch.object(driver, 'download', side_effect=record_download), \
+                        mock.patch.object(driver, 'download_sdk_ranges', side_effect=record_download), \
                         mock.patch.object(driver.shutil, 'copyfile'), mock.patch.object(driver, 'write'):
                     runner.prepare()
                 sdk_calls = [event for event in events if event[0] == 'download' and event[1] == bootstrap.SDK_URL]
@@ -423,6 +424,74 @@ class LegacyFixtures(unittest.TestCase):
         self.assertIs(receipt['downloadAttempted'], False)
         self.assertIs(receipt['hashMatchesOfficialMetadata'], True)
         self.assertEqual(receipt['status'], 'passed'); self.assertEqual(archive.read_bytes(), payload)
+
+    def test_sdk_ranges_require_exact_transport_and_complete_original_hash(self):
+        payload = b'01234567' * (1024 * 1024) + b'final-range'
+        expected = {'bytes': len(payload), 'sha512': hashlib.sha512(payload).hexdigest()}
+        for mode in ('exact', 'status', 'offset', 'total', 'short', 'oversize', 'corrupt', 'url'):
+            with self.subTest(mode=mode):
+                root = self.root / mode; root.mkdir()
+                target = root / 'sdk.tar.gz'; report = root / 'receipt.json'; calls = []
+                def response(request, timeout):
+                    self.assertEqual(request.full_url, bootstrap.SDK_URL)
+                    start, end = map(int, request.get_header('Range')[len('bytes='):].split('-'))
+                    self.assertLessEqual(end - start + 1, 8 * 1024 * 1024)
+                    calls.append((start, end))
+                    body = payload[start:end + 1]
+                    if mode == 'short':
+                        body = body[:-1]
+                    elif mode == 'oversize':
+                        body += b'x'
+                    elif mode == 'corrupt' and start == 0:
+                        body = b'X' + body[1:]
+                    incoming = io.BytesIO(body)
+                    incoming.getcode = lambda: 200 if mode == 'status' else 206
+                    incoming.geturl = lambda: bootstrap.SDK_URL + ('?alternate' if mode == 'url' else '')
+                    incoming.headers = {'Content-Range': 'bytes {}-{}/{}'.format(start + (mode == 'offset'), end,
+                                                                               len(payload) + (mode == 'total')),
+                                        'Content-Length': str(end - start + 1)}
+                    return incoming
+                with mock.patch.object(driver.urllib.request, 'urlopen', side_effect=response):
+                    if mode == 'exact':
+                        driver.download_sdk_ranges(bootstrap.SDK_URL, target, expected, report)
+                        self.assertEqual(target.read_bytes(), payload)
+                        self.assertEqual(calls, [(0, 8388607), (8388608, len(payload) - 1)])
+                        self.assertFalse(target.with_suffix('.gz.part').exists())
+                    else:
+                        with self.assertRaises(ValueError):
+                            driver.download_sdk_ranges(bootstrap.SDK_URL, target, expected, report)
+                        self.assertFalse(target.exists())
+                receipt = json.loads(report.read_text())
+                self.assertEqual(receipt['status'], 'passed' if mode == 'exact' else 'rejected')
+                self.assertEqual(receipt['url'], bootstrap.SDK_URL)
+                self.assertEqual(receipt['expected'], expected)
+                self.assertEqual(len(receipt['requests']), len(calls))
+                self.assertTrue(all('sha256' in row and 'sha512' in row for row in receipt['requests']))
+                if mode == 'exact':
+                    self.assertTrue(all(row['status'] == 'passed' for row in receipt['requests']))
+                    self.assertEqual(receipt['sha512'], expected['sha512'])
+
+    def test_sdk_range_download_refuses_existing_or_linked_controls(self):
+        expected = {'bytes': 4, 'sha512': hashlib.sha512(b'data').hexdigest()}
+        outside = self.root / 'outside'; outside.write_bytes(b'never overwrite')
+        for control in ('target', 'partial', 'report'):
+            for linked in (False, True):
+                with self.subTest(control=control, linked=linked):
+                    root = self.root / (control + str(linked)); root.mkdir()
+                    target, report = root / 'sdk.tar.gz', root / 'receipt.json'
+                    path = {'target': target, 'partial': target.with_suffix('.gz.part'), 'report': report}[control]
+                    path.symlink_to(outside) if linked else path.write_bytes(b'old control')
+                    with mock.patch.object(driver.urllib.request, 'urlopen') as download:
+                        with self.assertRaises(ValueError):
+                            driver.download_sdk_ranges(bootstrap.SDK_URL, target, expected, report)
+                        download.assert_not_called()
+                    self.assertEqual(path.read_bytes(), b'never overwrite' if linked else b'old control')
+        parent = self.root / 'linked-parent'; parent.symlink_to(self.root, target_is_directory=True)
+        with mock.patch.object(driver.urllib.request, 'urlopen') as download:
+            with self.assertRaises(ValueError):
+                driver.download_sdk_ranges(bootstrap.SDK_URL, parent / 'new-sdk.tar.gz', expected, self.root / 'new-receipt.json')
+            download.assert_not_called()
+        self.assertEqual(outside.read_bytes(), b'never overwrite')
 
     def test_real_cold_helper_report_and_gate_require_absence_without_outputs(self):
         source = self.root / 'empty-source'; source.mkdir()
