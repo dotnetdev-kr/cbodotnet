@@ -16,6 +16,7 @@ import contextlib
 import importlib.util
 import unittest
 import xml.etree.ElementTree as ET
+import zipfile
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'scripts'))
@@ -35,9 +36,16 @@ def dump(path,data):
 def trx(path,version):
     ns='{http://microsoft.com/schemas/VisualStudio/TeamTest/2010}'
     root=ET.Element(ns+'TestRun');results=ET.SubElement(root,ns+'Results')
-    total,passed=(46,44) if version=='8' else (500,500)
-    for index in range(passed):
-        ET.SubElement(results,ns+'UnitTestResult',executionId=str(index),outcome='Passed',testName='Fixture.Test'+str(index))
+    total,passed=(46,44) if version=='8' else (522,522)
+    if version=='9':
+        names=list(S.N9.policy()['factMethods'])
+        for method in S.N9.policy()['packageMethods']:
+            for package in sorted(S.N9.available_ids()):
+                display=package[:50]+'"···' if len(package)>50 else package+'"'
+                names.append(method+'(packageName: "'+display+', testNugetPackagePath: "/vmr/fixture.nupkg", baselineNugetPackagePath: "/vmr/baseline.nupkg")')
+    else:names=['Fixture.Test'+str(index) for index in range(passed)]
+    for index,name in enumerate(names):
+        ET.SubElement(results,ns+'UnitTestResult',executionId=str(index),outcome='Passed',testName=name)
     if version=='8':
         for index,name in enumerate(['LicenseScanTests.ScanForLicenses','PoisonTests.VerifyUsage']):
             ET.SubElement(results,ns+'UnitTestResult',executionId='skip'+str(index),outcome='NotExecuted',testName='Microsoft.DotNet.SourceBuild.SmokeTests.'+name)
@@ -60,6 +68,27 @@ def archive(path,entries):
         for name,data in entries.items():
             info=tarfile.TarInfo(name);info.size=len(data);output.addfile(info,io.BytesIO(data))
     return path
+
+
+def package_case_inputs(source,release):
+    S.N9.before_test(source,release)
+    p=S.N9.policy();manifest=ET.Element('Build');paths=[]
+    for row in p['sourceFiles']:
+        write(source/row['path'],(ROOT/'tests/fixtures/net9-package-cases'/Path(row['path']).name).read_bytes())
+    for name in p['shippingPackageIds']:
+        ET.SubElement(manifest,'Package',Id=name,Version='9.0.22',RepoOrigin='fixture',DotNetReleaseShipping='true')
+        filename=name+'.9.0.22.nupkg';paths.append('/vmr/artifacts/packages/Release/Shipping/fixture/'+filename)
+        cache=source/S.N9.CACHE/filename;cache.parent.mkdir(parents=True,exist_ok=True)
+        if name in p['unavailableBaselineIds']:cache.write_bytes(b'')
+        else:
+            with zipfile.ZipFile(cache,'w') as package:
+                package.writestr(name+'.nuspec','<package><metadata><id>'+name+'</id><version>9.0.22</version></metadata></package>')
+    write(source/'artifacts/VerticalManifest.xml',ET.tostring(manifest))
+    dump(source/S.N9.CONFIG,dict(runtimeOptions=dict(configProperties={
+        S.N9.PREFIX+'AssetManifestPath':'/vmr/artifacts/VerticalManifest.xml',
+        S.N9.PREFIX+'LogsDirectory':'/vmr/artifacts/TestResults/Release',S.N9.PREFIX+'Packages':';'.join(paths)})))
+    S.N9.capture(source,release)
+    shutil.copytree(source/S.N9.CACHE,release/'reports/test/upstream-results/Microsoft.DotNet.UnifiedBuild.Tests/DownloadCache/NugetPackageBaselines')
 
 
 class OriginFixture:
@@ -108,6 +137,7 @@ class FullFixture(OriginFixture):
         for name in ('Program.cs','Reader.csproj'):write(frozen/'scripts/ci-vmr89-reader'/name,'Fixture reader '+name+'\n')
         if version=='9':
             write(frozen/'scripts/prepare-scenario-report-fence.py',(ROOT/'scripts/prepare-scenario-report-fence.py').read_bytes())
+            write(frozen/'scripts/ci-net9-test-cases.json',(ROOT/'scripts/ci-net9-test-cases.json').read_bytes())
         def git(*args):return subprocess.check_output(['git','-C',str(frozen),*args])
         git('init','-q');git('config','user.email','fixture@example.invalid');git('config','user.name','Fixture');git('add','.');git('commit','-qm','Fixture tree')
         commit=git('rev-parse','HEAD').decode().strip();commit_object=git('cat-file','commit',commit)
@@ -120,7 +150,7 @@ class FullFixture(OriginFixture):
         self.identity=dict(sourceCommit=S.V[version]['commit'],projectCommit=commit,buildId='20261031.1',buildRevision='1',runId='12345',runAttempt='1')
         selected=S.effective(original,version);dump(self.release/'reports/ci-inputs/effective-profile.json',selected)
         write(self.release/'reports/ci-inputs/project-commit.txt',commit_object)
-        dump(self.release/'reports/ci-inputs/snapshot.json',dict(self.identity,scenarioReportFenceRequired=version=='9',executionContext='github-actions',sourceInitiallyPristine=True,
+        dump(self.release/'reports/ci-inputs/snapshot.json',dict(self.identity,scenarioReportFenceRequired=version=='9',packageCaseCoverageRequired=version=='9',executionContext='github-actions',sourceInitiallyPristine=True,
              projectInitiallyPristine=True,inputRepresentation='canonical-git-blobs-with-verified-checkout',projectFiles=rows,
              projectCommitObject=S.record(self.release,self.release/'reports/ci-inputs/project-commit.txt'),originalProfile=S.record(self.release,profile),
              effectiveProfile=S.record(self.release,self.release/'reports/ci-inputs/effective-profile.json')))
@@ -134,6 +164,9 @@ class FullFixture(OriginFixture):
             dump(self.release/'reports/build/net8-patches-apply.json',dict(status='passed',patches=[{},{}]))
             dump(self.release/'reports/prepare/bootstrap/bootstrap-inputs.json',dict(sourceCommit=S.V[version]['commit'],bootstrapSdk=S.V[version]['bootstrap']))
         else:
+            package_case_inputs(root/'case-source',self.release)
+            path=self.release/'reports/test/package-cases-before.json';value=S.load(path);value['observedAtUtc']='2026-10-31T00:03:00.500000Z';dump(path,value)
+            path=self.release/'reports/test/package-cases/coverage.json';value=S.load(path);value['capturedAtUtc']='2026-10-31T00:03:29.500000Z';dump(path,value)
             path=trx(self.release/'reports/test/upstream-results/Microsoft.DotNet.UnifiedBuild.Tests.trx','9')
             scenario=scenarios(self.release/'reports/test/upstream-results/scenario-tests/results.xml');test_value=S.test_results(version,path,scenario)
             dump(self.release/'reports/scan/upstream/status.json',dict(status='passed',exitCode=0,toolExitCode=0,teeExitCode=0,
@@ -264,13 +297,38 @@ class Tests(unittest.TestCase):
     def test_actual_result_shapes_both_versions(self):
         self.assertEqual(S.test_results('8',trx(self.root/'8.trx','8'))['passed'],44)
         result=S.test_results('9',trx(self.root/'9.trx','9'),scenarios(self.root/'scenario.xml'))
-        self.assertEqual(result['passed'],500);self.assertEqual(result['scenarios']['passed'],32)
+        self.assertEqual(result['passed'],522);self.assertEqual(result['scenarios']['passed'],32)
+
+    def test_net9_exact_case_pairs_reject_count_preserving_substitution_and_missing_fact(self):
+        ns={'t':'http://microsoft.com/schemas/VisualStudio/TeamTest/2010'}
+        for change in ('duplicate-pair','wrong-package','missing-fact'):
+            path=trx(self.root/(change+'.trx'),'9');tree=ET.parse(path);rows=tree.findall('./t:Results/t:UnitTestResult',ns)
+            if change=='duplicate-pair':rows[2].set('testName',rows[3].get('testName'))
+            elif change=='wrong-package':rows[2].set('testName',rows[2].get('testName').replace('packageName: "','packageName: "Unknown.',1))
+            else:rows[0].set('testName',rows[1].get('testName'))
+            tree.write(path)
+            with self.assertRaisesRegex(ValueError,'Duplicate NET9|Unexpected or ambiguous NET9'):
+                S.test_results('9',path,scenarios(self.root/(change+'.xml')))
+
+    def test_net9_fixed_baseline_absences_and_pinned_sources_are_required(self):
+        release=self.root/'case-evidence';source=self.root/'case-inputs';package_case_inputs(source,release)
+        self.assertEqual(S.N9.validate(release)['availableBaselines'],260)
+        with self.assertRaisesRegex(ValueError,'must be absent'):
+            S.N9.before_test(source,self.root/'reused-cache')
+        path=release/'reports/test/package-cases/coverage.json';receipt=S.load(path)
+        available=next(row for row in receipt['cacheRows'] if row['available']);available['available']=False;available['bytes']=0;dump(path,receipt)
+        with self.assertRaisesRegex(ValueError,'identity/absence differs'):
+            S.N9.validate(release)
+        available['available']=True;available['bytes']=1;dump(path,receipt)
+        original=release/'reports/test/package-cases/source/NugetPackageDownloadHelpers.cs';original.write_bytes(original.read_bytes()+b'\n')
+        with self.assertRaisesRegex(ValueError,'Pinned package comparison source bytes differ'):
+            S.N9.validate(release)
 
     def test_standalone_frozen_helpers_never_add_bytecode_files(self):
         for entry in ('ci-vmr89.py','ci_vmr89_support.py'):
             with self.subTest(entry=entry):
                 directory=self.root/entry/'scripts';directory.mkdir(parents=True)
-                names=['ci-vmr89.py','ci_vmr89_support.py','ci-net10-evidence.py']
+                names=['ci-vmr89.py','ci_vmr89_support.py','ci-net10-evidence.py','ci_net9_cases.py','ci-net9-test-cases.json']
                 for name in names:shutil.copyfile(ROOT/'scripts'/name,directory/name)
                 before={path.relative_to(directory).as_posix() for path in directory.rglob('*') if path.is_file()}
                 environment=os.environ.copy();environment.pop('PYTHONDONTWRITEBYTECODE',None);environment.pop('PYTHONPYCACHEPREFIX',None)

@@ -20,6 +20,7 @@ import xml.etree.ElementTree as ET
 
 sys.dont_write_bytecode = True
 os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
+import ci_net9_cases as N9
 HERE = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location('ci10_primitives', HERE / 'ci-net10-evidence.py')
 G = importlib.util.module_from_spec(spec); spec.loader.exec_module(G)
@@ -114,7 +115,7 @@ def freeze(project, source, release, version, identity, workflow):
     original = load(profile)
     require(original['source']['commit'] == V[version]['commit'] and original['build']['sourceOnly'] is V[version]['sourceOnly'], 'Selected profile differs')
     dump(destination / 'effective-profile.json', effective(original, version))
-    result = dict(identity, schemaVersion=1, scenarioReportFenceRequired=version == '9', executionContext='github-actions' if os.environ.get('GITHUB_ACTIONS') == 'true' else 'local-unverified',
+    result = dict(identity, schemaVersion=1, scenarioReportFenceRequired=version == '9', packageCaseCoverageRequired=version == '9', executionContext='github-actions' if os.environ.get('GITHUB_ACTIONS') == 'true' else 'local-unverified',
                   workflowRef=workflow, sourceInitiallyPristine=True, projectInitiallyPristine=True,
                   inputRepresentation='canonical-git-blobs-with-verified-checkout', projectFiles=rows,
                   projectCommitObject=record(release, destination / 'project-commit.txt'), originalProfile=record(release, profile),
@@ -151,7 +152,10 @@ def verify_sysroot(root, reports, version, output):
 def test_results(version, trx, scenario=None):
     root = G.xml(trx); ns = {'t': 'http://microsoft.com/schemas/VisualStudio/TeamTest/2010'}
     results = root.findall('./t:Results/t:UnitTestResult', ns); counters = root.find('./t:ResultSummary/t:Counters', ns)
-    total, passed = (46, 44) if version == '8' else (500, 500)
+    if version == '8':
+        total, passed = 46, 44
+    else:
+        total = passed = len(N9.available_ids()) * len(N9.policy()['packageMethods']) + len(N9.policy()['factMethods'])
     require(counters is not None and len(results) == total and len({r.get('executionId') for r in results}) == total,
             'Incomplete actual upstream TRX results')
     require(all(int(counters.get(k, '-1')) == v for k, v in dict(total=total, executed=passed, passed=passed, failed=0).items()), 'Unexpected upstream counters')
@@ -161,6 +165,7 @@ def test_results(version, trx, scenario=None):
             and all(r.get('outcome') == 'NotExecuted' for r in skipped), 'Unexpected upstream failures/skips')
     value = {'total': total, 'passed': passed, 'failed': 0, 'skipped': len(skipped), 'skippedTests': sorted(expected)}
     if version == '9':
+        value['packageCases'] = N9.common_cases(results)
         scenarios = G.xml(scenario); assemblies = scenarios.findall('./assembly'); tests = scenarios.findall('./assembly/collection/test')
         require(len(assemblies) == 1 and len(tests) == 34 and len({t.get('name') for t in tests}) == 34,
                 'All 34 actual scenarios are required')
@@ -462,6 +467,16 @@ def qualify(args):
         require(G.timestamp(stages[name]['startedAtUtc']) - dt.timedelta(seconds=1) <= G.timestamp(status['startedAt'])
                 <= G.timestamp(status['finishedAt']) <= G.timestamp(stages[name]['finishedAtUtc']), 'Inner action times differ')
     if version == '9':
+        require(snapshot.get('packageCaseCoverageRequired') is True, 'Current pinned package case coverage is mandatory')
+        N9.validate(release)
+        before = load(reports / 'test/package-cases-before.json'); coverage = load(reports / 'test/package-cases/coverage.json')
+        inner = load(reports / 'test/test-status.json')
+        require(G.timestamp(stages['test']['startedAtUtc']) <= G.timestamp(before['observedAtUtc'])
+                <= G.timestamp(inner['startedAt']) + dt.timedelta(seconds=1)
+                and G.timestamp(inner['finishedAt']) <= G.timestamp(coverage['capturedAtUtc']) <= G.timestamp(stages['test']['finishedAtUtc']),
+                'Package baseline observations must bracket the actual fresh test invocation')
+        require(fingerprint(release / 'reports/ci-inputs/project/scripts/ci-net9-test-cases.json') == fingerprint(HERE / 'ci-net9-test-cases.json'),
+                'Frozen package case policy differs from trusted pinned coverage')
         helper = release / 'reports/ci-inputs/project/scripts/prepare-scenario-report-fence.py'
         # Old frozen runs predate this helper. New committed inputs must require it.
         if helper.exists() or 'scenarioReportFenceRequired' in snapshot:

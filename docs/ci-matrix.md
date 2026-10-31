@@ -13,6 +13,8 @@ The default is a native `ubuntu-24.04-arm` worker. Repository variable `SDK_BUIL
 
 The .NET 9/10 scenario runner uses an explicit outer completion fence for the [upstream xUnit XML race](https://github.com/xunit/xunit/issues/2090). It waits until the existing XML sink finishes processing the final message; test assertions, filters, skips and failure status remain unchanged. The original and patched runner, helper fingerprint and actual captured source are bound by the delivery evidence. Raw test results and counters must still pass the version-specific gates.
 
+The pinned .NET 9 graph declares 262 shipping packages. Its fresh original downloader produces 260 usable comparison baselines and two zero-byte cache entries, for `Microsoft.DotNet.Common.ProjectTemplates.9.0` and `Microsoft.EntityFrameworkCore.Tasks`. The gate requires both original comparison methods for exactly those 260 package IDs plus both SDK facts: 522 passing common results, followed by all 34 scenario results. It binds the actual generated manifest, original test sources, runtime configuration, initially absent cache and all retained cache bytes. The two unavailable baselines remain explicit comparison gaps; they are not counted as passing package comparisons. Historical 500-result local runs had a different baseline cache and do not establish this fresh coverage.
+
 ## Actual used sources
 
 After successful build and upstream tests, and before native verification/final collection, [source packaging](../scripts/package-used-source.py) captures the actual source roots declared by each adapter:

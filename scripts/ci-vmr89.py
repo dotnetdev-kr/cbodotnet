@@ -114,6 +114,7 @@ class Driver:
     def product(self, action):
         self.verify_prepared()
         if action == 'test' and self.version == '9':
+            S.N9.before_test(self.source, self.output)
             self.container(['python3', '/delivery/reports/ci-inputs/project/scripts/prepare-scenario-report-fence.py', 'apply',
                             '--version', '9', '--source-dir', '/vmr', '--reports-dir', '/delivery/reports/test/scenario-report-fence'])
         script = '/inputs/ci-tools/scripts/build-vmr8.sh' if self.version == '8' else '/delivery/reports/ci-inputs/project/scripts/build-vmr9.sh'
@@ -138,6 +139,7 @@ class Driver:
             shutil.copytree(source, destination)
             summary = S.test_results('8', destination / files[0].name)
         else:
+            S.N9.capture(self.source, self.output)
             source = self.source / 'artifacts/TestResults/Release'; shutil.copytree(source, destination)
             scenario = list((destination / 'scenario-tests').glob('*.xml')); S.require(len(scenario) == 1, 'One fresh scenario XML required')
             summary = S.test_results('9', destination / 'Microsoft.DotNet.UnifiedBuild.Tests.trx', scenario[0])
