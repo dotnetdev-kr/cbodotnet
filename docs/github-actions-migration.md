@@ -1,8 +1,10 @@
-# Moving the current builds to GitHub Actions
+# Historical GitHub Actions migration assessment
 
 Assessment snapshot: **2026-10-31, Asia/Seoul**. This review covers the actual Linux ARM64 profiles for Core 3.0/3.1 and .NET 5–10, their wrappers/containers, retained resource records and current official GitHub documentation. No workflow, remote CI run or publication is implemented by this assessment.
 
-**Implementation follow-up:** the [.NET 10 CI guide](ci-net10.md) records a [successful native hosted ARM64 run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41191037279) and independent verification of its downloaded artifact. The regular .NET 10 profile completed preparation through final collection in 56 minutes 13 seconds, including a 45-minute 30-second SDK build and all upstream/native gates. The guide records actual resource observations and their scope. The requirements below remain the checklist for other profiles; the other version adapters and native x64 have not thereby been migrated.
+**Implementation follow-up:** all eight selected ARM64 profiles have passed actual hosted builds and independent SDK/source delivery qualification. The [version-specific CI guide](ci-matrix.md) and [qualification records](ci-matrix-results.md) identify the implementation, exact runs and measured resources. The assessment below preserves the pre-implementation findings and recommendations at its original date. Its missing-orchestration statements and capacity recommendations are historical, rather than the current implementation status or measured runner requirements. Native x64 remains separate.
+
+## Original assessment
 
 **The Linux stages can move to GitHub Actions, but the current repository is not yet an unattended full-matrix pipeline.** Native hosted ARM64 and x64 machines exist. Remaining work includes Linux orchestration, durable historical inputs, a clean run of each final configuration and capacity measurements. A larger native Linux runner is the recommended first full-build pilot. Standard runners can validate produced SDKs, but their advertised 14 GB disk allocation is not an established full-build budget.
 

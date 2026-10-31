@@ -2,6 +2,8 @@
 
 Review date: 2026-10-28. This document proposes the subsequent implementation; it does not describe an operational CI service or public download URLs.
 
+**CI implementation follow-up:** all eight selected native ARM64 profiles have passed hosted builds and downloaded source-inclusive delivery qualification. The [version-specific CI guide](ci-matrix.md) and [qualification records](ci-matrix-results.md) identify their actual runs and measured hosted resources. The design and dated local milestones below retain their historical scope. Public download-site operation and native x64 remain separate work.
+
 **Project direction update, 2026-10-30:** the goal is ongoing community Linux SDK builds for every .NET major version from .NET 5 onward, regardless of Microsoft's support lifecycle. Establish version-specific environments in local WSL and containers before CI migration. Prefer VMR where applicable and use the appropriate legacy construction path for older versions. The [.NET 9.0.123 ARM64 local build](build-report-9.0.123-arm64.md) has now completed with SDK execution and ABI validation in three Linux user spaces. The original review date and source references remain the historical basis of this design.
 
 For the later review of concrete runner choices and changes to the implemented build, see the [GitHub Actions migration assessment](github-actions-migration.md). The [version coverage assessment](dotnet-version-coverage.md) separates legacy, source-build, regular VMR, and development release paths.

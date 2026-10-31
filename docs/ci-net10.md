@@ -4,7 +4,11 @@ The [workflow](../.github/workflows/net10-sdk.yml) builds the pinned SDK 10.0.40
 
 This is the regular VMR 4xx build. It consumes the pinned upstream shared runtime and ASP.NET inputs declared in the profile. It does not establish a source-only build, Stage 2, zero prebuilt usage, x64 coverage, workload support, or compatibility with every Linux distribution.
 
-## Hosted qualification
+## Current source-inclusive qualification
+
+The [source-inclusive matrix run 41211183670](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41211183670), at orchestration commit `5721c5989e277d98b6af7c782d1b660459f8298e`, passed every hosted gate and complete independent downloaded delivery verification. It includes the actual build sources and the complete matching 1xx VMR sources for reused shared inputs. The [qualification record](ci-matrix-results.md) provides its artifact link, SDK/source hashes, tests and measured resources. This newer SDK archive and source delivery are separate from the earlier pilot below.
+
+## Historical SDK-only pilot
 
 The [successful hosted run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41191037279), at orchestration commit `1d24bc32770753f13e59c6a0927585ac0d3805d6`, passed preparation, SDK build, pristine-source scan, upstream tests, all six functional checks on each of Ubuntu 22.04, Ubuntu 24.04 and Debian 13, final collection, the complete evidence gate, and artifact upload. All 13 common tests passed; the 36 scenarios contained 34 passes and the two declared skips. All 24 shipped ELF files were AArch64, with maximum requirements GLIBC 2.27, GLIBCXX 3.4.22 and CXXABI 1.3.7.
 
@@ -88,7 +92,7 @@ They test a real clean Git checkout with CRLF-smudged CMD files, raw result omis
 
 ## Download and revalidate
 
-New source-inclusive runs capture the actual post-test VMR checkout, applied source/configuration changes, orchestration sources, and frozen input records before native verification. Because the 4xx tree omits runtime and ASP.NET sources, a separate full 1xx VMR checkout at `0427b9abbead3fa64c6655eb4290c537397131fa` supplies corresponding sources for the reused shared inputs. Both actual SDK `.version` markers must match that commit. Its explicit source role preserves the distinction from a local framework rebuild. The `sources/` directory contains a source `.tar.gz`, `source-index.jsonl`, and `source-manifest.json`; an identical manifest is included in the inventoried reports. The index binds every archived file or symlink, its mode and content hashes. Original Git commit objects, baseline tree identities, deleted paths and submodule mappings identify the source origins. Git object stores and build/package caches are excluded; this is not an offline bootstrap bundle. The qualified run recorded above predates this addition and must not be presented as source-inclusive evidence.
+New source-inclusive runs capture the actual post-test VMR checkout, applied source/configuration changes, orchestration sources, and frozen input records before native verification. Because the 4xx tree omits runtime and ASP.NET sources, a separate full 1xx VMR checkout at `0427b9abbead3fa64c6655eb4290c537397131fa` supplies corresponding sources for the reused shared inputs. Both actual SDK `.version` markers must match that commit. Its explicit source role preserves the distinction from a local framework rebuild. The `sources/` directory contains a source `.tar.gz`, `source-index.jsonl`, and `source-manifest.json`; an identical manifest is included in the inventoried reports. The index binds every archived file or symlink, its mode and content hashes. Original Git commit objects, baseline tree identities, deleted paths and submodule mappings identify the source origins. Git object stores and build/package caches are excluded; this is not an offline bootstrap bundle. The historical SDK-only pilot `41191037279` predates this addition and must not be presented as source-inclusive evidence.
 
 The workflow uploads a run-specific outer `.tar.gz` bundle and its transport SHA-256/SHA-512 files, including failed-run evidence when available. A successful bundle contains the unchanged SDK tarball, its two checksum files, `build-manifest.json`, `collect-receipt.json`, `ci-validation.json`, and the complete reports/source snapshot. Artifact retention is 14 days.
 

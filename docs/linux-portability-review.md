@@ -1,4 +1,6 @@
-# Linux portability review of the current SDK archives
+# Original local SDK artifact portability review
+
+This document preserves the original local artifact inspection and execution evidence. All eight later CI SDK archives passed six functional checks in each recorded native Linux user space; their source deliveries and exact results are recorded separately in the [CI qualification results](ci-matrix-results.md). The original readelf inspection and WSL observations below are not retroactively presented as CI evidence.
 
 Review date: **2026-10-31**. This review covers the eight collected **Linux ARM64, glibc** SDK archives listed below. It uses their actual `build-manifest.json`, embedded build profiles, ELF ABI tables and successful native verification reports. No SDK was rebuilt or modified for this review. A separate read-only archive inspection rechecked every archive's SHA-256 against its manifest before and after inspecting ELF headers.
 

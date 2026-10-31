@@ -2,7 +2,7 @@
 
 The [matrix workflow](../.github/workflows/sdk-matrix.yml) runs the existing pinned profiles on fresh native Linux ARM64 workers. Version adapters retain their original upstream tests, source construction policy and required compatibility inputs. A workflow file or local fixture pass is not a completed hosted build. Each version must pass its own fresh run and downloaded delivery verification.
 
-The matrix enables .NET 5–10 and .NET Core 3.0/3.1. Select `all` for all eight profiles or one pinned version. The existing [.NET 10 workflow](ci-net10.md) is also being qualified with source delivery, including the matching source revision of reused shared inputs. Each newly integrated adapter still requires its actual cold hosted qualification; no historical local success is promoted into a new CI result.
+The matrix enables .NET 5–10 and .NET Core 3.0/3.1. Select `all` for all eight profiles or one pinned version. All eight selected ARM64 profiles have passed actual hosted and downloaded delivery qualification. The [qualification records](ci-matrix-results.md) identify their exact runs and commits, including .NET 10's matching source revision for reused shared inputs. Every new run must pass its own gates; no historical local success is promoted into a new CI result.
 
 ```bash
 gh workflow run sdk-matrix.yml --repo dotnetdev-kr/cbodotnet --ref main \
@@ -33,7 +33,7 @@ Every successful outer transport bundle contains the SDK, both SDK checksums, co
 
 ## Downloaded delivery verification
 
-From a trusted checkout at the build's orchestration commit, download the run-specific artifact's three transport files. Then run:
+From a trusted checkout at the build's orchestration commit, or a later trusted verifier supporting its recorded contract, download the run-specific artifact's three transport files. Always supply the original producer commit, run and attempt. Then run:
 
 ```bash
 python3 scripts/ci-delivery.py \

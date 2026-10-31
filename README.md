@@ -10,9 +10,9 @@ The [legacy build progress](docs/legacy-build-progress.md) records the ongoing .
 
 **Project direction, 2026-10-30, expanded 2026-10-31:** establish and validate the environment for each version in local WSL and containers before migrating the build profiles to CI. Microsoft end-of-support dates remain descriptive metadata, not criteria for excluding a version or ending community build availability. Version-specific legacy research and implementation stages are recorded in the progress guide; a researched route is distinct from a completed SDK build.
 
-The [.NET 10 CI guide](docs/ci-net10.md) describes the manual native ARM64 GitHub Actions pipeline, fresh source/input snapshots, upstream and three-user-space validation, and optional unpublished draft delivery. A [complete hosted run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41191037279) passed every build and validation gate; its downloaded artifact also passed independent local verification. Other versions and native x64 retain their independent migration work.
+The [.NET 10 CI guide](docs/ci-net10.md) describes the manual native ARM64 GitHub Actions pipeline, fresh source/input snapshots, upstream and three-user-space validation, and optional unpublished draft delivery. Its [earlier SDK-only pilot](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41191037279) passed hosted and downloaded verification. Current source-inclusive qualification is recorded separately in the [ARM64 CI results](docs/ci-matrix-results.md). Native x64 remains a separate target.
 
-The [version-specific CI matrix](docs/ci-matrix.md) extends source-inclusive build and validation to the other ARM64 profiles. Fresh hosted qualification is tracked separately from implementation and historical local builds. Native x64 remains a separate target.
+All eight selected ARM64 profiles, **.NET Core 3.0/3.1 and .NET 5–10**, have now passed actual hosted builds and complete downloaded SDK/source delivery verification. The [version-specific CI matrix](docs/ci-matrix.md) runs each pinned environment; the [qualification records](docs/ci-matrix-results.md) provide exact commits, run/artifact links, SDK/source checksums, test counts and measured resources. Each artifact includes the actual source snapshot, file index, source manifest and validation reports. Native x64 and public binary releases remain separate work.
 
 **Native ARM64 builds and SDK validation have been completed for .NET Core 3.0.103, 3.1.426 and .NET 5.0.214, 6.0.136, 7.0.120, 8.0.133, 9.0.123, and 10.0.403 on Windows ARM64 with WSL 2.** Each version has its own container and sysroot profile. Archives, checksums, manifests and validation reports are generated under `artifacts/<version>-linux-arm64`. The .NET 5/Core 3.x modern-distribution tests use explicit OpenSSL 1.1 inputs; Core 3.x on Debian 13 additionally uses recorded ICU 66. Core 3.0's supported incremental completion and separate failed/full/targeted evidence remain explicit. Final strict delivery audits passed for all four newly completed legacy targets.
 
@@ -44,6 +44,7 @@ Existing release manifests retain their historical collection inputs. The .NET 1
 | [.NET 9 ARM64 reproduction](docs/reproduce-net9-arm64.md) | Isolated WSL/container workspace, signed Xenial sysroot, build corrections, collection, and verification |
 | [GitHub Actions migration assessment](docs/github-actions-migration.md) | Later CI migration after local version-specific environments are established, runner capacity, and required changes |
 | [.NET 10 CI operation](docs/ci-net10.md) | Manual native ARM64 build, actual evidence gates, runner configuration, artifacts and optional draft delivery |
+| [ARM64 CI qualification results](docs/ci-matrix-results.md) | Actual hosted runs, downloaded SDK/source verification, artifact links, checksums and measured resources |
 | [.NET version coverage](docs/dotnet-version-coverage.md) | Completed Core 3.x/.NET 5+ profiles, researched older and future build paths, and remaining environment work |
 | [Linux ARM64/x64 version floor](docs/architecture-version-floor.md) | Core 2.1/2.2 SDK evidence, the Core 3.0 support transition, and the separate requirements for a verified two-architecture community release |
 | [Linux portability review](docs/linux-portability-review.md) | Actual artifact targets, host RID detection, ELF dependencies, native verification and generic glibc Linux limitations |
@@ -86,7 +87,7 @@ Select the collected .NET 7 archive with another workspace:
 
 The recorded .NET 7 validation used WSL and Podman; this example selects its archive for a wslc session.
 
-## Current implementation
+## Original local implementation records
 
 **3.0.103 with runtime/ASP.NET 3.0.3** was collected unchanged as a 157,285,088-byte native ARM64 SDK. All 188 runtime/134 ASP.NET entries and the 180-payload native chain passed their origin audits. The complete upstream suite passed **52 cases and 156 commands, with two certificate setups and zero exclusions**. Six native functional checks passed in Ubuntu 22.04, Ubuntu 24.04 and Debian 13 with explicit OpenSSL 1.1 inputs; Debian additionally used recorded ICU 66. Its 19 AArch64 ELF files require at most GLIBC `2.17`, GLIBCXX `3.4.21` and CXXABI `1.3.7`. Copy evidence spans the earlier failed runtime-copy invocation and final successful ASP.NET-copy invocation. Supported targeted adapters reuse verified dependencies with distinct statuses/manifests preserved. The strict final delivery audit passed. The [build report](docs/build-report-3.0.103-arm64.md) discloses historical generations and external ABI requirements; a fresh clean full build is not claimed.
 
