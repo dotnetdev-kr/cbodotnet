@@ -90,6 +90,13 @@ jobs:
             bash scripts/ci-net10.sh "$stage" \
               --workspace "$NET10_WORKSPACE" --output-dir "$NET10_RELEASE" \
               --build-id "$NET10_BUILD_ID" --build-revision "$GITHUB_RUN_ID"
+            if [[ "$stage" == test ]]; then
+              /usr/bin/python3 scripts/package-used-source.py \
+                --roots-json "$NET10_RELEASE/reports/ci/source-roots.json" \
+                --output-dir "$NET10_RELEASE/sources" --project-root "$GITHUB_WORKSPACE" \
+                --project-commit "$GITHUB_SHA" --sdk-version 10.0.403 --target-rid linux-arm64 \
+                --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT"
+            fi
           done
           stop_monitor
           trap - EXIT
@@ -347,6 +354,7 @@ jobs:
           [[ ${#assets[@]} == 1 && -f ${assets[0]} ]]
           assets+=("$release/SHA256SUMS" "$release/SHA512SUMS" "$release/build-manifest.json"
             "$release/collect-receipt.json" "$release/ci-validation.json")
+          for path in "$release/sources"/*; do assets+=("$path"); done
           for path in "$RUNNER_TEMP/net10-download"/*; do assets+=("$path"); done
           for path in "${assets[@]}"; do
             [[ -f $path && ! -L $path && $(stat -c %s -- "$path") -lt 2147483648 ]] || {

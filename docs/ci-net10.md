@@ -88,6 +88,8 @@ They test a real clean Git checkout with CRLF-smudged CMD files, raw result omis
 
 ## Download and revalidate
 
+New source-inclusive runs capture the actual post-test VMR checkout, applied source/configuration changes, orchestration sources, and frozen input records before native verification. The `sources/` directory contains a source `.tar.gz`, `source-index.jsonl`, and `source-manifest.json`; an identical manifest is included in the inventoried reports. The index binds every archived file or symlink, its mode and content hashes. Original Git commit objects, baseline tree identities, deleted paths and submodule mappings identify the source origins. Git object stores and build/package caches are excluded; this is not an offline bootstrap bundle. The qualified run recorded above predates this addition and must not be presented as source-inclusive evidence.
+
 The workflow uploads a run-specific outer `.tar.gz` bundle and its transport SHA-256/SHA-512 files, including failed-run evidence when available. A successful bundle contains the unchanged SDK tarball, its two checksum files, `build-manifest.json`, `collect-receipt.json`, `ci-validation.json`, and the complete reports/source snapshot. Artifact retention is 14 days.
 
 If verification fails after provisional collection, the failure bundle also preserves a complete candidate under `failure-candidate/`, after checking its SDK hashes and sidecars. Its `status.json` explicitly marks it `unvalidated-candidate`. This diagnostic copy does not establish a validated delivery. Failed or incomplete candidate preservation emits a warning while ordinary failure reports remain available.

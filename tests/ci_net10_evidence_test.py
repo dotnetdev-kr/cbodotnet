@@ -268,6 +268,12 @@ class EvidenceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'digest mismatch'):
             GATE.validate_bundle(self.root)
 
+    def test_new_source_delivery_cannot_pass_without_actual_sources(self):
+        bundle = Bundle(self.root)
+        bundle.alter('reports/ci-inputs/snapshot.json', lambda data: data.update(sourceDeliveryRequired=True))
+        with self.assertRaisesRegex(ValueError, 'source directory'):
+            GATE.validate_bundle(self.root)
+
     def test_fabricated_empty_scan_without_execution_is_rejected(self):
         bundle = Bundle(self.root)
         bundle.alter('reports/scan/scan-execution.json', lambda data: data.update(commands=[['touch', 'NewBinaries.txt']]))

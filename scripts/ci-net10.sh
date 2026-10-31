@@ -365,6 +365,13 @@ if not tests or sum(int(x.get('total', 0)) for x in tests) == 0 or any(int(x.get
 PY
     path_fact commonTrx reports/test/upstream-results/common.trx
     path_fact scenarioXml reports/test/upstream-results/scenarios.xml
+    python3 - "$reports/ci/source-roots.json" "$source_dir" "$source_commit" <<'PY'
+import json, pathlib, sys
+data = {'schemaVersion': 1, 'roots': [{'name': 'vmr', 'path': sys.argv[2],
+        'kind': 'git', 'expectedCommit': sys.argv[3]}]}
+with pathlib.Path(sys.argv[1]).open('x') as out:
+    json.dump(data, out, indent=2); out.write('\n')
+PY
   fi
   ;;
 scan)

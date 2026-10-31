@@ -4,12 +4,14 @@ import argparse
 import copy
 import datetime as dt
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path, PurePosixPath
 import re
 import subprocess
 import xml.etree.ElementTree as ET
+from types import SimpleNamespace
 
 SOURCE = '5a2162bea6845eabc1fc721624a43568c65db3b1'
 SDK = '10.0.403'
@@ -351,7 +353,7 @@ def freeze(args):
             'buildRevision': args.build_revision, 'workflowRef': args.workflow_ref,
             'executionContext': 'github-actions' if os.environ.get('GITHUB_ACTIONS') == 'true' else 'local-unverified',
             'sourceRepository': 'https://github.com/dotnet/dotnet', 'sourceInitiallyPristine': True,
-            'projectInitiallyPristine': True, 'projectFiles': inventory,
+            'projectInitiallyPristine': True, 'projectFiles': inventory, 'sourceDeliveryRequired': True,
             'inputRepresentation': 'canonical-git-blobs-with-verified-checkout',
             'projectCommitObject': record(release, destination / 'project-commit.txt'),
             'effectiveProfile': record(release, destination / 'effective-profile.json'),
@@ -406,6 +408,21 @@ def validate_bundle(release, project=None):
             and archive.get('copiedWithoutModification') is True, 'The delivery must retain the actual SDK bytes and version/revision name')
     require(manifest.get('construction', {}).get('upstreamSharedRuntimeReused') is True,
             'The regular 4xx construction must disclose upstream shared runtime reuse')
+    sources = None
+    if snapshot.get('sourceDeliveryRequired'):
+        module_path = Path(__file__).parent / 'package-used-source.py'
+        spec = importlib.util.spec_from_file_location('used_source', module_path)
+        module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+        source_manifest = module.verify(SimpleNamespace(
+            release_dir=release, expected_project_commit=snapshot['projectCommit'],
+            expected_run_id=snapshot['runId'], expected_run_attempt=snapshot['runAttempt']))
+        require(source_manifest['sdkVersion'] == SDK and source_manifest['targetRid'] == 'linux-arm64',
+                'Source package targets another SDK')
+        capture = timestamp(source_manifest['capturedAtUtc'])
+        test_end = timestamp(load(member(release, 'reports/ci/stages/test.json'))['finishedAtUtc'])
+        verify_start = timestamp(load(member(release, 'reports/ci/stages/verify.json'))['startedAtUtc'])
+        require(test_end <= capture <= verify_start, 'Used sources must be captured after tests and before verification')
+        sources = record(release, member(release, 'sources/source-manifest.json'))
     for algorithm in ('sha256', 'sha512'):
         expected_line = archive[algorithm] + '  ' + archive['path'] + '\n'
         require(member(release, algorithm.upper() + 'SUMS').read_text() == expected_line, 'SDK checksum file differs')
@@ -474,6 +491,8 @@ def validate_bundle(release, project=None):
         outer.add(collect[key]['path'])
     if (release / 'ci-validation.json').exists():
         outer.add('ci-validation.json')
+    if sources is not None:
+        outer.update(p.relative_to(release).as_posix() for p in tree_files(release / 'sources'))
     actual_outer = {p.relative_to(release).as_posix() for p in release_files
                     if 'reports' not in p.relative_to(release).parts[:1]}
     require(actual_outer == outer, 'Unbound files exist outside the final report inventory')
@@ -483,6 +502,7 @@ def validate_bundle(release, project=None):
             'snapshot': record(release, snapshot_path), 'collectReceipt': record(release, collect_path),
             'reportFiles': len(rows), 'rebuildInputFiles': len(manifest['rebuildInputs']),
             'scan': scan_summary, 'tests': tests, 'native': native,
+            **({'sources': sources} if sources is not None else {}),
             'scope': 'Actual current-run regular VMR build, original clean-source scan, raw upstream tests, three native user spaces and unchanged SDK delivery. No source-only, Stage 2, workload, universal Linux or cold-resource success claim.'}
 
 
