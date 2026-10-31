@@ -49,6 +49,7 @@ def main():
                 pinned(root, patch["path"], patch["sha256"])
 
     links = 0
+    generated_links = 0
     documents = [root / "README.md", *sorted((root / "docs").glob("*.md"))]
     for path in documents:
         content = path.read_text(encoding="utf-8-sig")
@@ -60,7 +61,14 @@ def main():
             target = target.strip("<>").split("#", 1)[0]
             if not target or "://" in target or target.startswith(("mailto:", "/")):
                 continue
-            if not (path.parent / target).exists():
+            resolved = (path.parent / target).resolve()
+            artifact_root = root / "artifacts"
+            if resolved == artifact_root or artifact_root in resolved.parents:
+                # Build reports also link local outputs excluded from Git.
+                # Their existence belongs to delivery validation, not checkout CI.
+                generated_links += 1
+                continue
+            if not resolved.exists():
                 raise ValueError("Broken documentation link: " + str(path) + ": " + target)
             links += 1
     workflows = sorted((root / ".github/workflows").glob("*.yml"))
@@ -71,6 +79,7 @@ def main():
     print(json.dumps({"status": "passed", "pythonFiles": len(python_files),
                       "bashFiles": len(shell_files), "jsonFiles": len(json_files),
                       "pinnedInputs": len(checked), "localLinks": links,
+                      "generatedArtifactLinks": generated_links,
                       "workflows": len(workflows)}))
 
 
