@@ -7,8 +7,8 @@ on:
         description: Pinned container profile to build and qualify
         type: choice
         required: true
-        default: net9
-        options: [net9, net8, net7, net6, net5, core31, core30]
+        default: all
+        options: [all, net10, net9, net8, net7, net6, net5, core31, core30]
       create_draft:
         description: Create unpublished drafts only after all selected builds pass
         type: boolean

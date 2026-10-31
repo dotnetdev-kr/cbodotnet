@@ -177,7 +177,8 @@ def pack(args):
     require(roots_doc.get('schemaVersion') == 1 and roots_doc.get('roots'), 'Actual build-source roots are required')
     roots = list(roots_doc['roots'])
     require(all(root.get('name') != 'orchestration' for root in roots), 'Reserved source root name')
-    roots.append({'name': 'orchestration', 'kind': 'git', 'path': str(project), 'expectedCommit': args.project_commit})
+    roots.append({'name': 'orchestration', 'kind': 'git', 'path': str(project), 'expectedCommit': args.project_commit,
+                  'role': 'orchestration'})
     input_records = release / 'reports/ci-inputs'
     if input_records.is_dir():
         roots.append({'name': 'build-input-records', 'kind': 'tree', 'path': str(input_records), 'exclude': ['project']})
@@ -200,7 +201,8 @@ def pack(args):
                               and other.get('expectedCommit') == submodule['commit'] and other['kind'] in ('git', 'git-export')]
                 require(len(candidates) == 1, 'Declare the actual pinned submodule consumer: ' + root['name'] + '/' + submodule['path'])
                 submodule['root'] = candidates[0]['name']
-            root_record = dict(name=root['name'], originalPath=root['path'], **identity, files=0, deleted=[])
+            root_record = dict(name=root['name'], originalPath=root['path'], role=root.get('role', 'build-source'),
+                               **identity, files=0, deleted=[])
             for relative in names:
                 path = Path(root['path']) / relative
                 require(not any(p.is_symlink() for p in path.parents if p != Path(root['path']).parent),
@@ -236,7 +238,7 @@ def pack(args):
     manifest = {'schemaVersion': 1, 'status': 'captured-used-source', 'sdkVersion': args.sdk_version,
                 'targetRid': args.target_rid, 'projectCommit': args.project_commit, 'runId': args.run_id,
                 'runAttempt': args.run_attempt, 'capturedAtUtc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
-                'scope': 'Actual post-build source bytes, applied changes, generated consumers and orchestration; Git object stores and declared build caches are excluded.',
+                'scope': 'Declared actual build sources, corresponding sources for reused inputs, applied changes, generated consumers and orchestration; root roles distinguish construction. Git object stores and declared build caches are excluded.',
                 'roots': root_records, 'files': count,
                 'archive': dict(path=archive_name, **fingerprint(output / archive_name)),
                 'index': dict(path='source-index.jsonl', **fingerprint(index_path))}
@@ -278,6 +280,7 @@ def verify(args):
             require(row['path'] == name and name not in names and PurePosixPath(name).parts[0] in counts,
                     'Source member ordering, membership or root differs')
             names.add(name); hashes = {a: hashlib.new(a) for a in ('sha256', 'sha512')}; size = 0
+            blob = hashlib.sha1(b'blob ' + str(row['bytes']).encode() + b'\0')
             if row.get('baseline'):
                 root, relative = name.split('/', 1)
                 require(relative not in baselines[root], 'A deleted baseline also exists in the source archive')
@@ -285,6 +288,7 @@ def verify(args):
             if row['mode'] == '120000':
                 require(member.issym(), 'Source symlink type changed')
                 raw = member.linkname.encode('utf-8'); size = len(raw)
+                blob.update(raw)
                 for digest in hashes.values():
                     digest.update(raw)
                 root = PurePosixPath(name).parts[0]
@@ -296,10 +300,15 @@ def verify(args):
                 stream = archive.extractfile(member)
                 for block in iter(lambda: stream.read(1024 * 1024), b''):
                     size += len(block)
+                    blob.update(block)
                     for digest in hashes.values():
                         digest.update(block)
             require(row.get('bytes') == size and all(row.get(a) == h.hexdigest() for a, h in hashes.items()),
                     'Source content differs: ' + name)
+            root_info = next(root for root in manifest['roots'] if root['name'] == PurePosixPath(name).parts[0])
+            if root_info['name'] == 'orchestration' or root_info.get('role') == 'source-for-reused-shared-input':
+                require(row.get('baseline') == {'mode': row['mode'], 'blob': blob.hexdigest()},
+                        'Pristine corresponding source differs from its actual Git blob: ' + name)
             counts[PurePosixPath(name).parts[0]] += 1; total += 1
         require(not index.readline(), 'Source index contains absent archive members')
     require(total == manifest['files'] and all(counts[root['name']] == root['files'] for root in manifest['roots']),

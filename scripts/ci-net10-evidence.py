@@ -354,6 +354,7 @@ def freeze(args):
             'executionContext': 'github-actions' if os.environ.get('GITHUB_ACTIONS') == 'true' else 'local-unverified',
             'sourceRepository': 'https://github.com/dotnet/dotnet', 'sourceInitiallyPristine': True,
             'projectInitiallyPristine': True, 'projectFiles': inventory, 'sourceDeliveryRequired': True,
+            'sharedSourceDeliveryRequired': True,
             'inputRepresentation': 'canonical-git-blobs-with-verified-checkout',
             'projectCommitObject': record(release, destination / 'project-commit.txt'),
             'effectiveProfile': record(release, destination / 'effective-profile.json'),
@@ -418,6 +419,31 @@ def validate_bundle(release, project=None):
             expected_run_id=snapshot['runId'], expected_run_attempt=snapshot['runAttempt']))
         require(source_manifest['sdkVersion'] == SDK and source_manifest['targetRid'] == 'linux-arm64',
                 'Source package targets another SDK')
+        closure_path = release / 'reports/ci/shared-input-source.json'
+        # Older source-only pilot snapshots did not yet declare corresponding
+        # sources for the reused shared VMR. New source roots must bind both.
+        if snapshot.get('sharedSourceDeliveryRequired') or closure_path.exists() or any(root.get('name') == 'shared-vmr' for root in source_manifest['roots']):
+            closure = load(ordinary(closure_path))
+            selected = [root for root in source_manifest['roots'] if root['name'] == 'shared-vmr']
+            expected_shared = original['upstreamInputs']['sharedVmrCommit']
+            require(len(selected) == 1 and selected[0]['kind'] == 'git' and selected[0]['commit'] == expected_shared
+                    and selected[0].get('role') == 'source-for-reused-shared-input'
+                    and selected[0]['tree'] == closure['sharedSource']['tree']
+                    and closure.get('status') == 'passed' and closure.get('sourceCommit') == SOURCE
+                    and closure.get('sharedVmrCommit') == expected_shared,
+                    'Reused shared-framework sources are missing or have another revision')
+            for key in ('bytes', 'sha256', 'sha512'):
+                require(closure['sdkArchive'][key] == archive[key], 'Shared source proof belongs to another SDK archive')
+            shared_spec = importlib.util.spec_from_file_location('shared_source', Path(__file__).parent / 'ci-net10-shared-source.py')
+            shared_module = importlib.util.module_from_spec(shared_spec); shared_spec.loader.exec_module(shared_module)
+            require(shared_module.archive_markers(checked(release, archive), original) == closure['sharedMarkers'],
+                    'Actual delivered shared-framework source markers differ')
+            preparation = load(member(release, 'reports/prepare/shared-source-checkout.json'))
+            require(all(preparation[key] == closure['sharedSource'][key]
+                        for key in ('repository', 'commit', 'tree', 'pristine', 'componentPaths', 'submodules'))
+                    and preparation['pristine'] is True
+                    and all(closure['prepareReport'][key] == value for key, value in fingerprint(release / 'reports/prepare/shared-source-checkout.json').items()),
+                    'Shared source checkout/proof changed after acquisition')
         capture = timestamp(source_manifest['capturedAtUtc'])
         test_end = timestamp(load(member(release, 'reports/ci/stages/test.json'))['finishedAtUtc'])
         verify_start = timestamp(load(member(release, 'reports/ci/stages/verify.json'))['startedAtUtc'])

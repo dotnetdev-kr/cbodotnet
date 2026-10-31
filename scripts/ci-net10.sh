@@ -54,6 +54,7 @@ run_id=${GITHUB_RUN_ID:-$revision}; run_attempt=${GITHUB_RUN_ATTEMPT:-1}
 [[ $run_id =~ ^[1-9][0-9]*$ && $run_attempt =~ ^[1-9][0-9]*$ ]] || die 'Run identity must contain positive integers.'
 workflow_ref=${GITHUB_WORKFLOW_REF:-local}
 source_dir=$workspace/source
+shared_source_dir=$workspace/shared-vmr-source
 clean_dir=$workspace/clean-source
 inputs=$workspace/inputs
 home=$workspace/home
@@ -313,6 +314,8 @@ if line != 'FROM ' + expected or p['container']['repository'] + '@' + p['contain
     raise SystemExit('The profile and immutable product base differ')
 PY
   mkdir -p "$reports/prepare"
+  run python3 "$snapshot/scripts/ci-net10-shared-source.py" prepare --profile "$profile" \
+    --destination "$shared_source_dir" --report "$reports/prepare/shared-source-checkout.json"
   base=mcr.microsoft.com/dotnet-buildtools/prereqs@sha256:7ef8f6ee1b9982511349757443eb4844f0db4f8cef1aff6148a7ba1c25d7c6f4
   run "${engine[@]}" pull "$base"
   inspect_image "$base" "$reports/prepare/base-image.json" >/dev/null
@@ -336,6 +339,7 @@ PY
   path_fact sysrootValidation reports/prepare/sysroot-validation.json
   path_fact buildImage reports/prepare/build-image.json
   path_fact baseImage reports/prepare/base-image.json
+  path_fact sharedSourceCheckout reports/prepare/shared-source-checkout.json
   ;;
 build|test)
   validate_sysroot
@@ -365,13 +369,10 @@ if not tests or sum(int(x.get('total', 0)) for x in tests) == 0 or any(int(x.get
 PY
     path_fact commonTrx reports/test/upstream-results/common.trx
     path_fact scenarioXml reports/test/upstream-results/scenarios.xml
-    python3 - "$reports/ci/source-roots.json" "$source_dir" "$source_commit" <<'PY'
-import json, pathlib, sys
-data = {'schemaVersion': 1, 'roots': [{'name': 'vmr', 'path': sys.argv[2],
-        'kind': 'git', 'expectedCommit': sys.argv[3]}]}
-with pathlib.Path(sys.argv[1]).open('x') as out:
-    json.dump(data, out, indent=2); out.write('\n')
-PY
+    run python3 "$snapshot/scripts/ci-net10-shared-source.py" bind --profile "$profile" --source-dir "$source_dir" \
+      --shared-source-dir "$shared_source_dir" --prepare-report "$reports/prepare/shared-source-checkout.json" \
+      --roots-output "$reports/ci/source-roots.json" --report "$reports/ci/shared-input-source.json"
+    path_fact sharedInputSource reports/ci/shared-input-source.json
   fi
   ;;
 scan)
