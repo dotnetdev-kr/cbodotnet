@@ -25,6 +25,8 @@ After successful build and upstream tests, and before native verification/final 
 
 `sources/source-manifest.json` binds a source tarball and `source-index.jsonl`. The index identifies each file or symlink, mode and content hashes; the original Git trees can be reconstructed from baseline metadata. The same source manifest is retained in `reports/ci/used-source.json` and bound by final collection and the version gate. These are source snapshots, not offline bootstrap bundles or claims that reused upstream binaries were rebuilt locally.
 
+Source archives preserve actual checkout bytes. Pristine orchestration permits only the exact committed CMD/BAT CRLF representation. The corresponding .NET 10 shared VMR also has 987 explicitly audited Git `eol=crlf` paths in [the pinned checkout policy](../scripts/net10-shared-source-crlf.json). That exception requires its exact role, commit, tree and path, plus uniform reversible CRLF and canonical Git blob equality. Updating the shared source pin requires a new complete attribute audit; other content changes are rejected.
+
 Every successful outer transport bundle contains the SDK, both SDK checksums, complete reports, source files and the validation envelope. Both transport checksums and the complete source payload are rechecked before optional unpublished draft creation. Drafts default off and are never automatically published. Assets or tags are never overwritten.
 
 ## Downloaded delivery verification

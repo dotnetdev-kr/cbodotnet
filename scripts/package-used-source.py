@@ -3,6 +3,7 @@
 import argparse
 import base64
 import datetime
+import functools
 import hashlib
 import json
 import os
@@ -163,17 +164,46 @@ def data_record(name, mode, data, baseline=None):
     return record
 
 
-def pristine_blob(row, actual_blob, windows_bytes):
-    """Recognize only the committed Windows command checkout representation."""
+@functools.lru_cache(maxsize=1)
+def shared_crlf_policy():
+    """Load the exact reviewed attribute audit; a new pin requires re-auditing."""
+    path = Path(__file__).with_name('net10-shared-source-crlf.json')
+    require(path.is_file() and not any(p.is_symlink() for p in [path, *path.parents]),
+            'The pinned shared-source checkout policy must be ordinary')
+    data = path.read_bytes()
+    require(hashlib.sha256(data).hexdigest() == '9ac0fabdffed3e8fdaa037b52b9f62505b9710364b1268ce821a48bcb1218d65',
+            'The reviewed shared-source checkout policy changed; re-audit required')
+    policy = json.loads(data)
+    require(policy['schemaVersion'] == 1 and policy['role'] == 'source-for-reused-shared-input'
+            and policy['commit'] == '0427b9abbead3fa64c6655eb4290c537397131fa'
+            and policy['tree'] == 'ed143c381dc0e4742aa1f9afd3652af5f21c15d6'
+            and len(policy['paths']) == 987 and policy['paths'] == sorted(set(policy['paths']))
+            and all(portable(name) == name for name in policy['paths']),
+            'Unexpected pinned shared-source checkout policy')
+    return policy, frozenset(policy['paths'])
+
+
+def pristine_crlf_paths(root):
+    """Permit audited paths only for the corresponding pinned source root."""
+    if (root.get('role') != 'source-for-reused-shared-input'
+            or root.get('commit') != '0427b9abbead3fa64c6655eb4290c537397131fa'
+            or root.get('tree') != 'ed143c381dc0e4742aa1f9afd3652af5f21c15d6'):
+        return frozenset()
+    return shared_crlf_policy()[1]
+
+
+def pristine_blob(row, actual_blob, windows_bytes, allow_audited_crlf=False):
+    """Recognize uniform CRLF only when canonical bytes equal the Git blob."""
     baseline = row.get('baseline')
     if baseline == {'mode': row['mode'], 'blob': actual_blob}:
         return True
     if (row['mode'] not in ('100644', '100755')
-            or not row['path'].lower().endswith(('.cmd', '.bat')) or windows_bytes is None
+            or not (row['path'].lower().endswith(('.cmd', '.bat')) or allow_audited_crlf)
+            or windows_bytes is None
             or not baseline or baseline.get('mode') != row['mode']):
         return False
     canonical = windows_bytes.replace(b'\r\n', b'\n')
-    if b'\r' in canonical or windows_bytes != canonical.replace(b'\n', b'\r\n'):
+    if (allow_audited_crlf and b'\0' in canonical) or b'\r' in canonical or windows_bytes != canonical.replace(b'\n', b'\r\n'):
         return False
     return hashlib.sha1(b'blob ' + str(len(canonical)).encode() + b'\0' + canonical).hexdigest() == baseline['blob']
 
@@ -282,6 +312,7 @@ def verify(args):
         require(path.parent == source and all(manifest[key].get(k) == v for k, v in fingerprint(path).items()),
                 'Source artifact hash differs: ' + key)
     counts = {root['name']: 0 for root in manifest['roots']}; names = set(); total = 0
+    allowed_crlf = {root['name']: pristine_crlf_paths(root) for root in manifest['roots']}
     baselines = {root['name']: {row['path']: {'mode': row['mode'], 'blob': row['blob']}
                               for row in root.get('deleted', [])} for root in manifest['roots']}
     require('orchestration' in counts and len(counts) == len(manifest['roots']), 'Missing or duplicate source roots')
@@ -296,7 +327,9 @@ def verify(args):
                     'Source member ordering, membership or root differs')
             names.add(name); hashes = {a: hashlib.new(a) for a in ('sha256', 'sha512')}; size = 0
             blob = hashlib.sha1(b'blob ' + str(row['bytes']).encode() + b'\0')
-            windows_bytes = bytearray() if name.lower().endswith(('.cmd', '.bat')) and row['bytes'] <= 8 * 1024**2 else None
+            root_name, relative = name.split('/', 1)
+            audited_crlf = relative in allowed_crlf[root_name]
+            windows_bytes = bytearray() if (name.lower().endswith(('.cmd', '.bat')) or audited_crlf) and row['bytes'] <= 8 * 1024**2 else None
             if row.get('baseline'):
                 root, relative = name.split('/', 1)
                 require(relative not in baselines[root], 'A deleted baseline also exists in the source archive')
@@ -325,7 +358,7 @@ def verify(args):
                     'Source content differs: ' + name)
             root_info = next(root for root in manifest['roots'] if root['name'] == PurePosixPath(name).parts[0])
             if root_info['name'] == 'orchestration' or root_info.get('role') == 'source-for-reused-shared-input':
-                require(pristine_blob(row, blob.hexdigest(), bytes(windows_bytes) if windows_bytes is not None else None),
+                require(pristine_blob(row, blob.hexdigest(), bytes(windows_bytes) if windows_bytes is not None else None, audited_crlf),
                         'Pristine corresponding source differs from its actual Git blob: ' + name)
             counts[PurePosixPath(name).parts[0]] += 1; total += 1
         require(not index.readline(), 'Source index contains absent archive members')

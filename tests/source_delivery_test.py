@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Test capture of real dirty Git/exported sources and tamper detection."""
 import contextlib
+import base64
 import copy
 import importlib.util
 import io
@@ -13,6 +14,7 @@ import tarfile
 import tempfile
 from types import SimpleNamespace
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('source_delivery', ROOT / 'scripts/package-used-source.py')
@@ -163,6 +165,71 @@ class SourceDeliveryTests(unittest.TestCase):
             self.assertFalse(SOURCE.pristine_blob(alternate, digest(checkout), checkout))
         linked = dict(row, mode='120000', baseline={'mode': '120000', 'blob': digest(canonical)})
         self.assertFalse(SOURCE.pristine_blob(linked, digest(checkout), checkout))
+
+    def test_exact_shared_pin_audit_accepts_nine_real_linux_checkout_samples(self):
+        fixture = json.loads((ROOT / 'tests/fixtures/source-crlf/net10-shared-samples.json').read_text())
+        root = {'role': 'source-for-reused-shared-input', 'commit': fixture['commit'], 'tree': fixture['tree']}
+        allowed = SOURCE.pristine_crlf_paths(root)
+        self.assertEqual(len(allowed), 987)
+        self.assertEqual(len(fixture['files']), 9)
+        digest = lambda data: hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+        for sample in fixture['files']:
+            with self.subTest(path=sample['path']):
+                data = base64.b64decode(sample['checkoutBase64'], validate=True)
+                self.assertEqual(hashlib.sha256(data).hexdigest(), sample['checkoutSha256'])
+                self.assertNotEqual(digest(data), sample['gitBlobSha1'])
+                self.assertEqual(digest(data.replace(b'\r\n', b'\n')), sample['gitBlobSha1'])
+                self.assertIn(sample['path'], allowed)
+                row = {'path': 'shared-vmr/' + sample['path'], 'mode': '100644',
+                       'baseline': {'mode': '100644', 'blob': sample['gitBlobSha1']}}
+                self.assertTrue(SOURCE.pristine_blob(row, digest(data), data, sample['path'] in allowed))
+                self.assertFalse(SOURCE.pristine_blob(row, digest(data), data))
+                self.assertFalse(SOURCE.pristine_blob(row, digest(data + b'tamper'), data + b'tamper', True))
+                mixed = data.replace(b'\r\n', b'\n', 1)
+                self.assertFalse(SOURCE.pristine_blob(row, digest(mixed), mixed, True))
+                linked = dict(row, mode='120000', baseline={'mode':'120000', 'blob':sample['gitBlobSha1']})
+                self.assertFalse(SOURCE.pristine_blob(linked, digest(data), data, True))
+
+    def test_shared_crlf_scope_unknown_paths_binary_and_policy_tamper_are_rejected(self):
+        root = {'role': 'source-for-reused-shared-input', 'commit': '0427b9abbead3fa64c6655eb4290c537397131fa',
+                'tree': 'ed143c381dc0e4742aa1f9afd3652af5f21c15d6'}
+        allowed = SOURCE.pristine_crlf_paths(root)
+        for key, value in [('role','build-source'), ('role','orchestration'), ('commit','a' * 40), ('tree','b' * 40)]:
+            self.assertEqual(SOURCE.pristine_crlf_paths(dict(root, **{key:value})), frozenset())
+        digest = lambda data: hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+        canonical = b'original source\n'; checkout = canonical.replace(b'\n', b'\r\n')
+        for path in ['src/runtime/unknown.sln', 'src/runtime/unknown.py', 'src/runtime/unknown.sh',
+                     'src/nuget-client/not-audited.props', 'src/source-build-assets/unknown.cs']:
+            row = {'path':'shared-vmr/' + path, 'mode':'100644', 'baseline':{'mode':'100644','blob':digest(canonical)}}
+            self.assertNotIn(path, allowed)
+            self.assertFalse(SOURCE.pristine_blob(row, digest(checkout), checkout, path in allowed))
+        binary = b'\0binary\r\n'
+        row = {'path':'shared-vmr/src/nuget-client/Directory.Build.props', 'mode':'100644',
+               'baseline':{'mode':'100644','blob':digest(binary.replace(b'\r\n', b'\n'))}}
+        self.assertFalse(SOURCE.pristine_blob(row, digest(binary), binary, True))
+        SOURCE.shared_crlf_policy.cache_clear()
+        try:
+            with mock.patch.object(Path, 'read_bytes', return_value=b'{}'):
+                with self.assertRaisesRegex(ValueError, 'checkout policy changed'):
+                    SOURCE.pristine_crlf_paths(root)
+        finally:
+            SOURCE.shared_crlf_policy.cache_clear()
+
+    def test_streaming_verifier_buffers_only_explicit_audited_paths_and_keeps_raw_bytes(self):
+        path = self.code / 'example.props'; canonical = b'<Project>\n</Project>\n'
+        path.write_bytes(canonical); self.command(self.code, 'add', 'example.props')
+        self.command(self.code, 'commit', '-qm', 'A fixture source with a checkout transform')
+        checkout = canonical.replace(b'\n', b'\r\n'); path.write_bytes(checkout)
+        self.capture({'name':'shared', 'kind':'git', 'path':str(self.code),
+                      'expectedCommit':self.head(self.code), 'role':'source-for-reused-shared-input'})
+        with self.assertRaisesRegex(ValueError, 'Pristine corresponding source differs'):
+            self.verify()
+        # Scope selection is tested against the real pin above. This isolated
+        # repository exercises the actual archive-reading/buffering branch.
+        with mock.patch.object(SOURCE, 'pristine_crlf_paths', side_effect=lambda root: frozenset({'example.props'}) if root['name'] == 'shared' else frozenset()):
+            manifest = self.verify()
+        with tarfile.open(self.args.output_dir / manifest['archive']['path']) as archive:
+            self.assertEqual(archive.extractfile('shared/example.props').read(), checkout)
 
     def test_existing_output_and_wrong_source_commit_are_rejected(self):
         self.capture()
