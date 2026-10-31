@@ -1,0 +1,20 @@
+From: cbodotnet contributors
+Subject: [PATCH 3/3] Honor an explicitly portable ASP.NET source-build target
+
+Source: https://github.com/dotnet/installer/blob/v7.0.120/src/SourceBuild/tarball/content/repos/aspnetcore.proj
+Reference: https://github.com/dotnet/aspnetcore/blob/d9ba962869d1b1c410ea476b02de2f8e27eec762/eng/Dependencies.props#L109
+
+diff --git a/repos/aspnetcore.proj b/repos/aspnetcore.proj
+--- a/repos/aspnetcore.proj
++++ b/repos/aspnetcore.proj
+@@ -9,7 +9,9 @@
+     <BuildCommandArgs>$(BuildCommandArgs) --no-build-repo-tasks</BuildCommandArgs>
+     <BuildCommandArgs>$(BuildCommandArgs) --no-build-nodejs</BuildCommandArgs>
+     <BuildCommandArgs>$(BuildCommandArgs) /p:PublishCompressedFilesPathPrefix=$(SourceBuiltAspNetCoreRuntime)</BuildCommandArgs>
+-    <BuildCommandArgs>$(BuildCommandArgs) /p:PortableBuild=false /p:TargetRuntimeIdentifier=$(TargetRid)</BuildCommandArgs>
++    <!-- Avoid appending a portable RID twice to implicit runtime package references. -->
++    <BuildCommandArgs Condition="'$(PortableBuild)' != 'true'">$(BuildCommandArgs) /p:PortableBuild=false /p:TargetRuntimeIdentifier=$(TargetRid)</BuildCommandArgs>
++    <BuildCommandArgs Condition="'$(PortableBuild)' == 'true'">$(BuildCommandArgs) /p:PortableBuild=true /p:TargetRuntimeIdentifier=$(TargetRid)</BuildCommandArgs>
+     <!-- Update to 1.0.0 version of reference assemblies which are built in SBRP instead of the preview.2 version
+          included by Arcade -->
+     <BuildCommandArgs>$(BuildCommandArgs) /p:MicrosoftNetFrameworkReferenceAssembliesVersion=1.0.0</BuildCommandArgs>

@@ -1,0 +1,24 @@
+--- a/repos/Directory.Build.targets
++++ b/repos/Directory.Build.targets
+@@ -125,7 +125,7 @@
+     <ItemGroup>
+       <LegacyFeedMapping
+         Include="https://dotnet.myget.org/F/nuget-build/api/v3/index.json"
+-        NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/nuget-build/nuget/v3/index.json" />
++        NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json" />
+       <LegacyFeedMapping
+         Include="https://www.myget.org/F/nugetbuild/api/v3/index.json"
+         NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/nuget-build/nuget/v3/index.json" />
+@@ -138,6 +138,12 @@
+       <LegacyFeedMapping
+         Include="https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json"
+         NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json" />
++      <LegacyFeedMapping
++        Include="https://dotnetfeed.blob.core.windows.net/dotnet-tools-internal/index.json"
++        NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json" />
++      <LegacyFeedMapping
++        Include="https://dotnet.myget.org/F/dotnet-tools/api/v3/index.json"
++        NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json" />
+       <LegacyFeedMapping
+         Include="https://dotnet.myget.org/F/system-commandline/api/v3/index.json"
+         NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet5/nuget/v3/index.json" />

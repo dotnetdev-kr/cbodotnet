@@ -1,0 +1,12 @@
+--- a/repos/coreclr.proj
++++ b/repos/coreclr.proj
+@@ -10,7 +10,8 @@
+     <BuildArguments Condition="'$(SkipDisablePgo)' != 'true'">$(BuildArguments) -nopgooptimize</BuildArguments>
+     <BuildArguments Condition="'$(OS)' != 'Windows_NT'">$(BuildArguments) msbuildonunsupportedplatform</BuildArguments>
+     <BuildArguments Condition="'$(UseSystemLibraries)' == 'true' AND '$(OS)' != 'Windows_NT'">$(BuildArguments) cmakeargs -DCLR_CMAKE_USE_SYSTEM_LIBUNWIND=TRUE</BuildArguments>
+-    <BuildArguments Condition="$(Platform.Contains('arm'))">$(BuildArguments) skipnuget cross -skiprestore cmakeargs -DFEATURE_GDBJIT=TRUE</BuildArguments>
++    <BuildArguments Condition="$(Platform.Contains('arm')) AND '$(NativeArm64Host)' != 'true'">$(BuildArguments) skipnuget cross -skiprestore cmakeargs -DFEATURE_GDBJIT=TRUE</BuildArguments>
++    <BuildArguments Condition="'$(NativeArm64Host)' == 'true' AND '$(TargetOS)' == 'Linux' AND '$(Platform)' == 'arm64'">$(BuildArguments) cross -skiprestore cmakeargs -DFEATURE_GDBJIT=TRUE</BuildArguments>
+     <BuildArguments Condition="'$(TargetOS)' == 'FreeBSD'">$(BuildArguments) -clang6.0 /p:PortableBuild=true</BuildArguments>
+     <BuildArguments Condition="'$(NativeArm64Host)' == 'true' AND '$(TargetOS)' == 'Linux' AND '$(Platform)' == 'arm64'">$(BuildArguments) -clang6.0 -skipcrossarchnative</BuildArguments>
+ 

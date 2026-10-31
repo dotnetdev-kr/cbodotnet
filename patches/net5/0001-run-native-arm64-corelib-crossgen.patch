@@ -1,0 +1,20 @@
+From: cbodotnet maintainers
+Subject: [PATCH] Use native ARM64 crossgen for a same-system sysroot build
+
+The .NET 5 cross-components graph only supports a different host architecture.
+For ARM64 Linux building ARM64 Linux, the main sysroot-built crossgen is already
+executable on the host. Keep cross compilation enabled for the native outputs
+and run that existing tool instead of copying an IL-only CoreLib.
+
+diff --git a/artifacts/src/runtime.6a984143635bde23e728abaaccbde52f5ea8fa3e/src/coreclr/crossgen-corelib.sh b/artifacts/src/runtime.6a984143635bde23e728abaaccbde52f5ea8fa3e/src/coreclr/crossgen-corelib.sh
+--- a/artifacts/src/runtime.6a984143635bde23e728abaaccbde52f5ea8fa3e/src/coreclr/crossgen-corelib.sh
++++ b/artifacts/src/runtime.6a984143635bde23e728abaaccbde52f5ea8fa3e/src/coreclr/crossgen-corelib.sh
+@@ -119,7 +119,7 @@ setup_dirs_local
+ setup_dirs_local
+ 
+ # The cross build generates a crossgen with the target architecture.
+-if [[ "$__CrossBuild" == 0 ]]; then
++if [[ "$__CrossBuild" == 0 || ( "$__HostArch" == "arm64" && "$__BuildArch" == "arm64" && "$__BuildOS" == "$__TargetOS" ) ]]; then
+     # The architecture of host pc must be same architecture with target.
+     if [[ "$__HostArch" == "$__BuildArch" ]]; then
+         build_CoreLib_ni "$__BinDir/crossgen" "$__CoreLibILDir"

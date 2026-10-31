@@ -1,0 +1,12 @@
+--- a/repos/coreclr.common.props
++++ b/repos/coreclr.common.props
+@@ -15,6 +15,9 @@
+     <!-- Portable builds only apply to Linux - Mac and Windows are both always portable.
+          Additionally, Linux builds are portable by default and only have a switch to turn it off -->
+     <BuildArguments Condition="'$(TargetOS)' == 'Linux' and '$(PortableBuild)' == 'false' and '$(BuildingPortableRuntime)' != 'true'">$(BuildArguments) -PortableBuild=false</BuildArguments>
++
++    <!-- Native ARM64 uses the legacy cross switch only to select target headers and libraries. -->
++    <BuildArguments Condition="'$(TargetOS)' == 'Linux' AND '$(PortableBuild)' == 'true' AND '$(Platform)' == 'arm64' AND '$(BuildArchitecture)' == 'arm64'">$(BuildArguments) cross -skipcrossarchnative</BuildArguments>
+ 
+     <BuildArguments>$(BuildArguments) /bl</BuildArguments>
+     <BuildArguments>$(BuildArguments) /p:ILLinkTrimAssembly=false</BuildArguments>

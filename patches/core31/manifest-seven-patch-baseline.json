@@ -1,0 +1,91 @@
+{
+  "sourceCommit": "ab8b115b5658237ee8916ae3586600b39fb2fd19",
+  "previousManifest": {
+    "name": "manifest-six-patch-baseline.json",
+    "sha256": "9049ea2616b6918da51716470920023bc26be0ef7b5cbd5853632f0ac252c31a"
+  },
+  "patches": [
+    {
+      "name": "0001-forward-coreclr-native-arm64-sysroot.patch",
+      "target": "repos/coreclr.common.props",
+      "originalSha256": "1c2c9890b4acaa8da0186b7df7a2a5765dd674128acaaa0416ea532d8df84132",
+      "patchedSha256": "bb9af843d39194f5b96524a703bafdbfcc6eb031b72e571a098b1d1f6f0bd81a",
+      "patchSha256": "3fde4882844987a9bbf68db30825dff7ed1d2755b4bb4811c3ecc59845fc107d",
+      "addedLines": 3,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Forward the independent target sysroot to CoreCLR on native ARM64; omit only redundant cross-architecture host tools."
+    },
+    {
+      "name": "0002-forward-corefx-native-arm64-sysroot.patch",
+      "target": "repos/corefx.common.props",
+      "originalSha256": "1c6a9382377bf94916f815ebf0e4179fa48dbeb8fd0eddb0cc33f897ca121718",
+      "patchedSha256": "036d59b9513c5155ac1921c4b0e9052b0d6cbf0eb260dc20c23bde19847c3ea3",
+      "patchSha256": "1c445abb88ab5731399cd3b56640d929702c9f4c9e2ebc974d5518d65dfc3dac",
+      "addedLines": 2,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Forward explicit cross and LLVM9 arguments through the existing CoreFX native compiler pass-through."
+    },
+    {
+      "name": "0003-forward-core-setup-native-arm64-sysroot.patch",
+      "target": "repos/core-setup.common.props",
+      "originalSha256": "f1f9a15ce08e9c4d89e92bc69c28d155caf274b65efa09d0eefd9ad25e29d766",
+      "patchedSha256": "d3c1ed30449fce039a4a7235675282e1dc1a50725d81a70008d1ec7d3e2b296b",
+      "patchSha256": "4a6355ab3fba2e22b682e6b17edc88020c713e0e1e3dee5c28623999170fd1d3",
+      "addedLines": 2,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Select the target sysroot for native hosts without disabling CoreSetup native image generation."
+    },
+    {
+      "name": "0004-run-native-arm64-corelib-crossgen.patch",
+      "target": "artifacts/src/coreclr.c17d273aa03d4b9d14c92248a91f0d0faa881b98/build.sh",
+      "originalSha256": "6cf09dabdddfa71beaf4a386a8d4cb5ad817042fdb6b93c3a350ec4088a127e4",
+      "patchedSha256": "3d6a3bdca1976693aca0e20b6fce64c4ed45c4dfd39edc3c02a00024cee2fc7b",
+      "patchSha256": "c069d03fc3e7dad5e5f3af41ac9b3334f8be0860aa76d1d787a4f3e951a758d0",
+      "addedLines": 11,
+      "removedLines": 2,
+      "component": {
+        "name": "coreclr",
+        "commit": "c17d273aa03d4b9d14c92248a91f0d0faa881b98",
+        "path": "build.sh"
+      },
+      "purpose": "Run native ARM64 crossgen during same-architecture sysroot builds rather than copying the IL-only CoreLib. Package the actual native tools without assuming separate cross-architecture host outputs."
+    },
+    {
+      "name": "0005-preserve-explicit-source-acquisition-command.patch",
+      "target": "Directory.Build.targets",
+      "originalSha256": "f4b289f101f9e0c011ee79fc2fc1a7752cf8e89d70f7549c5fb311abfb0b84d6",
+      "patchedSha256": "2d992510d31e3d076674d6799e20e76110bfac07f283a1208a8f15af19c7b988",
+      "patchSha256": "3960e84b9ea36e1badadfaea11e4e3048c346d767d3ae8735e0d41e65056e6a9",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": null,
+      "purpose": "Preserve an explicit source-acquisition executable instead of overwriting it with the unavailable historical Darc DLL during target execution."
+    },
+    {
+      "name": "0006-route-retired-dotnet-core-feed.patch",
+      "target": "repos/Directory.Build.targets",
+      "originalSha256": "ac90ac90c6128e32cf36b020abbdb212324480325176c72794cf81c5f00fddbc",
+      "patchedSha256": "40d4796cf918c739e9bbbcc313abd2a60c03774d8906ad87e402b2cb57f66514",
+      "patchSha256": "858b143a85c32ab272008fb7387ba8049007035903a8644116e5e46ad07f9859",
+      "addedLines": 4,
+      "removedLines": 1,
+      "component": null,
+      "purpose": "Route only the retired dotnet-core service indices to the official public package mirror while preserving all requested versions and local source-built precedence."
+    },
+    {
+      "name": "0007-expand-recorded-retired-package-index-mapping.patch",
+      "target": "repos/Directory.Build.targets",
+      "originalSha256": "40d4796cf918c739e9bbbcc313abd2a60c03774d8906ad87e402b2cb57f66514",
+      "patchedSha256": "064b1db31a6ad82f65be01f4d371e298cfa53eff0ff3646bc10d435159f62491",
+      "patchSha256": "33fc1394589d07b5354e732cd580d5aed49cb23ddb90996933f378fbb8f12848",
+      "addedLines": 7,
+      "removedLines": 1,
+      "component": null,
+      "afterPatch": "0006-route-retired-dotnet-core-feed.patch",
+      "purpose": "Extend the original common feed-mapping producer to all five recorded retired package indexes, preserving exact requested versions, local source-built precedence and blob asset URLs. Apply only after the byte-exact original patch0006 state."
+    }
+  ]
+}

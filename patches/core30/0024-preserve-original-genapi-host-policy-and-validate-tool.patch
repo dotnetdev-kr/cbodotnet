@@ -1,0 +1,18 @@
+--- a/repos/arcade.proj
++++ b/repos/arcade.proj
+@@ -54,10 +54,14 @@
+           AfterTargets="RepoBuild"
+           Condition="'$(NativeArm64Host)' == 'true' AND '$(TargetOS)' == 'Linux' AND '$(Platform)' == 'arm64'">
+     <Message Text="Building the pinned Arcade GenAPI project for CoreFX reference-source generation." Importance="High" />
+-    <Exec Command="$(ProjectDirectory)build$(ShellExtension) $(BuildCommandArgs) --projects $(ProjectDirectory)src/Microsoft.DotNet.GenAPI/Microsoft.DotNet.GenAPI.csproj /p:ExcludeFromSourceBuild=false /p:RollForward=Major /p:TargetFrameworkRootPath=$(CbodotnetFrameworkReferenceRoot) /p:CustomAfterMicrosoftCommonTargets=$(CbodotnetFrameworkReferenceRoot)Microsoft.NETFramework.ReferenceAssemblies.net472.targets $(RepoApiArgs) $(RedirectRepoOutputToLog)"
++    <Exec Command="$(ProjectDirectory)build$(ShellExtension) $(BuildCommandArgs) --projects $(ProjectDirectory)src/Microsoft.DotNet.GenAPI/Microsoft.DotNet.GenAPI.csproj /p:ExcludeFromSourceBuild=false /p:TargetFrameworkRootPath=$(CbodotnetFrameworkReferenceRoot) /p:CustomAfterMicrosoftCommonTargets=$(CbodotnetFrameworkReferenceRoot)Microsoft.NETFramework.ReferenceAssemblies.net472.targets $(RepoApiArgs) $(RedirectRepoOutputToLog)"
+           WorkingDirectory="$(ProjectDirectory)"
+           EnvironmentVariables="@(EnvironmentVariables)"
+           IgnoreStandardErrorWarningFormat="true" />
++    <Exec Command="python3 $(CbodotnetGenApiVerifier) --source-dir $(ProjectDir) --reference-root $(CbodotnetFrameworkReferenceRoot) --input-report $(CbodotnetInputVerificationReport) --reports-dir $(CbodotnetGenApiReportDirectory)"
++          WorkingDirectory="$(ProjectDir)"
++          EnvironmentVariables="@(EnvironmentVariables)"
++          IgnoreStandardErrorWarningFormat="true" />
+     <OnError ExecuteTargets="ReportRepoError" />
+   </Target>
+ 

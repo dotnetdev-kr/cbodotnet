@@ -1,0 +1,36 @@
+--- a/artifacts/src/coreclr.c17d273aa03d4b9d14c92248a91f0d0faa881b98/build.sh
++++ b/artifacts/src/coreclr.c17d273aa03d4b9d14c92248a91f0d0faa881b98/build.sh
+@@ -473,7 +473,10 @@
+            exit 1
+        fi
+     else
+-       if [[ ( "$__CrossArch" == "x86" ) && ( "$__BuildArch" == "arm" ) ]]; then
++       if [[ ( "$__HostArch" == "arm64" ) && ( "$__BuildArch" == "arm64" ) ]]; then
++           # The sysroot switch does not change the native crossgen architecture.
++           build_CoreLib_ni "$__BinDir/crossgen" $__CoreLibILDir
++       elif [[ ( "$__CrossArch" == "x86" ) && ( "$__BuildArch" == "arm" ) ]]; then
+            build_CoreLib_ni "$__CrossComponentBinDir/crossgen" $__CoreLibILDir
+        elif [[ ( "$__CrossArch" == "x64" ) && ( "$__BuildArch" == "arm" ) ]]; then
+            build_CoreLib_ni "$__CrossComponentBinDir/crossgen" $__CoreLibILDir
+@@ -500,6 +503,12 @@
+         return
+     fi
+ 
++    local __DoCrossArchBuild=$__CrossBuild
++    if [[ "$__HostArch" == "arm64" && "$__BuildArch" == "arm64" ]]; then
++        # Same-architecture sysroot builds have no separate cross-host tools.
++        __DoCrossArchBuild=0
++    fi
++
+     echo "Generating nuget packages for "$__BuildOS
+     echo "DistroRid is "$__DistroRid
+     echo "ROOTFS_DIR is "$ROOTFS_DIR
+@@ -508,7 +517,7 @@
+     $__ProjectRoot/eng/common/build.sh -r -b -projects $__SourceDir/.nuget/packages.builds \
+                                        -verbosity minimal -bl:$__LogsDir/Nuget_$__BuildOS__$__BuildArch__$__BuildType.binlog \
+                                        /p:PortableBuild=true /p:ArcadeBuild=true \
+-                                       /p:__IntermediatesDir=$__IntermediatesDir /p:__RootBinDir=$__RootBinDir /p:__DoCrossArchBuild=$__CrossBuild \
++                                       /p:__IntermediatesDir=$__IntermediatesDir /p:__RootBinDir=$__RootBinDir /p:__DoCrossArchBuild=$__DoCrossArchBuild \
+                                        $__CommonMSBuildArgs $__UnprocessedBuildArgs
+ 
+     if [ $? -ne 0 ]; then

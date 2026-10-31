@@ -1,0 +1,24 @@
+--- a/repos/dir.targets
++++ b/repos/dir.targets
+@@ -80,6 +80,21 @@
+           Condition="'@(PatchesToApply)' != ''" />
+   </Target>
+ 
++  <UsingTask AssemblyFile="$(XPlatSourceBuildTasksAssembly)" TaskName="MapRetiredPackageFeeds" />
++  <Target Name="MapRetiredPackageFeeds" BeforeTargets="UpdateNuGetConfig;RepoBuild" Condition="'$(OfflineBuild)' != 'true'">
++    <ItemGroup>
++      <_CbodotnetFeedConfigs Include="$(NuGetConfigFile)" Condition="'$(NuGetConfigFile)' != '' AND Exists('$(NuGetConfigFile)')" />
++      <_CbodotnetFeedConfigs Include="@(NuGetConfigFiles)" />
++    </ItemGroup>
++    <MapRetiredPackageFeeds NuGetConfigFiles="@(_CbodotnetFeedConfigs)" EnvironmentVariables="@(EnvironmentVariables)">
++      <Output TaskParameter="MappedEnvironmentVariables" ItemName="_CbodotnetMappedEnvironment" />
++    </MapRetiredPackageFeeds>
++    <ItemGroup>
++      <EnvironmentVariables Remove="@(EnvironmentVariables)" />
++      <EnvironmentVariables Include="@(_CbodotnetMappedEnvironment)" />
++    </ItemGroup>
++  </Target>
++
+   <Target Name="UpdateNuGetConfig"
+           BeforeTargets="Build"
+           Condition="'$(NuGetConfigFile)' != '' OR '@(NuGetConfigFiles)' != ''">

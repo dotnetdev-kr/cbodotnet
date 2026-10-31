@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "selectedAt": "2026-10-30",
+  "sdkVersion": "7.0.120",
+  "source": {
+    "repository": "https://github.com/dotnet/installer",
+    "tag": "v7.0.120",
+    "commit": "25b977658c06fd0217ec0bc0714398bb9d0a7bb0"
+  },
+  "selection": {
+    "latestPublishedSdk": "7.0.410",
+    "latestPublishedRuntime": "7.0.20",
+    "releaseDate": "2024-05-28",
+    "reason": "Latest published 1xx SDK from the legacy installer source-build generation; not the latest SDK across all .NET 7 feature bands."
+  },
+  "host": { "os": "linux", "architecture": "arm64", "emulation": false },
+  "target": { "rid": "linux-arm64", "libc": "glibc", "intendedMaximumGlibcRequirement": "2.23" },
+  "container": {
+    "repository": "mcr.microsoft.com/dotnet-buildtools/prereqs",
+    "referenceTag": "ubuntu-24.04-arm64",
+    "digest": "sha256:7ef8f6ee1b9982511349757443eb4844f0db4f8cef1aff6148a7ba1c25d7c6f4"
+  },
+  "generatedSource": {
+    "templatePath": "src/SourceBuild/tarball/content",
+    "preserveTarballGitFolders": true,
+    "convertInternalRepos": true,
+    "componentCommits": {
+      "installer": "25b977658c06fd0217ec0bc0714398bb9d0a7bb0",
+      "runtime": "0fb6ac59fb1edbe4ed3ad62661df0eb7eacd7903",
+      "aspnetcore": "d9ba962869d1b1c410ea476b02de2f8e27eec762",
+      "sdk": "a06803c09702777c6550fede13c8bdc52d780191",
+      "source-build-externals": "522d361e1cd703f1e8e526f5306e4ed18de1da41"
+    }
+  },
+  "toolchain": {
+    "compiler": "clang",
+    "compilerMajorVersion": 16,
+    "cppCompilerAndLinker": "/usr/bin/clang-16",
+    "minimumRuntimeCmakeVersion": "3.14.5"
+  },
+  "sysroot": {
+    "architecture": "arm64",
+    "suite": "xenial",
+    "generator": "src/runtime/eng/common/cross/build-rootfs.sh",
+    "generatorArguments": ["arm64", "xenial"],
+    "packageSignatureVerification": true,
+    "preparationRequiresRoot": true
+  },
+  "build": {
+    "system": "legacy-installer-source-build",
+    "configuration": "Release",
+    "sourceOnly": true,
+    "online": true,
+    "crossBuild": true,
+    "portableBuild": true,
+    "continuousIntegration": true,
+    "maxCpuCount": 2,
+    "patches": [
+      {
+        "path": "patches/net7/0001-support-arm64-cross-components-host.patch",
+        "sha256": "cf868ca40e38523ad9f00d8e3c3342cd850066da2b526336a5748c1ffa99a4c9",
+        "purpose": "Backport native ARM64 build-host detection for required runtime cross-components."
+      },
+      {
+        "path": "patches/net7/0002-preserve-portable-runtime-target.patch",
+        "sha256": "1b310cabca1b64c13e265a9a434f7e83bb435786f1fc683d346fe18f03b311d2",
+        "purpose": "Honor explicit portable runtime builds while retaining nonportable adapter defaults."
+      },
+      {
+        "path": "patches/net7/0003-preserve-portable-aspnetcore-target.patch",
+        "sha256": "43f6269e6e18728402ebbcb1d5db88c2fffc4739509e26d7a6cec8440ef36f47",
+        "purpose": "Honor explicit portable ASP.NET builds and avoid duplicate implicit runtime packages."
+      },
+      {
+        "path": "patches/net7/0004-use-pinned-identitymodel-metadata-date.patch",
+        "sha256": "8ff2c066cf5a8e0b63123b9c9135779fc7323e84acbc734b447ac2a55276690f",
+        "purpose": "Use the pinned externals commit timestamp for valid, deterministic IdentityModel metadata without changing assembly or package API versions."
+      }
+    ],
+    "sharedComponents": "Both Microsoft.NETCore.App 7.0.20 and Microsoft.AspNetCore.App 7.0.20 were built locally. Successful installer DownloadFile tasks copied local archives; captured destination hashes match the local feed. All 184 core-runtime and 138 ASP.NET shared-framework entries in the final SDK match those archives."
+  },
+  "construction": {
+    "upstreamSharedRuntimeReused": false,
+    "note": "Local shared-framework origins are verified for SDK SHA-256 e1a84338e21cb061e0d12ef3331f00e18c0a38fd4f8f72dcf428ee548dd34249 in reports/construction/origin-evidence.json. Proof combines completed local-copy installer tasks, historical stable destination fingerprints, local archive/feed hashes and final SDK byte comparisons, with pinned generated component identities and all four patches. The legacy build still uses an upstream bootstrap SDK, previously source-built artifacts, official bootstrap package substitutions, reference packages and other inputs, and runs online; this does not establish an entirely prebuilt-free build."
+  },
+  "additionalPackages": [],
+  "upstreamInputs": {
+    "bootstrapSdk": "7.0.118",
+    "sourceBuiltArtifacts": "7.0.118",
+    "sourceBuiltArtifactsRid": "centos.8-x64",
+    "runtime": "7.0.20",
+    "sourceBuiltArtifactsDeclaration": "Generated packages/archive/archiveArtifacts.txt",
+    "bootstrapTransformation": "Explicit prep.sh --bootstrap replaces portable/native packages for linux-x64, linux-musl-x64 and linux-arm64, including thirteen ARM64 package downloads."
+  }
+}

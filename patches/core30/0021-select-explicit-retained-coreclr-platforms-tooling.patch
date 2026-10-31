@@ -1,0 +1,10 @@
+--- a/repos/coreclr.proj
++++ b/repos/coreclr.proj
+@@ -26,6 +26,7 @@
+     <BuildArguments>$(BuildArguments) /p:ContinuousIntegrationBuild=true</BuildArguments>
+     <BuildArguments>$(BuildArguments) /p:VersionSuffix="$(PreReleaseVersionLabel)"</BuildArguments>
+     <BuildArguments>$(BuildArguments) /p:UseSharedCompilation=false</BuildArguments>
++    <BuildArguments Condition="'$(NativeArm64Host)' == 'true' AND '$(TargetOS)' == 'Linux' AND '$(Platform)' == 'arm64' AND '$(CbodotnetBootstrapPlatformsVersion)' != ''">$(BuildArguments) /p:MicrosoftNETCorePlatformsVersion=$(CbodotnetBootstrapPlatformsVersion)</BuildArguments>
+     <BuildArguments Condition="'$(OS)' != 'Windows_NT'">$(BuildArguments) -warnAsError:0</BuildArguments>
+ 
+     <BuildCommand>$(ProjectDirectory)/build$(ShellExtension) $(BuildArguments)</BuildCommand>

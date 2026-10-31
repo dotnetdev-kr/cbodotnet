@@ -229,7 +229,7 @@ if ($buildProfile.schemaVersion -ne 1 -or $buildProfile.sdkVersion -ne '10.0.403
     $buildProfile.build.sourceOnly -ne $false -or $buildProfile.container.digest -notmatch '^sha256:[a-f0-9]{64}$') {
     throw 'This wrapper requires the checked-in .NET 10.0.403 Linux ARM64 profile; update all wrappers together for a new profile.'
 }
-$containerFile = Join-Path $projectRoot 'containers/arm64.Containerfile'
+$containerFile = Join-Path $projectRoot 'containers/arm64-net10.Containerfile'
 $baseReference = "$($buildProfile.container.repository)@$($buildProfile.container.digest)"
 $fromLine = (Get-Content -LiteralPath $containerFile | Where-Object { $_ -match '^FROM\s+' } | Select-Object -First 1).Trim()
 if ($fromLine -cne "FROM $baseReference") {
@@ -282,7 +282,7 @@ if ($Mode -eq 'Prepare') {
     Invoke-PodmanChecked -Arguments @('pull', $baseReference)
     $null = Get-Arm64Image -Reference $baseReference
     Invoke-PodmanChecked -Arguments @(
-        'build', '--network=host', '--file', "$linuxProject/containers/arm64.Containerfile",
+        'build', '--network=host', '--file', "$linuxProject/containers/arm64-net10.Containerfile",
         '--tag', $ImageName, $linuxProject
     )
 }

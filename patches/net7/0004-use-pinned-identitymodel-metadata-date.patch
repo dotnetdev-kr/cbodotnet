@@ -1,0 +1,23 @@
+From: cbodotnet contributors
+Subject: [PATCH 4/4] Derive IdentityModel assembly metadata from pinned source time
+
+The upstream producer derives a UInt16 file-version revision from the current
+year minus 2019 and MMDD. In 2026 this exceeds 65535. Use the UTC timestamp of
+the pinned source-build-externals commit instead. AssemblyVersion and the
+recipe's explicit NuGet package version remain 6.35.0.
+
+Source: https://github.com/dotnet/source-build-externals/blob/522d361e1cd703f1e8e526f5306e4ed18de1da41/patches/azure-activedirectory-identitymodel-extensions-for-dotnet/0002-Port-updateAssemblyInfo.ps1-to-bash-version.patch
+Source-commit-epoch: 1713290279 (2024-04-16T17:57:59Z)
+
+diff --git a/src/source-build-externals/patches/azure-activedirectory-identitymodel-extensions-for-dotnet/0002-Port-updateAssemblyInfo.ps1-to-bash-version.patch b/src/source-build-externals/patches/azure-activedirectory-identitymodel-extensions-for-dotnet/0002-Port-updateAssemblyInfo.ps1-to-bash-version.patch
+--- a/src/source-build-externals/patches/azure-activedirectory-identitymodel-extensions-for-dotnet/0002-Port-updateAssemblyInfo.ps1-to-bash-version.patch
++++ b/src/source-build-externals/patches/azure-activedirectory-identitymodel-extensions-for-dotnet/0002-Port-updateAssemblyInfo.ps1-to-bash-version.patch
+@@ -21,7 +21,7 @@
+ +
+ +packageType=${1:-preview}
+ +
+-+date=$(date '+%y%m%d%H%M%S')
+++date=$(date -u -d '@1713290279' '+%y%m%d%H%M%S')
+ +# Formats the date by replacing the 4-digit year with a 2-digit value and then subtract 19
+ +dateTimeStamp=$(echo $((10#${date:0:2}-19)))${date:2}
+ +

@@ -1,0 +1,14 @@
+diff --git a/repos/runtime.proj b/repos/runtime.proj
+--- a/repos/runtime.proj
++++ b/repos/runtime.proj
+@@ -9,7 +9,9 @@
+ 
+     <BuildCommandArgs>$(StandardSourceBuildArgs)</BuildCommandArgs>
+     <BuildCommandArgs>$(BuildCommandArgs) /p:TargetRid=$(OverrideTargetRid)</BuildCommandArgs>
+-    <BuildCommandArgs>$(BuildCommandArgs) /p:SourceBuildNonPortable=true</BuildCommandArgs>
++    <!-- Retain the default while honoring an explicitly portable community build. -->
++    <BuildCommandArgs Condition="'$(PortableBuild)' != 'true'">$(BuildCommandArgs) /p:SourceBuildNonPortable=true</BuildCommandArgs>
++    <BuildCommandArgs Condition="'$(PortableBuild)' == 'true'">$(BuildCommandArgs) /p:SourceBuildNonPortable=false</BuildCommandArgs>
+     <BuildCommand>$(StandardSourceBuildCommand) $(BuildCommandArgs)</BuildCommand>
+   </PropertyGroup>
+ 

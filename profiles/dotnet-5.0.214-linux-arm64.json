@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 1,
+  "selectedAt": "2026-10-31",
+  "status": "verified-native-arm64-build-and-full-upstream-smoke",
+  "sdkVersion": "5.0.214",
+  "source": {
+    "repository": "https://github.com/dotnet/source-build",
+    "tag": null,
+    "branch": "release/5.0",
+    "commit": "d414ecb2d997a9b3f38aaaeddace30ca097e546d"
+  },
+  "selection": {
+    "latestPublishedSdk": "5.0.408",
+    "latestPublishedRuntime": "5.0.17",
+    "releaseDate": "2022-05-10",
+    "reason": "The final release/5.0 source-build commit coordinates SDK 5.0.214 and runtime 5.0.17. The 2xx SDK is the final serviced feature band represented by this legacy full-source graph; 5.0.408 is the newest published SDK across all bands. There is no v5.0.214-SDK tag in source-build, so the exact branch commit is pinned."
+  },
+  "host": {
+    "os": "linux",
+    "architecture": "arm64",
+    "emulation": false
+  },
+  "target": {
+    "rid": "linux-arm64",
+    "libc": "glibc",
+    "intendedMaximumGlibcRequirement": "2.23",
+    "abiRequirementVerified": true,
+    "verifiedMaximumGlibcRequirement": "2.17"
+  },
+  "container": {
+    "repository": "mcr.microsoft.com/dotnet/sdk",
+    "referenceTag": "3.1.426-focal-arm64v8",
+    "digest": "sha256:a4028735b2ed1209c9116cebc74ae1c2fb27ea7d24b1be3f495fee0bac27dd52",
+    "status": "image-built",
+    "derivedImageId": "d7f3d9624f9f2ec9d6dfb3c0ed1743eab582378d0a4ee40dfb0bc9e66bed288a",
+    "purpose": "Retained native ARM64 Focal base with OpenSSL 1.1 and ICU 66 for historical bootstrap tools."
+  },
+  "legacySource": {
+    "componentManifest": "eng/Version.Details.xml",
+    "componentCommits": {
+      "installer": "430330f7c5428f031b4a835be3dcf5945f55a56a",
+      "runtime": "6a984143635bde23e728abaaccbde52f5ea8fa3e",
+      "aspnetcore": "02c6de4ba6022025fcda7581415f310f8c73cdc3",
+      "sdk": "3fdf76c35026e311b7edc245d4b3d9e812fe532e",
+      "arcade": "6eec4404c2df5bfa46e5da52383c881c5cca3a9f",
+      "source-build-reference-packages": "6ce5818b1c1828ccdc8ac63d460d029c6391a401"
+    },
+    "route": "Build the source-build repository directly. Its optional source-tarball packaging follows a completed production build; it does not use the .NET 6/7 installer source-generation target."
+  },
+  "toolchain": {
+    "compiler": "clang",
+    "compilerMajorVersion": 9,
+    "compilerPath": "/usr/bin/clang-9",
+    "compilerSelection": "CLR_CC=/usr/bin/clang-9 and CLR_CXX=/usr/bin/clang++-9",
+    "minimumRuntimeCmakeVersion": "3.14.5",
+    "status": "native-sdk-build-and-abi-verified"
+  },
+  "sysroot": {
+    "architecture": "arm64",
+    "suite": "xenial",
+    "generator": "artifacts/src/runtime.6a984143635bde23e728abaaccbde52f5ea8fa3e/eng/common/cross/build-rootfs.sh",
+    "generatorArguments": [
+      "arm64",
+      "xenial"
+    ],
+    "packageSignatureVerification": true,
+    "preparationRequiresRoot": true,
+    "generatorSha256": "bd94cd8083b3b9ddcb7e3187181f296254e7c227e1a117a83940f29e5d8a61ef",
+    "sourcesSha256": "1faf6648c681e1eeae3a44ba3dd36e2175861898c0ce4f1329d5857d78dfdc8e",
+    "status": "prepared-signature-validated-native-build-and-abi-verified"
+  },
+  "build": {
+    "system": "legacy-source-build-direct",
+    "configuration": "Release",
+    "sourceOnly": true,
+    "online": true,
+    "crossBuild": true,
+    "portableBuild": true,
+    "continuousIntegration": true,
+    "rootDotNetBuildFromSource": true,
+    "restoreAdditionalProjectSources": [
+      "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json"
+    ],
+    "restoreAdditionalProjectSourcesReason": "The exact pinned XliffTasks 1.0.0-beta.19252.1 package is available on the official dotnet-eng feed. Preserve all requested versions and normal online restore.",
+    "nugetXmlDocMode": "none",
+    "nugetXmlDocRecoveryHelper": "scripts/prepare-legacy-xmldoc-recovery.py",
+    "nugetXmlDocPolicy": "Override the retained SDK container's skip default so normal NuGet extraction retains documentation required by F# SDK layout and XML-doc tests. Existing XML-skipped cache entries require separately recorded recovery from their unchanged retained nupkg files.",
+    "rootToolsetPolicy": "Use retained source-built Arcade in source-build mode. Its Tools.proj omits the InstallDotNetCore task, so the root driver must set DotNetBuildFromSource=true while retaining normal tool restore and the already initialized private SDK.",
+    "maxCpuCount": 2,
+    "cpuAffinity": [
+      4,
+      5
+    ],
+    "patches": [
+      {
+        "path": "patches/net5/0001-run-native-arm64-corelib-crossgen.patch",
+        "sha256": "08e6d58bd7541ee1abceef8bea1c177c4e810cf0799cd1b499a044eb93430d07",
+        "purpose": "Run native ARM64 crossgen for CoreLib in same-system sysroot mode without disabling cross compilation."
+      },
+      {
+        "path": "patches/net5/0002-avoid-duplicate-portable-aspnet-runtime.patch",
+        "sha256": "4084d484ea7a724662ebfddea32e83735147fe602a36d685091127e4548becc1",
+        "purpose": "Condition the upstream ASP.NET nonportable runtime-reference producer while preserving the existing portable package and native crossgen."
+      },
+      {
+        "path": "patches/net5/0003-preserve-explicit-source-clone-command.patch",
+        "sha256": "b3c951cc23bd46061e642c7fc9e5d5a4aef3a27117c057972b798b45ad392d42",
+        "purpose": "Preserve the immutable explicit source adapter command during target execution and retain real upstream FetchSources."
+      },
+      {
+        "path": "patches/net5/0004-use-public-dotnet-feed-for-legacy-mapping.patch",
+        "sha256": "644fd832aaf440ecf8a46d9537bee4f499228f798e87b5e5928f9ff7652c492e",
+        "purpose": "Map the exact retired dotnet-core service index and its old myget alias to the current official public feed without changing package versions."
+      },
+      {
+        "path": "patches/net5/0005-map-remaining-retired-service-indexes.patch",
+        "sha256": "30d1fd9ecf175f4ac9364a8e7a39002c3e4a7e6b1753f93b9771c1d53295aa1f",
+        "purpose": "Extend the reviewed mapping to the exact retired tools and nuget-build indexes; preserve requested versions, archive URLs and all other feeds."
+      }
+    ],
+    "sharedComponents": "Verified locally built Microsoft.NETCore.App 5.0.17 and Microsoft.AspNetCore.App 5.0.17; exact shared-tree byte identity and completed local installer copies are retained.",
+    "portabilityStatus": "Clang 9 uses the signed Xenial sysroot and AArch64 target/GCC toolchain. Native CoreCLR, main ARM64 CoreLib crossgen and complete SDK packaging passed. The 18 shipped AArch64 ELFs require at most GLIBC 2.17, GLIBCXX 3.4.21 and CXXABI 1.3.7. Controlled Ubuntu 22.04/24.04 and Debian 13 checks pass using separately recorded OpenSSL 1.1 dependencies."
+  },
+  "construction": {
+    "upstreamSharedRuntimeReused": false,
+    "note": "Completed local runtime and ASP.NET archive copies plus exact SDK shared-tree identity establish locally built shared frameworks. Official bootstrap SDK, retained Arcade and other binary package inputs remain separate; sourceOnly does not mean all inputs were rebuilt."
+  },
+  "additionalPackages": [],
+  "testing": {
+    "constructionEvidence": {
+      "verifiedSdkSha256": "ac3350e3a87a79de5aedaa632d3eca7e8054e4d76d15681da5980ea90589429c",
+      "originReport": "artifacts/5.0.214-linux-arm64/reports/construction/origin-evidence.json"
+    },
+    "status": "passed-full-upstream-suite-and-controlled-native-matrix",
+    "entryPoint": "Invoke-Net5Build.ps1 -Mode Test",
+    "suite": "The complete pinned upstream shell smoke suite through the unmodified RunSmokeTest target.",
+    "freshSdkRequired": true,
+    "expectedTemplateCases": 68,
+    "expectedHttpsCertificateSetups": 2,
+    "exclusions": [],
+    "nativeVerificationCompatibility": {
+      "status": "exported-and-verified-in-controlled-native-matrix",
+      "helper": "scripts/export-net5-verification-compat.py",
+      "producerImageId": "d7f3d9624f9f2ec9d6dfb3c0ed1743eab582378d0a4ee40dfb0bc9e66bed288a",
+      "consumerDirectory": "/verification-compat",
+      "consumerEnvironment": {
+        "LD_LIBRARY_PATH": "/verification-compat/lib",
+        "OPENSSL_CONF": "/verification-compat/openssl.cnf"
+      },
+      "libraries": [
+        "libssl.so.1.1",
+        "libcrypto.so.1.1"
+      ],
+      "icuLibraries": [],
+      "icuLoaderRange": "50 through 85, from the pinned loader's build-time ICU major55 plus30.",
+      "sdkArchiveModified": false,
+      "scope": "Controlled native verification can mount the separately recorded Focal OpenSSL 1.1 libraries and configuration read-only. Such results do not establish TLS compatibility on stock systems that provide OpenSSL 3 only.",
+      "report": "artifacts/5.0.214-linux-arm64/reports/verification-compat-input-retry2/net5-verification-compat.json"
+    },
+    "testOnlyPatches": [
+      {
+        "path": "patches/net5-tests/0001-use-built-sdk-dev-certs.patch",
+        "sha256": "720a895304407dec0d1585370e10e4da1e1de9475d2976527719cd8acbdb1b85",
+        "scope": "Only setupDevCerts: use the fresh SDK's built-in dev-certs command in place of the unavailable preview global tool. Preserve every HTTPS test and assertion, record exact SDK tool/source hashes and local byte comparisons, and retain the original script."
+      }
+    ],
+    "upstreamSmoke": {
+      "localCases": 34,
+      "attempt": "test-20261030T1905120983768Z",
+      "sourceBuiltCertificateToolSha256": "abfc01ecb14d7f8d47caccfca8d5ff18a03afcb5283dcc0ae00312ed450847a5",
+      "stage2Executed": false,
+      "templateCasesFinished": 68,
+      "exclusions": [],
+      "templateCasesStarted": 68,
+      "httpsCertificateSetups": 2,
+      "resultReport": "artifacts/5.0.214-linux-arm64/reports/runs/test-20261030T1905120983768Z/net5-tests-result.json",
+      "onlineCases": 34,
+      "status": "passed"
+    },
+    "nativeVerification": {
+      "reports": [
+        "artifacts/5.0.214-linux-arm64/reports/verify-ubuntu22/verification.json",
+        "artifacts/5.0.214-linux-arm64/reports/verify-ubuntu24/verification.json",
+        "artifacts/5.0.214-linux-arm64/reports/verify-debian13/verification.json"
+      ],
+      "reportedRid": "linux-arm64",
+      "elfMachine": "AArch64",
+      "maximumRequiredVersions": {
+        "CXXABI": "1.3.7",
+        "GLIBCXX": "3.4.21",
+        "GLIBC": "2.17"
+      },
+      "elfCount": 18,
+      "sdkSha256": "ac3350e3a87a79de5aedaa632d3eca7e8054e4d76d15681da5980ea90589429c",
+      "externalCryptoDependencies": "Controlled OpenSSL1.1 inputs, separate from the unchanged SDK archive.",
+      "status": "passed"
+    }
+  },
+  "upstreamInputs": {
+    "bootstrapSdk": "5.0.212",
+    "bootstrapSdkRid": "linux-arm64",
+    "sourceBuiltArtifacts": "0.1.0-5.0.213-1682896-20220325.6",
+    "sourceBuiltArtifactsUrl": "https://builds.dotnet.microsoft.com/source-built-artifacts/assets/Private.SourceBuilt.Artifacts.0.1.0-5.0.213-1682896-20220325.6.tar.gz",
+    "sourceBuiltArtifactsBytes": 2542770679,
+    "referencePackages": "1.0.0-beta.21566.2",
+    "runtime": "5.0.17",
+    "bootstrapArcade": "5.0.0-beta.20426.4",
+    "retainedBootstrapArcade": {
+      "version": "5.0.0-beta.20431.1",
+      "sourceCommit": "6eec4404c2df5bfa46e5da52383c881c5cca3a9f",
+      "member": "Microsoft.DotNet.Arcade.Sdk.5.0.0-beta.20431.1.nupkg",
+      "bytes": 381694,
+      "sha256": "1d74b9f3bb3964e178f37ceba4a94783378be45d273d7884c295283ed7dab738",
+      "toolFramework": "net5.0"
+    },
+    "bootstrapPreparation": {
+      "helper": "scripts/prepare-net5-bootstrap.py",
+      "status": "prepared-toolset-probe-passed",
+      "report": "artifacts/5.0.214-linux-arm64/reports/runs/bootstrap-20261030T1656367739759Z/net5-bootstrap.json",
+      "productBuildExecuted": false,
+      "method": "Install the pinned upstream source-built SDK resolver into a private official 5.0.212 SDK working copy, select the exact retained Arcade package through its real version and environment overrides, preserve root global.json, and verify the old requested SDK version resolves to that retained toolset."
+    },
+    "darc": "1.1.0-beta.20256.6",
+    "availability": "Bootstrap SDK and previously source-built archive URLs responded successfully. The original dotnetfeed reference archive returns HTTP 403. Pinned Darc and bootstrap Arcade packages were not found on the checked current official feeds. Recorded source acquisition and bootstrap recovery are required before building."
+  }
+}

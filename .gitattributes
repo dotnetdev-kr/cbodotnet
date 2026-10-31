@@ -2,3 +2,6 @@
 * text=auto eol=lf
 *.cmd text eol=crlf
 *.bat text eol=crlf
+
+# Pinned patch payloads and control manifests must retain their exact hashes.
+patches/** -text -whitespace

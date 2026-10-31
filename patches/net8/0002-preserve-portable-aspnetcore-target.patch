@@ -1,0 +1,27 @@
+Subject: [PATCH] Preserve an explicitly portable ASP.NET Core target
+
+The legacy adapter otherwise passes PortableBuild=false when its target RID is
+unchanged. For linux-arm64 this makes ASP.NET append a duplicate portable RID
+to its runtime and crossgen2 package-reference lists. Both generated duplicate
+references are implicit, so the SDK removes them and their path properties.
+
+Honor an outer PortableBuild=true. Empty and false settings retain the original
+adapter behavior. ReadyToRun compilation and the locally built crossgen2 tool
+remain enabled; no upstream tool package is substituted.
+
+Source-Reference: https://github.com/dotnet/dotnet/blob/v8.0.133/repo-projects/aspnetcore.proj#L9
+Dependency-Reference: https://github.com/dotnet/dotnet/blob/v8.0.133/src/aspnetcore/eng/Dependencies.props#L108
+Base-VMR: 7d1bf90885cff22e7da72b27e9848e42fd3cb1ae
+
+diff --git a/repo-projects/aspnetcore.proj b/repo-projects/aspnetcore.proj
+--- a/repo-projects/aspnetcore.proj
++++ b/repo-projects/aspnetcore.proj
+@@ -8,6 +8,8 @@
+     <OverrideTargetRid Condition="'$(TargetOS)' == 'Windows_NT'">win-$(Platform)</OverrideTargetRid>
+     <_portableRidOverridden Condition="'$(TargetRid)' != '$(OverrideTargetRid)'">true</_portableRidOverridden>
+     <_portableRidOverridden Condition="'$(TargetRid)' == '$(OverrideTargetRid)'">false</_portableRidOverridden>
++    <!-- Preserve an explicitly portable target supplied by the outer build. -->
++    <_portableRidOverridden Condition="'$(PortableBuild)' == 'true'">true</_portableRidOverridden>
+ 
+     <!-- StandardSourceBuildArgs include -publish which is not supported by the aspnetcore build script. -->
+     <BuildCommandArgs>$(StandardSourceBuildArgs.Replace('--publish', ''))</BuildCommandArgs>

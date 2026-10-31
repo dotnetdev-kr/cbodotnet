@@ -1,0 +1,27 @@
+From: cbodotnet maintainers
+Subject: [PATCH] Use the SDK under test to create its HTTPS developer certificate
+
+The pinned preview global tool is unavailable on the current official feeds,
+and its historical service index returns HTTP 403. Use the fresh SDK's built-in
+dev-certs command for the same certificate setup. Keep every HTTPS test and
+assertion. The test preparation records the tool assembly and its local source
+package identity before this test-only patch is applied.
+
+diff --git a/smoke-test.sh b/smoke-test.sh
+--- a/smoke-test.sh
++++ b/smoke-test.sh
+@@ -284,12 +284,11 @@
+ }
+ 
+ function setupDevCerts() {
+-    echo "Setting up dotnet-dev-certs $devCertsVersion to generate dev certificate" | tee -a "$logFile"
++    echo "Using the SDK built-in dotnet dev-certs to generate the HTTPS developer certificate" | tee -a "$logFile"
+     (
+         set -x
+-        "$dotnetDir/dotnet" tool install -g dotnet-dev-certs --version "$devCertsVersion" --add-source https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json
+         export DOTNET_ROOT="$dotnetDir"
+-        "$testingHome/.dotnet/tools/dotnet-dev-certs" https
++        "$dotnetDir/dotnet" dev-certs https
+     ) >> "$logFile" 2>&1
+ }
+ 

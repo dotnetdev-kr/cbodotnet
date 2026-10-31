@@ -1,0 +1,22 @@
+From: cbodotnet maintainers
+Subject: [PATCH] Route the legacy dotnet-core feed to its public package feed
+
+The historical blob service index returns HTTP 403. Keep the normal online
+restore and requested package versions, but use the current official public
+dotnet package feed for the existing legacy-source mapping.
+
+diff --git a/repos/Directory.Build.targets b/repos/Directory.Build.targets
+--- a/repos/Directory.Build.targets
++++ b/repos/Directory.Build.targets
+@@ -167,7 +167,10 @@
+         NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-experimental/nuget/v3/index.json" />
+       <LegacyFeedMapping
+         Include="https://dotnet.myget.org/F/dotnet-core/api/v3/index.json"
+-        NewFeed="https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json" />
++        NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json" />
++      <LegacyFeedMapping
++        Include="https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json"
++        NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json" />
+       <LegacyFeedMapping
+         Include="https://dotnet.myget.org/F/vstest/api/v3/index.json"
+         NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/test-tools/nuget/v3/index.json" />

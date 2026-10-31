@@ -1,0 +1,11 @@
+--- a/Directory.Build.targets
++++ b/Directory.Build.targets
+@@ -46,7 +46,7 @@
+       <!-- depth 0 should be sufficient for us since we explictly declare all our dependencies -->
+       <DarcCloneArguments>$(DarcCloneArguments) --depth 0</DarcCloneArguments>
+ 
+-      <DarcCloneCommand>$(DotNetCliToolDir)dotnet $(DarcDll) clone $(DarcCloneArguments)</DarcCloneCommand>
++      <DarcCloneCommand Condition="'$(DarcCloneCommand)' == ''">$(DotNetCliToolDir)dotnet $(DarcDll) clone $(DarcCloneArguments)</DarcCloneCommand>
+     </PropertyGroup>
+   </Target>
+ 

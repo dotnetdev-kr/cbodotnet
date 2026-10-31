@@ -1,0 +1,20 @@
+--- a/tools-local/init-build.proj
++++ b/tools-local/init-build.proj
+@@ -74,7 +74,7 @@
+     <MSBuild Projects="@(RepoProjects)" Targets="ApplyPatches" BuildInParallel="$(BuildInParallel)" />
+   </Target>
+ 
+-  <Target Name="GenerateRootFs" Condition="'$(OS)' != 'Windows_NT'">
++  <Target Name="GenerateRootFs" Condition="'$(OS)' != 'Windows_NT' AND '$(SkipGenerateRootFs)' != 'true'">
+      <Exec Condition="$(Platform.Contains('arm')) AND '$(Platform)' != 'armel'" Command="$(ArmEnvironmentVariables) $(ProjectDir)cross/build-rootfs.sh" />
+      <Exec Condition="'$(Platform)' == 'armel'" Command="$(ArmEnvironmentVariables) $(ProjectDir)cross/armel/tizen-build-rootfs.sh" />
+   </Target>
+@@ -145,7 +145,7 @@
+     <MarkAndCatalogPackages PackagesToMark="@(PrebuiltSourceBuiltPackages)" CatalogOutputFilePath="$(SourceBuiltPoisonReportDataFile)" MarkerFileName="$(SourceBuiltPoisonMarkerFile)" />
+   </Target>
+ 
+-  <Target Name="AcquireDarc" Condition="'$(OfflineBuild)' != 'true'">
++  <Target Name="AcquireDarc" Condition="'$(OfflineBuild)' != 'true' AND '$(SkipAcquireDarc)' != 'true'">
+     <Message Importance="High" Text="[$([System.DateTime]::Now.ToString('HH:mm:ss.ff'))] Installing Darc." />
+     <Exec Command="$(ProjectDir)eng/common/darc-init.sh --darcversion $(DarcVersion) --toolpath $(DarcInstallDir)" />
+     <Message Importance="High" Text="[$([System.DateTime]::Now.ToString('HH:mm:ss.ff'))] Done installing Darc." />

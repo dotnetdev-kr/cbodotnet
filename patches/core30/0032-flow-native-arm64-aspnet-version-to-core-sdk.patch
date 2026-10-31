@@ -1,0 +1,13 @@
+--- a/repos/core-sdk.proj
++++ b/repos/core-sdk.proj
+@@ -58,6 +58,10 @@
+     <NuGetConfigFile>$(ProjectDirectory)/NuGet.config</NuGetConfigFile>
+   </PropertyGroup>
+ 
++  <ItemGroup Condition="'$(NativeArm64Host)' == 'true' AND '$(TargetOS)' == 'Linux' AND '$(Platform)' == 'arm64'">
++    <ExtraPackageVersionPropsPackageInfo Update="MicrosoftAspNetCoreAppRuntimePackageVersion" Version="%24(MicrosoftAspNetCoreAppRuntimeLinuxArm64PackageVersion)" />
++  </ItemGroup>
++
+   <ItemGroup>
+     <UseSourceBuiltSdkOverride Include="@(ArcadeSdkOverride)" />
+   </ItemGroup>

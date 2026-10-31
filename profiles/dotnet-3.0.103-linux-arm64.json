@@ -1,0 +1,581 @@
+{
+  "schemaVersion": 1,
+  "selectedAt": "2026-10-31",
+  "status": "verified-native-arm64-full-upstream-suite-and-explicit-compatibility-inputs",
+  "sdkVersion": "3.0.103",
+  "source": {
+    "repository": "https://github.com/dotnet/source-build",
+    "tag": "v3.0.103.1-SDK",
+    "annotatedTagObject": "83c8eccc8cb7fcd2cfdc28223d7d08e74268881c",
+    "commit": "40de72d1087a1d05dfd39c87f888a0611ec6c60f"
+  },
+  "selection": {
+    "latestPublishedSdk": "3.0.103",
+    "latestPublishedRuntime": "3.0.3",
+    "releaseDate": "2020-02-18",
+    "reason": "The corrected v3.0.103.1-SDK source-build tag targets SDK 3.0.103 and runtime 3.0.3. Its tag message replaces the deleted original tag because that tag contained an incorrect ASP.NET version; the source-tag revision is not SDK 3.0.103.1 or runtime 3.0.1.",
+    "metadataUrl": "https://builds.dotnet.microsoft.com/dotnet/release-metadata/3.0/releases.json"
+  },
+  "host": {
+    "os": "linux",
+    "architecture": "arm64",
+    "emulation": false
+  },
+  "target": {
+    "rid": "linux-arm64",
+    "libc": "glibc",
+    "intendedMaximumGlibcRequirement": "2.23"
+  },
+  "container": {
+    "repository": "mcr.microsoft.com/dotnet/core/sdk",
+    "referenceTag": "3.0.103-bionic-arm64v8",
+    "digest": "sha256:0d56b2a713c65b541414c8f97ffc1ff614bc6af6375e4119d64001e8854e4b81",
+    "configDigest": "sha256:e008083ab0453137d67372599ff16e669ac585484c6f2bed336773eb11834b7a",
+    "architecture": "arm64",
+    "os": "linux",
+    "manifestAndConfigVerified": true,
+    "status": "native-arm64-image-built",
+    "purpose": "Native ARM64 Bionic build host with OpenSSL 1.1 and ICU 60 for historical tools; target headers/libraries come from an independent sysroot.",
+    "observedBuiltImageId": "76ce8f5b3968c8dde354bcf7ed2e583e26ba6b7ea6d56d6dad0569cd650330af"
+  },
+  "legacySource": {
+    "componentManifest": "eng/Version.Details.xml",
+    "componentCommits": {
+      "coreclr": "259ce7d4619478cfefe7b0c0f6fa765f765f7e37",
+      "corefx": "a4238c9819075be9bff74e009da802ce47233f38",
+      "core-setup": "c03f2fe62663edec83d1bc12b4e9f11bd3de5d0e",
+      "aspnetcore": "bd1e14b7d16b798de8a874189c89afed755a266c",
+      "sdk": "8dcd59d6e006679f7c1932801f733a72e5a3f221",
+      "cli": "ad7cfd8fa324a2a32d847c73f66404fda676bbeb",
+      "core-sdk": "ca71659745c368343b726acc43e6f332f000b0ff",
+      "arcade": "ce459ae07c3d7a1e68251268855e0bc7b3d97f75",
+      "source-build-reference-packages": "9cc7dad6c4d9302c00803df5dea41c8a7a59e047"
+    },
+    "route": "Build the source-build repository directly. Its original Darc initialization acquires the explicit dependency graph; it is not the .NET 6/7 installer-generated source-tree route.",
+    "sourceOutputSubdirectory": "bin/src",
+    "sdkOutputSubdirectory": "bin/arm64/Release",
+    "sourceAcquisitionStatus": "The guarded direct-Git adapter completed 28 unique source exports from 29 pinned declarations, preserving full-history bare stores and recursive submodules. Future build attempts revalidate the retained receipts; product build execution remains separate."
+  },
+  "toolchain": {
+    "compiler": "clang",
+    "compilerMajorVersion": 6,
+    "compilerVersionOption": "clang6.0",
+    "compilerPath": "/usr/bin/clang-6.0",
+    "compilerSelection": "The guarded native Linux ARM64 adapters select clang6.0 for CoreCLR, CoreFX and Core-Setup while retaining the independent Xenial sysroot and original native build targets.",
+    "linker": "GNU ld",
+    "linkerPath": "/usr/bin/ld",
+    "linkerSelection": "Use clang's default GNU linker from binutils. The unavailable Bionic lld-6.0 package is not required or selected.",
+    "minimumRuntimeCmakeVersion": "3.5.1",
+    "requestedMinimumCmakeVersion": "3.8.0",
+    "python2": "/usr/bin/python2.7",
+    "python3": "/usr/bin/python3",
+    "projectHelperPythonStatus": "Build-container helpers execute with Bionic Python 3.6. Artifact analysis uses separately recorded host tools when a newer interpreter is required.",
+    "status": "native-product-compilation-and-sdk-elf-abi-verified"
+  },
+  "sysroot": {
+    "architecture": "arm64",
+    "suite": "xenial",
+    "generator": "bin/src/corefx.a4238c9819075be9bff74e009da802ce47233f38/cross/build-rootfs.sh",
+    "generatorArguments": [
+      "arm64",
+      "xenial",
+      "no-lldb"
+    ],
+    "rootfsEnvironment": "ROOTFS_DIR=<absolute inputs directory>/arm64-xenial",
+    "packageSignatureVerification": true,
+    "preparationRequiresRoot": true,
+    "status": "prepared-signed-and-inventory-verified",
+    "automaticGenerationStatus": "SkipGenerateRootFs=true prevents the original ARM32/Trusty default generator from recreating the preserved independent ARM64 Xenial sysroot.",
+    "inventories": {
+      "files": 17026,
+      "symlinks": 5225,
+      "signingKeyFingerprint": "790BC7277767219C42C86F933B4FE6ACC0B21F32",
+      "generatorSha256": "395f773f920364a83890d885783661f68bd59b1961cffd724a643709183ae83d",
+      "report": "reports/sysroot/sysroot-provenance.json",
+      "globalGitConfigurationChanged": false
+    }
+  },
+  "build": {
+    "system": "legacy-source-build-direct",
+    "locale": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8"
+    },
+    "rootRepo": "core-sdk",
+    "configuration": "Release",
+    "sourceOnly": true,
+    "online": true,
+    "crossBuild": true,
+    "portableBuild": true,
+    "continuousIntegration": true,
+    "maxCpuCount": 2,
+    "msbuildProperties": {
+      "RootRepo": "core-sdk",
+      "Platform": "arm64",
+      "TargetOS": "Linux",
+      "TargetRid": "linux-arm64",
+      "PortableBuild": "true",
+      "DotNetBuildFromSource": "true",
+      "ArmEnvironmentVariables": "ROOTFS_DIR=<absolute inputs directory>/arm64-xenial",
+      "NativeArm64Host": "true",
+      "SkipAcquireDarc": "true",
+      "SkipGenerateRootFs": "true"
+    },
+    "patches": [
+      "patches/core30/0001-use-explicit-acquisition-and-preserved-sysroot.patch",
+      "patches/core30/0002-select-coreclr-native-arm64-tools.patch",
+      "patches/core30/0003-forward-corefx-native-arm64-sysroot.patch",
+      "patches/core30/0004-preserve-core-setup-native-arm64-crossgen.patch",
+      "patches/core30/0005-use-actual-aspnetcore-installer-rid.patch",
+      "patches/core30/0006-run-native-arm64-corelib-crossgen.patch",
+      "patches/core30/0007-select-clang6-corehost-native-arm64-cross-build.patch",
+      "patches/core30/0008-route-upstream-smoke-tests-to-built-arm64-sdk.patch",
+      "patches/core30/0009-map-retired-package-indexes-in-configs-and-environment.patch",
+      "patches/core30/0010-route-component-restore-through-recorded-feed-mapping.patch",
+      "patches/core30/0011-preserve-explicit-complete-darc-command.patch",
+      "patches/core30/0012-pin-bootstrap-arcade-restore-to-local-and-official-feeds.patch",
+      "patches/core30/0013-build-local-coreclr-packages-on-native-arm64.patch",
+      "patches/core30/0014-preserve-sourcelink-bootstrap-version-until-common-is-built.patch",
+      "patches/core30/0015-honor-explicit-cli-http-handler-selection.patch",
+      "patches/core30/0016-backport-gdbjit-array-base-size-query.patch",
+      "patches/core30/0017-forward-corefx-cross-mode-with-singleword-properties.patch",
+      "patches/core30/0018-forward-corefx-native-cross-build-property.patch",
+      "patches/core30/0020-map-retired-coreclr-package-index.patch",
+      "patches/core30/0021-select-explicit-retained-coreclr-platforms-tooling.patch",
+      "patches/core30/0022-build-pinned-arcade-genapi-for-corefx.patch",
+      "patches/core30/0023-use-explicit-net472-reference-metadata-for-genapi.patch",
+      "patches/core30/0024-preserve-original-genapi-host-policy-and-validate-tool.patch",
+      "patches/core30/0025-rebuild-explicit-genapi-project-runtime-output.patch",
+      "patches/core30/0026-select-native-arm64-core-setup-crossgen-and-jit.patch",
+      "patches/core30/0027-accept-core-setup-default-unix-native-host-group.patch",
+      "patches/core30/0028-select-native-arm64-aspnet-crossgen-property.patch",
+      "patches/core30/0029-select-native-arm64-core-sdk-crossgen-and-jit-properties.patch",
+      "patches/core30/0030-select-native-arm64-core-sdk-crossgen-and-jit-in-target.patch",
+      "patches/core30/0031-map-toolset-sdk-retired-package-indexes.patch",
+      "patches/core30/0032-flow-native-arm64-aspnet-version-to-core-sdk.patch"
+    ],
+    "compatibilityGates": [
+      {
+        "id": "historical-source-and-bootstrap-acquisition",
+        "status": "passed-with-explicit-retained-inputs",
+        "requirement": "Replace unavailable Darc/feed acquisition with pinned recorded inputs while preserving the root component manifest, revision metadata and upstream product sources."
+      },
+      {
+        "id": "independent-arm64-sysroot",
+        "status": "passed-signed-preparation-and-inventory-verification",
+        "requirement": "Prevent the default ARM32/Trusty generator from running, pass the prepared ARM64 Xenial sysroot to every native producer and verify its signed package/file inventory."
+      },
+      {
+        "id": "arm64-aspnetcore-installer-rid",
+        "status": "passed-producer-origin-and-controlled-native-verification",
+        "requirement": "Make the core-sdk adapter honor the actual ARM64 RID instead of its hardcoded AspNetCoreSharedFxInstallerRid=linux-x64; verify final local ASP.NET input origins."
+      },
+      {
+        "id": "clang6-core-setup-cross-selection",
+        "status": "passed-producer-origin-and-controlled-native-verification",
+        "requirement": "The pinned Core-Setup cross selector only accepts clang 3.9/4.0/5.0. Add a guarded clang 6 selection and prove the actual native compiler commands."
+      },
+      {
+        "id": "native-arm64-crossgen",
+        "status": "passed-producer-origin-and-controlled-native-verification",
+        "requirement": "Review native ARM64 same-architecture crossgen: CoreCLR copies IL CoreLib for this cross pair and the Core-Setup adapter forces DisableCrossgen=true for ARM. Preserve native-image construction through a guarded native-host path and validate actual outputs instead of claiming these defaults match a full SDK release."
+      },
+      {
+        "id": "legacy-test-execution",
+        "status": "passed-complete-original-suite-52-cases-156-commands",
+        "requirement": "The upstream shell smoke test skips roots other than known-good and hardcodes x64 defaults. Explicitly record any necessary ARM64/root adapter and executed cases; never treat its skip exit code as test success."
+      }
+    ],
+    "sharedComponents": "Both final SDK 3.0.3 shared-framework trees match verified local archive origins, the generation-aware 180-payload native audit passed, the complete original 52-case upstream suite passed, and the unchanged SDK passed all six controlled native checks in Ubuntu 22.04/24.04 and Debian 13 with explicit external dependencies. Consult the accompanying build-manifest.json for final collection and retained-evidence inventories.",
+    "retiredPackageFeedMapping": {
+      "newIndex": "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json",
+      "scope": "Nine exact retired package-service indexes in component NuGet.Config files and environment strings are redirected to the recorded Microsoft public index. Package versions, TLS verification, local source order, blob asset URLs and offline behavior are preserved.",
+      "validation": "actual-nine-index-task-fixture-and-component-restores-passed",
+      "additionalProjectSources": [
+        "https://api.nuget.org/v3/index.json",
+        "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json",
+        "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json",
+        "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json",
+        "https://pkgs.dev.azure.com/dnceng/public/_packaging/myget-legacy/nuget/v3/index.json"
+      ],
+      "additionalProjectSourcesReason": "The retained bootstrap Arcade appends obsolete MyGet URLs during project evaluation. Only UseBootstrapArcade projects receive a global local-first RestoreSources override, with supported additional sources pointing to the official NuGet/Microsoft indexes. Original package versions, TLS verification and retained tool package bytes are preserved."
+    },
+    "additionalProjectSources": [
+      "https://api.nuget.org/v3/index.json",
+      "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json",
+      "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json",
+      "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json",
+      "https://pkgs.dev.azure.com/dnceng/public/_packaging/myget-legacy/nuget/v3/index.json"
+    ],
+    "nativeCoreClrPackageConstruction": "The explicit native Linux ARM64 adapter completed original CoreCLR NuGet packaging and produced the local CoreCLR/JIT transport packages. Native CoreLib crossgen completed; final SDK byte-origin and ABI verification remain separate.",
+    "sourceLinkBootstrapPin": {
+      "version": "1.0.0-beta2-19322-03",
+      "declaration": "Pinned SourceLink855afb5 eng/Versions.props",
+      "feed": "https://pkgs.dev.azure.com/dnceng/public/_packaging/myget-legacy/nuget/v3/index.json",
+      "verifiedPackage": "Microsoft.SourceLink.Vsts.Git",
+      "packageBytes": 286682,
+      "packageSha256": "82c8206b5cb78bf95040619f35f5ac8562651d3623e0856cea0185a714182cca",
+      "policy": "Preserve the original repo version before Common is built; propagate actual locally built Common version afterward. No retained PSB19351 substitution."
+    },
+    "nugetXmlDocumentationMode": "none",
+    "nugetXmlDocumentationPolicy": "The derived Core30 Containerfile explicitly overrides the base SDK skip setting with NUGET_XMLDOC_MODE=none. Future harness attempts also export none before any restore and record the actual value in command/status reports. Existing extracted package contents require separate validation.",
+    "httpHandler": {
+      "environment": "DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER",
+      "value": "1",
+      "selection": "Supported SocketsHttpHandler; normal certificate validation remains enabled.",
+      "cliOriginalDefaultWhenUnset": "0"
+    },
+    "gdbJitArraySizeBackport": {
+      "featurePreserved": true,
+      "upstreamReference": "https://github.com/dotnet/runtime/blob/v5.0.17/src/coreclr/src/vm/gdbjit.cpp",
+      "reason": "The ARRAY/SZARRAY size query must use MethodTable object size, not the FEATURE_PREJIT-only EEClass image-size API.",
+      "actualNativeRetryValidation": "CoreCLR native compilation completed with the feature retained. The exact final SDK passed the controlled native matrix and ELF ABI checks; GDB-specific debugging behavior is outside those six functional checks."
+    },
+    "corefxNativeArgumentForwarding": {
+      "compilerProperty": "BuildNativeCompiler=--clang6.0",
+      "crossProperty": "CrossBuild=true",
+      "producerProperty": "Separate cross shell argument before compiler argument",
+      "actualCore30Validation": "CoreFX native and managed producers completed using clang6.0 and the recorded ARM64 cross/sysroot arguments.",
+      "originalTryRunCache": "The original pinned three-probe cache configures successfully with the actual Bionic CMake 3.10; no captured-output compatibility patch is required.",
+      "producerArgumentValidation": "The actual pinned MSBuild producer passed 14 recording-only argument checks, followed by successful CoreFX product compilation."
+    },
+    "additionalRetiredCoreClrIndex": "https://dotnetfeed.blob.core.windows.net/dotnet-coreclr/index.json",
+    "retainedCoreClrPlatforms": {
+      "originalVersion": "3.0.0-rc2.19461.13",
+      "selectedVersion": "3.0.0",
+      "property": "CbodotnetBootstrapPlatformsVersion",
+      "packageSha256": "80c1d7c6075d91a16310751dbc84dc9bfd0bfe23fe8bf52bdc245d8cf50ec57f",
+      "packageBytes": 10669,
+      "runtimeJsonSha256": "c38956f91e505ce6c65f717f79c3b638ae2805c8a801126bd72a24c6b62fbaec",
+      "packageSourceCommit": "4ac4c0367003fe3973a3648eb0715ddb0e3bbcea",
+      "source": "Original pinned Private.SourceBuilt.Artifacts.0.1.0-3.0.100.tar.gz",
+      "consumers": [
+        "CoreCLR eng/Tools.props PackageReference",
+        "CoreCLR src/.nuget/packaging.props runtime.json RID graph path"
+      ],
+      "unavailability": "Exact RC2 GETs returned404 on nuget.org, dotnet-public, dotnet-eng, dotnet-tools, myget-legacy, dotnet3, dotnet-core and dotnet-coreclr; original Blob-feed package locations returned403. Original PSB contains only real Platforms3.0.0 and Platforms.Future3.0.0.",
+      "scope": "Explicit retained bootstrap tooling and RID-graph input. No package relabeling, NU1603 suppression, native target removal or product SDK/runtime version change."
+    },
+    "sourceBuiltGenApi": {
+      "repository": "https://github.com/dotnet/arcade",
+      "commit": "ce459ae07c3d7a1e68251268855e0bc7b3d97f75",
+      "project": "src/Microsoft.DotNet.GenAPI/Microsoft.DotNet.GenAPI.csproj",
+      "originalTargetFrameworks": "net472;netcoreapp2.1",
+      "originalSourceExclusion": "true",
+      "explicitBuildOverride": "ExcludeFromSourceBuild=false",
+      "runtimeConfiguration": "Original runtimeconfig.template.json rollForwardOnNoCandidateFx=2 only; the added RollForward=Major was removed because SDK3.0 host rejects both policies together.",
+      "versionFlow": "Normal built-package discovery to MicrosoftDotNetGenAPIPackageVersion, consumed case-insensitively by CoreFX MicrosoftDotNetGenApiPackageVersion",
+      "actualValidation": "Native help and real PNSE-source generation passed, both produced TFMs/package payloads matched, and the normal same-version NuGet refresh delivered the local package to CoreFX.",
+      "scope": "Original GenAPI and Cci.Extensions project sources/dependency versions remain unchanged. Explicit managed tooling build, ordinary local package publishing and normal CoreFX API-generation assertions remain enabled.",
+      "validation": "Before package publication/CoreFX use, verify original template and both produced TFMs, reject dual host settings, execute native help and actual bounded PNSE-source generation against the recorded reference input.",
+      "explicitProjectRebuild": "The extra GenAPI-only command uses supported --rebuild to regenerate SDK3.0 stale runtime configuration. Other component/native caches and the original same-version NuGet cache refresh remain unchanged."
+    },
+    "net472ReferenceAssemblies": {
+      "packageId": "Microsoft.NETFramework.ReferenceAssemblies.net472",
+      "packageVersion": "1.0.3",
+      "packageUrl": "https://api.nuget.org/v3-flatcontainer/microsoft.netframework.referenceassemblies.net472/1.0.3/microsoft.netframework.referenceassemblies.net472.1.0.3.nupkg",
+      "packageBytes": 20790130,
+      "packageSha256": "ffa0a5570a39f911399164d0581ffddef99b5e3dfbaa5f220e5ce22969bcf57c",
+      "packageSha512": "3ef64aa456edb31b49062ea1272cedfe268aef5a8676ef66355a494f8dfe8b55a9db7ca6e7b615b9023e0449ceffdf4ada9c4f304818b73eb69fbc99144822d8",
+      "entries": 374,
+      "uncompressedBytes": 115693493,
+      "resolutionTargets": "build/Microsoft.NETFramework.ReferenceAssemblies.net472.targets",
+      "resolutionTargetsSha256": "94498f7f27b5309fbe79b2eb0707c9a964cee5e0acdb27dfb12d621b38aaa084",
+      "referenceRoot": "Extracted package build/ directory, as specified by the original package targets.",
+      "scope": "Explicit official prebuilt reference assemblies/metadata only for extra GenAPI net472 compilation. Preserve original TFMs and exact own metadata. No Windows/reference binary is executed and no product SDK/runtime reference root is overridden."
+    },
+    "coreSetupNativeCrossgenSelection": {
+      "condition": "TargetArchitecture=arm64, OSGroup=Linux or its pinned default Unix, existing HostMachineRid ends in -arm64",
+      "nativeCrossgen": "transport CoreCLR tools/crossgen",
+      "nativeJit": "transport JIT main native directory",
+      "scope": "Keep original CrossGen and downstream versions/reference/runtime packaging targets; other host/target selectors remain unchanged.",
+      "validation": "The native default-Unix producer completed original crossgen and genuine component-version-file generation. The generation-aware 180-payload audit and controlled final SDK native/ABI verification passed."
+    },
+    "aspnetNativeCrossgenSelection": {
+      "condition": "NativeArm64Host=true, TargetOS=Linux, Platform=arm64",
+      "property": "CrossgenToolPackagePath=crossgen",
+      "scope": "Existing ASP selector global property uses locally built native ARM64 crossgen; original JIT/tool copy and R2R/perfmap targets remain unchanged.",
+      "validation": "The actual property fixture and original ASP.NET producer completed with native ARM64 crossgen. Final framework byte identity, completed local copy provenance and all three controlled native checks passed."
+    },
+    "coreSdkNativeCrossgenSelection": {
+      "condition": "Verified native ARM64 flag, Architecture=arm64 and OSName=linux",
+      "architectureProperty": "Architecture=arm64",
+      "nativeFlag": "CbodotnetNativeArm64Host=true",
+      "sourceSelector": "bin/src/core-sdk.ca71659745c368343b726acc43e6f332f000b0ff/src/redist/targets/Crossgen.targets",
+      "crossgen": "Original dynamic runtime package tools/crossgen",
+      "jitRid": "Original dynamic SharedFrameworkRid",
+      "scope": "Guarded target-time native selectors preserve runtime package/version formulas and all three original R2R/symbol task groups. CLI global path overrides were rejected by the real SDK fixture and are not used.",
+      "validation": "The actual SDK 3.0.100 target fixture passed 46 checks; original SDK R2R/symbol targets completed in the successful incremental bundle invocation."
+    },
+    "toolsetSdkFeedCompatibility": {
+      "retiredIndexes": [
+        "https://dotnet.myget.org/F/vstest/api/v3/index.json",
+        "https://dotnet.myget.org/F/msbuild/api/v3/index.json",
+        "https://www.myget.org/F/container-tools-for-visual-studio/api/v3/index.json"
+      ],
+      "destination": "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json",
+      "exactDependency": "Microsoft.Docker.Sdk 1.1.0",
+      "scope": "Original nested SDK restore retains versions and TLS validation; only exact retired package-service indexes change.",
+      "validation": "The isolated exact Docker SDK restore and original targeted Toolset adapter build both passed.",
+      "validationReport": "reports/runs/toolset-docker-restore-20261030T2214067708813Z/docker-probe.json"
+    },
+    "retainedTestTemplateInputs": {
+      "helper": "scripts/prepare-core30-template-inputs.py",
+      "feed": "<inputs>/core30-retained-test-templates/feed",
+      "supportedRestoreSourceProperty": "RestoreAdditionalProjectSources",
+      "preservesExistingAdditionalSources": 5,
+      "packages": [
+        {
+          "id": "Microsoft.DotNet.Test.ProjectTemplates.2.2",
+          "version": "1.0.2-beta4.19155.2",
+          "archiveSdk": "2.2.207",
+          "archiveArchitecture": "x64",
+          "role": "Only architecture-neutral template data is retained; no SDK2.2 executable is extracted or run."
+        },
+        {
+          "id": "Microsoft.DotNet.Test.ProjectTemplates.3.0",
+          "version": "1.0.2-beta4.19354.2",
+          "archiveSdk": "3.0.100",
+          "archiveArchitecture": "arm64",
+          "role": "Genuine template package from the original verified bootstrap SDK."
+        }
+      ],
+      "scope": "Explicit genuine prebuilt template inputs, not source-produced packages. Full original archive SHA256/SHA512, exact member hashes and nuspec metadata are verified; versions and product source remain unchanged."
+    },
+    "coreSdkAspNetRuntimeVersionFlow": {
+      "scope": "Verified native Linux ARM64 CoreSDK adapter only",
+      "alias": "MicrosoftAspNetCoreAppRuntimePackageVersion",
+      "producerKey": "MicrosoftAspNetCoreAppRuntimeLinuxArm64PackageVersion",
+      "metadata": "Original DoNotOverwrite and every other extra-version item are retained.",
+      "runtimeVersion": "Resolved from genuine locally built package metadata, with no hardcoded archive version.",
+      "validation": "Actual native SDK 3.0.100 version-writer fixture passed 37 checks across six cases; original branch defaults and DoNotOverwrite metadata retained.",
+      "validationReport": "reports/asp-version-alias-20261030T2306227226704Z/alias-fixture.json"
+    },
+    "completedIncrementalClosure": {
+      "status": "passed",
+      "finalBundleAttempt": "build-20261030T2306588329132Z",
+      "manifestSha256": "1249f5f35c199408724258d902078fe99ac85af1892b163a69f657d6704c899d",
+      "patchCount": 31,
+      "fullDependencyAttempt": "build-20261030T2129210024446Z",
+      "targetedToolsetAttempt": "targeted-toolset-20261030T2239473242267Z",
+      "toolsetManifestSha256": "e5228aaf5ef81bcc6877c60a3ccfdd71030d43e8b24714fcd22d2eaeed6baa5b",
+      "subsequentConsumerOnlyPatch": "0032-flow-native-arm64-aspnet-version-to-core-sdk.patch",
+      "skipRepoReferences": true,
+      "cpuAffinity": "6,7",
+      "finalBundleSeconds": 103.201498,
+      "scope": "The retained dependency graph plus original targeted Toolset and CoreSDK adapter builds completed. The final invocation bundles the already completed dependencies with supported SkipRepoReferences=true; this is not a fresh whole-graph or clean-bootstrap build."
+    }
+  },
+  "construction": {
+    "upstreamSharedRuntimeReused": false,
+    "note": "Both shared-framework tree comparisons and completed local archive-copy origin audits passed. The runtime copy is bound to an authentic earlier failed invocation and its unchanged retained destination; ASP.NET was copied in the final successful invocation. The 180-payload native audit binds consumed package generations through real assets hashes, preserved original archives and completed producer-equality receipts after upstream removed live caches. One historical Unsafe IL payload differs from the later current output and is explicitly disclosed; no current-generation equality is claimed for it. The complete original upstream suite and controlled three-user-space native matrix passed. Bootstrap SDKs, PSB/Arcade tooling, reference packages and retained test templates remain explicit binary inputs. This incremental closure is not a clean-bootstrap or Stage 2 build.",
+    "sharedComponents": "Verified local CoreCLR/CoreFX/Core-Setup Microsoft.NETCore.App 3.0.3 and ASP.NET Core 3.0.3 shared frameworks."
+  },
+  "additionalPackages": [],
+  "upstreamInputs": {
+    "bootstrapSdk": "3.0.100",
+    "bootstrapSdkRid": "linux-arm64",
+    "bootstrapSdkUrl": "https://builds.dotnet.microsoft.com/dotnet/Sdk/3.0.100/dotnet-sdk-3.0.100-linux-arm64.tar.gz",
+    "bootstrapSdkSha512": "18c3bc07c4486381f54d4b40eb8401bf56c14fef5febc4639e3134d74ce66172d1e66c2dea9684ad727f08e9dd7e89d74535a8642fb2a2203445483293f3b3c3",
+    "bootstrapSdkBytes": 113669548,
+    "sourceBuiltArtifacts": "0.1.0-3.0.100",
+    "sourceBuiltArtifactsUrl": "https://dotnetcli.blob.core.windows.net/source-built-artifacts/assets/Private.SourceBuilt.Artifacts.0.1.0-3.0.100.tar.gz",
+    "sourceBuiltArtifactsBytes": 469688508,
+    "bootstrapArcade": "1.0.0-beta.19359.6",
+    "dependencyArcade": "1.0.0-beta.19463.3",
+    "observedPsbArcadeCandidate": "1.0.0-beta.19381.1",
+    "observedPsbArcadeCandidateStatus": "The retained package is 149380 bytes, SHA256 1dd51e1be96cc1c95697fca77467d92a7c17906661d6be910e20b2e1f60da70f, nuspec commit 8f3c22397990aeb20a88690b51dad4b33f21e7ff. Bootstrap preparation explicitly selects this different historical tool, verifies the upstream resolver and records actual execution separately from final SDK provenance.",
+    "darc": "1.1.0-beta.19568.2",
+    "referencePackages": "1.0.0-beta.20107.1",
+    "referencePackagesUrl": "https://dotnetfeed.blob.core.windows.net/dotnet-core/assets/Private.SourceBuild.ReferencePackages.1.0.0-beta.20107.1.tar.gz",
+    "runtime": "3.0.3",
+    "officialSdkBaselineSha512": "ceeea4f5590dab0ccc8f016f61db72515bfe1b0d2308a1065696ec654088993f2fbfa7e5b12a486a229c9fbbda657be9f80e03879d9e3038b2d78ea4020f82c4",
+    "availability": "Official ARM64 bootstrap/final SDK and the declared PSB URLs responded successfully. Historical dotnetfeed reference/blob indices returned HTTP 403; exact Darc and both declared Arcade versions were absent from the checked current Azure feeds. Availability probes do not establish successful restore or build.",
+    "sourceBuiltArtifactsSha256": "e8542ab2d6c4383b8c2aee8cdb86cd1952a542f8633df57082054bf48588a09b"
+  },
+  "verification": {
+    "status": "passed-local-origins-full-upstream-suite-and-controlled-native-matrix",
+    "rawSourceArchive": {
+      "filename": "dotnet-sdk-3.0.103-linux-arm64.tar.gz",
+      "bytes": 157285088,
+      "sha256": "c93b542b20700f97345462d569bfee31d8c6a1fc12756f75d38ba87e94ec83c5",
+      "sha512": "cebc95c4782c1402185511c66b306726c239f3b0037da0dcd39b558550d189faa29a4bf2fbbaeb07f34e665233da482bc929a09e90fc15ff6567e001c0010087"
+    },
+    "localFrameworkOrigins": "passed-completed-local-copy-and-shared-tree-identity",
+    "nativeComponentOrigins": {
+      "status": "passed",
+      "report": "reports/construction/native-component-origin.json",
+      "reportSha256": "f101c39b2602756b2f090280af7af0313920e6c917e745766ef3f8c79fe2d523",
+      "finalSdkCompared": true,
+      "completeRuntimePayloadCoverage": true,
+      "counts": {
+        "coreFxManagedPackageAssemblies": 164,
+        "coreFxNativeImageTransformations": 162,
+        "nativeAndCoreLibPayloads": 13,
+        "coreSetupHostOutputs": 3,
+        "historicalConsumedProducerPayloads": 1,
+        "runtimeArchiveMembersVerified": 180
+      },
+      "liveConsumedCacheDirectoriesPresent": 0,
+      "consumedArchiveBinding": "All three consumed original package generations are bound by CoreSetup assets SHA512 and genuine preserved archives with completed producer-equality recovery receipts. The original archive-before-delete contract explains the absent live caches.",
+      "generationException": {
+        "member": "System.Runtime.CompilerServices.Unsafe.dll",
+        "consumedIlEqualsLaterCurrentIl": false,
+        "historicalConsumedProducerPayloads": 1,
+        "scope": "Only the explicitly recorded historical consumed IL generation differs. Its preserved locally produced package, source pin and completed producer-equality receipt establish the consumed generation. No current-generation byte equality is claimed for this IL payload."
+      },
+      "scope": "Consumed IL/native payloads are traced through unchanged or completed native-image output, runtime archive and final SDK. Current whole package archives and removed historical consumer-cache contents are not conflated."
+    },
+    "collection": "The accompanying build-manifest.json and checksum files are authoritative for final collection identity and retained evidence inventories. This profile records the verified source artifact and validation scope; it does not assert the outcome of a later delivery audit.",
+    "nativeUserspaces": [
+      {
+        "environment": "Ubuntu 22.04",
+        "reportedRid": "linux-arm64",
+        "functionalChecksPassed": 6,
+        "openssl": "Recorded external Focal OpenSSL 1.1 bundle",
+        "icu": "Native system ICU; no extra ICU prefix",
+        "sdkArchiveSha256": "c93b542b20700f97345462d569bfee31d8c6a1fc12756f75d38ba87e94ec83c5",
+        "sdkContentMatched": true,
+        "report": "reports/verify-ubuntu22/verification.json"
+      },
+      {
+        "environment": "Ubuntu 24.04",
+        "reportedRid": "linux-arm64",
+        "functionalChecksPassed": 6,
+        "openssl": "Recorded external Focal OpenSSL 1.1 bundle",
+        "icu": "Native system ICU; no extra ICU prefix",
+        "sdkArchiveSha256": "c93b542b20700f97345462d569bfee31d8c6a1fc12756f75d38ba87e94ec83c5",
+        "sdkContentMatched": true,
+        "report": "reports/verify-ubuntu24/verification.json"
+      },
+      {
+        "environment": "Debian 13",
+        "reportedRid": "linux-arm64",
+        "functionalChecksPassed": 6,
+        "openssl": "Recorded external Focal OpenSSL 1.1 bundle",
+        "icu": "Recorded external Focal ICU 66.1 bundle",
+        "sdkArchiveSha256": "c93b542b20700f97345462d569bfee31d8c6a1fc12756f75d38ba87e94ec83c5",
+        "sdkContentMatched": true,
+        "report": "reports/verify-debian13-icu66/verification.json"
+      }
+    ],
+    "dependencyPolicy": "All three controlled native checks use the unchanged separately recorded Focal OpenSSL 1.1 library/configuration bundle. Debian 13 additionally uses exact Focal ICU 66 with CLR_ICU_VERSION_OVERRIDE=66; Ubuntu 22.04/24.04 use native ICU. The SDK archive is unchanged and globalization remains enabled. These results do not establish stock OpenSSL-3-only or stock ICU-76-only compatibility.",
+    "cleanBootstrapClaim": false,
+    "originEvidence": {
+      "status": "passed",
+      "report": "reports/construction/origin-evidence.json",
+      "reportSha256": "4b3c4aec2cd99bca04954688daf39861c857bf1821efd96a021043e6f11259bd",
+      "frameworks": [
+        {
+          "framework": "Microsoft.NETCore.App",
+          "version": "3.0.3",
+          "entries": 188,
+          "allEntriesIdentical": true
+        },
+        {
+          "framework": "Microsoft.AspNetCore.App",
+          "version": "3.0.3",
+          "entries": 134,
+          "allEntriesIdentical": true
+        }
+      ],
+      "runtimeCopyAttempt": "build-20261030T2257015115994Z",
+      "runtimeCopyScope": "The successful sole-local runtime copy occurred in the authentic earlier failed CoreSDK invocation; the final invocation reused its unchanged exact destination and recorded the local candidate.",
+      "aspnetCopyAttempt": "build-20261030T2306588329132Z",
+      "aspnetCopyScope": "The successful sole-local ASP.NET copy occurred in the final successful SDK invocation.",
+      "auditAmendment": "reports/origin-tools/amendments/20261030T2324302546225Z",
+      "originalFailedAuditsAndToolsPreserved": true
+    },
+    "elf": {
+      "files": 19,
+      "machine": "AArch64",
+      "maximumGlibc": "2.17",
+      "maximumGlibcxx": "3.4.21",
+      "maximumCxxAbi": "1.3.7",
+      "glibcCeiling": "2.23",
+      "ceilingPassed": true,
+      "scope": "Regular ELF files shipped inside this exact SDK. External OpenSSL and ICU compatibility libraries have separate ABI requirements."
+    },
+    "compatibilityInputs": {
+      "openssl": {
+        "contract": "reports/verification-compat/compatibility-inputs.json",
+        "originalProducer": "NET5 Focal builder d7f3d9624f9f2ec9d6dfb3c0ed1743eab582378d0a4ee40dfb0bc9e66bed288a",
+        "libraries": [
+          "libssl.so.1.1",
+          "libcrypto.so.1.1"
+        ],
+        "libraryPackageVersion": "1.1.1f-1ubuntu2.24",
+        "configurationPackageVersion": "1.1.1f-1ubuntu2.16",
+        "libcryptoMaximumGlibc": "2.25",
+        "sdkArchiveModified": false
+      },
+      "icu": {
+        "contract": "reports/verification-icu/compatibility-inputs.json",
+        "originalProducer": "Core31 Focal builder",
+        "producerImageId": "ab750d90bdf890c078039cf6f52d3dd44862f3df8f6cdaf4ea771a802e18e3a0",
+        "package": "libicu66",
+        "version": "66.1-2ubuntu2.1",
+        "usedBy": [
+          "Debian13"
+        ],
+        "override": "66",
+        "maximumGlibc": "2.29",
+        "sdkArchiveModified": false,
+        "invariantGlobalizationUsed": false
+      }
+    },
+    "nativeSecurityPolicy": {
+      "status": "passed",
+      "report": "reports/verification-security/policy-snapshot.json",
+      "sha256": "433ff4d41a88c0c37acf4372cfd84b13399c3a831037ee269141508d1538f990",
+      "source": "Exact successful targeted build derived-image receipt",
+      "hostDefaultChanged": false,
+      "seccompUnconfined": false,
+      "initialDriverStop": "The first driver invocation stopped before SDK execution because the targeted build policy was stored differently. The original evidence was retained; a separate exact policy snapshot was created and subsequent native checks passed."
+    },
+    "sdkArchiveSha256": "c93b542b20700f97345462d569bfee31d8c6a1fc12756f75d38ba87e94ec83c5",
+    "archive": {
+      "filename": "cbodotnet-sdk-3.0.103-linux-arm64-build.1.tar.gz",
+      "bytes": 157285088,
+      "sha256": "c93b542b20700f97345462d569bfee31d8c6a1fc12756f75d38ba87e94ec83c5",
+      "sha512": "cebc95c4782c1402185511c66b306726c239f3b0037da0dcd39b558550d189faa29a4bf2fbbaeb07f34e665233da482bc929a09e90fc15ff6567e001c0010087",
+      "copiedWithoutModification": true,
+      "scope": "The provisional collected copy used in all three native checks matches the source archive exactly. Final report/input inventories are recorded by the accompanying build-manifest.json."
+    },
+    "upstreamSmoke": {
+      "status": "passed",
+      "attempt": "test-20261030T2313422949049Z",
+      "report": "reports/runs/test-20261030T2313422949049Z/core30-smoke-summary.json",
+      "reportSha256": "0f5539b50aa37be5916ea642ac51bb047cd76685711e0eb138e7b28e5d805eec",
+      "casesStarted": 52,
+      "casesFinished": 52,
+      "successfulCommands": 156,
+      "certificateSetups": 2,
+      "upstreamExitCode": 0,
+      "exclusions": [],
+      "sdkArchiveSha256": "c93b542b20700f97345462d569bfee31d8c6a1fc12756f75d38ba87e94ec83c5",
+      "scope": "All original local/online non-web and HTTP/HTTPS web cases remain enabled, with recorded official feed and built-in certificate-tool adapters. This shell suite does not contain later source-build license/poison/provenance classes or the later XML-documentation assertion.",
+      "stage2Executed": false
+    }
+  },
+  "testing": {
+    "status": "passed-complete-original-upstream-shell-suite",
+    "entryPoint": "Invoke-Core30Build.ps1 -Mode Test",
+    "helper": "scripts/prepare-core30-smoke.py",
+    "freshSdkRequired": true,
+    "expectedTemplateCases": 52,
+    "expectedSuccessfulCommands": 156,
+    "exclusions": [],
+    "testOnlyPatch": "patches/core30-tests/0001-route-private-suite-and-use-built-sdk-dev-certs.patch",
+    "scope": "All original local/online non-web and HTTP/HTTPS web cases remain enabled, with recorded official feed and built-in certificate-tool adapters. This shell suite does not contain later source-build license/poison/provenance classes or the later XML-documentation assertion.",
+    "lastPassedAttempt": "test-20261030T2313422949049Z",
+    "summaryReport": "reports/runs/test-20261030T2313422949049Z/core30-smoke-summary.json",
+    "summarySha256": "0f5539b50aa37be5916ea642ac51bb047cd76685711e0eb138e7b28e5d805eec",
+    "templateCasesStarted": 52,
+    "templateCasesPassed": 52,
+    "successfulCommands": 156,
+    "httpsCertificateSetupsCompleted": 2,
+    "upstreamExitCode": 0,
+    "stage2Executed": false
+  }
+}

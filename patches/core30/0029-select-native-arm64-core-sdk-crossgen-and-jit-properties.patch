@@ -1,0 +1,10 @@
+--- a/repos/core-sdk.proj
++++ b/repos/core-sdk.proj
+@@ -12,6 +12,7 @@
+     <BuildCommandArgs Condition="'$(TargetOS)' == 'FreeBSD'">$(BuildCommandArgs) /p:CoreSetupRid=freebsd-x64 /p:PortableBuild=true</BuildCommandArgs>
+     <BuildCommandArgs Condition="'$(TargetOS)' == 'OSX'">$(BuildCommandArgs) /p:CoreSetupRid=osx-x64</BuildCommandArgs>
+     <BuildCommandArgs Condition="'$(TargetOS)' == 'Linux'">$(BuildCommandArgs) /p:CoreSetupRid=$(TargetRid)</BuildCommandArgs>
++    <BuildCommandArgs Condition="'$(NativeArm64Host)' == 'true' AND '$(TargetOS)' == 'Linux' AND '$(Platform)' == 'arm64'">$(BuildCommandArgs) /p:Architecture=arm64 /p:CbodotnetNativeArm64Host=true</BuildCommandArgs>
+     <BuildCommandArgs>$(BuildCommandArgs) -c $(Configuration)</BuildCommandArgs>
+     <BuildCommandArgs>$(BuildCommandArgs) $(FlagParameterPrefix)nodereuse $(ArcadeFalseBoolBuildArg)</BuildCommandArgs>
+     <BuildCommandArgs>$(BuildCommandArgs) /p:DOTNET_INSTALL_DIR=$(DotNetCliToolDir)</BuildCommandArgs>

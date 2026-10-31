@@ -1,0 +1,14 @@
+--- a/bin/src/core-setup.c03f2fe62663edec83d1bc12b4e9f11bd3de5d0e/src/corehost/build.sh
++++ b/bin/src/core-setup.c03f2fe62663edec83d1bc12b4e9f11bd3de5d0e/src/corehost/build.sh
+@@ -242,7 +242,10 @@ echo "Building Corehost from $DIR to $(pwd)"
+ set -x # turn on trace
+ if [ $__CrossBuild == 1 ]; then
+     # clang-3.9 or clang-4.0 are default compilers for cross compilation
+-    if [[ "$__build_arch" != "arm" && "$__build_arch" != "armel" ]]; then
++    if [[ "$__build_arch" == "arm64" && "$(uname -m)" == "aarch64" ]] && command -v "clang-6.0" > /dev/null 2>&1; then
++        export CC="$(command -v clang-6.0)"
++        export CXX="$(command -v clang++-6.0)"
++    elif [[ "$__build_arch" != "arm" && "$__build_arch" != "armel" ]]; then
+         if command -v "clang-3.9" > /dev/null 2>&1; then
+             export CC="$(command -v clang-3.9)"
+             export CXX="$(command -v clang++-3.9)"

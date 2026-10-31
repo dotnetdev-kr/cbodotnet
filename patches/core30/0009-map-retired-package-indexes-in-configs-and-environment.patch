@@ -1,0 +1,66 @@
+--- a/tools-local/tasks/Microsoft.DotNet.SourceBuild.Tasks.XPlat/AddSourceToNuGetConfig.cs
++++ b/tools-local/tasks/Microsoft.DotNet.SourceBuild.Tasks.XPlat/AddSourceToNuGetConfig.cs
+@@ -60,4 +60,63 @@ namespace Microsoft.DotNet.Build.Tasks
+             return true;
+         }
+     }
++
++    // Repair only recorded retired package-index endpoints. Local feeds,
++    // package versions and arbitrary blob asset URLs remain unchanged.
++    public class MapRetiredPackageFeeds : Task
++    {
++        public ITaskItem[] NuGetConfigFiles { get; set; }
++        public ITaskItem[] EnvironmentVariables { get; set; }
++        [Output]
++        public ITaskItem[] MappedEnvironmentVariables { get; set; }
++
++        private static readonly string[] RetiredIndexes = new[]
++        {
++            "https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json",
++            "https://dotnetfeed.blob.core.windows.net/dotnet-tools-internal/index.json",
++            "https://dotnet.myget.org/F/nuget-build/api/v3/index.json",
++            "https://dotnet.myget.org/F/dotnet-core/api/v3/index.json",
++            "https://dotnet.myget.org/F/dotnet-tools/api/v3/index.json"
++        };
++        private const string RetainedIndex = "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json";
++
++        private string Map(string value, string location)
++        {
++            foreach (string oldIndex in RetiredIndexes)
++            {
++                if (value.Contains(oldIndex))
++                {
++                    value = value.Replace(oldIndex, RetainedIndex);
++                    Log.LogMessage(MessageImportance.High, "Package feed mapping at {0}: {1} -> {2}", location, oldIndex, RetainedIndex);
++                }
++            }
++            return value;
++        }
++
++        public override bool Execute()
++        {
++            foreach (ITaskItem file in NuGetConfigFiles ?? Array.Empty<ITaskItem>())
++            {
++                XDocument document = XDocument.Load(file.ItemSpec);
++                bool changed = false;
++                foreach (XElement source in document.Descendants("packageSources").Elements("add"))
++                {
++                    XAttribute value = source.Attribute("value");
++                    if (value == null || !RetiredIndexes.Contains(value.Value)) continue;
++                    string mapped = Map(value.Value, file.ItemSpec);
++                    changed |= mapped != value.Value;
++                    value.Value = mapped;
++                }
++                if (changed) document.Save(file.ItemSpec);
++            }
++            MappedEnvironmentVariables = (EnvironmentVariables ?? Array.Empty<ITaskItem>())
++                .Select(item =>
++                {
++                    var mapped = new TaskItem(item);
++                    mapped.ItemSpec = Map(item.ItemSpec, "component environment");
++                    return (ITaskItem)mapped;
++                }).ToArray();
++            return !Log.HasLoggedErrors;
++        }
++    }
+ }

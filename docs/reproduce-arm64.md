@@ -17,7 +17,7 @@ As of 2026-10-28. This document describes the implemented execution procedure. R
 | Derived image | `localhost/cbodotnet-arm64:10.0.403` |
 | Final build image ID | `92f8771e40e362c7417be68f4a257fe58d83c060abfcdd8c86f8f423c2bc245e` |
 
-This profile builds SDK components and reuses the public upstream shared runtime. It does not claim a source-only rebuild that includes the 1xx runtime. Pinned values are in the [profile](../profiles/dotnet-10.0.403-linux-arm64.json), and the image configuration is in the [Containerfile](../containers/arm64.Containerfile). Rebuilding the image may produce a different derived image ID as additional packages change, so use the ID recorded for the actual execution.
+This profile builds SDK components and reuses the public upstream shared runtime. It does not claim a source-only rebuild that includes the 1xx runtime. Pinned values are in the [profile](../profiles/dotnet-10.0.403-linux-arm64.json), and the image configuration is in the [.NET 10 Containerfile](../containers/arm64-net10.Containerfile). Rebuilding the image may produce a different derived image ID as additional packages change, so use the ID recorded for the actual execution. The versioned filename was introduced after the recorded local build; its recipe contents are unchanged.
 
 ## 2. Prepare and build from Windows PowerShell
 

@@ -26,7 +26,7 @@ Sources for these selections: [official release](https://github.com/dotnet/dotne
 
 - Installed Podman, Skopeo, and validation tools in the existing Ubuntu-22.04 WSL 2 distribution. The WSL version, memory settings, and VHD location were not changed.
 - Pinned the official ARM64 prerequisite image by digest and confirmed that it runs natively on ARM64.
-- Added LLD and the Python dependencies for rootfs generation through the [Containerfile](../containers/arm64.Containerfile). The environment reports record the actual additional package versions.
+- Added LLD and the Python dependencies for rootfs generation through the [.NET 10 Containerfile](../containers/arm64-net10.Containerfile). The recipe was subsequently given this versioned filename without changing its contents. The environment reports record the actual additional package versions.
 - Cloned the VMR to `/home/rkttu/cbodotnet/work/dotnet-v10.0.403` in WSL and verified its SHA.
 - Used the rootfs generator from the selected tag to verify the Release signatures and checksums of ARM64 Bionic packages and extract the sysroot. No chroot, QEMU, or x64 execution was used.
 - Ran container builds as a regular user with the same UID/GID as the WSL file owner. After NuGet downloads failed with the initial parallelism of 6, retries used build parallelism of 2 and a limit of 8 concurrent requests per feed.

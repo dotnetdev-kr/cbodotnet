@@ -1,0 +1,10 @@
+--- a/bin/src/core-setup.c03f2fe62663edec83d1bc12b4e9f11bd3de5d0e/src/pkg/packaging-tools/framework.dependency.targets
++++ b/bin/src/core-setup.c03f2fe62663edec83d1bc12b4e9f11bd3de5d0e/src/pkg/packaging-tools/framework.dependency.targets
+@@ -248,6 +248,7 @@
+       <_crossDir Condition="'$(TargetArchitecture)' == 'arm' AND '$(OS)' == 'Windows_NT'">/x86_arm</_crossDir>
+       <_crossDir Condition="'$(TargetArchitecture)' == 'arm' AND '$(OS)' != 'Windows_NT'">/x64_arm</_crossDir>
+       <_crossDir Condition="'$(TargetArchitecture)' == 'arm64'">/x64_arm64</_crossDir>
++      <_crossDir Condition="'$(TargetArchitecture)' == 'arm64' AND '$(OSGroup)' == 'Linux' AND $(HostMachineRid.EndsWith('-arm64'))"></_crossDir>
+     </PropertyGroup>
+ 
+     <ItemGroup>

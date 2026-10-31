@@ -1,0 +1,31 @@
+--- a/bin/src/coreclr.259ce7d4619478cfefe7b0c0f6fa765f765f7e37/build.sh
++++ b/bin/src/coreclr.259ce7d4619478cfefe7b0c0f6fa765f765f7e37/build.sh
+@@ -473,7 +473,9 @@ build_CoreLib()
+            exit 1
+        fi
+     else
+-       if [[ ( "$__CrossArch" == "x86" ) && ( "$__BuildArch" == "arm" ) ]]; then
++       if [[ ( "$__HostArch" == "arm64" ) && ( "$__BuildArch" == "arm64" ) ]]; then
++           build_CoreLib_ni "$__BinDir/crossgen" $__CoreLibILDir
++       elif [[ ( "$__CrossArch" == "x86" ) && ( "$__BuildArch" == "arm" ) ]]; then
+            build_CoreLib_ni "$__CrossComponentBinDir/crossgen" $__CoreLibILDir
+        elif [[ ( "$__CrossArch" == "x64" ) && ( "$__BuildArch" == "arm" ) ]]; then
+            build_CoreLib_ni "$__CrossComponentBinDir/crossgen" $__CoreLibILDir
+@@ -504,11 +506,16 @@ generate_NugetPackages()
+     echo "DistroRid is "$__DistroRid
+     echo "ROOTFS_DIR is "$ROOTFS_DIR
+     # Build the packages
++    # Same-architecture sysroot builds use the native tools in the main output.
++    local doCrossArchBuild=$__CrossBuild
++    if [[ "$__HostArch" == "arm64" && "$__BuildArch" == "arm64" ]]; then
++        doCrossArchBuild=0
++    fi
+     # Package build uses the Arcade system and scripts, relying on it to restore required toolsets as part of build
+     $__ProjectRoot/eng/common/build.sh -r -b -projects $__SourceDir/.nuget/packages.builds \
+                                        -verbosity minimal -bl:$__LogsDir/Nuget_$__BuildOS__$__BuildArch__$__BuildType.binlog \
+                                        /p:PortableBuild=true /p:ArcadeBuild=true \
+-                                       /p:__IntermediatesDir=$__IntermediatesDir /p:__RootBinDir=$__RootBinDir /p:__DoCrossArchBuild=$__CrossBuild \
++                                       /p:__IntermediatesDir=$__IntermediatesDir /p:__RootBinDir=$__RootBinDir /p:__DoCrossArchBuild=$doCrossArchBuild \
+                                        $__CommonMSBuildArgs $__UnprocessedBuildArgs
+ 
+     if [ $? -ne 0 ]; then

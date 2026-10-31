@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "selectedAt": "2026-10-30",
+  "sdkVersion": "8.0.133",
+  "source": {
+    "repository": "https://github.com/dotnet/dotnet",
+    "tag": "v8.0.133",
+    "commit": "7d1bf90885cff22e7da72b27e9848e42fd3cb1ae"
+  },
+  "selection": {
+    "latestPublishedSdk": "8.0.427",
+    "latestPublishedRuntime": "8.0.33",
+    "releaseDate": "2026-10-25",
+    "reason": "Latest published 1xx SDK with a matching VMR tag; this is a source-build selection rather than the newest SDK across all feature bands."
+  },
+  "host": { "os": "linux", "architecture": "arm64", "emulation": false },
+  "target": { "rid": "linux-arm64", "libc": "glibc", "intendedMaximumGlibcRequirement": "2.23" },
+  "container": {
+    "repository": "mcr.microsoft.com/dotnet-buildtools/prereqs",
+    "referenceTag": "ubuntu-24.04-arm64",
+    "digest": "sha256:7ef8f6ee1b9982511349757443eb4844f0db4f8cef1aff6148a7ba1c25d7c6f4"
+  },
+  "sysroot": {
+    "architecture": "arm64",
+    "suite": "xenial",
+    "generator": "eng/common/cross/build-rootfs.sh",
+    "generatorArguments": ["arm64", "xenial"],
+    "packageSignatureVerification": true,
+    "preparationRequiresRoot": true
+  },
+  "build": {
+    "system": "legacy-vmr-source-build",
+    "configuration": "Release",
+    "sourceOnly": true,
+    "online": true,
+    "crossBuild": true,
+    "portableBuild": true,
+    "continuousIntegration": true,
+    "maxCpuCount": 2,
+    "patches": [
+      {
+        "path": "patches/net8/0001-support-arm64-cross-components-host.patch",
+        "sha256": "d8d94bc40c11ed96bb9cc14a9ada399929999cda9c09da86eac4a2d961c1e1e3",
+        "purpose": "Backport ARM64 Linux build-host detection for the required cross-components tools from the pinned .NET 9 source."
+      },
+      {
+        "path": "patches/net8/0002-preserve-portable-aspnetcore-target.patch",
+        "sha256": "b03fab8085c959debc05892fb1920edaa8f514f90d4189994de23608abcc7d8a",
+        "purpose": "Preserve an explicitly requested portable ASP.NET Core target and avoid duplicate implicit runtime package references."
+      }
+    ],
+    "sharedComponents": "Both Microsoft.NETCore.App 8.0.33 and Microsoft.AspNetCore.App 8.0.33 were built locally. Installer DownloadFile events selected local blob-feed archives; all 184 core-runtime and 143 ASP.NET shared-framework entries in the SDK match those local archives."
+  },
+  "construction": {
+    "upstreamSharedRuntimeReused": false,
+    "note": "Local shared-framework origins are verified for SDK SHA-256 8c9ab2e845e7ca16d6a185d47d2131fd43f3f147827c0fa56ae5552a9e52490e in reports/construction/origin-evidence.json using actual installer DownloadFile events, local blob-feed archive hashes and final SDK byte comparisons. The legacy VMR source-build still uses an upstream bootstrap SDK, bootstrapped previously source-built artifacts, reference packages and other inputs, and runs online; this is not a claim that every build input was rebuilt from source."
+  },
+  "additionalPackages": [],
+  "upstreamInputs": {
+    "bootstrapSdk": "8.0.131",
+    "sourceBuiltArtifacts": "8.0.131-servicing.26422.1",
+    "runtime": "8.0.33",
+    "sourceBuiltArtifactsRid": "centos.9-x64",
+    "bootstrapTransformation": "The tagged prep.sh replaces portable/native packages for six Unix RIDs, including linux-arm64."
+  }
+}

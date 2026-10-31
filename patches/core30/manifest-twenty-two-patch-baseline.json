@@ -1,0 +1,279 @@
+{
+  "sourceCommit": "40de72d1087a1d05dfd39c87f888a0611ec6c60f",
+  "previousManifest": {
+    "name": "manifest-twenty-one-patch-baseline.json",
+    "sha256": "673aa92118f773e9e21c870fd5854f08e8c3f60792bd3d629a2d893c67706b1c"
+  },
+  "patches": [
+    {
+      "name": "0001-use-explicit-acquisition-and-preserved-sysroot.patch",
+      "target": "tools-local/init-build.proj",
+      "originalSha256": "52718a9ebe2f01c14e0788d94b832955903b4666d6ec557bb6e293f6e7cfde2e",
+      "patchedSha256": "3483d1abc61fe03e3357eac029ebd4dd206c3e650ebbaa55f2148a234d5b9b86",
+      "patchSha256": "b94adf5f7d83465dd5a445c74630121e984708033e3a07c891ef68487d55895d",
+      "addedLines": 2,
+      "removedLines": 2,
+      "component": null,
+      "purpose": "Honor explicit flags selecting the recorded Git acquisition adapter and independently prepared sysroot. Preserve upstream initialization, metadata, patch and product targets."
+    },
+    {
+      "name": "0002-select-coreclr-native-arm64-tools.patch",
+      "target": "repos/coreclr.proj",
+      "originalSha256": "6cd685ad53f9fd4cfa816c9f7d42b14deb7ac1e197de17b30bae43fecb2e1a5e",
+      "patchedSha256": "4515c487c85dba3ba140d4de235e766f9169a021ffccba37811ddff6e256efa4",
+      "patchSha256": "3316951b841b2d0ca4e497a968d25d189ad35b7761a58b311d25303f72483d16",
+      "addedLines": 1,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Select Clang 6 and omit redundant cross-architecture host tools only for the explicit native Linux ARM64 build; retain the existing cross/sysroot switches."
+    },
+    {
+      "name": "0003-forward-corefx-native-arm64-sysroot.patch",
+      "target": "repos/corefx.proj",
+      "originalSha256": "0e5ea184f1b86d688b1be08fcfb7ded54e51990e3544056611634b3d597f63e0",
+      "patchedSha256": "5b92f8c65f24781ab388c4b297e5e94c9dac7dcb628f9d809f06cf2e7f5e4c9b",
+      "patchSha256": "4f57cf9730d3d1a6fc4175056438f81fbc25d6bb292f9777656e3185e5e220f2",
+      "addedLines": 1,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Use the existing BuildNativeCompiler pass-through to select Clang 6 and cross mode for the independently prepared target sysroot."
+    },
+    {
+      "name": "0004-preserve-core-setup-native-arm64-crossgen.patch",
+      "target": "repos/core-setup.proj",
+      "originalSha256": "38659a85fc1bfaf03533503015b5a398ad2be52d3215e92bba222c6bfc3a68d8",
+      "patchedSha256": "ef187906a925ed0697817472ae729607a30934eb68f693020476e5836894a47a",
+      "patchSha256": "034bfbcb2b9154dc9fe3d92dc7f57969489b763d448aa9e14d7c3a293e149765",
+      "addedLines": 2,
+      "removedLines": 1,
+      "component": null,
+      "purpose": "Keep actual native image generation enabled for same-architecture ARM64 hosts while retaining Core-Setup cross/sysroot compilation."
+    },
+    {
+      "name": "0005-use-actual-aspnetcore-installer-rid.patch",
+      "target": "repos/core-sdk.proj",
+      "originalSha256": "58500b3287bd241305d48315db5fbf0fd428d59be0fb7011bfb705e5e78617c6",
+      "patchedSha256": "1749940147127c68b6a3acd0cbfa5c9c6f2becebc6af36b1323cb67e3204a7f0",
+      "patchSha256": "e52b40f6521163345b5de3a5612b3801c16cdebe56ca20d509bb820bdc3f4251",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": null,
+      "purpose": "Use the selected Linux target RID for the locally built ASP.NET Core archive instead of always requesting x64."
+    },
+    {
+      "name": "0006-run-native-arm64-corelib-crossgen.patch",
+      "target": "bin/src/coreclr.259ce7d4619478cfefe7b0c0f6fa765f765f7e37/build.sh",
+      "originalSha256": "effad5a50d518ba07f61366c439245b111c97619e7295804257f7a6ef3a89bdb",
+      "patchedSha256": "2987bc771940c1bef67b700bd3f032c25fc0a63c2ec68c765f3f15686c270e9d",
+      "patchSha256": "50aa1b344baec6dad69ceb22e2dc400493971519e453ff9f5023428aec64b413",
+      "addedLines": 9,
+      "removedLines": 2,
+      "component": {
+        "commit": "259ce7d4619478cfefe7b0c0f6fa765f765f7e37",
+        "path": "build.sh",
+        "name": "coreclr"
+      },
+      "purpose": "Run the locally built native ARM64 crossgen instead of copying IL CoreLib during same-architecture sysroot builds. Package the actual native tool layout without redundant cross-host folders."
+    },
+    {
+      "name": "0007-select-clang6-corehost-native-arm64-cross-build.patch",
+      "target": "bin/src/core-setup.c03f2fe62663edec83d1bc12b4e9f11bd3de5d0e/src/corehost/build.sh",
+      "originalSha256": "47be891c3bef8027a8f05c5e60abb9d56967bc2329d518a27c2eb52e5573dc21",
+      "patchedSha256": "07ed1fef66990444153d02bceeec3e40d95659e63f6aca0682a9013c7020e38b",
+      "patchSha256": "65fe754a6644668a3c9d8aa0f6ff0ae44af94f462e7fd161194fb1e1b8e6d86f",
+      "addedLines": 4,
+      "removedLines": 1,
+      "component": {
+        "commit": "c03f2fe62663edec83d1bc12b4e9f11bd3de5d0e",
+        "path": "src/corehost/build.sh",
+        "name": "core-setup"
+      },
+      "purpose": "Select the installed Clang 6 pair explicitly for native ARM64 Core-Setup sysroot builds, preserving the historical compiler selection for other host-target pairs."
+    },
+    {
+      "name": "0008-route-upstream-smoke-tests-to-built-arm64-sdk.patch",
+      "target": "smoke-test.sh",
+      "originalSha256": "f47ddbd41ba1e4a1b475474ca61073e2556d8f03086d774d9abfa99dac4d0960",
+      "patchedSha256": "db6f4d794e4b891d11d8dcca2fcd0a580f899ee5c93893ce799c978024669498",
+      "patchSha256": "98d114903be53d557a96461670b3ef0dc859a4cbef4576df7adf7a466c5e23d6",
+      "addedLines": 6,
+      "removedLines": 4,
+      "component": null,
+      "purpose": "Accept the explicit core-sdk graph, select its ARM64 local package directory and allow a new isolated test working directory. Preserve all upstream test commands and assertions; this routing change alone establishes no test result."
+    },
+    {
+      "name": "0009-map-retired-package-indexes-in-configs-and-environment.patch",
+      "target": "tools-local/tasks/Microsoft.DotNet.SourceBuild.Tasks.XPlat/AddSourceToNuGetConfig.cs",
+      "originalSha256": "d3704ee425a878b389542013892f98f4b1ab1b0e08ad78eeb39ac7b28cbac459",
+      "patchedSha256": "aecb9b5ce27432ce38adfd6ca2d3f0272721ee99e29135b942d090c58d12f5ce",
+      "patchSha256": "ff4763fd674ae6939b3df8d61ad2cfcaea6955fef093139ac79ca367fb3a03fc",
+      "addedLines": 59,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Add a build-tool task mapping only five exact retired package indexes to the official dotnet-public NuGet index in configs and component environment strings; preserve requested package versions and local feeds."
+    },
+    {
+      "name": "0010-route-component-restore-through-recorded-feed-mapping.patch",
+      "target": "repos/dir.targets",
+      "originalSha256": "b71ab00b68153edfc7bc0a88185832c7475a237a838564b57ae422124473531e",
+      "patchedSha256": "b5295bc5fa3f2b4133c0ea8d67f514cee107d54ea0193dcd4c18fcdbda48e167",
+      "patchSha256": "459bf02a1cf971fe6750c91ef0ab2c6648fc70bca9f4641ad60a9e2a1eaa6a0d",
+      "addedLines": 15,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Apply the recorded exact endpoint mapping through the existing common config/RepoBuild producer before online component restores; retain upstream source-built feed injection and offline behavior."
+    },
+    {
+      "name": "0011-preserve-explicit-complete-darc-command.patch",
+      "target": "tools-local/init-build.proj",
+      "originalSha256": "3483d1abc61fe03e3357eac029ebd4dd206c3e650ebbaa55f2148a234d5b9b86",
+      "patchedSha256": "f0855a47294aa837876e00d859ff1c79a518817feaec133b8e1a71b142da7314",
+      "patchSha256": "bf4ace1cd1e6b4382928753f5aeeb2fb08b6819fcbaf0a0c49108fdbf374c8bf",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": null,
+      "afterPatch": "0001-use-explicit-acquisition-and-preserved-sysroot.patch",
+      "purpose": "Preserve the explicit complete source-acquisition command at the older FetchSources producer. The fixed wrapper binds every required Git adapter argument, including bin/src, because this generation does not append DarcCloneArguments to an explicit command."
+    },
+    {
+      "name": "0012-pin-bootstrap-arcade-restore-to-local-and-official-feeds.patch",
+      "target": "repos/dir.targets",
+      "originalSha256": "b5295bc5fa3f2b4133c0ea8d67f514cee107d54ea0193dcd4c18fcdbda48e167",
+      "patchedSha256": "53b6ec5f275edc42ced640e4e724206e67db6647f3ed06761949430bad937eef",
+      "patchSha256": "b4b180d9f65e8831f1e39041d717acef35c0e996692afd681c4e63643b0ec298",
+      "addedLines": 7,
+      "removedLines": 0,
+      "component": null,
+      "afterPatch": "0010-route-component-restore-through-recorded-feed-mapping.patch",
+      "purpose": "For projects using the retained bootstrap Arcade only, set the supported global RestoreSources to the local source-built package directory. Supported RestoreAdditionalProjectSources supplies recorded official NuGet/Microsoft indexes, preventing the old SDK from appending retired MyGet endpoints while preserving exact versions, TLS verification and offline behavior."
+    },
+    {
+      "name": "0013-build-local-coreclr-packages-on-native-arm64.patch",
+      "target": "repos/coreclr.proj",
+      "originalSha256": "4515c487c85dba3ba140d4de235e766f9169a021ffccba37811ddff6e256efa4",
+      "patchedSha256": "7b37344d18373de5735399b81c0969068c604da518e77db2ec4b5e82698d5109",
+      "patchSha256": "c5ad4ab8ed50944a577cef38fd6fe1b8633413dba09fd4188215107ce9c6623a",
+      "addedLines": 2,
+      "removedLines": 1,
+      "component": null,
+      "afterPatch": "0002-select-coreclr-native-arm64-tools.patch",
+      "purpose": "Omit only the historical skipnuget switch for explicit native Linux ARM64 builds, so the original CoreCLR packaging target emits the local runtime transport packages required by CoreSetup. Preserve cross/sysroot/native image generation and all other ARM host-target behavior."
+    },
+    {
+      "name": "0014-preserve-sourcelink-bootstrap-version-until-common-is-built.patch",
+      "target": "tools-local/tasks/Microsoft.DotNet.SourceBuild.Tasks.XPlat/WriteRestoreSourceAndVersionProps.cs",
+      "originalSha256": "d206d6075f70021ee4759fa1265dc622bb8d9e83c62dd360aa673bfafa179a36",
+      "patchedSha256": "61cf9238dcb4b68dfe7c8e614854c6a223064db583854bd8c2f350d6819a9511",
+      "patchSha256": "b187779d77cd0383c5a38259ebcccf9557f8299920a697ae3bc33d1860232997",
+      "addedLines": 9,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Preserve the pinned SourceLink bootstrap dependency while its own Common package version is unavailable. Emit the deferred flow override only when a real Common version exists, retaining original overwrite protection and later local-source propagation. No package version is substituted."
+    },
+    {
+      "name": "0015-honor-explicit-cli-http-handler-selection.patch",
+      "target": "bin/src/cli.ad7cfd8fa324a2a32d847c73f66404fda676bbeb/eng/restore-toolset.sh",
+      "originalSha256": "b0277d3273aeab7c060b5ec2455349d7589951e2e4dd04cda827f1d6454a73c4",
+      "patchedSha256": "53f27e9ae0b5bcb6a9c744b5764262af98814df32d4d670bf6207bed56285ea8",
+      "patchSha256": "7763cf7217d299008800331de89377f013d231ce7da275f25c03ea1ab45964d6",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": {
+        "name": "cli",
+        "commit": "ad7cfd8fa324a2a32d847c73f66404fda676bbeb",
+        "path": "eng/restore-toolset.sh"
+      },
+      "purpose": "Honor an explicit supported HTTP handler selection in the historical CLI restore driver; preserve its original Curl default when unset. The native harness selects SocketsHttpHandler with normal TLS verification."
+    },
+    {
+      "name": "0016-backport-gdbjit-array-base-size-query.patch",
+      "target": "bin/src/coreclr.259ce7d4619478cfefe7b0c0f6fa765f765f7e37/src/vm/gdbjit.cpp",
+      "originalSha256": "5d3907b45f4c07ae5ce791596d2887e7d50beade6318780f2c4506524f94bcfd",
+      "patchedSha256": "a769678d80d8941849186dae22b63d19ed7e4e0dc0856dac416b77780126c44e",
+      "patchSha256": "d7f855fb0c00af7ad28bd8d25d30aca8fc6e031aa786b5e7e3b92340248474aa",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": {
+        "name": "coreclr",
+        "commit": "259ce7d4619478cfefe7b0c0f6fa765f765f7e37",
+        "path": "src/vm/gdbjit.cpp"
+      },
+      "upstreamReference": "https://github.com/dotnet/runtime/blob/v5.0.17/src/coreclr/src/vm/gdbjit.cpp",
+      "purpose": "Backport the upstream MethodTable base-size query for GDBJIT ARRAY/SZARRAY descriptions. The old EEClass::GetSize API is FEATURE_PREJIT-only and fails this supported native configuration; preserve GDBJIT rather than disabling the feature."
+    },
+    {
+      "name": "0017-forward-corefx-cross-mode-with-singleword-properties.patch",
+      "target": "repos/corefx.proj",
+      "originalSha256": "5b92f8c65f24781ab388c4b297e5e94c9dac7dcb628f9d809f06cf2e7f5e4c9b",
+      "patchedSha256": "0fd5d0ce05918a2acad1ef8a0a31280f561c8e4b6ff913aecbf37eb0ba0226ae",
+      "patchSha256": "beb6432f88b7a54bcae6add564db6e097f37109975d0b73c4e6426ac4fae6910",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": null,
+      "purpose": "Use independent singleword compiler and cross-build properties. The historical shell driver reparses quoted whitespace, so the original compiler property could split into multiple MSBuild arguments.",
+      "afterPatch": "0003-forward-corefx-native-arm64-sysroot.patch"
+    },
+    {
+      "name": "0018-forward-corefx-native-cross-build-property.patch",
+      "target": "bin/src/corefx.a4238c9819075be9bff74e009da802ce47233f38/src/Native/build-native.proj",
+      "originalSha256": "09aac8a01cc5d20fe61556107d790b5088d5ad6f9f5950292d8d7caf0472d368",
+      "patchedSha256": "ea5135ad0a866b783b2b29d14341829c1e928d4797127f8b1a27807c8f3ced48",
+      "patchSha256": "03a7bd194a808e5f029004270e68507d4d137af0cdd3759dfed2e2f588a7e1a2",
+      "addedLines": 2,
+      "removedLines": 1,
+      "component": {
+        "name": "corefx",
+        "commit": "a4238c9819075be9bff74e009da802ce47233f38",
+        "path": "src/Native/build-native.proj"
+      },
+      "purpose": "Forward the explicit CrossBuild property to the existing build-native.sh cross switch, independently of compiler selection. Unset and false keep the original native default; true uses the authenticated target sysroot."
+    },
+    {
+      "name": "0020-map-retired-coreclr-package-index.patch",
+      "target": "tools-local/tasks/Microsoft.DotNet.SourceBuild.Tasks.XPlat/AddSourceToNuGetConfig.cs",
+      "originalSha256": "aecb9b5ce27432ce38adfd6ca2d3f0272721ee99e29135b942d090c58d12f5ce",
+      "patchedSha256": "90cbb3e72297fd1f488e7fdb70c0b81c03a3f23eba362167b5acfa4fd306b007",
+      "patchSha256": "86d9e3b963dd2a2f7355e8a9669ad50f44d09a03cbf61469eda5ceb15ddd8e26",
+      "addedLines": 1,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Map the exact retired dotnet-coreclr package service index used by the pinned CoreCLR NuGet configuration to the official retained public feed. Preserve component package references, exact versions, native NuGet generation, TLS validation and all non-index asset URLs.",
+      "afterPatch": "0009-map-retired-package-indexes-in-configs-and-environment.patch"
+    },
+    {
+      "name": "0021-select-explicit-retained-coreclr-platforms-tooling.patch",
+      "target": "repos/coreclr.proj",
+      "originalSha256": "7b37344d18373de5735399b81c0969068c604da518e77db2ec4b5e82698d5109",
+      "patchedSha256": "a58754209902125b939bea23f366ed620fcf1b9e40aba3b6785036d458e34b62",
+      "patchSha256": "4d449c95dfd11028c3ec8a34e67def64d4bef5a523678acf57f02678e41818f8",
+      "addedLines": 1,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Select an explicit retained bootstrap Platforms dependency only for native Linux ARM64 CoreCLR. The same genuine version controls the engineering tool reference and packaging runtime.json RID graph. Preserve the original unavailable RC2 source declaration, all native/crossgen/package targets and SDK/runtime product versions.",
+      "afterPatch": "0013-build-local-coreclr-packages-on-native-arm64.patch"
+    },
+    {
+      "name": "0022-build-pinned-arcade-genapi-for-corefx.patch",
+      "target": "repos/arcade.proj",
+      "originalSha256": "bda45742b5908d37589d7650699ff5823848a5e4a8a07be32adf37d8abfcc6ee",
+      "patchedSha256": "29226150760278bea76c4314a89ed572ad1be6e4875b8b8d6eb9f9e748a4320e",
+      "patchSha256": "f09461b6c94c10e4f1ac8ed27a15755a934b4aa315d5be67d2cb1ed960ea989d",
+      "addedLines": 11,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Build and pack only the pinned Arcade GenAPI project and its normal project references through the supported ExcludeFromSourceBuild override. Preserve original source and target frameworks. Publish its real locally generated package/version through normal Arcade package collection; record Major runtime roll-forward for the netcoreapp2.1 tool on the bootstrap3.0 host. No test/API generation is skipped and no external package is relabeled."
+    },
+    {
+      "name": "0023-use-explicit-net472-reference-metadata-for-genapi.patch",
+      "target": "repos/arcade.proj",
+      "originalSha256": "29226150760278bea76c4314a89ed572ad1be6e4875b8b8d6eb9f9e748a4320e",
+      "patchedSha256": "c86adf90cd1e95c2d86510dc84650b31f78758aaf72a42932dab7ac7b99fca71",
+      "patchSha256": "94366a9ea770049132949dfbadcaf9f5bb3d526c77f473678cff749dd92a184c",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": null,
+      "purpose": "Supply the fixed official net472 reference-only input through its original scoped resolution targets for the extra GenAPI command. Preserve both original net472/netcoreapp2.1 targets, all source/dependency versions and the ordinary source-built package publisher. This is an explicit prebuilt compilation input, not a product reference override or executable Windows runtime.",
+      "afterPatch": "0022-build-pinned-arcade-genapi-for-corefx.patch"
+    }
+  ]
+}

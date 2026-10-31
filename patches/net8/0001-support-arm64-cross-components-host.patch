@@ -1,0 +1,21 @@
+Subject: [PATCH] runtime: recognize Linux ARM64 cross-component hosts
+
+Backport the aarch64 host detection already present in the pinned .NET 9 VMR.
+This retains the existing cross-component tool graph for a native ARM64 build
+that uses a target sysroot. It does not change the target ABI configuration.
+
+Upstream-Reference: https://github.com/dotnet/dotnet/blob/v9.0.123/src/runtime/eng/native/configureplatform.cmake#L30
+Base-VMR: 7d1bf90885cff22e7da72b27e9848e42fd3cb1ae
+
+diff --git a/src/runtime/eng/native/configureplatform.cmake b/src/runtime/eng/native/configureplatform.cmake
+--- a/src/runtime/eng/native/configureplatform.cmake
++++ b/src/runtime/eng/native/configureplatform.cmake
+@@ -27,6 +27,8 @@ if(CLR_CMAKE_HOST_OS STREQUAL linux)
+             endif()
+         elseif(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL i686)
+             set(CLR_CMAKE_HOST_UNIX_X86 1)
++        elseif(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL aarch64)
++            set(CLR_CMAKE_HOST_UNIX_ARM64 1)
+         else()
+             clr_unknown_arch()
+         endif()

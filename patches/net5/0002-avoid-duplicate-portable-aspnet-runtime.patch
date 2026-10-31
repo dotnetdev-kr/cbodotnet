@@ -1,0 +1,21 @@
+From: cbodotnet maintainers
+Subject: [PATCH] Keep the existing portable ASP.NET runtime package reference
+
+The upstream source-build patch adds a distro-specific runtime reference for
+crossgen. Portable linux-arm64 is already present in Dependencies.props; avoid
+adding a second implicit reference when the explicit portable build is selected.
+Modify the pinned patch producer so normal upstream patch application remains
+responsible for preparing the ASP.NET sources.
+
+diff --git a/patches/aspnetcore/0001-Use-non-portable-NETCoreAppRuntime-for-crossgen.patch b/patches/aspnetcore/0001-Use-non-portable-NETCoreAppRuntime-for-crossgen.patch
+--- a/patches/aspnetcore/0001-Use-non-portable-NETCoreAppRuntime-for-crossgen.patch
++++ b/patches/aspnetcore/0001-Use-non-portable-NETCoreAppRuntime-for-crossgen.patch
+@@ -18,7 +18,7 @@ index bfc8c66145..311bcdeeda 100644
+      <LatestPackageReference Include="Microsoft.NETCore.App.Runtime.linux-musl-x64" />
+      <LatestPackageReference Include="Microsoft.NETCore.App.Runtime.linux-musl-arm" />
+      <LatestPackageReference Include="Microsoft.NETCore.App.Runtime.linux-musl-arm64" />
+-+    <LatestPackageReference Condition="'$(TargetOsName)' != 'osx'" Include="Microsoft.NETCore.App.Runtime.$(SourceBuildRuntimeIdentifier)" Version="5.0.0-preview.8.20407.11" />
+++    <LatestPackageReference Condition="'$(TargetOsName)' != 'osx' and '$(PortableBuild)' != 'true'" Include="Microsoft.NETCore.App.Runtime.$(SourceBuildRuntimeIdentifier)" Version="5.0.0-preview.8.20407.11" />
+    </ItemGroup>
+  
+    <ItemGroup Label=".NET team dependencies (Non-source-build)" Condition="'$(DotNetBuildFromSource)' != 'true'">

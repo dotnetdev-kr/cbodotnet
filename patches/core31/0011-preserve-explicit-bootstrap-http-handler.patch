@@ -1,0 +1,11 @@
+--- a/artifacts/src/cli.cca488d5d530e6ec291134abe3462fed613a4429/eng/restore-toolset.sh
++++ b/artifacts/src/cli.cca488d5d530e6ec291134abe3462fed613a4429/eng/restore-toolset.sh
+@@ -13,7 +13,7 @@
+   export MSBUILDDISABLENODEREUSE=1
+ 
+   # Workaround for the sockets issue when restoring with many nuget feeds.
+-  export DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
++  export DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER="${DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER:-0}"
+ 
+   INSTALL_ARCHITECTURE=$ARCHITECTURE
+   archlower="$(echo $ARCHITECTURE | awk '{print tolower($0)}')"

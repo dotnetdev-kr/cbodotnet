@@ -1,0 +1,18 @@
+--- a/tools-local/tasks/Microsoft.DotNet.SourceBuild.Tasks.XPlat/WriteRestoreSourceAndVersionProps.cs
++++ b/tools-local/tasks/Microsoft.DotNet.SourceBuild.Tasks.XPlat/WriteRestoreSourceAndVersionProps.cs
+@@ -112,6 +112,15 @@ namespace Microsoft.DotNet.Build.Tasks
+                     {
+                         overwriteCondition = $" Condition=\"'$({propertyName})' == ''\"";
+                     }
++                    // SourceLink bootstraps before its own Common package exists.
++                    // Preserve the repo pin until a real local Common version flows.
++                    if (propertyName == "MicrosoftSourceLinkVersion" &&
++                        extraProp.GetMetadata("Version") == "$(MicrosoftSourceLinkCommonPackageVersion)")
++                    {
++                        overwriteCondition = doNotOverwrite
++                            ? " Condition=\"'$(MicrosoftSourceLinkCommonPackageVersion)' != '' AND '$(MicrosoftSourceLinkVersion)' == ''\""
++                            : " Condition=\"'$(MicrosoftSourceLinkCommonPackageVersion)' != ''\"";
++                    }
+                     sw.WriteLine($"    <{propertyName}{overwriteCondition}>{extraProp.GetMetadata("Version")}</{propertyName}>");
+                 }
+                 foreach (var additionalAsset in additionalAssets)

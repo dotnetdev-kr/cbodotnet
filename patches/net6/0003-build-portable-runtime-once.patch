@@ -1,0 +1,11 @@
+--- a/repos/runtime.proj
++++ b/repos/runtime.proj
+@@ -22,7 +22,7 @@
+       <RepositoryReference Include="linker" />
+       <RepositoryReference Include="source-build" />
+       <RepositoryReference Include="roslyn" />
+-      <RepositoryReference Include="runtime-portable" />
++      <RepositoryReference Include="runtime-portable" Condition="'$(PortableBuild)' != 'true'" />
+   </ItemGroup>
+ 
+   <Import Project="runtime.common.targets" />

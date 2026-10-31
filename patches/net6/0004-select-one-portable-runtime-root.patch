@@ -1,0 +1,11 @@
+--- a/repos/known-good.proj
++++ b/repos/known-good.proj
+@@ -45,7 +45,7 @@
+         <!-- Tier 2 -->
+         <RepositoryReference Include="linker" />
+         <RepositoryReference Include="msbuild" />
+-        <RepositoryReference Include="runtime-portable" />
++        <RepositoryReference Include="runtime-portable" Condition="'$(PortableBuild)' != 'true'" />
+         <RepositoryReference Include="runtime" />
+         <RepositoryReference Include="templating" />
+ 

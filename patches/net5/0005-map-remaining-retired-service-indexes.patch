@@ -1,0 +1,33 @@
+From: cbodotnet maintainers
+Subject: [PATCH] Map the remaining exact retired service indexes
+
+Extend the reviewed dotnet-core mapping with the legacy tools and nuget-build
+service indexes. Only these complete historical index URLs change. Keep the
+normal online restore, local feeds, package versions and archive URLs intact.
+This patch follows 0004; its input is that patch's exact recorded output.
+
+diff --git a/repos/Directory.Build.targets b/repos/Directory.Build.targets
+--- a/repos/Directory.Build.targets
++++ b/repos/Directory.Build.targets
+@@ -158,7 +158,7 @@
+     <ItemGroup>
+       <LegacyFeedMapping
+         Include="https://dotnet.myget.org/F/nuget-build/api/v3/index.json"
+-        NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/nuget-build/nuget/v3/index.json" />
++        NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json" />
+       <LegacyFeedMapping
+         Include="https://www.myget.org/F/nugetbuild/api/v3/index.json"
+         NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/nuget-build/nuget/v3/index.json" />
+@@ -171,6 +171,12 @@
+       <LegacyFeedMapping
+         Include="https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json"
+         NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json" />
++      <LegacyFeedMapping
++        Include="https://dotnetfeed.blob.core.windows.net/dotnet-tools-internal/index.json"
++        NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json" />
++      <LegacyFeedMapping
++        Include="https://dotnet.myget.org/F/dotnet-tools/api/v3/index.json"
++        NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json" />
+       <LegacyFeedMapping
+         Include="https://dotnet.myget.org/F/vstest/api/v3/index.json"
+         NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/test-tools/nuget/v3/index.json" />

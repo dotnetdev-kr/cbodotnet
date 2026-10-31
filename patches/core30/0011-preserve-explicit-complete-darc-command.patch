@@ -1,0 +1,11 @@
+--- a/tools-local/init-build.proj
++++ b/tools-local/init-build.proj
+@@ -172,7 +172,7 @@
+       <!-- depth 0 should be sufficient for us since we explictly declare all our dependencies -->
+       <DarcCloneArguments>$(DarcCloneArguments) --depth 0</DarcCloneArguments>
+       <DarcCloneArguments>$(DarcCloneArguments) --debug</DarcCloneArguments>
+-      <DarcCloneCommand>$(DotNetCliToolDir)dotnet $(DarcDll) $(DarcCloneArguments)</DarcCloneCommand>
++      <DarcCloneCommand Condition="'$(DarcCloneCommand)' == ''">$(DotNetCliToolDir)dotnet $(DarcDll) $(DarcCloneArguments)</DarcCloneCommand>
+     </PropertyGroup>
+     <Message Importance="High" Text="[$([System.DateTime]::Now.ToString('HH:mm:ss.ff'))] Running Darc command: '$(DarcCloneCommand)' from working dir $(ProjectDir)" />
+     <Exec Command="$(DarcCloneCommand)" WorkingDirectory="$(ProjectDir)" EnvironmentVariables="LD_LIBRARY_PATH=$(DotNetCliToolDir)/tools/.store/microsoft.dotnet.darc/$(DarcVersion)/microsoft.dotnet.darc/$(DarcVersion)/tools/netcoreapp2.1/any/runtimes/rhel-x64/native/" />

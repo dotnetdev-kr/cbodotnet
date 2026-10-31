@@ -12,16 +12,18 @@ Usage: verify-sdk.sh (--sdk-dir /absolute/sdk | --archive /absolute/sdk.tar.gz)
   --output-dir PATH       New or empty report directory (absolute path).
   --expected-version VER  Require dotnet --version to equal this SDK version.
   --expected-rid RID      Require dotnet --info to report this RID.
-  --framework TFM         Smoke test framework (default: net10.0).
+  --framework TFM         netX.Y or netcoreapp3.0/3.1 (default: net10.0).
   --max-glibc VERSION     Fail if any shipped ELF requires a newer GLIBC version.
   --no-smoke             Inspect ELF/SDK identity without console and HTTP tests.
   --help                 Show this help.
 
 Requires native ARM64 Linux, Python 3, readelf, tar and curl (for HTTP smoke).
 Outputs verification.json, abi-summary.json, elf-abi.tsv and text build logs.
-Smoke restores use an empty NuGet source list, isolated caches and a temporary
-workspace. This validates the SDK's built-in framework support, not workloads
-or arbitrary external packages. ABI symbol maxima are evidence, not a full OS
+Smoke restores use an empty NuGet source list, an isolated home, runtime state,
+caches and a temporary workspace. Console tests include RSA signing/verification, cryptographic random
+bytes and fr-FR decimal formatting; this run records them in functionalChecks.
+This validates built-in framework support, not workloads or arbitrary external
+packages. ABI symbol maxima are evidence, not a full OS
 compatibility guarantee. An optional archive is hashed; with --sdk-dir it must
 contain exactly the supplied SDK files for the archive result to pass.
 HELP
@@ -59,7 +61,9 @@ done
 [[ $(uname -s) == Linux && $(uname -m) =~ ^(aarch64|arm64)$ ]] || die 'native ARM64 Linux is required'
 [[ -n "$sdk_dir" || -n "$archive" ]] || die '--sdk-dir or --archive is required'
 [[ "$output_dir" == /* ]] || die '--output-dir must be an absolute path'
-[[ "$framework" =~ ^net[0-9]+\.[0-9]+$ ]] || die '--framework must be a framework such as net10.0'
+[[ "$framework" =~ ^net([0-9]+\.[0-9]+|coreapp3\.[01])$ ]] || die '--framework must be netX.Y, netcoreapp3.0 or netcoreapp3.1'
+legacy_smoke=false
+case "$framework" in net5.0|netcoreapp3.0|netcoreapp3.1) legacy_smoke=true ;; esac
 [[ -z "$max_glibc" || "$max_glibc" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] || die 'invalid --max-glibc version'
 for tool in python3 readelf tar; do command -v "$tool" >/dev/null 2>&1 || die "$tool is required"; done
 if "$run_smoke"; then command -v curl >/dev/null 2>&1 || die 'curl is required for HTTP smoke'; fi
@@ -105,6 +109,7 @@ if [[ -n "$archive" ]]; then
 import collections
 import hashlib
 import json
+import os
 import pathlib
 import posixpath
 import sys
@@ -183,7 +188,7 @@ with tarfile.open(archive, "r:gz") as tar:
             expected.add(normalized)
             target = root / normalized
             if member.issym():
-                if not target.is_symlink() or target.readlink().as_posix() != member.linkname:
+                if not target.is_symlink() or os.readlink(str(target)) != member.linkname:
                     raise SystemExit("SDK/archive symlink mismatch: " + normalized)
             elif member.isfile() or member.islnk():
                 if not target.is_file() or target.is_symlink():
@@ -234,25 +239,30 @@ requirements = {prefix: set() for prefix in prefixes}
 symbolic_glibc_requirements = set()
 machines = {}
 rows = []
+def contained(path):
+    resolved = path.resolve()
+    return resolved == root or root in resolved.parents
+
 dotnet_seen = False
 for directory, subdirectories, files in os.walk(root, followlinks=False):
     subdirectories.sort()
     for name in subdirectories:
         directory_link = pathlib.Path(directory) / name
-        if directory_link.is_symlink() and not directory_link.resolve().is_relative_to(root):
+        if directory_link.is_symlink() and not contained(directory_link):
             raise SystemExit("SDK directory symlink escapes its root: " + str(directory_link.relative_to(root)))
     for name in sorted(files):
         path = pathlib.Path(directory) / name
         relative = str(path.relative_to(root))
         if path.is_symlink():
-            if not path.resolve().is_relative_to(root):
+            if not contained(path):
                 raise SystemExit("SDK symlink escapes its root: " + relative)
             continue
         with path.open("rb") as handle:
             if handle.read(4) != b"\x7fELF":
                 continue
         result = subprocess.run(["readelf", "--wide", "--file-header", "--version-info", "--dynamic", str(path)],
-                                capture_output=True, text=True, env={**os.environ, "LC_ALL": "C"})
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True,
+                                encoding="utf-8", errors="replace", env={**os.environ, "LC_ALL": "C"})
         if result.returncode:
             raise SystemExit("readelf failed for " + relative + ": " + result.stderr)
         machine = re.search(r"^\s*Machine:\s*(.+)$", result.stdout, re.MULTILINE)
@@ -305,6 +315,12 @@ PY
 export DOTNET_ROOT="$sdk_dir"
 export DOTNET_ROOT_ARM64="$sdk_dir"
 export DOTNET_MULTILEVEL_LOOKUP=0
+# Native user-scoped mutexes can use XDG_RUNTIME_DIR or the passwd home rather
+# than HOME. Keep their state private even for containers using a synthetic UID.
+export HOME="$temporary_dir/home"
+export XDG_RUNTIME_DIR="$temporary_dir/runtime"
+mkdir -p -- "$HOME" "$XDG_RUNTIME_DIR"
+chmod 700 -- "$XDG_RUNTIME_DIR"
 export DOTNET_CLI_HOME="$temporary_dir/cli-home"
 export NUGET_PACKAGES="$temporary_dir/nuget/packages"
 export NUGET_HTTP_CACHE_PATH="$temporary_dir/nuget/http-cache"
@@ -334,6 +350,78 @@ if "$run_smoke"; then
 XML
   {
     "$dotnet" new console --name ConsoleSmoke --framework "$framework" --no-restore
+    if "$legacy_smoke"; then
+      cat > ConsoleSmoke/Program.cs <<'CS'
+using System;
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace ConsoleSmoke
+{
+    public static class Program
+    {
+        public static void Main(string[] args)
+        {
+            byte[] payload = Encoding.UTF8.GetBytes("cbodotnet-crypto-smoke");
+            using (RSA rsa = RSA.Create())
+            {
+                rsa.KeySize = 2048;
+                byte[] signature = rsa.SignData(payload, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+                if (!rsa.VerifyData(payload, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1))
+                    throw new InvalidOperationException("RSA signature verification failed.");
+                signature[0] ^= 1;
+                if (rsa.VerifyData(payload, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1))
+                    throw new InvalidOperationException("RSA accepted an altered signature.");
+            }
+
+            byte[] random = new byte[32];
+            using (RandomNumberGenerator generator = RandomNumberGenerator.Create())
+            {
+                generator.GetBytes(random);
+            }
+            if (!Array.Exists(random, value => value != 0))
+                throw new InvalidOperationException("Cryptographic random bytes were all zero.");
+
+            CultureInfo french = CultureInfo.GetCultureInfo("fr-FR");
+            if ((1234.5m).ToString("F1", french) != "1234,5")
+                throw new InvalidOperationException("French decimal formatting failed.");
+
+            Console.WriteLine("Hello, World!");
+        }
+    }
+}
+CS
+    else
+    cat > ConsoleSmoke/Program.cs <<'CS'
+using System;
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
+
+byte[] payload = Encoding.UTF8.GetBytes("cbodotnet-crypto-smoke");
+using (RSA rsa = RSA.Create())
+{
+    rsa.KeySize = 2048;
+    byte[] signature = rsa.SignData(payload, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+    if (!rsa.VerifyData(payload, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1))
+        throw new InvalidOperationException("RSA signature verification failed.");
+    signature[0] ^= 1;
+    if (rsa.VerifyData(payload, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1))
+        throw new InvalidOperationException("RSA accepted an altered signature.");
+}
+
+byte[] random = RandomNumberGenerator.GetBytes(32);
+if (!Array.Exists(random, value => value != 0))
+    throw new InvalidOperationException("Cryptographic random bytes were all zero.");
+
+CultureInfo french = CultureInfo.GetCultureInfo("fr-FR");
+if ((1234.5m).ToString("F1", french) != "1234,5")
+    throw new InvalidOperationException("French decimal formatting failed.");
+
+Console.WriteLine("Hello, World!");
+CS
+    fi
     "$dotnet" restore ConsoleSmoke/ConsoleSmoke.csproj --configfile NuGet.Config
     "$dotnet" build ConsoleSmoke/ConsoleSmoke.csproj --configuration Release --no-restore
     "$dotnet" publish ConsoleSmoke/ConsoleSmoke.csproj --configuration Release --no-restore \
@@ -346,6 +434,29 @@ XML
 
   {
     "$dotnet" new web --name WebSmoke --framework "$framework" --no-restore
+    if "$legacy_smoke"; then
+      cat > WebSmoke/Program.cs <<'CS'
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+
+namespace WebSmoke
+{
+    public static class Program
+    {
+        public static void Main(string[] args)
+        {
+            WebHost.CreateDefaultBuilder(args)
+                .UseUrls("http://127.0.0.1:0")
+                .Configure(app => app.Run(context => context.Response.WriteAsync("cbodotnet-smoke-ok")))
+                .Build()
+                .Run();
+        }
+    }
+}
+CS
+    else
     cat > WebSmoke/Program.cs <<'CS'
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://127.0.0.1:0");
@@ -353,6 +464,7 @@ var app = builder.Build();
 app.MapGet("/health", () => "cbodotnet-smoke-ok");
 app.Run();
 CS
+    fi
     "$dotnet" restore WebSmoke/WebSmoke.csproj --configfile NuGet.Config
     "$dotnet" build WebSmoke/WebSmoke.csproj --configuration Release --no-restore
     "$dotnet" publish WebSmoke/WebSmoke.csproj --configuration Release --no-restore \
@@ -395,6 +507,10 @@ document = {
     "expectedRid": expected_rid or None,
     "framework": framework, "smokeStatus": "passed" if smoke == "true" else "skipped",
     "smokeRestore": "isolated caches with no NuGet package sources" if smoke == "true" else None,
+    "stateIsolation": "Private HOME, XDG_RUNTIME_DIR (0700), DOTNET_CLI_HOME and NuGet caches",
+    "functionalChecks": {name: "passed" if smoke == "true" else "skipped" for name in (
+        "consoleDllExecution", "consoleApphostExecution", "rsaSha256SignAndVerify",
+        "cryptographicRandomBytes", "frFrDecimalFormatting", "aspNetCoreLoopbackHttp")},
     "abi": json.loads((report / "abi-summary.json").read_text()),
     "archive": json.loads((report / "archive.json").read_text()) if (report / "archive.json").exists() else None,
     "limitations": ["Does not certify support for untested Linux distributions, workloads, NativeAOT or external NuGet packages.",

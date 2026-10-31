@@ -1,0 +1,48 @@
+--- a/smoke-test.sh
++++ b/smoke-test.sh
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env bash
+ set -euo pipefail
+ 
+-SCRIPT_ROOT="$(cd -P "$( dirname "$0" )" && pwd)"
++SCRIPT_ROOT="${SOURCE_BUILD_SMOKE_SOURCE_ROOT:?A verified source root is required}"
+ TARBALL_PREFIX=dotnet-sdk-
+ VERSION_PREFIX=3.0
+ # See https://github.com/dotnet/source-build/issues/579, this version
+@@ -214,12 +214,11 @@ function doCommand() {
+ }
+ 
+ function setupDevCerts() {
+-    echo "Setting up dotnet-dev-certs $devCertsVersion to generate dev certificate" | tee -a "$logFile"
++    echo "Using the SDK built-in dotnet dev-certs to generate the HTTPS developer certificate" | tee -a "$logFile"
+     (
+         set -x
+-        "$dotnetDir/dotnet" tool install -g dotnet-dev-certs --version "$devCertsVersion" --add-source https://dotnet.myget.org/F/dotnet-core/api/v3/index.json
+         export DOTNET_ROOT="$dotnetDir"
+-        "$testingHome/.dotnet/tools/dotnet-dev-certs" https
++        "$dotnetDir/dotnet" dev-certs https
+     ) >> "$logFile" 2>&1
+ }
+ 
+@@ -356,8 +355,8 @@ fi
+ if [ "$excludeLocalTests" == "false" ]; then
+     resetCaches
+     # Setup NuGet.Config with local restore source
+-    if [ -e "$SCRIPT_ROOT/smoke-testNuGet.Config" ]; then
+-        cp "$SCRIPT_ROOT/smoke-testNuGet.Config" "$testingDir/NuGet.Config"
++    if [ -e "$SOURCE_BUILD_SMOKE_NUGET_CONFIG" ]; then
++        cp "$SOURCE_BUILD_SMOKE_NUGET_CONFIG" "$testingDir/NuGet.Config"
+         sed -i.bak "s|SOURCE_BUILT_PACKAGES|$SOURCE_BUILT_PKGS_PATH|g" "$testingDir/NuGet.Config"
+         setupProdConFeed
+         setupSmokeTestFeed
+@@ -373,8 +372,8 @@ fi
+ if [ "$excludeOnlineTests" == "false" ]; then
+     resetCaches
+     # Setup NuGet.Config to use online restore sources
+-    if [ -e "$SCRIPT_ROOT/smoke-testNuGet.Config" ]; then
+-        cp "$SCRIPT_ROOT/smoke-testNuGet.Config" "$testingDir/NuGet.Config"
++    if [ -e "$SOURCE_BUILD_SMOKE_NUGET_CONFIG" ]; then
++        cp "$SOURCE_BUILD_SMOKE_NUGET_CONFIG" "$testingDir/NuGet.Config"
+         sed -i.bak "/SOURCE_BUILT_PACKAGES/d" "$testingDir/NuGet.Config"
+         setupProdConFeed
+         setupSmokeTestFeed

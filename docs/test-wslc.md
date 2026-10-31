@@ -2,7 +2,7 @@
 
 Run the architecture-specific CMD launcher on Windows to enter Bash in a Linux container with the built SDK archive installed. The SDK path and environment variables are configured so that `dotnet` is ready to use. Leaving Bash retains the SDK and the files in `/work` in the same named container.
 
-The artifact currently available is **.NET SDK 10.0.403 Linux ARM64 build.1**. Only the ARM64 path has been executed and validated on this Windows ARM64 PC. An x64 launcher is provided, but the x64 archive has not been built, and actual x64 execution must be validated on Windows x64.
+The launchers default to **.NET SDK 10.0.403 Linux ARM64 build.1**, whose ARM64 wslc session has been validated on this Windows ARM64 PC. Other locally built ARM64 archives are listed in [version coverage](dotnet-version-coverage.md). Selecting another archive does not install its system dependencies: follow its build report, including the controlled OpenSSL/ICU inputs for older SDKs. Those other archives' native validation does not establish a wslc session result. An x64 launcher is provided, but an x64 archive and actual x64 execution remain unvalidated.
 
 ## Prerequisites
 

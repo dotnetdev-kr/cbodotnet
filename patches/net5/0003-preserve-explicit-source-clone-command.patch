@@ -1,0 +1,19 @@
+From: cbodotnet maintainers
+Subject: [PATCH] Preserve the explicit source acquisition adapter command
+
+The retired Darc package is unavailable. Keep the normal FetchSources target,
+but retain an explicitly supplied immutable adapter wrapper instead of replacing
+it with the obsolete default during GetCommonDarcCloneCommand execution.
+
+diff --git a/Directory.Build.targets b/Directory.Build.targets
+--- a/Directory.Build.targets
++++ b/Directory.Build.targets
+@@ -45,7 +45,7 @@
+       <!-- depth 0 should be sufficient for us since we explictly declare all our dependencies -->
+       <DarcCloneArguments>$(DarcCloneArguments) --depth 0</DarcCloneArguments>
+ 
+-      <DarcCloneCommand>$(DotNetCliToolDir)dotnet $(DarcDll) clone $(DarcCloneArguments)</DarcCloneCommand>
++      <DarcCloneCommand Condition="'$(DarcCloneCommand)' == ''">$(DotNetCliToolDir)dotnet $(DarcDll) clone $(DarcCloneArguments)</DarcCloneCommand>
+     </PropertyGroup>
+   </Target>
+ 

@@ -1,0 +1,16 @@
+--- a/bin/src/core-sdk.ca71659745c368343b726acc43e6f332f000b0ff/src/redist/targets/Crossgen.targets
++++ b/bin/src/core-sdk.ca71659745c368343b726acc43e6f332f000b0ff/src/redist/targets/Crossgen.targets
+@@ -6,11 +6,13 @@
+     <PropertyGroup>
+       <RuntimeNETCoreAppPackageName>microsoft.netcore.app.runtime.$(SharedFrameworkRid)</RuntimeNETCoreAppPackageName>
+       <_crossDir Condition="'$(Architecture)' == 'arm64'">/x64_arm64</_crossDir>
++      <_crossDir Condition="'$(CbodotnetNativeArm64Host)' == 'true' AND '$(Architecture)' == 'arm64' AND '$(OSName)' == 'linux'"></_crossDir>
+       <_crossDir Condition="'$(Architecture)' == 'arm' And '$(OSName)' == 'win'">/x86_arm</_crossDir>
+       <_crossDir Condition="'$(Architecture)' == 'arm' And '$(OSName)' == 'linux'">/x64_arm</_crossDir>
+       <CrossgenPath>$(NuGetPackageRoot)/$(RuntimeNETCoreAppPackageName)/$(MicrosoftNETCoreAppRuntimePackageVersion)/tools$(_crossDir)/crossgen$(ExeExtension)</CrossgenPath>
+       <LibCLRJitRid Condition="!$(Architecture.StartsWith('arm'))">$(SharedFrameworkRid)</LibCLRJitRid>
+       <LibCLRJitRid Condition="'$(Architecture)' == 'arm64'">x64_arm64</LibCLRJitRid>
++      <LibCLRJitRid Condition="'$(CbodotnetNativeArm64Host)' == 'true' AND '$(Architecture)' == 'arm64' AND '$(OSName)' == 'linux'">$(SharedFrameworkRid)</LibCLRJitRid>
+       <LibCLRJitRid Condition="'$(Architecture)' == 'arm' And '$(OSName)' == 'win'">x86_arm</LibCLRJitRid>
+       <LibCLRJitRid Condition="'$(Architecture)' == 'arm' And '$(OSName)' == 'linux'">x64_arm</LibCLRJitRid>
+       <LibCLRJitPath>$(NuGetPackageRoot)/$(RuntimeNETCoreAppPackageName)/$(MicrosoftNETCoreAppRuntimePackageVersion)/runtimes/$(LibCLRJitRid)/native/$(DynamicLibPrefix)clrjit$(DynamicLibExtension)</LibCLRJitPath>

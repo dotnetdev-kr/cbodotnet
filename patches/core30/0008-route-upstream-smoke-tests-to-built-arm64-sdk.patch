@@ -1,0 +1,40 @@
+--- a/smoke-test.sh
++++ b/smoke-test.sh
+@@ -23,7 +23,9 @@ excludeWebHttpsTests=false
+ excludeLocalTests=false
+ excludeOnlineTests=false
+ devCertsVersion="$DEV_CERTS_VERSION_DEFAULT"
+-testingDir="$SCRIPT_ROOT/testing-smoke"
++testArchitecture="${SOURCE_BUILD_SMOKE_ARCH:-x64}"
++case "$testArchitecture" in x64|arm64) ;; *) echo "Unsupported smoke-test architecture" >&2; exit 1 ;; esac
++testingDir="${SOURCE_BUILD_SMOKE_TEST_DIR:-$SCRIPT_ROOT/testing-smoke}"
+ cliDir="$testingDir/builtCli"
+ logFile="$testingDir/smoke-test.log"
+ restoredPackagesDir="$testingDir/packages"
+@@ -307,7 +309,7 @@ function copyRestoredPackages() {
+     fi
+ }
+ 
+-if [ "$__ROOT_REPO" != "known-good" ]; then
++if [ "$__ROOT_REPO" != "known-good" ] && [ "$__ROOT_REPO" != "core-sdk" ]; then
+     echo "Skipping smoke-tests since cli was not built";
+     exit
+ fi
+@@ -326,7 +328,7 @@ cd "$testingDir"
+ 
+ # Unzip dotnet if the dotnetDir is not specified
+ if [ "$dotnetDir" == "" ]; then
+-    OUTPUT_DIR="$SCRIPT_ROOT/bin/x64/$configuration/"
++    OUTPUT_DIR="$SCRIPT_ROOT/bin/$testArchitecture/$configuration/"
+     DOTNET_TARBALL="$(ls ${OUTPUT_DIR}dotnet-sdk-${VERSION_PREFIX}*)"
+ 
+     mkdir -p "$cliDir"
+@@ -343,7 +345,7 @@ echo SDK under test is:
+ 
+ # setup restore path
+ export NUGET_PACKAGES="$restoredPackagesDir"
+-SOURCE_BUILT_PKGS_PATH="$SCRIPT_ROOT/bin/obj/x64/$configuration/blob-feed/packages/"
++SOURCE_BUILT_PKGS_PATH="$SCRIPT_ROOT/bin/obj/$testArchitecture/$configuration/blob-feed/packages/"
+ export DOTNET_ROOT="$dotnetDir"
+ # OSX also requires DOTNET_ROOT to be on the PATH
+ if [ `uname` == 'Darwin' ]; then

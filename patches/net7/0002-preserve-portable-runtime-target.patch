@@ -1,0 +1,20 @@
+From: cbodotnet contributors
+Subject: [PATCH 2/3] Honor an explicitly portable runtime source-build target
+
+Source: https://github.com/dotnet/installer/blob/v7.0.120/src/SourceBuild/tarball/content/repos/runtime.proj
+Reference: https://github.com/dotnet/runtime/blob/0fb6ac59fb1edbe4ed3ad62661df0eb7eacd7903/eng/SourceBuild.props#L11
+
+diff --git a/repos/runtime.proj b/repos/runtime.proj
+--- a/repos/runtime.proj
++++ b/repos/runtime.proj
+@@ -22,7 +22,9 @@
+     <BuildCommandArgs>$(BuildCommandArgs) /p:TargetRid=$(OverrideTargetRid)</BuildCommandArgs>
+     <BuildCommandArgs>$(BuildCommandArgs) /p:RuntimeOS=$(RuntimeOS)</BuildCommandArgs>
+     <BuildCommandArgs>$(BuildCommandArgs) /p:BaseOS=$(BaseOS)</BuildCommandArgs>
+-    <BuildCommandArgs>$(BuildCommandArgs) /p:SourceBuildNonPortable=true</BuildCommandArgs>
++    <!-- Preserve the default while honoring an explicitly portable outer target. -->
++    <BuildCommandArgs Condition="'$(PortableBuild)' != 'true'">$(BuildCommandArgs) /p:SourceBuildNonPortable=true</BuildCommandArgs>
++    <BuildCommandArgs Condition="'$(PortableBuild)' == 'true'">$(BuildCommandArgs) /p:SourceBuildNonPortable=false</BuildCommandArgs>
+     <BuildCommand>$(StandardSourceBuildCommand) $(BuildCommandArgs)</BuildCommand>
+   </PropertyGroup>
+ 

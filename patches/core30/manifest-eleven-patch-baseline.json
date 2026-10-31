@@ -1,0 +1,139 @@
+{
+  "sourceCommit": "40de72d1087a1d05dfd39c87f888a0611ec6c60f",
+  "previousManifest": {
+    "name": "manifest-ten-patch-baseline.json",
+    "sha256": "21aaf157dd1b8b4c5fd4d99efc8ca54524db264eb0c7f04f6b6261b8613adbe0"
+  },
+  "patches": [
+    {
+      "name": "0001-use-explicit-acquisition-and-preserved-sysroot.patch",
+      "target": "tools-local/init-build.proj",
+      "originalSha256": "52718a9ebe2f01c14e0788d94b832955903b4666d6ec557bb6e293f6e7cfde2e",
+      "patchedSha256": "3483d1abc61fe03e3357eac029ebd4dd206c3e650ebbaa55f2148a234d5b9b86",
+      "patchSha256": "b94adf5f7d83465dd5a445c74630121e984708033e3a07c891ef68487d55895d",
+      "addedLines": 2,
+      "removedLines": 2,
+      "component": null,
+      "purpose": "Honor explicit flags selecting the recorded Git acquisition adapter and independently prepared sysroot. Preserve upstream initialization, metadata, patch and product targets."
+    },
+    {
+      "name": "0002-select-coreclr-native-arm64-tools.patch",
+      "target": "repos/coreclr.proj",
+      "originalSha256": "6cd685ad53f9fd4cfa816c9f7d42b14deb7ac1e197de17b30bae43fecb2e1a5e",
+      "patchedSha256": "4515c487c85dba3ba140d4de235e766f9169a021ffccba37811ddff6e256efa4",
+      "patchSha256": "3316951b841b2d0ca4e497a968d25d189ad35b7761a58b311d25303f72483d16",
+      "addedLines": 1,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Select Clang 6 and omit redundant cross-architecture host tools only for the explicit native Linux ARM64 build; retain the existing cross/sysroot switches."
+    },
+    {
+      "name": "0003-forward-corefx-native-arm64-sysroot.patch",
+      "target": "repos/corefx.proj",
+      "originalSha256": "0e5ea184f1b86d688b1be08fcfb7ded54e51990e3544056611634b3d597f63e0",
+      "patchedSha256": "5b92f8c65f24781ab388c4b297e5e94c9dac7dcb628f9d809f06cf2e7f5e4c9b",
+      "patchSha256": "4f57cf9730d3d1a6fc4175056438f81fbc25d6bb292f9777656e3185e5e220f2",
+      "addedLines": 1,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Use the existing BuildNativeCompiler pass-through to select Clang 6 and cross mode for the independently prepared target sysroot."
+    },
+    {
+      "name": "0004-preserve-core-setup-native-arm64-crossgen.patch",
+      "target": "repos/core-setup.proj",
+      "originalSha256": "38659a85fc1bfaf03533503015b5a398ad2be52d3215e92bba222c6bfc3a68d8",
+      "patchedSha256": "ef187906a925ed0697817472ae729607a30934eb68f693020476e5836894a47a",
+      "patchSha256": "034bfbcb2b9154dc9fe3d92dc7f57969489b763d448aa9e14d7c3a293e149765",
+      "addedLines": 2,
+      "removedLines": 1,
+      "component": null,
+      "purpose": "Keep actual native image generation enabled for same-architecture ARM64 hosts while retaining Core-Setup cross/sysroot compilation."
+    },
+    {
+      "name": "0005-use-actual-aspnetcore-installer-rid.patch",
+      "target": "repos/core-sdk.proj",
+      "originalSha256": "58500b3287bd241305d48315db5fbf0fd428d59be0fb7011bfb705e5e78617c6",
+      "patchedSha256": "1749940147127c68b6a3acd0cbfa5c9c6f2becebc6af36b1323cb67e3204a7f0",
+      "patchSha256": "e52b40f6521163345b5de3a5612b3801c16cdebe56ca20d509bb820bdc3f4251",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": null,
+      "purpose": "Use the selected Linux target RID for the locally built ASP.NET Core archive instead of always requesting x64."
+    },
+    {
+      "name": "0006-run-native-arm64-corelib-crossgen.patch",
+      "target": "bin/src/coreclr.259ce7d4619478cfefe7b0c0f6fa765f765f7e37/build.sh",
+      "originalSha256": "effad5a50d518ba07f61366c439245b111c97619e7295804257f7a6ef3a89bdb",
+      "patchedSha256": "2987bc771940c1bef67b700bd3f032c25fc0a63c2ec68c765f3f15686c270e9d",
+      "patchSha256": "50aa1b344baec6dad69ceb22e2dc400493971519e453ff9f5023428aec64b413",
+      "addedLines": 9,
+      "removedLines": 2,
+      "component": {
+        "commit": "259ce7d4619478cfefe7b0c0f6fa765f765f7e37",
+        "path": "build.sh",
+        "name": "coreclr"
+      },
+      "purpose": "Run the locally built native ARM64 crossgen instead of copying IL CoreLib during same-architecture sysroot builds. Package the actual native tool layout without redundant cross-host folders."
+    },
+    {
+      "name": "0007-select-clang6-corehost-native-arm64-cross-build.patch",
+      "target": "bin/src/core-setup.c03f2fe62663edec83d1bc12b4e9f11bd3de5d0e/src/corehost/build.sh",
+      "originalSha256": "47be891c3bef8027a8f05c5e60abb9d56967bc2329d518a27c2eb52e5573dc21",
+      "patchedSha256": "07ed1fef66990444153d02bceeec3e40d95659e63f6aca0682a9013c7020e38b",
+      "patchSha256": "65fe754a6644668a3c9d8aa0f6ff0ae44af94f462e7fd161194fb1e1b8e6d86f",
+      "addedLines": 4,
+      "removedLines": 1,
+      "component": {
+        "commit": "c03f2fe62663edec83d1bc12b4e9f11bd3de5d0e",
+        "path": "src/corehost/build.sh",
+        "name": "core-setup"
+      },
+      "purpose": "Select the installed Clang 6 pair explicitly for native ARM64 Core-Setup sysroot builds, preserving the historical compiler selection for other host-target pairs."
+    },
+    {
+      "name": "0008-route-upstream-smoke-tests-to-built-arm64-sdk.patch",
+      "target": "smoke-test.sh",
+      "originalSha256": "f47ddbd41ba1e4a1b475474ca61073e2556d8f03086d774d9abfa99dac4d0960",
+      "patchedSha256": "db6f4d794e4b891d11d8dcca2fcd0a580f899ee5c93893ce799c978024669498",
+      "patchSha256": "98d114903be53d557a96461670b3ef0dc859a4cbef4576df7adf7a466c5e23d6",
+      "addedLines": 6,
+      "removedLines": 4,
+      "component": null,
+      "purpose": "Accept the explicit core-sdk graph, select its ARM64 local package directory and allow a new isolated test working directory. Preserve all upstream test commands and assertions; this routing change alone establishes no test result."
+    },
+    {
+      "name": "0009-map-retired-package-indexes-in-configs-and-environment.patch",
+      "target": "tools-local/tasks/Microsoft.DotNet.SourceBuild.Tasks.XPlat/AddSourceToNuGetConfig.cs",
+      "originalSha256": "d3704ee425a878b389542013892f98f4b1ab1b0e08ad78eeb39ac7b28cbac459",
+      "patchedSha256": "aecb9b5ce27432ce38adfd6ca2d3f0272721ee99e29135b942d090c58d12f5ce",
+      "patchSha256": "ff4763fd674ae6939b3df8d61ad2cfcaea6955fef093139ac79ca367fb3a03fc",
+      "addedLines": 59,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Add a build-tool task mapping only five exact retired package indexes to the official dotnet-public NuGet index in configs and component environment strings; preserve requested package versions and local feeds."
+    },
+    {
+      "name": "0010-route-component-restore-through-recorded-feed-mapping.patch",
+      "target": "repos/dir.targets",
+      "originalSha256": "b71ab00b68153edfc7bc0a88185832c7475a237a838564b57ae422124473531e",
+      "patchedSha256": "b5295bc5fa3f2b4133c0ea8d67f514cee107d54ea0193dcd4c18fcdbda48e167",
+      "patchSha256": "459bf02a1cf971fe6750c91ef0ab2c6648fc70bca9f4641ad60a9e2a1eaa6a0d",
+      "addedLines": 15,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Apply the recorded exact endpoint mapping through the existing common config/RepoBuild producer before online component restores; retain upstream source-built feed injection and offline behavior."
+    },
+    {
+      "name": "0011-preserve-explicit-complete-darc-command.patch",
+      "target": "tools-local/init-build.proj",
+      "originalSha256": "3483d1abc61fe03e3357eac029ebd4dd206c3e650ebbaa55f2148a234d5b9b86",
+      "patchedSha256": "f0855a47294aa837876e00d859ff1c79a518817feaec133b8e1a71b142da7314",
+      "patchSha256": "bf4ace1cd1e6b4382928753f5aeeb2fb08b6819fcbaf0a0c49108fdbf374c8bf",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": null,
+      "afterPatch": "0001-use-explicit-acquisition-and-preserved-sysroot.patch",
+      "purpose": "Preserve the explicit complete source-acquisition command at the older FetchSources producer. The fixed wrapper binds every required Git adapter argument, including bin/src, because this generation does not append DarcCloneArguments to an explicit command."
+    }
+  ]
+}

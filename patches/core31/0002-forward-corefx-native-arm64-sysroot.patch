@@ -1,0 +1,11 @@
+--- a/repos/corefx.common.props
++++ b/repos/corefx.common.props
+@@ -27,6 +27,8 @@
+     <BuildArguments Condition="'$(TargetOS)' != 'OSX'">$(BuildArguments) /p:RuntimeOS=$(OverrideTargetRid.Substring(0, $(OverrideTargetRid.IndexOf("-"))))</BuildArguments>
+     <BuildArguments Condition="'$(TargetOS)' == 'OSX'">$(BuildArguments) /p:RuntimeOS=$(OverrideTargetRid)</BuildArguments>
+     <BuildArguments>$(BuildArguments) /p:PortableBuild=$(OverridePortableBuild)</BuildArguments>
++    <!-- The native compiler pass-through reaches build-native.sh, including its explicit cross switch. -->
++    <BuildArguments Condition="'$(TargetOS)' == 'Linux' AND '$(PortableBuild)' == 'true' AND '$(Platform)' == 'arm64' AND '$(BuildArchitecture)' == 'arm64'">$(BuildArguments) /p:BuildNativeCompiler="--clang9.0 cross"</BuildArguments>
+     <BuildArguments>$(BuildArguments) /p:ILAsmToolPath=$(ToolPackageExtractDir)coreclr-tools/</BuildArguments>
+     <BuildArguments>$(BuildArguments) /p:EnableVSTestReferences=false</BuildArguments>
+     <BuildArguments>$(BuildArguments) /p:ILLinkTrimAssembly=false</BuildArguments>

@@ -1,0 +1,14 @@
+--- a/repos/Directory.Build.targets
++++ b/repos/Directory.Build.targets
+@@ -134,7 +134,10 @@
+         NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-experimental/nuget/v3/index.json" />
+       <LegacyFeedMapping
+         Include="https://dotnet.myget.org/F/dotnet-core/api/v3/index.json"
+-        NewFeed="https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json" />
++        NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json" />
++      <LegacyFeedMapping
++        Include="https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json"
++        NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json" />
+       <LegacyFeedMapping
+         Include="https://dotnet.myget.org/F/system-commandline/api/v3/index.json"
+         NewFeed="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet5/nuget/v3/index.json" />

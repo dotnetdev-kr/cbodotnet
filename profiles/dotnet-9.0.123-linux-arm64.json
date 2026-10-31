@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "selectedAt": "2026-10-30",
+  "sdkVersion": "9.0.123",
+  "source": {
+    "repository": "https://github.com/dotnet/dotnet",
+    "tag": "v9.0.123",
+    "commit": "9f04b57d1366e21b3178648493d6edffeff2216e"
+  },
+  "selection": {
+    "latestPublishedSdk": "9.0.320",
+    "latestPublishedRuntime": "9.0.22",
+    "releaseDate": "2026-10-25",
+    "reason": "Latest published 1xx SDK has a pinned VMR tag; 9.0.320 has no matching VMR tag. Both use runtime 9.0.22."
+  },
+  "host": { "os": "linux", "architecture": "arm64", "emulation": false },
+  "target": { "rid": "linux-arm64", "libc": "glibc", "intendedMaximumGlibcRequirement": "2.23" },
+  "container": {
+    "repository": "mcr.microsoft.com/dotnet-buildtools/prereqs",
+    "referenceTag": "ubuntu-24.04-arm64",
+    "digest": "sha256:7ef8f6ee1b9982511349757443eb4844f0db4f8cef1aff6148a7ba1c25d7c6f4"
+  },
+  "sysroot": {
+    "architecture": "arm64",
+    "suite": "xenial",
+    "generator": "eng/common/cross/build-rootfs.sh",
+    "generatorArguments": ["arm64", "xenial"],
+    "packageSignatureVerification": true,
+    "preparationRequiresRoot": true
+  },
+  "build": {
+    "configuration": "Release",
+    "sourceOnly": false,
+    "crossBuild": true,
+    "portableBuild": true,
+    "continuousIntegration": true,
+    "maxCpuCount": 2,
+    "sharedComponents": "Microsoft.NETCore.App 9.0.22 is rebuilt locally; Microsoft.AspNetCore.App 9.0.22 is reused through the tagged SDK's upstream fallback."
+  },
+  "construction": {
+    "upstreamSharedRuntimeReused": true,
+    "note": "The final SDK's 186 Microsoft.NETCore.App entries match the locally published runtime archive, and its 143 Microsoft.AspNetCore.App entries match the preserved SDK download. See reports/construction/shared-framework-identity.json and the retained build records. This ordinary VMR build also consumes upstream bootstrap and package inputs."
+  },
+  "additionalPackages": [],
+  "upstreamInputs": {
+    "bootstrapSdk": "9.0.121",
+    "sourceBuiltArtifacts": "9.0.121-servicing.26421.1",
+    "runtime": "9.0.22"
+  }
+}

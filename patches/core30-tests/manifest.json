@@ -1,0 +1,13 @@
+{
+  "sourceCommit": "40de72d1087a1d05dfd39c87f888a0611ec6c60f",
+  "originalScriptSha256": "f47ddbd41ba1e4a1b475474ca61073e2556d8f03086d774d9abfa99dac4d0960",
+  "routingPatch": "0008-route-upstream-smoke-tests-to-built-arm64-sdk.patch",
+  "routingPatchSha256": "98d114903be53d557a96461670b3ef0dc859a4cbef4576df7adf7a466c5e23d6",
+  "routedScriptSha256": "db6f4d794e4b891d11d8dcca2fcd0a580f899ee5c93893ce799c978024669498",
+  "adaptedScriptSha256": "a3d56e98f2db9a5eab0ac019717db2864c99f93f8650efd2406561ae89157fe3",
+  "patch": "0001-route-private-suite-and-use-built-sdk-dev-certs.patch",
+  "patchSha256": "22b97c8bab5f4780303d97642c16d32a11e9d56cdbc7492a32a13d42793d115c",
+  "addedLines": 7,
+  "removedLines": 8,
+  "scope": "A private script copy uses the verified original source root, recorded official-feed NuGet template and fresh SDK built-in dev-certs. Every original local/online case and assertion remains; no product source or archive is modified."
+}

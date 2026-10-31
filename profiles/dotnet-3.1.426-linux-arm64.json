@@ -1,0 +1,421 @@
+{
+  "schemaVersion": 1,
+  "selectedAt": "2026-10-31",
+  "sdkVersion": "3.1.426",
+  "status": "verified-native-arm64-with-explicit-compatibility-inputs",
+  "source": {
+    "repository": "https://github.com/dotnet/source-build",
+    "branch": "release/3.1",
+    "commit": "ab8b115b5658237ee8916ae3586600b39fb2fd19",
+    "commitSubject": "Update to Dec 2022 3.1.426 release. (#3183)",
+    "tag": null
+  },
+  "selection": {
+    "latestPublishedSdk": "3.1.426",
+    "latestPublishedRuntime": "3.1.32",
+    "releaseDate": "2022-12-13",
+    "reason": "The final legacy source-build branch updates its complete component graph to the final 4xx SDK. The exact branch commit is pinned because no v3.1.426-SDK tag was found."
+  },
+  "host": {
+    "os": "linux",
+    "architecture": "arm64",
+    "emulation": false
+  },
+  "target": {
+    "rid": "linux-arm64",
+    "libc": "glibc",
+    "intendedMaximumGlibcRequirement": "2.23",
+    "abiRequirementVerified": true,
+    "runtimeDependencyPolicy": "OpenSSL 1.0/1.1 and a compatible ICU remain external dependencies. Ubuntu 22.04/24.04 and Debian 13 passed with the recorded Focal OpenSSL 1.1 bundle. Debian 13 additionally used exact Focal ICU 66 because the ICU 55 header build searches only through major 75. Globalization remained enabled. Stock OpenSSL 3 only or ICU 76 only compatibility is not claimed.",
+    "maximumObservedGlibcRequirement": "2.17"
+  },
+  "container": {
+    "repository": "mcr.microsoft.com/dotnet/sdk",
+    "referenceTag": "3.1.426-focal-arm64v8",
+    "digest": "sha256:a4028735b2ed1209c9116cebc74ae1c2fb27ea7d24b1be3f495fee0bac27dd52",
+    "configDigest": "sha256:ed41718009efbebaa18eb574da60b1d94bee7d1f10fe062a55b72aa558b2f70a",
+    "distribution": "ubuntu-20.04",
+    "containerfile": "containers/arm64-core31.Containerfile",
+    "derivedImageBuilt": true,
+    "derivedImageId": "ab750d90bdf890c078039cf6f52d3dd44862f3df8f6cdaf4ea771a802e18e3a0",
+    "derivedImageHistory": [
+      {
+        "imageId": "af40fe04147a9a172b8099c8b6e69412eefbde1cda6f6e3e93d0dd524d027114",
+        "status": "superseded-by-objdump-alias-fix",
+        "reason": "The LLVM9 alias directory omitted llvm-objdump; the failed CoreCLR native configuration and original image are retained as build evidence."
+      }
+    ],
+    "replacementStatus": "native-arm64-image-built-and-id-inspected"
+  },
+  "toolchain": {
+    "compiler": "clang",
+    "compilerMajorVersion": 9,
+    "unversionedCompilerAliases": "/opt/cbodotnet/llvm9/bin",
+    "compilerSelectionVerified": true,
+    "note": "Actual CoreCLR/CoreFX/CoreSetup commands select LLVM 9 and the independent signed Xenial target. Native CoreLib crossgen/perf-map and the split local component byte chain passed; all 19 shipped ELF files are AArch64.",
+    "llvmObjdump": "/opt/cbodotnet/llvm9/bin/llvm-objdump",
+    "llvmObjdumpSelection": "The existing LLVM9 alias directory must include llvm-objdump -> /usr/bin/llvm-objdump-9. The pinned CoreCLR configure script requires the unversioned LLVM tool after selecting unversioned clang; image construction verifies the actual tool."
+  },
+  "build": {
+    "system": "legacy-source-build-direct",
+    "configuration": "Release",
+    "sourceOnly": true,
+    "online": true,
+    "portableBuild": true,
+    "additionalProjectSources": [
+      "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json"
+    ],
+    "additionalProjectSourcesReason": "The unchanged Arcade toolset requires XliffTasks 1.0.0-beta.19252.1, retained on the official dotnet-eng feed. The original dependency version is preserved.",
+    "nativeSysrootForwardingVerified": true,
+    "continuousIntegration": true,
+    "maxCpuCount": 2,
+    "entryPoint": "./build.sh",
+    "sourceAcquisitionAdapterRequired": true,
+    "note": "The direct online graph passed with normal FetchSources and every component/report target retained. Eleven guarded changes forward the signed target sysroot, retain actual ARM64 native crossgen, preserve explicit acquisition, map five retired package indexes without version changes, complete silent CMake probe metadata and honor explicit bootstrap HTTP transport. Both framework origins, the 180-member split native chain, all 52 upstream cases and native checks in three user spaces passed. Explicit external OpenSSL/ICU inputs and nonzero prebuilt findings remain recorded; no clean-bootstrap or Stage 2 claim.",
+    "cpuAffinity": "2,3",
+    "bootstrapHttpHandler": {
+      "environmentVariable": "DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER",
+      "value": "1",
+      "reason": "The pinned CLI toolset otherwise forces obsolete CurlHandler on bootstrap SDK 3.1.422 and fails loading its absent native curl shim."
+    },
+    "arguments": [
+      "/p:Configuration=Release",
+      "/p:Platform=arm64",
+      "/p:TargetOS=Linux",
+      "/p:TargetRid=linux-arm64",
+      "/p:PortableBuild=true",
+      "/p:SkipAcquireDarc=true",
+      "/p:DarcCloneCommand=<immutable Python Git acquisition wrapper>",
+      "/p:SkipDownloadingReferencePackages=true",
+      "/p:SkipDownloadingPreviouslySourceBuiltPackages=true",
+      "/m:2"
+    ],
+    "lastSuccessfulAttempt": "build-20261030T1846197895069Z",
+    "lastSuccessfulRootDuration": "00:02:39.29 (cached retry, not a clean-build benchmark)",
+    "warnings": 17,
+    "errors": 0,
+    "feedCompatibility": {
+      "status": "verified-by-complete-online-graph",
+      "mirror": "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json",
+      "retiredIndexes": [
+        "https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json",
+        "https://dotnetfeed.blob.core.windows.net/dotnet-tools-internal/index.json",
+        "https://dotnet.myget.org/F/nuget-build/api/v3/index.json",
+        "https://dotnet.myget.org/F/dotnet-core/api/v3/index.json",
+        "https://dotnet.myget.org/F/dotnet-tools/api/v3/index.json"
+      ],
+      "packageVersionsChanged": false,
+      "localSourceBuiltPrecedenceRetained": true,
+      "xmlRecoveryFeed": "inputs/xmldoc-recovery/feed",
+      "xmlRecovery": "Verified original package bytes; normal restore with NUGET_XMLDOC_MODE=none."
+    }
+  },
+  "inputs": {
+    "bootstrapSdk": "3.1.422",
+    "bootstrapSdkUrl": "https://builds.dotnet.microsoft.com/dotnet/Sdk/3.1.422/dotnet-sdk-3.1.422-linux-arm64.tar.gz",
+    "bootstrapSdkSha512": "3eb7e066568dfc0135f2b3229d0259db90e1920bb413f7e175c9583570146ad593b50ac39c77fb67dd3f460b4621137f277c3b66c44206767b1d28e27bf47deb",
+    "arcadeSdk": "1.0.0-beta.20113.5",
+    "historicalDarc": "1.1.0-beta.19568.2",
+    "historicalDarcAvailability": "The declared package URL returned HTTP 404 during research. The guarded Git adapter replaces that unavailable clone helper while preserving exact source pins, metadata and normal upstream FetchSources.",
+    "offlinePreviouslySourceBuiltArtifactsUrl": "https://dotnetcli.azureedge.net/source-built-artifacts/assets/Private.SourceBuilt.Artifacts.0.1.0-3.1.422-1938232-20220811.1.tar.gz",
+    "offlineReferencePackagesUrl": "https://dotnetfeed.blob.core.windows.net/dotnet-core/assets/Private.SourceBuild.ReferencePackages.1.0.0-beta.21479.1.tar.gz",
+    "offlineReferencePackagesAvailability": "The declared URL returned HTTP 403; checked source-built-artifact mirrors returned HTTP 404. This archive is not consumed by the selected direct online production build."
+  },
+  "verification": {
+    "baselineSdkUrl": "https://builds.dotnet.microsoft.com/dotnet/Sdk/3.1.426/dotnet-sdk-3.1.426-linux-arm64.tar.gz",
+    "baselineSdkSha512": "300e154fba3123644910bbb89a6e61f67569677efa359aa110871cbbb62afad059709dc362f0af27ece0b9a30bc3e6ef57c3cb7c6f75377b20d48636605f30f7",
+    "requiredBeforeRelease": [
+      "Verify exact source acquisition and upstream patch application.",
+      "Complete the full component graph and root build.",
+      "Inspect actual native compiler/sysroot forwarding and ELF ABI requirements.",
+      "Verify both shared frameworks against actual local installer inputs.",
+      "Run native SDK/application tests in recorded compatible Linux user spaces."
+    ],
+    "status": "passed-with-explicit-external-dependencies",
+    "sdkArchiveSha256": "8fa6c9406a2c38ab98955c83bb8d6908750f9454b61164dfb981951f0bfbbde5",
+    "archive": {
+      "filename": "cbodotnet-sdk-3.1.426-linux-arm64-build.1.tar.gz",
+      "bytes": 164066330,
+      "copiedWithoutModification": true
+    },
+    "elf": {
+      "files": 19,
+      "machine": "AArch64",
+      "maximumGlibc": "2.17",
+      "maximumGlibcxx": "3.4.21",
+      "maximumCxxAbi": "1.3.7",
+      "glibcCeiling": "2.23",
+      "ceilingPassed": true,
+      "scope": "Regular ELF files inside the SDK; external compatibility inputs have separate ABI requirements."
+    },
+    "nativeUserspaces": [
+      {
+        "environment": "Ubuntu 22.04",
+        "reportedRid": "ubuntu.22.04-arm64",
+        "functionalChecksPassed": 6,
+        "openssl": "recorded external OpenSSL 1.1 bundle",
+        "icu": "native system ICU 70",
+        "report": "reports/verify-ubuntu22/verification.json"
+      },
+      {
+        "environment": "Ubuntu 24.04",
+        "reportedRid": "linux-arm64",
+        "functionalChecksPassed": 6,
+        "openssl": "recorded external OpenSSL 1.1 bundle",
+        "icu": "native system ICU 74",
+        "report": "reports/verify-ubuntu24/verification.json"
+      },
+      {
+        "environment": "Debian 13",
+        "reportedRid": "linux-arm64",
+        "functionalChecksPassed": 6,
+        "openssl": "recorded external OpenSSL 1.1 bundle",
+        "icu": "recorded external ICU 66.1 bundle",
+        "report": "reports/verify-debian13-icu66/verification.json"
+      }
+    ],
+    "compatibilityInputs": {
+      "openssl": {
+        "contract": "reports/verification-compat/compatibility-inputs.json",
+        "originalProducer": "NET5 Focal builder d7f3d9624f9f2ec9d6dfb3c0ed1743eab582378d0a4ee40dfb0bc9e66bed288a",
+        "libcryptoMaximumGlibc": "2.25",
+        "sdkArchiveModified": false
+      },
+      "icu": {
+        "contract": "reports/verification-icu/compatibility-inputs.json",
+        "producerImageId": "ab750d90bdf890c078039cf6f52d3dd44862f3df8f6cdaf4ea771a802e18e3a0",
+        "package": "libicu66",
+        "version": "66.1-2ubuntu2.1",
+        "usedBy": [
+          "Debian13"
+        ],
+        "override": "66",
+        "maximumGlibc": "2.29",
+        "sdkArchiveModified": false,
+        "invariantGlobalizationUsed": false
+      },
+      "failedOriginalDebianAttempt": "reports/verify-debian13"
+    },
+    "prebuiltFindings": {
+      "rawRows": 7126,
+      "generatedBaselineRows": 263,
+      "newEntries": 1,
+      "removedEntries": 86,
+      "projectDirectories": 41,
+      "packageSnapshots": 33,
+      "assetsJsonMembers": 489,
+      "preservedOriginalReports": 132,
+      "report": "reports/prebuilt-audit/prebuilt-summary.json",
+      "policyUnchanged": true,
+      "cleanBootstrapClaim": false
+    },
+    "baselineSdkConsumedBySmokeSuite": false
+  },
+  "patches": [
+    {
+      "name": "0001-forward-coreclr-native-arm64-sysroot.patch",
+      "target": "repos/coreclr.common.props",
+      "originalSha256": "1c2c9890b4acaa8da0186b7df7a2a5765dd674128acaaa0416ea532d8df84132",
+      "patchedSha256": "bb9af843d39194f5b96524a703bafdbfcc6eb031b72e571a098b1d1f6f0bd81a",
+      "patchSha256": "3fde4882844987a9bbf68db30825dff7ed1d2755b4bb4811c3ecc59845fc107d",
+      "addedLines": 3,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Forward the independent target sysroot to CoreCLR on native ARM64; omit only redundant cross-architecture host tools."
+    },
+    {
+      "name": "0002-forward-corefx-native-arm64-sysroot.patch",
+      "target": "repos/corefx.common.props",
+      "originalSha256": "1c6a9382377bf94916f815ebf0e4179fa48dbeb8fd0eddb0cc33f897ca121718",
+      "patchedSha256": "036d59b9513c5155ac1921c4b0e9052b0d6cbf0eb260dc20c23bde19847c3ea3",
+      "patchSha256": "1c445abb88ab5731399cd3b56640d929702c9f4c9e2ebc974d5518d65dfc3dac",
+      "addedLines": 2,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Forward explicit cross and LLVM9 arguments through the existing CoreFX native compiler pass-through."
+    },
+    {
+      "name": "0003-forward-core-setup-native-arm64-sysroot.patch",
+      "target": "repos/core-setup.common.props",
+      "originalSha256": "f1f9a15ce08e9c4d89e92bc69c28d155caf274b65efa09d0eefd9ad25e29d766",
+      "patchedSha256": "d3c1ed30449fce039a4a7235675282e1dc1a50725d81a70008d1ec7d3e2b296b",
+      "patchSha256": "4a6355ab3fba2e22b682e6b17edc88020c713e0e1e3dee5c28623999170fd1d3",
+      "addedLines": 2,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Select the target sysroot for native hosts without disabling CoreSetup native image generation."
+    },
+    {
+      "name": "0004-run-native-arm64-corelib-crossgen.patch",
+      "target": "artifacts/src/coreclr.c17d273aa03d4b9d14c92248a91f0d0faa881b98/build.sh",
+      "originalSha256": "6cf09dabdddfa71beaf4a386a8d4cb5ad817042fdb6b93c3a350ec4088a127e4",
+      "patchedSha256": "3d6a3bdca1976693aca0e20b6fce64c4ed45c4dfd39edc3c02a00024cee2fc7b",
+      "patchSha256": "c069d03fc3e7dad5e5f3af41ac9b3334f8be0860aa76d1d787a4f3e951a758d0",
+      "addedLines": 11,
+      "removedLines": 2,
+      "component": {
+        "name": "coreclr",
+        "commit": "c17d273aa03d4b9d14c92248a91f0d0faa881b98",
+        "path": "build.sh"
+      },
+      "purpose": "Run native ARM64 crossgen during same-architecture sysroot builds rather than copying the IL-only CoreLib. Package the actual native tools without assuming separate cross-architecture host outputs."
+    },
+    {
+      "name": "0005-preserve-explicit-source-acquisition-command.patch",
+      "target": "Directory.Build.targets",
+      "originalSha256": "f4b289f101f9e0c011ee79fc2fc1a7752cf8e89d70f7549c5fb311abfb0b84d6",
+      "patchedSha256": "2d992510d31e3d076674d6799e20e76110bfac07f283a1208a8f15af19c7b988",
+      "patchSha256": "3960e84b9ea36e1badadfaea11e4e3048c346d767d3ae8735e0d41e65056e6a9",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": null,
+      "purpose": "Preserve an explicit source-acquisition executable instead of overwriting it with the unavailable historical Darc DLL during target execution."
+    },
+    {
+      "name": "0006-route-retired-dotnet-core-feed.patch",
+      "target": "repos/Directory.Build.targets",
+      "originalSha256": "ac90ac90c6128e32cf36b020abbdb212324480325176c72794cf81c5f00fddbc",
+      "patchedSha256": "40d4796cf918c739e9bbbcc313abd2a60c03774d8906ad87e402b2cb57f66514",
+      "patchSha256": "858b143a85c32ab272008fb7387ba8049007035903a8644116e5e46ad07f9859",
+      "addedLines": 4,
+      "removedLines": 1,
+      "component": null,
+      "purpose": "Route only the retired dotnet-core service indices to the official public package mirror while preserving all requested versions and local source-built precedence."
+    },
+    {
+      "name": "0007-expand-recorded-retired-package-index-mapping.patch",
+      "target": "repos/Directory.Build.targets",
+      "originalSha256": "40d4796cf918c739e9bbbcc313abd2a60c03774d8906ad87e402b2cb57f66514",
+      "patchedSha256": "064b1db31a6ad82f65be01f4d371e298cfa53eff0ff3646bc10d435159f62491",
+      "patchSha256": "33fc1394589d07b5354e732cd580d5aed49cb23ddb90996933f378fbb8f12848",
+      "addedLines": 7,
+      "removedLines": 1,
+      "component": null,
+      "afterPatch": "0006-route-retired-dotnet-core-feed.patch",
+      "purpose": "Extend the original common feed-mapping producer to all five recorded retired package indexes, preserving exact requested versions, local source-built precedence and blob asset URLs. Apply only after the byte-exact original patch0006 state."
+    },
+    {
+      "name": "0008-forward-corefx-cross-mode-with-singleword-properties.patch",
+      "target": "repos/corefx.common.props",
+      "originalSha256": "036d59b9513c5155ac1921c4b0e9052b0d6cbf0eb260dc20c23bde19847c3ea3",
+      "patchedSha256": "cedb8a27ff04465b9af5c01626dbf96dad097635290988c8283744750e6c45b4",
+      "patchSha256": "a3d2bbac759d34cca89dedc2163717a5c9592c300d33182980fcb83fb027e279",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": null,
+      "purpose": "Pass compiler selection and explicit cross mode as separate singleword MSBuild properties through the historical Arcade shell driver.",
+      "afterPatch": "0002-forward-corefx-native-arm64-sysroot.patch"
+    },
+    {
+      "name": "0009-forward-corefx-native-cross-build-property.patch",
+      "target": "artifacts/src/corefx.b58ef0a19eca6269799664d6288be14b7f0cef3e/src/Native/build-native.proj",
+      "originalSha256": "09aac8a01cc5d20fe61556107d790b5088d5ad6f9f5950292d8d7caf0472d368",
+      "patchedSha256": "ea5135ad0a866b783b2b29d14341829c1e928d4797127f8b1a27807c8f3ced48",
+      "patchSha256": "c684d049f576ddf77d3d70c3f37ef0886e4c58f876a9ef554f1376b39843fd32",
+      "addedLines": 2,
+      "removedLines": 1,
+      "component": {
+        "name": "corefx",
+        "commit": "b58ef0a19eca6269799664d6288be14b7f0cef3e",
+        "path": "src/Native/build-native.proj"
+      },
+      "purpose": "Forward explicit CrossBuild to the existing native cross switch so the independent target sysroot is retained without a multiword compiler property."
+    },
+    {
+      "name": "0010-complete-corefx-cross-tryrun-cache.patch",
+      "target": "artifacts/src/corefx.b58ef0a19eca6269799664d6288be14b7f0cef3e/cross/tryrun.cmake",
+      "originalSha256": "e8610c0b11e82f6a307ff99803f810e984821aa9dd28ca958381caf2b0b05ea4",
+      "patchedSha256": "8d1ace95f82c2b2c94a21ea05a730074c9e1fecc7e66597d0f02039db5f60120",
+      "patchSha256": "6ad90d347056896e4da9bd6ea91f7cf8b2bf959a2bd59131cca4a3f4a5a09f17",
+      "addedLines": 2,
+      "removedLines": 0,
+      "component": {
+        "name": "corefx",
+        "commit": "b58ef0a19eca6269799664d6288be14b7f0cef3e",
+        "path": "cross/tryrun.cmake"
+      },
+      "purpose": "Supply empty captured output for the three silent cross feature probes whose exit statuses are already specified upstream, retaining all existing feature decisions and compile/link checks."
+    },
+    {
+      "name": "0011-preserve-explicit-bootstrap-http-handler.patch",
+      "target": "artifacts/src/cli.cca488d5d530e6ec291134abe3462fed613a4429/eng/restore-toolset.sh",
+      "originalSha256": "b0277d3273aeab7c060b5ec2455349d7589951e2e4dd04cda827f1d6454a73c4",
+      "patchedSha256": "53f27e9ae0b5bcb6a9c744b5764262af98814df32d4d670bf6207bed56285ea8",
+      "patchSha256": "acf484280e07d4898990c47cf224ec796ff6bef4b247c9aea730d237149ac2ec",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": {
+        "name": "cli",
+        "commit": "cca488d5d530e6ec291134abe3462fed613a4429",
+        "path": "eng/restore-toolset.sh"
+      },
+      "purpose": "Honor an explicit supported bootstrap HTTP handler instead of unconditionally forcing the obsolete CurlHandler; retain the historical workaround only as the standalone default."
+    }
+  ],
+  "legacySource": {
+    "componentManifest": "eng/Version.Details.xml",
+    "componentCommits": {
+      "arcade": "15f00efd583eab4372b2e9ca25bd80ace5b119ad",
+      "coreclr": "c17d273aa03d4b9d14c92248a91f0d0faa881b98",
+      "corefx": "b58ef0a19eca6269799664d6288be14b7f0cef3e",
+      "core-setup": "f94bb2c3ff432dcc4a6229eca2f978197bf06150",
+      "aspnetcore": "3eeb12e106b9e913c3a4dec1a7d16da7b74149eb",
+      "sdk": "eb0cfa780959c0c63217a7d8225dc260e7f6ce65",
+      "core-sdk": "e81f6c85654f91c5eab0cb78386db4b32df63b4b"
+    },
+    "route": "Build the pinned source-build repository directly; CoreCLR, CoreFX and CoreSetup remain separate source components."
+  },
+  "upstreamInputs": {
+    "bootstrapSdk": "3.1.422",
+    "bootstrapSdkRid": "linux-arm64",
+    "runtime": "3.1.32",
+    "onlineBuild": true,
+    "previouslySourceBuiltArtifactsConsumed": false,
+    "referenceArchiveConsumed": false
+  },
+  "construction": {
+    "upstreamSharedRuntimeReused": false,
+    "sharedComponents": "Locally built CoreCLR/CoreFX/CoreSetup runtime and ASP.NET 3.1.32 shared frameworks.",
+    "note": "reports/construction/origin-evidence.json proves completed local CoreSDK copies and 188 runtime/140 ASP.NET entries. The separate 180-member audit traces native outputs, packages, actual CoreSetup inputs and 162 CoreFX native-image transformations, including native CoreLib/perf-map. Official bootstrap SDK, reference packages and online binary dependencies remain; no clean-bootstrap or Stage 2 claim."
+  },
+  "testing": {
+    "status": "passed",
+    "entryPoint": "Invoke-Core31Build.ps1 -Mode Test",
+    "helper": "scripts/prepare-core31-tests.py",
+    "freshSdkRequired": true,
+    "expectedTemplateCases": 52,
+    "expectedWebStartupReadyMarkers": 28,
+    "expectedHttpsCertificateSetups": 2,
+    "exclusions": [],
+    "testOnlyPatch": "patches/core31-tests/0001-use-built-sdk-dev-certs.patch",
+    "note": "The unchanged upstream RunSmokeTest target runs all local/online cases. Only certificate tool setup uses the SDK built-in command; finalization checks the actual extracted SDK tree against the exact archive.",
+    "lastPassedAttempt": "test-20261030T1918428256883Z",
+    "templateCasesPassed": 52,
+    "webStartupReadyMarkers": 28,
+    "httpsCertificateSetupsCompleted": 2,
+    "sdkInventoryMembersMatched": 1789
+  },
+  "sysroot": {
+    "status": "prepared-and-verified",
+    "architecture": "arm64",
+    "distribution": "ubuntu-16.04-xenial",
+    "path": "inputs/arm64-xenial",
+    "producer": "corefx/cross/build-rootfs.sh",
+    "producerCommit": "b58ef0a19eca6269799664d6288be14b7f0cef3e",
+    "producerSha256": "395f773f920364a83890d885783661f68bd59b1961cffd724a643709183ae83d",
+    "arguments": [
+      "arm64",
+      "xenial",
+      "no-lldb"
+    ],
+    "packageSignatureVerification": true,
+    "signingKeyFingerprint": "790BC7277767219C42C86F933B4FE6ACC0B21F32",
+    "independentInReleaseVerifications": 4,
+    "requiredDevelopmentPackageChecks": 9,
+    "inventoryFiles": 17026,
+    "inventorySymlinks": 5225,
+    "provenance": "reports/sysroot/sysroot-provenance.json",
+    "recovery": "reports/sysroot/sysroot-recovery.json",
+    "gitOwnerContext": "Verified source UID 1000 passed as SUDO_UID; global Git configuration unchanged."
+  }
+}

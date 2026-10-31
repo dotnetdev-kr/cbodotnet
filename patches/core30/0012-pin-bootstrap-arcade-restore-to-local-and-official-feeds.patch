@@ -1,0 +1,16 @@
+--- a/repos/dir.targets
++++ b/repos/dir.targets
+@@ -52,6 +52,13 @@
+     <RepoApiArgs>$(RepoApiArgs) /p:DotNetRestoreSourcePropsPath=$(RestoreSourcePropsPath)</RepoApiArgs>
+     <RepoApiArgs Condition="'$(OfflineBuild)' == 'true'">$(RepoApiArgs) /p:DotNetBuildOffline=true</RepoApiArgs>
+   </PropertyGroup>
++  <!-- The retained bootstrap Arcade appends retired MyGet sources. A global
++       RestoreSources keeps local outputs first; supported additional sources
++       supply the recorded official feeds without changing package versions. -->
++  <PropertyGroup Condition="'$(UseBootstrapArcade)' == 'true' AND '$(OfflineBuild)' != 'true'">
++    <RepoApiArgs>$(RepoApiArgs) /p:RestoreSources=$(SourceBuiltPackagesPath)</RepoApiArgs>
++  </PropertyGroup>
++
+   <!-- Output placement arguments -->
+   <PropertyGroup Condition="'$(OutputPlacementRepoApiImplemented)' == 'true'">
+     <RepoApiArgs>$(RepoApiArgs) /p:DotNetOutputBlobFeedDir=$(SourceBuiltBlobFeedDir)</RepoApiArgs>
