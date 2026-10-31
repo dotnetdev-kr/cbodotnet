@@ -152,7 +152,8 @@
       "patches/core30/0029-select-native-arm64-core-sdk-crossgen-and-jit-properties.patch",
       "patches/core30/0030-select-native-arm64-core-sdk-crossgen-and-jit-in-target.patch",
       "patches/core30/0031-map-toolset-sdk-retired-package-indexes.patch",
-      "patches/core30/0032-flow-native-arm64-aspnet-version-to-core-sdk.patch"
+      "patches/core30/0032-flow-native-arm64-aspnet-version-to-core-sdk.patch",
+      "patches/core30/0033-make-post-build-offline-bundle-downloads-explicit.patch"
     ],
     "compatibilityGates": [
       {
@@ -364,6 +365,12 @@
       "cpuAffinity": "6,7",
       "finalBundleSeconds": 103.201498,
       "scope": "The retained dependency graph plus original targeted Toolset and CoreSDK adapter builds completed. The final invocation bundles the already completed dependencies with supported SkipRepoReferences=true; this is not a fresh whole-graph or clean-bootstrap build."
+    },
+    "ciPostBuildSourceBundleStaging": {
+      "defaultSkip": false,
+      "ciSkip": true,
+      "property": "CbodotnetSkipSourceBundleDownloads",
+      "scope": "Only optional online AfterTargets=Build staging of original reference/PSB archives for the upstream offline source bundle. Product Build, online restore, source acquisition, package guards and prebuilt reports remain active. CI delivers actual used sources independently; no offline/Stage2 bundle claim."
     }
   },
   "construction": {

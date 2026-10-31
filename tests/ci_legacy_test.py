@@ -273,6 +273,7 @@ class LegacyFixtures(unittest.TestCase):
             for action in ('prepare', 'build', 'test'):
                 command = runner.product_command(action, self.root / family / action / 'product')
                 self.assertEqual('--allow-cold-feed' in command, family == 'core30' and action == 'build')
+                self.assertEqual('--skip-source-bundle-downloads' in command, family == 'core30' and action == 'build')
 
     def test_real_cold_helper_report_and_gate_require_absence_without_outputs(self):
         source = self.root / 'empty-source'; source.mkdir()

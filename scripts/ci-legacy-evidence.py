@@ -177,6 +177,10 @@ def validate(release, family, expected):
     require(tests['status'] == 'passed' and tests['upstreamExitCode'] == 0 and tests['suiteExclusions'] == []
             and tests['sdkArchive']['sha256'] == archive['sha256'], 'Complete upstream suite did not pass on the delivered SDK')
     if family == 'core30':
+        require(status['postBuildOfflineSourceBundleDownloadsSkipped'] is True
+                and '/p:CbodotnetSkipSourceBundleDownloads=true' in member(release, 'reports/build/product-build/build-command.txt').read_text()
+                and manifest['profile']['contents']['build']['ciPostBuildSourceBundleStaging']['actualSkipped'] is True,
+                'Explicit online SDK-only post-build staging command/effective profile proof is absent')
         cold = load(member(release, 'reports/build/product-build/retry-inputs/core30-retry-inputs.json'))
         cold_feed_proof(cold, commit)
         require(tests['casesStarted'] == tests['casesFinished'] == tests['expectedCases'] == 52

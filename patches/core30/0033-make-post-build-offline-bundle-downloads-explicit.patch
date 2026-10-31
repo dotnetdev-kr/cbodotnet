@@ -1,0 +1,20 @@
+--- a/build.proj
++++ b/build.proj
+@@ -146,7 +146,7 @@
+ 
+   <Target Name="DownloadSourceBuildReferencePackages"
+           AfterTargets="Build"
+-          Condition="'$(OfflineBuild)' != 'true' and '$(OS)' != 'Windows_NT'">
++          Condition="'$(OfflineBuild)' != 'true' and '$(OS)' != 'Windows_NT' and '$(CbodotnetSkipSourceBundleDownloads)' != 'true'">
+     <DownloadFile 
+           SourceUrl="$(ReferencePackagesTarballUrl)$(ReferencePackagesTarballName).$(PrivateSourceBuildReferencePackagesPackageVersion).tar.gz"
+           DestinationFolder="$(ExternalTarballsDir)" />
+@@ -154,7 +154,7 @@
+ 
+   <Target Name="DownloadSourceBuiltArtifacts"
+           AfterTargets="Build"
+-          Condition="'$(OfflineBuild)' != 'true' and '$(OS)' != 'Windows_NT'">
++          Condition="'$(OfflineBuild)' != 'true' and '$(OS)' != 'Windows_NT' and '$(CbodotnetSkipSourceBundleDownloads)' != 'true'">
+     <DownloadFile 
+           SourceUrl="$(SourceBuiltArtifactsTarballUrl)$(SourceBuiltArtifactsTarballName).$(PrivateSourceBuiltArtifactsPackageVersion).tar.gz"
+           DestinationFolder="$(ExternalTarballsDir)" />

@@ -11,6 +11,7 @@ cpu_affinity=2,3
 max_cpu=2
 sdk_archive=''
 allow_cold_feed=false
+skip_source_bundle_downloads=false
 while (($#)); do
   (($# >= 2)) || { echo 'Every option requires a value.' >&2; exit 2; }
   case "$1" in
@@ -24,6 +25,7 @@ while (($#)); do
     --max-cpu-count) max_cpu=$2 ;;
     --sdk-archive) sdk_archive=$2 ;;
     --allow-cold-feed) allow_cold_feed=$2 ;;
+    --skip-source-bundle-downloads) skip_source_bundle_downloads=$2 ;;
     *) echo "Unknown option: $1" >&2; exit 2 ;;
   esac
   shift 2
@@ -31,6 +33,8 @@ done
 [[ $action == acquire || $action == prepare || $action == build || $action == test ]]
 [[ $allow_cold_feed == true || $allow_cold_feed == false ]]
 [[ $allow_cold_feed == false || $action == build ]]
+[[ $skip_source_bundle_downloads == true || $skip_source_bundle_downloads == false ]]
+[[ $skip_source_bundle_downloads == false || $action == build ]]
 [[ $(uname -s) == Linux && $(uname -m) == aarch64 && $(id -u) != 0 ]]
 [[ $max_cpu == 2 && $cpu_affinity =~ ^[0-9]+,[0-9]+$ ]]
 for path in "$source_dir" "$inputs_dir" "$reports_dir" "$profile"; do
@@ -72,9 +76,9 @@ started=$(date -u +%FT%TZ)
 finish() {
   code=$?
   trap - EXIT
-  python3 - "$reports_dir/$action-status.json" "$action" "$started" "$code" "$cpu_affinity" "$source_dir" "${ROOTFS_DIR:-}" "$NUGET_XMLDOC_MODE" "$DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER" <<'PY'
+  python3 - "$reports_dir/$action-status.json" "$action" "$started" "$code" "$cpu_affinity" "$source_dir" "${ROOTFS_DIR:-}" "$NUGET_XMLDOC_MODE" "$DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER" "$skip_source_bundle_downloads" <<'PY'
 import datetime, json, sys
-path, action, started, code, affinity, source, rootfs, xml_mode, http_handler = sys.argv[1:]
+path, action, started, code, affinity, source, rootfs, xml_mode, http_handler, skip_bundle = sys.argv[1:]
 record = {'schemaVersion': 1, 'action': action, 'startedAtUtc': started,
           'finishedAtUtc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
           'exitCode': int(code), 'sourceCommit': '40de72d1087a1d05dfd39c87f888a0611ec6c60f',
@@ -83,6 +87,7 @@ record = {'schemaVersion': 1, 'action': action, 'startedAtUtc': started,
           'cpuAffinity': affinity, 'sysroot': rootfs or None, 'emulation': False,
           'nugetXmlDocumentationMode': xml_mode,
           'socketsHttpHandlerSelection': http_handler,
+          'postBuildOfflineSourceBundleDownloadsSkipped': skip_bundle == 'true',
           'scope': 'Actual action result; SDK provenance, functionality and ABI verification are separate.'}
 with open(path, 'x') as output:
     json.dump(record, output, indent=2); output.write('\n')
@@ -180,6 +185,7 @@ PY
   args=(taskset --cpu-list "$cpu_affinity" ./build.sh)
   args+=(/p:Configuration=Release /p:Platform=arm64 /p:TargetOS=Linux /p:TargetRid=linux-arm64
     /p:RootRepo=core-sdk /p:NativeArm64Host=true /p:PortableBuild=true /p:DotNetBuildFromSource=true /p:SkipAcquireDarc=true /p:SkipGenerateRootFs=true
+    "/p:CbodotnetSkipSourceBundleDownloads=$skip_source_bundle_downloads"
     /p:CbodotnetBootstrapPlatformsVersion=3.0.0
     "/p:CbodotnetFrameworkReferenceRoot=$inputs_dir/core30-framework-refs/extracted/build/"
     "/p:CbodotnetGenApiVerifier=$helpers/verify-core30-genapi.py" "/p:CbodotnetGenApiReportDirectory=$reports_dir/genapi-validation"
@@ -193,6 +199,7 @@ fi
   printf 'RestoreAdditionalProjectSources=%s\n' "$RestoreAdditionalProjectSources"
   printf 'NUGET_XMLDOC_MODE=%s\n' "$NUGET_XMLDOC_MODE"
   printf 'DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=%s\n' "$DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER"
+  printf 'CbodotnetSkipSourceBundleDownloads=%s\n' "$skip_source_bundle_downloads"
   printf 'Command: '; printf '%q ' "${args[@]}"; printf '\n'
   clang --version
   cmake --version

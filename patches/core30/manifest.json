@@ -1,8 +1,8 @@
 {
   "sourceCommit": "40de72d1087a1d05dfd39c87f888a0611ec6c60f",
   "previousManifest": {
-    "name": "manifest-thirty-patch-baseline.json",
-    "sha256": "e5228aaf5ef81bcc6877c60a3ccfdd71030d43e8b24714fcd22d2eaeed6baa5b"
+    "name": "manifest-thirty-one-patch-baseline.json",
+    "sha256": "1249f5f35c199408724258d902078fe99ac85af1892b163a69f657d6704c899d"
   },
   "patches": [
     {
@@ -391,6 +391,17 @@
       "component": null,
       "purpose": "Flow the genuine Linux ARM64 ASP runtime package version into the original generic CoreSDK archive-version alias only for the verified native Linux ARM64 build. Update both existing alias items after the original root import, retaining their DoNotOverwrite metadata, deferred producer-key evaluation, all other host branches, original archive formulas and every source/package version. The old aliases reference absent LinuxX64/OsxX64 packages in this ARM64 construction.",
       "afterPatch": "0029-select-native-arm64-core-sdk-crossgen-and-jit-properties.patch"
+    },
+    {
+      "name": "0033-make-post-build-offline-bundle-downloads-explicit.patch",
+      "target": "build.proj",
+      "originalSha256": "5a738c3263f703ce9887476618b7e256c114bedef32f51db60a2432603f66f8a",
+      "patchedSha256": "97839b1be1b5a8d1293c3ee9676b8c86617b63dd8f0ea69310497a6fe60f07a9",
+      "patchSha256": "9b592b9c49a5b1eac1428ae144d12d1cbd7d674a214e72f5bea05e852a59360b",
+      "addedLines": 2,
+      "removedLines": 2,
+      "component": null,
+      "purpose": "Retain default online post-build downloads for the optional upstream offline source bundle, while allowing an explicit fresh CI SDK-only opt-out for its two retired staging archives. These targets run only after Build; their only unpacking consumer is OfflineBuild=true. Preserve online product restores, the complete root component graph, all package/test guards and ReportPrebuiltUsage. The CI source distribution captures actual build sources separately; it is not an upstream offline/Stage2 bootstrap bundle."
     }
   ]
 }

@@ -235,6 +235,11 @@ def audit(args):
     profile['container']['derivedImageId'] = json.loads((args.workspace / 'ci-legacy-state.json').read_text())['imageId']
     profile['sysroot']['status'] = 'Fresh authenticated sysroot preparation and full revalidation passed; see reports/sysroot.'
     profile['build']['sharedComponents'] = 'Both frameworks were built locally in this fresh graph; see reports/construction/origin-evidence.json.'
+    if args.family == 'core30':
+        build_status = json.loads((args.output_dir / 'reports/build/product-build/build-status.json').read_text())
+        require(build_status['postBuildOfflineSourceBundleDownloadsSkipped'] is True,
+                'The explicit CI post-build offline-bundle staging policy was not recorded')
+        profile['build']['ciPostBuildSourceBundleStaging']['actualSkipped'] = True
     write(args.output_dir / 'reports/ci/effective-profile.json', profile)
     write(reports / 'origin-evidence.json', {'schemaVersion': 1, 'status': 'passed', 'sourceCommit': commit,
           'sdkArchive': fp(sdk), 'components': components, 'freshCurrentGenerationOnly': True,

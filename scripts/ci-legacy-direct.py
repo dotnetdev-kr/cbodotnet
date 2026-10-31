@@ -218,7 +218,7 @@ class CI:
         if self.family == 'core30' and action == 'test':
             command += ['--sdk-archive', self.raw_sdk()]
         if self.family == 'core30' and action == 'build':
-            command += ['--allow-cold-feed', 'true']
+            command += ['--allow-cold-feed', 'true', '--skip-source-bundle-downloads', 'true']
         return command
 
     def raw_sdk(self):
