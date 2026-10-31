@@ -331,7 +331,7 @@ with (root/'producer-inputs.json').open('x') as out: json.dump({'keyrings':recor
                                    completedLocalCopies=copies))
         evidence = [self.reports / 'origin-tools/installer.binlog', self.reports / 'origin-tools/replay.json',
                     self.reports / 'origin-tools/compiler-inputs.json',self.reports / 'build/installer-observations.jsonl',
-                    directory / 'identity/shared-framework-identity.json', self.reports / 'build/net'+self.major+'-patches-apply.json']
+                    directory / 'identity/shared-framework-identity.json', self.reports / ('build/net'+self.major+'-patches-apply.json')]
         E.write(directory / 'origin.json', dict(status='passed',sdkArchive=E.fingerprint(sdk_archive),components=components,
                 evidenceFiles=[E.record(self.output,p) for p in evidence],
                 sourceComponents=E.load(self.reports / 'generation/generation.json')['componentCommits'],
