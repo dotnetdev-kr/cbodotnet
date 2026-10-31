@@ -130,6 +130,31 @@ def selected(root):
     return identity, sorted(names), baseline
 
 
+def expand_submodules(roots):
+    """Retain nested consumers, including valid empty submodule checkouts."""
+    position = 0
+    while position < len(roots):
+        root = roots[position]; position += 1
+        if root['kind'] == 'tree':
+            continue
+        identity, _ = git_identity(root)
+        for submodule in identity.get('submodules', []):
+            path = str(ordinary_root(Path(root['path']) / submodule['path']))
+            present = [other for other in roots if other['path'] == path
+                       and other.get('expectedCommit') == submodule['commit'] and other['kind'] in ('git', 'git-export')]
+            if present:
+                require(len(present) == 1, 'Ambiguous declared submodule consumer: ' + path)
+                continue
+            # Preserved generated checkouts have real Git directories/files.
+            # Minimal legacy export markers must instead be declared with gitDir.
+            name = root['name'] + '-sub-' + hashlib.sha256(submodule['path'].encode()).hexdigest()[:12]
+            require(not any(other['name'] == name for other in roots), 'Duplicate automatic submodule name')
+            child = {'name': name, 'path': path, 'kind': 'git', 'expectedCommit': submodule['commit']}
+            git_identity(child)
+            roots.append(child)
+    return roots
+
+
 def data_record(name, mode, data, baseline=None):
     record = {'path': name, 'mode': mode, 'bytes': len(data),
               **{a: hashlib.new(a, data).hexdigest() for a in ('sha256', 'sha512')}}
@@ -163,6 +188,7 @@ def pack(args):
         root['path'] = str(ordinary_root(Path(root['path'])))
         if root['kind'] == 'git-export':
             root['gitDir'] = str(ordinary_root(Path(root['gitDir'])))
+    expand_submodules(roots)
     output.mkdir()
     archive_name = 'cbodotnet-sources-{}-{}-build.{}.tar.gz'.format(args.sdk_version, args.target_rid, args.run_id)
     index_path = output / 'source-index.jsonl'; root_records = []; count = 0

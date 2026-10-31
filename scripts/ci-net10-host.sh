@@ -204,7 +204,7 @@ record = {'status': 'passed' if passed else 'insufficient-disk',
           'runnerEnvironment': os.environ.get('RUNNER_ENVIRONMENT', 'unknown'),
           'fixedHostedCleanupEnabled': sys.argv[4] == 'true',
           'disk': usage._asdict(), 'minimumFreeBytes': minimum,
-          'capacityPolicy': '30 GiB is a planning gate, not a measured cold-build maximum',
+          'capacityPolicy': 'minimumFreeBytes is a planning gate, not a measured cold-build maximum',
           'sdkInstalledOnHost': False, 'paidRunnerFallback': False}
 with (reports / 'host-preparation.json').open('x', encoding='utf-8') as output:
     json.dump(record, output, indent=2); output.write('\n')

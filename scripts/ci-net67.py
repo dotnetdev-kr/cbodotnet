@@ -468,8 +468,10 @@ def main():
     parser.add_argument('major',choices=['6','7']); parser.add_argument('stage',choices=['prepare','build','scan','test','verify','collect'])
     parser.add_argument('--workspace',type=Path,required=True); parser.add_argument('--output-dir',type=Path,required=True)
     parser.add_argument('--build-id',required=True); parser.add_argument('--build-revision',required=True)
-    args = parser.parse_args(); run = Run(args); code = 0
-    try: getattr(run,args.stage)()
+    args = parser.parse_args(); run = Run(args); code = 1
+    try:
+        getattr(run,args.stage)()
+        code = 0
     except Exception as error:
         code = error.returncode if isinstance(error,subprocess.CalledProcessError) else 1
         print('error: '+str(error),file=sys.stderr)

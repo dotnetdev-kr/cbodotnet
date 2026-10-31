@@ -2,7 +2,7 @@
 
 The [matrix workflow](../.github/workflows/sdk-matrix.yml) runs the existing pinned profiles on fresh native Linux ARM64 workers. Version adapters retain their original upstream tests, source construction policy and required compatibility inputs. A workflow file or local fixture pass is not a completed hosted build. Each version must pass its own fresh run and downloaded delivery verification.
 
-The initial matrix integration enables .NET 6 and .NET 7 while the remaining family adapters are reviewed. The existing [.NET 10 workflow](ci-net10.md) is also being qualified with source delivery. Additional selectors will be enabled with their implementations; no historical local success is promoted into a new CI result.
+The matrix enables .NET 5–9 and .NET Core 3.0/3.1. The existing [.NET 10 workflow](ci-net10.md) is also being qualified with source delivery, including the matching source revision of reused shared inputs. Each newly integrated adapter still requires its actual cold hosted qualification; no historical local success is promoted into a new CI result.
 
 ```bash
 gh workflow run sdk-matrix.yml --repo dotnetdev-kr/cbodotnet --ref main \
@@ -18,7 +18,7 @@ After successful build and upstream tests, and before native verification/final 
 - Git working trees include modified tracked files, nonignored new files and explicit deletion records.
 - Exported legacy consumers are paired with their actual bare Git origin store and pinned commit, without pretending that a minimal `.git/HEAD` marker is a complete checkout.
 - Generated consumer trees retain source inputs while explicit build outputs, caches and Git object stores are excluded.
-- Orchestration sources and frozen input records are included, with original commit objects, baseline tree identities and submodule mappings.
+- Orchestration sources and frozen input records are included, with original commit objects, baseline tree identities and recursively captured pinned submodule consumers, including valid empty checkouts.
 
 `sources/source-manifest.json` binds a source tarball and `source-index.jsonl`. The index identifies each file or symlink, mode and content hashes; the original Git trees can be reconstructed from baseline metadata. The same source manifest is retained in `reports/ci/used-source.json` and bound by final collection and the version gate. These are source snapshots, not offline bootstrap bundles or claims that reused upstream binaries were rebuilt locally.
 

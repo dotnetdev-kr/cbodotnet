@@ -137,6 +137,18 @@ class SourceDeliveryTests(unittest.TestCase):
         parent = next(row for row in manifest['roots'] if row['name'] == 'vmr')
         self.assertEqual(parent['submodules'][0]['root'], 'component')
 
+    def test_nested_submodule_is_automatically_captured(self):
+        child = self.repo('auto-child')
+        self.command(self.code, '-c', 'protocol.file.allow=always', 'submodule', 'add', '-q', str(child), 'component')
+        self.command(self.code, 'commit', '-qam', 'Declare automatically captured component')
+        self.capture(); manifest = self.verify()
+        parent = next(row for row in manifest['roots'] if row['name'] == 'vmr')
+        child_name = parent['submodules'][0]['root']
+        actual_child = next(row for row in manifest['roots'] if row['name'] == child_name)
+        self.assertEqual(actual_child['commit'], self.head(child))
+        with tarfile.open(self.args.output_dir / manifest['archive']['path']) as archive:
+            self.assertEqual(archive.extractfile(child_name + '/code.cs').read(), b'original source\n')
+
     def test_existing_output_and_wrong_source_commit_are_rejected(self):
         self.capture()
         with self.assertRaisesRegex(ValueError, 'fresh'):

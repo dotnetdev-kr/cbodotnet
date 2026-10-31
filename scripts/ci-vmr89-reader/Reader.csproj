@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net$(BootstrapMajor).0</TargetFramework>
+    <LangVersion>12</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UseSharedCompilation>false</UseSharedCompilation>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Build"><HintPath>$(BootstrapSdkDir)/Microsoft.Build.dll</HintPath></Reference>
+    <Reference Include="Microsoft.Build.Framework"><HintPath>$(BootstrapSdkDir)/Microsoft.Build.Framework.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>
