@@ -163,6 +163,20 @@ def data_record(name, mode, data, baseline=None):
     return record
 
 
+def pristine_blob(row, actual_blob, windows_bytes):
+    """Recognize only the committed Windows command checkout representation."""
+    baseline = row.get('baseline')
+    if baseline == {'mode': row['mode'], 'blob': actual_blob}:
+        return True
+    if (not row['path'].lower().endswith(('.cmd', '.bat')) or windows_bytes is None
+            or not baseline or baseline.get('mode') != row['mode']):
+        return False
+    canonical = windows_bytes.replace(b'\r\n', b'\n')
+    if b'\r' in canonical or windows_bytes != canonical.replace(b'\n', b'\r\n'):
+        return False
+    return hashlib.sha1(b'blob ' + str(len(canonical)).encode() + b'\0' + canonical).hexdigest() == baseline['blob']
+
+
 def pack(args):
     project = ordinary_root(args.project_root)
     require(subprocess.check_output(['git', '-C', str(project), 'rev-parse', 'HEAD']).decode().strip()
@@ -281,6 +295,7 @@ def verify(args):
                     'Source member ordering, membership or root differs')
             names.add(name); hashes = {a: hashlib.new(a) for a in ('sha256', 'sha512')}; size = 0
             blob = hashlib.sha1(b'blob ' + str(row['bytes']).encode() + b'\0')
+            windows_bytes = bytearray() if name.lower().endswith(('.cmd', '.bat')) and row['bytes'] <= 8 * 1024**2 else None
             if row.get('baseline'):
                 root, relative = name.split('/', 1)
                 require(relative not in baselines[root], 'A deleted baseline also exists in the source archive')
@@ -289,6 +304,7 @@ def verify(args):
                 require(member.issym(), 'Source symlink type changed')
                 raw = member.linkname.encode('utf-8'); size = len(raw)
                 blob.update(raw)
+                if windows_bytes is not None: windows_bytes.extend(raw)
                 for digest in hashes.values():
                     digest.update(raw)
                 root = PurePosixPath(name).parts[0]
@@ -301,13 +317,14 @@ def verify(args):
                 for block in iter(lambda: stream.read(1024 * 1024), b''):
                     size += len(block)
                     blob.update(block)
+                    if windows_bytes is not None: windows_bytes.extend(block)
                     for digest in hashes.values():
                         digest.update(block)
             require(row.get('bytes') == size and all(row.get(a) == h.hexdigest() for a, h in hashes.items()),
                     'Source content differs: ' + name)
             root_info = next(root for root in manifest['roots'] if root['name'] == PurePosixPath(name).parts[0])
             if root_info['name'] == 'orchestration' or root_info.get('role') == 'source-for-reused-shared-input':
-                require(row.get('baseline') == {'mode': row['mode'], 'blob': blob.hexdigest()},
+                require(pristine_blob(row, blob.hexdigest(), bytes(windows_bytes) if windows_bytes is not None else None),
                         'Pristine corresponding source differs from its actual Git blob: ' + name)
             counts[PurePosixPath(name).parts[0]] += 1; total += 1
         require(not index.readline(), 'Source index contains absent archive members')

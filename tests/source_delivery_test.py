@@ -5,6 +5,7 @@ import copy
 import importlib.util
 import io
 import json
+import hashlib
 from pathlib import Path
 import shutil
 import subprocess
@@ -148,6 +149,18 @@ class SourceDeliveryTests(unittest.TestCase):
         self.assertEqual(actual_child['commit'], self.head(child))
         with tarfile.open(self.args.output_dir / manifest['archive']['path']) as archive:
             self.assertEqual(archive.extractfile(child_name + '/code.cs').read(), b'original source\n')
+
+    def test_only_exact_windows_command_crlf_checkout_is_pristine(self):
+        canonical = b'@echo off\necho fixture\n'; checkout = canonical.replace(b'\n', b'\r\n')
+        digest = lambda data: hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+        row = {'path': 'orchestration/scripts/test.cmd', 'mode': '100644',
+               'baseline': {'mode': '100644', 'blob': digest(canonical)}}
+        self.assertTrue(SOURCE.pristine_blob(row, digest(checkout), checkout))
+        self.assertFalse(SOURCE.pristine_blob(row, digest(checkout + b'changed'), checkout + b'changed'))
+        self.assertFalse(SOURCE.pristine_blob(row, digest(checkout), checkout.replace(b'\r\n', b'\n', 1)))
+        for extension in ['.py', '.sh', '.proj']:
+            alternate = dict(row, path='orchestration/scripts/test' + extension)
+            self.assertFalse(SOURCE.pristine_blob(alternate, digest(checkout), checkout))
 
     def test_existing_output_and_wrong_source_commit_are_rejected(self):
         self.capture()

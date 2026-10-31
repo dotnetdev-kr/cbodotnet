@@ -170,7 +170,12 @@ def smoke_results(trx):
     tests = root.findall('./t:Results/t:UnitTestResult', ns)
     counters = root.find('./t:ResultSummary/t:Counters', ns)
     require(len(tests) == 42 and counters is not None, 'All original 42 smoke cases are required')
-    require(all(int(counters.get(k, '-1')) == v for k, v in {'total':42, 'passed':41, 'failed':0, 'notExecuted':1}.items()), 'Unexpected upstream counters')
+    # Pinned VSTest/xUnit TRX records the skipped Poison case as a NotExecuted
+    # result but leaves Counters.notExecuted=0. Executed=41 and the individual
+    # 42 result rows identify the real 41-pass/one-skip outcome independently.
+    require(all(int(counters.get(k, '-1')) == v for k, v in
+                {'total':42, 'executed':41, 'passed':41, 'failed':0, 'error':0,
+                 'timeout':0, 'aborted':0, 'notExecuted':0}.items()), 'Unexpected upstream counters')
     skipped = [x for x in tests if x.get('outcome') == 'NotExecuted']
     require(len(skipped) == 1 and 'PoisonTests.VerifyUsage' in skipped[0].get('testName', ''), 'Only the original absent-poison-input skip is allowed')
     require(all(x.get('outcome') in ['Passed', 'NotExecuted'] for x in tests), 'A smoke test failed')

@@ -52,7 +52,10 @@ class GeneratedSourceCiTests(unittest.TestCase):
             ET.SubElement(results,'{'+ns+'}UnitTestResult',testName=name,outcome='Failed' if failed and n==0 else 'Passed')
         ET.SubElement(results,'{'+ns+'}UnitTestResult',testName='Other.Skip' if other_skip else 'PoisonTests.VerifyUsage',outcome='NotExecuted')
         summary=ET.SubElement(root,'{'+ns+'}ResultSummary')
-        ET.SubElement(summary,'{'+ns+'}Counters',total=total,passed='40' if failed else '41',failed='1' if failed else '0',notExecuted='1')
+        # Exact counter representation from native CI run 41201546345 and the
+        # retained .NET7 suite: skipped result exists, aggregate notExecuted=0.
+        ET.SubElement(summary,'{'+ns+'}Counters',total=total,executed='41',passed='40' if failed else '41',
+                      failed='1' if failed else '0',error='0',timeout='0',aborted='0',notExecuted='0')
         path.write_bytes(ET.tostring(root))
 
     def test_all_42_original_cases_and_12_omnisharp_cases_are_mandatory(self):
@@ -63,6 +66,17 @@ class GeneratedSourceCiTests(unittest.TestCase):
                 with self.subTest(mutation=mutation):
                     self.make_trx(path,**mutation)
                     with self.assertRaises(ValueError): E.smoke_results(path)
+
+    def test_actual_vstest_skip_counter_does_not_replace_individual_skip_proof(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path=Path(temporary)/'actual-shape.trx'; self.make_trx(path)
+            self.assertEqual(E.smoke_results(path)['skipped'],1)
+            root=ET.parse(path).getroot(); ns={'t':'http://microsoft.com/schemas/VisualStudio/TeamTest/2010'}
+            counters=root.find('./t:ResultSummary/t:Counters',ns)
+            for key,value in [('executed','42'),('error','1'),('notExecuted','1')]:
+                original=counters.get(key); counters.set(key,value); path.write_bytes(ET.tostring(root))
+                with self.subTest(key=key),self.assertRaises(ValueError): E.smoke_results(path)
+                counters.set(key,original)
 
     def test_canonical_freeze_binds_git_tree_and_effective_profile(self):
         with tempfile.TemporaryDirectory() as temporary:
