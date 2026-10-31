@@ -246,7 +246,9 @@ class CI:
               scope='Canonical committed orchestration files; legacy buildId is CI identity, not an unproven upstream version override.'))
 
     def product_command(self, action, destination):
-        destination = destination.with_name('product-' + action)
+        # The original Core 3.0 smoke helper requires a fresh test-* basename.
+        basename = 'test-product' if self.family == 'core30' and action == 'test' else 'product-' + action
+        destination = destination.with_name(basename)
         destination.mkdir(parents=True, exist_ok=True)
         command = ['bash', self.snapshot / 'scripts' / self.product, '--source-dir', self.source,
                    '--inputs-dir', self.inputs, '--reports-dir', destination, '--profile', self.profile,

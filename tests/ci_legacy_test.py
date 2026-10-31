@@ -1,4 +1,5 @@
 """Bounded legacy CI safety/origin fixtures; no product build or container run."""
+import ast
 import copy
 import hashlib
 import importlib.util
@@ -274,6 +275,36 @@ class LegacyFixtures(unittest.TestCase):
                 command = runner.product_command(action, self.root / family / action / 'product')
                 self.assertEqual('--allow-cold-feed' in command, family == 'core30' and action == 'build')
                 self.assertEqual('--skip-source-bundle-downloads' in command, family == 'core30' and action == 'build')
+
+    def test_ci_report_paths_match_the_original_core30_isolation_guard(self):
+        source = (ROOT / 'scripts/prepare-core30-smoke.py').read_text()
+        tree = ast.parse(source)
+        guard = next(node for node in ast.walk(tree) if isinstance(node, ast.If)
+                     and any(isinstance(value, ast.Str) and value.s == 'Use an isolated test root selected by the new test report directory'
+                             for value in ast.walk(node)))
+        code = compile(ast.fix_missing_locations(ast.Module(body=[guard], type_ignores=[])), '<original Core3.0 isolation guard>', 'exec')
+        for family in ('net5', 'core31', 'core30'):
+            runner = driver.CI.__new__(driver.CI)
+            runner.family = family; runner.source = self.root / 'source'; runner.inputs = self.root / 'inputs'
+            runner.snapshot = self.root / 'frozen'; runner.profile = self.root / 'profile.json'; runner.reports = self.root / family / 'reports'
+            runner.product = driver.CONFIG[family][4]; runner.cpus = '0,1'; runner.raw_sdk = lambda: self.root / 'sdk.tar.gz'
+            for action in ('prepare', 'build', 'test'):
+                command = runner.product_command(action, runner.reports / action / 'product')
+                reports = Path(command[command.index('--reports-dir') + 1])
+                expected = 'test-product' if family == 'core30' and action == 'test' else 'product-' + action
+                self.assertEqual(reports.name, expected)
+                if action == 'test':
+                    self.assertEqual(Path(gate.test_report_path(family)).parent, reports.relative_to(runner.reports.parent))
+                if family == 'core30' and action == 'test':
+                    context = {'root': runner.inputs / 'core30-tests' / reports.name,
+                               'inputs': runner.inputs, 'reports': reports, 're': driver.re}
+                    exec(code, context)
+                    for invalid in ('product-test', 'test-other'):
+                        changed = dict(context, root=runner.inputs / 'core30-tests' / invalid)
+                        with self.subTest(invalid=invalid), self.assertRaisesRegex(ValueError, 'isolated test root'):
+                            exec(code, changed)
+                    with self.assertRaisesRegex(ValueError, 'isolated test root'):
+                        exec(code, dict(context, root=self.root / 'outside' / reports.name))
 
     def test_real_cold_helper_report_and_gate_require_absence_without_outputs(self):
         source = self.root / 'empty-source'; source.mkdir()

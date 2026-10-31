@@ -96,6 +96,12 @@ def cold_feed_proof(cold, commit):
             'Fresh Core3.0 CI must begin with a genuinely absent feed and no historical package quarantine')
 
 
+def test_report_path(family):
+    filename = {'net5': 'net5-tests-result.json', 'core31': 'core31-tests-result.json', 'core30': 'core30-smoke-summary.json'}[family]
+    directory = 'test-product' if family == 'core30' else 'product-test'
+    return 'reports/test/' + directory + '/' + filename
+
+
 def validate(release, family, expected):
     sdk, runtime, commit = CONFIG[family]
     require(release.is_absolute() and release.is_dir() and not any(p.is_symlink() for p in [release] + list(release.parents)), 'Ordinary release directory required')
@@ -172,8 +178,7 @@ def validate(release, family, expected):
     require(analysis['status'] == 'passed' and analysis['sdkVersion'] == '9.0.121'
             and analysis['archiveSha512'] == '2c8288568d9827371d8d0daf0578590a956d955bef783bf1403953f8a816851f03be7aa366b6649e7cda77a8e7359ac3fc46fac87f010d71b6e7415a9457add5',
             'Pinned isolated analysis tool preparation is absent')
-    test_name = {'net5': 'net5-tests-result.json', 'core31': 'core31-tests-result.json', 'core30': 'core30-smoke-summary.json'}[family]
-    tests = load(member(release, 'reports/test/product-test/' + test_name))
+    tests = load(member(release, test_report_path(family)))
     require(tests['status'] == 'passed' and tests['upstreamExitCode'] == 0 and tests['suiteExclusions'] == []
             and tests['sdkArchive']['sha256'] == archive['sha256'], 'Complete upstream suite did not pass on the delivered SDK')
     if family == 'core30':
