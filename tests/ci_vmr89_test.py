@@ -112,7 +112,7 @@ class OriginFixture:
         runtime=S.V[version]['runtime'];self.records=[];tasks=[];sdk={}
         for index,(framework,prefix,component) in enumerate([('Microsoft.NETCore.App','dotnet-runtime-','runtime'),('Microsoft.AspNetCore.App','aspnetcore-runtime-','aspnetcore')]):
             basename=prefix+runtime+'-linux-arm64.tar.gz';contents={'shared/'+framework+'/'+runtime+'/fixture.dll':(framework+' fixture').encode(),
-                'shared/'+framework+'/'+runtime+'/.version':(S.COMPONENTS[version][component]+'\n'+runtime+'\n').encode()};sdk.update(contents)
+                'shared/'+framework+'/'+runtime+'/.version':((S.V['9']['commit'] if version=='9' and component=='runtime' else S.COMPONENTS[version][component])+'\n'+runtime+'\n').encode()};sdk.update(contents)
             path=archive(self.directory/('retained/'+str(index)+'.tar.gz'),contents)
             fp=S.record(self.release,path)
             local=component=='runtime' or version=='8'
@@ -429,6 +429,25 @@ class Tests(unittest.TestCase):
             fixture=OriginFixture(self.root/version,version);S.construct(fixture.release,version,fixture.candidate)
             first=S.load(fixture.directory/'origin-evidence.json');self.assertEqual(S.origin_value(fixture.release,version),first)
             self.assertEqual([row['origin'] for row in first['components']],['locally-built','locally-built' if version=='8' else 'upstream-download'])
+            for component,row in zip(('runtime','aspnetcore'),first['components']):
+                if version=='8':
+                    self.assertEqual(row['sourceRevision'],S.COMPONENTS[version][component])
+                    self.assertNotIn('componentSourceRevision',row);self.assertNotIn('versionMarkerNamespace',row)
+                else:
+                    self.assertEqual(row['componentSourceRevision'],S.COMPONENTS[version][component])
+                    vmr=component=='runtime'
+                    self.assertEqual(row['versionMarkerNamespace'],'vmr-root' if vmr else 'component')
+                    self.assertEqual(row['versionMarkerRevision'],S.V[version]['commit'] if vmr else S.COMPONENTS[version][component])
+
+    def test_legacy_net8_origin_shape_stays_byte_stable_when_recomputed(self):
+        fixture=OriginFixture(self.root/'legacy8','8');S.construct(fixture.release,'8',fixture.candidate)
+        path=fixture.directory/'origin-evidence.json';original=path.read_bytes();legacy=S.load(path)
+        for row in legacy['components']:
+            self.assertEqual(set(row),{'framework','origin','originVerified','context','inputArchive','actualAttempt',
+                                      'identicalEntries','sourceRevision','versionMarker'})
+        rechecked=S.origin_value(fixture.release,'8')
+        self.assertEqual(rechecked,legacy)
+        self.assertEqual((json.dumps(rechecked,indent=2)+'\n').encode(),original)
 
     def test_candidate_without_copy_or_download_is_not_origin(self):
         fixture=OriginFixture(self.root,'8');fixture.tasks[0]['events'].pop(1);fixture.save()
@@ -451,16 +470,21 @@ class Tests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'complete successful'):S.construct(fixture.release,'9',fixture.candidate)
 
     def test_matching_framework_bytes_with_wrong_source_revision_are_rejected(self):
-        fixture=OriginFixture(self.root,'9');runtime=S.V['9']['runtime'];prefix='shared/Microsoft.NETCore.App/'+runtime+'/'
-        path=fixture.directory/'retained/0.tar.gz'
-        with tarfile.open(path) as tar:entries={member.name:tar.extractfile(member).read() for member in tar if member.isfile()}
-        entries[prefix+'.version']=('f'*40+'\n'+runtime+'\n').encode();archive(path,entries)
-        for row in fixture.records:
-            if row['recordedPath'].endswith('/dotnet-runtime-'+runtime+'-linux-arm64.tar.gz'):row['archive']=S.record(fixture.release,path)
-        filename=S.load(fixture.release/'reports/ci/candidate-build-manifest.json')['sdkArchive']['path'];sdk_path=fixture.candidate/filename
-        with tarfile.open(sdk_path) as tar:sdk={member.name:tar.extractfile(member).read() for member in tar if member.isfile()}
-        sdk[prefix+'.version']=entries[prefix+'.version'];archive(sdk_path,sdk);fixture.save()
-        with self.assertRaisesRegex(ValueError,'revision does not match delivered'):S.construct(fixture.release,'9',fixture.candidate)
+        for version,component,index,framework,basename in [('9','runtime',0,'Microsoft.NETCore.App','dotnet-runtime-'),
+            ('9','aspnetcore',1,'Microsoft.AspNetCore.App','aspnetcore-runtime-'),
+            ('8','runtime',0,'Microsoft.NETCore.App','dotnet-runtime-'),('8','aspnetcore',1,'Microsoft.AspNetCore.App','aspnetcore-runtime-')]:
+            fixture=OriginFixture(self.root/(version+'-'+component),version);runtime=S.V[version]['runtime'];prefix='shared/'+framework+'/'+runtime+'/'
+            path=fixture.directory/('retained/'+str(index)+'.tar.gz')
+            with tarfile.open(path) as tar:entries={member.name:tar.extractfile(member).read() for member in tar if member.isfile()}
+            # Even a real source SHA is rejected when it names the wrong Git namespace.
+            wrong=S.COMPONENTS['9']['runtime'] if version=='9' and component=='runtime' else S.V[version]['commit']
+            entries[prefix+'.version']=(wrong+'\n'+runtime+'\n').encode();archive(path,entries)
+            for row in fixture.records:
+                if row['recordedPath'].endswith('/'+basename+runtime+'-linux-arm64.tar.gz'):row['archive']=S.record(fixture.release,path)
+            filename=S.load(fixture.release/'reports/ci/candidate-build-manifest.json')['sdkArchive']['path'];sdk_path=fixture.candidate/filename
+            with tarfile.open(sdk_path) as tar:sdk={member.name:tar.extractfile(member).read() for member in tar if member.isfile()}
+            sdk[prefix+'.version']=entries[prefix+'.version'];archive(sdk_path,sdk);fixture.save()
+            with self.assertRaisesRegex(ValueError,'revision does not match delivered'):S.construct(fixture.release,version,fixture.candidate)
 
     def test_observer_preserves_real_complete_archives_and_actual_paths(self):
         source=self.root/'source';release=self.root/'delivery';basename='dotnet-runtime-8.0.33-linux-arm64.tar.gz'

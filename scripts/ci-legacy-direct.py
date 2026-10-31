@@ -275,6 +275,16 @@ class CI:
                 'The current runner must own the new sysroot report directory')
         return path
 
+    def prefetch_core30_sdk(self):
+        if self.family != 'core30':
+            return
+        # The old container's HTTPS transfer returned a proven 12 MiB prefix.
+        # Use the host transport with the same frozen URL and exact integrity pins.
+        helper = runpy.run_path(str(self.snapshot / 'scripts/prepare-core30-bootstrap.py'))
+        download(helper['SDK_URL'], self.inputs / 'official-sdk' / helper['SDK_NAME'],
+                 {'bytes': helper['SDK_BYTES'], 'sha512': helper['SDK_SHA512']},
+                 self.reports / 'prepare/official-sdk-download.json')
+
     def prepare(self):
         self.run(['git', 'clone', '--no-checkout', 'https://github.com/dotnet/source-build.git', self.source])
         self.run(['git', '-C', self.source, 'checkout', '--detach', self.commit])
@@ -296,6 +306,7 @@ class CI:
             helper = runpy.run_path(str(self.snapshot / ('scripts/prepare-' + self.family.replace('net5', 'net5') + '-bootstrap.py')))
             download(profile['upstreamInputs']['sourceBuiltArtifactsUrl'], self.inputs / helper['PSB_NAME'],
                      {'bytes': helper['PSB_BYTES'], 'sha256': helper['PSB_SHA256']}, self.reports / 'prepare/psb-download.json')
+        self.prefetch_core30_sdk()
         if self.family == 'net5':
             self.container(self.product_command('prepare', self.reports / 'prepare/product'))
         else:

@@ -376,6 +376,54 @@ class LegacyFixtures(unittest.TestCase):
             self.assertEqual(target.read_bytes(), b'original unverified archive')
             self.assertEqual(outside.read_bytes(), b'original unverified archive')
 
+    def test_core30_only_prefetches_the_exact_sdk_before_container_preparation(self):
+        for family in ('net5', 'core31', 'core30'):
+            with self.subTest(family=family):
+                runner = driver.CI.__new__(driver.CI)
+                runner.family = family; runner.sdk, runner.commit, _, _, _ = driver.CONFIG[family]
+                runner.workspace = self.root / family; runner.source = runner.workspace / 'source'
+                runner.inputs = runner.workspace / 'inputs'; runner.output = runner.workspace / 'output'
+                runner.reports = runner.output / 'reports'; runner.snapshot = ROOT
+                runner.profile = ROOT / ('profiles/dotnet-' + runner.sdk + '-linux-arm64.json')
+                runner.run_id = '42'; runner.attempt = '1'; runner.engine = ['fixture-engine']
+                runner.state = runner.workspace / 'state.json'
+                (runner.reports / 'ci-inputs').mkdir(parents=True)
+                (runner.reports / 'ci-inputs/snapshot.json').write_text('{}')
+                events = []
+                runner.run = mock.Mock(); runner.freeze = mock.Mock()
+                runner.identity = lambda: {'fixture': True}
+                runner.image_inspect = mock.Mock(return_value='fixture-image')
+                runner.product_command = lambda action, *_: ['fixture-product', action]
+                runner.container = lambda command, **_: events.append(('container', command))
+                def record_download(url, target, expected, report):
+                    events.append(('download', url, target, expected, report))
+                with mock.patch.object(driver, 'download', side_effect=record_download), \
+                        mock.patch.object(driver.shutil, 'copyfile'), mock.patch.object(driver, 'write'):
+                    runner.prepare()
+                sdk_calls = [event for event in events if event[0] == 'download' and event[1] == bootstrap.SDK_URL]
+                self.assertEqual(len(sdk_calls), 1 if family == 'core30' else 0)
+                if family == 'core30':
+                    call = sdk_calls[0]
+                    self.assertEqual(call[2], runner.inputs / 'official-sdk' / bootstrap.SDK_NAME)
+                    self.assertEqual(call[3], {'bytes': 113669548, 'sha512': bootstrap.SDK_SHA512})
+                    self.assertEqual(call[4], runner.reports / 'prepare/official-sdk-download.json')
+                    self.assertLess(events.index(call), next(i for i, event in enumerate(events) if event[0] == 'container'))
+
+    def test_bootstrap_rehashes_prefetched_sdk_without_another_download(self):
+        inputs = self.root / 'inputs'; reports = self.root / 'reports'; reports.mkdir()
+        cache = inputs / 'official-sdk'; cache.mkdir(parents=True)
+        archive = cache / bootstrap.SDK_NAME; payload = b'exact preverified transport fixture'
+        archive.write_bytes(payload)
+        with mock.patch.object(bootstrap, 'SDK_SHA512', hashlib.sha512(payload).hexdigest()), \
+                mock.patch.object(bootstrap.urllib.request, 'urlopen') as download:
+            target, record = bootstrap.official_sdk_archive(inputs, reports)
+            download.assert_not_called()
+        self.assertEqual(target, archive); self.assertEqual(record['sha512'], hashlib.sha512(payload).hexdigest())
+        receipt = json.loads((reports / 'sdk-download.json').read_text())
+        self.assertIs(receipt['downloadAttempted'], False)
+        self.assertIs(receipt['hashMatchesOfficialMetadata'], True)
+        self.assertEqual(receipt['status'], 'passed'); self.assertEqual(archive.read_bytes(), payload)
+
     def test_real_cold_helper_report_and_gate_require_absence_without_outputs(self):
         source = self.root / 'empty-source'; source.mkdir()
         inputs = self.root / 'inputs'; inputs.mkdir()

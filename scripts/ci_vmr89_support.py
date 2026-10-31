@@ -380,12 +380,18 @@ def origin(release, version, write=True):
             markers=[member for member in tar if PurePosixPath(member.name).as_posix()==marker_path]
             require(len(markers)==1 and markers[0].isfile() and markers[0].size<=1024,'One ordinary component revision marker is required')
             marker=tar.extractfile(markers[0]).read().decode('utf-8').splitlines()
-        require(marker==[mapped[component],V[version]['runtime']],'Consumed framework revision does not match delivered VMR component source')
+        # Ordinary NET9 runtime packaging queries the enclosing VMR Git HEAD.
+        # Source-only NET8 and the reused upstream ASP archive name components.
+        namespace = 'vmr-root' if version == '9' and component == 'runtime' else 'component'
+        marker_revision = V[version]['commit'] if namespace == 'vmr-root' else mapped[component]
+        require(marker==[marker_revision,V[version]['runtime']],'Consumed framework revision does not match delivered VMR component source')
         identity = next(row for row in comparison['comparisons'] if row['framework'] == framework)
         require(identity['identical'] is True and identity['inputArchive']['sha256'] == archive['sha256'], 'Framework identity does not bind the actual consumed archive')
+        revision_fields = dict(sourceRevision=mapped[component]) if version == '8' else dict(
+            componentSourceRevision=mapped[component], versionMarkerNamespace=namespace, versionMarkerRevision=marker_revision)
         components.append(dict(framework=framework, origin='locally-built' if local else 'upstream-download', originVerified=True,
                                context=context, inputArchive=archive, actualAttempt=event, identicalEntries=identity['sdkEntryCount'],
-                               sourceRevision=mapped[component],versionMarker=marker))
+                               **revision_fields,versionMarker=marker))
     result = dict(status='passed', sourceCommit=V[version]['commit'], sdkArchive=comparison['sdkArchive'], components=components,
                   replay=record(release, root / 'downloads-status.json'), observations=record(release, root / 'observations.jsonl'),
                   componentSourceManifest=record(release,root/'component-source-manifest.json'),
