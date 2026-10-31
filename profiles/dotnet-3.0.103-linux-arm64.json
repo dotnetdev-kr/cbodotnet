@@ -153,7 +153,8 @@
       "patches/core30/0030-select-native-arm64-core-sdk-crossgen-and-jit-in-target.patch",
       "patches/core30/0031-map-toolset-sdk-retired-package-indexes.patch",
       "patches/core30/0032-flow-native-arm64-aspnet-version-to-core-sdk.patch",
-      "patches/core30/0033-make-post-build-offline-bundle-downloads-explicit.patch"
+      "patches/core30/0033-make-post-build-offline-bundle-downloads-explicit.patch",
+      "patches/core30/0034-map-retired-sdk-nugetclient-package-index.patch"
     ],
     "compatibilityGates": [
       {

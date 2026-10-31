@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply or verify thirty-two bounded Core 3.0 source-build compatibility changes.
+"""Apply or verify thirty-three bounded Core 3.0 source-build compatibility changes.
 
 All pinned identities, original Git blobs, upstream patch bytes and local patch
 hashes pass before mutation. Existing exact patched files are accepted; unknown
@@ -16,8 +16,8 @@ import subprocess
 import tempfile
 
 
-MANIFEST_SHA256 = '444fbb6b21b6efebae6eff422771bb1f864ea2242e54b096a3e690def00ca80d'
-PRIOR_MANIFEST_SHA256 = '1249f5f35c199408724258d902078fe99ac85af1892b163a69f657d6704c899d'
+MANIFEST_SHA256 = '51a35ef6ec2dd1b9df5d49e26e233896fd2dc1614df0091cd37385e75859d1d5'
+PRIOR_MANIFEST_SHA256 = '444fbb6b21b6efebae6eff422771bb1f864ea2242e54b096a3e690def00ca80d'
 
 
 def sha(data):

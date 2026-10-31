@@ -1,0 +1,10 @@
+--- a/tools-local/tasks/Microsoft.DotNet.SourceBuild.Tasks.XPlat/AddSourceToNuGetConfig.cs
++++ b/tools-local/tasks/Microsoft.DotNet.SourceBuild.Tasks.XPlat/AddSourceToNuGetConfig.cs
+@@ -74,6 +74,7 @@
+         {
+             "https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json",
+             "https://dotnetfeed.blob.core.windows.net/dotnet-coreclr/index.json",
++            "https://dotnetfeed.blob.core.windows.net/nuget-nugetclient/index.json",
+             "https://dotnetfeed.blob.core.windows.net/dotnet-tools-internal/index.json",
+             "https://dotnet.myget.org/F/nuget-build/api/v3/index.json",
+             "https://dotnet.myget.org/F/dotnet-core/api/v3/index.json",

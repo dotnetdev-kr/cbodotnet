@@ -1,8 +1,8 @@
 {
   "sourceCommit": "40de72d1087a1d05dfd39c87f888a0611ec6c60f",
   "previousManifest": {
-    "name": "manifest-thirty-one-patch-baseline.json",
-    "sha256": "1249f5f35c199408724258d902078fe99ac85af1892b163a69f657d6704c899d"
+    "name": "manifest-thirty-two-patch-baseline.json",
+    "sha256": "444fbb6b21b6efebae6eff422771bb1f864ea2242e54b096a3e690def00ca80d"
   },
   "patches": [
     {
@@ -402,6 +402,18 @@
       "removedLines": 2,
       "component": null,
       "purpose": "Retain default online post-build downloads for the optional upstream offline source bundle, while allowing an explicit fresh CI SDK-only opt-out for its two retired staging archives. These targets run only after Build; their only unpacking consumer is OfflineBuild=true. Preserve online product restores, the complete root component graph, all package/test guards and ReportPrebuiltUsage. The CI source distribution captures actual build sources separately; it is not an upstream offline/Stage2 bootstrap bundle."
+    },
+    {
+      "name": "0034-map-retired-sdk-nugetclient-package-index.patch",
+      "target": "tools-local/tasks/Microsoft.DotNet.SourceBuild.Tasks.XPlat/AddSourceToNuGetConfig.cs",
+      "originalSha256": "9415b162bcfbfd925df929507e1687808a78dfe674be6e3e496175e20521ba18",
+      "patchedSha256": "2348b97137906a1a5f66a6dfc3784945e606b2c419abe9891f0a3cb3cc88665a",
+      "patchSha256": "463e8607d3dc255618d184867bdd37f7e55571ebc266f0e12bff105fb80a363c",
+      "addedLines": 1,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "Map only the exact retired nuget-nugetclient service index observed in the pinned SDK component restore to the existing official retained public feed. Preserve all requested NuGet/package versions, normal restore ordering, local sources, TLS validation, asset URLs and every product/test target.",
+      "afterPatch": "0031-map-toolset-sdk-retired-package-indexes.patch"
     }
   ]
 }
