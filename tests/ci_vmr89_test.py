@@ -91,6 +91,19 @@ def package_case_inputs(source,release):
     shutil.copytree(source/S.N9.CACHE,release/'reports/test/upstream-results/Microsoft.DotNet.UnifiedBuild.Tests/DownloadCache/NugetPackageBaselines')
 
 
+def source_scan_inputs(source,release):
+    source.mkdir()
+    def git(*args):return subprocess.check_output(['git','-C',str(source),*args])
+    git('init','-q');git('config','user.email','fixture@example.invalid');git('config','user.name','Fixture')
+    write(source/'README',b'\x7fELF source fixture target')
+    (source/'README.md').symlink_to('README')
+    git('add','.');git('commit','-qm','Fixture source inventory')
+    summary=S.write_source_header_inventory(source,release)
+    summary['sourceCommit']=S.V['8']['commit']
+    dump(release/'reports/scan/pinned-source-inventory.json',summary)
+    return summary
+
+
 class OriginFixture:
     def __init__(self,root,version):
         self.root,self.version=root,version
@@ -160,7 +173,7 @@ class FullFixture(OriginFixture):
         write(sysroot/'sysroot-files.sha256','a'*64+'  /inputs/arm64-xenial/lib/fixture.so\n')
         if version=='8':
             trx(self.release/'reports/test/upstream-results/smoke.trx','8');test_value=S.test_results(version,self.release/'reports/test/upstream-results/smoke.trx')
-            dump(self.release/'reports/scan/pinned-source-inventory.json',dict(status='passed',sourceCommit=S.V[version]['commit'],pristineBefore=True,pristineAfter=True,files=[{'fixture':True}],scope='Fixture inventory'))
+            scan=source_scan_inputs(root/'scan-source',self.release)
             dump(self.release/'reports/build/net8-patches-apply.json',dict(status='passed',patches=[{},{}]))
             dump(self.release/'reports/prepare/bootstrap/bootstrap-inputs.json',dict(sourceCommit=S.V[version]['commit'],bootstrapSdk=S.V[version]['bootstrap']))
         else:
@@ -210,11 +223,11 @@ class FullFixture(OriginFixture):
         roots=[dict(name='vmr',kind='git',expectedCommit=S.V[version]['commit'],path='/fixture/vmr')]
         if version=='8':roots.append(dict(name='consumer-runtime',kind='tree',path='/fixture/consumer',exclude=['artifacts']))
         dump(self.release/'reports/ci/source-roots.json',dict(roots=roots))
-        dump(self.release/'sources/source-manifest.json',dict(fixtureOnly=True))
+        dump(self.release/'sources/source-manifest.json',dict(fixtureOnly=True,roots=[dict(name='vmr',kind='git',commit=S.V[version]['commit'],tree=scan['sourceTree'])] if version=='8' else []))
         if version=='9':
             original=(ROOT/'tests/fixtures/scenario-report-fence/Program.net9.original.cs').read_bytes()
             write(self.release/'sources/source-index.jsonl',json.dumps(dict(path='vmr/'+F.TARGET,**F.fingerprint(F.patched_source(original,'9'))))+'\n')
-        dump(self.release/'reports/ci/used-source.json',dict(fixtureOnly=True))
+        dump(self.release/'reports/ci/used-source.json',S.load(self.release/'sources/source-manifest.json'))
         candidate=S.load(self.release/'reports/ci/candidate-build-manifest.json')['sdkArchive']['path']
         shutil.copyfile(self.candidate/candidate,self.release/candidate)
         self.archive=dict(S.record(self.release,self.release/candidate),copiedWithoutModification=True)
@@ -264,6 +277,44 @@ class Tests(unittest.TestCase):
         original.unlink();write(cleanup,b'Stale cleanup copy')
         with self.assertRaisesRegex(ValueError,'ordinary absolute file'):
             S.capture_consumer_binlog(source,self.root/'missing-original','8')
+
+    def test_pristine_source_inventory_authenticates_symlinks_without_following(self):
+        source=self.root/'source-symlinks';source.mkdir()
+        def git(*args):return subprocess.check_output(['git','-C',str(source),*args])
+        git('init','-q');git('config','user.name','Fixture');git('config','user.email','fixture@example.invalid')
+        write(source/'README',b'\x7fELF fixture target, not executable test input')
+        (source/'README.md').symlink_to('README')
+        git('add','.');git('commit','-qm','Pinned file kinds')
+        rows=S.pinned_source_header_inventory(source);by_name={row['path']:row for row in rows}
+        self.assertEqual(by_name['README']['binaryHeader'],'ELF')
+        link=by_name['README.md'];self.assertEqual(link['gitMode'],'120000');self.assertEqual(link['linkTarget'],'README')
+        self.assertEqual(link['sha256'],S.G.byte_fingerprint(b'README')['sha256']);self.assertIsNone(link['binaryHeader'])
+        # Hide ordinary status checks deliberately, then require the direct blob guard.
+        git('update-index','--assume-unchanged','README.md')
+        (source/'README.md').unlink();(source/'README.md').symlink_to('different-target')
+        with self.assertRaisesRegex(ValueError,'symlink target differs'):
+            S.pinned_source_header_inventory(source)
+        (source/'README.md').unlink();(source/'README.md').write_text('README')
+        with self.assertRaisesRegex(ValueError,'changed its Git entry kind'):
+            S.pinned_source_header_inventory(source)
+
+    def test_streamed_source_inventory_rejects_missing_duplicate_unsafe_or_unknown_entries(self):
+        fixture=FullFixture(self.root/'source-scan','8')
+        summary=S.load(fixture.release/'reports/scan/pinned-source-inventory.json')
+        index=fixture.release/summary['files']['path'];original=index.read_text();rows=[json.loads(line) for line in original.splitlines()]
+        for change in ('missing','duplicate','unsafe','unknown-mode'):
+            values=copy.deepcopy(rows);current=copy.deepcopy(summary)
+            if change=='missing':
+                removed=values.pop();current['fileCount']-=1;current['gitModes'][removed['gitMode']]-=1
+                current['binaryHeaderFiles']-=removed['binaryHeader'] is not None
+            elif change=='duplicate':values.append(copy.deepcopy(values[0]))
+            elif change=='unsafe':values[0]['path']='../outside'
+            else:values[0]['gitMode']='160000'
+            index.write_text(''.join(json.dumps(row)+'\n' for row in values))
+            current['files']=S.record(fixture.release,index)
+            with self.assertRaises(ValueError):S.validate_source_header_inventory(fixture.release,current)
+        index.write_text(original)
+        S.validate_source_header_inventory(fixture.release,summary)
 
     def test_new_net9_gate_requires_exact_report_fence_and_actual_invocation(self):
         fixture=FullFixture(self.root/'fence','9')

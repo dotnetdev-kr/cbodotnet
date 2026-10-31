@@ -62,6 +62,77 @@ def capture_consumer_binlog(source, release, version):
          sourceCommit=V[version]['commit'], archive=record(release, target)))
 
 
+def pinned_source_header_inventory(source):
+    require(not git(source, 'status', '--porcelain', '--untracked-files=all', '--ignored=matching'), 'The source inventory must start pristine')
+    entries = subprocess.check_output(['git', '-C', str(source), 'ls-files', '--stage', '-z']).decode().split('\0')
+    rows = []
+    for entry in sorted(value for value in entries if value):
+        metadata, name = entry.split('\t', 1); mode, blob, stage = metadata.split()
+        require(stage == '0' and mode in ('100644', '100755', '120000'), 'Unsupported pinned source Git entry kind')
+        path = source / name
+        if mode == '120000':
+            require(path.is_symlink() and not any(parent.is_symlink() for parent in path.parents), 'A pinned source symlink changed its Git entry kind')
+            target = os.readlink(os.fsencode(path))
+            original = subprocess.check_output(['git', '-C', str(source), 'cat-file', 'blob', blob])
+            require(target == original, 'The pinned source symlink target differs from its Git blob')
+            value = dict(path=name, **G.byte_fingerprint(target), entryKind='symlink', linkTarget=os.fsdecode(target), binaryHeader=None)
+        else:
+            value = dict(path=name, **fingerprint(path), entryKind='regular')
+            with path.open('rb') as stream: signature = stream.read(4)
+            value['binaryHeader'] = 'ELF' if signature == b'\x7fELF' else 'PE/DOS' if signature[:2] == b'MZ' else None
+        value.update(gitMode=mode, gitBlobSha1=blob); rows.append(value)
+    require(not git(source, 'status', '--porcelain', '--untracked-files=all', '--ignored=matching'), 'The source inventory changed its pristine checkout')
+    return rows
+
+
+def write_source_header_inventory(source, release):
+    rows = pinned_source_header_inventory(source)
+    index = release / 'reports/scan/pinned-source-files.jsonl'; index.parent.mkdir(parents=True, exist_ok=True)
+    with index.open('x', encoding='utf-8') as stream:
+        for row in rows: stream.write(json.dumps(row, separators=(',', ':')) + '\n')
+    return dict(schemaVersion=2, status='passed', sourceCommit=git(source, 'rev-parse', 'HEAD'),
+                sourceTree=git(source, 'rev-parse', 'HEAD^{tree}'), pristineBefore=True, pristineAfter=True,
+                files=record(release, index), fileCount=len(rows),
+                gitModes={mode:sum(row['gitMode'] == mode for row in rows) for mode in ('100644','100755','120000')},
+                binaryHeaderFiles=sum(row['binaryHeader'] is not None for row in rows),
+                scope='Actual pristine pinned-source binary-header inventory of regular files and authenticated Git symlink targets, which are not followed. This tag has no standalone BinaryToolKit policy; no zero-binary or policy-scan pass is asserted.')
+
+
+def validate_source_header_inventory(release, summary):
+    require(summary.get('schemaVersion') == 2 and summary['status'] == 'passed' and summary['sourceCommit'] == V['8']['commit']
+            and summary['pristineBefore'] is summary['pristineAfter'] is True, 'Actual pristine NET8 Git-kind inventory required')
+    index = G.member(release, summary['files']['path'])
+    require(index.stat().st_size <= 128 * 1024**2, 'The bounded source inventory is too large')
+    checked(release, summary['files'])
+    entries = {}; modes = dict.fromkeys(('100644','100755','120000'),0); headers = 0
+    with index.open(encoding='utf-8') as stream:
+        for line in stream:
+            require(len(entries) < 200000 and len(line) <= 16384, 'Source inventory entry bounds exceeded')
+            row = json.loads(line); name = row['path']; mode = row['gitMode']
+            require(isinstance(name,str) and name not in entries and mode in modes
+                    and re.fullmatch('[a-f0-9]{40}',row['gitBlobSha1']) and re.fullmatch('[a-f0-9]{64}',row['sha256'])
+                    and re.fullmatch('[a-f0-9]{128}',row['sha512']) and isinstance(row['bytes'],int) and row['bytes'] >= 0
+                    and row['binaryHeader'] in (None,'ELF','PE/DOS'), 'Invalid, duplicate or unknown Git source inventory entry')
+            if mode == '120000':
+                require(row['entryKind'] == 'symlink' and row['binaryHeader'] is None and isinstance(row['linkTarget'],str), 'Source links must remain metadata-only inventory entries')
+                target = os.fsencode(row['linkTarget'])
+                require(all(row[key] == value for key,value in G.byte_fingerprint(target).items())
+                        and G.git_hash('blob',target) == row['gitBlobSha1'], 'The source symlink target differs from its Git blob')
+            else:
+                require(row['entryKind'] == 'regular', 'A regular Git source entry changed its kind')
+            entries[name] = dict(mode=mode,blob=row['gitBlobSha1']); modes[mode] += 1; headers += row['binaryHeader'] is not None
+    require(entries and len(entries) == summary['fileCount'] and modes == summary['gitModes'] and headers == summary['binaryHeaderFiles'],
+            'Complete source inventory counts differ')
+    # Use trusted tree reconstruction code; downloaded project bytes are data only.
+    spec = importlib.util.spec_from_file_location('ci8_source_tree', HERE / 'package-used-source.py')
+    producer = importlib.util.module_from_spec(spec); spec.loader.exec_module(producer)
+    tree = producer.baseline_tree(entries)
+    manifest = load(release / 'sources/source-manifest.json')
+    roots = [root for root in manifest['roots'] if root['name'] == 'vmr']
+    require(len(roots) == 1 and roots[0]['kind'] == 'git' and roots[0]['commit'] == V['8']['commit']
+            and tree == summary['sourceTree'] == roots[0]['tree'], 'Source inventory does not reconstruct the captured pinned VMR tree')
+
+
 def effective(original, version):
     result = copy.deepcopy(original)
     result['build']['cleanWhileBuilding'] = version != '8'
@@ -491,7 +562,7 @@ def qualify(args):
         require(result['exists'] is False or result['isSymlink'] is False and result['bytes'] == 0, 'Unexpected source binaries reported')
     else:
         scan = load(reports / 'scan/pinned-source-inventory.json')
-        require(scan['status'] == 'passed' and scan['sourceCommit'] == V[version]['commit'] and scan['pristineBefore'] is scan['pristineAfter'] is True and scan['files'], 'The actual pinned-source inventory is required')
+        validate_source_header_inventory(release, scan)
         patches = load(reports / 'build/net8-patches-apply.json')
         require(patches['status'] == 'passed' and len(patches['patches']) == 2, 'The two guarded compatibility patches are required')
         bootstrap = load(reports / 'prepare/bootstrap/bootstrap-inputs.json')

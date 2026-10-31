@@ -166,17 +166,7 @@ class Driver:
             self.container(['bash', '/delivery/reports/ci-inputs/project/scripts/scan-clean-source9.sh', '--source-dir', '/vmr',
                             '--clean-source-dir', '/clean9', '--reports-dir', '/delivery/reports/scan/upstream'])
         else:
-            rows = []
-            names = subprocess.check_output(['git', '-C', str(clean), 'ls-files', '-z']).decode().split('\0')
-            for name in sorted(n for n in names if n):
-                path = clean / name; value = dict(path=name, **S.fingerprint(path))
-                with path.open('rb') as stream: signature = stream.read(4)
-                value['binaryHeader'] = 'ELF' if signature == b'\x7fELF' else 'PE/DOS' if signature[:2] == b'MZ' else None
-                rows.append(value)
-            S.dump(self.reports / 'scan/pinned-source-inventory.json', dict(status='passed', sourceCommit=self.config['commit'],
-                   pristineBefore=True, pristineAfter=not bool(S.git(clean, 'status', '--porcelain', '--untracked-files=all', '--ignored=matching')),
-                   files=rows, binaryHeaderFiles=sum(row['binaryHeader'] is not None for row in rows),
-                   scope='Actual pristine pinned-source binary-header inventory. This tag has no standalone BinaryToolKit policy; no zero-binary or policy-scan pass is asserted.'))
+            S.dump(self.reports / 'scan/pinned-source-inventory.json', S.write_source_header_inventory(clean,self.output))
 
     def collect_command(self, target):
         return ['python3', '/delivery/reports/ci-inputs/project/scripts/collect-artifacts.py', '--source-dir', '/vmr',
