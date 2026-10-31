@@ -113,6 +113,9 @@ class Driver:
 
     def product(self, action):
         self.verify_prepared()
+        if action == 'test' and self.version == '9':
+            self.container(['python3', '/delivery/reports/ci-inputs/project/scripts/prepare-scenario-report-fence.py', 'apply',
+                            '--version', '9', '--source-dir', '/vmr', '--reports-dir', '/delivery/reports/test/scenario-report-fence'])
         script = '/inputs/ci-tools/scripts/build-vmr8.sh' if self.version == '8' else '/delivery/reports/ci-inputs/project/scripts/build-vmr9.sh'
         args = ['bash', script, '--source-dir', '/vmr', '--sysroot', '/inputs/arm64-xenial', '--reports-dir', '/delivery/reports/' + action, '--action', action]
         if action == 'test': args += ['--official-sdk-archive', '/inputs/official-sdk/dotnet-sdk-' + self.config['sdk'] + '-linux-arm64.tar.gz']

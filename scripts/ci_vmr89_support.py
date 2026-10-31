@@ -70,6 +70,29 @@ def effective(original, version):
     return result
 
 
+def scenario_fence(release, stage, helper):
+    # Downloaded project bytes are evidence, never executable validator code.
+    spec = importlib.util.spec_from_file_location('ci9_scenario_fence', HERE / 'prepare-scenario-report-fence.py')
+    implementation = importlib.util.module_from_spec(spec); spec.loader.exec_module(implementation)
+    directory = release / 'reports/test/scenario-report-fence'
+    receipt = implementation.verify_report(directory, '9', helper)
+    tail = ['python3', '/delivery/reports/ci-inputs/project/scripts/prepare-scenario-report-fence.py', 'apply',
+            '--version', '9', '--source-dir', '/vmr', '--reports-dir', '/delivery/reports/test/scenario-report-fence']
+    require(sum(command[-len(tail):] == tail for command in stage['commands']) == 1,
+            'Exactly one actual pinned scenario completion-fence command is required')
+    started = load(release / 'reports/test/test-status.json')['startedAt']
+    # The existing wrapper records whole-second starts; only its rounding floor
+    # is tolerated here, while the surrounding stage and helper use microseconds.
+    require(G.timestamp(stage['startedAtUtc']) <= G.timestamp(receipt['completedAtUtc'])
+            <= G.timestamp(started) + dt.timedelta(seconds=1),
+            'Scenario completion fence must precede the actual test compilation')
+    with G.member(release, 'sources/source-index.jsonl').open(encoding='utf-8') as stream:
+        captured = [row for line in stream if (row := json.loads(line)).get('path') == 'vmr/' + implementation.TARGET]
+    require(len(captured) == 1 and all(captured[0].get(key) == value for key, value in receipt['patched'].items()),
+            'Captured actual scenario runner differs from the tested completion fence')
+    return record(release, directory / 'scenario-report-fence.json')
+
+
 def freeze(project, source, release, version, identity, workflow):
     require(git(project, 'rev-parse', 'HEAD') == identity['projectCommit'] and not git(project, 'status', '--porcelain', '--untracked-files=all'), 'A pristine committed orchestration checkout is required')
     require(git(source, 'rev-parse', 'HEAD') == V[version]['commit'] and not git(source, 'status', '--porcelain', '--untracked-files=all'), 'A fresh pinned VMR checkout is required')
@@ -91,7 +114,7 @@ def freeze(project, source, release, version, identity, workflow):
     original = load(profile)
     require(original['source']['commit'] == V[version]['commit'] and original['build']['sourceOnly'] is V[version]['sourceOnly'], 'Selected profile differs')
     dump(destination / 'effective-profile.json', effective(original, version))
-    result = dict(identity, schemaVersion=1, executionContext='github-actions' if os.environ.get('GITHUB_ACTIONS') == 'true' else 'local-unverified',
+    result = dict(identity, schemaVersion=1, scenarioReportFenceRequired=version == '9', executionContext='github-actions' if os.environ.get('GITHUB_ACTIONS') == 'true' else 'local-unverified',
                   workflowRef=workflow, sourceInitiallyPristine=True, projectInitiallyPristine=True,
                   inputRepresentation='canonical-git-blobs-with-verified-checkout', projectFiles=rows,
                   projectCommitObject=record(release, destination / 'project-commit.txt'), originalProfile=record(release, profile),
@@ -439,6 +462,11 @@ def qualify(args):
         require(G.timestamp(stages[name]['startedAtUtc']) - dt.timedelta(seconds=1) <= G.timestamp(status['startedAt'])
                 <= G.timestamp(status['finishedAt']) <= G.timestamp(stages[name]['finishedAtUtc']), 'Inner action times differ')
     if version == '9':
+        helper = release / 'reports/ci-inputs/project/scripts/prepare-scenario-report-fence.py'
+        # Old frozen runs predate this helper. New committed inputs must require it.
+        if helper.exists() or 'scenarioReportFenceRequired' in snapshot:
+            require(snapshot.get('scenarioReportFenceRequired') is True, 'The new scenario report completion fence is mandatory')
+            scenario_fence(release, stages['test'], helper)
         scan = load(reports / 'scan/upstream/status.json')
         require(scan['status'] == 'passed' and scan['exitCode'] == scan['toolExitCode'] == scan['teeExitCode'] == 0
                 and scan['sourceCommit'] == scan['cleanSourceCommit'] == V[version]['commit']

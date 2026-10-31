@@ -182,6 +182,26 @@ def parse_tests(trx, scenarios):
             'scenarios': dict(total=36, **counts, errors=0, skippedMethods=sorted(SKIPS))}
 
 
+def scenario_fence_check(release, test, stage_start, command_start, stage_commands):
+    require(test.get('scenarioReportFence') == 'reports/test/scenario-report-fence/scenario-report-fence.json',
+            'Report completion fence evidence is required')
+    spec = importlib.util.spec_from_file_location('scenario_report_fence', Path(__file__).with_name('prepare-scenario-report-fence.py'))
+    module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+    path = member(release, test['scenarioReportFence'])
+    proof = module.verify_report(path.parent, '10', member(release, 'reports/ci-inputs/project/scripts/prepare-scenario-report-fence.py'))
+    tail = ['python3', '/delivery/reports/ci-inputs/project/scripts/prepare-scenario-report-fence.py', 'apply',
+            '--version', '10', '--source-dir', '/vmr', '--reports-dir', '/delivery/reports/test/scenario-report-fence']
+    require(sum(command[-len(tail):] == tail for command in stage_commands) == 1,
+            'Exactly one actual pinned scenario report completion-fence command is required')
+    require(stage_start <= timestamp(proof['completedAtUtc']) <= command_start,
+            'The report synchronization fence must precede the actual test compilation')
+    with member(release, 'sources/source-index.jsonl').open(encoding='utf-8') as stream:
+        captured = [row for line in stream if (row := json.loads(line)).get('path') == 'vmr/' + module.TARGET]
+    require(len(captured) == 1 and all(captured[0].get(key) == value for key, value in proof['patched'].items()),
+            'The captured actual scenario runner differs from the tested synchronization fence')
+    return record(release, path)
+
+
 def validate_scan(release, scan):
     require(scan.get('exitCode') == 0 and scan.get('mode', scan.get('scanMode')) == 'Validate'
             and scan.get('sourceCommit') == SOURCE and scan.get('cleanSourceCommit') == SOURCE,
@@ -354,7 +374,7 @@ def freeze(args):
             'executionContext': 'github-actions' if os.environ.get('GITHUB_ACTIONS') == 'true' else 'local-unverified',
             'sourceRepository': 'https://github.com/dotnet/dotnet', 'sourceInitiallyPristine': True,
             'projectInitiallyPristine': True, 'projectFiles': inventory, 'sourceDeliveryRequired': True,
-            'sharedSourceDeliveryRequired': True,
+            'sharedSourceDeliveryRequired': True, 'scenarioReportFenceRequired': True,
             'inputRepresentation': 'canonical-git-blobs-with-verified-checkout',
             'projectCommitObject': record(release, destination / 'project-commit.txt'),
             'effectiveProfile': record(release, destination / 'effective-profile.json'),
@@ -499,6 +519,11 @@ def validate_bundle(release, project=None):
             and timestamp(stages['test']['startedAtUtc']) <= timestamp(test_status['startedAt']) <= timestamp(test_status['finishedAt'])
             <= timestamp(stages['test']['finishedAtUtc']), 'Fresh inner upstream test timestamps/action must belong to its outer stage')
     tests = parse_tests(member(release, test['commonTrx']), member(release, test['scenarioXml']))
+    fence = None
+    if snapshot.get('scenarioReportFenceRequired') or (frozen / 'scripts/prepare-scenario-report-fence.py').exists():
+        require(snapshot.get('scenarioReportFenceRequired') is True, 'The new report completion fence is mandatory')
+        fence = scenario_fence_check(release, test, timestamp(stages['test']['startedAtUtc']),
+                                     timestamp(test_status['startedAt']), stages['test']['commands'])
     native = {name: native_check(member(release, stages['verify']['paths'][name]), archive)
               for name in ('ubuntu22', 'ubuntu24', 'debian13')}
     require(len({json.dumps(n, sort_keys=True) for n in native.values()}) == 1, 'Native archive ABI results differ between user spaces')
@@ -528,6 +553,7 @@ def validate_bundle(release, project=None):
             'snapshot': record(release, snapshot_path), 'collectReceipt': record(release, collect_path),
             'reportFiles': len(rows), 'rebuildInputFiles': len(manifest['rebuildInputs']),
             'scan': scan_summary, 'tests': tests, 'native': native,
+            **({'scenarioReportFence': fence} if fence is not None else {}),
             **({'sources': sources} if sources is not None else {}),
             'scope': 'Actual current-run regular VMR build, original clean-source scan, raw upstream tests, three native user spaces and unchanged SDK delivery. No source-only, Stage 2, workload, universal Linux or cold-resource success claim.'}
 

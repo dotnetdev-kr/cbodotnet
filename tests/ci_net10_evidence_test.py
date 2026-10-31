@@ -274,6 +274,41 @@ class EvidenceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'source directory'):
             GATE.validate_bundle(self.root)
 
+    def test_new_scenario_report_fence_requires_actual_evidence(self):
+        bundle = Bundle(self.root)
+        bundle.alter('reports/ci-inputs/snapshot.json', lambda data: data.update(scenarioReportFenceRequired=True))
+        with self.assertRaisesRegex(ValueError, 'Report completion fence evidence'):
+            GATE.validate_bundle(self.root)
+
+    def test_scenario_fence_binds_actual_captured_source_without_executing_artifact_code(self):
+        spec = importlib.util.spec_from_file_location('trusted_fence_fixture', ROOT / 'scripts/prepare-scenario-report-fence.py')
+        fence = importlib.util.module_from_spec(spec); spec.loader.exec_module(fence)
+        original = (ROOT / 'tests/fixtures/scenario-report-fence/Program.net10.original.cs').read_bytes()
+        patched = fence.patched_source(original, '10')
+        helper = write(self.root / 'reports/ci-inputs/project/scripts/prepare-scenario-report-fence.py',
+                       (ROOT / 'scripts/prepare-scenario-report-fence.py').read_bytes())
+        directory = self.root / 'reports/test/scenario-report-fence'
+        write(directory / 'Program.original.cs', original); write(directory / 'Program.patched.cs', patched)
+        path = dump(directory / 'scenario-report-fence.json', dict(schemaVersion=1, status='passed', action='apply',
+                    version='10', sourceCommit=fence.PINS['10'][0], target=fence.TARGET, changed=True,
+                    original=fence.fingerprint(original), patched=fence.fingerprint(patched),
+                    helper=fence.fingerprint(helper.read_bytes()), completedAtUtc='2026-10-31T00:03:01Z'))
+        row = dict(path='vmr/' + fence.TARGET, **fence.fingerprint(patched))
+        index = write(self.root / 'sources/source-index.jsonl', json.dumps(row) + '\n')
+        facts = dict(scenarioReportFence=path.relative_to(self.root).as_posix())
+        bounds = (GATE.timestamp('2026-10-31T00:03:00Z'), GATE.timestamp('2026-10-31T00:03:02Z'))
+        commands = [['podman', 'run', 'python3', '/delivery/reports/ci-inputs/project/scripts/prepare-scenario-report-fence.py',
+                     'apply', '--version', '10', '--source-dir', '/vmr', '--reports-dir', '/delivery/reports/test/scenario-report-fence']]
+        self.assertEqual(GATE.scenario_fence_check(self.root, facts, *bounds, commands), GATE.record(self.root, path))
+        with self.assertRaisesRegex(ValueError, 'Exactly one actual pinned'):
+            GATE.scenario_fence_check(self.root, facts, *bounds, [])
+        row['sha256'] = 'a' * 64; index.write_text(json.dumps(row) + '\n')
+        with self.assertRaisesRegex(ValueError, 'captured actual scenario runner'):
+            GATE.scenario_fence_check(self.root, facts, *bounds, commands)
+        helper.write_text('raise RuntimeError("Downloaded code must never execute")\n')
+        with self.assertRaisesRegex(ValueError, 'receipt fingerprints'):
+            GATE.scenario_fence_check(self.root, facts, *bounds, commands)
+
     def test_fabricated_empty_scan_without_execution_is_rejected(self):
         bundle = Bundle(self.root)
         bundle.alter('reports/scan/scan-execution.json', lambda data: data.update(commands=[['touch', 'NewBinaries.txt']]))

@@ -348,6 +348,11 @@ build|test)
   container write none python3 /delivery/reports/ci-inputs/project/scripts/fetch-pinned-inputs.py \
     --profile /delivery/reports/ci-inputs/effective-profile.json --inputs-dir /inputs --reports-dir "/delivery/reports/$stage" --offline
   container write host python3 /delivery/reports/ci-inputs/project/scripts/configure-feeds.py --source-dir /vmr --reports-dir "/delivery/reports/$stage"
+  if [[ $stage == test ]]; then
+    container write none python3 /delivery/reports/ci-inputs/project/scripts/prepare-scenario-report-fence.py \
+      apply --version 10 --source-dir /vmr --reports-dir /delivery/reports/test/scenario-report-fence
+    path_fact scenarioReportFence reports/test/scenario-report-fence/scenario-report-fence.json
+  fi
   args=(bash /delivery/reports/ci-inputs/project/scripts/build-vmr.sh --source-dir /vmr --sysroot /inputs/arm64-bionic \
     --reports-dir "/delivery/reports/$stage" --action "$stage" --build-id "$build_id")
   [[ $stage != test ]] || args+=(--binaries-report /delivery/reports/scan/NewBinaries.txt)

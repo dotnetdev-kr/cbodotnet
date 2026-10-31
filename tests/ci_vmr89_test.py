@@ -13,12 +13,15 @@ import time
 from types import SimpleNamespace
 import subprocess
 import contextlib
+import importlib.util
 import unittest
 import xml.etree.ElementTree as ET
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'scripts'))
 import ci_vmr89_support as S
+fence_spec=importlib.util.spec_from_file_location('fence_fixture',ROOT/'scripts/prepare-scenario-report-fence.py')
+F=importlib.util.module_from_spec(fence_spec);fence_spec.loader.exec_module(F)
 
 
 def write(path,data):
@@ -103,6 +106,8 @@ class FullFixture(OriginFixture):
         profile=frozen/'profiles'/('dotnet-'+S.V[version]['sdk']+'-linux-arm64.json')
         original=json.loads((ROOT/'profiles'/profile.name).read_text());dump(profile,original)
         for name in ('Program.cs','Reader.csproj'):write(frozen/'scripts/ci-vmr89-reader'/name,'Fixture reader '+name+'\n')
+        if version=='9':
+            write(frozen/'scripts/prepare-scenario-report-fence.py',(ROOT/'scripts/prepare-scenario-report-fence.py').read_bytes())
         def git(*args):return subprocess.check_output(['git','-C',str(frozen),*args])
         git('init','-q');git('config','user.email','fixture@example.invalid');git('config','user.name','Fixture');git('add','.');git('commit','-qm','Fixture tree')
         commit=git('rev-parse','HEAD').decode().strip();commit_object=git('cat-file','commit',commit)
@@ -115,7 +120,7 @@ class FullFixture(OriginFixture):
         self.identity=dict(sourceCommit=S.V[version]['commit'],projectCommit=commit,buildId='20261031.1',buildRevision='1',runId='12345',runAttempt='1')
         selected=S.effective(original,version);dump(self.release/'reports/ci-inputs/effective-profile.json',selected)
         write(self.release/'reports/ci-inputs/project-commit.txt',commit_object)
-        dump(self.release/'reports/ci-inputs/snapshot.json',dict(self.identity,executionContext='github-actions',sourceInitiallyPristine=True,
+        dump(self.release/'reports/ci-inputs/snapshot.json',dict(self.identity,scenarioReportFenceRequired=version=='9',executionContext='github-actions',sourceInitiallyPristine=True,
              projectInitiallyPristine=True,inputRepresentation='canonical-git-blobs-with-verified-checkout',projectFiles=rows,
              projectCommitObject=S.record(self.release,self.release/'reports/ci-inputs/project-commit.txt'),originalProfile=S.record(self.release,profile),
              effectiveProfile=S.record(self.release,self.release/'reports/ci-inputs/effective-profile.json')))
@@ -134,9 +139,18 @@ class FullFixture(OriginFixture):
             dump(self.release/'reports/scan/upstream/status.json',dict(status='passed',exitCode=0,toolExitCode=0,teeExitCode=0,
                  sourceCommit=S.V[version]['commit'],cleanSourceCommit=S.V[version]['commit'],cleanPristineBefore=True,cleanPristineAfter=True,
                  allowlistsUnchanged=True,newBinariesReport={'exists':False}))
+            original=(ROOT/'tests/fixtures/scenario-report-fence/Program.net9.original.cs').read_bytes()
+            patched=F.patched_source(original,'9');directory=self.release/'reports/test/scenario-report-fence'
+            write(directory/'Program.original.cs',original);write(directory/'Program.patched.cs',patched)
+            dump(directory/'scenario-report-fence.json',dict(schemaVersion=1,status='passed',action='apply',version='9',
+                 sourceCommit=F.PINS['9'][0],target=F.TARGET,changed=True,original=F.fingerprint(original),patched=F.fingerprint(patched),
+                 helper=F.fingerprint((frozen/'scripts/prepare-scenario-report-fence.py').read_bytes()),completedAtUtc='2026-10-31T00:03:01Z'))
         dump(self.release/'reports/test/upstream-summary.json',test_value)
         for index,name in enumerate(('prepare','build','scan','test','verify')):
             commands=[['fixture',name]]
+            if name=='test' and version=='9':
+                commands.append(['podman','run','python3','/delivery/reports/ci-inputs/project/scripts/prepare-scenario-report-fence.py','apply',
+                                 '--version','9','--source-dir','/vmr','--reports-dir','/delivery/reports/test/scenario-report-fence'])
             if name in ('build','test'):
                 dump(self.release/'reports'/name/(name+'-status.json'),dict(action=name,exitCode=0,sourceCommit=S.V[version]['commit'],sourceOnly=S.V[version]['sourceOnly'],
                      startedAt='2026-10-31T00:%02d:01Z'%index,finishedAt='2026-10-31T00:%02d:29Z'%index))
@@ -164,6 +178,9 @@ class FullFixture(OriginFixture):
         if version=='8':roots.append(dict(name='consumer-runtime',kind='tree',path='/fixture/consumer',exclude=['artifacts']))
         dump(self.release/'reports/ci/source-roots.json',dict(roots=roots))
         dump(self.release/'sources/source-manifest.json',dict(fixtureOnly=True))
+        if version=='9':
+            original=(ROOT/'tests/fixtures/scenario-report-fence/Program.net9.original.cs').read_bytes()
+            write(self.release/'sources/source-index.jsonl',json.dumps(dict(path='vmr/'+F.TARGET,**F.fingerprint(F.patched_source(original,'9'))))+'\n')
         dump(self.release/'reports/ci/used-source.json',dict(fixtureOnly=True))
         candidate=S.load(self.release/'reports/ci/candidate-build-manifest.json')['sdkArchive']['path']
         shutil.copyfile(self.candidate/candidate,self.release/candidate)
@@ -214,6 +231,35 @@ class Tests(unittest.TestCase):
         original.unlink();write(cleanup,b'Stale cleanup copy')
         with self.assertRaisesRegex(ValueError,'ordinary absolute file'):
             S.capture_consumer_binlog(source,self.root/'missing-original','8')
+
+    def test_new_net9_gate_requires_exact_report_fence_and_actual_invocation(self):
+        fixture=FullFixture(self.root/'fence','9')
+        S.qualify(fixture.args())
+        receipt=fixture.release/'reports/test/scenario-report-fence/scenario-report-fence.json'
+        value=S.load(receipt);value['changed']=False;dump(receipt,value);fixture.seal()
+        with self.assertRaisesRegex(ValueError,'fresh pinned XML'):
+            S.qualify(fixture.args('verify-release'))
+        value['changed']=True;dump(receipt,value)
+        stage=fixture.release/'reports/ci/stages/test.json';value=S.load(stage);value['commands']=[['fixture','test']];dump(stage,value);fixture.seal()
+        with self.assertRaisesRegex(ValueError,'Exactly one actual pinned'):
+            S.qualify(fixture.args('verify-release'))
+
+    def test_downloaded_scenario_helper_is_never_executed(self):
+        fixture=FullFixture(self.root/'malicious-helper','9')
+        marker=self.root/'artifact-code-executed'
+        helper=fixture.release/'reports/ci-inputs/project/scripts/prepare-scenario-report-fence.py'
+        helper.write_text('from pathlib import Path\nPath('+repr(str(marker))+').write_text("executed")\nraise Exception("artifact code ran")\n')
+        stage=S.load(fixture.release/'reports/ci/stages/test.json')
+        with self.assertRaisesRegex(ValueError,'receipt fingerprints differ'):
+            S.scenario_fence(fixture.release,stage,helper)
+        self.assertFalse(marker.exists())
+
+    def test_scenario_fence_must_match_captured_used_source(self):
+        fixture=FullFixture(self.root/'wrong-runner-source','9')
+        write(fixture.release/'sources/source-index.jsonl',json.dumps(dict(path='vmr/'+F.TARGET,bytes=1,sha256='0'*64,sha512='0'*128))+'\n')
+        fixture.seal()
+        with self.assertRaisesRegex(ValueError,'Captured actual scenario runner'):
+            S.qualify(fixture.args())
 
     def test_actual_result_shapes_both_versions(self):
         self.assertEqual(S.test_results('8',trx(self.root/'8.trx','8'))['passed'],44)

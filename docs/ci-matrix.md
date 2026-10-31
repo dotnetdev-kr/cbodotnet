@@ -11,6 +11,8 @@ gh workflow run sdk-matrix.yml --repo dotnetdev-kr/cbodotnet --ref main \
 
 The default is a native `ubuntu-24.04-arm` worker. Repository variable `SDK_BUILD_RUNNER_JSON` can explicitly select an existing native worker. Host preparation records disk before and after its fixed hosted-only cleanup list. The 90-GiB gate for legacy profiles is an initial planning threshold, not a measured guarantee. There is no automatic paid-runner fallback. The workflow preserves failures and serializes duplicate requests for the same target.
 
+The .NET 9/10 scenario runner uses an explicit outer completion fence for the [upstream xUnit XML race](https://github.com/xunit/xunit/issues/2090). It waits until the existing XML sink finishes processing the final message; test assertions, filters, skips and failure status remain unchanged. The original and patched runner, helper fingerprint and actual captured source are bound by the delivery evidence. Raw test results and counters must still pass the version-specific gates.
+
 ## Actual used sources
 
 After successful build and upstream tests, and before native verification/final collection, [source packaging](../scripts/package-used-source.py) captures the actual source roots declared by each adapter:
