@@ -106,7 +106,7 @@
       {
         "path": "patches/net5/0001-run-native-arm64-corelib-crossgen.patch",
         "sha256": "08e6d58bd7541ee1abceef8bea1c177c4e810cf0799cd1b499a044eb93430d07",
-        "purpose": "Run the main native ARM64 crossgen for CoreLib in same-system sysroot mode while retaining cross compilation."
+        "purpose": "Run the main native AArch64 crossgen for CoreLib in same-system sysroot mode while retaining cross compilation."
       },
       {
         "path": "patches/net5/0002-avoid-duplicate-portable-aspnet-runtime.patch",

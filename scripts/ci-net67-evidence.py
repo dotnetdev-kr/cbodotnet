@@ -13,7 +13,8 @@ import runpy
 import subprocess
 import xml.etree.ElementTree as ET
 
-get_arch = runpy.run_path(str(Path(__file__).with_name('ci_arch.py')))['get_arch']
+_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_arch.py')))
+get_arch = _ARCH['get_arch']
 
 VERSIONS = {
     '6': {'sdk': '6.0.136', 'runtime': '6.0.36', 'bootstrap': '6.0.135',
@@ -166,7 +167,7 @@ def freeze(project, release, major, identity, arch='arm64'):
     commit = git('cat-file', 'commit', identity['projectCommit'])
     (destination / 'project-commit.txt').write_bytes(commit)
     require(commit.startswith(('tree '+snapshot_tree(release, rows)+'\n').encode()), 'Frozen Git tree differs')
-    original = destination / 'project/profiles' / ('dotnet-'+selected['sdk']+'-'+architecture['rid']+'.json')
+    original = _ARCH['profile_path'](destination / 'project', selected['sdk'], arch)
     write(destination / 'effective-profile.json', effective_profile(load(original), identity['buildId']))
     snapshot = dict(schemaVersion=1, major=major, sdkVersion=selected['sdk'], sourceCommit=selected['commit'],
                     executionContext='github-actions' if os.environ.get('GITHUB_ACTIONS') == 'true' else 'local-diagnostic',
@@ -452,7 +453,7 @@ def main():
     parser.add_argument('--expected-project-commit', required=True)
     parser.add_argument('--expected-run-id', required=True)
     parser.add_argument('--expected-run-attempt', required=True)
-    parser.add_argument('--arch', choices=('arm64', 'x64'), default='arm64')
+    parser.add_argument('--arch', type=_ARCH['canonical_arch'], choices=('arm64', 'x64'), metavar='{aarch64,x64}', default='arm64')
     args = parser.parse_args(); release = args.release_dir.absolute()
     result = validate(release, dict(projectCommit=args.expected_project_commit, runId=args.expected_run_id, runAttempt=args.expected_run_attempt), args.arch)
     path = release / 'ci-validation.json'

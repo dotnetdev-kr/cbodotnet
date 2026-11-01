@@ -50,7 +50,7 @@
   },
   "construction": {
     "upstreamSharedRuntimeReused": true,
-    "note": "Native x64 qualification requires fresh build, original upstream tests, complete consumed-framework byte comparisons, actual source delivery and three native user spaces. No ARM64 result or historical archive hash qualifies x64. Bootstrap and other upstream binary inputs remain in scope."
+    "note": "Native x64 qualification requires fresh build, original upstream tests, complete consumed-framework byte comparisons, actual source delivery and three native user spaces. No AArch64 result or historical archive hash qualifies x64. Bootstrap and other upstream binary inputs remain in scope."
   },
   "additionalPackages": [],
   "upstreamInputs": {

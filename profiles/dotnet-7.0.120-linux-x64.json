@@ -81,7 +81,7 @@
       {
         "path": "patches/net7/0001-support-arm64-cross-components-host.patch",
         "sha256": "cf868ca40e38523ad9f00d8e3c3342cd850066da2b526336a5748c1ffa99a4c9",
-        "purpose": "Backport native ARM64 build-host detection for required runtime cross-components."
+        "purpose": "Backport native AArch64 build-host detection for required runtime cross-components."
       },
       {
         "path": "patches/net7/0002-preserve-portable-runtime-target.patch",
@@ -113,7 +113,7 @@
   },
   "construction": {
     "upstreamSharedRuntimeReused": false,
-    "note": "Native x64 retains original upstream previously-source-built archives, bootstrap SDK, reference packages and online inputs. No ARM64 substitution, Stage 2 or zero-prebuilt claim is made.",
+    "note": "Native x64 retains original upstream previously-source-built archives, bootstrap SDK, reference packages and online inputs. No AArch64 substitution, Stage 2 or zero-prebuilt claim is made.",
     "sharedComponents": "The selected source-build graph constructs runtime and ASP.NET locally; completed copy tasks and final SDK bytes must establish their actual origins."
   },
   "additionalPackages": [],
@@ -124,7 +124,7 @@
     "bootstrapIlToolsRid": "centos.8-x64",
     "runtime": "7.0.20",
     "sourceBuiltArtifactsDeclaration": "Generated packages/archive/archiveArtifacts.txt",
-    "bootstrapTransformation": "Native x64 preserves and consumes the original CentOS x64 previously-source-built archive byte-for-byte. It does not run prep.sh --bootstrap or substitute ARM64 packages."
+    "bootstrapTransformation": "Native x64 preserves and consumes the original CentOS x64 previously-source-built archive byte-for-byte. It does not run prep.sh --bootstrap or substitute AArch64 packages."
   },
   "status": "prepared-native-x64-profile"
 }

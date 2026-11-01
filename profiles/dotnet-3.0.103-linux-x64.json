@@ -131,7 +131,7 @@
       {
         "path": "patches/core30/0002-select-coreclr-native-arm64-tools.patch",
         "sha256": "3316951b841b2d0ca4e497a968d25d189ad35b7761a58b311d25303f72483d16",
-        "purpose": "Select Clang 6 and omit redundant cross-architecture host tools only for the explicit native Linux ARM64 build; retain the existing cross/sysroot switches."
+        "purpose": "Select Clang 6 and omit redundant cross-architecture host tools only for the explicit native Linux AArch64 build; retain the existing cross/sysroot switches."
       },
       {
         "path": "patches/core30/0003-forward-corefx-native-arm64-sysroot.patch",
@@ -141,7 +141,7 @@
       {
         "path": "patches/core30/0004-preserve-core-setup-native-arm64-crossgen.patch",
         "sha256": "034bfbcb2b9154dc9fe3d92dc7f57969489b763d448aa9e14d7c3a293e149765",
-        "purpose": "Keep actual native image generation enabled for same-architecture ARM64 hosts while retaining Core-Setup cross/sysroot compilation."
+        "purpose": "Keep actual native image generation enabled for same-architecture AArch64 hosts while retaining Core-Setup cross/sysroot compilation."
       },
       {
         "path": "patches/core30/0005-use-actual-aspnetcore-installer-rid.patch",
@@ -151,17 +151,17 @@
       {
         "path": "patches/core30/0006-run-native-arm64-corelib-crossgen.patch",
         "sha256": "50aa1b344baec6dad69ceb22e2dc400493971519e453ff9f5023428aec64b413",
-        "purpose": "Run the locally built native ARM64 crossgen instead of copying IL CoreLib during same-architecture sysroot builds. Package the actual native tool layout without redundant cross-host folders."
+        "purpose": "Run the locally built native AArch64 crossgen instead of copying IL CoreLib during same-architecture sysroot builds. Package the actual native tool layout without redundant cross-host folders."
       },
       {
         "path": "patches/core30/0007-select-clang6-corehost-native-arm64-cross-build.patch",
         "sha256": "65fe754a6644668a3c9d8aa0f6ff0ae44af94f462e7fd161194fb1e1b8e6d86f",
-        "purpose": "Select the installed Clang 6 pair explicitly for native ARM64 Core-Setup sysroot builds, preserving the historical compiler selection for other host-target pairs."
+        "purpose": "Select the installed Clang 6 pair explicitly for native AArch64 Core-Setup sysroot builds, preserving the historical compiler selection for other host-target pairs."
       },
       {
         "path": "patches/core30/0008-route-upstream-smoke-tests-to-built-arm64-sdk.patch",
         "sha256": "98d114903be53d557a96461670b3ef0dc859a4cbef4576df7adf7a466c5e23d6",
-        "purpose": "Accept the explicit core-sdk graph, select its ARM64 local package directory and allow a new isolated test working directory. Preserve all upstream test commands and assertions; this routing change alone establishes no test result."
+        "purpose": "Accept the explicit core-sdk graph, select its AArch64 local package directory and allow a new isolated test working directory. Preserve all upstream test commands and assertions; this routing change alone establishes no test result."
       },
       {
         "path": "patches/core30/0009-map-retired-package-indexes-in-configs-and-environment.patch",
@@ -186,7 +186,7 @@
       {
         "path": "patches/core30/0013-build-local-coreclr-packages-on-native-arm64.patch",
         "sha256": "c5ad4ab8ed50944a577cef38fd6fe1b8633413dba09fd4188215107ce9c6623a",
-        "purpose": "Omit only the historical skipnuget switch for explicit native Linux ARM64 builds, so the original CoreCLR packaging target emits the local runtime transport packages required by CoreSetup. Preserve cross/sysroot/native image generation and all other ARM host-target behavior."
+        "purpose": "Omit only the historical skipnuget switch for explicit native Linux AArch64 builds, so the original CoreCLR packaging target emits the local runtime transport packages required by CoreSetup. Preserve cross/sysroot/native image generation and all other ARM host-target behavior."
       },
       {
         "path": "patches/core30/0014-preserve-sourcelink-bootstrap-version-until-common-is-built.patch",
@@ -221,7 +221,7 @@
       {
         "path": "patches/core30/0021-select-explicit-retained-coreclr-platforms-tooling.patch",
         "sha256": "4d449c95dfd11028c3ec8a34e67def64d4bef5a523678acf57f02678e41818f8",
-        "purpose": "Select an explicit retained bootstrap Platforms dependency only for native Linux ARM64 CoreCLR. The same genuine version controls the engineering tool reference and packaging runtime.json RID graph. Preserve the original unavailable RC2 source declaration, all native/crossgen/package targets and SDK/runtime product versions."
+        "purpose": "Select an explicit retained bootstrap Platforms dependency only for native Linux AArch64 CoreCLR. The same genuine version controls the engineering tool reference and packaging runtime.json RID graph. Preserve the original unavailable RC2 source declaration, all native/crossgen/package targets and SDK/runtime product versions."
       },
       {
         "path": "patches/core30/0022-build-pinned-arcade-genapi-for-corefx.patch",
@@ -246,27 +246,27 @@
       {
         "path": "patches/core30/0026-select-native-arm64-core-setup-crossgen-and-jit.patch",
         "sha256": "c28e5ac3d3c96eaa0da22896d1569e464bd0cfdf67752cddad5a6ef3f58333b5",
-        "purpose": "Use the locally built native ARM64 crossgen and JIT when CoreSetup targets ARM64 on an existing Linux ARM64 host RID. Preserve x64-to-ARM64, ARM32 and all other original selectors; keep CrossGen, versions generation, runtime/ref packages and symbols enabled. Missing versions files after the original crossgen-path error are generated by their normal dependency target."
+        "purpose": "Use the locally built native AArch64 crossgen and JIT when CoreSetup targets AArch64 on an existing Linux AArch64 host RID. Preserve x64-to-AArch64, ARM32 and all other original selectors; keep CrossGen, versions generation, runtime/ref packages and symbols enabled. Missing versions files after the original crossgen-path error are generated by their normal dependency target."
       },
       {
         "path": "patches/core30/0027-accept-core-setup-default-unix-native-host-group.patch",
         "sha256": "1915311765f08e3903be7852c765cdf0b093ba615f9e19fe8dbd651aeff9c89b",
-        "purpose": "Recognize the pinned CoreSetup Linux default OSGroup=Unix as well as explicit Linux when selecting native ARM64 crossgen/JIT. Its Directory.Build.props maps MSBuild OS=Unix directly to OSGroup and already accepts either label for portable Linux RIDs. Preserve host RID architecture guard, all other host/target selectors and every original packaging/generation target."
+        "purpose": "Recognize the pinned CoreSetup Linux default OSGroup=Unix as well as explicit Linux when selecting native AArch64 crossgen/JIT. Its Directory.Build.props maps MSBuild OS=Unix directly to OSGroup and already accepts either label for portable Linux RIDs. Preserve host RID architecture guard, all other host/target selectors and every original packaging/generation target."
       },
       {
         "path": "patches/core30/0028-select-native-arm64-aspnet-crossgen-property.patch",
         "sha256": "1f278a3374cdb72ba53099fb5fe06e8e5a72d05266ba63cc500a214b42c13aa6",
-        "purpose": "Pass the original CrossgenToolPackagePath property globally only for the verified native Linux ARM64 ASP build. Select the genuine locally built runtime package tools/crossgen without editing the upstream-patched ASP project, suppressing crossgen, changing source/package identity or replacing ready-to-run/perfmap commands. Other host/architecture arguments remain unchanged."
+        "purpose": "Pass the original CrossgenToolPackagePath property globally only for the verified native Linux AArch64 ASP build. Select the genuine locally built runtime package tools/crossgen without editing the upstream-patched ASP project, suppressing crossgen, changing source/package identity or replacing ready-to-run/perfmap commands. Other host/architecture arguments remain unchanged."
       },
       {
         "path": "patches/core30/0029-select-native-arm64-core-sdk-crossgen-and-jit-properties.patch",
         "sha256": "80d2e2ffecdeaf193d5dce7e5808e25916288d2436ff52ea9219b090c7dcb3a3",
-        "purpose": "Forward explicit Architecture=arm64 and a bounded native-host selector flag only for the verified Linux ARM64 host/target. Original CoreSDK defaults architecture to x64 independently of Rid. Target-time assignments overwrite ordinary CrossgenPath/LibCLRJitRid globals, so preserve their normal formulas and use the companion guarded source selector. Keep all R2R targets and source/package versions."
+        "purpose": "Forward explicit Architecture=arm64 and a bounded native-host selector flag only for the verified Linux AArch64 host/target. Original CoreSDK defaults architecture to x64 independently of Rid. Target-time assignments overwrite ordinary CrossgenPath/LibCLRJitRid globals, so preserve their normal formulas and use the companion guarded source selector. Keep all R2R targets and source/package versions."
       },
       {
         "path": "patches/core30/0030-select-native-arm64-core-sdk-crossgen-and-jit-in-target.patch",
         "sha256": "34c7d15e9559b4520c401f9704b69afe9c63a79a860e763720062422500368cf",
-        "purpose": "Select native tool and JIT inside the original CrossgenLayout target only when the explicit verified-host flag, ARM64 architecture and Linux OS all match. Preserve dynamic runtime-package/version formulas, package restore and the three original R2R/symbol task groups. Other host/architecture selectors remain unchanged; no executable or generated output is replaced."
+        "purpose": "Select native tool and JIT inside the original CrossgenLayout target only when the explicit verified-host flag, AArch64 architecture and Linux OS all match. Preserve dynamic runtime-package/version formulas, package restore and the three original R2R/symbol task groups. Other host/architecture selectors remain unchanged; no executable or generated output is replaced."
       },
       {
         "path": "patches/core30/0031-map-toolset-sdk-retired-package-indexes.patch",
@@ -276,7 +276,7 @@
       {
         "path": "patches/core30/0032-flow-native-arm64-aspnet-version-to-core-sdk.patch",
         "sha256": "349e2353987f448cadb5e519713c84b1bd5632ba2cf9d6a2373b10012ba9ce07",
-        "purpose": "Flow the genuine Linux ARM64 ASP runtime package version into the original generic CoreSDK archive-version alias only for the verified native Linux ARM64 build. Update both existing alias items after the original root import, retaining their DoNotOverwrite metadata, deferred producer-key evaluation, all other host branches, original archive formulas and every source/package version. The old aliases reference absent LinuxX64/OsxX64 packages in this ARM64 construction."
+        "purpose": "Flow the genuine Linux AArch64 ASP runtime package version into the original generic CoreSDK archive-version alias only for the verified native Linux AArch64 build. Update both existing alias items after the original root import, retaining their DoNotOverwrite metadata, deferred producer-key evaluation, all other host branches, original archive formulas and every source/package version. The old aliases reference absent LinuxX64/OsxX64 packages in this AArch64 construction."
       },
       {
         "path": "patches/core30/0033-make-post-build-offline-bundle-downloads-explicit.patch",

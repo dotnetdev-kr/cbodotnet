@@ -30,7 +30,7 @@
     "repository": "mcr.microsoft.com/dotnet-buildtools/prereqs",
     "referenceTag": "ubuntu-24.04-arm64",
     "digest": "sha256:7ef8f6ee1b9982511349757443eb4844f0db4f8cef1aff6148a7ba1c25d7c6f4",
-    "containerfile": "containers/arm64-net6.Containerfile",
+    "containerfile": "containers/aarch64-net6.Containerfile",
     "observedDerivedImageId": "f5d51031836414245009084e7bb78edc8daf305af750f5e75a5af885b95828d8"
   },
   "generatedSource": {
@@ -76,7 +76,7 @@
       {
         "path": "patches/net6/0001-support-arm64-cross-components-host.patch",
         "sha256": "00fed1b880f80dba95cfc8a50734b197afe9c234cd23dd394524a3811f6ec6c5",
-        "purpose": "Backport native ARM64 build-host detection for required runtime cross-components."
+        "purpose": "Backport native AArch64 build-host detection for required runtime cross-components."
       },
       {
         "path": "patches/net6/0002-preserve-portable-runtime-target.patch",
@@ -108,7 +108,7 @@
   },
   "verification": {
     "archiveSha256": "099fc4f37a1ae1f8b722b2f918b9f2fa4d137f91790d2c1e987d1c4cd630f3ba",
-    "nativeUserSpaces": ["Ubuntu 22.04 ARM64", "Ubuntu 24.04 ARM64", "Debian 13 ARM64"],
+    "nativeUserSpaces": ["Ubuntu 22.04 AArch64", "Ubuntu 24.04 AArch64", "Debian 13 AArch64"],
     "functionalChecksPassedPerUserSpace": 6,
     "upstreamSmokeTests": {"total": 42, "passed": 41, "failed": 0, "skipped": 1, "skipReason": "The poison-report input was not supplied."},
     "sdkContentComparison": {
@@ -143,6 +143,6 @@
     "runtime": "6.0.36",
     "sourceBuiltArtifactsDeclaration": "Generated packages/archive/archiveArtifacts.txt",
     "bootstrapProject": "scripts/bootstrap/buildBootstrapPreviouslySB.csproj",
-    "bootstrapTransformation": "Ordinary prep.sh is followed by preservation of original downloads, then explicit prep.sh --bootstrap. The tagged project uses PackageReference replacements, including four native Linux ARM64 packages: ILAsm, ILDAsm, TestHost and System.IO.Ports. It does not use the .NET 7 thirteen-package ARM64 replacement set."
+    "bootstrapTransformation": "Ordinary prep.sh is followed by preservation of original downloads, then explicit prep.sh --bootstrap. The tagged project uses PackageReference replacements, including four native Linux AArch64 packages: ILAsm, ILDAsm, TestHost and System.IO.Ports. It does not use the .NET 7 thirteen-package AArch64 replacement set."
   }
 }

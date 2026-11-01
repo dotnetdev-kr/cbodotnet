@@ -48,10 +48,10 @@ class NativeDispatchTests(unittest.TestCase):
         selected = json.loads(captured.getvalue())
         exported = dict(line.split('=', 1) for line in output.read_text().splitlines())
         self.assertEqual(exported, selected)
-        profile = json.loads((ROOT / 'profiles' / ('dotnet-' + selected['sdk_version'] + '-' + selected['target_rid'] + '.json')).read_text())
+        profile = json.loads((ROOT / 'profiles' / ('dotnet-' + selected['sdk_version'] + '-' + selected['target_rid'].replace('arm64', 'aarch64') + '.json')).read_text())
         self.assertEqual(profile['sdkVersion'], selected['sdk_version'])
         self.assertEqual(profile['target']['rid'], selected['target_rid'])
-        self.assertEqual(profile['host']['architecture'], selected['architecture'])
+        self.assertEqual(profile['host']['architecture'], SDK.get_arch(selected['architecture'])['arch'])
         self.assertTrue((ROOT / selected['driver']).is_file())
         return selected
 

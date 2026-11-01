@@ -59,7 +59,7 @@
       {
         "path": "patches/net7/0001-support-arm64-cross-components-host.patch",
         "sha256": "cf868ca40e38523ad9f00d8e3c3342cd850066da2b526336a5748c1ffa99a4c9",
-        "purpose": "Backport native ARM64 build-host detection for required runtime cross-components."
+        "purpose": "Backport native AArch64 build-host detection for required runtime cross-components."
       },
       {
         "path": "patches/net7/0002-preserve-portable-runtime-target.patch",
@@ -90,6 +90,6 @@
     "sourceBuiltArtifactsRid": "centos.8-x64",
     "runtime": "7.0.20",
     "sourceBuiltArtifactsDeclaration": "Generated packages/archive/archiveArtifacts.txt",
-    "bootstrapTransformation": "Explicit prep.sh --bootstrap replaces portable/native packages for linux-x64, linux-musl-x64 and linux-arm64, including thirteen ARM64 package downloads."
+    "bootstrapTransformation": "Explicit prep.sh --bootstrap replaces portable/native packages for linux-x64, linux-musl-x64 and linux-arm64, including thirteen AArch64 package downloads."
   }
 }

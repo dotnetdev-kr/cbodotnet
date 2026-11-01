@@ -147,7 +147,7 @@ class FullFixture(OriginFixture):
         frozen=self.release/'reports/ci-inputs/project'
         for name in S.G.critical_inputs(arch):write(frozen/name,'# Fixture committed source\n')
         profile=frozen/'profiles'/('dotnet-'+S.V[version]['sdk']+'-'+self.target['rid']+'.json')
-        original=json.loads((ROOT/'profiles'/profile.name).read_text());dump(profile,original)
+        original=json.loads(S.profile_path(ROOT,S.V[version]['sdk'],arch).read_text());dump(profile,original)
         for name in ('Program.cs','Reader.csproj'):write(frozen/'scripts/ci-vmr89-reader'/name,'Fixture reader '+name+'\n')
         if version=='9':
             write(frozen/'scripts/prepare-scenario-report-fence.py',(ROOT/'scripts/prepare-scenario-report-fence.py').read_bytes())
@@ -503,7 +503,7 @@ class Tests(unittest.TestCase):
 
     def test_effective_profiles_remove_historical_success_text_only(self):
         for version in ('8','9'):
-            profile=json.loads((ROOT/'profiles'/('dotnet-'+S.V[version]['sdk']+'-linux-arm64.json')).read_text())
+            profile=json.loads((ROOT/'profiles'/('dotnet-'+S.V[version]['sdk']+'-linux-aarch64.json')).read_text())
             before=copy.deepcopy(profile);after=S.effective(profile,version)
             self.assertEqual(profile,before);self.assertEqual(after['source'],profile['source'])
             self.assertEqual(after['build']['sourceOnly'],profile['build']['sourceOnly'])

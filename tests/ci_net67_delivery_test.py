@@ -38,7 +38,7 @@ class CompleteGeneratedDeliveryTests(unittest.TestCase):
         project=root/'project'; (project/'profiles').mkdir(parents=True)
         def git(*args): return subprocess.check_output(['git','-C',str(project),*args],stderr=subprocess.PIPE).decode().strip()
         git('init','-q'); git('config','user.name','Synthetic gate fixture'); git('config','user.email','fixture@example.invalid')
-        original=ROOT/'profiles'/('dotnet-'+selected['sdk']+'-linux-arm64.json')
+        original=ROOT/'profiles'/('dotnet-'+selected['sdk']+'-linux-aarch64.json')
         shutil.copyfile(original, project/'profiles'/original.name)
         (project/'fixture.py').write_text('# Synthetic gate fixture only.\n')
         git('add','.'); git('commit','-qm','Synthetic orchestration snapshot')

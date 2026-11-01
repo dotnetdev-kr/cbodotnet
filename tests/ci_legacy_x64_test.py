@@ -66,7 +66,7 @@ class LegacyX64Tests(unittest.TestCase):
     def test_x64_profiles_preserve_source_pins_without_historical_qualification(self):
         for version, family in [('5.0.214','net5'),('3.1.426','core31'),('3.0.103','core30')]:
             with self.subTest(version=version):
-                arm = json.loads((ROOT/'profiles'/('dotnet-'+version+'-linux-arm64.json')).read_text())
+                arm = json.loads((ROOT/'profiles'/('dotnet-'+version+'-linux-aarch64.json')).read_text())
                 x64 = json.loads((ROOT/'profiles'/('dotnet-'+version+'-linux-x64.json')).read_text())
                 self.assertEqual(x64['source'], arm['source'])
                 self.assertEqual(x64['target']['rid'], 'linux-x64')
@@ -92,7 +92,7 @@ class LegacyX64Tests(unittest.TestCase):
                 for version in ('5.0.214','3.1.426','3.0.103'):
                     for arch in ('arm64','x64'):
                         with self.subTest(version=version,arch=arch):
-                            profile=json.loads((ROOT/'profiles'/('dotnet-'+version+'-linux-'+arch+'.json')).read_text())
+                            profile=json.loads((ROOT/'profiles'/('dotnet-'+version+'-linux-'+('aarch64' if arch=='arm64' else arch)+'.json')).read_text())
                             # The real collector must accept all declared
                             # metadata before reaching source Git/blob I/O.
                             with self.assertRaises(ManifestBoundaryReached):validate(source,profile)

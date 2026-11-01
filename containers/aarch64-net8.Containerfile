@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/dotnet-buildtools/prereqs@sha256:7ef8f6ee1b9982511349757443eb4844f0db4f8cef1aff6148a7ba1c25d7c6f4
 
-# Native ARM64 build tools for the pinned .NET 8 source-build orchestration.
+# Native AArch64 build tools for the pinned .NET 8 source-build orchestration.
 # Target headers and libraries come from the separately prepared Xenial sysroot.
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \

@@ -35,7 +35,7 @@
     "os": "linux",
     "manifestAndConfigVerified": true,
     "status": "native-arm64-image-built",
-    "purpose": "Native ARM64 Bionic build host with OpenSSL 1.1 and ICU 60 for historical tools; target headers/libraries come from an independent sysroot.",
+    "purpose": "Native AArch64 Bionic build host with OpenSSL 1.1 and ICU 60 for historical tools; target headers/libraries come from an independent sysroot.",
     "observedBuiltImageId": "76ce8f5b3968c8dde354bcf7ed2e583e26ba6b7ea6d56d6dad0569cd650330af"
   },
   "legacySource": {
@@ -61,7 +61,7 @@
     "compilerMajorVersion": 6,
     "compilerVersionOption": "clang6.0",
     "compilerPath": "/usr/bin/clang-6.0",
-    "compilerSelection": "The guarded native Linux ARM64 adapters select clang6.0 for CoreCLR, CoreFX and Core-Setup while retaining the independent Xenial sysroot and original native build targets.",
+    "compilerSelection": "The guarded native Linux AArch64 adapters select clang6.0 for CoreCLR, CoreFX and Core-Setup while retaining the independent Xenial sysroot and original native build targets.",
     "linker": "GNU ld",
     "linkerPath": "/usr/bin/ld",
     "linkerSelection": "Use clang's default GNU linker from binutils. The unavailable Bionic lld-6.0 package is not required or selected.",
@@ -85,7 +85,7 @@
     "packageSignatureVerification": true,
     "preparationRequiresRoot": true,
     "status": "prepared-signed-and-inventory-verified",
-    "automaticGenerationStatus": "SkipGenerateRootFs=true prevents the original ARM32/Trusty default generator from recreating the preserved independent ARM64 Xenial sysroot.",
+    "automaticGenerationStatus": "SkipGenerateRootFs=true prevents the original ARM32/Trusty default generator from recreating the preserved independent AArch64 Xenial sysroot.",
     "inventories": {
       "files": 17026,
       "symlinks": 5225,
@@ -165,12 +165,12 @@
       {
         "id": "independent-arm64-sysroot",
         "status": "passed-signed-preparation-and-inventory-verification",
-        "requirement": "Prevent the default ARM32/Trusty generator from running, pass the prepared ARM64 Xenial sysroot to every native producer and verify its signed package/file inventory."
+        "requirement": "Prevent the default ARM32/Trusty generator from running, pass the prepared AArch64 Xenial sysroot to every native producer and verify its signed package/file inventory."
       },
       {
         "id": "arm64-aspnetcore-installer-rid",
         "status": "passed-producer-origin-and-controlled-native-verification",
-        "requirement": "Make the core-sdk adapter honor the actual ARM64 RID instead of its hardcoded AspNetCoreSharedFxInstallerRid=linux-x64; verify final local ASP.NET input origins."
+        "requirement": "Make the core-sdk adapter honor the actual AArch64 RID instead of its hardcoded AspNetCoreSharedFxInstallerRid=linux-x64; verify final local ASP.NET input origins."
       },
       {
         "id": "clang6-core-setup-cross-selection",
@@ -180,12 +180,12 @@
       {
         "id": "native-arm64-crossgen",
         "status": "passed-producer-origin-and-controlled-native-verification",
-        "requirement": "Review native ARM64 same-architecture crossgen: CoreCLR copies IL CoreLib for this cross pair and the Core-Setup adapter forces DisableCrossgen=true for ARM. Preserve native-image construction through a guarded native-host path and validate actual outputs instead of claiming these defaults match a full SDK release."
+        "requirement": "Review native AArch64 same-architecture crossgen: CoreCLR copies IL CoreLib for this cross pair and the Core-Setup adapter forces DisableCrossgen=true for ARM. Preserve native-image construction through a guarded native-host path and validate actual outputs instead of claiming these defaults match a full SDK release."
       },
       {
         "id": "legacy-test-execution",
         "status": "passed-complete-original-suite-52-cases-156-commands",
-        "requirement": "The upstream shell smoke test skips roots other than known-good and hardcodes x64 defaults. Explicitly record any necessary ARM64/root adapter and executed cases; never treat its skip exit code as test success."
+        "requirement": "The upstream shell smoke test skips roots other than known-good and hardcodes x64 defaults. Explicitly record any necessary AArch64/root adapter and executed cases; never treat its skip exit code as test success."
       }
     ],
     "sharedComponents": "Both final SDK 3.0.3 shared-framework trees match verified local archive origins, the generation-aware 180-payload native audit passed, the complete original 52-case upstream suite passed, and the unchanged SDK passed all six controlled native checks in Ubuntu 22.04/24.04 and Debian 13 with explicit external dependencies. Consult the accompanying build-manifest.json for final collection and retained-evidence inventories.",
@@ -209,7 +209,7 @@
       "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json",
       "https://pkgs.dev.azure.com/dnceng/public/_packaging/myget-legacy/nuget/v3/index.json"
     ],
-    "nativeCoreClrPackageConstruction": "The explicit native Linux ARM64 adapter completed original CoreCLR NuGet packaging and produced the local CoreCLR/JIT transport packages. Native CoreLib crossgen completed; final SDK byte-origin and ABI verification remain separate.",
+    "nativeCoreClrPackageConstruction": "The explicit native Linux AArch64 adapter completed original CoreCLR NuGet packaging and produced the local CoreCLR/JIT transport packages. Native CoreLib crossgen completed; final SDK byte-origin and ABI verification remain separate.",
     "sourceLinkBootstrapPin": {
       "version": "1.0.0-beta2-19322-03",
       "declaration": "Pinned SourceLink855afb5 eng/Versions.props",
@@ -237,7 +237,7 @@
       "compilerProperty": "BuildNativeCompiler=--clang6.0",
       "crossProperty": "CrossBuild=true",
       "producerProperty": "Separate cross shell argument before compiler argument",
-      "actualCore30Validation": "CoreFX native and managed producers completed using clang6.0 and the recorded ARM64 cross/sysroot arguments.",
+      "actualCore30Validation": "CoreFX native and managed producers completed using clang6.0 and the recorded AArch64 cross/sysroot arguments.",
       "originalTryRunCache": "The original pinned three-probe cache configures successfully with the actual Bionic CMake 3.10; no captured-output compatibility patch is required.",
       "producerArgumentValidation": "The actual pinned MSBuild producer passed 14 recording-only argument checks, followed by successful CoreFX product compilation."
     },
@@ -296,11 +296,11 @@
     "aspnetNativeCrossgenSelection": {
       "condition": "NativeArm64Host=true, TargetOS=Linux, Platform=arm64",
       "property": "CrossgenToolPackagePath=crossgen",
-      "scope": "Existing ASP selector global property uses locally built native ARM64 crossgen; original JIT/tool copy and R2R/perfmap targets remain unchanged.",
-      "validation": "The actual property fixture and original ASP.NET producer completed with native ARM64 crossgen. Final framework byte identity, completed local copy provenance and all three controlled native checks passed."
+      "scope": "Existing ASP selector global property uses locally built native AArch64 crossgen; original JIT/tool copy and R2R/perfmap targets remain unchanged.",
+      "validation": "The actual property fixture and original ASP.NET producer completed with native AArch64 crossgen. Final framework byte identity, completed local copy provenance and all three controlled native checks passed."
     },
     "coreSdkNativeCrossgenSelection": {
-      "condition": "Verified native ARM64 flag, Architecture=arm64 and OSName=linux",
+      "condition": "Verified native AArch64 flag, Architecture=arm64 and OSName=linux",
       "architectureProperty": "Architecture=arm64",
       "nativeFlag": "CbodotnetNativeArm64Host=true",
       "sourceSelector": "bin/src/core-sdk.ca71659745c368343b726acc43e6f332f000b0ff/src/redist/targets/Crossgen.targets",
@@ -345,7 +345,7 @@
       "scope": "Explicit genuine prebuilt template inputs, not source-produced packages. Full original archive SHA256/SHA512, exact member hashes and nuspec metadata are verified; versions and product source remain unchanged."
     },
     "coreSdkAspNetRuntimeVersionFlow": {
-      "scope": "Verified native Linux ARM64 CoreSDK adapter only",
+      "scope": "Verified native Linux AArch64 CoreSDK adapter only",
       "alias": "MicrosoftAspNetCoreAppRuntimePackageVersion",
       "producerKey": "MicrosoftAspNetCoreAppRuntimeLinuxArm64PackageVersion",
       "metadata": "Original DoNotOverwrite and every other extra-version item are retained.",
@@ -398,7 +398,7 @@
     "referencePackagesUrl": "https://dotnetfeed.blob.core.windows.net/dotnet-core/assets/Private.SourceBuild.ReferencePackages.1.0.0-beta.20107.1.tar.gz",
     "runtime": "3.0.3",
     "officialSdkBaselineSha512": "ceeea4f5590dab0ccc8f016f61db72515bfe1b0d2308a1065696ec654088993f2fbfa7e5b12a486a229c9fbbda657be9f80e03879d9e3038b2d78ea4020f82c4",
-    "availability": "Official ARM64 bootstrap/final SDK and the declared PSB URLs responded successfully. Historical dotnetfeed reference/blob indices returned HTTP 403; exact Darc and both declared Arcade versions were absent from the checked current Azure feeds. Availability probes do not establish successful restore or build.",
+    "availability": "Official AArch64 bootstrap/final SDK and the declared PSB URLs responded successfully. Historical dotnetfeed reference/blob indices returned HTTP 403; exact Darc and both declared Arcade versions were absent from the checked current Azure feeds. Availability probes do not establish successful restore or build.",
     "sourceBuiltArtifactsSha256": "e8542ab2d6c4383b8c2aee8cdb86cd1952a542f8633df57082054bf48588a09b"
   },
   "verification": {

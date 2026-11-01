@@ -97,7 +97,7 @@
       {
         "path": "patches/core31/0001-forward-coreclr-native-arm64-sysroot.patch",
         "sha256": "3fde4882844987a9bbf68db30825dff7ed1d2755b4bb4811c3ecc59845fc107d",
-        "purpose": "Forward the independent target sysroot to CoreCLR on native ARM64; omit only redundant cross-architecture host tools."
+        "purpose": "Forward the independent target sysroot to CoreCLR on native AArch64; omit only redundant cross-architecture host tools."
       },
       {
         "path": "patches/core31/0002-forward-corefx-native-arm64-sysroot.patch",
@@ -112,7 +112,7 @@
       {
         "path": "patches/core31/0004-run-native-arm64-corelib-crossgen.patch",
         "sha256": "c069d03fc3e7dad5e5f3af41ac9b3334f8be0860aa76d1d787a4f3e951a758d0",
-        "purpose": "Run native ARM64 crossgen during same-architecture sysroot builds rather than copying the IL-only CoreLib. Package the actual native tools without assuming separate cross-architecture host outputs."
+        "purpose": "Run native AArch64 crossgen during same-architecture sysroot builds rather than copying the IL-only CoreLib. Package the actual native tools without assuming separate cross-architecture host outputs."
       },
       {
         "path": "patches/core31/0005-preserve-explicit-source-acquisition-command.patch",

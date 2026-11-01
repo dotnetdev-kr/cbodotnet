@@ -296,7 +296,7 @@ class CI:
             if mode == '100755':
                 target.chmod(0o755)
             rows.append(dict(path=target.relative_to(self.output).as_posix(), gitMode=mode, gitBlob=blob, **fingerprint(target)))
-        selected = json.loads((self.snapshot / ('profiles/dotnet-' + self.sdk + ('-' + ARCH['rid'] + '.json'))).read_text())
+        selected = json.loads(LEGACY_ARCH['profile_path'](self.snapshot, self.sdk, ARCH['arch']).read_text())
         require(selected['source']['commit'] == self.commit and selected['build']['system'] == 'legacy-source-build-direct', 'Profile mismatch')
         # The committed profile retains historical local results. This run's
         # derived control must not present those measurements as new CI evidence.
@@ -387,7 +387,7 @@ class CI:
             except collector['CollectionError'] as error:
                 raise ValueError('Early direct-profile collector validation failed: '+str(error))
             write(self.reports / 'prepare/direct-profile-preflight.json', dict(status='passed', **preflight))
-        recipe = self.snapshot / (('containers/' + ARCH['arch'] + '-') + self.family + '.Containerfile')
+        recipe = LEGACY_ARCH['container_path'](self.snapshot, self.family, ARCH['arch'])
         profile = json.loads(self.profile.read_text())
         base = profile['container']['repository'] + '@' + profile['container']['digest']
         require(recipe.read_text().splitlines()[0] == 'FROM ' + base, 'Builder base differs from the pinned profile')
@@ -589,7 +589,7 @@ class CI:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
+    parser.add_argument('--arch', type=LEGACY_ARCH['canonical_arch'], choices=['arm64', 'x64'], metavar='{aarch64,x64}', default='arm64')
     parser.add_argument('--family', choices=CONFIG, required=True)
     parser.add_argument('stage', choices=['prepare', 'build', 'scan', 'test', 'verify', 'collect', 'validate', 'verify-release', 'qualify'])
     for name in ('workspace', 'output-dir', 'project-root'):

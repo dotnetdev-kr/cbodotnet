@@ -18,14 +18,14 @@ Windows loopback port forwarded to container TCP port 5000.
 .PARAMETER NoAttach
 Prepare and print connection details without opening interactive Bash.
 .EXAMPLE
-./start-wslc-arm64.cmd
+./start-wslc-aarch64.cmd
 .EXAMPLE
 ./start-wslc-x64.cmd "D:\Releases\sdk-linux-x64.tar.gz" -Name sdk-x64-test -Port 5001
 #>
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)]
-    [ValidateSet('arm64', 'x64')]
+    [ValidateSet('aarch64', 'arm64', 'x64')]
     [string] $Architecture,
 
     [Parameter(Position = 0)]
@@ -58,15 +58,18 @@ function Invoke-Wslc {
 }
 
 try {
+    # Windows and upstream container images retain their official Arm64 names.
+    $productArchitecture = if ($Architecture -in @('aarch64', 'arm64')) { 'arm64' } else { 'x64' }
+    $Architecture = if ($productArchitecture -eq 'arm64') { 'aarch64' } else { 'x64' }
     $hostArchitecture = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant()
-    if (-not $IsWindows -or $hostArchitecture -ne $Architecture) {
+    if (-not $IsWindows -or $hostArchitecture -ne $productArchitecture) {
         throw "linux-$Architecture requires native Windows $Architecture with wslc. This OS is $hostArchitecture. wslc 3.0.3 has no --platform option; use the matching host."
     }
     if (-not $ArchivePath) {
         $ArchivePath = Join-Path $PSScriptRoot "../artifacts/10.0.403-linux-$Architecture/cbodotnet-sdk-10.0.403-linux-$Architecture-build.1.tar.gz"
     }
     if (-not (Test-Path -LiteralPath $ArchivePath -PathType Leaf)) {
-        throw "SDK archive not found: $ArchivePath. Pass the built linux-$Architecture tar.gz as the first argument. Only the ARM64 archive has been built in this project so far."
+        throw "SDK archive not found: $ArchivePath. Pass a downloaded linux-$Architecture SDK tar.gz as the first argument."
     }
     $ArchivePath = (Resolve-Path -LiteralPath $ArchivePath).ProviderPath
     if (-not $ArchivePath.EndsWith('.tar.gz', [StringComparison]::OrdinalIgnoreCase)) {
@@ -80,7 +83,7 @@ try {
     }
 
     $sha256 = (Get-FileHash -LiteralPath $ArchivePath -Algorithm SHA256).Hash.ToLowerInvariant()
-    $imageSuffix = if ($Architecture -eq 'arm64') { 'arm64v8' } else { 'amd64' }
+    $imageSuffix = if ($productArchitecture -eq 'arm64') { 'arm64v8' } else { 'amd64' }
     $image = "mcr.microsoft.com/dotnet/runtime-deps:10.0-noble-$imageSuffix"
     Write-Host "Archive: $ArchivePath"
     Write-Host "SHA256:  $sha256"

@@ -1,6 +1,6 @@
 # Native Linux x64 CI and source delivery
 
-The [x64 workflow](../.github/workflows/sdk-x64.yml) provides separate native x64 jobs for the same eight pinned SDK versions as the ARM64 matrix. All eight have passed actual hosted builds and complete independent downloaded SDK/source qualification, recorded in the [x64 results](ci-x64-results.md). Build environments, bootstrap inputs, sysroots, package identities, ELF checks and native user-space results are selected explicitly for x64. These qualifications apply to their exact pinned inputs and run identities.
+The [x64 workflow](../.github/workflows/sdk-x64.yml) provides separate native x64 jobs for the same eight pinned SDK versions as the AArch64 matrix. All eight have passed actual hosted builds and complete independent downloaded SDK/source qualification, recorded in the [x64 results](ci-x64-results.md). Build environments, bootstrap inputs, sysroots, package identities, ELF checks and native user-space results are selected explicitly for x64. These qualifications apply to their exact pinned inputs and run identities.
 
 ## Run a pinned profile
 
@@ -53,6 +53,6 @@ python3 scripts/ci-delivery.py \
   --expected-run-id RUN_ID --expected-run-attempt ATTEMPT
 ```
 
-The verifier checks both transport hashes, safe extraction, the exact x64 source target, SDK identity and every matching family gate. It executes trusted checkout code; downloaded source and orchestration files are evidence. ARM64 remains the default for existing commands, so x64 delivery verification requires explicit `--arch x64`.
+The verifier checks both transport hashes, safe extraction, the exact x64 source target, SDK identity and every matching family gate. It executes trusted checkout code; downloaded source and orchestration files are evidence. AArch64 remains the default for existing commands, so x64 delivery verification requires explicit `--arch x64`.
 
 Actions artifacts use 14-day retention. Optional unpublished drafts default off, require all selected builds to pass, revalidate the downloaded SDK/source delivery and refuse existing tags or assets. Public release publication remains a separate action.

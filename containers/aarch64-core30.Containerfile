@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/dotnet/core/sdk@sha256:0d56b2a713c65b541414c8f97ffc1ff614bc6af6375e4119d64001e8854e4b81
 
-# The retained native ARM64 Bionic image supplies OpenSSL 1.1 and ICU 60 for
+# The retained native AArch64 Bionic image supplies OpenSSL 1.1 and ICU 60 for
 # the separately installed .NET Core 3.0.100 bootstrap SDK.
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \

@@ -35,7 +35,7 @@
     "digest": "sha256:a4028735b2ed1209c9116cebc74ae1c2fb27ea7d24b1be3f495fee0bac27dd52",
     "configDigest": "sha256:ed41718009efbebaa18eb574da60b1d94bee7d1f10fe062a55b72aa558b2f70a",
     "distribution": "ubuntu-20.04",
-    "containerfile": "containers/arm64-core31.Containerfile",
+    "containerfile": "containers/aarch64-core31.Containerfile",
     "derivedImageBuilt": true,
     "derivedImageId": "ab750d90bdf890c078039cf6f52d3dd44862f3df8f6cdaf4ea771a802e18e3a0",
     "derivedImageHistory": [
@@ -71,7 +71,7 @@
     "maxCpuCount": 2,
     "entryPoint": "./build.sh",
     "sourceAcquisitionAdapterRequired": true,
-    "note": "The direct online graph passed with normal FetchSources and every component/report target retained. Eleven guarded changes forward the signed target sysroot, retain actual ARM64 native crossgen, preserve explicit acquisition, map five retired package indexes without version changes, complete silent CMake probe metadata and honor explicit bootstrap HTTP transport. Both framework origins, the 180-member split native chain, all 52 upstream cases and native checks in three user spaces passed. Explicit external OpenSSL/ICU inputs and nonzero prebuilt findings remain recorded; no clean-bootstrap or Stage 2 claim.",
+    "note": "The direct online graph passed with normal FetchSources and every component/report target retained. Eleven guarded changes forward the signed target sysroot, retain actual AArch64 native crossgen, preserve explicit acquisition, map five retired package indexes without version changes, complete silent CMake probe metadata and honor explicit bootstrap HTTP transport. Both framework origins, the 180-member split native chain, all 52 upstream cases and native checks in three user spaces passed. Explicit external OpenSSL/ICU inputs and nonzero prebuilt findings remain recorded; no clean-bootstrap or Stage 2 claim.",
     "cpuAffinity": "2,3",
     "bootstrapHttpHandler": {
       "environmentVariable": "DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER",
@@ -221,7 +221,7 @@
       "addedLines": 3,
       "removedLines": 0,
       "component": null,
-      "purpose": "Forward the independent target sysroot to CoreCLR on native ARM64; omit only redundant cross-architecture host tools."
+      "purpose": "Forward the independent target sysroot to CoreCLR on native AArch64; omit only redundant cross-architecture host tools."
     },
     {
       "name": "0002-forward-corefx-native-arm64-sysroot.patch",
@@ -258,7 +258,7 @@
         "commit": "c17d273aa03d4b9d14c92248a91f0d0faa881b98",
         "path": "build.sh"
       },
-      "purpose": "Run native ARM64 crossgen during same-architecture sysroot builds rather than copying the IL-only CoreLib. Package the actual native tools without assuming separate cross-architecture host outputs."
+      "purpose": "Run native AArch64 crossgen during same-architecture sysroot builds rather than copying the IL-only CoreLib. Package the actual native tools without assuming separate cross-architecture host outputs."
     },
     {
       "name": "0005-preserve-explicit-source-acquisition-command.patch",

@@ -1,0 +1,117 @@
+name: Publish qualified SDK releases
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Previously qualified two-architecture delivery to publish
+        type: choice
+        default: all
+        required: true
+        options: [all, net10, net9, net8, net7, net6, net5, core31, core30]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-qualified-releases
+  cancel-in-progress: false
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  stage:
+    if: github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    name: Verify and stage ${{ matrix.target }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      actions: read
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        target: ${{ fromJSON(inputs.target == 'all' && '["net10","net9","net8","net7","net6","net5","core31","core30"]' || format('["{0}"]', inputs.target)) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Receive exact qualified producers and verify all SDK/source gates
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET: ${{ matrix.target }}
+        run: python3 scripts/prepare-release.py --target "$TARGET" --workspace "$RUNNER_TEMP/received"
+      - name: Stage unchanged SDKs, actual used sources and complete evidence
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          version=$(python3 scripts/ci-sdk.py describe --target "$TARGET" | python3 -c 'import json,sys;print(json.load(sys.stdin)["sdk_version"])')
+          python3 scripts/publish-release.py stage --target "$TARGET" --sdk-version "$version" \
+            --deliveries "$RUNNER_TEMP/received/deliveries.json" --output "$RUNNER_TEMP/release-staging"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: public-${{ matrix.target }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/release-staging/*
+          compression-level: 0
+          retention-days: 14
+          if-no-files-found: error
+          overwrite: false
+
+  publish:
+    needs: stage
+    name: Publish ${{ matrix.target }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: write
+      actions: read
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        target: ${{ fromJSON(inputs.target == 'all' && '["net10","net9","net8","net7","net6","net5","core31","core30"]' || format('["{0}"]', inputs.target)) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Select this run's unique staged artifact
+        id: artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?per_page=100" > "$RUNNER_TEMP/artifacts.json"
+          python3 - "$RUNNER_TEMP/artifacts.json" "$TARGET" <<'PY'
+          import json, os, sys
+          name = 'public-' + sys.argv[2] + '-' + os.environ['GITHUB_RUN_ID'] + '-' + os.environ['GITHUB_RUN_ATTEMPT']
+          rows = [row for row in json.load(open(sys.argv[1]))['artifacts'] if row['name'] == name and not row['expired']]
+          if len(rows) != 1:
+              raise SystemExit('An exact unique current-run stage artifact is required')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('id=' + str(rows[0]['id']) + '\n')
+          PY
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          artifact-ids: ${{ steps.artifact.outputs.id }}
+          path: ${{ runner.temp }}/release-staging
+          merge-multiple: true
+      - name: Publish only a complete digest-matched release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/publish-release.py publish --staging "$RUNNER_TEMP/release-staging" --target-commit "$GITHUB_SHA"
+
+  pages:
+    needs: publish
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - name: Refresh public download links
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref main

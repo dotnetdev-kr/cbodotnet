@@ -21,7 +21,7 @@ class ReusedFrameworkSourceTests(unittest.TestCase):
     def setUp(self):
         self.temporary=tempfile.TemporaryDirectory(prefix='cbodotnet-shared-source-test.')
         self.addCleanup(self.temporary.cleanup); self.root=Path(self.temporary.name)
-        self.profile=json.loads((ROOT/'profiles/dotnet-10.0.403-linux-arm64.json').read_text())
+        self.profile=json.loads((ROOT/'profiles/dotnet-10.0.403-linux-aarch64.json').read_text())
 
     def archive(self,mutation=None):
         path=self.root/'sdk.tar.gz'
@@ -101,7 +101,7 @@ class ReusedFrameworkSourceTests(unittest.TestCase):
                     path=shared/'src'/name; path.mkdir(parents=True); (path/'source.cs').write_text(name+'\n')
                 self.git(shared,'add','.'); self.git(shared,'commit','-qm','Synthetic complete shared source')
                 shared_pin=self.git(shared,'rev-parse','HEAD')
-                profile=json.loads((ROOT/('profiles/dotnet-10.0.403-linux-'+arch+'.json')).read_text())
+                profile=json.loads((ROOT/('profiles/dotnet-10.0.403-linux-'+('aarch64' if arch=='arm64' else arch)+'.json')).read_text())
                 profile['source']['commit']=main_pin; profile['upstreamInputs']['sharedVmrCommit']=shared_pin
                 profile_path=base/'profile.json'; profile_path.write_text(json.dumps(profile))
                 archive=source/('artifacts/assets/Release/Sdk/dotnet-sdk-10.0.403-linux-'+arch+'.tar.gz')

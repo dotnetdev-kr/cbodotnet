@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/dotnet-buildtools/prereqs@sha256:7ef8f6ee1b9982511349757443eb4844f0db4f8cef1aff6148a7ba1c25d7c6f4
 
-# Native ARM64 tools for the generated .NET 7 installer source-build tree.
+# Native AArch64 tools for the generated .NET 6 installer source-build tree.
 # Target headers and libraries come from a separately prepared Xenial sysroot.
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \

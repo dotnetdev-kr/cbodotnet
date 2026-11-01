@@ -21,7 +21,7 @@ import xml.etree.ElementTree as ET
 sys.dont_write_bytecode = True
 os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
 import ci_net9_cases as N9
-from ci_arch import get_arch
+from ci_arch import get_arch, profile_path, container_path
 HERE = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location('ci10_primitives', HERE / 'ci-net10-evidence.py')
 G = importlib.util.module_from_spec(spec); spec.loader.exec_module(G)
@@ -184,7 +184,7 @@ def freeze(project, source, release, version, identity, workflow, arch='arm64'):
     (destination / 'project-commit.txt').write_bytes(commit)
     tree, _ = G.project_tree(release, rows, arch=arch)
     require(G.git_hash('commit', commit) == identity['projectCommit'] and commit.startswith(('tree ' + tree + '\n').encode()), 'The frozen Git tree differs')
-    profile = destination / 'project/profiles' / ('dotnet-' + V[version]['sdk'] + '-' + target['rid'] + '.json')
+    profile = profile_path(destination / 'project', V[version]['sdk'], arch)
     original = load(profile)
     require(original['source']['commit'] == V[version]['commit'] and original['build']['sourceOnly'] is V[version]['sourceOnly']
             and original['host']['architecture'] == arch and original['target']['rid'] == target['rid'], 'Selected profile differs')
@@ -691,6 +691,6 @@ if __name__ == '__main__':
     import argparse
     parser=argparse.ArgumentParser(description=__doc__); parser.add_argument('action',choices=['sysroot'])
     parser.add_argument('--version',choices=['8','9'],required=True); parser.add_argument('--output',type=Path,required=True)
-    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
+    parser.add_argument('--arch', type=lambda value: get_arch(value)['arch'], choices=['arm64', 'x64'], metavar='{aarch64,x64}', default='arm64')
     args=parser.parse_args()
     verify_sysroot(Path('/inputs/' + args.arch + '-xenial'),Path('/reports'),args.version,args.output,args.arch)

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Community .NET SDK builds for glibc Linux x64 and aarch64, with the sources used for each build.">
+<title>cbodotnet — .NET SDK builds</title>
+<style>
+body { max-width: 68em; margin: 2em auto; padding: 0 1em; color: #111; background: white; font: 17px/1.45 Georgia, "Times New Roman", serif; }
+h1 { margin-bottom: .15em; font-size: 2em; }
+h2 { margin-top: 1.5em; font-size: 1.3em; }
+a { color: #0000b8; }
+a:visited { color: #551a8b; }
+table { border-collapse: collapse; width: 100%; text-align: left; }
+th, td { padding: .55em .8em .55em 0; vertical-align: top; border-bottom: 1px solid #ddd; }
+thead th { border-bottom: 1px solid #777; }
+small, footer { font-size: .85em; }
+.downloads { overflow-x: auto; }
+footer { margin-top: 2em; padding-top: .75em; border-top: 1px solid #bbb; }
+@media (max-width: 38em) { body { margin-top: 1em; } table { min-width: 36em; } }
+</style>
+</head>
+<body>
+<h1>cbodotnet</h1>
+<p>Community .NET SDK builds for glibc Linux x64 and aarch64, independently of the upstream support lifecycle.</p>
+<h2>Downloads</h2>
+<p>Each build provides the SDK, the sources actually used, and verification evidence. Select <strong>tar.gz</strong> to download an SDK.</p>
+<div class="downloads">
+<table>
+<thead><tr><th scope="col">SDK version</th><th scope="col">Linux x64</th><th scope="col">Linux aarch64</th><th scope="col">Verification</th></tr></thead>
+<tbody>
+{{DOWNLOAD_ROWS}}
+</tbody>
+</table>
+</div>
+<h2>Using a build</h2>
+<p>Verify the SHA-256 checksum, extract the SDK archive, and run <code>./dotnet --info</code>. These are glibc builds; distribution libraries are still required. Native checks cover Ubuntu 22.04, Ubuntu 24.04 and Debian 13. .NET 5 and Core 3.x require the recorded OpenSSL 1.1 dependencies; Core 3.x on Debian 13 also uses ICU 66.</p>
+<p>These are community builds, without Microsoft support. Construction details and any reused upstream binary inputs are recorded in the release evidence.</p>
+<footer>
+<a href="{{REPOSITORY_URL}}">Source repository and build documentation</a> &middot; <a href="releases.json">Download catalog (JSON)</a><br>
+Updated {{GENERATED_AT}}
+</footer>
+</body>
+</html>

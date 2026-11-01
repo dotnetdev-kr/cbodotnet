@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "repository": "dotnetdev-kr/cbodotnet",
+  "builds": [
+    {
+      "target": "net10",
+      "sdkVersion": "10.0.403",
+      "architectures": {
+        "aarch64": {
+          "runId": "41211183670",
+          "runAttempt": "1",
+          "artifactId": "13048586144",
+          "projectCommit": "5721c5989e277d98b6af7c782d1b660459f8298e"
+        },
+        "x64": {
+          "runId": "41301145771",
+          "runAttempt": "1",
+          "artifactId": "13083076281",
+          "projectCommit": "29e878271353d95c8d6db4bb358976bd7ee6e988"
+        }
+      }
+    },
+    {
+      "target": "net9",
+      "sdkVersion": "9.0.123",
+      "architectures": {
+        "aarch64": {
+          "runId": "41221988617",
+          "runAttempt": "1",
+          "artifactId": "13053748451",
+          "projectCommit": "48c035862eed5cea566e76287db0ab3fc36d206c"
+        },
+        "x64": {
+          "runId": "41295430879",
+          "runAttempt": "1",
+          "artifactId": "13083141913",
+          "projectCommit": "14211bf22a49ca454740780c28c181e880bf7cbf"
+        }
+      }
+    },
+    {
+      "target": "net8",
+      "sdkVersion": "8.0.133",
+      "architectures": {
+        "aarch64": {
+          "runId": "41215198202",
+          "runAttempt": "1",
+          "artifactId": "13050631116",
+          "projectCommit": "cdbf454140a4b661672513a7e6dd5ba392517caa"
+        },
+        "x64": {
+          "runId": "41295751388",
+          "runAttempt": "1",
+          "artifactId": "13081274822",
+          "projectCommit": "14211bf22a49ca454740780c28c181e880bf7cbf"
+        }
+      }
+    },
+    {
+      "target": "net7",
+      "sdkVersion": "7.0.120",
+      "architectures": {
+        "aarch64": {
+          "runId": "41213743927",
+          "runAttempt": "1",
+          "artifactId": "13049856111",
+          "projectCommit": "9ee4f3afd9014e9b333cf30144ce0a25bb9c397b"
+        },
+        "x64": {
+          "runId": "41299659746",
+          "runAttempt": "1",
+          "artifactId": "13084341220",
+          "projectCommit": "53eb6e63312738d10c0676cd1be0d85ef1038cf0"
+        }
+      }
+    },
+    {
+      "target": "net6",
+      "sdkVersion": "6.0.136",
+      "architectures": {
+        "aarch64": {
+          "runId": "41213741868",
+          "runAttempt": "1",
+          "artifactId": "13049474452",
+          "projectCommit": "9ee4f3afd9014e9b333cf30144ce0a25bb9c397b"
+        },
+        "x64": {
+          "runId": "41297567596",
+          "runAttempt": "1",
+          "artifactId": "13082614925",
+          "projectCommit": "e452427e84ce3bce9cd97fe03ce849e7e4dcd0d1"
+        }
+      }
+    },
+    {
+      "target": "net5",
+      "sdkVersion": "5.0.214",
+      "architectures": {
+        "aarch64": {
+          "runId": "41208663523",
+          "runAttempt": "1",
+          "artifactId": "13047775297",
+          "projectCommit": "3004f54d1a66a9b50d84f46a6ff2e84607f12ba0"
+        },
+        "x64": {
+          "runId": "41306229298",
+          "runAttempt": "1",
+          "artifactId": "13085986503",
+          "projectCommit": "48abfb7304296c84719c97e69500592f58678a73"
+        }
+      }
+    },
+    {
+      "target": "core31",
+      "sdkVersion": "3.1.426",
+      "architectures": {
+        "aarch64": {
+          "runId": "41207954455",
+          "runAttempt": "1",
+          "artifactId": "13047185468",
+          "projectCommit": "7f2a4c61e8ee932957932b8c6659badb8e5c63eb"
+        },
+        "x64": {
+          "runId": "41306234685",
+          "runAttempt": "1",
+          "artifactId": "13086272280",
+          "projectCommit": "48abfb7304296c84719c97e69500592f58678a73"
+        }
+      }
+    },
+    {
+      "target": "core30",
+      "sdkVersion": "3.0.103",
+      "architectures": {
+        "aarch64": {
+          "runId": "41222732123",
+          "runAttempt": "1",
+          "artifactId": "13052963178",
+          "projectCommit": "94c9f319e054c8a835ea162e09139d2e01f6fe5a"
+        },
+        "x64": {
+          "runId": "41306232092",
+          "runAttempt": "1",
+          "artifactId": "13084863879",
+          "projectCommit": "48abfb7304296c84719c97e69500592f58678a73"
+        }
+      }
+    }
+  ]
+}

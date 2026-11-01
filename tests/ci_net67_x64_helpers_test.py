@@ -234,7 +234,7 @@ class NativeHelpers(unittest.TestCase):
             with self.assertRaisesRegex(helper.PatchError, 'Original adapter Git blob differs'): helper.run(args, {'changed': False})
             self.assertEqual(target.read_bytes(), original)
         x64 = json.loads((ROOT / 'profiles/dotnet-7.0.120-linux-x64.json').read_text())
-        arm = json.loads((ROOT / 'profiles/dotnet-7.0.120-linux-arm64.json').read_text())
+        arm = json.loads((ROOT / 'profiles/dotnet-7.0.120-linux-aarch64.json').read_text())
         self.assertEqual(x64['target']['rid'], 'linux-x64'); self.assertEqual(x64['upstreamInputs']['bootstrapIlToolsRid'], 'centos.8-x64')
         self.assertTrue(x64['build']['portableBuild']); self.assertTrue(x64['build']['crossBuild'])
         self.assertFalse(any(row['path'].endswith(selected['name']) for row in arm['build']['patches']))

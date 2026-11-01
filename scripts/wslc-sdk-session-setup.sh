@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-architecture=${1:?Expected arm64 or x64}
+architecture=${1:?Expected aarch64 or x64}
 expected_sha=${2:?Expected SDK archive SHA256}
 sdk_root=/opt/cbodotnet/sdk
 archive=${3:?Expected copied SDK archive path}
 case "$architecture" in
-  arm64) expected_machine=aarch64; expected_elf=183 ;;
+  aarch64|arm64) expected_machine=aarch64; expected_elf=183 ;;
   x64) expected_machine=x86_64; expected_elf=62 ;;
   *) echo "Unsupported architecture: $architecture" >&2; exit 1 ;;
 esac

@@ -33,7 +33,7 @@
     "digest": "sha256:a4028735b2ed1209c9116cebc74ae1c2fb27ea7d24b1be3f495fee0bac27dd52",
     "status": "image-built",
     "derivedImageId": "d7f3d9624f9f2ec9d6dfb3c0ed1743eab582378d0a4ee40dfb0bc9e66bed288a",
-    "purpose": "Retained native ARM64 Focal base with OpenSSL 1.1 and ICU 66 for historical bootstrap tools."
+    "purpose": "Retained native AArch64 Focal base with OpenSSL 1.1 and ICU 66 for historical bootstrap tools."
   },
   "legacySource": {
     "componentManifest": "eng/Version.Details.xml",
@@ -95,7 +95,7 @@
       {
         "path": "patches/net5/0001-run-native-arm64-corelib-crossgen.patch",
         "sha256": "08e6d58bd7541ee1abceef8bea1c177c4e810cf0799cd1b499a044eb93430d07",
-        "purpose": "Run native ARM64 crossgen for CoreLib in same-system sysroot mode without disabling cross compilation."
+        "purpose": "Run native AArch64 crossgen for CoreLib in same-system sysroot mode without disabling cross compilation."
       },
       {
         "path": "patches/net5/0002-avoid-duplicate-portable-aspnet-runtime.patch",
@@ -119,7 +119,7 @@
       }
     ],
     "sharedComponents": "Verified locally built Microsoft.NETCore.App 5.0.17 and Microsoft.AspNetCore.App 5.0.17; exact shared-tree byte identity and completed local installer copies are retained.",
-    "portabilityStatus": "Clang 9 uses the signed Xenial sysroot and AArch64 target/GCC toolchain. Native CoreCLR, main ARM64 CoreLib crossgen and complete SDK packaging passed. The 18 shipped AArch64 ELFs require at most GLIBC 2.17, GLIBCXX 3.4.21 and CXXABI 1.3.7. Controlled Ubuntu 22.04/24.04 and Debian 13 checks pass using separately recorded OpenSSL 1.1 dependencies."
+    "portabilityStatus": "Clang 9 uses the signed Xenial sysroot and AArch64 target/GCC toolchain. Native CoreCLR, main AArch64 CoreLib crossgen and complete SDK packaging passed. The 18 shipped AArch64 ELFs require at most GLIBC 2.17, GLIBCXX 3.4.21 and CXXABI 1.3.7. Controlled Ubuntu 22.04/24.04 and Debian 13 checks pass using separately recorded OpenSSL 1.1 dependencies."
   },
   "construction": {
     "upstreamSharedRuntimeReused": false,

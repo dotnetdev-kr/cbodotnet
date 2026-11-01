@@ -1,8 +1,8 @@
-# Version-specific ARM64 CI and source delivery
+# Version-specific AArch64 CI and source delivery
 
-GitHub Actions is the supported build environment. The [matrix workflow](../.github/workflows/sdk-matrix.yml) runs the pinned profiles on fresh native Linux ARM64 workers; the [x64 workflow](ci-x64.md) supplies the matching native x64 jobs. Version adapters retain their original upstream tests, source construction policy and required compatibility inputs. Every new run must pass its own build and downloaded delivery verification.
+GitHub Actions is the supported build environment. The [matrix workflow](../.github/workflows/sdk-matrix.yml) runs the pinned profiles on fresh native Linux AArch64 workers; the [x64 workflow](ci-x64.md) supplies the matching native x64 jobs. Version adapters retain their original upstream tests, source construction policy and required compatibility inputs. Every new run must pass its own build and downloaded delivery verification.
 
-The matrix enables .NET 5–10 and .NET Core 3.0/3.1. Select `all` for all eight profiles or one pinned version. All eight selected ARM64 profiles have passed actual hosted and downloaded delivery qualification. The [qualification records](ci-matrix-results.md) identify their exact runs and commits, including .NET 10's matching source revision for reused shared inputs. A previous successful build does not establish a new run's result.
+The matrix enables .NET 5–10 and .NET Core 3.0/3.1. Select `all` for all eight profiles or one pinned version. All eight selected AArch64 profiles have passed actual hosted and downloaded delivery qualification. The [qualification records](ci-matrix-results.md) identify their exact runs and commits, including .NET 10's matching source revision for reused shared inputs. A previous successful build does not establish a new run's result.
 
 ## Run a pinned profile
 
@@ -34,11 +34,13 @@ Build and bootstrap commands run inside the workflow's pinned Linux containers. 
 
 ## Compatibility and required gates
 
-The product target is generic glibc Linux, `linux-arm64` or `linux-x64`. An older SDK may print a distribution-specific host RID; that does not change the package target. Builds use signed Xenial sysroots with GLIBC ceilings of 2.23, or Bionic/2.27 for .NET 10, to isolate target headers and libraries from the newer build host. Symbol maxima are measurements, not tested minimum operating-system versions.
+The public architecture names are `aarch64` and `x64`. Project profile/Containerfile names, Actions artifact labels and release downloads use these names. The official .NET target RIDs remain `linux-arm64` and `linux-x64`; package identifiers, OCI/Debian architecture values and original authenticated delivery paths retain their upstream names. `--arch aarch64` selects the official `linux-arm64` identity; the legacy `--arch arm64` alias remains accepted for historical verification.
+
+The product target is generic glibc Linux. An older SDK may print a distribution-specific host RID; that does not change the package target. Builds use signed Xenial sysroots with GLIBC ceilings of 2.23, or Bionic/2.27 for .NET 10, to isolate target headers and libraries from the newer build host. Symbol maxima are measurements, not tested minimum operating-system versions.
 
 Each successful run requires ordered build, scan or explicit scan-applicability, original upstream tests, source packaging, native user-space verification and final collection/evidence gates. The unchanged SDK is checked in Ubuntu 22.04, Ubuntu 24.04 and Debian 13 user spaces. Six functional checks cover console DLL/apphost execution, RSA/SHA-256, random bytes, ICU formatting and ASP.NET HTTP, alongside ELF/ABI inspection. Separate user spaces share the runner kernel; they do not establish support for every kernel, distribution, workload, diagnostic component or external native package. Musl/Alpine is outside this qualification.
 
-.NET 5 and Core 3.x use recorded external OpenSSL 1.1 inputs in all three user spaces. Core 3.x on Debian 13 additionally selects a recorded ICU 66 prefix; Ubuntu uses stock ICU. These dependencies stay outside the unchanged SDK archive and do not establish stock OpenSSL 3-only compatibility. Exact versions, selected overrides and per-architecture measurements are in the [ARM64 results](ci-matrix-results.md) and [x64 results](ci-x64-results.md).
+.NET 5 and Core 3.x use recorded external OpenSSL 1.1 inputs in all three user spaces. Core 3.x on Debian 13 additionally selects a recorded ICU 66 prefix; Ubuntu uses stock ICU. These dependencies stay outside the unchanged SDK archive and do not establish stock OpenSSL 3-only compatibility. Exact versions, selected overrides and per-architecture measurements are in the [AArch64 results](ci-matrix-results.md) and [x64 results](ci-x64-results.md).
 
 The .NET 9/10 scenario runner uses an explicit outer completion fence for the [upstream xUnit XML race](https://github.com/xunit/xunit/issues/2090). It waits until the existing XML sink finishes processing the final message; test assertions, filters, skips and failure status remain unchanged. The original and patched runner, helper fingerprint and actual captured source are bound by the delivery evidence. Raw test results and counters must still pass the version-specific gates.
 
@@ -66,7 +68,7 @@ From a trusted checkout at the build's orchestration commit, or a later trusted 
 
 ```bash
 python3 scripts/ci-delivery.py \
-  --arch arm64 \
+  --arch aarch64 \
   --download-dir /absolute/download \
   --destination /absolute/new-verification-directory \
   --target net7 --sdk-version 7.0.120 \
@@ -76,6 +78,6 @@ python3 scripts/ci-delivery.py \
 
 The extractor refuses existing destinations, unexpected transport files, path escapes, links, special files, duplicate members and insufficient extraction capacity. It executes trusted repository verification code, not code from the downloaded source archive. The common validator requires the complete source payload and delegates SDK, upstream-result and construction checks to the matching version adapter.
 
-For `gh run download`, select the exact artifact name `sdk-TARGET-linux-arm64-RUN-ATTEMPT`; x64 uses the matching `linux-x64` name. Download and unzip the Actions artifact first: the three files consumed by `ci-delivery.py` are its transport `.tar.gz`, `.sha256` and `.sha512`. Install the inner `cbodotnet-sdk-*.tar.gz` after delivery verification, rather than installing the outer transport bundle.
+For `gh run download`, select the exact artifact name `sdk-TARGET-linux-aarch64-RUN-ATTEMPT`; historical runs use `linux-arm64`, and x64 uses `linux-x64`. Download and unzip the Actions artifact first: the three files consumed by `ci-delivery.py` are its transport `.tar.gz`, `.sha256` and `.sha512`. Transport and inner archive paths retain the official .NET RID so original evidence remains unchanged. Install the inner `cbodotnet-sdk-*.tar.gz` after delivery verification, rather than installing the outer transport bundle.
 
 Actions artifacts are retained for 14 days. Historical qualification records describe their exact builds even after the download expires; dispatch a new run to produce a new delivery. Optional draft creation uses `create_draft=true`, requires all selected builds to pass and revalidates the downloaded artifact. Drafts are unpublished and public release publication remains a separate action.

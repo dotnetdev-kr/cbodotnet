@@ -386,7 +386,7 @@ class LegacyFixtures(unittest.TestCase):
                 runner.workspace = self.root / family; runner.source = runner.workspace / 'source'
                 runner.inputs = runner.workspace / 'inputs'; runner.output = runner.workspace / 'output'
                 runner.reports = runner.output / 'reports'; runner.snapshot = ROOT
-                runner.profile = ROOT / ('profiles/dotnet-' + runner.sdk + '-linux-arm64.json')
+                runner.profile = ROOT / ('profiles/dotnet-' + runner.sdk + '-linux-aarch64.json')
                 runner.run_id = '42'; runner.attempt = '1'; runner.engine = ['fixture-engine']
                 runner.state = runner.workspace / 'state.json'
                 (runner.reports / 'ci-inputs').mkdir(parents=True)

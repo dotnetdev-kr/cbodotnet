@@ -52,7 +52,7 @@
       {
         "path": "patches/net8/0001-support-arm64-cross-components-host.patch",
         "sha256": "d8d94bc40c11ed96bb9cc14a9ada399929999cda9c09da86eac4a2d961c1e1e3",
-        "purpose": "Backport ARM64 Linux build-host detection for the required cross-components tools from the pinned .NET 9 source."
+        "purpose": "Backport AArch64 Linux build-host detection for the required cross-components tools from the pinned .NET 9 source."
       },
       {
         "path": "patches/net8/0002-preserve-portable-aspnetcore-target.patch",
@@ -64,7 +64,7 @@
   },
   "construction": {
     "upstreamSharedRuntimeReused": false,
-    "note": "Native x64 qualification requires fresh build, original upstream tests, complete consumed-framework byte comparisons, actual source delivery and three native user spaces. No ARM64 result or historical archive hash qualifies x64. Bootstrap and other upstream binary inputs remain in scope."
+    "note": "Native x64 qualification requires fresh build, original upstream tests, complete consumed-framework byte comparisons, actual source delivery and three native user spaces. No AArch64 result or historical archive hash qualifies x64. Bootstrap and other upstream binary inputs remain in scope."
   },
   "additionalPackages": [],
   "upstreamInputs": {

@@ -7,7 +7,7 @@ usage() {
   cat <<'HELP'
 Usage: ci-net10.sh prepare|build|scan|test|verify|collect
                     --workspace ABS --output-dir ABS
-                    --build-id YYYYMMDD.N --build-revision POSITIVEINT [--arch arm64|x64]
+                    --build-id YYYYMMDD.N --build-revision POSITIVEINT [--arch aarch64|x64]
 
 Requires a nonroot matching native Linux account with passwordless sudo access to
 rootful Podman. Workspaces and delivery directories must be fresh for prepare.
@@ -29,6 +29,9 @@ while (($#)); do
     *) die "Unknown argument: $1" ;;
   esac
 done
+[[ $arch != aarch64 ]] || arch=arm64
+project_arch=$arch
+[[ $arch != arm64 ]] || project_arch=aarch64
 case "$arch" in
   arm64) native_arch=aarch64; image_arch=arm64; base=mcr.microsoft.com/dotnet-buildtools/prereqs@sha256:7ef8f6ee1b9982511349757443eb4844f0db4f8cef1aff6148a7ba1c25d7c6f4 ;;
   x64) native_arch=x86_64; image_arch=amd64; base=mcr.microsoft.com/dotnet-buildtools/prereqs@sha256:3c6f20064af0ba7844c51b17f6fe06fd499fb27af0aba281254bd573af830d73 ;;
@@ -321,7 +324,9 @@ if (p['sdkVersion'] != '10.0.403' or p['source']['commit'] != '5a2162bea6845eabc
         or p['target']['rid'] != 'linux-' + arch or p['host']['architecture'] != arch
         or p['build']['sourceOnly'] is not False):
     raise SystemExit('Only the selected .NET 10 ordinary native profile is supported')
-line = next(x.strip() for x in (root / ('containers/' + arch + '-net10.Containerfile')).read_text().splitlines() if x.startswith('FROM '))
+sys.path.insert(0, str(root / 'scripts'))
+from ci_arch import container_path
+line = next(x.strip() for x in container_path(root, 'net10', arch).read_text().splitlines() if x.startswith('FROM '))
 if line != 'FROM ' + expected or p['container']['repository'] + '@' + p['container']['digest'] != expected:
     raise SystemExit('The profile and immutable product base differ')
 PY
@@ -332,7 +337,7 @@ PY
   inspect_image "$base" "$reports/prepare/base-image.json" >/dev/null
   image_prefix=localhost/cbodotnet-net10
   [[ $arch == arm64 ]] || image_prefix+=-$arch
-  run "${engine[@]}" build --network=host --file "$snapshot/containers/$arch-net10.Containerfile" \
+  run "${engine[@]}" build --network=host --file "$snapshot/containers/$project_arch-net10.Containerfile" \
     --tag "$image_prefix-ci:$run_id-$run_attempt" "$snapshot"
   image_id=$(inspect_image "$image_prefix-ci:$run_id-$run_attempt" "$reports/prepare/build-image.json")
   container write host python3 /delivery/reports/ci-inputs/project/scripts/fetch-pinned-inputs.py \

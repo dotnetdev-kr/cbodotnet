@@ -1,6 +1,6 @@
-# ARM64 CI qualification records
+# AArch64 CI qualification records
 
-All eight selected Linux ARM64 profiles passed actual hosted builds and complete independent verification of their downloaded SDK/source deliveries. The table identifies each qualified run and artifact. Earlier failed runs retain their original status.
+All eight selected Linux AArch64 profiles passed actual hosted builds and complete independent verification of their downloaded SDK/source deliveries. The table identifies each qualified run and artifact. Earlier failed runs retain their original status.
 
 Each row is a separate version dispatch of the matrix workflow using `create_draft=false`. These runs exercise build, source delivery, validation and Actions artifact upload; they do not exercise optional draft release creation or public release publication.
 
@@ -15,7 +15,7 @@ Each row is a separate version dispatch of the matrix workflow using `create_dra
 | .NET Core 3.1 | 3.1.426 | [41207954455](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41207954455) | Passed; [artifact 13047185468](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41207954455/artifacts/13047185468) |
 | .NET Core 3.0 | 3.0.103 | [41222732123](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41222732123) | Passed; [artifact 13052963178](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41222732123/artifacts/13052963178) |
 
-These are the eight existing native ARM64 container profiles. The workflow and source delivery contract are described in [ci-matrix.md](ci-matrix.md). Qualification records apply to their exact orchestration commit, source revision, run and attempt.
+These are the eight existing native AArch64 container profiles. The workflow and source delivery contract are described in [ci-matrix.md](ci-matrix.md). Qualification records apply to their exact orchestration commit, source revision, run and attempt.
 
 ## Qualified SDK and source SHA-256
 

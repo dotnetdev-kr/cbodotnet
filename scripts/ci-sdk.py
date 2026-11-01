@@ -8,7 +8,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from ci_arch import get_arch
+from ci_arch import canonical_arch, get_arch, public_arch
 
 PROFILES = {'net10': ('10.0.403', 'ci-net10.sh'), 'net9': ('9.0.123', 'ci-net9.sh'),
             'net8': ('8.0.133', 'ci-net8.sh'), 'net7': ('7.0.120', 'ci-net7.sh'),
@@ -21,7 +21,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('command', choices=['describe', 'validate', 'verify-release'])
     parser.add_argument('--target', choices=PROFILES, required=True)
-    parser.add_argument('--arch', choices=('arm64', 'x64'), default='arm64')
+    parser.add_argument('--arch', type=canonical_arch, choices=('arm64', 'x64'), default='arm64')
     parser.add_argument('--release-dir', type=Path)
     parser.add_argument('--project-root', type=Path, default=ROOT)
     parser.add_argument('--expected-project-commit')
@@ -32,7 +32,7 @@ def main():
     if args.command == 'describe':
         values = {'sdk_version': version, 'driver': 'scripts/' + driver,
                   'minimum_free_gib': '30' if args.target == 'net10' else '90',
-                  'architecture': args.arch, 'target_rid': architecture['rid']}
+                  'architecture': public_arch(args.arch), 'target_rid': architecture['rid']}
         print(json.dumps(values))
         if os.environ.get('GITHUB_OUTPUT'):
             with open(os.environ['GITHUB_OUTPUT'], 'a') as stream:

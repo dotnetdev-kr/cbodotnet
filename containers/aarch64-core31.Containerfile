@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk@sha256:a4028735b2ed1209c9116cebc74ae1c2fb27ea7d24b1be3f495fee0bac27dd52
 
-# The official native ARM64 SDK image uses Ubuntu 20.04 with the OpenSSL 1.1
+# The official native AArch64 SDK image uses Ubuntu 20.04 with the OpenSSL 1.1
 # and ICU libraries required to execute the historical .NET Core toolchain.
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \

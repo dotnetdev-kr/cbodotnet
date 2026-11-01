@@ -186,7 +186,7 @@ class Run:
         shutil.copyfile(self.inputs/'seccomp.json',self.reports/'prepare/seccomp-policy.json')
         shutil.copyfile('/usr/share/containers/seccomp.json',self.reports/'prepare/seccomp-base-policy.json')
         profile = E.load(self.profile); base = profile['container']['repository']+'@'+profile['container']['digest']
-        recipe = self.frozen / 'containers' / (self.arch+'-net'+self.major+'.Containerfile')
+        recipe = E._ARCH['container_path'](self.frozen, 'net' + self.major, self.arch)
         E.require(next(line for line in recipe.read_text().splitlines() if line.startswith('FROM ')) == 'FROM '+base, 'Product image base differs from profile')
         self.command(self.engine+['pull',base]); self.inspect(base, self.reports / 'prepare/base-image.json')
         tag = 'localhost/cbodotnet-net'+self.major+'-ci:'+self.run_id+'-'+self.attempt
@@ -466,7 +466,7 @@ def main():
         parser = argparse.ArgumentParser(description='Validate a completed generated-source CI delivery')
         parser.add_argument('major',choices=['6','7']); parser.add_argument('command',choices=['validate','verify-release'])
         parser.add_argument('--output-dir',type=Path,required=True); parser.add_argument('--project-root',type=Path,required=True)
-        parser.add_argument('--arch', choices=['arm64','x64'], default='arm64')
+        parser.add_argument('--arch', type=E._ARCH['canonical_arch'], choices=['arm64','x64'], metavar='{aarch64,x64}', default='arm64')
         parser.add_argument('--expected-project-commit'); parser.add_argument('--expected-run-id'); parser.add_argument('--expected-run-attempt')
         args = parser.parse_args(); release = args.output_dir.absolute()
         expected = dict(projectCommit=args.expected_project_commit or os.environ.get('GITHUB_SHA'),
@@ -483,7 +483,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('major',choices=['6','7']); parser.add_argument('stage',choices=['prepare','build','scan','test','verify','collect'])
     parser.add_argument('--workspace',type=Path,required=True); parser.add_argument('--output-dir',type=Path,required=True)
-    parser.add_argument('--arch', choices=['arm64','x64'], default='arm64')
+    parser.add_argument('--arch', type=E._ARCH['canonical_arch'], choices=['arm64','x64'], metavar='{aarch64,x64}', default='arm64')
     parser.add_argument('--build-id',required=True); parser.add_argument('--build-revision',required=True)
     args = parser.parse_args(); run = Run(args); code = 1
     try:

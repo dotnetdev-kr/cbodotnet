@@ -1,4 +1,4 @@
-name: .NET 10 Linux ARM64 SDK
+name: .NET 10 Linux AArch64 SDK
 
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ env:
   PYTHONDONTWRITEBYTECODE: '1'
 
 concurrency:
-  group: net10-sdk-arm64-${{ github.repository }}
+  group: net10-sdk-aarch64-${{ github.repository }}
   cancel-in-progress: false
 
 defaults:
@@ -25,7 +25,7 @@ defaults:
 
 jobs:
   build:
-    name: Build and validate the pinned ARM64 profile
+    name: Build and validate the pinned AArch64 profile
     runs-on: ${{ fromJSON(vars.NET10_BUILD_RUNNER_JSON || '["ubuntu-24.04-arm"]') }}
     timeout-minutes: 360
     outputs:
@@ -219,7 +219,7 @@ jobs:
         if: always() && steps.bundle.outcome == 'success'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: net10-linux-arm64-${{ github.run_id }}-${{ github.run_attempt }}
+          name: net10-linux-aarch64-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ env.NET10_BUNDLE_DIR }}/*
           compression-level: 0
           if-no-files-found: error
@@ -329,7 +329,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          tag="sdk-10.0.403-linux-arm64-run-$GITHUB_RUN_ID-attempt-$GITHUB_RUN_ATTEMPT"
+          tag="sdk-10.0.403-linux-aarch64-run-$GITHUB_RUN_ID-attempt-$GITHUB_RUN_ATTEMPT"
           if gh release view "$tag" >/dev/null 2>&1; then
             echo 'Refusing an existing release.' >&2; exit 1
           fi
@@ -342,7 +342,7 @@ jobs:
           release="$RUNNER_TEMP/net10-verified/10.0.403-linux-arm64"
           notes="$RUNNER_TEMP/net10-draft-notes.md"
           {
-            echo 'Community .NET SDK 10.0.403 for native Linux ARM64.'
+            echo 'Community .NET SDK 10.0.403 for native Linux AArch64.'
             echo
             echo "Orchestration commit: $GITHUB_SHA"
             echo "Upstream VMR: 5a2162bea6845eabc1fc721624a43568c65db3b1"
@@ -365,6 +365,6 @@ jobs:
             }
           done
           gh release create "$tag" "${assets[@]}" --draft --latest=false \
-            --target "$GITHUB_SHA" --title '.NET SDK 10.0.403 Linux ARM64 community build' \
+            --target "$GITHUB_SHA" --title '.NET SDK 10.0.403 Linux AArch64 community build' \
             --notes-file "$notes"
           [[ $(gh release view "$tag" --json isDraft --jq .isDraft) == true ]]

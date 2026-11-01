@@ -1,4 +1,4 @@
-name: Linux ARM64 SDK matrix
+name: Linux AArch64 SDK matrix
 
 on:
   workflow_dispatch:
@@ -22,7 +22,7 @@ env:
   PYTHONDONTWRITEBYTECODE: '1'
 
 concurrency:
-  group: sdk-arm64-matrix-${{ github.repository }}-${{ inputs.target }}
+  group: sdk-aarch64-matrix-${{ github.repository }}-${{ inputs.target }}
   cancel-in-progress: false
 
 defaults:
@@ -31,7 +31,7 @@ defaults:
 
 jobs:
   build:
-    name: Build and qualify ${{ matrix.target }} ARM64
+    name: Build and qualify ${{ matrix.target }} AArch64
     runs-on: ${{ fromJSON(vars.SDK_BUILD_RUNNER_JSON || '["ubuntu-24.04-arm"]') }}
     timeout-minutes: 360
     strategy:
@@ -135,7 +135,7 @@ jobs:
         if: always() && steps.profile.outcome == 'success'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: sdk-${{ matrix.target }}-linux-arm64-${{ github.run_id }}-${{ github.run_attempt }}
+          name: sdk-${{ matrix.target }}-linux-aarch64-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ env.SDK_BUNDLE_DIR }}/*
           compression-level: 0
           retention-days: 14
@@ -170,7 +170,7 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$GITHUB_WORKFLOW_SHA" == "$GITHUB_SHA" && $(git rev-parse HEAD) == "$GITHUB_SHA" ]]
-          name="sdk-$SDK_TARGET-linux-arm64-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          name="sdk-$SDK_TARGET-linux-aarch64-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
           gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" > "$RUNNER_TEMP/artifacts.json"
           python3 - "$RUNNER_TEMP/artifacts.json" "$name" "$GITHUB_OUTPUT" <<'PY'
           import json, sys
@@ -209,7 +209,7 @@ jobs:
           SDK_TARGET: ${{ matrix.target }}
         run: |
           set -euo pipefail
-          tag="sdk-$SDK_VERSION-linux-arm64-run-$GITHUB_RUN_ID-attempt-$GITHUB_RUN_ATTEMPT"
+          tag="sdk-$SDK_VERSION-linux-aarch64-run-$GITHUB_RUN_ID-attempt-$GITHUB_RUN_ATTEMPT"
           if gh release view "$tag" >/dev/null 2>&1; then
             echo 'Refusing an existing release.' >&2; exit 1
           fi
@@ -231,7 +231,7 @@ jobs:
           done
           notes="$RUNNER_TEMP/sdk-draft.md"
           {
-            echo "Community .NET SDK $SDK_VERSION for Linux ARM64, with the actual used source snapshot."
+            echo "Community .NET SDK $SDK_VERSION for Linux AArch64, with the actual used source snapshot."
             echo
             echo "Orchestration commit: $GITHUB_SHA"
             echo "Workflow run: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
@@ -240,5 +240,5 @@ jobs:
             echo 'This is an unpublished draft; publishing requires a separate deliberate action.'
           } > "$notes"
           gh release create "$tag" "${assets[@]}" --draft --latest=false --target "$GITHUB_SHA" \
-            --title ".NET SDK $SDK_VERSION Linux ARM64 community build" --notes-file "$notes"
+            --title ".NET SDK $SDK_VERSION Linux AArch64 community build" --notes-file "$notes"
           [[ $(gh release view "$tag" --json isDraft --jq .isDraft) == true ]]

@@ -15,7 +15,7 @@ from types import SimpleNamespace
 
 SOURCE = '5a2162bea6845eabc1fc721624a43568c65db3b1'
 SDK = '10.0.403'
-PROFILE = 'profiles/dotnet-10.0.403-linux-arm64.json'
+PROFILE = 'profiles/dotnet-10.0.403-linux-aarch64.json'
 _ARCH_SPEC = importlib.util.spec_from_file_location('ci_arch_net10', Path(__file__).with_name('ci_arch.py'))
 _ARCH = importlib.util.module_from_spec(_ARCH_SPEC); _ARCH_SPEC.loader.exec_module(_ARCH)
 
@@ -24,13 +24,14 @@ def arch_info(arch='arm64'):
     return _ARCH.get_arch(arch)
 
 
-def profile_path(arch='arm64'):
-    return 'profiles/dotnet-10.0.403-' + arch_info(arch)['rid'] + '.json'
+def profile_path(arch='arm64', root=None):
+    root = Path(root) if root is not None else Path(__file__).resolve().parents[1]
+    return _ARCH.profile_path(root, SDK, arch).relative_to(root).as_posix()
 FUNCTIONS = {'consoleDllExecution', 'consoleApphostExecution', 'rsaSha256SignAndVerify',
              'cryptographicRandomBytes', 'frFrDecimalFormatting', 'aspNetCoreLoopbackHttp'}
 SKIPS = {'VerifyWorkloadCmd', 'VerifyAspireTemplate'}
 CRITICAL = {PROFILE, 'scripts/ci-net10-evidence.py', 'scripts/ci-net10.sh',
-            '.github/workflows/net10-sdk.yml', 'containers/arm64-net10.Containerfile'}
+            '.github/workflows/net10-sdk.yml', 'containers/aarch64-net10.Containerfile'}
 SYSROOT_PRODUCERS = {'eng/common/cross/build-rootfs.sh': '3150ccac6fcd7859a55e10fa0742cfc4de5e3075',
                      'eng/common/cross/install-debs.py': '1d1dfabf7dc92d8e374d4304f36061c6e3e10b1b'}
 USERLANDS = {'ubuntu22': ('ubuntu', '22.04', 'libicu70', 'libssl3'),
@@ -45,11 +46,17 @@ def environment_overrides(arch='arm64'):
     return ENVIRONMENT_OVERRIDES | ({'DOTNET_ROOT_X64'} if arch == 'x64' else set())
 
 
-def critical_inputs(arch='arm64'):
-    arch_info(arch)
-    if arch == 'arm64':
-        return set(CRITICAL)
-    return (CRITICAL - {PROFILE, 'containers/arm64-net10.Containerfile', '.github/workflows/net10-sdk.yml'}) | {
+def critical_inputs(arch='arm64', names=None):
+    identity = arch_info(arch)
+    if identity['arch'] == 'arm64':
+        result = set(CRITICAL)
+        if names is not None:
+            for current in (PROFILE, 'containers/aarch64-net10.Containerfile'):
+                legacy = current.replace('aarch64', 'arm64')
+                if current not in names and legacy in names:
+                    result.remove(current); result.add(legacy)
+        return result
+    return (CRITICAL - {PROFILE, 'containers/aarch64-net10.Containerfile', '.github/workflows/net10-sdk.yml'}) | {
         profile_path(arch), 'containers/x64-net10.Containerfile', 'scripts/ci_arch.py', '.github/workflows/sdk-x64.yml'}
 
 
@@ -160,7 +167,7 @@ def project_tree(release, rows, arch='arm64'):
             require(isinstance(parent, dict), 'Git tree/file collision')
         require(parts[-1] not in parent, 'Git tree/file collision')
         parent[parts[-1]] = (row['gitMode'], blob)
-    require(critical_inputs(arch) <= names, 'Required current workflow/profile/tools are missing from the snapshot')
+    require(critical_inputs(arch, names) <= names, 'Required current workflow/profile/tools are missing from the snapshot')
 
     def digest(entries):
         body = []
@@ -475,7 +482,7 @@ def validate_bundle(release, project=None, arch='arm64'):
             require(checkout_details(project, name, row['gitBlobSha1'], path.read_bytes()) ==
                     {key: row[key] for key in ('checkout', 'checkoutRepresentation')},
                     'Current checkout representation differs from the verified frozen input')
-    require(snapshot['originalProfile']['path'] == 'reports/ci-inputs/project/' + profile_path(arch),
+    require(snapshot['originalProfile']['path'] == 'reports/ci-inputs/project/' + profile_path(arch, frozen),
             'The frozen profile belongs to another selected architecture')
     original = load(checked(release, snapshot['originalProfile']))
     if arch == 'x64':
@@ -626,15 +633,15 @@ def validate_bundle(release, project=None, arch='arm64'):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__); commands = parser.add_subparsers(dest='command', required=True)
-    p = commands.add_parser('freeze'); p.add_argument('--arch', choices=('arm64', 'x64'), default='arm64')
+    p = commands.add_parser('freeze'); p.add_argument('--arch', type=_ARCH.canonical_arch, choices=('arm64', 'x64'), metavar='{aarch64,x64}', default='arm64')
     for name in ('project-root', 'source-dir', 'release-dir'):
         p.add_argument('--' + name, type=Path, required=True)
     for name in ('build-id', 'build-revision', 'run-id', 'run-attempt', 'project-commit', 'workflow-ref'):
         p.add_argument('--' + name, required=True)
-    p = commands.add_parser('validate'); p.add_argument('--arch', choices=('arm64', 'x64'), default='arm64')
+    p = commands.add_parser('validate'); p.add_argument('--arch', type=_ARCH.canonical_arch, choices=('arm64', 'x64'), metavar='{aarch64,x64}', default='arm64')
     for name in ('release-dir', 'project-root', 'output'):
         p.add_argument('--' + name, type=Path, required=True)
-    p = commands.add_parser('verify-release'); p.add_argument('--arch', choices=('arm64', 'x64'), default='arm64'); p.add_argument('--release-dir', type=Path, required=True)
+    p = commands.add_parser('verify-release'); p.add_argument('--arch', type=_ARCH.canonical_arch, choices=('arm64', 'x64'), metavar='{aarch64,x64}', default='arm64'); p.add_argument('--release-dir', type=Path, required=True)
     p.add_argument('--expected-project-commit', required=True); p.add_argument('--expected-run-id', required=True)
     p.add_argument('--expected-run-attempt')
     args = parser.parse_args()

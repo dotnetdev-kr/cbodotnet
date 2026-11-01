@@ -86,7 +86,7 @@ class GeneratedSourceCiTests(unittest.TestCase):
     def test_effective_profiles_preserve_policy_and_remove_historical_claims(self):
         for major, selected in E.VERSIONS.items():
             with self.subTest(major=major):
-                path = ROOT/'profiles'/('dotnet-'+selected['sdk']+'-linux-arm64.json')
+                path = ROOT/'profiles'/('dotnet-'+selected['sdk']+'-linux-aarch64.json')
                 original = json.loads(path.read_text()); before = copy.deepcopy(original)
                 actual = E.effective_profile(original,'20261101.42')
                 self.assertEqual(original,before)
@@ -143,7 +143,7 @@ class GeneratedSourceCiTests(unittest.TestCase):
             git('init','-q'); git('config','user.email','fixture@example.invalid'); git('config','user.name','Fixture')
             (project/'.gitattributes').write_text('*.cmd text eol=crlf\n')
             (project/'tool.cmd').write_bytes(b'@echo off\r\n')
-            selected=E.VERSIONS['6']; profile=project/'profiles'/('dotnet-'+selected['sdk']+'-linux-arm64.json')
+            selected=E.VERSIONS['6']; profile=project/'profiles'/('dotnet-'+selected['sdk']+'-linux-aarch64.json')
             profile.parent.mkdir(); profile.write_bytes((ROOT/'profiles'/profile.name).read_bytes())
             git('add','.'); git('commit','-qm','Fixture source')
             sha=git('rev-parse','HEAD').decode().strip()

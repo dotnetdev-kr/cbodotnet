@@ -7,10 +7,12 @@ import os
 from pathlib import Path, PurePosixPath
 import posixpath
 import re
+import runpy
 import shutil
 import subprocess
 import sys
 import tarfile
+canonical_arch = runpy.run_path(str(Path(__file__).with_name('ci_arch.py')))['canonical_arch']
 
 
 def require(value, message):
@@ -23,7 +25,7 @@ def main():
     parser.add_argument('--download-dir', type=Path, required=True)
     parser.add_argument('--destination', type=Path, required=True)
     parser.add_argument('--target', required=True)
-    parser.add_argument('--arch', choices=('arm64', 'x64'), default='arm64')
+    parser.add_argument('--arch', type=canonical_arch, choices=('arm64', 'x64'), metavar='{aarch64,x64}', default='arm64')
     parser.add_argument('--sdk-version', required=True)
     parser.add_argument('--expected-project-commit', required=True)
     parser.add_argument('--expected-run-id', required=True)

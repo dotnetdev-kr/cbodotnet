@@ -91,7 +91,7 @@ class Driver:
         self.inspect(base, self.reports / 'prepare/base-image.json')
         suffix = '' if self.arch == 'arm64' else '-' + self.arch
         tag = 'localhost/cbodotnet-net' + self.version + suffix + '-ci:' + self.identity['runId'] + '-' + self.identity['runAttempt']
-        self.run(self.engine + ['build', '--network=host', '--file', self.frozen / ('containers/' + self.arch + '-net' + self.version + '.Containerfile'), '--tag', tag, self.frozen])
+        self.run(self.engine + ['build', '--network=host', '--file', S.container_path(self.frozen, 'net' + self.version, self.arch), '--tag', tag, self.frozen])
         self.image = self.inspect(tag, self.reports / 'prepare/build-image.json')['Id']
         self.container(['bash', '/delivery/reports/ci-inputs/project/scripts/prepare-sysroot' + self.version + '.sh',
                         '/vmr', '/inputs', '/reports', str(os.getuid()), str(os.getgid()), '--arch', self.arch], readonly=True, root=True, privileged=True)
@@ -268,7 +268,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('stage', choices=['prepare', 'build', 'scan', 'test', 'verify', 'collect', 'validate', 'verify-release'])
     parser.add_argument('--version', choices=['8', '9'], required=True)
-    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
+    parser.add_argument('--arch', type=lambda value: S.get_arch(value)['arch'], choices=['arm64', 'x64'], metavar='{aarch64,x64}', default='arm64')
     parser.add_argument('--output-dir', required=True, type=Path)
     parser.add_argument('--project-root', type=Path)
     parser.add_argument('--workspace', type=Path)

@@ -5,14 +5,18 @@ import os
 from pathlib import Path
 import runpy
 
-get_arch = runpy.run_path(str(Path(__file__).with_name('ci_arch.py')))['get_arch']
+_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_arch.py')))
+get_arch = _ARCH['get_arch']
+canonical_arch = _ARCH['canonical_arch']
+profile_path = _ARCH['profile_path']
+container_path = _ARCH['container_path']
 
 
 def selected_arch(argv=None):
     parser = argparse.ArgumentParser(add_help=False)
     # Product MSBuild targets invoke several helpers themselves. The container
     # records this explicit adapter selection; it is never inferred from inputs.
-    parser.add_argument('--arch', choices=['arm64', 'x64'], default=os.environ.get('CBODOTNET_LEGACY_ARCH', 'arm64'))
+    parser.add_argument('--arch', type=canonical_arch, choices=['arm64', 'x64'], metavar='{aarch64,x64}', default=os.environ.get('CBODOTNET_LEGACY_ARCH', 'arm64'))
     args, _ = parser.parse_known_args(argv)
     result = get_arch(args.arch)
     result['libdir'] = 'aarch64-linux-gnu' if args.arch == 'arm64' else 'x86_64-linux-gnu'
@@ -46,4 +50,4 @@ def sdk_pin(version, arch):
     identity = get_arch(arch)
     name = 'dotnet-sdk-' + version + '-' + identity['rid'] + '.tar.gz'
     return {'name': name, 'url': 'https://builds.dotnet.microsoft.com/dotnet/Sdk/' + version + '/' + name,
-            'sha512': SDK_HASHES[version][arch]}
+            'sha512': SDK_HASHES[version][identity['arch']]}
