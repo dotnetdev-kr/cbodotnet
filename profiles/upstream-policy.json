@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "metadataIndex": "https://raw.githubusercontent.com/dotnet/core/main/release-notes/releases-index.json",
+  "metadataTemplate": "https://raw.githubusercontent.com/dotnet/core/main/release-notes/{channel}/releases.json",
+  "selection": "latest-stable-per-feature-band-with-adapter-update-queue",
+  "minimumChannels": ["3.0", "3.1", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0"],
+  "releaseTagPrefix": "sdk-",
+  "maximumCandidatesPerRun": 1,
+  "adapter": {
+    "name": "net10-4xx-portable",
+    "channel": "10.0",
+    "featureBand": 400,
+    "baselineSdk": "10.0.403",
+    "baselineSource": "5a2162bea6845eabc1fc721624a43568c65db3b1",
+    "baselineSharedSource": "0427b9abbead3fa64c6655eb4290c537397131fa",
+    "repository": "https://github.com/dotnet/dotnet",
+    "testRoots": ["test", "src/scenario-tests"],
+    "requiredUnchangedFiles": ["eng/common/cross/build-rootfs.sh", "eng/common/cross/install-debs.py", "src/scenario-tests/src/Microsoft.DotNet.ScenarioTests.Common/Program.cs"],
+    "generatedFiles": ["scripts/build-vmr.sh", "scripts/ci-net10-evidence.py", "scripts/ci-net10-shared-source.py", "scripts/ci-net10.sh", "scripts/configure-feeds.py", "scripts/package-used-source.py", "scripts/prepare-scenario-report-fence.py", "scripts/prepare-sysroot.sh", "scripts/ci-sdk.py"]
+  }
+}

@@ -43,6 +43,10 @@ Each workflow builds at most two selected profiles concurrently. Every run uses 
 
 Actions artifacts retain run-specific transport bundles for **14 days**. Public Releases preserve qualified downloads. The [publication workflow](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/publish-releases.yml) promotes the exact recorded producers in [the qualification catalog](releases/qualified-builds.json), independently verifies both deliveries, and publishes only a complete release. Retries accept matching assets and refuse overwrites. The [Pages workflow](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/pages.yml) lists complete public releases and refreshes after publication.
 
+## Upstream updates
+
+The [upstream workflow](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/upstream-sdk.yml) checks official stable SDK metadata every day at **03:23 UTC**, including end-of-life channels. New .NET 10.0.4xx versions after 10.0.403 can derive a constrained adapter, build on both native architectures, verify actual used sources and publish automatically. Other bands and new major versions remain visible as `pending-adapter`; missing exact source tags remain `pending-source`. An incompatible source layout requires a qualified adapter update. [Automation and recovery details](docs/upstream-automation.md) describe the admission gates and retry behavior.
+
 ## Compatibility
 
 `linux-arm64` and `linux-x64` are generic **glibc** package targets. Native checks cover Ubuntu 22.04, Ubuntu 24.04 and Debian 13 user spaces. Kernel, system-library and optional component requirements still apply; these results do not cover musl/Alpine or every Linux distribution.

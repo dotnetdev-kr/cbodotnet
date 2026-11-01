@@ -75,9 +75,13 @@ class FakeGitHub:
         if command[0] == 'api':
             if '/git/ref/' in command[1]:
                 return '{}' if self.tag_exists else None
+            if '/releases?' in command[1]:
+                return json.dumps([[self.release]] if self.release is not None else [[]])
+            if '/releases/tags/' in command[1] and self.release['draft']:
+                raise AssertionError('The real by-tag REST API cannot find pending drafts')
             return json.dumps(self.release) if self.release is not None else None
         if command[:2] == ('release', 'create'):
-            self.release = {'tag_name': 'sdk-10.0.403', 'draft': True, 'prerelease': False,
+            self.release = {'id': 789, 'tag_name': 'sdk-10.0.403', 'draft': True, 'prerelease': False,
                 'target_commitish': args.target_commit, 'assets': [],
                 'html_url': 'https://github.com/' + PUBLISH.REPOSITORY + '/releases/tag/sdk-10.0.403'}
         elif command[:2] == ('release', 'upload'):
@@ -98,7 +102,7 @@ class PromotionTests(unittest.TestCase):
         self.manifest = staged(self.args.staging)
 
     def run_publish(self, remote):
-        with mock.patch.object(PUBLISH, 'gh', side_effect=remote):
+        with mock.patch.object(PUBLISH, 'gh', side_effect=remote), mock.patch('builtins.print'):
             PUBLISH.publish(self.args)
 
     def test_new_release_uploads_complete_archives_and_never_uses_overwrite(self):
@@ -112,6 +116,13 @@ class PromotionTests(unittest.TestCase):
         last_upload = max(index for index, command in enumerate(remote.calls) if command[:2] == ('release', 'upload'))
         edit = next(index for index, command in enumerate(remote.calls) if command[:2] == ('release', 'edit'))
         self.assertLess(last_upload, edit)
+        self.assertTrue(all('/releases/tags/' not in command[1] for command in remote.calls if command[0] == 'api'))
+
+    def test_duplicate_pending_tag_drafts_are_rejected(self):
+        with mock.patch.object(PUBLISH, 'gh', return_value=json.dumps([[{'id': 1, 'tag_name': 'sdk-10.0.403'},
+                {'id': 2, 'tag_name': 'sdk-10.0.403'}]])):
+            with self.assertRaisesRegex(ValueError, 'Multiple releases'):
+                PUBLISH.find_release(self.args, 'sdk-10.0.403')
 
     def test_exact_published_release_is_idempotent_across_new_main_commit(self):
         remote = FakeGitHub(self.args)
@@ -283,6 +294,76 @@ class ProducerTests(unittest.TestCase):
                 archive.writestr('extra', b'payload')
             with self.assertRaises(ValueError):
                 PREPARE.extract_zip(root / 'extra.zip', root / 'extra-output', {'expected'})
+
+
+class StagingTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        plan = {'schemaVersion': 1, 'sdkVersion': '10.0.403', 'target': 'net10', 'architectures': {}}
+        for arch, rid in PUBLISH.ARCHES.items():
+            release = self.root / arch
+            (release / 'sources').mkdir(parents=True)
+            sdk = release / ('original-sdk-' + rid + '.tar.gz')
+            sdk.write_bytes(('qualified-sdk-' + arch).encode())
+            source = release / 'sources' / ('original-sources-' + rid + '.tar.gz')
+            source.write_bytes(('qualified-source-' + arch).encode())
+
+            def original_descriptor(path):
+                row = descriptor(path)
+                return {'path': path.name, 'bytes': row['size'], 'sha256': row['sha256']}
+
+            validation = {'status': 'passed', 'sdkArchive': original_descriptor(sdk)}
+            source_manifest = {'status': 'captured-used-source', 'sdkVersion': '10.0.403', 'targetRid': rid,
+                               'archive': original_descriptor(source)}
+            (release / 'ci-validation.json').write_text(json.dumps(validation))
+            (release / 'sources/source-manifest.json').write_text(json.dumps(source_manifest))
+            plan['architectures'][arch] = {'releaseDirectory': str(release), 'projectCommit': 'a' * 40,
+                                          'runId': '123', 'runAttempt': '1', 'artifactId': '456'}
+        self.plan = self.root / 'deliveries.json'
+        self.plan.write_text(json.dumps(plan))
+        self.args = argparse.Namespace(deliveries=self.plan, sdk_version='10.0.403', target='net10',
+                                       project_root=ROOT, output=self.root / 'public-staging')
+
+    def run_stage(self, verifier=None, described='10.0.403'):
+        with mock.patch.object(PUBLISH.subprocess, 'check_output', return_value=json.dumps({'sdk_version': described})), \
+             mock.patch.object(PUBLISH.subprocess, 'run', side_effect=verifier) as checked, mock.patch('builtins.print'):
+            PUBLISH.stage(self.args)
+            return checked.call_args_list
+
+    def test_stage_requires_own_trusted_full_verification_for_both_bound_producers(self):
+        calls = self.run_stage()
+        self.assertEqual(2, len(calls))
+        for call, arch in zip(calls, ('arm64', 'x64')):
+            command = call.args[0]
+            self.assertIn('verify-release', command)
+            self.assertEqual(arch, command[command.index('--arch') + 1])
+            self.assertEqual('a' * 40, command[command.index('--expected-project-commit') + 1])
+            self.assertEqual('123', command[command.index('--expected-run-id') + 1])
+            self.assertEqual('1', command[command.index('--expected-run-attempt') + 1])
+            self.assertTrue(call.kwargs['check'])
+        manifest = json.loads((self.args.output / 'release-manifest.json').read_text())
+        for arch in ('aarch64', 'x64'):
+            self.assertEqual(('qualified-sdk-' + arch).encode(),
+                             (self.args.output / manifest['architectures'][arch]['sdk']['name']).read_bytes())
+            self.assertEqual(('qualified-source-' + arch).encode(),
+                             (self.args.output / manifest['architectures'][arch]['source']['name']).read_bytes())
+
+    def test_verification_failure_stops_before_copying_any_payload(self):
+        with self.assertRaises(subprocess.CalledProcessError):
+            self.run_stage(verifier=subprocess.CalledProcessError(1, ['trusted-verifier']))
+        self.assertEqual([], list(self.args.output.iterdir()))
+
+    def test_wrong_adapter_version_and_reused_output_are_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'different SDK version'):
+            self.run_stage(described='10.0.404')
+        self.assertFalse(self.args.output.exists())
+        self.args.output.mkdir()
+        (self.args.output / 'existing').write_text('keep me')
+        with self.assertRaisesRegex(ValueError, 'fresh staging'):
+            self.run_stage()
+        self.assertEqual('keep me', (self.args.output / 'existing').read_text())
 
 
 if __name__ == '__main__':

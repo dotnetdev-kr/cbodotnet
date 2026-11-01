@@ -1,0 +1,173 @@
+name: Track and publish upstream SDK updates
+
+on:
+  schedule:
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+    inputs:
+      qualify_baseline:
+        description: Exercise both native generated adapters and stage SDK 10.0.403 without public publication
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: upstream-sdk-${{ github.repository }}
+  cancel-in-progress: false
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  discover:
+    if: github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      matrix: ${{ steps.track.outputs.matrix }}
+      versions: ${{ steps.track.outputs.versions }}
+      has_candidates: ${{ steps.track.outputs.has_candidates }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Discover stable SDK versions in every feature band, including EOL channels
+        id: track
+        env:
+          GH_TOKEN: ${{ github.token }}
+          QUALIFY_BASELINE: ${{ inputs.qualify_baseline || false }}
+        run: |
+          [[ "$GITHUB_WORKFLOW_SHA" == "$GITHUB_SHA" ]]
+          args=()
+          [[ "$QUALIFY_BASELINE" != true ]] || args+=(--qualify-baseline)
+          python3 scripts/upstream-sdk.py discover --output "$RUNNER_TEMP/upstream-plan.json" "${args[@]}"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: upstream-plan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/upstream-plan.json
+          retention-days: 30
+          if-no-files-found: error
+
+  build:
+    needs: discover
+    if: needs.discover.outputs.has_candidates == 'true'
+    name: SDK ${{ matrix.sdk }} Linux ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Admit immutable source inputs and generate the constrained adapter
+        env:
+          CANDIDATE_JSON: ${{ toJSON(matrix.candidate) }}
+          QUALIFICATION_ONLY: ${{ matrix.candidate.qualificationOnly || false }}
+        run: |
+          [[ "$GITHUB_WORKFLOW_SHA" == "$GITHUB_SHA" ]]
+          printf '%s\n' "$CANDIDATE_JSON" > "$RUNNER_TEMP/candidate.json"
+          args=()
+          [[ "$QUALIFICATION_ONLY" != true ]] || args+=(--allow-baseline)
+          python3 scripts/upstream-sdk.py generate --candidate "$RUNNER_TEMP/candidate.json" \
+            --destination "$RUNNER_TEMP/generated" --attestation "$RUNNER_TEMP/adapter.json" "${args[@]}"
+      - name: Build, scan, test and preserve actual corresponding sources
+        timeout-minutes: 315
+        env:
+          SDK_ARCH: ${{ matrix.arch }}
+          SDK_VERSION: ${{ matrix.sdk }}
+        run: |
+          export SDK_BUILD_ID="$(date -u +%Y%m%d).$GITHUB_RUN_NUMBER"
+          official_arch=$SDK_ARCH
+          [[ "$SDK_ARCH" != aarch64 ]] || official_arch=arm64
+          python3 scripts/ci-upstream.py build --arch "$SDK_ARCH" --generated-root "$RUNNER_TEMP/generated" \
+            --attestation "$RUNNER_TEMP/adapter.json" --workspace "$RUNNER_TEMP/build" \
+            --release-dir "$RUNNER_TEMP/releases/$SDK_VERSION-linux-$official_arch" --bundle-dir "$RUNNER_TEMP/bundle"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: upstream-sdk-${{ matrix.sdk }}-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/bundle/*
+          compression-level: 0
+          retention-days: 14
+          if-no-files-found: error
+          overwrite: false
+      - name: Preserve admission and failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: upstream-failure-${{ matrix.sdk }}-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/adapter.json
+            ${{ runner.temp }}/releases/*/reports/ci/stages/*.json
+            ${{ runner.temp }}/releases/*/reports/ci/logs/*.log
+          retention-days: 14
+          if-no-files-found: warn
+
+  publish:
+    needs: [discover, build]
+    if: needs.build.result == 'success' && needs.discover.outputs.has_candidates == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    permissions:
+      contents: write
+      actions: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.discover.outputs.versions) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Independently regenerate trusted verification code from original inputs
+        env:
+          CANDIDATE_JSON: ${{ toJSON(matrix.candidate) }}
+          QUALIFICATION_ONLY: ${{ matrix.candidate.qualificationOnly || false }}
+        run: |
+          [[ "$GITHUB_WORKFLOW_SHA" == "$GITHUB_SHA" ]]
+          printf '%s\n' "$CANDIDATE_JSON" > "$RUNNER_TEMP/candidate.json"
+          args=()
+          [[ "$QUALIFICATION_ONLY" != true ]] || args+=(--allow-baseline)
+          python3 scripts/upstream-sdk.py generate --candidate "$RUNNER_TEMP/candidate.json" \
+            --destination "$RUNNER_TEMP/generated" --attestation "$RUNNER_TEMP/adapter.json" "${args[@]}"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: upstream-sdk-${{ matrix.sdk }}-*-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/downloads
+      - name: Verify both exact-run source and SDK deliveries, then publish atomically
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SDK_VERSION: ${{ matrix.sdk }}
+          QUALIFICATION_ONLY: ${{ matrix.candidate.qualificationOnly || false }}
+        run: |
+          python3 scripts/ci-upstream.py receive --candidate "$RUNNER_TEMP/candidate.json" \
+            --attestation "$RUNNER_TEMP/adapter.json" --generated-root "$RUNNER_TEMP/generated" \
+            --downloads "$RUNNER_TEMP/downloads" --output-dir "$RUNNER_TEMP/verified" --plan "$RUNNER_TEMP/deliveries.json"
+          python3 scripts/publish-release.py stage --target net10 --sdk-version "$SDK_VERSION" \
+            --deliveries "$RUNNER_TEMP/deliveries.json" --output "$RUNNER_TEMP/staging" --project-root "$RUNNER_TEMP/generated"
+          if [[ "$QUALIFICATION_ONLY" == true ]]; then
+            echo 'The baseline generated adapter passed both native builds and independent staging. No public release was changed.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            python3 scripts/publish-release.py publish --staging "$RUNNER_TEMP/staging" --target-commit "$GITHUB_SHA"
+            gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref main
+          fi
+      - name: Preserve independently qualified baseline staging
+        if: matrix.candidate.qualificationOnly == true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: upstream-qualified-staging-${{ matrix.sdk }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/staging/*
+          compression-level: 0
+          retention-days: 14
+          if-no-files-found: error

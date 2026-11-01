@@ -148,6 +148,17 @@ def cli_path(args, path):
     return str(path.resolve())
 
 
+def find_release(args, tag):
+    # The by-tag REST endpoint cannot find drafts whose tags are still pending.
+    # Authenticated release listings include drafts and permit duplicate detection.
+    pages = json.loads(gh(args, 'api', f'repos/{REPOSITORY}/releases?per_page=100', '--paginate', '--slurp'))
+    require(isinstance(pages, list) and all(isinstance(page, list) for page in pages),
+            'Unexpected release listing response')
+    matches = [release for page in pages for release in page if release.get('tag_name') == tag]
+    require(len(matches) <= 1, 'Multiple releases have the same pending tag')
+    return matches[0] if matches else None
+
+
 def publish(args):
     from release_catalog import validate_checksums, validate_manifest, validate_release
     require(re.fullmatch('[a-f0-9]{40}', args.target_commit), 'An immutable orchestration commit is required')
@@ -163,9 +174,8 @@ def publish(args):
     # Check the complete local publication contract before creating any remote draft.
     validate_checksums(manifest, (args.staging / 'SHA256SUMS').read_bytes())
     tag = manifest['tag']
-    endpoint = f'repos/{REPOSITORY}/releases/tags/{tag}'
-    raw = gh(args, 'api', endpoint, allow_missing=True)
-    if raw is None:
+    release = find_release(args, tag)
+    if release is None:
         # Never adopt an unrelated pre-existing tag, even when it has no release.
         tag_raw = gh(args, 'api', f'repos/{REPOSITORY}/git/ref/tags/{tag}', allow_missing=True)
         require(tag_raw is None, 'Refusing an existing tag without a matching release')
@@ -184,8 +194,10 @@ def publish(args):
         gh(args, 'release', 'create', tag, '--repo', REPOSITORY, '--draft', '--latest=false',
            '--target', args.target_commit, '--title', '.NET SDK ' + manifest['sdkVersion'],
            '--notes-file', cli_path(args, notes))
-        raw = gh(args, 'api', endpoint)
-    release = json.loads(raw)
+        release = find_release(args, tag)
+    require(isinstance(release, dict) and type(release.get('id')) is int and release['id'] > 0,
+            'A unique release database identity is required')
+    endpoint = f'repos/{REPOSITORY}/releases/{release["id"]}'
     require(release['tag_name'] == tag and not release['prerelease'], 'Unexpected existing release identity')
     require(not release['draft'] or release.get('target_commitish') == args.target_commit,
             'Refusing an unrelated draft with a different orchestration commit')
