@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import subprocess
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest import mock
 
@@ -36,7 +37,7 @@ class SelectionTests(unittest.TestCase):
 
     def test_end_of_life_and_unknown_future_channel_remain_visible(self):
         docs = [document('6.0', [release('6.0.428')]), document('12.0', [release('12.0.100')])]
-        result = MODULE.plan(self.policy, docs, set())
+        result = MODULE.plan(self.policy, docs, set(), resolve=lambda tag: '1' * 40)
         self.assertEqual([row['status'] for row in result['records']], ['pending-adapter', 'pending-adapter'])
         self.assertTrue(MODULE.eligible_channel('12.0'))
         self.assertFalse(MODULE.eligible_channel('2.1'))
@@ -45,6 +46,56 @@ class SelectionTests(unittest.TestCase):
         result = MODULE.plan(self.policy, [document('10.0', [release('10.0.404')])], set(), resolve=lambda tag: None)
         self.assertEqual(result['records'][0]['status'], 'pending-source')
         self.assertEqual(result['candidates'], [])
+
+    def test_missing_source_in_unadmitted_newer_band_is_visible(self):
+        docs = [document('8.0', [release('8.0.427')]), document('9.0', [release('9.0.320')])]
+        result = MODULE.plan(self.policy, docs, set(), resolve=lambda tag: None)
+        self.assertEqual([row['status'] for row in result['records']], ['pending-source', 'pending-source'])
+
+    def test_registry_can_admit_multiple_source_families_without_changing_net10_candidates(self):
+        family = {'adapter': {'name': 'net9-1xx-portable', 'target': 'net9', 'channel': '9.0',
+                             'featureBand': 100, 'baselineSdk': '9.0.123'}}
+        docs = [document('9.0', [release('9.0.124')]), document('10.0', [release('10.0.404')])]
+        inputs = {'runtime': '10.0.15'}
+        result = MODULE.plan(dict(self.policy, maximumCandidatesPerRun=2), docs, set(),
+                             resolve=lambda tag: '1' * 40, values=lambda sdk, pin: inputs,
+                             registry=[(self.policy, None), (family, None)])
+        self.assertEqual([item['sdkVersion'] for item in result['candidates']], ['9.0.124', '10.0.404'])
+        self.assertEqual(result['candidates'][0]['target'], 'net9')
+        self.assertNotIn('target', result['candidates'][1])
+
+    def test_bootstrap_gap_is_reported_separately(self):
+        def missing(sdk, commit):
+            raise ValueError('pending-bootstrap: official SDK checksum is not published')
+
+        result = MODULE.plan(self.policy, [document('10.0', [release('10.0.404')])], set(),
+                             resolve=lambda tag: '1' * 40, values=missing)
+        self.assertEqual(result['records'][0]['status'], 'pending-bootstrap')
+
+    def test_explicit_baseline_qualification_cannot_succeed_without_admission(self):
+        (ROOT / '.build').mkdir(exist_ok=True)
+        policy = dict(self.policy, minimumChannels=['10.0'])
+        candidate = dict(schemaVersion=1, adapter=policy['adapter']['name'], sdkVersion='10.0.403',
+                         sourceCommit=policy['adapter']['baselineSource'], runtimeVersion='10.0.14',
+                         releaseDate='2026-10-25', qualificationOnly=True)
+        fake_plan = dict(schemaVersion=1, selection=policy['selection'], candidates=[], records=[])
+        with tempfile.TemporaryDirectory(dir=ROOT / '.build', prefix='upstream-qualification-') as directory:
+            base = Path(directory); policy_path = base / 'policy.json'; MODULE.write(policy_path, policy)
+            args = argparse.Namespace(policy=policy_path, output=base / 'plan.json',
+                                      qualify_baseline=True, qualify_target='net10')
+            with mock.patch.object(MODULE, 'adapter_registry', return_value=[(policy, None)]), \
+                 mock.patch.object(MODULE, 'request', return_value=b'{"releases-index":[]}'), \
+                 mock.patch.object(MODULE, 'release_states', return_value={'published': set(), 'drafts': set()}), \
+                 mock.patch.object(MODULE, 'plan', return_value=fake_plan), \
+                 mock.patch.object(MODULE, 'baseline_candidate', return_value=candidate), \
+                 mock.patch.object(MODULE, 'source_metadata'), \
+                 mock.patch.object(MODULE, 'compatibility', side_effect=ValueError('pending-bootstrap: missing input')):
+                with self.assertRaisesRegex(ValueError, 'failed immutable source admission'):
+                    MODULE.discover(args)
+            result = MODULE.load(args.output)
+            self.assertEqual(result['candidates'], [])
+            self.assertEqual(result['records'][0]['sdkVersion'], '10.0.403')
+            self.assertEqual(result['records'][0]['status'], 'pending-bootstrap')
 
     def test_partial_draft_prevents_conflicting_automatic_rebuild(self):
         resolve = mock.Mock()
@@ -214,26 +265,80 @@ class GitAdmissionTests(unittest.TestCase):
         self.assertEqual(MODULE.git(self.repo, 'rev-parse', 'HEAD'), before)
         self.assertEqual(MODULE.git(self.repo, 'status', '--porcelain').strip(), b'')
 
+    def test_registered_family_generation_delegates_without_net10_shared_inputs_and_bounds_mutations(self):
+        policy = {'adapter': dict(name='net8-1xx-source-build', target='net8', channel='8.0', featureBand=100,
+                                 baselineSdk='8.0.133', baselineSource='1' * 40, generatedFiles=['scripts/ci-sdk.py'])}
+        self.put('profiles/upstream-policy.json', json.dumps(policy))
+        self.put('scripts/ci-sdk.py', "SDK='8.0.133'\n")
+        for arch in ('aarch64', 'x64'):
+            self.put('profiles/dotnet-8.0.133-linux-' + arch + '.json', '{"sdkVersion":"8.0.133"}')
+        parent = self.commit()
+        inputs = {'runtime': '8.0.34', 'bootstrapSdk': '8.0.133'}
+        candidate = dict(schemaVersion=1, adapter=policy['adapter']['name'], target='net8', sdkVersion='8.0.134',
+                         sourceCommit='3' * 40, sourceTag='v8.0.134', upstreamInputs=inputs,
+                         runtimeVersion='8.0.34', releaseDate='2026-11-10')
+        path = self.root / 'family-candidate.json'; MODULE.write(path, candidate)
+
+        def transform(destination, supplied_policy, supplied_candidate, helpers):
+            self.assertEqual(supplied_policy, policy); self.assertEqual(supplied_candidate, candidate)
+            self.assertEqual(helpers.WORKFLOW, MODULE.WORKFLOW)
+            (destination / 'scripts/ci-sdk.py').write_text("SDK='8.0.134'\n")
+            for arch in ('aarch64', 'x64'):
+                (destination / ('profiles/dotnet-8.0.134-linux-' + arch + '.json')).write_text('{"sdkVersion":"8.0.134"}')
+
+        module = SimpleNamespace(manifest_values=mock.Mock(return_value=inputs),
+                                 compatibility=mock.Mock(return_value={'family': 'net8'}), transform=transform)
+        with mock.patch.dict(os.environ, {'GITHUB_SHA': parent}), \
+             mock.patch.object(MODULE, 'adapter_registry', return_value=[(policy, module)]), \
+             mock.patch.object(MODULE, 'source_metadata') as metadata, \
+             mock.patch.object(MODULE, 'attribute_audit', side_effect=AssertionError('NET10-only audit called')), \
+             mock.patch.object(MODULE, 'peel_tag', return_value=candidate['sourceCommit']):
+            destination = self.root / 'family-generated'; attestation = self.root / 'family-attestation.json'
+            MODULE.generate(argparse.Namespace(project_root=self.repo, candidate=path,
+                            destination=destination, attestation=attestation))
+            metadata.assert_called_once_with(self.root / 'family-generated-metadata', ['1' * 40, '3' * 40])
+            result = MODULE.load(attestation)
+            self.assertEqual(result['compatibility'], {'family': 'net8'})
+            self.assertNotIn('sharedAttributeAuditSha256', result)
+            self.assertIn('profiles/dotnet-8.0.134-linux-aarch64.json', result['changedFiles'])
+            module.compatibility.assert_called_once()
+
+            def unbounded(*args):
+                transform(*args)
+                (args[0] / 'unexpected.txt').write_text('outside the mutation policy')
+
+            module.transform = unbounded
+            with self.assertRaisesRegex(ValueError, 'outside its explicit mutation policy'):
+                MODULE.generate(argparse.Namespace(project_root=self.repo, candidate=path,
+                                destination=self.root / 'family-unbounded', attestation=self.root / 'unbounded.json'))
+
 
 class DriverContractTests(unittest.TestCase):
     def test_host_uses_canonical_architecture_and_attestation_is_bound_before_collect(self):
+        for target, sdk in [('net10', '10.0.404'), ('net9', '9.0.124'), ('net8', '8.0.134')]:
+            with self.subTest(target=target):
+                self.exercise_target(target, sdk)
+
+    def exercise_target(self, target, sdk):
         spec = importlib.util.spec_from_file_location('ci_upstream_tested', ROOT / 'scripts/ci-upstream.py')
         module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
         (ROOT / '.build').mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=ROOT / '.build', prefix='upstream-driver-') as directory:
             base = Path(directory); project = base / 'project'; project.mkdir()
-            output = base / '10.0.404-linux-arm64'; attestation = base / 'adapter.json'
-            MODULE.write(attestation, dict(generatedProjectCommit='1' * 40, candidate={'sdkVersion': '10.0.404'}))
+            output = base / (sdk + '-linux-arm64'); attestation = base / 'adapter.json'
+            MODULE.write(attestation, dict(generatedProjectCommit='1' * 40, candidate={'sdkVersion': sdk, 'target': target}))
             calls = []
+            driver = 'ci-' + target + '.sh'
 
             def run(command, environment=None):
                 command = list(map(str, command)); calls.append(command)
                 if command[1].endswith('ci-net10-host.sh') and command[2] == 'prepare':
                     self.assertEqual(command[command.index('--arch') + 1], 'arm64')
+                    self.assertEqual(command[command.index('--minimum-free-gib') + 1], '30' if target == 'net10' else '90')
                     Path(command[command.index('--reports-dir') + 1]).mkdir()
-                if command[1].endswith('ci-net10.sh') and command[2] == 'prepare':
+                if command[1].endswith(driver) and command[2] == 'prepare':
                     (output / 'reports/ci').mkdir(parents=True)
-                if command[1].endswith('ci-net10.sh') and command[2] == 'collect':
+                if command[1].endswith(driver) and command[2] == 'collect':
                     self.assertEqual(MODULE.load(output / 'reports/ci/upstream-attestation.json'), MODULE.load(attestation))
 
             environment = dict(GITHUB_RUN_ID='123', GITHUB_RUN_ATTEMPT='1', SDK_BUILD_ID='20261110.1')
@@ -241,9 +346,11 @@ class DriverContractTests(unittest.TestCase):
                  mock.patch.object(module, 'run', side_effect=run), mock.patch.object(module.subprocess, 'Popen'):
                 module.build(argparse.Namespace(generated_root=project, arch='aarch64', attestation=attestation,
                              workspace=base / 'work', release_dir=output, bundle_dir=base / 'bundles'))
-            self.assertTrue((base / 'bundles/cbodotnet-net10-linux-arm64-123-1.tar.gz').is_file())
-            self.assertEqual([call[2] for call in calls if call[1].endswith('ci-net10.sh')],
+            self.assertTrue((base / ('bundles/cbodotnet-' + target + '-linux-arm64-123-1.tar.gz')).is_file())
+            self.assertEqual([call[2] for call in calls if call[1].endswith(driver)],
                              ['prepare', 'build', 'scan', 'test', 'verify', 'collect'])
+            validation = next(call for call in calls if call[1].endswith('ci-sdk.py'))
+            self.assertEqual(validation[validation.index('--target') + 1], target)
 
 if __name__ == '__main__':
     unittest.main()

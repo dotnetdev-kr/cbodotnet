@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "adapter": {
+    "name": "net8-1xx-source-build",
+    "target": "net8",
+    "channel": "8.0",
+    "featureBand": 100,
+    "baselineSdk": "8.0.133",
+    "baselineSource": "7d1bf90885cff22e7da72b27e9848e42fd3cb1ae",
+    "repository": "https://github.com/dotnet/dotnet",
+    "driver": "scripts/ci-net8.sh",
+    "minimumFreeGiB": 90,
+    "allowedBuildSdkNames": ["Microsoft.Build.CentralPackageVersions", "Microsoft.Build.Traversal", "Microsoft.NET.Sdk.IL", "Microsoft.DotNet.Arcade.Sdk", "Yarn.MSBuild"],
+    "requiredUnchangedFiles": [
+      "build.sh",
+      "prep.sh",
+      "eng/common/tools.sh",
+      "eng/common/cross/build-rootfs.sh",
+      "src/runtime/eng/native/configureplatform.cmake",
+      "repo-projects/aspnetcore.proj"
+    ],
+    "requiredUnchangedRoots": ["eng/bootstrap", "eng/common/cross", "test"],
+    "testRoots": ["test"],
+    "generatedFiles": [
+      "scripts/ci-sdk.py",
+      "scripts/ci-vmr89.py",
+      "scripts/ci_vmr89_support.py",
+      "scripts/build-vmr8.sh",
+      "scripts/prepare-sysroot8.sh",
+      "scripts/watch-bootstrap8.py",
+      "scripts/apply-net8-patches.py",
+      "scripts/restore-net8-symbol-inputs.py"
+    ]
+  }
+}

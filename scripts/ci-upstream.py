@@ -22,6 +22,7 @@ def run(command, env=None):
 def build(args):
     attestation = UPSTREAM.load(args.attestation); candidate = attestation['candidate']
     root = args.generated_root; arch = 'arm64' if args.arch == 'aarch64' else args.arch; rid = 'linux-' + arch
+    target = UPSTREAM.candidate_target(candidate)
     UPSTREAM.require(UPSTREAM.git(root, 'rev-parse', 'HEAD').decode().strip() == attestation['generatedProjectCommit'],
                      'The generated adapter identity changed')
     run_id = os.environ['GITHUB_RUN_ID']; attempt = os.environ['GITHUB_RUN_ATTEMPT']
@@ -29,11 +30,11 @@ def build(args):
     host_reports = args.workspace.with_name(args.workspace.name + '-host')
     environment = os.environ.copy(); environment['GITHUB_SHA'] = attestation['generatedProjectCommit']
     environment['GITHUB_WORKFLOW_REF'] = UPSTREAM.WORKFLOW
-    host = root / 'scripts/ci-net10-host.sh'; driver = root / 'scripts/ci-net10.sh'
+    host = root / 'scripts/ci-net10-host.sh'; driver = root / ('scripts/ci-' + target + '.sh')
     common = ['--arch', arch, '--workspace', args.workspace, '--output-dir', args.release_dir,
               '--build-id', build_id, '--build-revision', revision]
     run(['bash', host, 'prepare', '--arch', arch, '--workspace', args.workspace,
-         '--reports-dir', host_reports, '--minimum-free-gib', '30'], environment)
+         '--reports-dir', host_reports, '--minimum-free-gib', '30' if target == 'net10' else '90'], environment)
     run(['bash', driver, 'prepare', *common], environment)
     shutil.copytree(host_reports, args.release_dir / 'reports/ci-host')
     monitor = subprocess.Popen(['bash', str(host), 'monitor', '--arch', arch, '--workspace', str(args.workspace),
@@ -51,10 +52,10 @@ def build(args):
         monitor.terminate(); monitor.wait(timeout=60)
     shutil.copyfile(args.attestation, args.release_dir / 'reports/ci/upstream-attestation.json')
     run(['bash', driver, 'collect', *common], environment)
-    run([sys.executable, root / 'scripts/ci-sdk.py', 'validate', '--arch', arch, '--target', 'net10',
+    run([sys.executable, root / 'scripts/ci-sdk.py', 'validate', '--arch', arch, '--target', target,
          '--project-root', root, '--release-dir', args.release_dir], environment)
     args.bundle_dir.mkdir(parents=True, exist_ok=False)
-    name = 'cbodotnet-net10-' + rid + '-' + run_id + '-' + attempt + '.tar.gz'
+    name = 'cbodotnet-' + target + '-' + rid + '-' + run_id + '-' + attempt + '.tar.gz'
     destination = args.bundle_dir / name
     with tarfile.open(destination, 'w:gz', dereference=True) as archive:
         archive.add(args.release_dir, arcname=args.release_dir.name)
@@ -68,19 +69,20 @@ def build(args):
 
 def receive(args):
     candidate = UPSTREAM.load(args.candidate); attestation = UPSTREAM.load(args.attestation)
+    target = UPSTREAM.candidate_target(candidate)
     UPSTREAM.require(attestation['candidateSha256'] == UPSTREAM.digest(candidate), 'The regenerated candidate differs')
     run_id = os.environ['GITHUB_RUN_ID']; attempt = os.environ['GITHUB_RUN_ATTEMPT']
     artifacts = UPSTREAM.api(UPSTREAM.REPOSITORY + '/actions/runs/' + run_id + '/artifacts?per_page=100')['artifacts']
     args.output_dir.mkdir(parents=True, exist_ok=False)
-    deliveries = dict(schemaVersion=1, sdkVersion=candidate['sdkVersion'], target='net10', architectures={}, generation=attestation)
+    deliveries = dict(schemaVersion=1, sdkVersion=candidate['sdkVersion'], target=target, architectures={}, generation=attestation)
     for arch, official in [('aarch64', 'arm64'), ('x64', 'x64')]:
         artifact_name = 'upstream-sdk-' + candidate['sdkVersion'] + '-' + arch + '-' + run_id + '-' + attempt
         matches = [row for row in artifacts if row['name'] == artifact_name and not row['expired']]
         UPSTREAM.require(len(matches) == 1, 'Exactly one current-run architecture artifact is required')
-        bundle_name = 'cbodotnet-net10-linux-' + official + '-' + run_id + '-' + attempt + '.tar.gz'
+        bundle_name = 'cbodotnet-' + target + '-linux-' + official + '-' + run_id + '-' + attempt + '.tar.gz'
         paths = list(args.downloads.rglob(bundle_name))
         UPSTREAM.require(len(paths) == 1, 'Exactly one downloaded architecture bundle is required')
-        command = [sys.executable, args.generated_root / 'scripts/ci-delivery.py', '--target', 'net10', '--arch', arch,
+        command = [sys.executable, args.generated_root / 'scripts/ci-delivery.py', '--target', target, '--arch', arch,
                    '--sdk-version', candidate['sdkVersion'], '--download-dir', paths[0].parent,
                    '--destination', args.output_dir / arch, '--expected-project-commit', attestation['generatedProjectCommit'],
                    '--expected-run-id', run_id, '--expected-run-attempt', attempt]

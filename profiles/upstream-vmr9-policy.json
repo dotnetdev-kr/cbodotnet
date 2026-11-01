@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "adapter": {
+    "name": "net9-1xx-portable",
+    "target": "net9",
+    "channel": "9.0",
+    "featureBand": 100,
+    "baselineSdk": "9.0.123",
+    "baselineSource": "9f04b57d1366e21b3178648493d6edffeff2216e",
+    "repository": "https://github.com/dotnet/dotnet",
+    "driver": "scripts/ci-net9.sh",
+    "minimumFreeGiB": 90,
+    "baselineComponents": {
+      "runtime": "faaecba82df8933d7af60972138ce25f9c776cbd",
+      "aspnetcore": "5aeb916d29e761492c987f1c09895c3ba9cbe1ac"
+    },
+    "testRoots": [
+      "test/Microsoft.DotNet.UnifiedBuild.Tests",
+      "test/TestUtilities",
+      "src/scenario-tests"
+    ],
+    "integrityRoots": [
+      "eng/common/cross",
+      "eng/tools/BinaryToolKit"
+    ],
+    "requiredUnchangedFiles": [
+      "build.sh",
+      "build.proj",
+      "Directory.Build.props",
+      "Directory.Build.rsp",
+      "Directory.Build.targets",
+      "Directory.Packages.props",
+      "NuGet.config",
+      "eng/Build.props",
+      "eng/Version.Details.xml",
+      "eng/common/tools.sh",
+      "eng/common/dotnet-install.sh",
+      "eng/init-cross-build.proj",
+      "eng/extract-sdk-archive.proj",
+      "eng/merge-asset-manifests.proj",
+      "repo-projects/scenario-tests.proj",
+      "test/Directory.Build.props",
+      "test/tests.proj",
+      "eng/allowed-vmr-binaries.txt",
+      "eng/allowed-sb-binaries.txt"
+    ],
+    "testSourceFiles": {
+      "test/Microsoft.DotNet.UnifiedBuild.Tests/NugetPackageDownloadHelpers.cs": {
+        "bytes": 4788,
+        "sha256": "4bc182202d6be9fcf9387486c4ca3a7ffcff9abb20831a2173d5d2f26c5b6476"
+      },
+      "test/Microsoft.DotNet.UnifiedBuild.Tests/NugetPackageContentTests.cs": {
+        "bytes": 5909,
+        "sha256": "3fa63bc371cf0ee367d7af85787f1ee1fd3ec27f44e20f16c11767c536465aad"
+      },
+      "test/Microsoft.DotNet.UnifiedBuild.Tests/Microsoft.DotNet.UnifiedBuild.Tests.csproj": {
+        "bytes": 3151,
+        "sha256": "f4b3f71063005051517c2d95039874ce6be04b68e109c8406b6ccd8cd54a4994"
+      },
+      "test/Microsoft.DotNet.UnifiedBuild.Tests/Config.cs": {
+        "bytes": 2350,
+        "sha256": "d002220acb89de9583f0fa191527c18866e9fe3311e2d984c64b6b5eb34d7682"
+      }
+    },
+    "generatedFiles": [
+      "scripts/build-vmr9.sh",
+      "scripts/ci_vmr89_support.py",
+      "scripts/ci-vmr89.py",
+      "scripts/ci_net9_cases.py",
+      "scripts/ci-net9-test-cases.json",
+      "scripts/ci-net9-test-cases-x64.json",
+      "scripts/prepare-sysroot9.sh",
+      "scripts/scan-clean-source9.sh",
+      "scripts/prepare-scenario-report-fence.py",
+      "scripts/ci-sdk.py",
+      "scripts/inspect-sdk-construction9.py"
+    ],
+    "projectInputSha256": {
+      "scripts/ci_vmr89_support.py": "4ef91cb2612605ff914c031827e1450b198b8743cd1e81421a27f7d814278dcd",
+      "scripts/ci-net9-test-cases-x64.json": "30d3207fa5e7b70a71446bc85018b7408796274b744efc038551633dbc3f71e4",
+      "scripts/ci_net9_cases.py": "001d710de792ef41e1dc4b03b0dfc27b0673f5caa5dd653018e1d3d7089bc390",
+      "scripts/ci-sdk.py": "6a9e786af28d9554d9b02444bb8f4abb74501d7cddadce22b7f7290341d40e04",
+      "scripts/prepare-scenario-report-fence.py": "a63db0278fbbf480b0ac8c556fc8dc917f9d608609bffa168d646c28cb6859fa",
+      "scripts/inspect-sdk-construction9.py": "4bd8ac1ae2ddb0a69f847d9b777766a4a8143fa45798d542913502d8f49042b5",
+      "scripts/ci-net9-test-cases.json": "490456dae6659603ace67564c6752f9ad2f55a404254eb31f79a570c6919cf4d",
+      "scripts/scan-clean-source9.sh": "a2c0557be79ef5fd5dac126e34374c10fb3643d3d58a68e51d9497ca5b0ac380",
+      "scripts/build-vmr9.sh": "e45d9cc92809cc33db2516f424170982023629b303c3dcfb8be98895e47e572c",
+      "scripts/prepare-sysroot9.sh": "fb843e8020d5fb396025628dd0b50444c60cf711fcc42a5d8976d3ecdfe75ae2",
+      "scripts/ci-vmr89.py": "8029de7eb77a5f04f131db2fc73aa96f7cee9b76386ee69a67bc58e07cfb32cf"
+    },
+    "bootstrapAdmission": {
+      "source": "Official stable SDK release metadata supplies exact architecture-specific HTTPS URLs and SHA-512 values; independently re-derived for each generated adapter.",
+      "mutableDeclarations": [
+        "global.json:tools.dotnet",
+        "eng/Versions.props:PrivateSourceBuiltSdkVersion",
+        "eng/Versions.props:PrivateSourceBuiltArtifactsVersion"
+      ],
+      "otherDeclarations": "All other parsed global.json and Versions.props values remain unchanged. Version.Details.xml remains byte-identical.",
+      "consumption": "The native official SDK is checksum-verified and extracted before ordinary InitializeToolset. Its complete original archive and receipt are preserved and rechecked by portable qualification.",
+      "psb": "Only an unused source-built artifacts declaration. Ordinary NET9 builds do not run the source-only PSB initialization graph."
+    },
+    "qualification": {
+      "sourceOnly": false,
+      "shippingPackages": 262,
+      "availableBaselines": 260,
+      "commonResults": 522,
+      "scenarioResults": 34,
+      "unavailableBaselineIds": [
+        "Microsoft.DotNet.Common.ProjectTemplates.9.0",
+        "Microsoft.EntityFrameworkCore.Tasks"
+      ],
+      "requireFreshDualArchitectureBuild": true,
+      "executedTestClosure": "All tracked UnifiedBuild, TestUtilities and scenario files remain unchanged, with immutable root build/import/project wiring. SourceBuild.SmokeTests is referenced only under DotNetBuildSourceOnly=true and is not executed by this ordinary sourceOnly=false adapter.",
+      "otherSourceTests": "Authentic unused source-only test files remain in the complete used VMR source archive. Their changes do not qualify or alter the original 522 common and 34 scenario results."
+    }
+  }
+}

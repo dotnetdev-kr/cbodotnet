@@ -6,16 +6,22 @@ on:
   workflow_dispatch:
     inputs:
       qualify_baseline:
-        description: Exercise both native generated adapters and stage SDK 10.0.403 without public publication
+        description: Exercise both native generated adapters and stage the selected baseline without public publication
         type: boolean
         required: true
         default: false
+      qualify_target:
+        description: Baseline family to qualify when qualify_baseline is enabled
+        type: choice
+        required: true
+        default: net10
+        options: [net10, net9, net8]
 
 permissions:
   contents: read
 
 concurrency:
-  group: upstream-sdk-${{ github.repository }}
+  group: ${{ inputs.qualify_baseline && format('upstream-sdk-qualification-{0}-{1}', github.repository, inputs.qualify_target || 'net10') || format('upstream-sdk-{0}', github.repository) }}
   cancel-in-progress: false
 
 env:
@@ -29,7 +35,7 @@ jobs:
   discover:
     if: github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 30
     outputs:
       matrix: ${{ steps.track.outputs.matrix }}
       versions: ${{ steps.track.outputs.versions }}
@@ -44,17 +50,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           QUALIFY_BASELINE: ${{ inputs.qualify_baseline || false }}
+          QUALIFY_TARGET: ${{ inputs.qualify_target || 'net10' }}
         run: |
           [[ "$GITHUB_WORKFLOW_SHA" == "$GITHUB_SHA" ]]
           args=()
-          [[ "$QUALIFY_BASELINE" != true ]] || args+=(--qualify-baseline)
+          [[ "$QUALIFY_BASELINE" != true ]] || args+=(--qualify-baseline --qualify-target "$QUALIFY_TARGET")
           python3 scripts/upstream-sdk.py discover --output "$RUNNER_TEMP/upstream-plan.json" "${args[@]}"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
         with:
           name: upstream-plan-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/upstream-plan.json
           retention-days: 30
-          if-no-files-found: error
+          if-no-files-found: warn
 
   build:
     needs: discover
@@ -87,6 +95,7 @@ jobs:
         env:
           SDK_ARCH: ${{ matrix.arch }}
           SDK_VERSION: ${{ matrix.sdk }}
+          SDK_TARGET: ${{ matrix.target }}
         run: |
           export SDK_BUILD_ID="$(date -u +%Y%m%d).$GITHUB_RUN_NUMBER"
           official_arch=$SDK_ARCH
@@ -149,12 +158,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           SDK_VERSION: ${{ matrix.sdk }}
+          SDK_TARGET: ${{ matrix.target }}
           QUALIFICATION_ONLY: ${{ matrix.candidate.qualificationOnly || false }}
         run: |
           python3 scripts/ci-upstream.py receive --candidate "$RUNNER_TEMP/candidate.json" \
             --attestation "$RUNNER_TEMP/adapter.json" --generated-root "$RUNNER_TEMP/generated" \
             --downloads "$RUNNER_TEMP/downloads" --output-dir "$RUNNER_TEMP/verified" --plan "$RUNNER_TEMP/deliveries.json"
-          python3 scripts/publish-release.py stage --target net10 --sdk-version "$SDK_VERSION" \
+          python3 scripts/publish-release.py stage --target "$SDK_TARGET" --sdk-version "$SDK_VERSION" \
             --deliveries "$RUNNER_TEMP/deliveries.json" --output "$RUNNER_TEMP/staging" --project-root "$RUNNER_TEMP/generated"
           if [[ "$QUALIFICATION_ONLY" == true ]]; then
             echo 'The baseline generated adapter passed both native builds and independent staging. No public release was changed.' >> "$GITHUB_STEP_SUMMARY"

@@ -3,12 +3,14 @@
 import argparse
 import datetime as dt
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
 import re
 import subprocess
 import sys
+from types import SimpleNamespace
 import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -55,6 +57,48 @@ def eligible_channel(value):
     return bool(match and (int(match[1]) >= 5 or value in ('3.0', '3.1')))
 
 
+def helper_api():
+    return SimpleNamespace(git=git, tree_entries=tree_entries, digest=digest, encode=encode, load=load,
+                           replace_exact=replace_exact, require=require, WORKFLOW=WORKFLOW)
+
+
+def adapter_registry(policy, project_root=ROOT):
+    result = [(policy, None)]
+    scripts = str(project_root / 'scripts')
+    if scripts not in sys.path:
+        sys.path.insert(0, scripts)
+    allowed_modules = {'upstream_vmr8.py', 'upstream_vmr9.py'}
+    for entry in policy.get('additionalAdapters', []):
+        require(entry['module'] in allowed_modules
+                and entry['policy'] == 'profiles/' + entry['module'].replace('upstream_vmr', 'upstream-vmr').replace('.py', '-policy.json'),
+                'An explicitly registered family adapter is required')
+        family_policy = load(project_root / entry['policy'])
+        spec = importlib.util.spec_from_file_location(entry['module'][:-3], project_root / 'scripts' / entry['module'])
+        module = importlib.util.module_from_spec(spec); sys.modules[spec.name] = module; spec.loader.exec_module(module)
+        result.append((family_policy, module))
+    names = [item[0]['adapter']['name'] for item in result]
+    require(len(set(names)) == len(names), 'Adapter names must be unique')
+    return result
+
+
+def selected_adapter(registry, name):
+    matches = [entry for entry in registry if entry[0]['adapter']['name'] == name]
+    require(len(matches) == 1, 'The candidate requires a registered version adapter')
+    return matches[0]
+
+
+def candidate_target(candidate):
+    target = candidate.get('target', 'net10')
+    require(target in ('net8', 'net9', 'net10'), 'An admitted native VMR target is required')
+    return target
+
+
+def pending_status(error):
+    message = str(error)
+    return next((name for name in ('pending-bootstrap', 'pending-source', 'pending-adapter') if message.startswith(name + ':')),
+                'pending-adapter')
+
+
 def request(url, missing=False):
     require(url.startswith(('https://raw.githubusercontent.com/dotnet/', 'https://api.github.com/repos/')),
             'Only the official metadata and GitHub repository endpoints are allowed')
@@ -75,6 +119,12 @@ def request(url, missing=False):
 def api(path, missing=False):
     data = request('https://api.github.com/repos/' + path, missing)
     return json.loads(data) if data is not None else None
+
+
+def source_file(commit, path):
+    data = request('https://raw.githubusercontent.com/dotnet/dotnet/' + commit + '/' + path, missing=True)
+    require(data is not None, 'pending-adapter: required immutable VMR source path is absent: ' + path)
+    return data
 
 
 def peel_tag(tag):
@@ -163,23 +213,34 @@ def release_states():
     raise ValueError('Release pagination exceeds its bound')
 
 
-def plan(policy, documents, published, resolve=peel_tag, values=manifest_values, drafts=()):
-    adapter = policy['adapter']; records = []; candidates = []
+def plan(policy, documents, published, resolve=peel_tag, values=None, drafts=(), registry=None):
+    entries = registry or [(policy, None)]; records = []; candidates = []
     for document in documents:
         selected = {row['sdkVersion']: row for row in latest_sdks(document)}
         for row in sdk_records(document):
-            if (row['channel'] == adapter['channel'] and row['featureBand'] == adapter['featureBand']
-                    and version(row['sdkVersion']) > version(adapter['baselineSdk'])):
+            matching = [entry for entry in entries if row['channel'] == entry[0]['adapter']['channel']
+                        and row['featureBand'] == entry[0]['adapter']['featureBand']]
+            if matching and version(row['sdkVersion']) > version(matching[0][0]['adapter']['baselineSdk']):
                 selected[row['sdkVersion']] = row
         for row in sorted(selected.values(), key=lambda item: version(item['sdkVersion'])):
             sdk = row['sdkVersion']
+            matching = [entry for entry in entries if row['channel'] == entry[0]['adapter']['channel']
+                        and row['featureBand'] == entry[0]['adapter']['featureBand']]
+            require(len(matching) <= 1, 'A feature band may have only one admitted adapter')
+            family_policy, module = matching[0] if matching else (None, None)
+            adapter = family_policy['adapter'] if family_policy else None
             if sdk in published:
                 row.update(status='published', reason='The matching public community release exists')
             elif sdk in drafts:
                 row.update(status='pending-publication-recovery',
                            reason='A matching draft exists; resume its exact qualified assets before rebuilding')
-            elif row['channel'] != adapter['channel'] or row['featureBand'] != adapter['featureBand']:
-                row.update(status='pending-adapter', reason='This SDK feature band needs a qualified version adapter')
+            elif adapter is None:
+                # VMR tags may lag binary announcements in any SDK feature band.
+                # Preserve that specific source gap even when an adapter is also needed.
+                if version(sdk)[0] >= 8 and resolve('v' + sdk) is None:
+                    row.update(status='pending-source', reason='The exact public VMR SDK release tag is not available yet')
+                else:
+                    row.update(status='pending-adapter', reason='This SDK feature band needs a qualified version adapter')
             elif version(sdk) <= version(adapter['baselineSdk']):
                 row.update(status='baseline', reason='The independently qualified pinned adapter already covers this version')
             else:
@@ -188,14 +249,24 @@ def plan(policy, documents, published, resolve=peel_tag, values=manifest_values,
                     row.update(status='pending-source', reason='The exact public VMR SDK release tag is not available yet')
                 else:
                     try:
-                        inputs = values(sdk, pin)
+                        read_values = values or (module.manifest_values if module else manifest_values)
+                        if values is None:
+                            read = lambda path: source_file(pin, path)
+                            inputs = read_values(sdk, pin, read)
+                        else:
+                            inputs = read_values(sdk, pin)
                         require(inputs['runtime'] == row['runtimeVersion'], 'Published runtime metadata and VMR inputs differ')
+                        if values is None and inputs.get('sharedVmrCommit'):
+                            require(api('dotnet/dotnet/git/commits/' + inputs['sharedVmrCommit'], missing=True) is not None,
+                                    'pending-source: the exact corresponding shared VMR source commit is not public yet')
                     except (ValueError, KeyError, TypeError, ET.ParseError) as error:
-                        row.update(status='pending-adapter', reason=str(error))
+                        row.update(status=pending_status(error), reason=str(error))
                     else:
                         candidate = dict(schemaVersion=1, adapter=adapter['name'], sdkVersion=sdk,
                                          sourceCommit=pin, sourceTag='v' + sdk, upstreamInputs=inputs,
                                          runtimeVersion=row['runtimeVersion'], releaseDate=row['releaseDate'])
+                        if adapter.get('target', 'net10') != 'net10':
+                            candidate['target'] = adapter['target']
                         row.update(status='candidate', reason='Requires immutable input compatibility checks and both native builds',
                                    candidateSha256=digest(candidate))
                         candidates.append(candidate)
@@ -213,7 +284,7 @@ def admit_candidates(result, maximum, check):
             proof = check(candidate)
         except ValueError as error:
             row = next(item for item in result['records'] if item['sdkVersion'] == candidate['sdkVersion'])
-            row.update(status='pending-adapter', reason=str(error))
+            row.update(status=pending_status(error), reason=str(error))
             row.pop('candidateSha256', None)
         else:
             admitted.append(candidate)
@@ -232,8 +303,11 @@ def baseline_candidate(policy, documents, resolve=peel_tag, values=manifest_valu
     require(pin == adapter['baselineSource'], 'The baseline release tag differs from the qualified source pin')
     inputs = values(sdk, pin)
     require(inputs['runtime'] == row['runtimeVersion'], 'Baseline runtime metadata and source manifests differ')
-    return dict(schemaVersion=1, adapter=adapter['name'], sdkVersion=sdk, sourceCommit=pin, sourceTag='v' + sdk,
-                upstreamInputs=inputs, runtimeVersion=row['runtimeVersion'], releaseDate=row['releaseDate'], qualificationOnly=True)
+    result = dict(schemaVersion=1, adapter=adapter['name'], sdkVersion=sdk, sourceCommit=pin, sourceTag='v' + sdk,
+                  upstreamInputs=inputs, runtimeVersion=row['runtimeVersion'], releaseDate=row['releaseDate'], qualificationOnly=True)
+    if adapter.get('target', 'net10') != 'net10':
+        result['target'] = adapter['target']
+    return result
 
 
 def git(root, *args, data=None, env=None):
@@ -353,14 +427,18 @@ def transform(root, policy, candidate, audit):
 
 
 def generate(args):
-    policy = load(args.project_root / 'profiles/upstream-policy.json'); candidate = load(args.candidate)
+    master_policy = load(args.project_root / 'profiles/upstream-policy.json'); candidate = load(args.candidate)
+    policy, module = selected_adapter(adapter_registry(master_policy, args.project_root), candidate['adapter'])
     adapter = policy['adapter']; sdk = candidate['sdkVersion']; parts = version(sdk)
     require(candidate['schemaVersion'] == 1 and candidate['adapter'] == adapter['name']
-            and parts[:2] == (10, 0) and parts[2] // 100 == 4
+            and '.'.join(map(str, parts[:2])) == adapter.get('channel', '10.0')
+            and (parts[2] // 100) * 100 == adapter.get('featureBand', 400)
+            and candidate_target(candidate) == adapter.get('target', 'net10')
             and (version(sdk) > version(adapter['baselineSdk'])
                  or (getattr(args, 'allow_baseline', False) and sdk == adapter['baselineSdk']))
             and candidate['sourceTag'] == 'v' + sdk and SHA.fullmatch(candidate['sourceCommit']), 'Unadmitted upstream candidate')
-    require(SHA.fullmatch(candidate['upstreamInputs']['sharedVmrCommit']), 'Invalid shared VMR source pin')
+    if module is None:
+        require(SHA.fullmatch(candidate['upstreamInputs']['sharedVmrCommit']), 'Invalid shared VMR source pin')
     require(candidate['upstreamInputs']['runtime'] == candidate['runtimeVersion'], 'Candidate runtime metadata differs')
     dt.date.fromisoformat(candidate['releaseDate'])
     require(not args.destination.exists() and not args.attestation.exists(), 'Generation destinations must be fresh')
@@ -373,17 +451,34 @@ def generate(args):
     require(not os.environ.get('GITHUB_SHA') or os.environ['GITHUB_SHA'] == parent, 'Trusted workflow checkout differs')
     require(peel_tag(candidate['sourceTag']) == candidate['sourceCommit'], 'The selected public release tag changed')
     metadata = args.destination.with_name(args.destination.name + '-metadata')
-    source_metadata(metadata, [adapter['baselineSource'], candidate['sourceCommit'], candidate['upstreamInputs']['sharedVmrCommit']])
+    commits = [adapter['baselineSource'], candidate['sourceCommit']]
+    if module is None:
+        commits.append(candidate['upstreamInputs']['sharedVmrCommit'])
+    source_metadata(metadata, commits)
     read = lambda path: git(metadata, 'show', candidate['sourceCommit'] + ':' + path)
-    require(manifest_values(sdk, candidate['sourceCommit'], read) == candidate['upstreamInputs'], 'Candidate inputs differ from immutable VMR manifests')
-    evidence = compatibility(metadata, policy, candidate)
-    audit = attribute_audit(metadata, candidate['upstreamInputs']['sharedVmrCommit'], load(args.project_root / 'scripts/net10-shared-source-crlf.json'))
+    require((module.manifest_values if module else manifest_values)(sdk, candidate['sourceCommit'], read)
+            == candidate['upstreamInputs'], 'Candidate inputs differ from immutable VMR manifests')
+    evidence = module.compatibility(metadata, policy, candidate, helper_api()) if module else compatibility(metadata, policy, candidate)
+    audit = None if module else attribute_audit(metadata, candidate['upstreamInputs']['sharedVmrCommit'],
+                                              load(args.project_root / 'scripts/net10-shared-source-crlf.json'))
     subprocess.run(['git', '-c', 'core.hooksPath=/dev/null', 'clone', '--quiet', '--no-hardlinks', '--no-checkout',
                     str(args.project_root), str(args.destination)], check=True)
     git(args.destination, 'checkout', '--quiet', '--detach', parent)
-    transform(args.destination, policy, candidate, audit)
+    baseline_profiles = [path.relative_to(args.destination).as_posix() for path in
+                         (args.destination / 'profiles').glob('dotnet-' + adapter['baselineSdk'] + '-linux-*.json')]
+    require(len(baseline_profiles) == 2, 'Exactly two original native profiles are required')
+    if module:
+        module.transform(args.destination, policy, candidate, helper_api())
+    else:
+        transform(args.destination, policy, candidate, audit)
     write(args.destination / 'profiles/generated-upstream.json', dict(candidate=candidate, parentCommit=parent, compatibility=evidence))
     git(args.destination, 'add', '--all')
+    changed = [name for name in git(args.destination, 'diff', '--cached', '--name-only', '--no-renames', '-z', parent).decode().split('\0') if name]
+    allowed = set(adapter['generatedFiles']) | set(baseline_profiles) | {'profiles/generated-upstream.json'}
+    allowed.update(name.replace(adapter['baselineSdk'], sdk) for name in baseline_profiles)
+    if audit is not None:
+        allowed.add('scripts/net10-shared-source-crlf.json')
+    require(set(changed) <= allowed, 'A generated family adapter changed a file outside its explicit mutation policy')
     tree = git(args.destination, 'write-tree').decode().strip()
     environment = os.environ.copy()
     environment.update(GIT_AUTHOR_NAME='cbodotnet upstream automation', GIT_AUTHOR_EMAIL='upstream@cbodotnet.invalid',
@@ -392,15 +487,18 @@ def generate(args):
     message = ('Derive constrained SDK adapter ' + sdk + '\n\nCandidate SHA-256: ' + digest(candidate) + '\n').encode()
     commit = git(args.destination, 'commit-tree', tree, '-p', parent, data=message, env=environment).decode().strip()
     git(args.destination, 'reset', '--quiet', '--hard', commit)
-    write(args.attestation, dict(schemaVersion=1, sourceProjectCommit=parent, generatedProjectCommit=commit,
-                                generatedProjectTree=tree, candidateSha256=digest(candidate), candidate=candidate,
-                                compatibility=evidence, generatedFiles=adapter['generatedFiles'],
-                                sharedAttributeAuditSha256=hashlib.sha256(encode(audit)).hexdigest()))
+    attestation = dict(schemaVersion=1, sourceProjectCommit=parent, generatedProjectCommit=commit,
+                      generatedProjectTree=tree, candidateSha256=digest(candidate), candidate=candidate,
+                      compatibility=evidence, generatedFiles=adapter['generatedFiles'], changedFiles=sorted(changed))
+    if audit is not None:
+        attestation['sharedAttributeAuditSha256'] = hashlib.sha256(encode(audit)).hexdigest()
+    write(args.attestation, attestation)
     print(json.dumps(dict(status='generated', projectCommit=commit, sourceProjectCommit=parent)))
 
 
 def discover(args):
     policy = load(args.policy)
+    registry = adapter_registry(policy, args.policy.resolve().parents[1])
     index = json.loads(request(policy['metadataIndex']))
     channels = set(policy['minimumChannels'])
     channels.update(row['channel-version'] for row in index['releases-index'] if eligible_channel(row['channel-version']))
@@ -410,21 +508,49 @@ def discover(args):
     # Inspect every queued immutable source before applying the build budget, so
     # an incompatible old update cannot permanently starve later compatible ones.
     expanded = dict(policy, maximumCandidatesPerRun=sys.maxsize)
-    result = plan(expanded, documents, releases['published'], drafts=releases['drafts'])
+    result = plan(expanded, documents, releases['published'], drafts=releases['drafts'], registry=registry)
     if args.qualify_baseline:
-        result['candidates'] = [baseline_candidate(policy, documents)]
+        selected = [entry for entry in registry if entry[0]['adapter'].get('target', 'net10') == args.qualify_target]
+        require(len(selected) == 1, 'The qualification target requires one registered adapter')
+        family_policy, module = selected[0]
+        read_values = lambda sdk, pin: (module.manifest_values if module else manifest_values)(
+            sdk, pin, lambda path: source_file(pin, path))
+        result['candidates'] = [baseline_candidate(family_policy, documents, values=read_values)]
+        baseline = result['candidates'][0]
+        row = next((item for item in result['records'] if item['sdkVersion'] == baseline['sdkVersion']), None)
+        if row is None:
+            row = dict(sdkVersion=baseline['sdkVersion'], channel=family_policy['adapter']['channel'],
+                       featureBand=family_policy['adapter']['featureBand'], runtimeVersion=baseline['runtimeVersion'],
+                       releaseDate=baseline['releaseDate'])
+            result['records'].append(row)
+        row.update(status='qualification-candidate', reason='Explicit baseline qualification; public publication is disabled',
+                   candidateSha256=digest(baseline))
         result['qualificationOnly'] = True
     if result['candidates']:
         metadata = args.output.with_name(args.output.stem + '-metadata')
-        source_metadata(metadata, [policy['adapter']['baselineSource'],
-                                  *[row['sourceCommit'] for row in result['candidates']]])
+        pins = []
+        for row in result['candidates']:
+            family_policy, module = selected_adapter(registry, row['adapter'])
+            pins.extend([family_policy['adapter']['baselineSource'], row['sourceCommit']])
+        source_metadata(metadata, pins)
+
+        def inspect(candidate):
+            family_policy, module = selected_adapter(registry, candidate['adapter'])
+            if module:
+                return module.compatibility(metadata, family_policy, candidate, helper_api())
+            return compatibility(metadata, family_policy, candidate)
+
         result = admit_candidates(result, policy['maximumCandidatesPerRun'],
-                                  lambda candidate: compatibility(metadata, policy, candidate))
+                                  inspect)
     result.update(checkedAtUtc=dt.datetime.now(dt.timezone.utc).isoformat(), metadataIndex=policy['metadataIndex'])
     write(args.output, result)
+    if args.qualify_baseline and not result['candidates']:
+        requested = family_policy['adapter']['baselineSdk']
+        reason = next(row['reason'] for row in result['records'] if row['sdkVersion'] == requested)
+        raise ValueError('Requested baseline ' + requested + ' failed immutable source admission: ' + reason)
     if os.environ.get('GITHUB_OUTPUT'):
-        versions = [{'sdk': row['sdkVersion'], 'candidate': row} for row in result['candidates']]
-        matrix = [{'sdk': row['sdkVersion'], 'arch': arch, 'runner': runner, 'candidate': row}
+        versions = [{'sdk': row['sdkVersion'], 'target': candidate_target(row), 'candidate': row} for row in result['candidates']]
+        matrix = [{'sdk': row['sdkVersion'], 'target': candidate_target(row), 'arch': arch, 'runner': runner, 'candidate': row}
                   for row in result['candidates'] for arch, runner in [('aarch64', 'ubuntu-24.04-arm'), ('x64', 'ubuntu-24.04')]]
         with open(os.environ['GITHUB_OUTPUT'], 'a') as stream:
             stream.write('matrix=' + json.dumps({'include': matrix}, separators=(',', ':')) + '\n')
@@ -444,6 +570,7 @@ def main():
     p = sub.add_parser('discover'); p.add_argument('--policy', type=Path, default=ROOT / 'profiles/upstream-policy.json')
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--qualify-baseline', action='store_true', help='Qualify the admitted baseline without publishing a release')
+    p.add_argument('--qualify-target', choices=('net10', 'net9', 'net8'), default='net10')
     p = sub.add_parser('generate'); p.add_argument('--candidate', type=Path, required=True)
     p.add_argument('--project-root', type=Path, default=ROOT); p.add_argument('--destination', type=Path, required=True)
     p.add_argument('--attestation', type=Path, required=True)

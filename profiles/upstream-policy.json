@@ -6,8 +6,15 @@
   "minimumChannels": ["3.0", "3.1", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0"],
   "releaseTagPrefix": "sdk-",
   "maximumCandidatesPerRun": 1,
+  "additionalAdapters": [
+    { "policy": "profiles/upstream-vmr8-policy.json", "module": "upstream_vmr8.py" },
+    { "policy": "profiles/upstream-vmr9-policy.json", "module": "upstream_vmr9.py" }
+  ],
   "adapter": {
     "name": "net10-4xx-portable",
+    "target": "net10",
+    "driver": "scripts/ci-net10.sh",
+    "minimumFreeGiB": 30,
     "channel": "10.0",
     "featureBand": 400,
     "baselineSdk": "10.0.403",
