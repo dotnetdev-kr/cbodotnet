@@ -217,11 +217,16 @@
         "path": "patches/core31/0025-select-native-x64-coreclr-objcopy.patch",
         "sha256": "433c592a021335de1e22248c294e63d7285af4f397caefd7a5827d8a6df1d2ec",
         "purpose": "Recognize the same-host x86_64 sysroot build in the existing cross objcopy selection and use x86_64-linux-gnu-objcopy. Preserve all other architecture branches, debug-symbol operations, native compilation, and sysroot-only library/include/package search."
+      },
+      {
+        "path": "patches/core31/0026-select-native-x64-corefx-objcopy.patch",
+        "sha256": "b138a2fe1f5d6a4bf07d4e05baa261cc64268e41855ffceea70d570d097efe62",
+        "purpose": "Recognize the native x86_64 target in the existing cross-build GNU objcopy selection and retain x86_64-linux-gnu-objcopy for debug-symbol operations. Preserve all other processor branches, normal native compilation, target sysroot isolation and library ABI checks."
       }
     ],
     "patchManifest": {
       "path": "patches/core31/manifest-x64.json",
-      "sha256": "1bffe8b8ac1dd11988b48fa1bf34c9a724f8451fd160431b702efaa89f52bd75"
+      "sha256": "35d7d35c75d2f47582360f70c20ae8de5e53b0ffaad7c362c916d861ceb42549"
     }
   },
   "construction": {

@@ -643,6 +643,33 @@
         "path": "CMakeLists.txt"
       },
       "purpose": "Recognize the same-host x86_64 sysroot build in the existing cross objcopy selection and use x86_64-linux-gnu-objcopy. Preserve all other architecture branches, debug-symbol operations, native compilation, and sysroot-only library/include/package search."
+    },
+    {
+      "name": "0051-build-validated-local-genapi-on-native-x64.patch",
+      "target": "repos/arcade.proj",
+      "originalSha256": "feb1ab4dd5639b74812e9fc5a9a16eed97263d73785385855855a7f442caa9ca",
+      "patchedSha256": "565583094db14f692398f3cfe6ae6e2031167fbc66362198a7abcd6f5dfb859e",
+      "patchSha256": "3ddb152e64b09aa635f3c9bf236ae275c58149b24fffd48e4a96d92501cd521d",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": null,
+      "afterPatch": "0025-rebuild-explicit-genapi-project-runtime-output.patch",
+      "purpose": "Run the existing pinned Arcade GenAPI producer, both original target frameworks, strict native help/reference-generation verifier and normal local package publication for the explicit Linux x64 host. Preserve the exact source/package versions, reference-only net472 metadata, original runtime host policy, rebuild operation and NU1603 strictness; do not use an approximate external GenAPI package."
+    },
+    {
+      "name": "0052-select-native-x64-corefx-objcopy.patch",
+      "target": "bin/src/corefx.a4238c9819075be9bff74e009da802ce47233f38/src/Native/Unix/CMakeLists.txt",
+      "originalSha256": "4419f18c4821413a509e40e9fb13e608d1c90c54b8ad754853c363e30faeedff",
+      "patchedSha256": "f62705f3bb77c6eda23cfa2d20118bdcb97653a97362d7032f9d64f5b7510b42",
+      "patchSha256": "43efd549019195b0bd5e2aaea018f0259fee2087768b80077e02b905de7a2472",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": {
+        "name": "corefx",
+        "commit": "a4238c9819075be9bff74e009da802ce47233f38",
+        "path": "src/Native/Unix/CMakeLists.txt"
+      },
+      "purpose": "Recognize the native x86_64 target in the existing cross-build GNU objcopy selection and retain x86_64-linux-gnu-objcopy for debug-symbol operations. Preserve all other processor branches, normal native compilation, target sysroot isolation and library ABI checks."
     }
   ]
 }

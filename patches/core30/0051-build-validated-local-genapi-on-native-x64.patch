@@ -1,0 +1,11 @@
+--- a/repos/arcade.proj
++++ b/repos/arcade.proj
+@@ -52,7 +52,7 @@
+ 
+   <Target Name="BuildCore30SourceGenApi"
+           AfterTargets="RepoBuild"
+-          Condition="'$(NativeArm64Host)' == 'true' AND '$(TargetOS)' == 'Linux' AND '$(Platform)' == 'arm64'">
++          Condition="'$(NativeX64Host)' == 'true' AND '$(TargetOS)' == 'Linux' AND '$(Platform)' == 'x64'">
+     <Message Text="Building the pinned Arcade GenAPI project for CoreFX reference-source generation." Importance="High" />
+     <Exec Command="$(ProjectDirectory)build$(ShellExtension) $(BuildCommandArgs) --rebuild --projects $(ProjectDirectory)src/Microsoft.DotNet.GenAPI/Microsoft.DotNet.GenAPI.csproj /p:ExcludeFromSourceBuild=false /p:TargetFrameworkRootPath=$(CbodotnetFrameworkReferenceRoot) /p:CustomAfterMicrosoftCommonTargets=$(CbodotnetFrameworkReferenceRoot)Microsoft.NETFramework.ReferenceAssemblies.net472.targets $(RepoApiArgs) $(RedirectRepoOutputToLog)"
+           WorkingDirectory="$(ProjectDirectory)"

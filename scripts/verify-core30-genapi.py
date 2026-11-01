@@ -8,6 +8,7 @@ import os
 from pathlib import Path, PurePosixPath
 import platform
 import runpy
+import shutil
 import stat
 import subprocess
 import tempfile
@@ -43,7 +44,7 @@ def main():
     directory, ordinary, fingerprint = helper['directory'], helper['ordinary_file'], helper['fingerprint']
     source, refs, reports = directory(args.source_dir), directory(args.reference_root), directory(args.reports_dir)
     if platform.system() != 'Linux' or platform.machine().lower() not in (ARCH['uname'], ARCH['arch']):
-        raise ValueError('Native Linux ARM64 execution is required')
+        raise ValueError('The selected native Linux architecture is required')
     if helper['git'](source, 'rev-parse', 'HEAD').decode().strip() != ROOT:
         raise ValueError('The pinned source root differs')
     input_report = ordinary(args.input_report)
@@ -62,7 +63,7 @@ def main():
     with dotnet.open('rb') as stream:
         header = stream.read(20)
     if header[:6] != b'\x7fELF\x02\x01' or int.from_bytes(header[18:20], 'little') != ARCH['machine']:
-        raise ValueError('The actual bootstrap host is not ELF64 AArch64')
+        raise ValueError('The actual bootstrap host has the wrong ELF64 architecture')
     output = reports / 'genapi-validation.json'
     if output.exists() or output.is_symlink() or source == reports or source in reports.parents:
         raise ValueError('Use a fresh external GenAPI validation report directory')
@@ -148,6 +149,17 @@ def main():
                        'generatedSource': dict({'path': str(generated)}, **fingerprint(generated))})
         if fingerprint(package) != {key: record['sourceProducedPackage'][key] for key in ('bytes', 'sha256', 'sha512')}:
             raise ValueError('The GenAPI package changed during validation')
+        if ARCH['arch'] == 'x64':
+            retained = reports / ('source-built-genapi-' + VERSION + '.nupkg')
+            with retained.open('xb') as retained_output, package.open('rb') as source_package:
+                shutil.copyfileobj(source_package, retained_output)
+            if fingerprint(retained) != fingerprint(package):
+                raise ValueError('The retained actual GenAPI package differs')
+            record.update({'retainedSourcePackage': dict({'path': str(retained)}, **fingerprint(retained)),
+                           'sourcePackageIdentity': {'id': fields['id'].text, 'version': fields['version'].text,
+                                                     'repositoryCommit': fields['repository'].get('commit')},
+                           'verifiedBootstrapElf': {'class': 64, 'machine': ARCH['machine'], 'headerHex': header.hex(),
+                                                    'bootstrapSha256': fingerprint(dotnet)['sha256']}})
         return 0
     except Exception as error:
         record.update({'status': 'failed', 'error': str(error)})

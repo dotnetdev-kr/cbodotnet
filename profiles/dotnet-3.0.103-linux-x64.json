@@ -366,11 +366,21 @@
         "path": "patches/core30/0050-select-native-x64-coreclr-objcopy.patch",
         "sha256": "f014c81812d01b08c5a5f4d6e1455a06e986655fd6f3d07af5f068f2891ffb2d",
         "purpose": "Recognize the same-host x86_64 sysroot build in the existing cross objcopy selection and use x86_64-linux-gnu-objcopy. Preserve all other architecture branches, debug-symbol operations, native compilation, and sysroot-only library/include/package search."
+      },
+      {
+        "path": "patches/core30/0051-build-validated-local-genapi-on-native-x64.patch",
+        "sha256": "3ddb152e64b09aa635f3c9bf236ae275c58149b24fffd48e4a96d92501cd521d",
+        "purpose": "Run the existing pinned Arcade GenAPI producer, both original target frameworks, strict native help/reference-generation verifier and normal local package publication for the explicit Linux x64 host. Preserve the exact source/package versions, reference-only net472 metadata, original runtime host policy, rebuild operation and NU1603 strictness; do not use an approximate external GenAPI package."
+      },
+      {
+        "path": "patches/core30/0052-select-native-x64-corefx-objcopy.patch",
+        "sha256": "43efd549019195b0bd5e2aaea018f0259fee2087768b80077e02b905de7a2472",
+        "purpose": "Recognize the native x86_64 target in the existing cross-build GNU objcopy selection and retain x86_64-linux-gnu-objcopy for debug-symbol operations. Preserve all other processor branches, normal native compilation, target sysroot isolation and library ABI checks."
       }
     ],
     "patchManifest": {
       "path": "patches/core30/manifest-x64.json",
-      "sha256": "1e0b24e01f35af1e5914ea5879c6f66cc93b631560075c690c9817537fd3ffdb"
+      "sha256": "a2e981c9a6b22235903ba05ae566a043100d46ff71c4d33bf1aef261777839f4"
     },
     "retainedCoreClrPlatforms": {
       "originalVersion": "3.0.0-rc2.19461.13",

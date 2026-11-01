@@ -5,6 +5,8 @@ import importlib.util
 import json
 from pathlib import Path, PurePosixPath
 import re
+import xml.etree.ElementTree as ET
+import zipfile
 
 import runpy
 LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
@@ -98,6 +100,79 @@ def cold_feed_proof(cold, commit):
             and cold['packages'] == cold['moved'] == [] and cold['recoveryDirectory'] is None
             and cold['feedCreated'] is False and cold['syntheticPackageOutputsCreated'] is False,
             'Fresh Core3.0 CI must begin with a genuinely absent feed and no historical package quarantine')
+
+
+def core30_genapi_proof(release):
+    prefix = 'reports/build/product-build/genapi-validation/'
+    data = load(member(release, prefix+'genapi-validation.json'))
+    arcade = 'ce459ae07c3d7a1e68251268855e0bc7b3d97f75'; version = '1.0.0-beta.19463.3'
+    require(data['status'] == 'passed' and data['arcadeCommit'] == arcade
+            and data['nativePlatform'] == {'system':'Linux','machine':'x86_64'}
+            and data['nativeHelpExitCode'] == data['actualGenerationExitCode'] == 0
+            and data['hostConfigurationValid'] is True and data['executedWindowsOutput'] is False,
+            'Native source-built GenAPI execution did not pass')
+    inputs_path = member(release, 'reports/build/product-build/core30-inputs.json')
+    require(all(data['verifiedBootstrapInputReport'][key] == value for key,value in fp(inputs_path).items()),
+            'GenAPI bootstrap input report differs')
+    inputs = load(inputs_path); source = inputs['sourceDirectory']; dotnet = source+'/.dotnet/dotnet'
+    require(inputs['status'] == 'passed' and inputs['sourceCommit'] == CONFIG['core30'][2]
+            and inputs['bootstrapVersion'] == '3.0.100' and inputs['bootstrapExecutionVerified'] is True
+            and inputs['bootstrapFiles'] == data['verifiedBootstrapFiles'], 'GenAPI source/bootstrap identity differs')
+    require({row['path'] for row in inputs['bootstrapFiles']} == {dotnet,source+'/.dotnet/sdk/3.0.100/MSBuild.dll',source+'/.dotnet/sdk/3.0.100/.version'}
+            and any(row['repository'] == 'https://github.com/dotnet/arcade' and row['commit'] == arcade
+                    and row['directory'] == source+'/bin/src/arcade.'+arcade for row in inputs['exports']),
+            'GenAPI pinned source export/bootstrap files differ')
+    bootstrap = next(row for row in inputs['bootstrapFiles'] if row['path'] == dotnet)
+    elf = data['verifiedBootstrapElf']; header = bytes.fromhex(elf['headerHex'])
+    require(elf['class'] == 64 and elf['machine'] == 62 and header[:6] == b'\x7fELF\x02\x01'
+            and len(header) >= 20 and int.from_bytes(header[18:20], 'little') == 62
+            and elf['bootstrapSha256'] == bootstrap['sha256'], 'GenAPI did not use the bound native x64 bootstrap')
+    expected_identity = {'id':'Microsoft.DotNet.GenAPI','version':version,'repositoryCommit':arcade}
+    require(data['sourcePackageIdentity'] == expected_identity, 'GenAPI local package identity differs')
+    require(data['actualTool']['path'] == source+'/bin/src/arcade.'+arcade+'/artifacts/bin/Microsoft.DotNet.GenAPI/Release/netcoreapp2.1/Microsoft.DotNet.GenAPI.dll'
+            and data['originalRuntimeTemplate']['sha256'] == 'd036bb1552ba69491efe81cac1640b54d2a87f063893f556bbbb8deb244a1de0'
+            and data['generationInputReferenceAssembly']['prebuiltReferenceInput'] is True,
+            'GenAPI source tool/template/reference identity differs')
+    package = member(release, prefix+'source-built-genapi-'+version+'.nupkg'); package_fp = fp(package)
+    require(all(row[key] == value for row in (data['sourceProducedPackage'],data['retainedSourcePackage'])
+                for key,value in package_fp.items())
+            and data['sourceProducedPackage']['path'] == source+'/bin/src/arcade.'+arcade+'/artifacts/packages/Release/NonShipping/Microsoft.DotNet.GenAPI.'+version+'.nupkg',
+            'The retained local GenAPI producer package differs')
+    def payload_fp(value):
+        return dict(bytes=len(value), sha256=hashlib.sha256(value).hexdigest(), sha512=hashlib.sha512(value).hexdigest())
+    with zipfile.ZipFile(str(package)) as archive:
+        entries = archive.infolist(); names = [item.filename for item in entries]
+        require(len(names) == len(set(names)) and len(entries) < 10000 and sum(item.file_size for item in entries) < 64*1024*1024,
+                'Ambiguous or oversized GenAPI package')
+        nuspecs = [name for name in names if '/' not in name and name.endswith('.nuspec')]
+        require(len(nuspecs) == 1, 'GenAPI package metadata is absent')
+        metadata = next(item for item in ET.fromstring(archive.read(nuspecs[0])) if item.tag.rsplit('}',1)[-1] == 'metadata')
+        fields = {item.tag.rsplit('}',1)[-1]:item for item in metadata}
+        require(fields['id'].text == expected_identity['id'] and fields['version'].text == version
+                and fields['repository'].get('commit') == arcade, 'GenAPI package is an external or changed version')
+        for name,row in [('tools/netcoreapp2.1/Microsoft.DotNet.GenAPI.dll',data['actualTool']),
+                         ('tools/netcoreapp2.1/Microsoft.DotNet.GenAPI.runtimeconfig.json',data['runtimeConfiguration'])]:
+            require(all(row[key] == value for key,value in payload_fp(archive.read(name)).items()), 'GenAPI tool/package payload differs')
+        require('tools/net472/Microsoft.DotNet.GenAPI.exe' in names, 'The original GenAPI net472 output is absent')
+        config = json.loads(archive.read('tools/netcoreapp2.1/Microsoft.DotNet.GenAPI.runtimeconfig.json').decode('utf-8-sig'))
+        require(config == data['runtimeConfiguration']['value'] and config['runtimeOptions'] == {
+            'tfm':'netcoreapp2.1','framework':{'name':'Microsoft.NETCore.App','version':'2.1.0'},'rollForwardOnNoCandidateFx':2},
+            'The original GenAPI runtime host policy differs')
+    generated = member(release, prefix+'DataAnnotations.notsupported.cs'); generated_fp = fp(generated)
+    require(all(data['generatedSource'][key] == value for key,value in generated_fp.items())
+            and 100 < generated_fp['bytes'] < 4*1024*1024
+            and all(token in generated.read_text() for token in ('ValidationAttribute','PlatformNotSupported_GenApiProbe')),
+            'The actual GenAPI reference generation output differs')
+    commands = data['commands']; require(len(commands) == 2, 'Both native GenAPI commands are required')
+    require(commands[0]['arguments'] == [dotnet,data['actualTool']['path'],'--help'], 'Native GenAPI help command differs')
+    reference = data['generationInputReferenceAssembly']['path']; reference_root = str(Path(reference).parent)
+    require(commands[1]['arguments'] == [dotnet,data['actualTool']['path'],reference,'--lib-path',reference_root+';'+reference_root+'/Facades',
+            '--out',data['generatedSource']['path'],'--lang-version','preview','--throw','SR.PlatformNotSupported_GenApiProbe','--global'],
+            'Actual native GenAPI reference-generation command differs')
+    for command,name in zip(commands,('genapi-help.log','genapi-generation.log')):
+        require(command['exitCode'] == 0 and all(command['logFingerprint'][key] == value
+                for key,value in fp(member(release,prefix+name)).items()), 'Native GenAPI execution log differs')
+    return data
 
 
 def test_report_path(family):
@@ -207,6 +282,8 @@ def validate(release, family, expected):
     require(tests['status'] == 'passed' and tests['upstreamExitCode'] == 0 and tests['suiteExclusions'] == []
             and tests['sdkArchive']['sha256'] == archive['sha256'], 'Complete upstream suite did not pass on the delivered SDK')
     if family == 'core30':
+        if ARCH['arch'] == 'x64':
+            core30_genapi_proof(release)
         require(status['postBuildOfflineSourceBundleDownloadsSkipped'] is True
                 and '/p:CbodotnetSkipSourceBundleDownloads=true' in member(release, 'reports/build/product-build/build-command.txt').read_text()
                 and manifest['profile']['contents']['build']['ciPostBuildSourceBundleStaging']['actualSkipped'] is True,

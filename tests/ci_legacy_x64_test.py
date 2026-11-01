@@ -9,6 +9,7 @@ import runpy
 import sys
 import tempfile
 import unittest
+import zipfile
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -126,6 +127,120 @@ class LegacyX64Tests(unittest.TestCase):
                     if mode=='good': helper['main']()
                     else:
                         with self.assertRaises(ValueError): helper['main']()
+
+    def genapi(self, temporary):
+        helper=module('ci-legacy-evidence'); release=Path(temporary)
+        directory=release/'reports/build/product-build/genapi-validation'; directory.mkdir(parents=True)
+        arcade='ce459ae07c3d7a1e68251268855e0bc7b3d97f75'; version='1.0.0-beta.19463.3'; source='/fixture/source'
+        tool=source+'/bin/src/arcade.'+arcade+'/artifacts/bin/Microsoft.DotNet.GenAPI/Release/netcoreapp2.1/Microsoft.DotNet.GenAPI.dll'
+        dotnet=source+'/.dotnet/dotnet'; reference='/fixture/refs/.NETFramework/v4.7.2/System.ComponentModel.DataAnnotations.dll'
+        def raw(data):return {'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'sha512':hashlib.sha512(data).hexdigest()}
+        bootstrap=[{'path':source+'/.dotnet/'+name,'bytes':20,'sha256':str(index+1)*64}
+                   for index,name in enumerate(('dotnet','sdk/3.0.100/MSBuild.dll','sdk/3.0.100/.version'))]
+        inputs={'status':'passed','sourceCommit':'40de72d1087a1d05dfd39c87f888a0611ec6c60f','sourceDirectory':source,
+                'bootstrapVersion':'3.0.100','bootstrapExecutionVerified':True,'bootstrapFiles':bootstrap,
+                'exports':[{'repository':'https://github.com/dotnet/arcade','commit':arcade,'directory':source+'/bin/src/arcade.'+arcade}]}
+        inputs_path=directory.parent/'core30-inputs.json';inputs_path.write_text(json.dumps(inputs))
+        config={'runtimeOptions':{'tfm':'netcoreapp2.1','framework':{'name':'Microsoft.NETCore.App','version':'2.1.0'},'rollForwardOnNoCandidateFx':2}}
+        config_bytes=json.dumps(config).encode(); dll=b'synthetic fixture of a source-produced managed GenAPI payload'
+        package=directory/('source-built-genapi-'+version+'.nupkg')
+        with zipfile.ZipFile(str(package),'w') as archive:
+            archive.writestr('Microsoft.DotNet.GenAPI.nuspec','<package><metadata><id>Microsoft.DotNet.GenAPI</id><version>'+version+'</version><repository commit="'+arcade+'"/></metadata></package>')
+            archive.writestr('tools/netcoreapp2.1/Microsoft.DotNet.GenAPI.dll',dll)
+            archive.writestr('tools/net472/Microsoft.DotNet.GenAPI.exe',b'synthetic unexecuted net472 payload')
+            archive.writestr('tools/netcoreapp2.1/Microsoft.DotNet.GenAPI.runtimeconfig.json',config_bytes)
+        generated=directory/'DataAnnotations.notsupported.cs';generated.write_text('class ValidationAttribute { /* PlatformNotSupported_GenApiProbe */ }\n'*4)
+        header=bytearray(20);header[:6]=b'\x7fELF\x02\x01';header[18:20]=(62).to_bytes(2,'little')
+        data={'status':'passed','arcadeCommit':arcade,'nativePlatform':{'system':'Linux','machine':'x86_64'},
+            'nativeHelpExitCode':0,'actualGenerationExitCode':0,'hostConfigurationValid':True,'executedWindowsOutput':False,
+            'verifiedBootstrapInputReport':helper['fp'](inputs_path),'verifiedBootstrapFiles':bootstrap,
+            'verifiedBootstrapElf':{'class':64,'machine':62,'headerHex':header.hex(),'bootstrapSha256':bootstrap[0]['sha256']},
+            'sourcePackageIdentity':{'id':'Microsoft.DotNet.GenAPI','version':version,'repositoryCommit':arcade},
+            'sourceProducedPackage':dict(path=source+'/bin/src/arcade.'+arcade+'/artifacts/packages/Release/NonShipping/Microsoft.DotNet.GenAPI.'+version+'.nupkg',**helper['fp'](package)),
+            'retainedSourcePackage':dict(path=str(package),**helper['fp'](package)),
+            'actualTool':dict(path=tool,**raw(dll)),
+            'originalRuntimeTemplate':{'sha256':'d036bb1552ba69491efe81cac1640b54d2a87f063893f556bbbb8deb244a1de0'},
+            'runtimeConfiguration':dict(value=config,**raw(config_bytes)),
+            'generatedSource':dict(path=str(generated),**helper['fp'](generated)),
+            'generationInputReferenceAssembly':{'path':reference,'prebuiltReferenceInput':True}}
+        arguments=[[dotnet,tool,'--help'],[dotnet,tool,reference,'--lib-path',str(Path(reference).parent)+';'+str(Path(reference).parent)+'/Facades',
+                   '--out',str(generated),'--lang-version','preview','--throw','SR.PlatformNotSupported_GenApiProbe','--global']]
+        data['commands']=[]
+        for args,name,contents in zip(arguments,('genapi-help.log','genapi-generation.log'),('synthetic help fixture','')):
+            path=directory/name;path.write_text(contents)
+            data['commands'].append({'arguments':args,'exitCode':0,'logFingerprint':helper['fp'](path)})
+        report=directory/'genapi-validation.json';report.write_text(json.dumps(data))
+        return helper,release,directory,report,data,package
+
+    def test_local_genapi_requires_bound_package_native_execution_and_generation_evidence(self):
+        for mode in ('good','missing-report','changed-package','changed-log','foreign-machine','foreign-package','external-version','changed-generation'):
+            with self.subTest(mode=mode),tempfile.TemporaryDirectory(prefix='legacy-x64-genapi-') as temporary:
+                helper,release,directory,report,data,package=self.genapi(temporary)
+                if mode=='missing-report':report.unlink()
+                if mode=='changed-package':package.write_bytes(b'changed local producer package')
+                if mode=='changed-log':(directory/'genapi-help.log').write_text('unbound log')
+                if mode=='foreign-machine':data['verifiedBootstrapElf']['machine']=183;report.write_text(json.dumps(data))
+                if mode=='foreign-package':
+                    with zipfile.ZipFile(str(package)) as archive: entries={item.filename:archive.read(item.filename) for item in archive.infolist()}
+                    entries['Microsoft.DotNet.GenAPI.nuspec']=entries['Microsoft.DotNet.GenAPI.nuspec'].replace(b'ce459ae07c3d7a1e68251268855e0bc7b3d97f75',b'b'*40)
+                    with zipfile.ZipFile(str(package),'w') as archive:
+                        for name,payload in entries.items():archive.writestr(name,payload)
+                    for row in (data['sourceProducedPackage'],data['retainedSourcePackage']):row.update(helper['fp'](package))
+                    report.write_text(json.dumps(data))
+                if mode=='external-version':data['sourcePackageIdentity']['version']='1.0.0-beta.20113.5';report.write_text(json.dumps(data))
+                if mode=='changed-generation':(directory/'DataAnnotations.notsupported.cs').write_text('no real bound reference generation')
+                if mode=='good':helper['core30_genapi_proof'](release)
+                else:
+                    with self.assertRaises(ValueError):helper['core30_genapi_proof'](release)
+
+    def test_genapi_retention_reaches_the_actual_final_json_report_writer(self):
+        verifier=module('verify-core30-genapi')
+        with tempfile.TemporaryDirectory(prefix='legacy-x64-genapi-final-report-') as temporary:
+            root=Path(temporary);source=root/'source';refs=root/'references';reports=root/'reports'
+            for path in (source,refs,reports):path.mkdir()
+            def put(path,data):
+                path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data);return path
+            def fingerprint(path):
+                value=path.read_bytes();return {'bytes':len(value),'sha256':hashlib.sha256(value).hexdigest(),'sha512':hashlib.sha512(value).hexdigest()}
+            header=bytearray(64);header[:6]=b'\x7fELF\x02\x01';header[18:20]=(62).to_bytes(2,'little')
+            dotnet=put(source/'.dotnet/dotnet',header)
+            bootstrap=[dotnet,put(source/'.dotnet/sdk/3.0.100/MSBuild.dll',b'fixture MSBuild'),put(source/'.dotnet/sdk/3.0.100/.version',b'fixture version')]
+            inputs={'status':'passed','sourceCommit':verifier['ROOT'],'sourceDirectory':str(source),'bootstrapVersion':'3.0.100',
+                    'bootstrapExecutionVerified':True,'bootstrapFiles':[dict(path=str(path),**fingerprint(path)) for path in bootstrap]}
+            input_report=put(root/'inputs.json',json.dumps(inputs).encode())
+            component=source/('bin/src/arcade.'+verifier['ARCADE'])
+            put(component/'.git/HEAD',verifier['ARCADE'].encode())
+            template=b'{"rollForwardOnNoCandidateFx":2}'
+            put(component/'src/Microsoft.DotNet.GenAPI/runtimeconfig.template.json',template)
+            config={'runtimeOptions':{'tfm':'netcoreapp2.1','framework':{'name':'Microsoft.NETCore.App','version':'2.1.0'},'rollForwardOnNoCandidateFx':2}}
+            dll=b'fixture actual locally built GenAPI';exe=b'fixture original unexecuted net472 GenAPI'
+            put(component/'artifacts/bin/Microsoft.DotNet.GenAPI/Release/netcoreapp2.1/Microsoft.DotNet.GenAPI.dll',dll)
+            put(component/'artifacts/bin/Microsoft.DotNet.GenAPI/Release/netcoreapp2.1/Microsoft.DotNet.GenAPI.runtimeconfig.json',json.dumps(config).encode())
+            put(component/'artifacts/bin/Microsoft.DotNet.GenAPI/Release/net472/Microsoft.DotNet.GenAPI.exe',exe)
+            package=component/('artifacts/packages/Release/NonShipping/Microsoft.DotNet.GenAPI.'+verifier['VERSION']+'.nupkg');package.parent.mkdir(parents=True)
+            with zipfile.ZipFile(str(package),'w') as archive:
+                archive.writestr('Microsoft.DotNet.GenAPI.nuspec','<package><metadata><id>Microsoft.DotNet.GenAPI</id><version>'+verifier['VERSION']+'</version><repository commit="'+verifier['ARCADE']+'"/></metadata></package>')
+                for name,value in [('tools/netcoreapp2.1/Microsoft.DotNet.GenAPI.dll',dll),('tools/net472/Microsoft.DotNet.GenAPI.exe',exe),('tools/netcoreapp2.1/Microsoft.DotNet.GenAPI.runtimeconfig.json',json.dumps(config).encode())]:archive.writestr(name,value)
+            put(refs/'.NETFramework/v4.7.2/System.ComponentModel.DataAnnotations.dll',b'fixture compilation reference only')
+            private=root/'private';private.mkdir(mode=0o700)
+            def run(arguments,cwd,environment,log,commands):
+                log.write_bytes(b'fixture native execution log');commands.append({'exitCode':0})
+                if '--out' in arguments:Path(arguments[arguments.index('--out')+1]).write_text('class ValidationAttribute { /* PlatformNotSupported_GenApiProbe */ }\n'*4)
+            def write_json(path,value):
+                # This is the real finally-path contract: a report Path must
+                # survive the additional binary package retention operation.
+                with path.open('x') as output:json.dump(value,output)
+            helpers={'directory':lambda path:path,'ordinary_file':lambda path:path,'fingerprint':fingerprint,
+                     'git':lambda *args:verifier['ROOT'].encode() if 'rev-parse' in args else template,
+                     'now':lambda:'2026-11-01T00:00:00+00:00','run':run,'write_json':write_json}
+            args=['fixture','--arch','x64','--source-dir',str(source),'--reference-root',str(refs),'--reports-dir',str(reports),'--input-report',str(input_report)]
+            with mock.patch.object(sys,'argv',args),mock.patch.object(verifier['runpy'],'run_path',return_value=helpers),\
+                    mock.patch.object(verifier['platform'],'system',return_value='Linux'),mock.patch.object(verifier['platform'],'machine',return_value='x86_64'),\
+                    mock.patch.object(verifier['tempfile'],'mkdtemp',return_value=str(private)),contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(verifier['main'](),0)
+            result=json.loads((reports/'genapi-validation.json').read_text())
+            self.assertEqual(result['status'],'passed');self.assertEqual(result['verifiedBootstrapElf']['machine'],62)
+            self.assertEqual(Path(result['retainedSourcePackage']['path']).read_bytes(),package.read_bytes())
 
 
 if __name__=='__main__': unittest.main()

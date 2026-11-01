@@ -34,6 +34,8 @@ The original Core 3.x and .NET 6 sysroot generators do not support amd64; the .N
 
 .NET 6 and 7 retain their original native x64 previously source-built bootstrap archives without byte changes. The .NET 7 bootstrap package RID is `centos.8-x64`; its reference-package adapter explicitly selects that original ILAsm build tool while the product target remains independently required to be portable `linux-x64`. This input RID does not determine the product's compatibility. Bootstrap SDKs, reference packages and online inputs remain disclosed; these builds do not establish zero-prebuilt construction or Stage 2.
 
+Core 3.0's x64 path also runs the pinned local Arcade GenAPI producer and its native help/reference-generation verifier. It retains the actual source-built tool package and execution evidence, preserves both original framework outputs and host policy, and uses the normal generated version aliases for CoreFX consumption. Delivery rejects a missing producer, changed package or external version substitution.
+
 All original upstream test assertions and version-specific coverage gates remain active. Architecture-specific .NET 9 package identities have a separate exact expected policy; its fresh generated manifest and baseline availability must pass the real x64 run. The native verifier runs six functional checks in each of Ubuntu 22.04, Ubuntu 24.04 and Debian 13 user spaces, together with ELF and ABI inspection. Legacy OpenSSL/ICU compatibility inputs are supplied separately and recorded with their native amd64 identities where required.
 
 ## Artifacts and independent verification

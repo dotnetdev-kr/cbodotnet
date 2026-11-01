@@ -346,6 +346,21 @@
         "path": "CMakeLists.txt"
       },
       "purpose": "Recognize the same-host x86_64 sysroot build in the existing cross objcopy selection and use x86_64-linux-gnu-objcopy. Preserve all other architecture branches, debug-symbol operations, native compilation, and sysroot-only library/include/package search."
+    },
+    {
+      "name": "0026-select-native-x64-corefx-objcopy.patch",
+      "target": "artifacts/src/corefx.b58ef0a19eca6269799664d6288be14b7f0cef3e/src/Native/Unix/CMakeLists.txt",
+      "originalSha256": "95c45b724f33f2ecfab8b1ef6c6d199cc6cb27d0be833ce0b07094b78a18a668",
+      "patchedSha256": "4129e2ac6f5362af281a43f55d1983a3d78736bbc258d3a037a891e0ae8cfabc",
+      "patchSha256": "b138a2fe1f5d6a4bf07d4e05baa261cc64268e41855ffceea70d570d097efe62",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": {
+        "name": "corefx",
+        "commit": "b58ef0a19eca6269799664d6288be14b7f0cef3e",
+        "path": "src/Native/Unix/CMakeLists.txt"
+      },
+      "purpose": "Recognize the native x86_64 target in the existing cross-build GNU objcopy selection and retain x86_64-linux-gnu-objcopy for debug-symbol operations. Preserve all other processor branches, normal native compilation, target sysroot isolation and library ABI checks."
     }
   ]
 }
