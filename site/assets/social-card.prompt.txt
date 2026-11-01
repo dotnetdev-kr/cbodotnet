@@ -1,0 +1,18 @@
+cbodotnet social preview artwork
+
+Created on 2026-11-02 with the built-in image generation tool.
+Delivery: social-card.jpg, 1730 x 909 pixels, opaque background.
+The generated PNG was exported as JPEG at quality 95 for web delivery and
+GitHub's social-preview upload limit; the composition was not changed.
+
+Final selected generation prompt:
+
+Use case: stylized-concept.
+Asset type: an original social preview card illustration for cbodotnet, a community project building .NET SDKs for Linux x64 and AArch64.
+Primary request: a restrained, beautiful abstract image that hints at .NET technology without using its official logo. Two flowing geometric ribbons made of connected, precise segments join into one continuous open loop, suggesting compilation, shared source code, and two processor architectures. A few small luminous nodes punctuate the paths.
+Style/medium: polished minimal digital illustration with clean smooth shapes and subtly dimensional translucent surfaces.
+Scene/backdrop: clean very pale ivory background.
+Color palette: deep violet, indigo and a small soft cyan accent, evocative of the .NET developer ecosystem.
+Composition/framing: wide social-card canvas, 1200 by 630 pixels (approximately 1.91:1); centered abstract sculpture, generous clear margins on all sides, essential forms inside the central safe area for crops.
+Lighting/mood: calm, precise, optimistic engineering, soft light and very subtle shadows.
+Constraints: no text, no letters, no numbers, no logos, no Microsoft marks, no mascot, no watermark, no UI screenshot, no photorealistic hardware. No texture noise or grain. Solid opaque background. Web-ready PNG.

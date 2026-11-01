@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import urllib.parse
 import urllib.request
 
@@ -237,6 +238,19 @@ def render_html(catalog, template):
     return template
 
 
+def write_site(catalog, template_path, output_dir):
+    """Publish the download index and its social image as one static site."""
+    assets = template_path.parent / "assets"
+    require(assets.is_dir() and (assets / "social-card.jpg").is_file(), "Missing site social-card image")
+    require(not assets.is_symlink() and not any(path.is_symlink() for path in assets.rglob("*")),
+            "Site assets must not contain symbolic links")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    (output_dir / "index.html").write_text(render_html(catalog, template_path.read_text(encoding="utf-8")), encoding="utf-8")
+    (output_dir / "releases.json").write_text(json.dumps(catalog, indent=2) + "\n", encoding="utf-8")
+    (output_dir / ".nojekyll").write_text("", encoding="utf-8")
+    shutil.copytree(assets, output_dir / "assets", dirs_exist_ok=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repository", default=os.environ.get("GITHUB_REPOSITORY", "dotnetdev-kr/cbodotnet"))
@@ -246,10 +260,7 @@ def main():
     token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
     releases = fetch_releases(args.repository, token)
     catalog = build_catalog(releases, lambda asset, limit: get_bytes(asset["browser_download_url"], limit), args.repository)
-    args.output_dir.mkdir(parents=True, exist_ok=True)
-    (args.output_dir / "index.html").write_text(render_html(catalog, args.template.read_text(encoding="utf-8")), encoding="utf-8")
-    (args.output_dir / "releases.json").write_text(json.dumps(catalog, indent=2) + "\n", encoding="utf-8")
-    (args.output_dir / ".nojekyll").write_text("", encoding="utf-8")
+    write_site(catalog, args.template, args.output_dir)
     print(json.dumps({"status": "passed", "releases": len(catalog["releases"]), "output": str(args.output_dir)}))
 
 

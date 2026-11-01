@@ -5,6 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Community .NET SDK builds for glibc Linux x64 and aarch64, with the sources used for each build.">
 <title>cbodotnet — .NET SDK builds</title>
+<link rel="canonical" href="https://dotnetdev.kr/cbodotnet/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="cbodotnet">
+<meta property="og:title" content="cbodotnet — Community .NET SDK builds">
+<meta property="og:description" content="Download community .NET SDK builds for glibc Linux x64 and aarch64, with the actual sources and verification evidence.">
+<meta property="og:url" content="https://dotnetdev.kr/cbodotnet/">
+<meta property="og:image" content="https://dotnetdev.kr/cbodotnet/assets/social-card.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1730">
+<meta property="og:image:height" content="909">
+<meta property="og:image:alt" content="An abstract violet and cyan loop suggesting connected software components and two Linux architectures.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="cbodotnet — Community .NET SDK builds">
+<meta name="twitter:description" content="Community .NET SDK builds for glibc Linux x64 and aarch64, with the actual sources and verification evidence.">
+<meta name="twitter:image" content="https://dotnetdev.kr/cbodotnet/assets/social-card.jpg">
+<meta name="twitter:image:alt" content="An abstract violet and cyan loop suggesting connected software components and two Linux architectures.">
 <style>
 body { max-width: 68em; margin: 2em auto; padding: 0 1em; color: #111; background: white; font: 17px/1.45 Georgia, "Times New Roman", serif; }
 h1 { margin-bottom: .15em; font-size: 2em; }
@@ -16,6 +32,8 @@ th, td { padding: .55em .8em .55em 0; vertical-align: top; border-bottom: 1px so
 thead th { border-bottom: 1px solid #777; }
 small, footer { font-size: .85em; }
 .downloads { overflow-x: auto; }
+.status { display: flex; flex-wrap: wrap; align-items: center; gap: .35em; }
+.status img { display: block; height: 20px; }
 footer { margin-top: 2em; padding-top: .75em; border-top: 1px solid #bbb; }
 @media (max-width: 38em) { body { margin-top: 1em; } table { min-width: 36em; } }
 </style>
@@ -23,6 +41,14 @@ footer { margin-top: 2em; padding-top: .75em; border-top: 1px solid #bbb; }
 <body>
 <h1>cbodotnet</h1>
 <p>Community .NET SDK builds for glibc Linux x64 and aarch64, independently of the upstream support lifecycle.</p>
+<p class="status" aria-label="CI/CD workflow status">
+<a href="{{REPOSITORY_URL}}/actions/workflows/checks.yml"><img src="{{REPOSITORY_URL}}/actions/workflows/checks.yml/badge.svg?branch=main" alt="Repository checks status"></a>
+<a href="{{REPOSITORY_URL}}/actions/workflows/sdk-matrix.yml"><img src="{{REPOSITORY_URL}}/actions/workflows/sdk-matrix.yml/badge.svg?branch=main" alt="Linux AArch64 SDK build status"></a>
+<a href="{{REPOSITORY_URL}}/actions/workflows/sdk-x64.yml"><img src="{{REPOSITORY_URL}}/actions/workflows/sdk-x64.yml/badge.svg?branch=main" alt="Linux x64 SDK build status"></a>
+<a href="{{REPOSITORY_URL}}/actions/workflows/upstream-sdk.yml"><img src="{{REPOSITORY_URL}}/actions/workflows/upstream-sdk.yml/badge.svg?branch=main" alt="Upstream SDK tracking and publication status"></a>
+<a href="{{REPOSITORY_URL}}/actions/workflows/publish-releases.yml"><img src="{{REPOSITORY_URL}}/actions/workflows/publish-releases.yml/badge.svg?branch=main" alt="Release publication status"></a>
+<a href="{{REPOSITORY_URL}}/actions/workflows/pages.yml"><img src="{{REPOSITORY_URL}}/actions/workflows/pages.yml/badge.svg?branch=main" alt="Download pages deployment status"></a>
+</p>
 <h2>Downloads</h2>
 <p>Each build provides the SDK, the sources actually used, and verification evidence. Select <strong>tar.gz</strong> to download an SDK.</p>
 <div class="downloads">
@@ -36,6 +62,8 @@ footer { margin-top: 2em; padding-top: .75em; border-top: 1px solid #bbb; }
 <h2>Using a build</h2>
 <p>Verify the SHA-256 checksum, extract the SDK archive, and run <code>./dotnet --info</code>. These are glibc builds; distribution libraries are still required. Native checks cover Ubuntu 22.04, Ubuntu 24.04 and Debian 13. .NET 5 and Core 3.x require the recorded OpenSSL 1.1 dependencies; Core 3.x on Debian 13 also uses ICU 66.</p>
 <p>These are community builds, without Microsoft support. Construction details and any reused upstream binary inputs are recorded in the release evidence.</p>
+<h2>License</h2>
+<p>Copyright &copy; 2026 cbodotnet contributors. The build automation in this repository is available under the <a href="{{REPOSITORY_URL}}/blob/main/LICENSE">MIT License</a>. Distributed SDKs, source bundles and third-party components retain their respective upstream copyrights, licenses and notices.</p>
 <footer>
 <a href="{{REPOSITORY_URL}}">Source repository and build documentation</a> &middot; <a href="releases.json">Download catalog (JSON)</a><br>
 Updated {{GENERATED_AT}}

@@ -1,5 +1,14 @@
 # cbodotnet
 
+[Homepage and downloads](https://dotnetdev.kr/cbodotnet/) · [Releases](https://github.com/dotnetdev-kr/cbodotnet/releases) · [CI/CD](https://github.com/dotnetdev-kr/cbodotnet/actions)
+
+[![Repository checks](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/checks.yml/badge.svg?branch=main)](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/checks.yml)
+[![Linux AArch64 SDK builds](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/sdk-matrix.yml/badge.svg?branch=main)](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/sdk-matrix.yml)
+[![Linux x64 SDK builds](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/sdk-x64.yml/badge.svg?branch=main)](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/sdk-x64.yml)
+[![Upstream SDK tracking](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/upstream-sdk.yml/badge.svg?branch=main)](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/upstream-sdk.yml)
+[![Release publication](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/publish-releases.yml/badge.svg?branch=main)](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/publish-releases.yml)
+[![Download Pages](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/pages.yml/badge.svg?branch=main)](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/pages.yml)
+
 Community .NET SDK builds for **glibc Linux AArch64 and x64**, independently of Microsoft's support lifecycle. The project covers .NET 5 onward and .NET Core 3.0/3.1, using the .NET VMR where available and pinned legacy source-build graphs where needed.
 
 **Builds run exclusively in GitHub Actions.** All eight selected SDK versions have passed native hosted builds and independent SDK/source delivery verification on both architectures.
@@ -56,6 +65,12 @@ Other bands and new major versions remain visible as `pending-adapter`; missing 
 `linux-arm64` and `linux-x64` are generic **glibc** package targets. Native checks cover Ubuntu 22.04, Ubuntu 24.04 and Debian 13 user spaces. Kernel, system-library and optional component requirements still apply; these results do not cover musl/Alpine or every Linux distribution.
 
 .NET 5 and Core 3.x verification requires the recorded external OpenSSL 1.1 inputs. Core 3.x on Debian 13 additionally uses ICU 66. Exact dependencies, framework construction and ABI measurements are recorded with each qualified delivery.
+
+## Copyright and license
+
+Copyright (c) 2026 cbodotnet contributors. This repository's build automation and project documentation are licensed under the [MIT License](LICENSE), matching the [upstream .NET VMR license](https://github.com/dotnet/dotnet/blob/main/LICENSE.TXT).
+
+SDK archives and corresponding source bundles retain their upstream copyrights, licenses and third-party notices. This repository's MIT license does not replace those terms; preserve the notices accompanying each distributed component.
 
 ## Documentation
 

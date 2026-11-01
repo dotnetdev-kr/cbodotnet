@@ -5,6 +5,7 @@ import html.parser
 import importlib.util
 import json
 from pathlib import Path
+import tempfile
 import unittest
 from unittest import mock
 
@@ -196,6 +197,37 @@ class CatalogTests(unittest.TestCase):
         document = CATALOG.render_html(catalog, (ROOT / "site/index.html.in").read_text())
         self.assertIn("No complete public builds", document)
         self.assertNotIn("/releases/download/", document)
+
+    def test_site_delivery_includes_the_social_image_and_absolute_card_metadata(self):
+        catalog = CATALOG.build_catalog([], lambda *_: self.fail("Unexpected fetch"), REPOSITORY)
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            source = directory / "source"
+            (source / "assets").mkdir(parents=True)
+            image = b"fixture-social-card-image"
+            (source / "assets/social-card.jpg").write_bytes(image)
+            template = source / "index.html.in"
+            template.write_text((ROOT / "site/index.html.in").read_text(encoding="utf-8"), encoding="utf-8")
+            output = directory / "published"
+            CATALOG.write_site(catalog, template, output)
+            self.assertEqual(image, (output / "assets/social-card.jpg").read_bytes())
+            self.assertEqual(catalog, json.loads((output / "releases.json").read_text(encoding="utf-8")))
+            self.assertTrue((output / ".nojekyll").is_file())
+            document = (output / "index.html").read_text(encoding="utf-8")
+            self.assertIn('property="og:image" content="https://dotnetdev.kr/cbodotnet/assets/social-card.jpg"', document)
+            self.assertIn('name="twitter:card" content="summary_large_image"', document)
+            self.assertIn('rel="canonical" href="https://dotnetdev.kr/cbodotnet/"', document)
+
+    def test_missing_social_image_prevents_a_broken_site_delivery(self):
+        catalog = CATALOG.build_catalog([], lambda *_: self.fail("Unexpected fetch"), REPOSITORY)
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary) / "source"
+            source.mkdir()
+            template = source / "index.html.in"
+            template.write_text((ROOT / "site/index.html.in").read_text(encoding="utf-8"), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "Missing site social-card image"):
+                CATALOG.write_site(catalog, template, Path(temporary) / "published")
+            self.assertFalse((Path(temporary) / "published").exists())
 
     def test_metadata_fetch_never_sends_credentials_to_download_links(self):
         with mock.patch.object(CATALOG.urllib.request, "urlopen") as opener:
