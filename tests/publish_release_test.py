@@ -66,13 +66,28 @@ class FakeGitHub:
 
     def asset(self, name):
         record = descriptor(self.args.staging / name)
-        return {'name': name, 'size': record['size'], 'digest': 'sha256:' + record['sha256'], 'state': 'uploaded',
+        tag = self.release['html_url'].rsplit('/', 1)[1]
+        return {'id': int(hashlib.sha256(name.encode()).hexdigest()[:8], 16) + 1,
+                'name': name, 'size': record['size'], 'digest': 'sha256:' + record['sha256'], 'state': 'uploaded',
                 'browser_download_url': 'https://github.com/' + PUBLISH.REPOSITORY +
-                    '/releases/download/sdk-10.0.403/' + name}
+                    '/releases/download/' + tag + '/' + name}
+
+    def create(self):
+        self.release = {'id': 789, 'tag_name': 'sdk-10.0.403', 'draft': True, 'prerelease': False,
+            'target_commitish': self.args.target_commit, 'assets': [],
+            'html_url': 'https://github.com/' + PUBLISH.REPOSITORY + '/releases/tag/untagged-0123456789abcdefabcd'}
+        return self.release
 
     def __call__(self, args, *command, **options):
         self.calls.append(command)
         if command[0] == 'api':
+            if command[1:3] == ('--method', 'POST'):
+                body = json.loads(Path(command[command.index('--input') + 1]).read_text())
+                assert body['draft'] is True and body['target_commitish'] == args.target_commit
+                return json.dumps(self.create())
+            if command[1] == 'graphql':
+                return json.dumps({'data': {'repository': {'release':
+                    {'databaseId': self.release['id']} if self.release else None}}})
             if '/git/ref/' in command[1]:
                 return '{}' if self.tag_exists else None
             if '/releases?' in command[1]:
@@ -81,13 +96,15 @@ class FakeGitHub:
                 raise AssertionError('The real by-tag REST API cannot find pending drafts')
             return json.dumps(self.release) if self.release is not None else None
         if command[:2] == ('release', 'create'):
-            self.release = {'id': 789, 'tag_name': 'sdk-10.0.403', 'draft': True, 'prerelease': False,
-                'target_commitish': args.target_commit, 'assets': [],
-                'html_url': 'https://github.com/' + PUBLISH.REPOSITORY + '/releases/tag/sdk-10.0.403'}
+            self.create()
         elif command[:2] == ('release', 'upload'):
             self.release['assets'].append(self.asset(Path(command[3]).name))
         elif command[:2] == ('release', 'edit'):
             self.release['draft'] = False
+            self.release['html_url'] = 'https://github.com/' + PUBLISH.REPOSITORY + '/releases/tag/sdk-10.0.403'
+            for asset in self.release['assets']:
+                asset['browser_download_url'] = 'https://github.com/' + PUBLISH.REPOSITORY + \
+                    '/releases/download/sdk-10.0.403/' + asset['name']
         else:
             raise AssertionError(command)
         return ''
@@ -123,6 +140,78 @@ class PromotionTests(unittest.TestCase):
                 {'id': 2, 'tag_name': 'sdk-10.0.403'}]])):
             with self.assertRaisesRegex(ValueError, 'Multiple releases'):
                 PUBLISH.find_release(self.args, 'sdk-10.0.403')
+
+    def test_pending_draft_lookup_falls_back_to_graphql_after_listing_miss(self):
+        remote = FakeGitHub(self.args)
+        remote.create()
+
+        def hidden_listing(args, *command, **options):
+            if command[0] == 'api' and '/releases?' in command[1]:
+                return '[[]]'
+            return remote(args, *command, **options)
+
+        with mock.patch.object(PUBLISH, 'gh', side_effect=hidden_listing):
+            self.assertEqual(789, PUBLISH.find_release(self.args, 'sdk-10.0.403')['id'])
+        self.assertTrue(any(command[:2] == ('api', 'graphql') for command in remote.calls))
+
+    def test_creation_response_id_does_not_require_fresh_listing_visibility(self):
+        remote = FakeGitHub(self.args)
+
+        def hidden_listing(args, *command, **options):
+            if command[0] == 'api' and '/releases?' in command[1]:
+                return '[[]]'
+            return remote(args, *command, **options)
+
+        self.run_publish(hidden_listing)
+        self.assertFalse(remote.release['draft'])
+        self.assertEqual(8, len(remote.release['assets']))
+
+    def test_draft_projection_preserves_asset_identity_and_rejects_foreign_urls(self):
+        remote = FakeGitHub(self.args)
+        remote.create()
+        remote.release['assets'] = [remote.asset(self.manifest['architectures']['x64']['sdk']['name'])]
+        original = copy.deepcopy(remote.release)
+        projected = PUBLISH.public_shape(remote.release, self.manifest)
+        self.assertFalse(projected['draft'])
+        self.assertEqual(original, remote.release)
+        for key in ('id', 'name', 'size', 'digest', 'state'):
+            self.assertEqual(original['assets'][0][key], projected['assets'][0][key])
+        for field in ('html_url', 'browser_download_url'):
+            changed = copy.deepcopy(remote.release)
+            if field == 'html_url':
+                changed[field] = 'https://github.com/foreign/repo/releases/tag/untagged-abcdef'
+            else:
+                changed['assets'][0][field] = 'https://github.com/foreign/repo/releases/download/untagged-abcdef/sdk'
+            with self.assertRaisesRegex(ValueError, 'Unexpected draft'):
+                PUBLISH.public_shape(changed, self.manifest)
+
+    def test_release_visibility_retry_is_bounded_and_binds_database_id(self):
+        with mock.patch.object(PUBLISH, 'gh', side_effect=[None, None, '{"id":789}']), \
+             mock.patch.object(PUBLISH.time, 'sleep') as sleeping:
+            self.assertEqual(789, PUBLISH.get_release(self.args, 789)['id'])
+            self.assertEqual([mock.call(1), mock.call(2)], sleeping.call_args_list)
+        with mock.patch.object(PUBLISH, 'gh', return_value=None) as called, \
+             mock.patch.object(PUBLISH.time, 'sleep') as sleeping:
+            with self.assertRaisesRegex(RuntimeError, 'bounded retries'):
+                PUBLISH.get_release(self.args, 789)
+            self.assertEqual(4, called.call_count)
+            self.assertEqual([mock.call(1), mock.call(2), mock.call(4)], sleeping.call_args_list)
+        with mock.patch.object(PUBLISH, 'gh', return_value='{"id":999}'):
+            with self.assertRaisesRegex(ValueError, 'identity changed'):
+                PUBLISH.get_release(self.args, 789)
+
+    def test_actual_published_urls_remain_strict_after_draft_projection(self):
+        remote = FakeGitHub(self.args)
+
+        def stale_public_url(args, *command, **options):
+            result = remote(args, *command, **options)
+            if command[:2] == ('release', 'edit'):
+                remote.release['html_url'] = 'https://github.com/' + PUBLISH.REPOSITORY + \
+                    '/releases/tag/untagged-0123456789abcdefabcd'
+            return result
+
+        with self.assertRaisesRegex(ValueError, 'Unexpected release URL'):
+            self.run_publish(stale_public_url)
 
     def test_exact_published_release_is_idempotent_across_new_main_commit(self):
         remote = FakeGitHub(self.args)

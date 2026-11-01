@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import time
 
 ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY = 'dotnetdev-kr/cbodotnet'
@@ -156,7 +157,57 @@ def find_release(args, tag):
             'Unexpected release listing response')
     matches = [release for page in pages for release in page if release.get('tag_name') == tag]
     require(len(matches) <= 1, 'Multiple releases have the same pending tag')
-    return matches[0] if matches else None
+    if matches:
+        return matches[0]
+    # A fresh draft may be absent from the listing cache. The CLI uses this
+    # pending-tag GraphQL lookup before fetching its stable REST database ID.
+    query = ('query($owner:String!,$name:String!,$tagName:String!){'
+             'repository(owner:$owner,name:$name){release(tagName:$tagName){databaseId}}}')
+    owner, name = REPOSITORY.split('/')
+    result = json.loads(gh(args, 'api', 'graphql', '-f', 'query=' + query,
+                           '-f', 'owner=' + owner, '-f', 'name=' + name, '-f', 'tagName=' + tag))
+    require(not result.get('errors') and isinstance(result.get('data', {}).get('repository'), dict),
+            'Pending release lookup failed')
+    row = result['data']['repository'].get('release')
+    if row is None:
+        return None
+    require(type(row.get('databaseId')) is int and row['databaseId'] > 0,
+            'Invalid pending release database identity')
+    return get_release(args, row['databaseId'])
+
+
+def get_release(args, database_id):
+    """Allow a bounded delay for a newly created release to become readable."""
+    for attempt in range(4):
+        raw = gh(args, 'api', f'repos/{REPOSITORY}/releases/{database_id}', allow_missing=True)
+        if raw is not None:
+            result = json.loads(raw)
+            require(result.get('id') == database_id, 'Release database identity changed')
+            return result
+        if attempt < 3:
+            time.sleep(2**attempt)
+    raise RuntimeError('Release database identity remained unavailable after bounded retries')
+
+
+def public_shape(release, manifest):
+    """Project pending draft URLs while preserving every observed asset identity."""
+    if not release['draft']:
+        return release
+    base = f'https://github.com/{REPOSITORY}/releases/'
+    tag = manifest['tag']
+    require(release.get('tag_name') == tag, 'Draft pending tag changed')
+    url = release.get('html_url', '')
+    require(url == base + 'tag/' + tag or re.fullmatch(
+        re.escape(base + 'tag/') + r'untagged-[a-f0-9]{1,64}', url), 'Unexpected draft release URL')
+    pending_tag = url.rsplit('/', 1)[1]
+    projected_assets = []
+    for item in release['assets']:
+        require(type(item.get('id')) is int and item['id'] > 0, 'Invalid draft asset database identity')
+        expected = base + 'download/' + tag + '/' + item['name']
+        pending = base + 'download/' + pending_tag + '/' + item['name']
+        require(item.get('browser_download_url') in {expected, pending}, 'Unexpected draft asset URL')
+        projected_assets.append(dict(item, browser_download_url=expected))
+    return dict(release, draft=False, html_url=base + 'tag/' + tag, assets=projected_assets)
 
 
 def publish(args):
@@ -191,13 +242,17 @@ def publish(args):
             'Native functional verification covers Ubuntu 22.04, Ubuntu 24.04 and Debian 13. Legacy versions '
             'retain their recorded OpenSSL/ICU dependencies. These are community builds independent of upstream '
             'support dates; source and framework origins remain described in the evidence.\n', encoding='utf-8')
-        gh(args, 'release', 'create', tag, '--repo', REPOSITORY, '--draft', '--latest=false',
-           '--target', args.target_commit, '--title', '.NET SDK ' + manifest['sdkVersion'],
-           '--notes-file', cli_path(args, notes))
-        release = find_release(args, tag)
+        request = args.staging.parent / (tag + '-create.json')
+        request.write_text(json.dumps({'tag_name': tag, 'target_commitish': args.target_commit,
+            'name': '.NET SDK ' + manifest['sdkVersion'], 'body': notes.read_text(encoding='utf-8'),
+            'draft': True, 'prerelease': False, 'make_latest': 'false'}), encoding='utf-8')
+        # The creation response is authoritative; draft visibility in a subsequent
+        # listing is not required to identify or resume this release.
+        release = json.loads(gh(args, 'api', '--method', 'POST', f'repos/{REPOSITORY}/releases',
+                                '--input', cli_path(args, request)))
     require(isinstance(release, dict) and type(release.get('id')) is int and release['id'] > 0,
             'A unique release database identity is required')
-    endpoint = f'repos/{REPOSITORY}/releases/{release["id"]}'
+    database_id = release['id']
     require(release['tag_name'] == tag and not release['prerelease'], 'Unexpected existing release identity')
     require(not release['draft'] or release.get('target_commitish') == args.target_commit,
             'Refusing an unrelated draft with a different orchestration commit')
@@ -214,13 +269,13 @@ def publish(args):
         print(json.dumps({'status': 'uploaded', 'tag': tag, 'asset': name}), flush=True)
     with ThreadPoolExecutor(max_workers=3) as pool:
         list(pool.map(upload, missing))
-    release = json.loads(gh(args, 'api', endpoint))
+    release = get_release(args, database_id)
     # Validate staged content against API digests before making the draft public.
-    public_shape = dict(release, draft=False)
-    validate_release(public_shape, manifest_bytes, (args.staging / 'SHA256SUMS').read_bytes(), REPOSITORY)
+    validate_release(public_shape(release, manifest), manifest_bytes,
+                     (args.staging / 'SHA256SUMS').read_bytes(), REPOSITORY)
     if release['draft']:
         gh(args, 'release', 'edit', tag, '--repo', REPOSITORY, '--draft=false', '--latest=false')
-    release = json.loads(gh(args, 'api', endpoint))
+    release = get_release(args, database_id)
     require(not release['draft'], 'Release publication did not complete')
     validate_release(release, manifest_bytes, (args.staging / 'SHA256SUMS').read_bytes(), REPOSITORY)
     print(json.dumps({'status': 'published', 'url': release['html_url'], 'assets': len(release['assets'])}), flush=True)

@@ -31,7 +31,8 @@ def validate_producer(row, artifact, run, target, arch):
     allowed_names = {f'sdk-{target}-linux-{value}-{row["runId"]}-{row["runAttempt"]}'
                      for value in {arch, rid_arch}}
     require(artifact['id'] == int(row['artifactId']) and artifact['name'] in allowed_names
-            and artifact['expired'] is False and re.fullmatch('sha256:[a-f0-9]{64}', artifact.get('digest', '')),
+            and artifact['expired'] is False and isinstance(artifact.get('digest'), str)
+            and re.fullmatch('sha256:[a-f0-9]{64}', artifact['digest']),
             'A unique unexpired artifact with an API digest is required')
     producer = artifact['workflow_run']
     require(producer['id'] == int(row['runId']) and producer['head_sha'] == row['projectCommit']
