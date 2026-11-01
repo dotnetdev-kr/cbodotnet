@@ -19,6 +19,16 @@ import ci_net67_delivery_test as generated_fixtures
 ROOT = Path(__file__).resolve().parents[1]
 E = generated_fixtures.E
 H = generated_fixtures.H
+SOURCE_LIST = (
+    'deb http://archive.ubuntu.com/ubuntu/ xenial main restricted universe\n'
+    'deb-src http://archive.ubuntu.com/ubuntu/ xenial main restricted universe\n\n'
+    'deb http://archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe\n'
+    'deb-src http://archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe\n\n'
+    'deb http://archive.ubuntu.com/ubuntu/ xenial-backports main restricted\n'
+    'deb-src http://archive.ubuntu.com/ubuntu/ xenial-backports main restricted\n\n'
+    'deb http://archive.ubuntu.com/ubuntu/ xenial-security main restricted universe multiverse\n'
+    'deb-src http://archive.ubuntu.com/ubuntu/ xenial-security main restricted universe multiverse\n'
+)
 
 
 class NativeGeneratedDeliveryTests(unittest.TestCase):
@@ -75,6 +85,8 @@ class NativeGeneratedDeliveryTests(unittest.TestCase):
         (project / 'profiles').mkdir(parents=True)
         profile_name = 'dotnet-' + selected['sdk'] + '-linux-x64.json'
         shutil.copyfile(ROOT / 'profiles' / profile_name, project / 'profiles' / profile_name)
+        (project / 'scripts').mkdir()
+        shutil.copyfile(ROOT / 'scripts/prepare-net67-x64-sysroot.sh', project / 'scripts/prepare-net67-x64-sysroot.sh')
         (project / 'fixture.py').write_text('# Synthetic frozen x64 source only.\n')
         def git(*args):
             return subprocess.check_output(['git', '-C', str(project), *args], stderr=subprocess.PIPE).decode().strip()
@@ -89,8 +101,50 @@ class NativeGeneratedDeliveryTests(unittest.TestCase):
                 value.update(identity)
                 value['environment'] = dict(architecture='x86_64', uid=1001, gid=1001, allowedCpuSelection='0,1')
             self.edit(release, 'reports/ci/stages/' + name + '.json', stage)
-        self.edit(release, 'reports/sysroot/sysroot-provenance.json',
-                  lambda value: value.update(generatorArguments=['x64', 'xenial', '--rootfsdir', '/inputs/x64-xenial']))
+        sysroot_reports = reports / 'sysroot'
+        (sysroot_reports / 'sysroot-build.log').write_text(
+            'I: Release signature verified (key id 790BC7277767219C42C86F933B4FE6ACC0B21F32)\n')
+        producer = reports / 'ci-inputs/project/scripts/prepare-net67-x64-sysroot.sh'
+        packages = ['build-essential', 'symlinks', 'libicu-dev', 'liblttng-ust-dev', 'libunwind8-dev',
+                    'libcurl4-openssl-dev', 'libkrb5-dev', 'libssl-dev', 'zlib1g-dev', 'libomp5', 'libomp-dev', 'liblldb-3.9-dev']
+        self.helper.put(sysroot_reports / 'sysroot-packages.tsv',
+                        ('libc6\t2.23-fixture\tamd64\n' + ''.join(name + '\t1-fixture\tamd64\n' for name in packages)).encode())
+        ca = self.helper.put(sysroot_reports / 'apt-tls-ca.pem', b'Synthetic CA bytes; no TLS verification is performed by this fixture.\n')
+        upstream_sources = self.helper.put(sysroot_reports / 'upstream-sources.list', SOURCE_LIST.encode())
+        applied_sources = self.helper.put(sysroot_reports / 'applied-sources.list',
+            SOURCE_LIST.replace('http://archive.ubuntu.com/ubuntu/', 'https://archive.ubuntu.com/ubuntu/').encode())
+        signature_inputs = {}
+        for key, name, data in (
+                ('archiveRelease', 'archive-release', b'Synthetic archive Release; no real signature.\n'),
+                ('archiveSignature', 'archive-release.gpg', b'Synthetic detached signature; not cryptographic proof.\n'),
+                ('signatureStatus', 'archive-signature-status.txt',
+                 b'[GNUPG:] VALIDSIG 790BC7277767219C42C86F933B4FE6ACC0B21F32 synthetic-schema-fixture\n')):
+            path = self.helper.put(sysroot_reports / name, data)
+            signature_inputs[key] = dict(path='/delivery/reports/sysroot/' + name, **E.fingerprint(path))
+        tls_target = '/etc/ssl/certs/cbodotnet-producer-ca.pem'
+        def sysroot(value):
+            value.update(signature_inputs)
+            value.update(method='explicit-native-amd64-debootstrap', architecture='amd64', releaseSignatureLogVerified=True,
+                originalGeneratorVerified=True, upstreamGeneratorInvoked=False, qemuDebootstrapWrapper=False,
+                generator='src/runtime/eng/common/cross/build-rootfs.sh',
+                generatorSha256={'6': 'efaddf18971de883465ef172297cbb9821b2568fc2f41f360a0ba2e74eaa3704',
+                                 '7': '515ca92a06354898bfff4edf524292595eb75bef3668325d381b4c4bcdc1d979'}[major],
+                producer=dict(path='/frozen/scripts/prepare-net67-x64-sysroot.sh', **E.fingerprint(producer)),
+                generatorArguments=['--force-check-gpg', '--keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg',
+                                    '--arch=amd64', 'xenial', '/inputs/x64-xenial', 'https://archive.ubuntu.com/ubuntu'],
+                sourceList=dict(path='/work/source-v' + selected['sdk'] + '/src/runtime/eng/common/cross/x86/sources.list.xenial',
+                                **E.fingerprint(upstream_sources)),
+                retainedSourceList=dict(path='/delivery/reports/sysroot/upstream-sources.list', **E.fingerprint(upstream_sources)),
+                appliedSourceList=dict(path='/inputs/x64-xenial/etc/apt/sources.list', **E.fingerprint(applied_sources)),
+                retainedAppliedSourceList=dict(path='/delivery/reports/sysroot/applied-sources.list', **E.fingerprint(applied_sources)),
+                packageList=packages, sourceListTransformation='archive-http-to-https',
+                aptTls=dict(source=dict(path='/etc/ssl/certs/ca-certificates.crt', **E.fingerprint(ca)),
+                            retained=dict(path='/delivery/reports/sysroot/apt-tls-ca.pem', **E.fingerprint(ca)),
+                            target=dict(path='/inputs/x64-xenial' + tls_target, **E.fingerprint(ca)),
+                            caInfo=tls_target, peerVerification=True, hostVerification=True, packageSignatureVerification=True,
+                            arguments=['-o', 'Acquire::https::CaInfo=' + tls_target, '-o', 'Acquire::https::Verify-Peer=true',
+                                       '-o', 'Acquire::https::Verify-Host=true']))
+        self.edit(release, 'reports/sysroot/sysroot-provenance.json', sysroot)
         psb_name = 'Private.SourceBuilt.Artifacts.' + selected['bootstrap'] + '.centos.' + ('7' if major == '6' else '8') + '-x64.tar.gz'
         original = dict(path='/inputs/original-bootstrap/' + psb_name, bytes=selected['psbSize'], sha256=selected['psbSha256'], sha512='d' * 128)
         native_rid, count = ('linux-x64', 14) if major == '6' else ('centos.8-x64', 12)
@@ -147,7 +201,9 @@ class NativeGeneratedDeliveryTests(unittest.TestCase):
 
     def test_resealed_cross_architecture_and_bootstrap_contract_changes_are_rejected(self):
         for major in ('6', '7'):
-            for mutation in ('profile', 'elf', 'image', 'host', 'workflow', 'source', 'root', 'bootstrap-mode', 'bootstrap-bytes', 'bootstrap-rid', 'bootstrap-entry', 'sdk-name', 'symbolic-abi', 'observer'):
+            for mutation in ('profile', 'elf', 'image', 'host', 'workflow', 'source', 'root', 'bootstrap-mode', 'bootstrap-bytes', 'bootstrap-rid', 'bootstrap-entry', 'sdk-name', 'symbolic-abi', 'observer',
+                             'sysroot-producer', 'sysroot-method', 'sysroot-generator', 'sysroot-source-list', 'sysroot-source-transformation',
+                             'sysroot-packages', 'sysroot-ca-bytes', 'sysroot-ca-peer', 'sysroot-foreign-architecture', 'sysroot-signature'):
                 with self.subTest(major=major, mutation=mutation), tempfile.TemporaryDirectory() as temporary:
                     release, expected = self.fixture(Path(temporary), major)
                     if mutation == 'profile':
@@ -187,6 +243,37 @@ class NativeGeneratedDeliveryTests(unittest.TestCase):
                             (release / sidecar).write_text(manifest['sdkArchive'][algorithm] + '  ' + renamed.name + '\n')
                     elif mutation == 'symbolic-abi':
                         self.edit(release, 'reports/verify-ubuntu22/verification.json', lambda value: value['abi'].update(symbolicGlibcRequirements=['GLIBC_PRIVATE']))
+                    elif mutation == 'sysroot-producer':
+                        self.edit(release, 'reports/sysroot/sysroot-provenance.json', lambda value: value['producer'].update(sha256='0' * 64))
+                    elif mutation == 'sysroot-method':
+                        self.edit(release, 'reports/sysroot/sysroot-provenance.json', lambda value: value.update(method='upstream-generator', upstreamGeneratorInvoked=True))
+                    elif mutation == 'sysroot-generator':
+                        self.edit(release, 'reports/sysroot/sysroot-provenance.json', lambda value: value['generatorArguments'].__setitem__(2, '--arch=armhf'))
+                    elif mutation == 'sysroot-source-list':
+                        self.edit(release, 'reports/sysroot/sysroot-provenance.json', lambda value: value['sourceList'].update(sha256='0' * 64))
+                    elif mutation == 'sysroot-source-transformation':
+                        path = release / 'reports/sysroot/applied-sources.list'
+                        path.write_text(path.read_text().replace('https://archive.ubuntu.com/ubuntu/', 'https://mirror.example.invalid/ubuntu/'))
+                        def relabeled_applied(value):
+                            value['retainedAppliedSourceList'].update(E.fingerprint(path))
+                            value['appliedSourceList'].update(E.fingerprint(path))
+                        self.edit(release, 'reports/sysroot/sysroot-provenance.json', relabeled_applied)
+                    elif mutation == 'sysroot-packages':
+                        self.edit(release, 'reports/sysroot/sysroot-provenance.json', lambda value: value['packageList'].remove('liblldb-3.9-dev'))
+                    elif mutation == 'sysroot-ca-bytes':
+                        self.edit(release, 'reports/sysroot/sysroot-provenance.json', lambda value: value['aptTls']['target'].update(sha256='0' * 64))
+                    elif mutation == 'sysroot-ca-peer':
+                        def disabled_peer(value):
+                            value['aptTls']['peerVerification'] = False
+                            value['aptTls']['arguments'][3] = 'Acquire::https::Verify-Peer=false'
+                        self.edit(release, 'reports/sysroot/sysroot-provenance.json', disabled_peer)
+                    elif mutation == 'sysroot-foreign-architecture':
+                        path = release / 'reports/sysroot/sysroot-packages.tsv'
+                        path.write_text(path.read_text().replace('\tamd64\n', '\tarmhf\n', 1))
+                    elif mutation == 'sysroot-signature':
+                        path = release / 'reports/sysroot/archive-signature-status.txt'
+                        path.write_text('[GNUPG:] VALIDSIG ' + '0' * 40 + ' wrong-key-schema-fixture\n')
+                        self.edit(release, 'reports/sysroot/sysroot-provenance.json', lambda value: value['signatureStatus'].update(E.fingerprint(path)))
                     else:
                         path = release / 'reports/build/installer-observations.jsonl'
                         rows = [json.loads(line) for line in path.read_text().splitlines()]

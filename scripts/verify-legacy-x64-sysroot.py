@@ -28,6 +28,21 @@ def main():
         row = provenance[key]; path = Path(row['path'])
         if path.is_symlink() or not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != row['sha256']:
             raise ValueError('A signed sysroot producer input changed: ' + key)
+    tls = provenance['aptTls']
+    ca_info = '/etc/ssl/certs/cbodotnet-producer-ca.pem'
+    tls_args = ['-o', 'Acquire::https::CaInfo='+ca_info,
+                '-o', 'Acquire::https::Verify-Peer=true', '-o', 'Acquire::https::Verify-Host=true']
+    if (tls['peerVerification'] is not True or tls['hostVerification'] is not True or tls['packageSignatureVerification'] is not True
+            or tls['caInfo'] != ca_info or tls['arguments'] != tls_args
+            or tls['retained']['path'] != str(reports/'apt-tls-ca.pem')
+            or tls['target']['path'] != str(root/ca_info.lstrip('/'))):
+        raise ValueError('The explicit verified apt TLS policy differs')
+    for row in (tls['source'], tls['retained'], tls['target']):
+        path = Path(row['path'])
+        if (path.is_symlink() or not path.is_file() or path.stat().st_size != row['bytes']
+                or hashlib.sha256(path.read_bytes()).hexdigest() != row['sha256']
+                or row['sha256'] != tls['retained']['sha256'] or row['bytes'] != tls['retained']['bytes']):
+            raise ValueError('The retained apt TLS trust bundle differs')
     manifest = reports/'sysroot-files.sha256'; data = manifest.read_bytes()
     if (reports/'sysroot-file-list.sha256').read_text() != hashlib.sha256(data).hexdigest()+'  '+str(manifest)+'\n':
         raise ValueError('The complete sysroot inventory digest differs')

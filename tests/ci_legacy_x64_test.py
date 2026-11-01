@@ -89,25 +89,38 @@ class LegacyX64Tests(unittest.TestCase):
             'originalGeneratorVerified':True,'packageSignatureVerification':True,'releaseSignatureLogVerified':True,'emulation':False}
         for key in ('producer','archiveRelease','archiveSignature','signatureStatus'):
             path=reports/key; path.write_bytes(('synthetic-'+key).encode()); provenance[key]=row(path)
+        source=reports/'producer-ca.pem'; source.write_bytes(b'synthetic retained TLS trust bundle')
+        retained=reports/'apt-tls-ca.pem'; retained.write_bytes(source.read_bytes())
+        ca_info='/etc/ssl/certs/cbodotnet-producer-ca.pem'
+        target=root/ca_info.lstrip('/'); target.parent.mkdir(parents=True); target.write_bytes(source.read_bytes())
+        provenance['aptTls']={'source':row(source),'retained':row(retained),'target':row(target),'caInfo':ca_info,
+            'peerVerification':True,'hostVerification':True,'packageSignatureVerification':True,
+            'arguments':['-o','Acquire::https::CaInfo='+ca_info,'-o','Acquire::https::Verify-Peer=true','-o','Acquire::https::Verify-Host=true']}
         (reports/'sysroot-provenance.json').write_text(json.dumps(provenance))
         (reports/'sysroot-packages.tsv').write_text('libc6:amd64\t2.23-0ubuntu11.3\tamd64\n')
         (reports/'sysroot-symlinks.tsv').write_text(str(library.parent/'libc.so.6')+'\t'+library.name+'\n')
         def seal():
             manifest=reports/'sysroot-files.sha256'
-            manifest.write_text(hashlib.sha256(library.read_bytes()).hexdigest()+'  '+str(library)+'\n')
+            manifest.write_text(''.join(hashlib.sha256(path.read_bytes()).hexdigest()+'  '+str(path)+'\n' for path in (library,target)))
             (reports/'sysroot-file-list.sha256').write_text(hashlib.sha256(manifest.read_bytes()).hexdigest()+'  '+str(manifest)+'\n')
         seal()
         return root,reports,library,seal
 
     def test_complete_sysroot_index_cannot_relabel_arm_libc_or_accept_extra_files(self):
         helper=module('verify-legacy-x64-sysroot')
-        for mode in ('good','foreign-machine','extra-file','changed-producer'):
+        for mode in ('good','foreign-machine','extra-file','changed-producer','changed-ca','disabled-peer','different-ca-target'):
             with self.subTest(mode=mode),tempfile.TemporaryDirectory(prefix='legacy-x64-sysroot-') as temporary:
                 root,reports,library,seal=self.sysroot(temporary)
                 if mode=='foreign-machine':
                     data=bytearray(library.read_bytes());data[18:20]=(183).to_bytes(2,'little');library.write_bytes(data);seal()
                 if mode=='extra-file': (root/'unbound').write_bytes(b'not indexed')
                 if mode=='changed-producer': (reports/'producer').write_bytes(b'not the captured producer')
+                if mode=='changed-ca': (reports/'apt-tls-ca.pem').write_bytes(b'not the captured trust input')
+                if mode in ('disabled-peer','different-ca-target'):
+                    path=reports/'sysroot-provenance.json'; provenance=json.loads(path.read_text())
+                    if mode=='disabled-peer': provenance['aptTls']['peerVerification']=False
+                    else: provenance['aptTls']['target']['path']=str(root/'foreign-ca.pem')
+                    path.write_text(json.dumps(provenance))
                 args=['fixture','--family','core30','--sysroot',str(root),'--reports-dir',str(reports)]
                 with mock.patch.object(sys,'argv',args),contextlib.redirect_stdout(io.StringIO()):
                     if mode=='good': helper['main']()

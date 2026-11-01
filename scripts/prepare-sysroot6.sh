@@ -69,6 +69,10 @@ for path in "$keyring" "$current_keys" "$historical_keys"; do
   [[ -s $path ]] || { echo "Missing signature-verification keyring: $path" >&2; exit 1; }
 done
 cat "$current_keys" "$historical_keys" | cmp - "$keyring"
+if [[ $arch == x64 ]]; then
+  exec bash "$(dirname -- "${BASH_SOURCE[0]}")/prepare-net67-x64-sysroot.sh" \
+    "$source_dir" "$inputs_dir" "$reports_dir" "$owner_uid" "$owner_gid" 6
+fi
 attempt_id=$(date -u +%Y%m%dT%H%M%S)-$$
 log_file=$reports_dir/sysroot-prepare-$attempt_id.log
 cd "$runtime_dir"

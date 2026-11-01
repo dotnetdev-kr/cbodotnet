@@ -138,6 +138,63 @@ class NativeHelpers(unittest.TestCase):
                 packages.write_text('libc6:amd64\t2.23\tamd64\n'); libc.write_bytes(elf(183))
                 self.assertNotEqual(subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode, 0)
 
+    def test_native_sysroot_route_never_calls_the_unsupported_upstream_generator(self):
+        producer = (ROOT / 'scripts/prepare-net67-x64-sysroot.sh').read_text()
+        invocations = [line for line in producer.splitlines() if line.startswith('debootstrap ')]
+        self.assertEqual(invocations, ['debootstrap --force-check-gpg --keyring="$keyring" --arch=amd64 xenial "$rootfs" "$mirror" 2>&1 | tee "$log"'])
+        self.assertNotIn('./eng/common/cross/build-rootfs.sh', producer)
+        self.assertNotIn('qemu-debootstrap ', producer)
+        self.assertIn('cp -- "$rootfs/debootstrap/debootstrap.log" "$reports_dir/debootstrap.log"', producer)
+        apt_calls = [line for line in producer.splitlines() if line.startswith('chroot "$rootfs" apt-get ')]
+        self.assertEqual(len(apt_calls), 4)
+        self.assertTrue(all('"${apt_tls_options[@]}"' in line for line in apt_calls))
+        self.assertNotIn('Verify-Peer=false', producer); self.assertNotIn('Verify-Host=false', producer)
+        for major, sdk in [('6', '6.0.136'), ('7', '7.0.120')]:
+            wrapper = (ROOT / ('scripts/prepare-sysroot' + major + '.sh')).read_text()
+            self.assertIn('if [[ $arch == x64 ]]; then\n  exec bash ', wrapper)
+            profile = json.loads((ROOT / ('profiles/dotnet-' + sdk + '-linux-x64.json')).read_text())
+            self.assertEqual(profile['sysroot']['generator'], 'scripts/prepare-net67-x64-sysroot.sh')
+            self.assertEqual(profile['sysroot']['generatorArguments'][2], '--arch=amd64')
+
+    def test_native_sysroot_record_retains_transport_trust_and_rejects_foreign_libc(self):
+        producer = ROOT / 'scripts/prepare-net67-x64-sysroot.sh'
+        code = producer.read_text().split(" <<'PY'\n", 1)[1].split('\nPY\n', 1)[0]
+        packages = ['build-essential', 'symlinks', 'libicu-dev', 'liblttng-ust-dev', 'libunwind8-dev',
+                    'libcurl4-openssl-dev', 'libkrb5-dev', 'libssl-dev', 'zlib1g-dev', 'libomp5', 'libomp-dev', 'liblldb-3.9-dev']
+        for major in ('6', '7'):
+            base = self.root / ('producer' + major); source = base / 'source'; reports = base / 'reports'; reports.mkdir(parents=True)
+            root = base / 'x64-xenial'; libc = write(root / 'lib/x86_64-linux-gnu/libc-2.23.so', elf(62))
+            (libc.parent / 'libc.so.6').symlink_to(libc.name)
+            write(source / 'src/runtime/eng/common/cross/build-rootfs.sh', 'fixture original generator')
+            original_sources = 'deb http://archive.ubuntu.com/ubuntu/ xenial main restricted universe\n'
+            write(source / 'src/runtime/eng/common/cross/x86/sources.list.xenial', original_sources)
+            write(root / 'etc/apt/sources.list', original_sources.replace('http://', 'https://'))
+            write(reports / 'upstream-sources.list', original_sources)
+            write(reports / 'applied-sources.list', original_sources.replace('http://', 'https://'))
+            for name in ('installer', 'runtime'): write(source / ('git-info/' + name + '.props'), '<Project/>')
+            for name in ('archive-release', 'archive-release.gpg', 'archive-signature-status.txt'): write(reports / name, 'fixture signed archive ' + name)
+            log = write(reports / 'sysroot.log', 'I: Valid Release signature\n')
+            keyrings = [write(base / name, 'fixture signing keyring') for name in ('all.gpg', 'current.gpg', 'historical.gpg')]
+            ca = write(base / 'producer-ca.pem', 'fixture retained TLS trust')
+            write(reports / 'apt-tls-ca.pem', ca.read_bytes()); target = '/etc/ssl/certs/cbodotnet-producer-ca.pem'; write(root / target.lstrip('/'), ca.read_bytes())
+            command = [sys.executable, '-c', code, *map(str, [source, reports, root, log, *keyrings]),
+                       'fixture-installer-pin', 'fixture-runtime-pin', str(producer), str(ca), target, *packages]
+            result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            record = json.loads((reports / 'sysroot-provenance.json').read_text())
+            self.assertEqual(record['method'], 'explicit-native-amd64-debootstrap')
+            self.assertEqual(record['architecture'], 'amd64'); self.assertFalse(record['upstreamGeneratorInvoked'])
+            self.assertTrue(record['originalGeneratorVerified']); self.assertFalse(record['qemuDebootstrapWrapper'])
+            self.assertEqual(record['packageList'], packages); self.assertEqual(record['sourceListTransformation'], 'archive-http-to-https')
+            self.assertEqual(record['sourceList']['sha256'], record['retainedSourceList']['sha256'])
+            self.assertEqual(record['appliedSourceList']['sha256'], record['retainedAppliedSourceList']['sha256'])
+            tls = record['aptTls']; self.assertTrue(tls['peerVerification']); self.assertTrue(tls['hostVerification'])
+            self.assertEqual(tls['source']['sha256'], tls['target']['sha256']); self.assertEqual(tls['retained']['sha256'], tls['target']['sha256'])
+            self.assertEqual(record['producer']['sha256'], hashlib.sha256(producer.read_bytes()).hexdigest())
+            (reports / 'sysroot-provenance.json').unlink(); libc.write_bytes(elf(183))
+            self.assertNotEqual(subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode, 0)
+            self.assertFalse((reports / 'sysroot-provenance.json').exists())
+
     def test_omnisharp_x64_pin_is_separate_from_arm64(self):
         for major in ('6', '7'):
             helper = module('prepare-net' + major + '-test-tools.py')

@@ -183,6 +183,15 @@ def validate(release, family, expected):
         signature = member(release, 'reports/sysroot/archive-signature-status.txt').read_text()
         require(re.search(r'^\[GNUPG:\] VALIDSIG (790BC7277767219C42C86F933B4FE6ACC0B21F32|F6ECB3762474EDA9D21B7022871920D1991BC93C|630239CC130E1A7FD81A27B140976EAF437D05B5) ', signature, re.MULTILINE),
                 'The native amd64 archive signature lacks its accepted Ubuntu signer')
+        tls = sysroot['aptTls']; ca_info = '/etc/ssl/certs/cbodotnet-producer-ca.pem'
+        retained_ca = fp(member(release, 'reports/sysroot/apt-tls-ca.pem'))
+        tls_args = ['-o', 'Acquire::https::CaInfo='+ca_info,
+                    '-o', 'Acquire::https::Verify-Peer=true', '-o', 'Acquire::https::Verify-Host=true']
+        require(tls['peerVerification'] is True and tls['hostVerification'] is True and tls['packageSignatureVerification'] is True
+                and tls['caInfo'] == ca_info and tls['arguments'] == tls_args
+                and all(row['sha256'] == retained_ca['sha256'] and row['bytes'] == retained_ca['bytes']
+                        for row in (tls['source'], tls['retained'], tls['target'])),
+                'The explicit verified amd64 apt TLS trust input differs')
     producer_log = member(release, 'reports/sysroot/' + Path(sysroot['logFile']).name).read_text(errors='replace')
     require(('Release signature verified' in producer_log or 'Valid Release signature' in producer_log)
             and '--no-check-gpg' not in producer_log and '--skipsigcheck' not in producer_log, 'Actual authenticated sysroot producer did not pass')

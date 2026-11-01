@@ -204,6 +204,62 @@ def smoke_results(trx):
             'scope':'Original suite and assertions; only absent poison-report input skipped. OmniSharp timed scenarios do not prove full editor functionality.'}
 
 
+def x64_sysroot(release, provenance, major):
+    """Authenticate the explicit native producer and its upstream package inputs."""
+    producer_name = 'scripts/prepare-net67-x64-sysroot.sh'
+    producer = member(release, 'reports/ci-inputs/project/' + producer_name)
+    same = lambda row, expected: all(row.get(key) == expected[key] for key in ('bytes', 'sha256', 'sha512'))
+    generators = {'6': 'efaddf18971de883465ef172297cbb9821b2568fc2f41f360a0ba2e74eaa3704',
+                  '7': '515ca92a06354898bfff4edf524292595eb75bef3668325d381b4c4bcdc1d979'}
+    arguments = ['--force-check-gpg', '--keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg',
+                 '--arch=amd64', 'xenial', '/inputs/x64-xenial', 'https://archive.ubuntu.com/ubuntu']
+    require(provenance.get('method') == 'explicit-native-amd64-debootstrap'
+            and provenance.get('architecture') == 'amd64'
+            and provenance.get('originalGeneratorVerified') is True
+            and provenance.get('upstreamGeneratorInvoked') is False
+            and provenance.get('qemuDebootstrapWrapper') is False
+            and provenance['generator'] == 'src/runtime/eng/common/cross/build-rootfs.sh'
+            and provenance['generatorSha256'] == generators[major]
+            and provenance['generatorArguments'] == arguments
+            and same(provenance['producer'], fingerprint(producer)), 'The actual signed amd64 sysroot producer differs')
+    packages = ['build-essential','symlinks','libicu-dev','liblttng-ust-dev','libunwind8-dev',
+                'libcurl4-openssl-dev','libkrb5-dev','libssl-dev','zlib1g-dev','libomp5','libomp-dev','liblldb-3.9-dev']
+    require(provenance['packageList'] == packages, 'The pinned upstream Xenial package set differs')
+    original = member(release, 'reports/sysroot/upstream-sources.list')
+    applied = member(release, 'reports/sysroot/applied-sources.list')
+    require(fingerprint(original)['sha256'] == '81da96b804b513d7b3b41291e02c2a1198a432a452d11fa4558f25cada1ab78a'
+            and provenance['sourceList']['path'].endswith('/src/runtime/eng/common/cross/x86/sources.list.xenial')
+            and same(provenance['sourceList'], fingerprint(original))
+            and same(provenance['retainedSourceList'], fingerprint(original))
+            and same(provenance['appliedSourceList'], fingerprint(applied))
+            and same(provenance['retainedAppliedSourceList'], fingerprint(applied))
+            and provenance['sourceListTransformation'] == 'archive-http-to-https'
+            and applied.read_bytes() == original.read_bytes().replace(b'http://archive.ubuntu.com', b'https://archive.ubuntu.com'),
+            'The pinned source list or exact HTTPS transport adaptation differs')
+    tls = provenance['aptTls']; ca_info = '/etc/ssl/certs/cbodotnet-producer-ca.pem'
+    ca = fingerprint(member(release, 'reports/sysroot/apt-tls-ca.pem'))
+    require(tls['peerVerification'] is True and tls['hostVerification'] is True
+            and tls['packageSignatureVerification'] is True and tls['caInfo'] == ca_info
+            and tls['arguments'] == ['-o','Acquire::https::CaInfo='+ca_info,
+                                     '-o','Acquire::https::Verify-Peer=true','-o','Acquire::https::Verify-Host=true']
+            and tls['source']['path'] == '/etc/ssl/certs/ca-certificates.crt'
+            and tls['retained']['path'] == '/delivery/reports/sysroot/apt-tls-ca.pem'
+            and tls['target']['path'] == '/inputs/x64-xenial'+ca_info
+            and all(same(row, ca) for row in (tls['source'], tls['retained'], tls['target'])),
+            'The verified native apt TLS trust input or policy differs')
+    for key, name in [('archiveRelease','archive-release'),('archiveSignature','archive-release.gpg'),
+                      ('signatureStatus','archive-signature-status.txt')]:
+        require(same(provenance[key], fingerprint(member(release, 'reports/sysroot/'+name))), 'Archive signature input differs')
+    signature = member(release, 'reports/sysroot/archive-signature-status.txt').read_text()
+    require(provenance.get('releaseSignatureLogVerified') is True
+            and re.search(r'^\[GNUPG:\] VALIDSIG (790BC7277767219C42C86F933B4FE6ACC0B21F32|F6ECB3762474EDA9D21B7022871920D1991BC93C|630239CC130E1A7FD81A27B140976EAF437D05B5) ', signature, re.MULTILINE),
+            'The native sysroot archive lacks an accepted Ubuntu signature')
+    package_rows = [line.split('\t') for line in member(release, 'reports/sysroot/sysroot-packages.tsv').read_text().splitlines() if line]
+    require(package_rows and all(len(row) == 3 and row[2] in ('amd64','all') for row in package_rows)
+            and any(row[0] in ('libc6','libc6:amd64') and row[1].startswith('2.23') and row[2] == 'amd64' for row in package_rows),
+            'The recorded native Xenial packages contain another architecture or libc baseline')
+
+
 def validate(release, expected, arch='arm64'):
     architecture = get_arch(arch)
     snap = load(member(release, 'reports/ci-inputs/snapshot.json')); major = snap['major']; selected = version_config(major, arch)
@@ -268,9 +324,10 @@ def validate(release, expected, arch='arm64'):
             and sysroot['packageSignatureVerification'] is True and sysroot['emulation'] is False
             and current['status'] == 'passed' and current['files'] > 0 and current['symlinks'] > 0, 'Authenticated complete sysroot verification is required')
     if arch == 'x64':
-        require(sysroot['generatorArguments'][:2] == ['x64', 'xenial'], 'The x64 Xenial sysroot producer is required')
+        x64_sysroot(release, sysroot, major)
     log = member(release,'reports/sysroot/'+Path(sysroot['logFile']).name).read_text()
-    require('Valid Release signature' in log and '--no-check-gpg' not in log and '--skipsigcheck' not in log,
+    require(('Valid Release signature' in log or (arch == 'x64' and 'Release signature verified' in log))
+            and '--no-check-gpg' not in log and '--skipsigcheck' not in log,
             'Actual successful upstream Release signature verification is required')
     keyrings = load(member(release,'reports/sysroot/producer-inputs.json'))['keyrings']
     require(len(keyrings) == 3, 'All actual current/historical sysroot signing keyrings are required')

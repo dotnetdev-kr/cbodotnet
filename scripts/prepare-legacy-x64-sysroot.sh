@@ -28,7 +28,7 @@ generator=$component_dir/$relative
 git -c safe.directory="$bare" --git-dir="$bare" show "$component_commit:$relative" | cmp - "$generator"
 rootfs=$inputs_dir/x64-xenial
 [[ ! -e $rootfs && ! -L $rootfs ]]
-for name in sysroot-files.sha256 sysroot-file-list.sha256 sysroot-symlinks.tsv sysroot-packages.tsv sysroot-provenance.json archive-release archive-release.gpg archive-signature-status.txt; do
+for name in sysroot-files.sha256 sysroot-file-list.sha256 sysroot-symlinks.tsv sysroot-packages.tsv sysroot-provenance.json archive-release archive-release.gpg archive-signature-status.txt apt-tls-ca.pem; do
   [[ ! -e $reports_dir/$name && ! -L $reports_dir/$name ]]
 done
 keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg
@@ -46,6 +46,16 @@ grep -Eq '^\[GNUPG:\] VALIDSIG (790BC7277767219C42C86F933B4FE6ACC0B21F32|F6ECB37
 log=$reports_dir/sysroot-prepare-$(date -u +%Y%m%dT%H%M%S)-$$.log
 debootstrap --force-check-gpg --keyring="$keyring" --arch=amd64 xenial "$rootfs" "$mirror" 2>&1 | tee "$log"
 grep -Eq '^I: (Release signature verified|Valid Release signature)' "$log"
+# Xenial's initial 2016 CA package cannot validate the current archive TLS
+# chain. Retain the working producer trust bundle and select it explicitly for
+# apt; peer verification and Ubuntu package signature checks remain enabled.
+tls_ca_source=/etc/ssl/certs/ca-certificates.crt
+tls_ca_target=/etc/ssl/certs/cbodotnet-producer-ca.pem
+[[ -s $tls_ca_source && ! -L $tls_ca_source && ! -e $rootfs$tls_ca_target && ! -L $rootfs$tls_ca_target ]]
+cp -- "$tls_ca_source" "$reports_dir/apt-tls-ca.pem"
+install -m 0644 -- "$reports_dir/apt-tls-ca.pem" "$rootfs$tls_ca_target"
+cmp -- "$tls_ca_source" "$rootfs$tls_ca_target"
+apt_tls_options=(-o "Acquire::https::CaInfo=$tls_ca_target" -o Acquire::https::Verify-Peer=true -o Acquire::https::Verify-Host=true)
 cat > "$rootfs/etc/apt/sources.list" <<EOF
 deb $mirror xenial main restricted universe multiverse
 deb $mirror xenial-updates main restricted universe multiverse
@@ -53,8 +63,8 @@ deb $mirror xenial-security main restricted universe multiverse
 EOF
 packages=(build-essential symlinks libicu-dev liblttng-ust-dev libunwind8-dev libcurl4-openssl-dev libkrb5-dev libssl-dev zlib1g-dev)
 [[ $family != net5 ]] || packages+=(liblldb-3.9-dev)
-chroot "$rootfs" apt-get update 2>&1 | tee -a "$log"
-chroot "$rootfs" apt-get -y install "${packages[@]}" 2>&1 | tee -a "$log"
+chroot "$rootfs" apt-get "${apt_tls_options[@]}" update 2>&1 | tee -a "$log"
+chroot "$rootfs" apt-get "${apt_tls_options[@]}" -y install "${packages[@]}" 2>&1 | tee -a "$log"
 chroot "$rootfs" symlinks -cr /usr 2>&1 | tee -a "$log"
 statuses=$(chroot "$rootfs" dpkg-query -W '-f=${Status}\n' "${packages[@]}")
 [[ $(printf '%s\n' "$statuses" | grep -c '^install ok installed$') == "${#packages[@]}" ]]
@@ -63,10 +73,10 @@ grep -Eq '^libc6(:amd64)?[[:space:]]+2\.23[^[:space:]]*[[:space:]]+amd64$' "$rep
 find "$rootfs" -type f -print0 | sort -z | xargs -0 sha256sum > "$reports_dir/sysroot-files.sha256"
 sha256sum "$reports_dir/sysroot-files.sha256" > "$reports_dir/sysroot-file-list.sha256"
 find "$rootfs" -type l -printf '%p\t%l\n' | sort > "$reports_dir/sysroot-symlinks.tsv"
-python3 - "$source_dir" "$reports_dir" "$rootfs" "$log" "$keyring" "$current_keys" "$historical_keys" "$generator" "$component_commit" "$family" "${BASH_SOURCE[0]}" <<'PY'
+python3 - "$source_dir" "$reports_dir" "$rootfs" "$log" "$keyring" "$current_keys" "$historical_keys" "$generator" "$component_commit" "$family" "${BASH_SOURCE[0]}" "$tls_ca_source" "$tls_ca_target" <<'PY'
 import datetime, hashlib, json, os, pathlib, sys
 source, reports, rootfs, log, keyring, current, historical, generator = map(pathlib.Path, sys.argv[1:9])
-component, family, producer = sys.argv[9:]
+component, family, producer, tls_source, tls_target = sys.argv[9:]
 def fp(path):
     return {'path': str(path), 'bytes': path.stat().st_size, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
 record = {'preparedAtUtc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -81,10 +91,15 @@ record = {'preparedAtUtc': datetime.datetime.now(datetime.timezone.utc).isoforma
           'archiveRelease': fp(reports/'archive-release'), 'archiveSignature': fp(reports/'archive-release.gpg'),
           'signatureStatus': fp(reports/'archive-signature-status.txt'),
           'keyrings': [fp(path) for path in (keyring,current,historical)],
+          'aptTls': {'source': fp(pathlib.Path(tls_source)), 'retained': fp(reports/'apt-tls-ca.pem'),
+                     'target': fp(rootfs/tls_target.lstrip('/')), 'caInfo': tls_target,
+                     'peerVerification': True, 'hostVerification': True, 'packageSignatureVerification': True,
+                     'arguments': ['-o', 'Acquire::https::CaInfo='+tls_target,
+                                   '-o', 'Acquire::https::Verify-Peer=true', '-o', 'Acquire::https::Verify-Host=true']},
           'gitOwnerContext': {'sourceOwnerUid': source.stat().st_uid,'sudoUid': int(os.environ['SUDO_UID']),'globalGitConfigurationChanged': False},
           'scope': 'Independent signed amd64 Xenial sysroot with the pinned legacy producer package set; no ARM sysroot or emulation.'}
 with (reports/'sysroot-provenance.json').open('x') as output:
     json.dump(record,output,indent=2); output.write('\n')
 PY
 chown -R -- "$owner_uid:$owner_gid" "$rootfs"
-chown -- "$owner_uid:$owner_gid" "$log" "$reports_dir"/sysroot-{files.sha256,file-list.sha256,symlinks.tsv,packages.tsv,provenance.json} "$reports_dir"/archive-*
+chown -- "$owner_uid:$owner_gid" "$log" "$reports_dir"/sysroot-{files.sha256,file-list.sha256,symlinks.tsv,packages.tsv,provenance.json} "$reports_dir"/archive-* "$reports_dir/apt-tls-ca.pem"

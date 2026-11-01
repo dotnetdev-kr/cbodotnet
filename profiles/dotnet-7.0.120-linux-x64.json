@@ -51,11 +51,20 @@
   "sysroot": {
     "architecture": "x64",
     "suite": "xenial",
-    "generator": "src/runtime/eng/common/cross/build-rootfs.sh",
+    "generator": "scripts/prepare-net67-x64-sysroot.sh",
+    "method": "explicit-native-amd64-debootstrap",
+    "upstreamPackageSource": "src/runtime/eng/common/cross/build-rootfs.sh",
+    "upstreamSourcesList": "src/runtime/eng/common/cross/x86/sources.list.xenial",
+    "upstreamSourcesListSha256": "81da96b804b513d7b3b41291e02c2a1198a432a452d11fa4558f25cada1ab78a",
     "generatorArguments": [
-      "x64",
-      "xenial"
+      "--force-check-gpg",
+      "--keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg",
+      "--arch=amd64",
+      "xenial",
+      "/inputs/x64-xenial",
+      "https://archive.ubuntu.com/ubuntu"
     ],
+    "emulation": false,
     "packageSignatureVerification": true,
     "preparationRequiresRoot": true
   },
