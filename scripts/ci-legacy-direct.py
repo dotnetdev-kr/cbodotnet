@@ -380,6 +380,13 @@ class CI:
         self.run(['git', 'clone', '--no-checkout', 'https://github.com/dotnet/source-build.git', self.source])
         self.run(['git', '-C', self.source, 'checkout', '--detach', self.commit])
         self.freeze()
+        if ARCH['arch'] == 'x64':
+            collector = runpy.run_path(str(self.snapshot / 'scripts/collect-artifacts.py'))
+            try:
+                preflight = collector['direct_source_metadata'](self.source, json.loads(self.profile.read_text()), require_exports=False)
+            except collector['CollectionError'] as error:
+                raise ValueError('Early direct-profile collector validation failed: '+str(error))
+            write(self.reports / 'prepare/direct-profile-preflight.json', dict(status='passed', **preflight))
         recipe = self.snapshot / (('containers/' + ARCH['arch'] + '-') + self.family + '.Containerfile')
         profile = json.loads(self.profile.read_text())
         base = profile['container']['repository'] + '@' + profile['container']['digest']

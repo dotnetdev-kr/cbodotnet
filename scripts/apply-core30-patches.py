@@ -19,7 +19,7 @@ LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
 ARCH = LEGACY_ARCH['selected_arch']()
 
 
-MANIFEST_SHA256 = '51a35ef6ec2dd1b9df5d49e26e233896fd2dc1614df0091cd37385e75859d1d5' if ARCH['arch'] == 'arm64' else 'a2e981c9a6b22235903ba05ae566a043100d46ff71c4d33bf1aef261777839f4'
+MANIFEST_SHA256 = '51a35ef6ec2dd1b9df5d49e26e233896fd2dc1614df0091cd37385e75859d1d5' if ARCH['arch'] == 'arm64' else 'a45059b2b5f65c6dcdaa8b5dcd50c5e6d89669a173a92351322947fa3a7b71e8'
 PRIOR_MANIFEST_SHA256 = '444fbb6b21b6efebae6eff422771bb1f864ea2242e54b096a3e690def00ca80d'
 
 

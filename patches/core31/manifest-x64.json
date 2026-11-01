@@ -361,6 +361,21 @@
         "path": "src/Native/Unix/CMakeLists.txt"
       },
       "purpose": "Recognize the native x86_64 target in the existing cross-build GNU objcopy selection and retain x86_64-linux-gnu-objcopy for debug-symbol operations. Preserve all other processor branches, normal native compilation, target sysroot isolation and library ABI checks."
+    },
+    {
+      "name": "0027-select-native-x64-coresetup-objcopy.patch",
+      "target": "artifacts/src/core-setup.f94bb2c3ff432dcc4a6229eca2f978197bf06150/src/settings.cmake",
+      "originalSha256": "076b537758455e02dd68ef7090c53946039ed2ca56c2cd605fca8801c3ac8fdf",
+      "patchedSha256": "458672f3eaef484bae01a3cfce407fac0e27a475d204a1e852deb35cce3d6aae",
+      "patchSha256": "6684b67318766fc80bde98d9561bf2dc3db6350cafc72642756fb6f893e9f28a",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": {
+        "name": "core-setup",
+        "commit": "f94bb2c3ff432dcc4a6229eca2f978197bf06150",
+        "path": "src/settings.cmake"
+      },
+      "purpose": "Recognize the same-host x86_64 target in the existing CoreSetup cross-build GNU objcopy selector. Preserve the explicit target sysroot, prefixed debug-symbol program, strip flags, all other processor branches and normal native build graph."
     }
   ]
 }

@@ -28,6 +28,7 @@
     "route": "Build the pinned source-build repository directly; CoreCLR, CoreFX and CoreSetup remain separate source components."
   },
   "upstreamInputs": {
+    "runtime": "3.1.32",
     "bootstrapSdk": "3.1.422",
     "bootstrapSdkRid": "linux-x64",
     "bootstrapSdkUrl": "https://builds.dotnet.microsoft.com/dotnet/Sdk/3.1.422/dotnet-sdk-3.1.422-linux-x64.tar.gz",
@@ -222,11 +223,16 @@
         "path": "patches/core31/0026-select-native-x64-corefx-objcopy.patch",
         "sha256": "b138a2fe1f5d6a4bf07d4e05baa261cc64268e41855ffceea70d570d097efe62",
         "purpose": "Recognize the native x86_64 target in the existing cross-build GNU objcopy selection and retain x86_64-linux-gnu-objcopy for debug-symbol operations. Preserve all other processor branches, normal native compilation, target sysroot isolation and library ABI checks."
+      },
+      {
+        "path": "patches/core31/0027-select-native-x64-coresetup-objcopy.patch",
+        "sha256": "6684b67318766fc80bde98d9561bf2dc3db6350cafc72642756fb6f893e9f28a",
+        "purpose": "Recognize the same-host x86_64 target in the existing CoreSetup cross-build GNU objcopy selector. Preserve the explicit target sysroot, prefixed debug-symbol program, strip flags, all other processor branches and normal native build graph."
       }
     ],
     "patchManifest": {
       "path": "patches/core31/manifest-x64.json",
-      "sha256": "35d7d35c75d2f47582360f70c20ae8de5e53b0ffaad7c362c916d861ceb42549"
+      "sha256": "0e1cd4bcc2a604f0ae271f32009165bf2bb2c0feb8b069510e1d984c0f8f3060"
     }
   },
   "construction": {

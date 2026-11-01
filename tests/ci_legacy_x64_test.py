@@ -10,6 +10,7 @@ import sys
 import tempfile
 import unittest
 import zipfile
+import xml.etree.ElementTree as ET
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -79,6 +80,66 @@ class LegacyX64Tests(unittest.TestCase):
                 if family!='net5':
                     manifest = x64['build']['patchManifest']
                     self.assertEqual(hashlib.sha256((ROOT/manifest['path']).read_bytes()).hexdigest(),manifest['sha256'])
+
+    def test_committed_profiles_pass_the_real_collector_direct_metadata_contract(self):
+        collector=module('collect-artifacts'); validate=collector['direct_source_metadata']
+        class ManifestBoundaryReached(Exception):pass
+        with tempfile.TemporaryDirectory(prefix='legacy-profile-collector-') as temporary:
+            source=Path(temporary).resolve()
+            overrides={'git_output':lambda *args:str(source),'fixed_source_path':lambda *args:source/'Version.Details.xml',
+                       'git_blob':mock.Mock(side_effect=ManifestBoundaryReached)}
+            with mock.patch.dict(validate.__globals__,overrides):
+                for version in ('5.0.214','3.1.426','3.0.103'):
+                    for arch in ('arm64','x64'):
+                        with self.subTest(version=version,arch=arch):
+                            profile=json.loads((ROOT/'profiles'/('dotnet-'+version+'-linux-'+arch+'.json')).read_text())
+                            # The real collector must accept all declared
+                            # metadata before reaching source Git/blob I/O.
+                            with self.assertRaises(ManifestBoundaryReached):validate(source,profile)
+                            invalid=[]
+                            for value in (None,'999.0.0'):
+                                bad=copy.deepcopy(profile)
+                                if value is None:bad['upstreamInputs'].pop('runtime')
+                                else:bad['upstreamInputs']['runtime']=value
+                                invalid.append((bad,'exact coordinated upstreamInputs.runtime'))
+                            bad=copy.deepcopy(profile);bad.pop('legacySource');invalid.append((bad,'componentManifest'))
+                            bad=copy.deepcopy(profile);bad['legacySource']['componentManifest']='wrong-manifest.xml';invalid.append((bad,'componentManifest'))
+                            bad=copy.deepcopy(profile);bad['legacySource']['componentCommits'].pop(collector['DIRECT_SOURCE_CONTRACTS'][version]['components'][0]);invalid.append((bad,'critical component pins'))
+                            bad=copy.deepcopy(profile);bad['legacySource']['componentCommits']['coreclr' if version.startswith('5.') else 'runtime']='0'*40;invalid.append((bad,'unified .NET 5 or split Core 3.x'))
+                            for bad,message in invalid:
+                                with self.assertRaisesRegex(collector['CollectionError'],message):validate(source,bad)
+
+    def test_real_collector_preflight_validates_pinned_manifest_before_generated_exports(self):
+        collector=module('collect-artifacts');validate=collector['direct_source_metadata']
+        for version in ('5.0.214','3.1.426','3.0.103'):
+            with self.subTest(version=version),tempfile.TemporaryDirectory(prefix='legacy-direct-preflight-') as temporary:
+                source=Path(temporary).resolve();profile=json.loads((ROOT/'profiles'/('dotnet-'+version+'-linux-x64.json')).read_text())
+                contract=collector['DIRECT_SOURCE_CONTRACTS'][version]
+                manifest=ET.Element('Project');dependencies=ET.SubElement(manifest,'Dependencies')
+                for name,commit in profile['legacySource']['componentCommits'].items():
+                    dependency=ET.SubElement(dependencies,'Dependency',Name=name)
+                    ET.SubElement(dependency,'Uri').text='https://github.com/dotnet/'+name
+                    ET.SubElement(dependency,'Sha').text=commit
+                manifest_bytes=ET.tostring(manifest)
+                path=source/'eng/Version.Details.xml';path.parent.mkdir();path.write_bytes(manifest_bytes)
+                layout={'OutputPath':'$(BaseOutputPath)$(Platform)/$(Configuration)/','ClonedSubmoduleDirectory':'$(BaseOutputPath)src/',
+                        'GitInfoOutputDir':'$(BaseOutputPath)git-info/','BaseOutputPath':'$(ProjectDir)bin/' if contract['base']=='bin' else '$(ArtifactsDir)'}
+                if contract['base']=='artifacts':layout['ArtifactsDir']='$(ProjectDir)artifacts/'
+                properties=ET.Element('Project');group=ET.SubElement(properties,'PropertyGroup')
+                for name,value in layout.items():ET.SubElement(group,name).text=value
+                layout_bytes=ET.tostring(properties)
+                def blob(root,commit,relative):
+                    self.assertEqual(commit,contract['commit'])
+                    return manifest_bytes if relative=='eng/Version.Details.xml' else layout_bytes
+                with mock.patch.dict(validate.__globals__,{'git_output':lambda *args:str(source),'git_blob':blob}):
+                    report=validate(source,profile,require_exports=False)
+                    self.assertEqual(report['declaredComponentCommits'],profile['legacySource']['componentCommits'])
+                    self.assertTrue(report['generatedComponentMetadataDeferred'])
+                    self.assertEqual(set(report['criticalComponents']),set(contract['components']))
+                    with self.assertRaises(collector['CollectionError']):validate(source,profile)
+                    bad=copy.deepcopy(profile);bad['legacySource']['componentCommits'][contract['components'][0]]='f'*40
+                    with self.assertRaisesRegex(collector['CollectionError'],'does not uniquely match'):
+                        validate(source,bad,require_exports=False)
 
     def sysroot(self, temporary):
         root = Path(temporary)/'sysroot'; reports = Path(temporary)/'reports'; reports.mkdir(); root.mkdir()

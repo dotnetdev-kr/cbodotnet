@@ -1,0 +1,11 @@
+--- a/artifacts/src/core-setup.f94bb2c3ff432dcc4a6229eca2f978197bf06150/src/settings.cmake
++++ b/artifacts/src/core-setup.f94bb2c3ff432dcc4a6229eca2f978197bf06150/src/settings.cmake
+@@ -65,7 +65,7 @@
+     else (CMAKE_SYSTEM_NAME STREQUAL Darwin)
+         # Ensure that objcopy is present
+         if(DEFINED ENV{ROOTFS_DIR})
+-            if(CMAKE_SYSTEM_PROCESSOR STREQUAL armv7l OR CMAKE_SYSTEM_PROCESSOR STREQUAL aarch64 OR CMAKE_SYSTEM_PROCESSOR STREQUAL i686)
++            if(CMAKE_SYSTEM_PROCESSOR STREQUAL armv7l OR CMAKE_SYSTEM_PROCESSOR STREQUAL aarch64 OR CMAKE_SYSTEM_PROCESSOR STREQUAL i686 OR CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
+                 find_program(OBJCOPY ${TOOLCHAIN}-objcopy)
+             else()
+                 message(FATAL_ERROR "Only AMD64, X86, ARM64 and ARM are supported")

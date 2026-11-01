@@ -26,6 +26,7 @@
     "route": "Build the source-build repository directly. Its optional source-tarball packaging follows a completed production build; it does not use the .NET 6/7 installer source-generation target."
   },
   "upstreamInputs": {
+    "runtime": "5.0.17",
     "sourceBuiltArtifactsUrl": "https://builds.dotnet.microsoft.com/source-built-artifacts/assets/Private.SourceBuilt.Artifacts.0.1.0-5.0.213-1682896-20220325.6.tar.gz",
     "sourceBuiltArtifactsBytes": 2542770679,
     "bootstrapArcade": "5.0.0-beta.20426.4",

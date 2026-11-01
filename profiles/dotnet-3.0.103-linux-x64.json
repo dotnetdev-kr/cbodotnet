@@ -33,6 +33,7 @@
     "sourceAcquisitionStatus": "The guarded direct-Git adapter completed 28 unique source exports from 29 pinned declarations, preserving full-history bare stores and recursive submodules. Future build attempts revalidate the retained receipts; product build execution remains separate."
   },
   "upstreamInputs": {
+    "runtime": "3.0.3",
     "sourceBuiltArtifactsUrl": "https://dotnetcli.blob.core.windows.net/source-built-artifacts/assets/Private.SourceBuilt.Artifacts.0.1.0-3.0.100.tar.gz",
     "sourceBuiltArtifactsBytes": 469688508,
     "sourceBuiltArtifactsSha256": "e8542ab2d6c4383b8c2aee8cdb86cd1952a542f8633df57082054bf48588a09b",
@@ -376,11 +377,16 @@
         "path": "patches/core30/0052-select-native-x64-corefx-objcopy.patch",
         "sha256": "43efd549019195b0bd5e2aaea018f0259fee2087768b80077e02b905de7a2472",
         "purpose": "Recognize the native x86_64 target in the existing cross-build GNU objcopy selection and retain x86_64-linux-gnu-objcopy for debug-symbol operations. Preserve all other processor branches, normal native compilation, target sysroot isolation and library ABI checks."
+      },
+      {
+        "path": "patches/core30/0053-select-native-x64-coresetup-objcopy.patch",
+        "sha256": "4bec0598e5786de8311f7e6d8f9344fc1bd69e0cec3d46f9c60301255158ed42",
+        "purpose": "Recognize the same-host x86_64 target in the existing CoreSetup cross-build GNU objcopy selector. Preserve the explicit target sysroot, prefixed debug-symbol program, strip flags, all other processor branches and normal native build graph."
       }
     ],
     "patchManifest": {
       "path": "patches/core30/manifest-x64.json",
-      "sha256": "a2e981c9a6b22235903ba05ae566a043100d46ff71c4d33bf1aef261777839f4"
+      "sha256": "a45059b2b5f65c6dcdaa8b5dcd50c5e6d89669a173a92351322947fa3a7b71e8"
     },
     "retainedCoreClrPlatforms": {
       "originalVersion": "3.0.0-rc2.19461.13",

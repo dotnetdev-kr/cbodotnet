@@ -189,7 +189,7 @@ def fixed_source_path(root, relative, directory=False):
     return path
 
 
-def direct_source_metadata(source, profile):
+def direct_source_metadata(source, profile, require_exports=True):
     version = profile["sdkVersion"]
     contract = DIRECT_SOURCE_CONTRACTS[version]
     commit = contract["commit"]
@@ -254,11 +254,16 @@ def direct_source_metadata(source, profile):
             continue
         repository = matches[0]
         export_relative = contract["base"] + "/src/" + repository["basename"] + "." + value
+        metadata_relative = contract["base"] + "/git-info/" + name + ".props"
+        if not require_exports:
+            critical[name] = {"repository": repository["repository"], "commit": value,
+                              "exportRoot": export_relative, "gitInfo": metadata_relative,
+                              "generatedMetadataVerification": "deferred-to-normal-collection"}
+            continue
         export = fixed_source_path(source, export_relative, directory=True)
         head = fixed_source_path(export, ".git/HEAD")
         if head.read_text().strip() != value:
             raise CollectionError("A direct critical component export has another commit marker: " + name)
-        metadata_relative = contract["base"] + "/git-info/" + name + ".props"
         metadata = fixed_source_path(source, metadata_relative)
         values = [element.text or "" for element in ET.parse(metadata).getroot().iter()
                   if element.tag.rsplit("}", 1)[-1] == "GitCommitHash"]
@@ -266,11 +271,15 @@ def direct_source_metadata(source, profile):
             raise CollectionError("Generated direct component revision metadata differs: " + name)
         critical[name] = {"repository": repository["repository"], "commit": value,
                           "exportRoot": export_relative, "gitInfo": file_record(metadata, source)}
-    return {"root": str(source), "sourceCommit": commit, "manifest": file_record(manifest, source),
+    result = {"root": str(source), "sourceCommit": commit, "manifest": file_record(manifest, source),
             "committedLayout": {"path": contract["properties"], "sha256": hashlib.sha256(properties_bytes).hexdigest(),
                                 "artifactBase": contract["base"]},
             "declaredComponentCommits": validated_pins, "criticalComponents": critical,
             "scope": "Pinned direct root, unchanged dependency manifest, committed output layout and critical export/revision metadata. These checks do not attest successful local framework construction or an unchanged current component tree."}
+    if not require_exports:
+        result["generatedComponentMetadataDeferred"] = True
+        result["scope"] = "Early reuse of the normal collector's exact runtime, dependency-pin and committed-layout contract. Generated critical exports/revision metadata remain mandatory during normal collection; no product build or SDK qualification is claimed."
+    return result
 
 
 def direct_archive_identity(archive, version, rid):
