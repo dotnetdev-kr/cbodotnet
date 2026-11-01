@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run the pinned .NET 10 profile on a fresh native ARM64 Linux CI worker.
+# Run the pinned .NET 10 profile on a fresh matching native Linux CI worker.
 set -euo pipefail
 export PYTHONDONTWRITEBYTECODE=1
 
@@ -7,9 +7,9 @@ usage() {
   cat <<'HELP'
 Usage: ci-net10.sh prepare|build|scan|test|verify|collect
                     --workspace ABS --output-dir ABS
-                    --build-id YYYYMMDD.N --build-revision POSITIVEINT
+                    --build-id YYYYMMDD.N --build-revision POSITIVEINT [--arch arm64|x64]
 
-Requires a nonroot native ARM64 Linux account with passwordless sudo access to
+Requires a nonroot matching native Linux account with passwordless sudo access to
 rootful Podman. Workspaces and delivery directories must be fresh for prepare.
 No SDK, source cache, prior report or existing delivery is deleted or replaced.
 The six stages run in order. Final collection writes its receipt outside reports.
@@ -19,23 +19,30 @@ die() { printf 'error: %s\n' "$*" >&2; exit 2; }
 [[ ${1:-} != --help && ${1:-} != -h ]] || { usage; exit 0; }
 stage=${1:-}; [[ $# == 0 ]] || shift
 case "$stage" in prepare|build|scan|test|verify|collect) ;; *) usage >&2; exit 2 ;; esac
-workspace='' output='' build_id='' revision=''
+workspace='' output='' build_id='' revision='' arch=arm64
 while (($#)); do
   case "$1" in
-    --workspace|--output-dir|--build-id|--build-revision)
+    --workspace|--output-dir|--build-id|--build-revision|--arch)
       (($# >= 2)) || die "Missing value: $1"
-      case "$1" in --workspace) workspace=$2 ;; --output-dir) output=$2 ;; --build-id) build_id=$2 ;; --build-revision) revision=$2 ;; esac
+      case "$1" in --workspace) workspace=$2 ;; --output-dir) output=$2 ;; --build-id) build_id=$2 ;; --build-revision) revision=$2 ;; --arch) arch=$2 ;; esac
       shift 2 ;;
     *) die "Unknown argument: $1" ;;
   esac
 done
+case "$arch" in
+  arm64) native_arch=aarch64; image_arch=arm64; base=mcr.microsoft.com/dotnet-buildtools/prereqs@sha256:7ef8f6ee1b9982511349757443eb4844f0db4f8cef1aff6148a7ba1c25d7c6f4 ;;
+  x64) native_arch=x86_64; image_arch=amd64; base=mcr.microsoft.com/dotnet-buildtools/prereqs@sha256:3c6f20064af0ba7844c51b17f6fe06fd499fb27af0aba281254bd573af830d73 ;;
+  *) die 'Unsupported native architecture.' ;;
+esac
+rid=linux-$arch
+sysroot_name=$arch-bionic
 [[ $build_id =~ ^[0-9]{8}\.[1-9][0-9]*$ ]] || die 'A build ID in YYYYMMDD.N form is required.'
 [[ $revision =~ ^[1-9][0-9]*$ ]] || die 'A positive build revision is required.'
 for value in "$workspace" "$output"; do
   [[ $value == /* && $value != / && $value != *:* && $value != *$'\n'* && $value != *$'\r'* ]] || die 'Use non-root absolute paths without volume delimiters.'
 done
 for tool in python3 git realpath uname id sudo podman taskset sha256sum; do command -v "$tool" >/dev/null || die "Missing host tool: $tool"; done
-[[ $(uname -s) == Linux && $(uname -m) == aarch64 ]] || die 'A native Linux ARM64 host is required; emulation is not accepted.'
+[[ $(uname -s) == Linux && $(uname -m) == "$native_arch" ]] || die 'A matching native Linux host is required; emulation is not accepted.'
 uid=$(id -u); gid=$(id -g)
 [[ $uid != 0 ]] || die 'Run the driver as the nonroot checkout owner.'
 project=$(realpath -e "$(dirname "${BASH_SOURCE[0]}")/..")
@@ -144,17 +151,17 @@ finish() {
   local code=$?
   trap - EXIT
   set +e
-  python3 - "$receipt" "$facts" "$commands" "$stage" "$code" "$started" "$source_commit" "$project_commit" "$build_id" "$revision" "$run_id" "$run_attempt" "$image_id" "$workspace" "$output" "$cpus" <<'PY'
+  python3 - "$receipt" "$facts" "$commands" "$stage" "$code" "$started" "$source_commit" "$project_commit" "$build_id" "$revision" "$run_id" "$run_attempt" "$image_id" "$workspace" "$output" "$cpus" "$native_arch" <<'PY'
 import datetime, hashlib, json, pathlib, sys
 (target, facts, commands, stage, code, started, source, project, build, revision,
- run_id, attempt, image, workspace, output, cpus) = sys.argv[1:]
+ run_id, attempt, image, workspace, output, cpus, native) = sys.argv[1:]
 record = json.loads(pathlib.Path(facts).read_text())
 record.update({'schemaVersion': 1, 'stage': stage, 'status': 'passed' if code == '0' else 'failed',
                'exitCode': int(code), 'sourceCommit': source, 'projectCommit': project,
                'buildId': build, 'buildRevision': revision, 'runId': run_id, 'runAttempt': attempt,
                'imageId': image or None, 'startedAtUtc': started,
                'finishedAtUtc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
-               'environment': {'nativeArchitecture': 'aarch64', 'uid': __import__('os').getuid(),
+               'environment': {'nativeArchitecture': native, 'uid': __import__('os').getuid(),
                                'gid': __import__('os').getgid(), 'allowedCpuSelection': cpus,
                                'workspace': workspace, 'delivery': output},
                'commands': [json.loads(line) for line in pathlib.Path(commands).read_text().splitlines()]
@@ -179,10 +186,12 @@ PY
 trap finish EXIT
 
 if [[ $stage != prepare ]]; then
-  python3 - "$state" "$project_commit" "$build_id" "$revision" "$workspace" "$output" "$run_id" "$run_attempt" "$reports" "$stage" <<'PY'
+  python3 - "$state" "$project_commit" "$build_id" "$revision" "$workspace" "$output" "$run_id" "$run_attempt" "$reports" "$stage" "$arch" <<'PY'
 import hashlib, json, pathlib, sys
-state, project, build, revision, workspace, output, run_id, attempt, reports, stage = sys.argv[1:]
+state, project, build, revision, workspace, output, run_id, attempt, reports, stage, arch = sys.argv[1:]
 s = json.loads(pathlib.Path(state).read_text())
+if arch == 'x64' and s.get('targetArchitecture') != arch:
+    raise SystemExit('CI workspace belongs to another architecture')
 for key, value in [('projectCommit', project), ('buildId', build), ('buildRevision', revision),
                    ('workspace', workspace), ('output', output), ('runId', run_id), ('runAttempt', attempt)]:
     if s.get(key) != value: raise SystemExit('CI run identity changed: ' + key)
@@ -222,11 +231,11 @@ container() {
 inspect_image() {
   local reference=$1 destination=$2
   "${engine[@]}" image inspect "$reference" > "$destination"
-  python3 - "$destination" <<'PY'
+  python3 - "$destination" "$image_arch" <<'PY'
 import json, re, sys
 rows = json.load(open(sys.argv[1]))
-if len(rows) != 1 or rows[0]['Architecture'] != 'arm64' or rows[0]['Os'] != 'linux':
-    raise SystemExit('A native linux/arm64 image is required')
+if len(rows) != 1 or rows[0]['Architecture'] != sys.argv[2] or rows[0]['Os'] != 'linux':
+    raise SystemExit('A matching native Linux image is required')
 value = rows[0]['Id']
 if not re.fullmatch(r'(sha256:)?[a-f0-9]{64}', value): raise SystemExit('Invalid immutable image ID')
 print(value)
@@ -234,9 +243,9 @@ PY
 }
 validate_sysroot() {
   git -C "$source_dir" diff --no-ext-diff --quiet HEAD -- eng/common/cross/build-rootfs.sh eng/common/cross/install-debs.py || die 'The signed sysroot producer changed.'
-  container readonly none python3 - /delivery/reports/prepare <<'PY'
+  container readonly none python3 - /delivery/reports/prepare "$arch" <<'PY'
 import hashlib, json, os, pathlib, re, subprocess, sys
-r = pathlib.Path(sys.argv[1]); root = pathlib.Path('/inputs/arm64-bionic')
+r = pathlib.Path(sys.argv[1]); root = pathlib.Path('/inputs/' + sys.argv[2] + '-bionic')
 expected = {}
 for line in (r / 'sysroot-files.sha256').read_text().splitlines():
     m = re.fullmatch(r'([a-f0-9]{64})  (.+)', line)
@@ -303,40 +312,43 @@ prepare)
   [[ $(git -C "$source_dir" rev-parse HEAD) == "$source_commit" ]] || die 'The fetched VMR tag has an unexpected commit.'
   run python3 "$project/scripts/ci-net10-evidence.py" freeze --project-root "$project" --source-dir "$source_dir" \
     --release-dir "$output" --build-id "$build_id" --build-revision "$revision" --run-id "$run_id" \
-    --run-attempt "$run_attempt" --project-commit "$project_commit" --workflow-ref "$workflow_ref"
-  python3 - "$snapshot" "$profile" <<'PY'
+    --run-attempt "$run_attempt" --project-commit "$project_commit" --workflow-ref "$workflow_ref" --arch "$arch"
+  python3 - "$snapshot" "$profile" "$arch" "$base" <<'PY'
 import json, pathlib, sys
 root = pathlib.Path(sys.argv[1]); p = json.loads(pathlib.Path(sys.argv[2]).read_text())
-expected = 'mcr.microsoft.com/dotnet-buildtools/prereqs@sha256:7ef8f6ee1b9982511349757443eb4844f0db4f8cef1aff6148a7ba1c25d7c6f4'
+arch, expected = sys.argv[3:]
 if (p['sdkVersion'] != '10.0.403' or p['source']['commit'] != '5a2162bea6845eabc1fc721624a43568c65db3b1'
-        or p['target']['rid'] != 'linux-arm64' or p['build']['sourceOnly'] is not False):
-    raise SystemExit('Only the selected .NET 10 ordinary ARM64 profile is supported')
-line = next(x.strip() for x in (root / 'containers/arm64-net10.Containerfile').read_text().splitlines() if x.startswith('FROM '))
+        or p['target']['rid'] != 'linux-' + arch or p['host']['architecture'] != arch
+        or p['build']['sourceOnly'] is not False):
+    raise SystemExit('Only the selected .NET 10 ordinary native profile is supported')
+line = next(x.strip() for x in (root / ('containers/' + arch + '-net10.Containerfile')).read_text().splitlines() if x.startswith('FROM '))
 if line != 'FROM ' + expected or p['container']['repository'] + '@' + p['container']['digest'] != expected:
     raise SystemExit('The profile and immutable product base differ')
 PY
   mkdir -p "$reports/prepare"
   run python3 "$snapshot/scripts/ci-net10-shared-source.py" prepare --profile "$profile" \
-    --destination "$shared_source_dir" --report "$reports/prepare/shared-source-checkout.json"
-  base=mcr.microsoft.com/dotnet-buildtools/prereqs@sha256:7ef8f6ee1b9982511349757443eb4844f0db4f8cef1aff6148a7ba1c25d7c6f4
+    --destination "$shared_source_dir" --report "$reports/prepare/shared-source-checkout.json" --arch "$arch"
   run "${engine[@]}" pull "$base"
   inspect_image "$base" "$reports/prepare/base-image.json" >/dev/null
-  run "${engine[@]}" build --network=host --file "$snapshot/containers/arm64-net10.Containerfile" \
-    --tag "localhost/cbodotnet-net10-ci:$run_id-$run_attempt" "$snapshot"
-  image_id=$(inspect_image "localhost/cbodotnet-net10-ci:$run_id-$run_attempt" "$reports/prepare/build-image.json")
+  image_prefix=localhost/cbodotnet-net10
+  [[ $arch == arm64 ]] || image_prefix+=-$arch
+  run "${engine[@]}" build --network=host --file "$snapshot/containers/$arch-net10.Containerfile" \
+    --tag "$image_prefix-ci:$run_id-$run_attempt" "$snapshot"
+  image_id=$(inspect_image "$image_prefix-ci:$run_id-$run_attempt" "$reports/prepare/build-image.json")
   container write host python3 /delivery/reports/ci-inputs/project/scripts/fetch-pinned-inputs.py \
     --profile /delivery/reports/ci-inputs/effective-profile.json --inputs-dir /inputs --reports-dir /delivery/reports/prepare
-  container write host bash /delivery/reports/ci-inputs/project/scripts/prepare-sysroot.sh /vmr /inputs /delivery/reports/prepare
+  container write host bash /delivery/reports/ci-inputs/project/scripts/prepare-sysroot.sh /vmr /inputs /delivery/reports/prepare --arch "$arch"
   validate_sysroot
   container readonly none bash /delivery/reports/ci-inputs/project/scripts/inventory-environment.sh \
-    --workspace /vmr --output /delivery/reports/prepare/build-environment.json
-  python3 - "$state" "$project_commit" "$build_id" "$revision" "$run_id" "$run_attempt" "$workspace" "$output" "$image_id" "$reports/ci-inputs/snapshot.json" <<'PY'
+    --workspace /vmr --output /delivery/reports/prepare/build-environment.json --arch "$arch"
+  python3 - "$state" "$project_commit" "$build_id" "$revision" "$run_id" "$run_attempt" "$workspace" "$output" "$image_id" "$reports/ci-inputs/snapshot.json" "$arch" <<'PY'
 import hashlib, json, pathlib, sys
-path, project, build, revision, run_id, attempt, workspace, output, image, snapshot = sys.argv[1:]
+path, project, build, revision, run_id, attempt, workspace, output, image, snapshot, arch = sys.argv[1:]
 with open(path, 'x') as out:
     json.dump({'projectCommit': project, 'buildId': build, 'buildRevision': revision,
                'runId': run_id, 'runAttempt': attempt, 'workspace': workspace, 'output': output,
-               'imageId': image, 'snapshotSha256': hashlib.sha256(pathlib.Path(snapshot).read_bytes()).hexdigest()}, out, indent=2)
+               'imageId': image, 'snapshotSha256': hashlib.sha256(pathlib.Path(snapshot).read_bytes()).hexdigest(),
+               **({'targetArchitecture': arch} if arch == 'x64' else {})}, out, indent=2)
 PY
   path_fact sysrootValidation reports/prepare/sysroot-validation.json
   path_fact buildImage reports/prepare/build-image.json
@@ -353,8 +365,8 @@ build|test)
       apply --version 10 --source-dir /vmr --reports-dir /delivery/reports/test/scenario-report-fence
     path_fact scenarioReportFence reports/test/scenario-report-fence/scenario-report-fence.json
   fi
-  args=(bash /delivery/reports/ci-inputs/project/scripts/build-vmr.sh --source-dir /vmr --sysroot /inputs/arm64-bionic \
-    --reports-dir "/delivery/reports/$stage" --action "$stage" --build-id "$build_id")
+  args=(bash /delivery/reports/ci-inputs/project/scripts/build-vmr.sh --source-dir /vmr --sysroot "/inputs/$sysroot_name" \
+    --reports-dir "/delivery/reports/$stage" --action "$stage" --build-id "$build_id" --arch "$arch")
   [[ $stage != test ]] || args+=(--binaries-report /delivery/reports/scan/NewBinaries.txt)
   container write host "${args[@]}"
   path_fact "${stage}Status" "reports/$stage/$stage-status.json"
@@ -378,7 +390,7 @@ PY
     path_fact scenarioXml reports/test/upstream-results/scenarios.xml
     run python3 "$snapshot/scripts/ci-net10-shared-source.py" bind --profile "$profile" --source-dir "$source_dir" \
       --shared-source-dir "$shared_source_dir" --prepare-report "$reports/prepare/shared-source-checkout.json" \
-      --roots-output "$reports/ci/source-roots.json" --report "$reports/ci/shared-input-source.json"
+      --roots-output "$reports/ci/source-roots.json" --report "$reports/ci/shared-input-source.json" --arch "$arch"
     path_fact sharedInputSource reports/ci/shared-input-source.json
   fi
   ;;
@@ -446,16 +458,18 @@ if not isinstance(references, list) or references.count(selected) != 1:
 print(selected)
 PY
 )
-    tag=localhost/cbodotnet-net10-verify-$name:$run_id-$run_attempt
+    tag=localhost/cbodotnet-net10
+    [[ $arch == arm64 ]] || tag+=-$arch
+    tag+=-verify-$name:$run_id-$run_attempt
     run "${engine[@]}" build --network=host --file "$snapshot/containers/verify-net10.Containerfile" \
       --build-arg "BASE_IMAGE=$pinned" --build-arg "ICU_PACKAGE=$icu" --build-arg "SSL_PACKAGE=$ssl" --tag "$tag" "$snapshot"
     verify_id=$(inspect_image "$tag" "$reports/ci/$name-verification-image.json")
     run "${engine[@]}" run --rm --interactive --network=none --user "$uid:$gid" --env LANG=C.UTF-8 --env LC_ALL=C.UTF-8 \
       --env DOTNET_CLI_TELEMETRY_OPTOUT=1 --env DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 --env DOTNET_GENERATE_ASPNET_CERTIFICATE=false \
       --volume "$candidate:/artifacts:ro" --volume "$output:/delivery" --workdir /tmp "$verify_id" \
-      taskset --cpu-list "$cpus" bash -s -- "$verify_id" "$name" "$icu" "$ssl" "$revision" <<'VERIFY'
+      taskset --cpu-list "$cpus" bash -s -- "$verify_id" "$name" "$icu" "$ssl" "$revision" "$arch" <<'VERIFY'
 set -euo pipefail
-python3 - "$1" "$2" "$3" "$4" <<'PY'
+python3 - "$1" "$2" "$3" "$4" "$6" <<'PY'
 import json, os, pathlib, platform, subprocess, sys
 os_release = {}
 for line in pathlib.Path('/etc/os-release').read_text().splitlines():
@@ -463,29 +477,30 @@ for line in pathlib.Path('/etc/os-release').read_text().splitlines():
         key, value = line.split('=', 1); os_release[key] = value.strip('"')
 packages = [sys.argv[3], sys.argv[4], 'libc6', 'libstdc++6', 'zlib1g', 'libgssapi-krb5-2']
 versions = subprocess.check_output(['dpkg-query', '-W', '-f=${binary:Package}\t${Version}\n', *packages], text=True)
+overrides = ['LD_LIBRARY_PATH', 'DOTNET_ROOT', 'DOTNET_SYSTEM_GLOBALIZATION_INVARIANT',
+             'CLR_ICU_VERSION_OVERRIDE', 'DOTNET_EnableDiagnostics', 'COMPlus_EnableDiagnostics']
+if sys.argv[5] == 'x64': overrides.append('DOTNET_ROOT_X64')
 record = {'imageId': sys.argv[1], 'architecture': platform.machine(),
           'osRelease': {'ID': os_release['ID'], 'VERSION_ID': os_release['VERSION_ID']},
           'installedPackages': dict(line.split('\t', 1) for line in versions.splitlines()),
-          'environmentOverrides': {key: os.environ.get(key) for key in ['LD_LIBRARY_PATH', 'DOTNET_ROOT',
-              'DOTNET_SYSTEM_GLOBALIZATION_INVARIANT', 'CLR_ICU_VERSION_OVERRIDE', 'DOTNET_EnableDiagnostics',
-              'COMPlus_EnableDiagnostics']}, 'uid': os.getuid(), 'gid': os.getgid()}
+          'environmentOverrides': {key: os.environ.get(key) for key in overrides}, 'uid': os.getuid(), 'gid': os.getgid()}
 with pathlib.Path('/delivery/reports/ci/' + sys.argv[2] + '-userland.json').open('x') as out:
     json.dump(record, out, indent=2); out.write('\n')
 PY
 exec bash /delivery/reports/ci-inputs/project/scripts/verify-sdk.sh \
-  --archive "/artifacts/cbodotnet-sdk-10.0.403-linux-arm64-build.$5.tar.gz" \
-  --output-dir "/delivery/reports/verify-$2" --expected-version 10.0.403 --expected-rid linux-arm64 --framework net10.0 --max-glibc 2.27
+  --archive "/artifacts/cbodotnet-sdk-10.0.403-linux-$6-build.$5.tar.gz" \
+  --output-dir "/delivery/reports/verify-$2" --expected-version 10.0.403 --expected-rid "linux-$6" --framework net10.0 --max-glibc 2.27 --arch "$6"
 VERIFY
     path_fact "$name" "reports/verify-$name/verification.json"
   done
-  python3 - "$output" <<'PY'
+  python3 - "$output" "$arch" <<'PY'
 import json, pathlib, sys
 r = pathlib.Path(sys.argv[1]); expected = json.loads((r / 'reports/ci/candidate-build-manifest.json').read_text())['sdkArchive']['sha256']
 checks = {'consoleDllExecution', 'consoleApphostExecution', 'rsaSha256SignAndVerify', 'cryptographicRandomBytes', 'frFrDecimalFormatting', 'aspNetCoreLoopbackHttp'}
 for name in ['ubuntu22', 'ubuntu24', 'debian13']:
     v = json.loads((r / 'reports' / ('verify-' + name) / 'verification.json').read_text())
     if (v['verificationStatus'] != 'passed' or set(v['functionalChecks']) != checks or set(v['functionalChecks'].values()) != {'passed'}
-            or v['archive']['sha256'] != expected or not v['archive']['sdkContentMatched'] or v['reportedRid'] != 'linux-arm64'):
+            or v['archive']['sha256'] != expected or not v['archive']['sdkContentMatched'] or v['reportedRid'] != 'linux-' + sys.argv[2]):
         raise SystemExit('A required independent native verification did not pass')
 PY
   path_fact candidateManifest reports/ci/candidate-build-manifest.json

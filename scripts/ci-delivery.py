@@ -23,6 +23,7 @@ def main():
     parser.add_argument('--download-dir', type=Path, required=True)
     parser.add_argument('--destination', type=Path, required=True)
     parser.add_argument('--target', required=True)
+    parser.add_argument('--arch', choices=('arm64', 'x64'), default='arm64')
     parser.add_argument('--sdk-version', required=True)
     parser.add_argument('--expected-project-commit', required=True)
     parser.add_argument('--expected-run-id', required=True)
@@ -32,7 +33,8 @@ def main():
             and re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', args.sdk_version), 'Invalid pinned target')
     require(re.fullmatch('[a-f0-9]{40}', args.expected_project_commit)
             and all(re.fullmatch('[1-9][0-9]*', value) for value in (args.expected_run_id, args.expected_run_attempt)), 'Invalid run identity')
-    name = 'cbodotnet-{}-linux-arm64-{}-{}.tar.gz'.format(args.target, args.expected_run_id, args.expected_run_attempt)
+    rid = 'linux-' + args.arch
+    name = 'cbodotnet-{}-{}-{}-{}.tar.gz'.format(args.target, rid, args.expected_run_id, args.expected_run_attempt)
     download = args.download_dir.absolute(); destination = args.destination.absolute()
     require(download.is_dir() and not any(p.is_symlink() for p in [download, destination, *download.parents, *destination.parents]),
             'Ordinary download/destination paths are required')
@@ -47,7 +49,7 @@ def main():
             for block in iter(lambda: stream.read(1024 * 1024), b''):
                 digest.update(block)
         require(expected and expected[1] == digest.hexdigest(), 'Transport checksum mismatch')
-    root_name = args.sdk_version + '-linux-arm64'
+    root_name = args.sdk_version + '-' + rid
     with tarfile.open(download / name, 'r:gz') as archive:
         entries = archive.getmembers(); seen = set(); total = 0
         for entry in entries:
@@ -72,10 +74,13 @@ def main():
                     shutil.copyfileobj(incoming, output)
             os.chmod(path, entry.mode & 0o777)
     release = destination / root_name
-    subprocess.run([sys.executable, str(Path(__file__).parent / 'ci-sdk.py'), 'verify-release',
+    command = [sys.executable, str(Path(__file__).parent / 'ci-sdk.py'), 'verify-release',
                     '--target', args.target, '--release-dir', str(release),
                     '--expected-project-commit', args.expected_project_commit,
-                    '--expected-run-id', args.expected_run_id, '--expected-run-attempt', args.expected_run_attempt], check=True)
+                    '--expected-run-id', args.expected_run_id, '--expected-run-attempt', args.expected_run_attempt]
+    if args.arch != 'arm64':
+        command += ['--arch', args.arch]
+    subprocess.run(command, check=True)
     print(json.dumps({'status': 'passed', 'releaseDirectory': str(release), 'draftCreated': False}))
 
 

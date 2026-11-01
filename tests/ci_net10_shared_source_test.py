@@ -56,6 +56,15 @@ class ReusedFrameworkSourceTests(unittest.TestCase):
         profile=copy.deepcopy(self.profile); profile['build']['sourceOnly']=True
         with self.assertRaises(ValueError): S.selected(profile)
 
+    def test_x64_sources_require_the_explicit_x64_profile_and_same_shared_markers(self):
+        profile=json.loads((ROOT/'profiles/dotnet-10.0.403-linux-x64.json').read_text())
+        self.assertEqual(S.selected(profile,'x64'),S.SHARED)
+        self.assertEqual(S.archive_markers(self.archive(),profile,'x64'),S.archive_markers(self.archive(),self.profile))
+        with self.assertRaises(ValueError): S.selected(profile)
+        with self.assertRaises(ValueError): S.selected(self.profile,'x64')
+        profile['host']['architecture']='arm64'
+        with self.assertRaises(ValueError): S.selected(profile,'x64')
+
     def git(self,path,*args):
         return subprocess.check_output(['git','-C',str(path),*args],stderr=subprocess.PIPE).decode().strip()
 

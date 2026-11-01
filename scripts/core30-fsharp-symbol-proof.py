@@ -9,6 +9,10 @@ import subprocess
 import xml.etree.ElementTree as ET
 import zipfile
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 ROOT = '40de72d1087a1d05dfd39c87f888a0611ec6c60f'
 FSHARP = '0422ff293bb2cc722fe5021b85ef50378a9af823'
 ARCADE = 'ce459ae07c3d7a1e68251268855e0bc7b3d97f75'
@@ -105,7 +109,7 @@ def publisher_contract(data):
 def prove(source, package):
     """Return this exact local symbol-copy chain, or reject without modifying it."""
     ordinary(source, directory=True)
-    expected = source / 'bin/obj/arm64/Release/blob-feed/packages' / NAME
+    expected = source / ('bin/obj/' + ARCH['arch'] + '/Release/blob-feed/packages') / NAME
     if package != expected:
         raise ValueError('Only the exact selected FSharp compiler symbol feed package is supported')
     ordinary(package)
@@ -129,7 +133,7 @@ def prove(source, package):
     contract = publisher_contract(publisher.read_bytes())
     producer = ordinary(fsharp / 'artifacts/tmp/Release/SymbolPackages' / NAME)
     shipping = ordinary(fsharp / 'artifacts/packages/Release/Shipping' / REGULAR_NAME)
-    asset = ordinary(source / 'bin/obj/arm64/Release/blob-feed/assets' / NAME)
+    asset = ordinary(source / ('bin/obj/' + ARCH['arch'] + '/Release/blob-feed/assets') / NAME)
     paths = {'shippingOriginal': shipping, 'generatedSymbolCopy': producer,
              'publishedAsset': asset, 'publishedFeedPackage': package}
     rows = {name: dict({'path': str(path)}, **fingerprint(path)) for name, path in paths.items()}
@@ -184,6 +188,7 @@ def prove(source, package):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument('--source-dir', required=True, type=Path)
     parser.add_argument('--package', required=True, type=Path)
     args = parser.parse_args()

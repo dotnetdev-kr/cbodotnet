@@ -14,6 +14,10 @@ import tempfile
 import xml.etree.ElementTree as ET
 import zipfile
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 ARCADE = 'ce459ae07c3d7a1e68251268855e0bc7b3d97f75'
 ROOT = '40de72d1087a1d05dfd39c87f888a0611ec6c60f'
 VERSION = '1.0.0-beta.19463.3'
@@ -29,6 +33,7 @@ def check_configuration(value):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument('--source-dir', type=Path, required=True)
     parser.add_argument('--reference-root', type=Path, required=True)
     parser.add_argument('--reports-dir', type=Path, required=True)
@@ -37,7 +42,7 @@ def main():
     helper = runpy.run_path(str(Path(__file__).resolve().with_name('prepare-core30-bootstrap.py')))
     directory, ordinary, fingerprint = helper['directory'], helper['ordinary_file'], helper['fingerprint']
     source, refs, reports = directory(args.source_dir), directory(args.reference_root), directory(args.reports_dir)
-    if platform.system() != 'Linux' or platform.machine().lower() not in ('aarch64', 'arm64'):
+    if platform.system() != 'Linux' or platform.machine().lower() not in (ARCH['uname'], ARCH['arch']):
         raise ValueError('Native Linux ARM64 execution is required')
     if helper['git'](source, 'rev-parse', 'HEAD').decode().strip() != ROOT:
         raise ValueError('The pinned source root differs')
@@ -56,7 +61,7 @@ def main():
     dotnet = ordinary(source / '.dotnet/dotnet')
     with dotnet.open('rb') as stream:
         header = stream.read(20)
-    if header[:6] != b'\x7fELF\x02\x01' or int.from_bytes(header[18:20], 'little') != 183:
+    if header[:6] != b'\x7fELF\x02\x01' or int.from_bytes(header[18:20], 'little') != ARCH['machine']:
         raise ValueError('The actual bootstrap host is not ELF64 AArch64')
     output = reports / 'genapi-validation.json'
     if output.exists() or output.is_symlink() or source == reports or source in reports.parents:

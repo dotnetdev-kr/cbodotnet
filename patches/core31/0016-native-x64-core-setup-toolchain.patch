@@ -1,0 +1,27 @@
+--- a/artifacts/src/core-setup.f94bb2c3ff432dcc4a6229eca2f978197bf06150/cross/toolchain.cmake
++++ b/artifacts/src/core-setup.f94bb2c3ff432dcc4a6229eca2f978197bf06150/cross/toolchain.cmake
+@@ -24,11 +24,14 @@
+   else()
+     set(TOOLCHAIN "aarch64-linux-gnu")
+   endif()
++elseif(TARGET_ARCH_NAME STREQUAL "x64")
++  set(CMAKE_SYSTEM_PROCESSOR x86_64)
++  set(TOOLCHAIN "x86_64-linux-gnu")
+ elseif(TARGET_ARCH_NAME STREQUAL "x86")
+   set(CMAKE_SYSTEM_PROCESSOR i686)
+   set(TOOLCHAIN "i686-linux-gnu")
+ else()
+-  message(FATAL_ERROR "Arch is ${TARGET_ARCH_NAME}. Only armel, arm, arm64 and x86 are supported!")
++  message(FATAL_ERROR "Arch is ${TARGET_ARCH_NAME}. Only armel, arm, arm64, x86 and x64 are supported!")
+ endif()
+ 
+ # Specify include paths
+@@ -82,7 +85,7 @@
+ add_compile_options("--target=${TOOLCHAIN}")
+ add_compile_options("--gcc-toolchain=${CROSS_ROOTFS}/usr")
+ 
+-if(TARGET_ARCH_NAME MATCHES "^(arm|armel|arm64)$")
++if(TARGET_ARCH_NAME MATCHES "^(arm|armel|arm64|x64)$")
+   set(CMAKE_C_COMPILER_TARGET ${TOOLCHAIN})
+   set(CMAKE_CXX_COMPILER_TARGET ${TOOLCHAIN})
+   set(CMAKE_ASM_COMPILER_TARGET ${TOOLCHAIN})

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Apply or verify the fixed .NET 6 ARM64 source-build compatibility patches.
+"""Apply or verify the selected fixed .NET 6 source-build compatibility patches.
 
 The generated source root need not be a Git repository. Its component Git
 identities and git-info files, the separate installer checkout, all target
-hashes, and every patch are verified before changing any of the three files.
+hashes, and every patch are verified before changing any selected source file.
 Ordered patches for the same file are staged together before any source write.
 Pristine, previously patched and final exact file states are accepted.
 Unrelated source changes are preserved. Optional reports must be new and
@@ -73,6 +73,31 @@ PATCHES = [
     }
 ]
 
+
+X64_PATCHES = [
+    {
+        "target": "src/runtime/eng/common/cross/toolchain.cmake",
+        "name": "0005-support-linux-x64-cross-toolchain.patch",
+        "originalSha256": "b13774062404d7358847eda62c6af7a01ac7b58f9f2674d2745855bd4c90b196",
+        "patchedSha256": "d0dccdbaef6319b5902d5320f6014f413a85a399ab15187d85ea2a1572585e82",
+        "patchSha256": "7b8ad38e53973d7fbff2660274110b32bc0aaf8212a2faba9e9c589408112799",
+        "addedLines": 5,
+        "removedLines": 2,
+        "purpose": "Use the signed x64 sysroot and GNU x86_64 target for same-host Linux cross builds.",
+        "reference": "https://github.com/dotnet/runtime/blob/0fb6ac59fb1edbe4ed3ad62661df0eb7eacd7903/eng/common/cross/toolchain.cmake#L77"
+    },
+    {
+        "target": "src/runtime/eng/native/tryrun.cmake",
+        "name": "0006-support-linux-x64-cross-tryrun.patch",
+        "originalSha256": "39f59645d670aaf39a181567df3a58e0e8293d365bba74af696afc02d76254a6",
+        "patchedSha256": "de9a6a12845711a1627dac10cd24ae11ff691d2d2ab801c7df7487265967c230",
+        "patchSha256": "0c453ef032c07c1ad44a38720c190d10b76f1671780eb4257cafede3ef435b0b",
+        "addedLines": 3,
+        "removedLines": 3,
+        "purpose": "Backport Linux x64 cross try-run selection and its functional robust-pthread cache from the newer runtime.",
+        "reference": "https://github.com/dotnet/dotnet/blob/7d1bf90885cff22e7da72b27e9848e42fd3cb1ae/src/runtime/eng/native/tryrun.cmake#L92"
+    }
+]
 
 class PatchError(Exception):
     pass
@@ -147,9 +172,12 @@ def run(args, record):
     source = ordinary_directory(args.source_dir)
     installer = ordinary_directory(args.installer_dir)
     verify_identity(source, installer, record)
+    if getattr(args, "arch", "arm64") == "x64":
+        record["targetArchitecture"] = "x64"
+        record["scope"] = "Four common fixed compatibility patches plus two exact Linux x64 CMake backports; all identities, ordered source states and patches are preflighted before mutation."
     record["patches"] = []
     groups = {}
-    for specification in PATCHES:
+    for specification in PATCHES + (X64_PATCHES if getattr(args, "arch", "arm64") == "x64" else []):
         target = fixed_path(source, specification["target"])
         patch_root = Path(__file__).resolve().parent.parent / "patches" / "net6"
         patch = fixed_path(patch_root, specification["name"])
@@ -229,6 +257,7 @@ def run(args, record):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=["apply", "verify"])
+    parser.add_argument("--arch", choices=["arm64", "x64"], default="arm64")
     parser.add_argument("--source-dir", type=Path, required=True)
     parser.add_argument("--installer-dir", type=Path, required=True)
     parser.add_argument("--reports-dir", type=Path,

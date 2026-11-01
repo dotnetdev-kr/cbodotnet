@@ -6,10 +6,13 @@ usage() {
   echo 'Usage: scan-clean-source9.sh --source-dir /vmr --clean-source-dir /clean9 --reports-dir /new/external/report'
 }
 fail() { echo "$*" >&2; exit 2; }
-source_arg='' clean_arg='' reports_arg=''
+source_arg='' clean_arg='' reports_arg='' arch=arm64
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --help|-h) usage; exit 0 ;;
+    --arch)
+      [[ $# -ge 2 && ( $2 == arm64 || $2 == x64 ) ]] || fail 'Expected --arch arm64 or x64.'
+      arch=$2; shift 2 ;;
     --source-dir|--clean-source-dir|--reports-dir)
       [[ $# -ge 2 && $2 == /* ]] || fail "An absolute path is required for $1."
       case "$1" in
@@ -22,7 +25,8 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 [[ -n $source_arg && -n $clean_arg && -n $reports_arg ]] || { usage >&2; exit 2; }
-[[ $(uname -s) == Linux && $(uname -m) == aarch64 ]] || fail 'Native Linux ARM64 is required.'
+case "$arch" in arm64) native_machine=aarch64 ;; x64) native_machine=x86_64 ;; esac
+[[ $(uname -s) == Linux && $(uname -m) == "$native_machine" ]] || fail 'A native Linux host matching --arch is required.'
 for tool in git realpath python3 sha256sum tee cmp file; do
   command -v "$tool" >/dev/null || fail "Missing tool: $tool"
 done

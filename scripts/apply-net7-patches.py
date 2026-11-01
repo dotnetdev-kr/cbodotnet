@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Apply or verify the fixed .NET 7 ARM64 source-build compatibility patches.
+"""Apply or verify the selected fixed .NET 7 source-build compatibility patches.
 
 The generated source root need not be a Git repository. Its component Git
 identities and git-info files, the separate installer checkout, all target
-hashes, and every patch are verified before changing any of the four files.
+hashes, and every patch are verified before changing any selected source file.
 Unrelated source changes are preserved. Optional reports must be new and
 outside both source directories.
 """
@@ -73,6 +73,20 @@ PATCHES = [
     },
 ]
 
+
+X64_PATCHES = [
+    {
+        "target": "src/runtime/eng/native/tryrun.cmake",
+        "name": "0005-support-linux-x64-cross-tryrun.patch",
+        "originalSha256": "cc17b90941b3ded658ce702ae1ebb854078074f8058ce596460d99dcfd69bfea",
+        "patchedSha256": "e98811f2f7b7f749bce406a1ae84302e1c8b326049b87ccf54c8fd7e65ee07db",
+        "patchSha256": "ea23441ce857838b96db854d9a028a9a3cef26665bbbc2c0bfa1c0f283255cd6",
+        "addedLines": 3,
+        "removedLines": 3,
+        "purpose": "Backport Linux x64 cross try-run selection and its functional robust-pthread cache from the newer runtime.",
+        "reference": "https://github.com/dotnet/dotnet/blob/7d1bf90885cff22e7da72b27e9848e42fd3cb1ae/src/runtime/eng/native/tryrun.cmake#L92"
+    }
+]
 
 class PatchError(Exception):
     pass
@@ -152,9 +166,12 @@ def run(args, record):
     source = ordinary_directory(args.source_dir)
     installer = ordinary_directory(args.installer_dir)
     verify_identity(source, installer, record)
+    if getattr(args, "arch", "arm64") == "x64":
+        record["targetArchitecture"] = "x64"
+        record["scope"] = "Four common fixed compatibility patches plus one exact Linux x64 CMake backport; component identities, source metadata and all hashes are preflighted before mutation."
     record["patches"] = []
     pending = []
-    for specification in PATCHES:
+    for specification in PATCHES + (X64_PATCHES if getattr(args, "arch", "arm64") == "x64" else []):
         target = fixed_path(source, specification["target"])
         patch_root = Path(__file__).resolve().parent.parent / "patches" / "net7"
         patch = fixed_path(patch_root, specification["name"])
@@ -195,6 +212,7 @@ def run(args, record):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=["apply", "verify"])
+    parser.add_argument("--arch", choices=["arm64", "x64"], default="arm64")
     parser.add_argument("--source-dir", type=Path, required=True)
     parser.add_argument("--installer-dir", type=Path, required=True)
     parser.add_argument("--reports-dir", type=Path,

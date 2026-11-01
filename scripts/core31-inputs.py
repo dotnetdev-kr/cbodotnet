@@ -15,6 +15,10 @@ import runpy
 import subprocess
 import types
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 
 SOURCE_COMMIT = 'ab8b115b5658237ee8916ae3586600b39fb2fd19'
 
@@ -98,6 +102,7 @@ def verify(source, profile, require_bootstrap=False):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument('--source-dir', type=Path, required=True)
     parser.add_argument('--profile', type=Path, required=True)
     parser.add_argument('--require-bootstrap', action='store_true')

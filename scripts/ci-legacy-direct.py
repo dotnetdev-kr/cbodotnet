@@ -17,6 +17,10 @@ import time
 import types
 import urllib.request
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 sys.dont_write_bytecode = True
 os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
 
@@ -26,7 +30,7 @@ CONFIG = {
     'core30': ('3.0.103', '40de72d1087a1d05dfd39c87f888a0611ec6c60f', '3.0.3', 'bin', 'build-core30.sh'),
 }
 ANALYSIS_SDK = '9.0.121'
-ANALYSIS_SHA512 = '2c8288568d9827371d8d0daf0578590a956d955bef783bf1403953f8a816851f03be7aa366b6649e7cda77a8e7359ac3fc46fac87f010d71b6e7415a9457add5'
+ANALYSIS_SHA512 = LEGACY_ARCH['sdk_pin'](ANALYSIS_SDK, ARCH['arch'])['sha512']
 
 
 def now():
@@ -205,8 +209,8 @@ class CI:
         self.workspace, self.output = map(ordinary, (args.workspace, args.output_dir))
         require(self.workspace not in self.output.parents and self.output not in self.workspace.parents
                 and self.workspace != self.output, 'Workspace and output must be separate')
-        require(os.uname().sysname == 'Linux' and os.uname().machine == 'aarch64' and os.getuid() != 0,
-                'A nonroot native Linux ARM64 host is required')
+        require(os.uname().sysname == 'Linux' and os.uname().machine == ARCH['uname'] and os.getuid() != 0,
+                'A nonroot Linux host with the selected native architecture is required')
         require(re.fullmatch(r'20\d{6}\.[1-9]\d*', args.build_id), 'Invalid CI build identity')
         dt.datetime.strptime(args.build_id.split('.')[0], '%Y%m%d')
         require(re.fullmatch(r'[1-9]\d*', args.build_revision), 'Invalid build revision')
@@ -256,19 +260,22 @@ class CI:
                     '--volume', str(self.project) + ':' + str(self.project) + ':ro',
                     '--volume', str(self.output) + ':' + str(self.output),
                     '--volume', str(self.home) + ':' + str(self.home), '--workdir', str(self.source)]
+        if ARCH['arch'] == 'x64':
+            options += ['--env', 'CBODOTNET_LEGACY_ARCH=x64']
         options += list(extra) + [image or self.image, 'taskset', '--cpu-list', self.cpus] + list(map(str, command))
         self.run(options)
 
     def image_inspect(self, reference, report):
         value = json.loads(subprocess.check_output(self.engine + ['image', 'inspect', reference]))
-        require(len(value) == 1 and value[0]['Architecture'] == 'arm64' and value[0]['Os'] == 'linux', 'Native image required')
+        require(len(value) == 1 and value[0]['Architecture'] == ARCH['image'] and value[0]['Os'] == 'linux', 'Native image required')
         write(report, value)
         return value[0]['Id']
 
     def identity(self):
         return dict(family=self.family, sdkVersion=self.sdk, sourceCommit=self.commit, projectCommit=self.project_commit,
                     workspace=str(self.workspace), output=str(self.output), buildId=self.args.build_id,
-                    buildRevision=self.args.build_revision, runId=self.run_id, runAttempt=self.attempt)
+                    buildRevision=self.args.build_revision, runId=self.run_id, runAttempt=self.attempt,
+                    **({'architecture': ARCH['arch']} if ARCH['arch'] != 'arm64' else {}))
 
     def freeze(self):
         require(not self.snapshot.exists(), 'A new source snapshot is required')
@@ -289,7 +296,7 @@ class CI:
             if mode == '100755':
                 target.chmod(0o755)
             rows.append(dict(path=target.relative_to(self.output).as_posix(), gitMode=mode, gitBlob=blob, **fingerprint(target)))
-        selected = json.loads((self.snapshot / ('profiles/dotnet-' + self.sdk + '-linux-arm64.json')).read_text())
+        selected = json.loads((self.snapshot / ('profiles/dotnet-' + self.sdk + ('-' + ARCH['rid'] + '.json'))).read_text())
         require(selected['source']['commit'] == self.commit and selected['build']['system'] == 'legacy-source-build-direct', 'Profile mismatch')
         # The committed profile retains historical local results. This run's
         # derived control must not present those measurements as new CI evidence.
@@ -324,6 +331,7 @@ class CI:
         command = ['bash', self.snapshot / 'scripts' / self.product, '--source-dir', self.source,
                    '--inputs-dir', self.inputs, '--reports-dir', destination, '--profile', self.profile,
                    '--action', action, '--cpu-affinity', self.cpus, '--max-cpu-count', '2']
+        if ARCH['arch'] != 'arm64': command += ['--arch', ARCH['arch']]
         command += ['--sysroot-reports-dir' if self.family == 'net5' else '--sysroot-reports', self.reports / 'sysroot']
         if self.family == 'net5':
             command += ['--root-pipeline-logger', 'true']
@@ -334,7 +342,7 @@ class CI:
         return command
 
     def raw_sdk(self):
-        path = self.source / self.layout / 'arm64/Release' / ('dotnet-sdk-' + self.sdk + '-linux-arm64.tar.gz')
+        path = self.source / self.layout / (ARCH['arch'] + '/Release') / ('dotnet-sdk-' + self.sdk + ('-' + ARCH['rid'] + '.tar.gz'))
         ordinary(path, True)
         return path
 
@@ -356,11 +364,23 @@ class CI:
                             {'bytes': helper['SDK_BYTES'], 'sha512': helper['SDK_SHA512']},
                             self.reports / 'prepare/official-sdk-download.json')
 
+    def prefetch_core31_x64_sdk(self):
+        if self.family != 'core31' or ARCH['arch'] != 'x64':
+            return
+        pin = LEGACY_ARCH['sdk_pin']('3.1.422', 'x64')
+        archive = self.inputs / pin['name']
+        download(pin['url'], archive, {'sha512': pin['sha512']}, self.reports / 'prepare/core31-sdk-download.json')
+        destination = self.source / '.dotnet'
+        require(not destination.exists() and not destination.is_symlink(), 'Bootstrap extraction must be fresh')
+        destination.mkdir()
+        with tarfile.open(archive) as source:
+            source.extractall(destination, filter='data')
+
     def prepare(self):
         self.run(['git', 'clone', '--no-checkout', 'https://github.com/dotnet/source-build.git', self.source])
         self.run(['git', '-C', self.source, 'checkout', '--detach', self.commit])
         self.freeze()
-        recipe = self.snapshot / ('containers/arm64-' + self.family + '.Containerfile')
+        recipe = self.snapshot / (('containers/' + ARCH['arch'] + '-') + self.family + '.Containerfile')
         profile = json.loads(self.profile.read_text())
         base = profile['container']['repository'] + '@' + profile['container']['digest']
         require(recipe.read_text().splitlines()[0] == 'FROM ' + base, 'Builder base differs from the pinned profile')
@@ -368,35 +388,36 @@ class CI:
         self.run(self.engine + ['build', '--network=host', '--file', recipe, '--tag', tag, self.snapshot / 'containers'])
         self.image = self.image_inspect(tag, self.reports / 'prepare/build-image.json')
         self.run([sys.executable, self.snapshot / 'scripts/ci-legacy-seccomp.py', '--output-policy', self.inputs / 'seccomp.json',
-                  '--report', self.reports / 'prepare/seccomp.json'])
+                  '--report', self.reports / 'prepare/seccomp.json'] + ([] if ARCH['arch'] == 'arm64' else ['--arch', 'x64']))
         shutil.copyfile('/usr/share/containers/seccomp.json', self.reports / 'prepare/seccomp-base-policy.json')
         shutil.copyfile(self.inputs / 'seccomp.json', self.reports / 'prepare/seccomp-policy.json')
         self.run([sys.executable, self.snapshot / 'scripts/ci-legacy-analysis.py', 'prepare', '--workspace', self.workspace,
-                  '--reports-dir', self.reports / 'prepare/analysis'])
+                  '--reports-dir', self.reports / 'prepare/analysis'] + ([] if ARCH['arch'] == 'arm64' else ['--arch', 'x64']))
         if self.family != 'core31':
             helper = runpy.run_path(str(self.snapshot / ('scripts/prepare-' + self.family.replace('net5', 'net5') + '-bootstrap.py')))
             download(profile['upstreamInputs']['sourceBuiltArtifactsUrl'], self.inputs / helper['PSB_NAME'],
                      {'bytes': helper['PSB_BYTES'], 'sha256': helper['PSB_SHA256']}, self.reports / 'prepare/psb-download.json')
         self.prefetch_core30_sdk()
+        self.prefetch_core31_x64_sdk()
         if self.family == 'net5':
             self.container(self.product_command('prepare', self.reports / 'prepare/product'))
         else:
             for action in ('acquire', 'prepare'):
                 self.container(self.product_command(action, self.reports / 'prepare' / action))
         sysroot_reports = self.sysroot_report_directory()
-        self.container(['bash', self.snapshot / ('scripts/prepare-sysroot' + ('5' if self.family == 'net5' else '-' + self.family) + '.sh'),
+        self.container(['bash', self.snapshot / ('scripts/prepare-sysroot' + ('5' if self.family == 'net5' else '-' + self.family) + '.sh') if ARCH['arch'] == 'arm64' else self.snapshot / 'scripts/prepare-legacy-x64-sysroot.sh',
                         self.source, self.inputs, sysroot_reports, str(os.getuid()), str(os.getgid())], privileged=True)
         require(sysroot_reports.stat().st_uid == os.getuid() and sysroot_reports.stat().st_gid == os.getgid(),
                 'The privileged producer changed sysroot report directory ownership')
         self.container(['python3', self.snapshot / 'scripts/ci-legacy-capture-sysroot.py', '--family', self.family,
-                        '--inputs-dir', self.inputs, '--reports-dir', self.reports / 'sysroot'])
+                        '--inputs-dir', self.inputs, '--reports-dir', self.reports / 'sysroot'] + ([] if ARCH['arch'] == 'arm64' else ['--arch', 'x64']))
         write(self.state, dict(self.identity(), imageId=self.image,
                               snapshot=fingerprint(self.reports / 'ci-inputs/snapshot.json')))
 
     def build(self):
         observer = subprocess.Popen([sys.executable, str(self.snapshot / 'scripts/ci-legacy-origin.py'), 'observe',
                                      '--family', self.family, '--source-dir', str(self.source), '--output-dir', str(self.output),
-                                     '--workspace', str(self.workspace)])
+                                     '--workspace', str(self.workspace)] + ([] if ARCH['arch'] == 'arm64' else ['--arch', 'x64']))
         failure = None; traceback = None; observer_failure = None
         try:
             self.container(self.product_command('build', self.reports / 'build/product'))
@@ -441,7 +462,7 @@ class CI:
     def test(self):
         self.container(self.product_command('test', self.reports / 'test/product'))
         self.run([sys.executable, self.snapshot / 'scripts/ci-legacy-analysis.py', 'origins', '--workspace', self.workspace,
-                  '--output-dir', self.output, '--family', self.family])
+                  '--output-dir', self.output, '--family', self.family] + ([] if ARCH['arch'] == 'arm64' else ['--arch', 'x64']))
         self.source_roots()
 
     def source_roots(self):
@@ -503,7 +524,7 @@ class CI:
 
     def verify(self):
         self.run([sys.executable, self.snapshot / 'scripts/ci-legacy-verify.py', '--family', self.family,
-                  '--workspace', self.workspace, '--output-dir', self.output, '--project-root', self.project])
+                  '--workspace', self.workspace, '--output-dir', self.output, '--project-root', self.project] + ([] if ARCH['arch'] == 'arm64' else ['--arch', 'x64']))
 
     def collect(self):
         final_profile = self.reports / 'ci/effective-profile.json'
@@ -551,7 +572,7 @@ class CI:
             self.log.close()
             result = dict(self.identity(), schemaVersion=1, stage=stage, status='passed' if code == 0 else 'failed',
                           exitCode=code, startedAtUtc=started, finishedAtUtc=now(), imageId=self.image,
-                          environment=dict(nativeArchitecture='aarch64', uid=os.getuid(), gid=os.getgid(), allowedCpuSelection=self.cpus),
+                          environment=dict(nativeArchitecture=ARCH['uname'], uid=os.getuid(), gid=os.getgid(), allowedCpuSelection=self.cpus),
                           commands=[json.loads(line) for line in self.commands.read_text().splitlines()])
             if stage == 'collect' and code == 0:
                 result.update({key: dict(path=path.name, **fingerprint(path)) for key, path in
@@ -561,6 +582,7 @@ class CI:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument('--family', choices=CONFIG, required=True)
     parser.add_argument('stage', choices=['prepare', 'build', 'scan', 'test', 'verify', 'collect', 'validate', 'verify-release', 'qualify'])
     for name in ('workspace', 'output-dir', 'project-root'):

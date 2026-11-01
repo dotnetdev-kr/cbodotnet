@@ -9,6 +9,10 @@ from pathlib import Path
 import subprocess
 import tempfile
 import xml.etree.ElementTree as ET
+import runpy
+
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
 
 
 SOURCE = 'd414ecb2d997a9b3f38aaaeddace30ca097e546d'
@@ -43,6 +47,10 @@ PATCHES = [
      'patch': '30d1fd9ecf175f4ac9364a8e7a39002c3e4a7e6b1753f93b9771c1d53295aa1f',
      'purpose': 'Extend the exact service-index mapping to retired tools and nuget-build feeds without changing versions, local feeds or archive URLs.'},
 ]
+if ARCH['arch'] == 'x64':
+    PATCHES.append({'name': '0006-run-native-x64-corelib-crossgen.patch', 'target': 'artifacts/src/runtime.6a984143635bde23e728abaaccbde52f5ea8fa3e/src/coreclr/crossgen-corelib.sh', 'original': 'b9dd2bbb7c0d77fea464c0b8802460e6469d7c215bee41726195a87b290dd180', 'patched': '0d257154341d1a6608686dfc7bc958c56b52f2c55b8bf42647ea172603792e50', 'patch': '7b5b973fc6c619eb6ac3b274eaf9b00557d2c703b653ef87bb5e8eaecae2a315', 'purpose': 'Run the actual native x64 main crossgen for same-system signed-sysroot CoreLib generation, retaining original ARM behavior.'})
+    PATCHES.extend([{'name': '0007-native-x64-runtime-toolchain.patch', 'target': 'artifacts/src/runtime.6a984143635bde23e728abaaccbde52f5ea8fa3e/eng/common/cross/toolchain.cmake', 'original': 'f6618664750b0c0dc74df7b0a0ba933fc6ffa4f399416640895c733838ae3b62', 'patched': '66e3479be1a04dd11eb1dde7e110aaeca4b99a7fe3a4b171b37638917eb56318', 'patch': '280d3ee267964bf539aaae62d08b6891233a99ae515c841008e77fa6a7849c78', 'purpose': 'Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation.'}, {'name': '0008-native-x64-runtime-tryrun.patch', 'target': 'artifacts/src/runtime.6a984143635bde23e728abaaccbde52f5ea8fa3e/src/coreclr/tryrun.cmake', 'original': '72892c0f3bc9063e0f5a23f7f1ede12faf0b430b48736d246cee12743305d0b6', 'patched': '990b8499db1839c8b21340ad2f50037f450d92d73c734e03791550c5a3b01a52', 'patch': '657adc868cfcd0328dd8dd6d29d12770b1c0bc7b8ce5b6a7b264dd26f40b1599', 'purpose': 'Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation.'}, {'name': '0009-native-x64-runtime-tryrun.patch', 'target': 'artifacts/src/runtime.6a984143635bde23e728abaaccbde52f5ea8fa3e/src/installer/corehost/tryrun.cmake', 'original': 'fef93a90fe680c1d843f175e0a4e6a2b1c7fee5dc0334f4a7c540aa765b29b90', 'patched': 'edb0e6c2f75eddf262af09c643fb7969d5383c7846fe0c9ea08bb9d65967f286', 'patch': '7461d4631511a8965ccf2195d3a1125e79ce7899b0352e49be675ad9b74c3b0f', 'purpose': 'Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation.'}, {'name': '0010-native-x64-runtime-tryrun.patch', 'target': 'artifacts/src/runtime.6a984143635bde23e728abaaccbde52f5ea8fa3e/src/libraries/Native/Unix/tryrun.cmake', 'original': '157cf016ababcbe9107ee016a1821d16a22503683b8ce6090c4f329d1ebdde28', 'patched': '92b32ac20d31d8847aae3ef8983f5e4d521cacb2e44639c09f3fa8c5a5ad07d7', 'patch': '34bdacba27a8c03930ce838ce9bbbda95408da28a9984bb82dfd12d2206c02d7', 'purpose': 'Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation.'}])
+
 
 
 def digest(path):
@@ -100,12 +108,17 @@ def identity(source):
     original = command(source, '--git-dir=' + str(bare), 'show', RUNTIME + ':src/coreclr/crossgen-corelib.sh')
     if hashlib.sha256(original).hexdigest() != PATCHES[0]['original']:
         raise ValueError('The retained original runtime source differs')
-    checked = set()
+    checked = {PATCHES[0]['target']}
     for item in PATCHES[1:]:
         if item['target'] in checked:
             continue
         checked.add(item['target'])
-        if hashlib.sha256(command(source, 'show', SOURCE + ':' + item['target'])).hexdigest() != item['original']:
+        relative = item['target']
+        if relative.startswith('artifacts/src/runtime.' + RUNTIME + '/'):
+            original_bytes = command(source, '--git-dir=' + str(bare), 'show', RUNTIME + ':' + relative.split(RUNTIME + '/', 1)[1])
+        else:
+            original_bytes = command(source, 'show', SOURCE + ':' + relative)
+        if hashlib.sha256(original_bytes).hexdigest() != item['original']:
             raise ValueError('The retained original source-build producer differs')
     return {'sourceCommit': SOURCE, 'runtimeCommit': RUNTIME, 'aspnetcoreCommit': ASP,
             'manifestSha256': digest(manifest)}
@@ -113,6 +126,7 @@ def identity(source):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64','x64'], default='arm64')
     parser.add_argument('action', choices=['apply', 'verify'])
     parser.add_argument('--source-dir', required=True, type=Path)
     parser.add_argument('--patches-dir', type=Path)
@@ -162,7 +176,7 @@ def main():
                 raise ValueError('A required final compatibility patch state is absent')
             if relative.startswith('artifacts/src/runtime.'):
                 original = command(source, '--git-dir=' + str(source / '.git/modules/src/runtime.git'),
-                                   'show', RUNTIME + ':src/coreclr/crossgen-corelib.sh')
+                                   'show', RUNTIME + ':' + relative.split(RUNTIME + '/', 1)[1])
             else:
                 original = command(source, 'show', SOURCE + ':' + relative)
             staged = stage / relative

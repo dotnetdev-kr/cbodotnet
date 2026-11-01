@@ -1,0 +1,23 @@
+--- a/artifacts/src/core-setup.f94bb2c3ff432dcc4a6229eca2f978197bf06150/cross/tryrun.cmake
++++ b/artifacts/src/core-setup.f94bb2c3ff432dcc4a6229eca2f978197bf06150/cross/tryrun.cmake
+@@ -13,7 +13,7 @@
+    SET(ALPINE_LINUX 0)
+ endif()
+ 
+-if(TARGET_ARCH_NAME MATCHES "^(armel|arm|arm64|x86)$")
++if(TARGET_ARCH_NAME MATCHES "^(armel|arm|arm64|x86|x64)$")
+   set_cache_value(FILE_OPS_CHECK_FERROR_OF_PREVIOUS_CALL_EXITCODE 1)
+   set_cache_value(GETPWUID_R_SETS_ERRNO_EXITCODE 0)
+   set_cache_value(HAS_POSIX_SEMAPHORES_EXITCODE 0)
+@@ -55,9 +55,9 @@
+   endif()
+ 
+ else()
+-  message(FATAL_ERROR "Arch is ${TARGET_ARCH_NAME}. Only armel, arm, arm64 and x86 are supported!")
++  message(FATAL_ERROR "Arch is ${TARGET_ARCH_NAME}. Only armel, arm, arm64, x86 and x64 are supported!")
+ endif()
+ 
+-if(TARGET_ARCH_NAME STREQUAL "x86")
++if(TARGET_ARCH_NAME MATCHES "^(x86|x64)$")
+   set_cache_value(HAVE_FUNCTIONAL_PTHREAD_ROBUST_MUTEXES_EXITCODE 0)
+ endif()

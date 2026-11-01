@@ -1,0 +1,30 @@
+--- a/src/runtime/eng/common/cross/toolchain.cmake
++++ b/src/runtime/eng/common/cross/toolchain.cmake
+@@ -46,6 +46,9 @@
+ elseif(TARGET_ARCH_NAME STREQUAL "s390x")
+   set(CMAKE_SYSTEM_PROCESSOR s390x)
+   set(TOOLCHAIN "s390x-linux-gnu")
++elseif(TARGET_ARCH_NAME STREQUAL "x64" AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
++  set(CMAKE_SYSTEM_PROCESSOR x86_64)
++  set(TOOLCHAIN "x86_64-linux-gnu")
+ elseif(TARGET_ARCH_NAME STREQUAL "x86")
+   set(CMAKE_SYSTEM_PROCESSOR i686)
+   set(TOOLCHAIN "i686-linux-gnu")
+@@ -56,7 +59,7 @@
+   set(CMAKE_SYSTEM_PROCESSOR "x86_64")
+   set(TOOLCHAIN "x86_64-illumos")
+ else()
+-  message(FATAL_ERROR "Arch is ${TARGET_ARCH_NAME}. Only armel, arm, arm64, s390x and x86 are supported!")
++  message(FATAL_ERROR "Arch is ${TARGET_ARCH_NAME}. Only armel, arm, arm64, s390x, x86 and Linux x64 are supported!")
+ endif()
+ 
+ if(DEFINED ENV{TOOLCHAIN})
+@@ -181,7 +184,7 @@
+ 
+ # Specify compile options
+ 
+-if((TARGET_ARCH_NAME MATCHES "^(arm|armel|arm64|s390x)$" AND NOT "$ENV{__DistroRid}" MATCHES "android.*") OR ILLUMOS)
++if((TARGET_ARCH_NAME MATCHES "^(arm|armel|arm64|s390x|x64)$" AND NOT "$ENV{__DistroRid}" MATCHES "android.*") OR ILLUMOS)
+   set(CMAKE_C_COMPILER_TARGET ${TOOLCHAIN})
+   set(CMAKE_CXX_COMPILER_TARGET ${TOOLCHAIN})
+   set(CMAKE_ASM_COMPILER_TARGET ${TOOLCHAIN})

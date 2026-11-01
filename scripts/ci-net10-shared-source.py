@@ -25,6 +25,8 @@ SDK='10.0.403'
 MAIN='5a2162bea6845eabc1fc721624a43568c65db3b1'
 SHARED='0427b9abbead3fa64c6655eb4290c537397131fa'
 ROLE='source-for-reused-shared-input'
+ARCH_SPEC=importlib.util.spec_from_file_location('ci_arch_shared',Path(__file__).with_name('ci_arch.py'))
+ARCH=importlib.util.module_from_spec(ARCH_SPEC); ARCH_SPEC.loader.exec_module(ARCH)
 
 
 def require(value,message):
@@ -57,10 +59,12 @@ def write(path,value):
     with path.open('x',encoding='utf-8') as out: json.dump(value,out,indent=2); out.write('\n')
 
 
-def selected(profile):
+def selected(profile,arch='arm64'):
+    identity=ARCH.get_arch(arch)
     require(profile.get('sdkVersion')==SDK and profile.get('source',{}).get('repository')==REPOSITORY
-            and profile['source'].get('commit')==MAIN and profile.get('target',{}).get('rid')=='linux-arm64'
-            and profile.get('build',{}).get('sourceOnly') is False,'Only the pinned ordinary .NET10 ARM64 profile is supported')
+            and profile['source'].get('commit')==MAIN and profile.get('target',{}).get('rid')==identity['rid']
+            and profile.get('host',{}).get('architecture')==arch
+            and profile.get('build',{}).get('sourceOnly') is False,'Only the pinned ordinary .NET10 selected-architecture profile is supported')
     require(profile.get('upstreamInputs',{}).get('sharedVmrCommit')==SHARED
             and profile['upstreamInputs'].get('runtime')=='10.0.14','Unexpected reused-framework source pin/version')
     return profile['upstreamInputs']['sharedVmrCommit']
@@ -104,7 +108,7 @@ def checkout_identity(root,expected):
 
 
 def prepare(args):
-    pin=selected(load(args.profile)); ordinary(args.destination)
+    pin=selected(load(args.profile),getattr(args,'arch','arm64')); ordinary(args.destination)
     require(not args.destination.exists(),'Shared sources require a fresh checkout path')
     require(not args.report.exists() and not args.report.is_symlink(),'Source checkout report must be new')
     args.destination.parent.mkdir(parents=True,exist_ok=True)
@@ -121,8 +125,8 @@ def prepare(args):
           **identity,scope='Full matching VMR source checkout for reused public shared-framework inputs; no build or local-origin claim for these inputs.'))
 
 
-def archive_markers(archive,profile):
-    pin=selected(profile); version=profile['upstreamInputs']['runtime']
+def archive_markers(archive,profile,arch='arm64'):
+    pin=selected(profile,arch); version=profile['upstreamInputs']['runtime']
     wanted={'shared/'+framework+'/'+version+'/.version':framework for framework in ['Microsoft.NETCore.App','Microsoft.AspNetCore.App']}
     found={}
     with tarfile.open(archive,'r:gz') as stream:
@@ -143,7 +147,8 @@ def archive_markers(archive,profile):
 
 
 def bind(args):
-    profile=load(args.profile); pin=selected(profile)
+    arch=getattr(args,'arch','arm64'); identity=ARCH.get_arch(arch)
+    profile=load(args.profile); pin=selected(profile,arch)
     require(git(args.source_dir,'rev-parse','HEAD')==MAIN,'The current SDK VMR source pin changed')
     identity=checkout_identity(args.shared_source_dir,pin)
     preparation=load(args.prepare_report)
@@ -153,8 +158,8 @@ def bind(args):
     require(preparation['profile']==fingerprint(args.profile),'The selected profile changed after shared-source acquisition')
     spec=importlib.util.spec_from_file_location('ci_shared_collector',Path(__file__).with_name('collect-artifacts.py'))
     collector=importlib.util.module_from_spec(spec); spec.loader.exec_module(collector)
-    archive,candidates,_=collector.select_sdk(args.source_dir,SDK,'linux-arm64',False)
-    before=fingerprint(archive); markers=archive_markers(archive,profile)
+    archive,candidates,_=collector.select_sdk(args.source_dir,SDK,identity['rid'],False)
+    before=fingerprint(archive); markers=archive_markers(archive,profile,arch)
     require(fingerprint(archive)==before,'Produced SDK archive changed while binding source markers')
     roots={'schemaVersion':1,'roots':[
         {'name':'vmr','path':str(args.source_dir),'kind':'git','expectedCommit':MAIN,'role':'built-sdk-vmr-source'},
@@ -169,8 +174,10 @@ def bind(args):
 def main():
     parser=argparse.ArgumentParser(description=__doc__); commands=parser.add_subparsers(dest='action',required=True)
     prepare_parser=commands.add_parser('prepare'); prepare_parser.add_argument('--profile',type=Path,required=True)
+    prepare_parser.add_argument('--arch',choices=('arm64','x64'),default='arm64')
     prepare_parser.add_argument('--destination',type=Path,required=True); prepare_parser.add_argument('--report',type=Path,required=True)
     bind_parser=commands.add_parser('bind')
+    bind_parser.add_argument('--arch',choices=('arm64','x64'),default='arm64')
     for name in ['profile','source-dir','shared-source-dir','prepare-report','roots-output','report']:
         bind_parser.add_argument('--'+name,type=Path,required=True)
     args=parser.parse_args()

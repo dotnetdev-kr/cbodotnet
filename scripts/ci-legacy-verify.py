@@ -20,9 +20,13 @@ import subprocess
 import sys
 import tempfile
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 FAMILIES = {'net5':('5.0.214','net5.0'), 'core31':('3.1.426','netcoreapp3.1'),
             'core30':('3.0.103','netcoreapp3.0')}
-FOCAL_BASE = 'mcr.microsoft.com/dotnet/sdk@sha256:a4028735b2ed1209c9116cebc74ae1c2fb27ea7d24b1be3f495fee0bac27dd52'
+FOCAL_BASE = 'mcr.microsoft.com/dotnet/sdk@' + LEGACY_ARCH['FOCAL_IMAGES'][ARCH['arch']]
 USERLANDS = [('ubuntu22','ubuntu','22.04','libicu70','libssl3'),
              ('ubuntu24','ubuntu','24.04','libicu74','libssl3t64'),
              ('debian13','debian','13','libicu76','libssl3t64')]
@@ -63,11 +67,11 @@ def load(path):
 
 
 def expected_rid(family, name):
-    return 'ubuntu.22.04-arm64' if family=='core31' and name=='ubuntu22' else 'linux-arm64'
+    return ('ubuntu.22.04-' + ARCH['arch']) if family=='core31' and name=='ubuntu22' else ARCH['rid']
 
 
 def manifest_reference(row, distribution):
-    require(row.get('Architecture')=='arm64' and row.get('Os')=='linux','Native Linux ARM64 image required')
+    require(row.get('Architecture')==ARCH['image'] and row.get('Os')=='linux','The selected native Linux image is required')
     digest=row.get('Digest')
     require(isinstance(digest,str) and re.fullmatch(r'sha256:[a-f0-9]{64}',digest),'An inspected manifest digest is required')
     reference='docker.io/library/'+distribution+'@'+digest
@@ -83,7 +87,7 @@ def check_verification(family,name,result,archive):
             and result['archive']['sha256']==archive['sha256'] and result['archive']['sizeBytes']==archive['bytes']
             and result['archive']['sdkContentMatched'] is True,'Native SDK identity/functionality/archive checks failed: '+name)
     abi=result['abi']; version=lambda value:tuple(map(int,value.split('.')))
-    require(abi['elfFileCount']>0 and abi['machines']=={'AArch64':abi['elfFileCount']}
+    require(abi['elfFileCount']>0 and abi['machines']=={ARCH['elf']:abi['elfFileCount']}
             and abi['glibcCeilingPassed'] is True and abi['glibcCeiling']=='2.23' and not abi['symbolicGlibcRequirements']
             and version(abi['maximumRequiredVersions']['GLIBC'])<=version('2.23')
             and version(abi['maximumRequiredVersions']['GLIBCXX'])<=version('3.4.21')
@@ -91,7 +95,7 @@ def check_verification(family,name,result,archive):
 
 
 def internal_export(args):
-    require(platform.machine()=='aarch64' and platform.system()=='Linux','Native ARM64 exporter required')
+    require(platform.machine()==ARCH['uname'] and platform.system()=='Linux','Native ARM64 exporter required')
     require(re.fullmatch(r'(sha256:)?[a-f0-9]{64}',args.producer_image_id),'Invalid producer image ID')
     name='export-net5-verification-compat.py' if args.kind=='openssl11' else 'export-core31-verification-icu.py'
     helper=ordinary(args.project_root/'scripts'/name,True)
@@ -116,7 +120,7 @@ def internal_export(args):
 
 
 def internal_verify(args):
-    require(platform.machine()=='aarch64' and os.getuid()>0,'Native nonroot verification is required')
+    require(platform.machine()==ARCH['uname'] and os.getuid()>0,'Native nonroot verification is required')
     release={}
     for line in Path('/etc/os-release').read_text().splitlines():
         if '=' in line:
@@ -125,13 +129,14 @@ def internal_verify(args):
                  args.icu_package,args.ssl_package,'libc6','libstdc++6','zlib1g','libgssapi-krb5-2'],universal_newlines=True)
     environment={key:os.environ.get(key) for key in ['LD_LIBRARY_PATH','OPENSSL_CONF','CLR_ICU_VERSION_OVERRIDE',
                  'DOTNET_SYSTEM_GLOBALIZATION_INVARIANT','DOTNET_ROOT','DOTNET_EnableDiagnostics','COMPlus_EnableDiagnostics']}
+    if ARCH['arch']=='x64': environment['DOTNET_ROOT_X64']=os.environ.get('DOTNET_ROOT_X64')
     write(args.userland_report,dict(schemaVersion=1,imageId=args.image_id,architecture=platform.machine(),uid=os.getuid(),gid=os.getgid(),
           osRelease={'ID':release['ID'],'VERSION_ID':release['VERSION_ID']},
           installedPackages=dict(line.split('\t',1) for line in packages.splitlines()),consumerEnvironment=environment))
     sdk,framework=FAMILIES[args.family]
     command=['bash',str(args.verifier),'--archive',str(args.archive),'--output-dir',str(args.report_dir),
              '--expected-version',sdk,'--expected-rid',expected_rid(args.family,args.name),
-             '--framework',framework,'--max-glibc','2.23']
+             '--framework',framework,'--max-glibc','2.23'] + ([] if ARCH['arch'] == 'arm64' else ['--arch', 'x64'])
     os.execvp(command[0],command)
 
 
@@ -144,7 +149,7 @@ class Verification:
         self.state=load(self.workspace/'ci-legacy-state.json')
         require(self.state['family']==self.family and self.state['workspace']==str(self.workspace)
                 and self.state['output']==str(self.output) and self.state['sdkVersion']==self.sdk,'Wrong legacy CI run state')
-        require(platform.machine()=='aarch64' and platform.system()=='Linux' and os.getuid()>0,'Native nonroot host required')
+        require(platform.machine()==ARCH['uname'] and platform.system()=='Linux' and os.getuid()>0,'Native nonroot host required')
         self.uid=os.getuid(); self.gid=os.getgid(); self.source=self.workspace/'source'; self.candidate=self.workspace/'candidate'
         self.engine=['sudo','-n','--','podman','--cgroup-manager=cgroupfs','--events-backend=file']
         cpus=sorted(os.sched_getaffinity(0)); require(len(cpus)>=2,'Two allowed CPUs required'); self.cpus=','.join(map(str,cpus[:2]))
@@ -171,7 +176,7 @@ class Verification:
 
     def inspect(self,reference,path):
         text=self.run(self.engine+['image','inspect',reference],capture=True); rows=json.loads(text)
-        require(len(rows)==1 and rows[0]['Architecture']=='arm64' and rows[0]['Os']=='linux','One native ARM64 image required')
+        require(len(rows)==1 and rows[0]['Architecture']==ARCH['image'] and rows[0]['Os']=='linux','One image with the selected native architecture is required')
         require(re.fullmatch(r'(sha256:)?[a-f0-9]{64}',rows[0]['Id']),'Invalid immutable image ID')
         write(path,rows); return rows[0]
 
@@ -209,6 +214,7 @@ class Verification:
              image['Id'],'python3',str(self.scripts/'ci-legacy-verify.py'),'__export','--kind',kind,
              '--project-root',self.frozen,'--producer-image-id',image['Id'],'--image-inspect',self.input_root/'producer-image.json',
              '--destination',destination,'--report',report,'--consumer-directory',consumer]
+        if ARCH['arch']=='x64': args+=['--arch','x64']
         self.run(args); data=load(report); require(data['status']=='passed','Dependency export failed')
         # Validate every emitted input and refuse unbound extra members before use.
         contract=load(destination/'compatibility-inputs.json'); expected={row['path'] for row in contract['files']}|{'owner.json','compatibility-inputs.json','verification-env.sh'}
@@ -251,15 +257,16 @@ class Verification:
                    'python3',str(self.scripts/'ci-legacy-verify.py'),'__verify','--family',self.family,'--name',name,
                    '--image-id',image['Id'],'--icu-package',icu,'--ssl-package',ssl,
                    '--userland-report',self.reports/'ci'/(name+'-userland.json'),'--verifier',self.scripts/'verify-sdk.sh',
-                   '--archive','/artifacts/'+sdk.name,'--report-dir',self.reports/('verify-'+name)]
+                   '--archive','/artifacts/'+sdk.name,'--report-dir',self.reports/('verify-'+name)] + ([] if ARCH['arch'] == 'arm64' else ['--arch', 'x64'])
             self.run(args)
             path=self.reports/('verify-'+name)/'verification.json'; result=load(path); metadata=load(self.reports/'ci'/(name+'-userland.json'))
             check_verification(self.family,name,result,original)
-            require(metadata['osRelease']=={'ID':distribution,'VERSION_ID':version} and metadata['architecture']=='aarch64'
+            require(metadata['osRelease']=={'ID':distribution,'VERSION_ID':version} and metadata['architecture']==ARCH['uname']
                     and metadata['imageId']==image['Id'] and metadata['uid']==self.uid,'Actual user-space identity differs')
             for key,value in environment.items(): require(metadata['consumerEnvironment'][key]==value,'Compatibility selection differs')
             for key in ['DOTNET_SYSTEM_GLOBALIZATION_INVARIANT','DOTNET_ROOT','DOTNET_EnableDiagnostics','COMPlus_EnableDiagnostics']:
                 require(metadata['consumerEnvironment'][key] is None,'Unreviewed native/runtime override: '+key)
+            if ARCH['arch']=='x64': require(metadata['consumerEnvironment']['DOTNET_ROOT_X64'] is None,'Unreviewed x64 runtime root')
             userlands[name]=dict(verification=self.record(path),userland=self.record(self.reports/'ci'/(name+'-userland.json')),
                  imageId=image['Id'],imageInspection=self.record(self.reports/'ci'/(name+'-verification-image.json')),
                  baseInspection=self.record(self.reports/'ci'/(name+'-base-image.json')),baseManifest=pinned,
@@ -276,16 +283,16 @@ class Verification:
 
 def main():
     if len(sys.argv)>1 and sys.argv[1]=='__export':
-        parser=argparse.ArgumentParser(); parser.add_argument('--kind',choices=['openssl11','icu66'],required=True)
+        parser=argparse.ArgumentParser(); parser.add_argument('--arch', choices=['arm64','x64'], default='arm64'); parser.add_argument('--kind',choices=['openssl11','icu66'],required=True)
         for name in ['project-root','image-inspect','destination','report']: parser.add_argument('--'+name,type=Path,required=True)
         parser.add_argument('--producer-image-id',required=True); parser.add_argument('--consumer-directory',required=True)
         internal_export(parser.parse_args(sys.argv[2:])); return 0
     if len(sys.argv)>1 and sys.argv[1]=='__verify':
-        parser=argparse.ArgumentParser(); parser.add_argument('--family',choices=FAMILIES,required=True)
+        parser=argparse.ArgumentParser(); parser.add_argument('--arch', choices=['arm64','x64'], default='arm64'); parser.add_argument('--family',choices=FAMILIES,required=True)
         for name in ['name','image-id','icu-package','ssl-package']: parser.add_argument('--'+name,required=True)
         for name in ['userland-report','verifier','archive','report-dir']: parser.add_argument('--'+name,type=Path,required=True)
         internal_verify(parser.parse_args(sys.argv[2:])); return 0
-    parser=argparse.ArgumentParser(description=__doc__); parser.add_argument('--family',choices=FAMILIES,required=True)
+    parser=argparse.ArgumentParser(description=__doc__); parser.add_argument('--arch', choices=['arm64','x64'], default='arm64'); parser.add_argument('--family',choices=FAMILIES,required=True)
     for name in ['workspace','output-dir','project-root']: parser.add_argument('--'+name,type=Path,required=True)
     args=parser.parse_args(); task=Verification(args)
     try: task.execute()

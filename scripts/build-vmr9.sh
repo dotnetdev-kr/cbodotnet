@@ -5,8 +5,9 @@ usage() {
   cat <<'EOF'
 Usage: build-vmr9.sh --source-dir DIR --sysroot DIR --reports-dir DIR
                      [--action build|test] [--max-cpu-count N]
+                     [--arch arm64|x64]
                      [--official-sdk-archive /absolute/path/sdk.tar.gz]
-Run the pinned .NET 9.0.123 VMR on native Linux ARM64 using a prepared sysroot.
+Run the pinned .NET 9.0.123 VMR on a matching native Linux host using a prepared sysroot.
 The report directory must not already contain reports for the selected action.
 This is the ordinary VMR build; it does not enable source-only mode.
 EOF
@@ -18,9 +19,10 @@ reports_dir=''
 action=build
 max_cpu_count=2
 official_sdk_archive=''
+arch=arm64
 while (($#)); do
   case "$1" in
-    --source-dir|--sysroot|--reports-dir|--action|--max-cpu-count|--official-sdk-archive)
+    --source-dir|--sysroot|--reports-dir|--action|--max-cpu-count|--official-sdk-archive|--arch)
       (($# >= 2)) || { usage >&2; exit 2; }
       case "$1" in
         --source-dir) source_dir=$2 ;;
@@ -29,6 +31,7 @@ while (($#)); do
         --action) action=$2 ;;
         --max-cpu-count) max_cpu_count=$2 ;;
         --official-sdk-archive) official_sdk_archive=$2 ;;
+        --arch) arch=$2 ;;
       esac
       shift 2 ;;
     -h|--help) usage; exit 0 ;;
@@ -38,7 +41,8 @@ done
 [[ $action == build || $action == test ]] || { usage >&2; exit 2; }
 [[ $max_cpu_count =~ ^[1-9][0-9]*$ && ${#max_cpu_count} -le 3 ]] || { echo 'A positive CPU count of at most 999 is required.' >&2; exit 2; }
 [[ $source_dir == /* && $sysroot_dir == /* && $reports_dir == /* ]] || { echo 'Absolute source, sysroot and report paths are required.' >&2; exit 2; }
-[[ $(uname -s) == Linux && $(uname -m) == aarch64 ]] || { echo 'Native Linux ARM64 is required.' >&2; exit 1; }
+case "$arch" in arm64) native_machine=aarch64 ;; x64) native_machine=x86_64 ;; *) usage >&2; exit 2 ;; esac
+[[ $(uname -s) == Linux && $(uname -m) == "$native_machine" ]] || { echo 'A native Linux host matching --arch is required.' >&2; exit 1; }
 source_dir=$(realpath -e "$source_dir")
 sysroot_dir=$(realpath -e "$sysroot_dir")
 [[ -f $source_dir/build.sh && -d $sysroot_dir/usr/include ]] || { echo 'Source/sysroot is incomplete.' >&2; exit 1; }
@@ -81,9 +85,9 @@ PY
 # This tag uses --rid and MSBuild properties, rather than .NET 10's CLI flags.
 # Preserve upstream official versioning; do not synthesize a new package stamp.
 # Native build scripts call nproc independently of the MSBuild node count.
-args=(taskset --cpu-list "$cpu_affinity" ./build.sh --configuration Release --rid linux-arm64
+args=(taskset --cpu-list "$cpu_affinity" ./build.sh --configuration Release --rid "linux-$arch"
   --ci --clean-while-building --binaryLog
-  /p:TargetArchitecture=arm64 /p:TargetOS=linux
+  "/p:TargetArchitecture=$arch" /p:TargetOS=linux
   /p:CrossBuild=true /p:PortableBuild=true "/m:$max_cpu_count")
 [[ $action != test ]] || args+=(--test "/p:UBTestsMsftSdkArchivePath=$official_sdk_archive")
 cd "$source_dir"
@@ -106,17 +110,17 @@ pipeline_status=("${PIPESTATUS[@]}")
 exit_code=${pipeline_status[0]}
 if ((exit_code == 0 && pipeline_status[1] != 0)); then exit_code=${pipeline_status[1]}; fi
 set -e
-python3 - "$reports_dir/$action-status.json" "$action" "$started_at" "$exit_code" "$expected_commit" "$max_cpu_count" <<'PY'
+python3 - "$reports_dir/$action-status.json" "$action" "$started_at" "$exit_code" "$expected_commit" "$max_cpu_count" "$arch" <<'PY'
 import datetime
 import json
 import sys
 
-path, action, started, code, commit, processors = sys.argv[1:]
+path, action, started, code, commit, processors, architecture = sys.argv[1:]
 with open(path, 'w', encoding='utf-8') as stream:
     json.dump({'action': action, 'startedAt': started,
                'finishedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
                'exitCode': int(code), 'sourceCommit': commit,
-               'sourceOnly': False, 'targetRid': 'linux-arm64',
+               'sourceOnly': False, 'targetRid': 'linux-' + architecture,
                'maxCpuCount': int(processors)}, stream, indent=2)
     stream.write('\n')
 PY

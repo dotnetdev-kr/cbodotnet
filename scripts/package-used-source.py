@@ -301,6 +301,8 @@ def verify(args):
     require(manifest_path.read_bytes() == (release / 'reports/ci/used-source.json').read_bytes(),
             'Source manifest differs from the inventoried report control')
     manifest = json.loads(manifest_path.read_text())
+    if getattr(args, 'expected_target_rid', None) is not None:
+        require(manifest.get('targetRid') == args.expected_target_rid, 'Source delivery target RID differs')
     for key, value in [('projectCommit', args.expected_project_commit), ('runId', args.expected_run_id),
                        ('runAttempt', args.expected_run_attempt)]:
         require(manifest.get(key) == value, 'Source delivery identity differs: ' + key)
@@ -392,6 +394,7 @@ def main():
     checking.add_argument('--release-dir', type=Path, required=True)
     for name in ('expected-project-commit', 'expected-run-id', 'expected-run-attempt'):
         checking.add_argument('--' + name, required=True)
+    checking.add_argument('--expected-target-rid', choices=('linux-arm64', 'linux-x64'))
     import sys
     values = sys.argv[1:]
     # Packing remains compatible with the initially agreed flag-only interface.

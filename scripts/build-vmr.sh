@@ -5,8 +5,8 @@ usage() {
   cat <<'EOF'
 Usage: build-vmr.sh --source-dir DIR --sysroot DIR --reports-dir DIR [--action build|test]
                     [--binaries-report /absolute/clean-source/NewBinaries.txt]
-                    [--build-id YYYYMMDD.N]
-Run the pinned .NET 10.0.403 VMR profile on native Linux ARM64.
+                    [--build-id YYYYMMDD.N] [--arch arm64|x64]
+Run the pinned .NET 10.0.403 VMR profile on a matching native Linux host.
 The source and sysroot must already exist. No source-only claim is made.
 EOF
 }
@@ -17,9 +17,10 @@ reports_dir=''
 action=build
 binaries_report=''
 build_id='20261028.1'
+arch=arm64
 while (($#)); do
   case "$1" in
-    --source-dir|--sysroot|--reports-dir|--action|--binaries-report|--build-id)
+    --source-dir|--sysroot|--reports-dir|--action|--binaries-report|--build-id|--arch)
       (($# >= 2)) || { usage >&2; exit 2; }
       case "$1" in
         --source-dir) source_dir=$2 ;;
@@ -28,6 +29,7 @@ while (($#)); do
         --action) action=$2 ;;
         --binaries-report) binaries_report=$2 ;;
         --build-id) build_id=$2 ;;
+        --arch) arch=$2 ;;
       esac
       shift 2 ;;
     -h|--help) usage; exit 0 ;;
@@ -40,7 +42,8 @@ if [[ -n $binaries_report ]]; then
   [[ $action == test && $binaries_report == /* && -f $binaries_report ]] || { echo 'A real clean-source report is required in test mode.' >&2; exit 2; }
 fi
 [[ -n $source_dir && -n $sysroot_dir && -n $reports_dir ]] || { usage >&2; exit 2; }
-[[ $(uname -s) == Linux && $(uname -m) == aarch64 ]] || { echo 'Native Linux ARM64 is required.' >&2; exit 1; }
+case "$arch" in arm64) native=aarch64 ;; x64) native=x86_64 ;; *) echo 'Unsupported architecture.' >&2; exit 2 ;; esac
+[[ $(uname -s) == Linux && $(uname -m) == "$native" ]] || { echo 'A matching native Linux host is required.' >&2; exit 1; }
 source_dir=$(realpath -e "$source_dir")
 sysroot_dir=$(realpath -e "$sysroot_dir")
 mkdir -p "$reports_dir"
@@ -59,7 +62,7 @@ export DOTNET_NOLOGO=1
 unset NUGET_XMLDOC_MODE
 export DOTNET_PROCESSOR_COUNT=2
 
-args=(./build.sh --configuration Release --arch arm64 --os linux
+args=(./build.sh --configuration Release --arch "$arch" --os linux
   --branding release --official-build-id "$build_id"
   --clean-while-building --binaryLog
   /p:CrossBuild=true /p:PortableBuild=true /m:2)
@@ -86,14 +89,14 @@ fi
 exit_code=${pipeline_status[0]}
 if ((exit_code == 0 && pipeline_status[1] != 0)); then exit_code=${pipeline_status[1]}; fi
 set -e
-python3 - "$reports_dir/$action-status.json" "$action" "$started_at" "$exit_code" "$expected_commit" "$build_id" <<'PY'
+python3 - "$reports_dir/$action-status.json" "$action" "$started_at" "$exit_code" "$expected_commit" "$build_id" "$arch" <<'PY'
 import datetime, json, sys
-path, action, started, code, commit, build_id = sys.argv[1:]
+path, action, started, code, commit, build_id, arch = sys.argv[1:]
 with open(path, 'w', encoding='utf-8') as stream:
     json.dump({'action': action, 'startedAt': started,
                'finishedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
                'exitCode': int(code), 'sourceCommit': commit,
-               'sourceOnly': False, 'targetRid': 'linux-arm64', 'officialBuildId': build_id}, stream, indent=2)
+               'sourceOnly': False, 'targetRid': 'linux-'+arch, 'officialBuildId': build_id}, stream, indent=2)
     stream.write('\n')
 PY
 exit "$exit_code"

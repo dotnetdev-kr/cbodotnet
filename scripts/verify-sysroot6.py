@@ -11,11 +11,24 @@ import re
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--sysroot', type=Path, required=True)
 parser.add_argument('--reports-dir', type=Path, required=True)
+parser.add_argument('--arch', choices=['arm64','x64'], default='arm64')
 args = parser.parse_args()
 for path in [args.sysroot, args.reports_dir]:
     if not path.is_absolute() or path.is_symlink() or not path.is_dir():
         raise SystemExit('Absolute ordinary sysroot/report directories are required')
 root, reports = args.sysroot.resolve(strict=True), args.reports_dir.resolve(strict=True)
+if args.arch == 'x64':
+    if root.name != 'x64-xenial':
+        raise SystemExit('The selected x64 sysroot path differs')
+    libc = (root / 'lib/x86_64-linux-gnu/libc.so.6').resolve(strict=True)
+    if not libc.is_relative_to(root) or not libc.is_file():
+        raise SystemExit('The x64 libc input is missing or redirected outside its sysroot')
+    with libc.open('rb') as stream: header = stream.read(20)
+    if len(header) != 20 or header[:6] != b'\x7fELF\x02\x01' or int.from_bytes(header[18:20], 'little') != 62:
+        raise SystemExit('The x64 sysroot libc must be ELF64 little-endian machine 62')
+    packages = [line.split('\t') for line in (reports / 'sysroot-packages.tsv').read_text().splitlines()]
+    if not packages or any(len(row) != 3 or row[2] not in ('amd64','all') for row in packages) or not any(row[2] == 'amd64' for row in packages):
+        raise SystemExit('The x64 sysroot package architectures differ')
 manifest = reports / 'sysroot-files.sha256'
 data = manifest.read_bytes()
 expected_index = hashlib.sha256(data).hexdigest() + '  ' + str(manifest) + '\n'

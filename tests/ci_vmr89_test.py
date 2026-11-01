@@ -33,14 +33,14 @@ def dump(path,data):
     return write(path,json.dumps(data)+'\n')
 
 
-def trx(path,version):
+def trx(path,version,arch='arm64'):
     ns='{http://microsoft.com/schemas/VisualStudio/TeamTest/2010}'
     root=ET.Element(ns+'TestRun');results=ET.SubElement(root,ns+'Results')
     total,passed=(46,44) if version=='8' else (522,522)
     if version=='9':
-        names=list(S.N9.policy()['factMethods'])
-        for method in S.N9.policy()['packageMethods']:
-            for package in sorted(S.N9.available_ids()):
+        names=list(S.N9.policy(arch)['factMethods'])
+        for method in S.N9.policy(arch)['packageMethods']:
+            for package in sorted(S.N9.available_ids(arch)):
                 display=package[:50]+'"···' if len(package)>50 else package+'"'
                 names.append(method+'(packageName: "'+display+', testNugetPackagePath: "/vmr/fixture.nupkg", baselineNugetPackagePath: "/vmr/baseline.nupkg")')
     else:names=['Fixture.Test'+str(index) for index in range(passed)]
@@ -70,9 +70,9 @@ def archive(path,entries):
     return path
 
 
-def package_case_inputs(source,release):
-    S.N9.before_test(source,release)
-    p=S.N9.policy();manifest=ET.Element('Build');paths=[]
+def package_case_inputs(source,release,arch='arm64'):
+    S.N9.before_test(source,release,arch)
+    p=S.N9.policy(arch);manifest=ET.Element('Build');paths=[]
     for row in p['sourceFiles']:
         write(source/row['path'],(ROOT/'tests/fixtures/net9-package-cases'/Path(row['path']).name).read_bytes())
     for name in p['shippingPackageIds']:
@@ -87,7 +87,7 @@ def package_case_inputs(source,release):
     dump(source/S.N9.CONFIG,dict(runtimeOptions=dict(configProperties={
         S.N9.PREFIX+'AssetManifestPath':'/vmr/artifacts/VerticalManifest.xml',
         S.N9.PREFIX+'LogsDirectory':'/vmr/artifacts/TestResults/Release',S.N9.PREFIX+'Packages':';'.join(paths)})))
-    S.N9.capture(source,release)
+    S.N9.capture(source,release,arch)
     shutil.copytree(source/S.N9.CACHE,release/'reports/test/upstream-results/Microsoft.DotNet.UnifiedBuild.Tests/DownloadCache/NugetPackageBaselines')
 
 
@@ -105,13 +105,14 @@ def source_scan_inputs(source,release):
 
 
 class OriginFixture:
-    def __init__(self,root,version):
+    def __init__(self,root,version,arch='arm64'):
         self.root,self.version=root,version
+        self.arch,self.target=arch,S.get_arch(arch)
         self.source=root/'source';self.release=root/'delivery';self.candidate=root/'candidate'
         self.directory=self.release/'reports/construction';self.directory.mkdir(parents=True)
         runtime=S.V[version]['runtime'];self.records=[];tasks=[];sdk={}
         for index,(framework,prefix,component) in enumerate([('Microsoft.NETCore.App','dotnet-runtime-','runtime'),('Microsoft.AspNetCore.App','aspnetcore-runtime-','aspnetcore')]):
-            basename=prefix+runtime+'-linux-arm64.tar.gz';contents={'shared/'+framework+'/'+runtime+'/fixture.dll':(framework+' fixture').encode(),
+            basename=prefix+runtime+'-'+self.target['rid']+'.tar.gz';contents={'shared/'+framework+'/'+runtime+'/fixture.dll':(framework+' fixture').encode(),
                 'shared/'+framework+'/'+runtime+'/.version':((S.V['9']['commit'] if version=='9' and component=='runtime' else S.COMPONENTS[version][component])+'\n'+runtime+'\n').encode()};sdk.update(contents)
             path=archive(self.directory/('retained/'+str(index)+'.tar.gz'),contents)
             fp=S.record(self.release,path)
@@ -126,7 +127,7 @@ class OriginFixture:
                 {'kind':'task-finished','succeeded':True}]))
         self.tasks=tasks
         dump(self.directory/'component-source-manifest.json',{'repositories':[{'path':name,'commitSha':value} for name,value in S.COMPONENTS[version].items()]})
-        filename='cbodotnet-sdk-'+S.V[version]['sdk']+'-linux-arm64-build.1.tar.gz'
+        filename='cbodotnet-sdk-'+S.V[version]['sdk']+'-'+self.target['rid']+'-build.1.tar.gz'
         archive(self.candidate/filename,sdk)
         dump(self.release/'reports/ci/candidate-build-manifest.json',{'sdkArchive':{'path':filename}})
         self.save()
@@ -141,16 +142,17 @@ class OriginFixture:
 
 class FullFixture(OriginFixture):
     """Complete synthetic metadata bundle, never a claimed build result."""
-    def __init__(self,root,version):
-        super().__init__(root,version);S.construct(self.release,version,self.candidate)
+    def __init__(self,root,version,arch='arm64'):
+        super().__init__(root,version,arch);S.construct(self.release,version,self.candidate,arch)
         frozen=self.release/'reports/ci-inputs/project'
-        for name in S.G.CRITICAL:write(frozen/name,'# Fixture committed source\n')
-        profile=frozen/'profiles'/('dotnet-'+S.V[version]['sdk']+'-linux-arm64.json')
+        for name in S.G.critical_inputs(arch):write(frozen/name,'# Fixture committed source\n')
+        profile=frozen/'profiles'/('dotnet-'+S.V[version]['sdk']+'-'+self.target['rid']+'.json')
         original=json.loads((ROOT/'profiles'/profile.name).read_text());dump(profile,original)
         for name in ('Program.cs','Reader.csproj'):write(frozen/'scripts/ci-vmr89-reader'/name,'Fixture reader '+name+'\n')
         if version=='9':
             write(frozen/'scripts/prepare-scenario-report-fence.py',(ROOT/'scripts/prepare-scenario-report-fence.py').read_bytes())
-            write(frozen/'scripts/ci-net9-test-cases.json',(ROOT/'scripts/ci-net9-test-cases.json').read_bytes())
+            policy_name=S.N9.policy_filename(arch)
+            write(frozen/'scripts'/policy_name,(ROOT/'scripts'/policy_name).read_bytes())
         def git(*args):return subprocess.check_output(['git','-C',str(frozen),*args])
         git('init','-q');git('config','user.email','fixture@example.invalid');git('config','user.name','Fixture');git('add','.');git('commit','-qm','Fixture tree')
         commit=git('rev-parse','HEAD').decode().strip();commit_object=git('cat-file','commit',commit)
@@ -167,21 +169,31 @@ class FullFixture(OriginFixture):
              projectInitiallyPristine=True,inputRepresentation='canonical-git-blobs-with-verified-checkout',projectFiles=rows,
              projectCommitObject=S.record(self.release,self.release/'reports/ci-inputs/project-commit.txt'),originalProfile=S.record(self.release,profile),
              effectiveProfile=S.record(self.release,self.release/'reports/ci-inputs/effective-profile.json')))
+        if arch!='arm64':
+            snapshot=self.release/'reports/ci-inputs/snapshot.json';value=S.load(snapshot)
+            value.update(architecture=arch,targetRid=self.target['rid'],workflowRef='dotnetdev-kr/cbodotnet/.github/workflows/sdk-x64.yml@refs/heads/main');dump(snapshot,value)
         sysroot=self.release/'reports/sysroot';write(sysroot/'sysroot-prepare-fixture.log','I: Valid Release signature\n')
         dump(sysroot/'sysroot-provenance.json',dict(sourceCommit=S.V[version]['commit'],packageSignatureVerification=True,emulation=False,
              keyrings=[{}]*3,logFile='/reports/sysroot-prepare-fixture.log'))
-        write(sysroot/'sysroot-files.sha256','a'*64+'  /inputs/arm64-xenial/lib/fixture.so\n')
+        write(sysroot/'sysroot-files.sha256','a'*64+'  /inputs/'+arch+'-xenial/lib/fixture.so\n')
+        if arch!='arm64':
+            provenance=sysroot/'sysroot-provenance.json';value=S.load(provenance)
+            value['generatorArguments']=[arch,'xenial','--rootfsdir','/inputs/'+arch+'-xenial'];dump(provenance,value)
+            write(sysroot/'sysroot-packages.tsv','libc6:'+self.target['deb']+'\tfixture\t'+self.target['deb']+'\nbase-files\tfixture\tall\n')
         if version=='8':
-            trx(self.release/'reports/test/upstream-results/smoke.trx','8');test_value=S.test_results(version,self.release/'reports/test/upstream-results/smoke.trx')
+            trx(self.release/'reports/test/upstream-results/smoke.trx','8',arch);test_value=S.test_results(version,self.release/'reports/test/upstream-results/smoke.trx',arch=arch)
             scan=source_scan_inputs(root/'scan-source',self.release)
             dump(self.release/'reports/build/net8-patches-apply.json',dict(status='passed',patches=[{},{}]))
             dump(self.release/'reports/prepare/bootstrap/bootstrap-inputs.json',dict(sourceCommit=S.V[version]['commit'],bootstrapSdk=S.V[version]['bootstrap']))
+            if arch!='arm64':
+                bootstrap=self.release/'reports/prepare/bootstrap/bootstrap-inputs.json';value=S.load(bootstrap)
+                value.update(targetRid=self.target['rid'],bootstrapArchive={'linuxX64Packages':['microsoft.netcore.app.runtime.linux-x64.fixture.nupkg']});dump(bootstrap,value)
         else:
-            package_case_inputs(root/'case-source',self.release)
+            package_case_inputs(root/'case-source',self.release,arch)
             path=self.release/'reports/test/package-cases-before.json';value=S.load(path);value['observedAtUtc']='2026-10-31T00:03:00.500000Z';dump(path,value)
             path=self.release/'reports/test/package-cases/coverage.json';value=S.load(path);value['capturedAtUtc']='2026-10-31T00:03:29.500000Z';dump(path,value)
-            path=trx(self.release/'reports/test/upstream-results/Microsoft.DotNet.UnifiedBuild.Tests.trx','9')
-            scenario=scenarios(self.release/'reports/test/upstream-results/scenario-tests/results.xml');test_value=S.test_results(version,path,scenario)
+            path=trx(self.release/'reports/test/upstream-results/Microsoft.DotNet.UnifiedBuild.Tests.trx','9',arch)
+            scenario=scenarios(self.release/'reports/test/upstream-results/scenario-tests/results.xml');test_value=S.test_results(version,path,scenario,arch)
             dump(self.release/'reports/scan/upstream/status.json',dict(status='passed',exitCode=0,toolExitCode=0,teeExitCode=0,
                  sourceCommit=S.V[version]['commit'],cleanSourceCommit=S.V[version]['commit'],cleanPristineBefore=True,cleanPristineAfter=True,
                  allowlistsUnchanged=True,newBinariesReport={'exists':False}))
@@ -207,16 +219,17 @@ class FullFixture(OriginFixture):
                 commands=[]
                 for userland,(distribution,os_version,icu,ssl) in S.G.USERLANDS.items():
                     base='docker.io/library/'+distribution+'@sha256:'+'c'*64
-                    tag='localhost/cbodotnet-net'+version+'-verify-'+userland+':12345-1'
-                    dump(self.release/('reports/ci/'+userland+'-base-image.json'),[dict(Id='c'*64,Architecture='arm64',Os='linux',Digest='sha256:'+'c'*64,RepoDigests=[base])])
-                    dump(self.release/('reports/ci/'+userland+'-verification-image.json'),[dict(Id='b'*64,Architecture='arm64',Os='linux',RepoTags=[tag])])
-                    dump(self.release/('reports/ci/'+userland+'-userland.json'),dict(imageId='b'*64,architecture='aarch64',uid=1000,
+                    suffix='' if arch=='arm64' else '-'+arch
+                    tag='localhost/cbodotnet-net'+version+suffix+'-verify-'+userland+':12345-1'
+                    dump(self.release/('reports/ci/'+userland+'-base-image.json'),[dict(Id='c'*64,Architecture=self.target['image'],Os='linux',Digest='sha256:'+'c'*64,RepoDigests=[base])])
+                    dump(self.release/('reports/ci/'+userland+'-verification-image.json'),[dict(Id='b'*64,Architecture=self.target['image'],Os='linux',RepoTags=[tag])])
+                    dump(self.release/('reports/ci/'+userland+'-userland.json'),dict(imageId='b'*64,architecture=self.target['uname'],uid=1000,
                          osRelease={'ID':distribution,'VERSION_ID':os_version},installedPackages=dict.fromkeys([icu,ssl,'libc6','libstdc++6','zlib1g','libgssapi-krb5-2'],'fixture'),
-                         environmentOverrides=dict.fromkeys(S.G.ENVIRONMENT_OVERRIDES,None)))
+                         environmentOverrides=dict.fromkeys(S.G.environment_overrides(arch),None)))
                     commands.extend([['podman','build','--build-arg','BASE_IMAGE='+base,'--tag',tag],['podman','run','--network=none','b'*64]])
             dump(self.release/('reports/ci/stages/'+name+'.json'),dict(self.identity,stage=name,status='passed',exitCode=0,commands=commands,imageId='a'*64,
-                 nativeArchitecture='aarch64',uid=1000,startedAtUtc='2026-10-31T00:%02d:00Z'%index,finishedAtUtc='2026-10-31T00:%02d:30Z'%index))
-        dump(self.release/'reports/prepare/build-image.json',[dict(Id='a'*64,Architecture='arm64',Os='linux')])
+                 nativeArchitecture=self.target['uname'],uid=1000,startedAtUtc='2026-10-31T00:%02d:00Z'%index,finishedAtUtc='2026-10-31T00:%02d:30Z'%index))
+        dump(self.release/'reports/prepare/build-image.json',[dict(Id='a'*64,Architecture=self.target['image'],Os='linux')])
         reader=write(self.directory/'reader/Reader.dll',b'Fixture analysis tool bytes')
         dump(self.directory/'reader-inputs.json',dict(compilerSdk=S.V[version]['bootstrap'],sourceCommit=S.V[version]['commit'],reader=S.record(self.release,reader),
              sourceFiles=[S.record(self.release,frozen/'scripts/ci-vmr89-reader'/name) for name in ('Program.cs','Reader.csproj')]))
@@ -234,12 +247,12 @@ class FullFixture(OriginFixture):
         for algorithm in ('sha256','sha512'):write(self.release/(algorithm.upper()+'SUMS'),self.archive[algorithm]+'  '+candidate+'\n')
         for userland in S.G.USERLANDS:
             dump(self.release/('reports/verify-'+userland+'/verification.json'),dict(verificationStatus='passed',smokeStatus='passed',sdkVersion=S.V[version]['sdk'],
-                 reportedRid='linux-arm64',hostArchitecture='aarch64',framework='net'+version+'.0',functionalChecks=dict.fromkeys(S.G.FUNCTIONS,'passed'),
+                 reportedRid=self.target['rid'],hostArchitecture=self.target['uname'],framework='net'+version+'.0',functionalChecks=dict.fromkeys(S.G.FUNCTIONS,'passed'),
                  archive=dict(sdkContentMatched=True,sha256=self.archive['sha256'],sizeBytes=self.archive['bytes']),
-                 abi=dict(elfFileCount=1,machines={'AArch64':1},glibcCeiling='2.23',glibcCeilingPassed=True,symbolicGlibcRequirements=[],
+                 abi=dict(elfFileCount=1,machines={self.target['elf']:1},glibcCeiling='2.23',glibcCeilingPassed=True,symbolicGlibcRequirements=[],
                           maximumRequiredVersions={'GLIBC':'2.17','GLIBCXX':'3.4.21','CXXABI':'1.3.7'})))
         write(self.release/'collect.log','Fixture actual collector transcript\n')
-        self.manifest=dict(sdkVersion=S.V[version]['sdk'],targetRid='linux-arm64',sourceOnly=S.V[version]['sourceOnly'],buildRevision='1',sdkArchive=self.archive,
+        self.manifest=dict(sdkVersion=S.V[version]['sdk'],targetRid=self.target['rid'],sourceOnly=S.V[version]['sourceOnly'],buildRevision='1',sdkArchive=self.archive,
                            source=dict(actualCommit=S.V[version]['commit'],commitVerified=True),construction=dict(upstreamSharedRuntimeReused=version=='9'),
                            profile=dict(contents=selected,**S.fingerprint(self.release/'reports/ci-inputs/effective-profile.json')),buildImage={'id':'a'*64},
                            rebuildInputs=[S.record(frozen,p) for folder in ('scripts','containers','patches') for p in (frozen/folder).rglob('*') if p.is_file()])
@@ -254,6 +267,7 @@ class FullFixture(OriginFixture):
 
     def args(self,stage='validate'):
         return SimpleNamespace(version=self.version,output_dir=self.release,project_root=None,stage=stage,
+                               arch=self.arch,
                                expected_project_commit=self.identity['projectCommit'],expected_run_id='12345',expected_run_attempt='1')
 
 
@@ -262,6 +276,56 @@ class Tests(unittest.TestCase):
         self.temp=tempfile.TemporaryDirectory();self.root=Path(self.temp.name).absolute()
 
     def tearDown(self): self.temp.cleanup()
+
+    def test_complete_x64_families_bind_native_architecture_and_original_test_universe(self):
+        for version in ('8','9'):
+            with self.subTest(version=version):
+                fixture=FullFixture(self.root/('native-x64-'+version),version,'x64')
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(S.qualify(fixture.args()),0)
+                    self.assertEqual(S.qualify(fixture.args('verify-release')),0)
+                envelope=S.load(fixture.release/'ci-validation.json')
+                self.assertEqual((envelope['architecture'],envelope['targetRid']),('x64','linux-x64'))
+                self.assertTrue(all('linux-x64.tar.gz' in component['actualAttempt']['destination']
+                                    for component in S.load(fixture.directory/'origin-evidence.json')['components']))
+                wrong=fixture.args('verify-release');wrong.arch='arm64'
+                with self.assertRaisesRegex(ValueError,'producer architecture'):
+                    S.qualify(wrong)
+
+    def test_x64_gate_rejects_arm_images_hosts_elfs_sysroots_and_wrong_workflow(self):
+        fixture=FullFixture(self.root/'native-x64-negative','8','x64')
+        cases=[('reports/prepare/build-image.json',lambda value:value[0].update(Architecture='arm64')),
+               ('reports/ci/stages/build.json',lambda value:value.update(nativeArchitecture='aarch64')),
+               ('reports/verify-ubuntu22/verification.json',lambda value:value.update(reportedRid='linux-arm64')),
+               ('reports/verify-ubuntu22/verification.json',lambda value:value['abi'].update(machines={'AArch64':1})),
+               ('reports/ci/ubuntu22-userland.json',lambda value:value['environmentOverrides'].update(DOTNET_ROOT_X64='/other-sdk')),
+               ('reports/ci-inputs/snapshot.json',lambda value:value.update(workflowRef='dotnetdev-kr/cbodotnet/.github/workflows/sdk-matrix.yml@refs/heads/main'))]
+        for name,mutate in cases:
+            path=fixture.release/name;original=path.read_bytes();value=json.loads(original);mutate(value);dump(path,value);fixture.seal()
+            with self.subTest(name=name),self.assertRaises(ValueError):S.qualify(fixture.args())
+            path.write_bytes(original)
+        packages=fixture.release/'reports/sysroot/sysroot-packages.tsv';original=packages.read_bytes()
+        packages.write_text('libc6:arm64\tfixture\tarm64\n');fixture.seal()
+        with self.assertRaisesRegex(ValueError,'sysroot package architecture'):S.qualify(fixture.args())
+        packages.write_bytes(original);fixture.seal()
+        with contextlib.redirect_stdout(io.StringIO()):self.assertEqual(S.qualify(fixture.args()),0)
+
+    def test_x64_bootstrap_requires_native_runtime_and_package_policy_rejects_arm_ids(self):
+        spec=importlib.util.spec_from_file_location('bootstrap8_x64_fixture',ROOT/'scripts/watch-bootstrap8.py')
+        bootstrap=importlib.util.module_from_spec(spec);spec.loader.exec_module(bootstrap)
+        arm=archive(self.root/'arm-bootstrap.tar.gz',{'PackageVersions.props':b'<Project/>',
+            'Microsoft.NETCore.App.Runtime.linux-arm64.fixture.nupkg':b'fixture'})
+        x64=archive(self.root/'x64-bootstrap.tar.gz',{'PackageVersions.props':b'<Project/>',
+            'Microsoft.NETCore.App.Runtime.linux-x64.fixture.nupkg':b'fixture'})
+        self.assertTrue(bootstrap.archive_record(arm,require_runtime=True)['linuxArm64Packages'])
+        with self.assertRaisesRegex(ValueError,'native runtime package'):
+            bootstrap.archive_record(arm,require_runtime=True,arch='x64')
+        self.assertTrue(bootstrap.archive_record(x64,require_runtime=True,arch='x64')['linuxX64Packages'])
+        source=self.root/'package-manifest';package_case_inputs(source,self.root/'case-delivery','x64')
+        manifest=source/'artifacts/VerticalManifest.xml'
+        data=manifest.read_text();self.assertIn('linux-x64',data);manifest.write_text(data.replace('linux-x64','linux-arm64'))
+        with self.assertRaisesRegex(ValueError,'shipping package universe'):
+            S.N9.manifest_rows(manifest,'x64')
 
     def test_net8_preserved_source_binlog_uses_original_producer_not_cleanup_copy(self):
         source=self.root/'source';release=self.root/'delivery'
@@ -379,7 +443,7 @@ class Tests(unittest.TestCase):
         for entry in ('ci-vmr89.py','ci_vmr89_support.py'):
             with self.subTest(entry=entry):
                 directory=self.root/entry/'scripts';directory.mkdir(parents=True)
-                names=['ci-vmr89.py','ci_vmr89_support.py','ci-net10-evidence.py','ci_net9_cases.py','ci-net9-test-cases.json']
+                names=['ci-vmr89.py','ci_vmr89_support.py','ci-net10-evidence.py','ci_arch.py','ci_net9_cases.py','ci-net9-test-cases.json','ci-net9-test-cases-x64.json']
                 for name in names:shutil.copyfile(ROOT/'scripts'/name,directory/name)
                 before={path.relative_to(directory).as_posix() for path in directory.rglob('*') if path.is_file()}
                 environment=os.environ.copy();environment.pop('PYTHONDONTWRITEBYTECODE',None);environment.pop('PYTHONPYCACHEPREFIX',None)

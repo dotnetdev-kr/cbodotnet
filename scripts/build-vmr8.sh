@@ -5,8 +5,9 @@ usage() {
   cat <<'EOF'
 Usage: build-vmr8.sh --source-dir DIR --sysroot DIR --reports-dir DIR
                      [--action prepare|build|test] [--max-cpu-count N]
+                     [--arch arm64|x64]
                      [--official-sdk-archive /absolute/path/sdk.tar.gz]
-Run the pinned .NET 8.0.133 legacy VMR source-build on native Linux ARM64.
+Run the pinned .NET 8.0.133 legacy VMR source-build on a matching native Linux host.
 Prepare invokes the original prep.sh, which replaces its downloaded PSB archive
 with a bootstrapped archive. Preserve the original download before replacement.
 The report directory must not contain reports for the selected action already.
@@ -19,10 +20,11 @@ reports_dir=''
 action=build
 max_cpu_count=2
 official_sdk_archive=''
+arch=arm64
 existing_archives=()
 while (($#)); do
   case "$1" in
-    --source-dir|--sysroot|--reports-dir|--action|--max-cpu-count|--official-sdk-archive)
+    --source-dir|--sysroot|--reports-dir|--action|--max-cpu-count|--official-sdk-archive|--arch)
       (($# >= 2)) || { usage >&2; exit 2; }
       case "$1" in
         --source-dir) source_dir=$2 ;;
@@ -31,6 +33,7 @@ while (($#)); do
         --action) action=$2 ;;
         --max-cpu-count) max_cpu_count=$2 ;;
         --official-sdk-archive) official_sdk_archive=$2 ;;
+        --arch) arch=$2 ;;
       esac
       shift 2 ;;
     -h|--help) usage; exit 0 ;;
@@ -40,7 +43,8 @@ done
 [[ $action == prepare || $action == build || $action == test ]] || { usage >&2; exit 2; }
 [[ $max_cpu_count =~ ^[1-9][0-9]*$ && ${#max_cpu_count} -le 3 ]] || { echo 'A positive CPU count of at most 999 is required.' >&2; exit 2; }
 [[ $source_dir == /* && $sysroot_dir == /* && $reports_dir == /* ]] || { echo 'Absolute source, sysroot and report paths are required.' >&2; exit 2; }
-[[ $(uname -s) == Linux && $(uname -m) == aarch64 ]] || { echo 'Native Linux ARM64 is required.' >&2; exit 1; }
+case "$arch" in arm64) native_machine=aarch64 ;; x64) native_machine=x86_64 ;; *) usage >&2; exit 2 ;; esac
+[[ $(uname -s) == Linux && $(uname -m) == "$native_machine" ]] || { echo 'A native Linux host matching --arch is required.' >&2; exit 1; }
 source_dir=$(realpath -e "$source_dir")
 sysroot_dir=$(realpath -e "$sysroot_dir")
 [[ -f $source_dir/build.sh && -f $source_dir/prep.sh && -d $sysroot_dir/usr/include ]] || { echo 'Source/sysroot is incomplete.' >&2; exit 1; }
@@ -56,7 +60,7 @@ if [[ $action == prepare ]]; then
   shopt -u nullglob
   (( ${#existing_archives[@]} <= 1 )) || { echo 'Multiple PSB archives exist; preserve them and inspect the workspace before preparation.' >&2; exit 1; }
   if (( ${#existing_archives[@]} == 1 )); then
-    [[ ${existing_archives[0]##*/} == Private.SourceBuilt.Artifacts.Bootstrap.tar.gz ]] || { echo 'An existing non-bootstrap PSB archive would make upstream prep skip ARM64 bootstrapping. Preserve it and resolve the incomplete preparation explicitly.' >&2; exit 1; }
+    [[ ${existing_archives[0]##*/} == Private.SourceBuilt.Artifacts.Bootstrap.tar.gz ]] || { echo 'An existing non-bootstrap PSB archive would make upstream prep skip target bootstrapping. Preserve it and resolve the incomplete preparation explicitly.' >&2; exit 1; }
   fi
 else
   [[ -x $source_dir/.dotnet/dotnet && -d $source_dir/.dotnet/sdk/8.0.131 && -f $source_dir/prereqs/packages/archive/Private.SourceBuilt.Artifacts.Bootstrap.tar.gz && -f $(dirname "$sysroot_dir")/bootstrap8-prepared.json ]] || { echo 'Run successful preparation with recorded bootstrap hashes before build or test.' >&2; exit 1; }
@@ -77,12 +81,12 @@ inputs_dir=$(dirname "$sysroot_dir")
 if [[ $action != prepare ]]; then
   patch_helper=$(dirname "$bootstrap_helper")/apply-net8-patches.py
   [[ -f $patch_helper ]] || { echo 'Missing .NET 8 pinned backport helper.' >&2; exit 1; }
-  printf '%s\n' 'The .NET 8 legacy source-build profile applies two recorded compatibility patches for ARM64 cross-components host detection and portable ASP.NET Core package selection.' | tee "$reports_dir/net8-patches-notice.txt"
+  printf '%s\n' 'The .NET 8 legacy source-build profile retains the recorded cross-components host-detection backport and portable ASP.NET Core package-selection patch.' | tee "$reports_dir/net8-patches-notice.txt"
   python3 "$patch_helper" apply --source-dir "$source_dir" --reports-dir "$reports_dir"
-  python3 "$bootstrap_helper" verify --source-dir "$source_dir" --inputs-dir "$inputs_dir" --report "$reports_dir/bootstrap-inputs.json"
+  python3 "$bootstrap_helper" verify --arch "$arch" --source-dir "$source_dir" --inputs-dir "$inputs_dir" --report "$reports_dir/bootstrap-inputs.json"
   symbol_helper=$(dirname "$bootstrap_helper")/restore-net8-symbol-inputs.py
   [[ -f $symbol_helper ]] || { echo 'Missing .NET 8 retained symbol-input helper.' >&2; exit 1; }
-  python3 "$symbol_helper" --source-dir "$source_dir" --reports-dir "$reports_dir"
+  python3 "$symbol_helper" --arch "$arch" --source-dir "$source_dir" --reports-dir "$reports_dir"
 fi
 
 export ROOTFS_DIR=$sysroot_dir
@@ -114,8 +118,8 @@ else
   # .NET 8 accepts extra MSBuild properties only after its literal -- separator.
   args=(taskset --cpu-list "$cpu_affinity" ./build.sh --clean-while-building --online)
   [[ $action != test ]] || args+=(--run-smoke-test)
-  args+=(-- /p:Configuration=Release /p:Platform=arm64 /p:TargetOS=Linux
-    /p:TargetRid=linux-arm64 /p:PortableBuild=true /p:CrossBuild=true "/m:$max_cpu_count")
+  args+=(-- /p:Configuration=Release "/p:Platform=$arch" /p:TargetOS=Linux
+    "/p:TargetRid=linux-$arch" /p:PortableBuild=true /p:CrossBuild=true "/m:$max_cpu_count")
 fi
 cd "$source_dir"
 {
@@ -145,7 +149,7 @@ stop_watcher() {
 }
 trap stop_watcher EXIT
 if [[ $action == prepare && ${#existing_archives[@]} == 0 ]]; then
-  python3 "$bootstrap_helper" watch --source-dir "$source_dir" --inputs-dir "$inputs_dir" > "$reports_dir/bootstrap-preservation-watch.log" 2>&1 &
+  python3 "$bootstrap_helper" watch --arch "$arch" --source-dir "$source_dir" --inputs-dir "$inputs_dir" > "$reports_dir/bootstrap-preservation-watch.log" 2>&1 &
   watcher_pid=$!
 fi
 started_at=$(date -u +%FT%TZ)
@@ -158,23 +162,23 @@ set -e
 stop_watcher
 if [[ $action == prepare && $exit_code == 0 ]]; then
   set +e
-  python3 "$bootstrap_helper" finalize --source-dir "$source_dir" --inputs-dir "$inputs_dir" --report "$reports_dir/bootstrap-inputs.json" 2>&1 | tee -a "$reports_dir/$action.log"
+  python3 "$bootstrap_helper" finalize --arch "$arch" --source-dir "$source_dir" --inputs-dir "$inputs_dir" --report "$reports_dir/bootstrap-inputs.json" 2>&1 | tee -a "$reports_dir/$action.log"
   final_status=("${PIPESTATUS[@]}")
   set -e
   if ((final_status[0] != 0)); then exit_code=${final_status[0]};
   elif ((final_status[1] != 0)); then exit_code=${final_status[1]}; fi
 fi
-python3 - "$reports_dir/$action-status.json" "$action" "$started_at" "$exit_code" "$expected_commit" "$max_cpu_count" "$official_sdk_archive" <<'PY'
+python3 - "$reports_dir/$action-status.json" "$action" "$started_at" "$exit_code" "$expected_commit" "$max_cpu_count" "$official_sdk_archive" "$arch" <<'PY'
 import datetime
 import json
 import sys
 
-path, action, started, code, commit, processors, baseline = sys.argv[1:]
+path, action, started, code, commit, processors, baseline, architecture = sys.argv[1:]
 record = {'action': action, 'startedAt': started,
           'finishedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
           'exitCode': int(code), 'sourceCommit': commit,
           'buildSystem': 'legacy-vmr-source-build', 'sourceOnly': True,
-          'targetRid': 'linux-arm64', 'maxCpuCount': int(processors),
+          'targetRid': 'linux-' + architecture, 'maxCpuCount': int(processors),
           'portableBuildEnvironment': True, 'crossBuildEnvironment': True,
           'buildSourceVersion': commit,
           'onlineBuild': action in ('build', 'test')}

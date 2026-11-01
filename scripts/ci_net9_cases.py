@@ -8,6 +8,7 @@ import re
 import shutil
 import xml.etree.ElementTree as ET
 import zipfile
+from ci_arch import get_arch
 
 HERE = Path(__file__).resolve().parent
 CACHE = 'artifacts/TestResults/Release/Microsoft.DotNet.UnifiedBuild.Tests/DownloadCache/NugetPackageBaselines'
@@ -35,22 +36,37 @@ def fingerprint(path):
     return dict(bytes=after.st_size, **{name: value.hexdigest() for name, value in hashes.items()})
 
 
-def policy():
-    value = json.loads((HERE / 'ci-net9-test-cases.json').read_text())
+def policy_filename(arch='arm64'):
+    get_arch(arch)
+    return 'ci-net9-test-cases.json' if arch == 'arm64' else 'ci-net9-test-cases-x64.json'
+
+
+def policy(arch='arm64'):
+    target = get_arch(arch)
+    value = json.loads((HERE / policy_filename(arch)).read_text())
     require(value['sourceCommit'] == '9f04b57d1366e21b3178648493d6edffeff2216e' and value['sdkVersion'] == '9.0.123'
             and len(value['shippingPackageIds']) == len(set(value['shippingPackageIds'])) == 262
             and set(value['unavailableBaselineIds']) == {'Microsoft.DotNet.Common.ProjectTemplates.9.0', 'Microsoft.EntityFrameworkCore.Tasks'},
             'Unexpected trusted NET9 package case policy')
+    if arch != 'arm64':
+        original_path = HERE / policy_filename('arm64')
+        original = policy('arm64')
+        expected = [name.replace('linux-arm64', target['rid']) for name in original['shippingPackageIds']]
+        require(value['targetRid'] == target['rid'] and value['shippingPackageIds'] == expected
+                and value['sourceFiles'] == original['sourceFiles']
+                and value['derivation']['targetRidSubstitutions'] == sum('linux-arm64' in name for name in original['shippingPackageIds']) == 8
+                and value['derivation']['arm64PolicySha256'] == hashlib.sha256(original_path.read_bytes()).hexdigest(),
+                'The strict expected x64 package graph derivation differs')
     return value
 
 
-def available_ids():
-    p = policy()
+def available_ids(arch='arm64'):
+    p = policy(arch)
     return set(p['shippingPackageIds']) - set(p['unavailableBaselineIds'])
 
 
-def common_cases(results):
-    p = policy(); available = available_ids()
+def common_cases(results, arch='arm64'):
+    p = policy(arch); available = available_ids(arch)
     expected = {(method, name) for method in p['packageMethods'] for name in available}
     found = set(); facts = set()
     for row in results:
@@ -78,28 +94,29 @@ def write(path, value):
         json.dump(value, stream, indent=2); stream.write('\n')
 
 
-def before_test(source, release):
+def before_test(source, release, arch='arm64'):
+    get_arch(arch)
     cache = source / CACHE
     require(not cache.exists() and not cache.is_symlink(), 'NET9 package baseline cache must be absent before the fresh test invocation')
     write(release / 'reports/test/package-cases-before.json', dict(status='passed', cacheInitiallyAbsent=True, cachePath='/vmr/' + CACHE,
           observedAtUtc=datetime.datetime.now(datetime.timezone.utc).isoformat()))
 
 
-def manifest_rows(path):
+def manifest_rows(path, arch='arm64'):
     raw = ordinary(path).read_bytes()
     require(b'<!DOCTYPE' not in raw and b'<!ENTITY' not in raw, 'Unsupported package manifest XML')
     rows = [node.attrib for node in ET.fromstring(raw).findall('./Package') if node.get('DotNetReleaseShipping') == 'true']
-    p = policy()
+    p = policy(arch)
     require(len(rows) == 262 and len({row['Id'] for row in rows}) == 262
             and {row['Id'] for row in rows} == set(p['shippingPackageIds']), 'Actual NET9 shipping package universe differs')
     require(all(re.fullmatch(r'[A-Za-z0-9.+-]+', row['Version']) and row.get('RepoOrigin') for row in rows), 'Invalid shipping package identity')
     return sorted(rows, key=lambda row: row['Id'])
 
 
-def capture(source, release):
-    p = policy(); directory = release / 'reports/test/package-cases'
+def capture(source, release, arch='arm64'):
+    p = policy(arch); directory = release / 'reports/test/package-cases'
     require(not directory.exists(), 'Package case evidence must be new')
-    rows = manifest_rows(source / 'artifacts/VerticalManifest.xml')
+    rows = manifest_rows(source / 'artifacts/VerticalManifest.xml', arch)
     config_path = ordinary(source / CONFIG)
     config = json.loads(config_path.read_text())['runtimeOptions']['configProperties']
     require(config[PREFIX + 'AssetManifestPath'] == '/vmr/artifacts/VerticalManifest.xml'
@@ -137,18 +154,20 @@ def capture(source, release):
     record = dict(schemaVersion=1, status='passed', sourceCommit=p['sourceCommit'], cacheRows=cache_rows, sourceFiles=source_rows,
                   capturedAtUtc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
                   scope='Actual original downloader cache after this fresh test. Only the two fixed zero-byte cache entries lack comparisons; no independent HTTP-status or package equivalence claim.')
+    if arch != 'arm64': record.update(targetRid=get_arch(arch)['rid'])
     write(directory / 'coverage.json', record)
-    return validate(release, require_retained_cache=False)
+    return validate(release, require_retained_cache=False, arch=arch)
 
 
-def validate(release, require_retained_cache=True):
-    p = policy(); directory = release / 'reports/test/package-cases'
+def validate(release, require_retained_cache=True, arch='arm64'):
+    p = policy(arch); directory = release / 'reports/test/package-cases'
     coverage = json.loads(ordinary(directory / 'coverage.json').read_text())
     before = json.loads(ordinary(release / 'reports/test/package-cases-before.json').read_text())
     require(before['status'] == 'passed' and before['cacheInitiallyAbsent'] is True and before['cachePath'] == '/vmr/' + CACHE,
             'Actual initially absent NET9 baseline cache proof required')
     require(coverage['schemaVersion'] == 1 and coverage['status'] == 'passed' and coverage['sourceCommit'] == p['sourceCommit'], 'Actual NET9 package coverage receipt required')
-    rows = manifest_rows(directory / 'VerticalManifest.xml')
+    if arch != 'arm64': require(coverage.get('targetRid') == get_arch(arch)['rid'], 'Package baseline architecture differs')
+    rows = manifest_rows(directory / 'VerticalManifest.xml', arch)
     config = json.loads(ordinary(directory / 'runtimeconfig.json').read_text())['runtimeOptions']['configProperties']
     require(config[PREFIX + 'AssetManifestPath'] == '/vmr/artifacts/VerticalManifest.xml'
             and config[PREFIX + 'LogsDirectory'].rstrip('/') == '/vmr/artifacts/TestResults/Release', 'Captured original test runtime wiring differs')

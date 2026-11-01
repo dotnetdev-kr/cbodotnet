@@ -21,6 +21,10 @@ import tempfile
 import zipfile
 import xml.etree.ElementTree as ET
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 
 COMMIT = '40de72d1087a1d05dfd39c87f888a0611ec6c60f'
 SDK_VERSION = '3.0.103'
@@ -149,7 +153,7 @@ def test_inputs(source, sdk, root, reports, helper):
                 row = dict({'path': str(ordinary(path))}, **fingerprint(path))
                 row['matchesSdkToolAssembly'] = row['sha256'] == tool_info['sha256']
                 outputs.append(row)
-    feed = helper['directory'](source / 'bin/obj/arm64/Release/blob-feed/packages')
+    feed = helper['directory'](source / ('bin/obj/' + ARCH['arch'] + '/Release/blob-feed/packages'))
     for package in sorted(feed.glob('dotnet-dev-certs.*.nupkg')):
         if package.name.endswith('.symbols.nupkg'):
             continue
@@ -198,6 +202,7 @@ def test_inputs(source, sdk, root, reports, helper):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument('--source-dir', type=Path, required=True)
     parser.add_argument('--inputs-dir', type=Path, required=True)
     parser.add_argument('--reports-dir', type=Path, required=True)
@@ -340,7 +345,7 @@ def main():
               'sourceCommit': commit, 'rootRepo': 'core-sdk', 'sdkVersion': SDK_VERSION,
               'sdkArchive': dict({'path': str(archive)}, **archive_info), 'freshSdkDirectory': str(sdk),
               'testRoot': str(root), 'stableSdkFiles': [{'path': p, 'fingerprint': fingerprint(ordinary(sdk / p))} for p in stable_paths],
-              'environment': {'SOURCE_BUILD_SMOKE_ARCH': 'arm64', 'SOURCE_BUILD_SMOKE_TEST_DIR': str(root / 'testing-smoke'),
+              'environment': {'SOURCE_BUILD_SMOKE_ARCH': ARCH['arch'], 'SOURCE_BUILD_SMOKE_TEST_DIR': str(root / 'testing-smoke'),
                               'DOTNET_CLI_HOME': str(root / 'testing-smoke/home'), 'XDG_RUNTIME_DIR': str(runtime),
                               'SOURCE_BUILD_SMOKE_SOURCE_ROOT': str(source),
                               'SOURCE_BUILD_SMOKE_NUGET_CONFIG': fixture_inputs['privateNuGetTemplate']['path']},

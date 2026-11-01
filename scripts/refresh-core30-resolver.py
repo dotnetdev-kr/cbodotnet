@@ -15,15 +15,20 @@ import platform
 import runpy
 import xml.etree.ElementTree as ET
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument('--source-dir', type=Path, required=True)
     parser.add_argument('--inputs-dir', type=Path, required=True)
     parser.add_argument('--reports-dir', type=Path, required=True)
     parser.add_argument('--profile', type=Path, required=True)
     args = parser.parse_args()
-    if platform.system() != 'Linux' or platform.machine().lower() not in ('aarch64', 'arm64'):
+    if platform.system() != 'Linux' or platform.machine().lower() not in (ARCH['uname'], ARCH['arch']):
         raise ValueError('Use the native Linux ARM64 build container')
     helpers = Path(__file__).resolve().parent
     bootstrap = runpy.run_path(str(helpers / 'prepare-core30-bootstrap.py'))
@@ -113,7 +118,7 @@ def main():
             flow_cases.append((label, flow_output, expected))
         target = ET.SubElement(probe, 'Target', {'Name': 'Probe'})
         ET.SubElement(target, 'ReplaceTextInFile', {'InputFile': str(fixture), 'OldText': 'before', 'NewText': 'after'})
-        ET.SubElement(target, 'WriteRestoreSourceAndVersionProps', {'RestoreSources': str(source / 'bin/obj/arm64/Release/blob-feed/packages'),
+        ET.SubElement(target, 'WriteRestoreSourceAndVersionProps', {'RestoreSources': str(source / ('bin/obj/' + ARCH['arch'] + '/Release/blob-feed/packages')),
                       'NuGetPackages': '', 'ExtraProperties': '@(FlowFixture)', 'OutputPath': str(generated_flow)})
         ET.SubElement(target, 'MSBuild', {'Projects': '@(FlowCaseProjects)', 'Targets': 'Probe', 'BuildInParallel': 'false'})
         probe_path = probe_directory / 'probe.proj'

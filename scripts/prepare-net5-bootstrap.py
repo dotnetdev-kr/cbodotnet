@@ -23,13 +23,17 @@ import uuid
 import xml.etree.ElementTree as ET
 import zipfile
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 
 OWNER = "cbodotnet-net5-bootstrap-v1"
 SOURCE_COMMIT = "d414ecb2d997a9b3f38aaaeddace30ca097e546d"
 SDK_VERSION = "5.0.212"
-SDK_NAME = "dotnet-sdk-5.0.212-linux-arm64.tar.gz"
+SDK_NAME = LEGACY_ARCH['sdk_pin'](SDK_VERSION, ARCH['arch'])['name']
 SDK_URL = "https://builds.dotnet.microsoft.com/dotnet/Sdk/5.0.212/" + SDK_NAME
-SDK_SHA512 = "5abdcda5a647d742664bfffe018d027bd3bc9dc5b3730472a86667a841aa5763b4c3b4f8f654912d170984b3a2d2d2074ba784a0795bad1174674e5e0ce624b9"
+SDK_SHA512 = LEGACY_ARCH['sdk_pin'](SDK_VERSION, ARCH['arch'])['sha512']
 PSB_NAME = "Private.SourceBuilt.Artifacts.0.1.0-5.0.213-1682896-20220325.6.tar.gz"
 PSB_BYTES = 2542770679
 PSB_SHA256 = "11c3038cb5d317a404634d4f03813641230b38828f1d09d971028422cde5a408"
@@ -401,7 +405,7 @@ def verify_completed(state, source_records, archive_info, psb_info, arcade_info,
             if producer.read_bytes() != git(source, "show", SOURCE_COMMIT + ":tools-local/init-build.proj"):
                 raise ValueError("The upstream resolver installation producer changed")
             marker = ordinary_file(source / "artifacts/obj/semaphores/BuildXPlatTasks.complete")
-            output = ordinary_file(source / ("artifacts/arm64/Release/" + RESOLVER + ".dll"))
+            output = ordinary_file(source / (('artifacts/' + ARCH['arch'] + '/Release/') + RESOLVER + ".dll"))
             if marker.stat().st_size != 0 or fingerprint(output) != actual:
                 raise ValueError("A changed resolver lacks the completed byte-identical upstream installation")
             replacements.append({"installed": dict({"path": str(installed)}, **actual),
@@ -419,13 +423,14 @@ def verify_completed(state, source_records, archive_info, psb_info, arcade_info,
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument("action", choices=["prepare", "verify"])
     parser.add_argument("--source-dir", required=True, type=Path)
     parser.add_argument("--inputs-dir", required=True, type=Path)
     parser.add_argument("--reports-dir", required=True, type=Path)
     parser.add_argument("--profile", required=True, type=Path)
     args = parser.parse_args()
-    if platform.system() != "Linux" or platform.machine().lower() not in ("aarch64", "arm64"):
+    if platform.system() != "Linux" or platform.machine().lower() not in (ARCH['uname'], ARCH['arch']):
         raise ValueError("Run the helper in the native Linux ARM64 build environment")
     source, inputs = directory(args.source_dir), directory(args.inputs_dir, create=True)
     reports = directory(args.reports_dir, create=True)

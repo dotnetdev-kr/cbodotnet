@@ -15,6 +15,10 @@ import time
 import xml.etree.ElementTree as ET
 import zipfile
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 sys.dont_write_bytecode = True
 
 CONFIG = {
@@ -67,8 +71,8 @@ def write(path, value):
 
 
 def names(runtime):
-    return ['dotnet-runtime-' + runtime + '-linux-arm64.tar.gz',
-            'aspnetcore-runtime-internal-' + runtime + '-linux-arm64.tar.gz']
+    return ['dotnet-runtime-' + runtime + ('-' + ARCH['rid'] + '.tar.gz'),
+            'aspnetcore-runtime-internal-' + runtime + ('-' + ARCH['rid'] + '.tar.gz')]
 
 
 def observe(args):
@@ -189,7 +193,7 @@ def audit(args):
     sdk_version, runtime, layout, commit = CONFIG[args.family]
     source = args.source_dir; reports = args.output_dir / 'reports/construction'
     require(subprocess.check_output(['git', '-C', str(source), 'rev-parse', 'HEAD']).decode().strip() == commit, 'Root source pin differs')
-    sdk = source / layout / 'arm64/Release' / ('dotnet-sdk-' + sdk_version + '-linux-arm64.tar.gz')
+    sdk = source / layout / (ARCH['arch'] + '/Release') / ('dotnet-sdk-' + sdk_version + ('-' + ARCH['rid'] + '.tar.gz'))
     tasks = completed_copies(reports, source, runtime)
     observations = [json.loads(line) for line in (args.output_dir / 'reports/build/installer-observations.jsonl').read_text().splitlines()]
     components = []
@@ -197,8 +201,8 @@ def audit(args):
         filename = names(runtime)[index]; task = tasks[index]
         feed_archive = Path(task['source']); local = fp(feed_archive)
         if index == 0:
-            producer = (source / 'artifacts/arm64/Release/runtime' / filename if args.family == 'net5' else
-                        source / layout / 'obj/arm64/Release/blob-feed/assets' / filename)
+            producer = (source / ('artifacts/' + ARCH['arch'] + '/Release/runtime') / filename if args.family == 'net5' else
+                        source / layout / ('obj/' + ARCH['arch'] + '/Release/blob-feed/assets') / filename)
         else:
             asp = component_dir(source, layout, 'AspNetCore' if args.family == 'core30' else 'aspnetcore')
             candidates = list((asp / 'artifacts/installers/Release').glob(filename))
@@ -255,6 +259,7 @@ def native(args, sdk, reports):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument('action', choices=['observe', 'audit'])
     parser.add_argument('--family', required=True, choices=CONFIG)
     for option in ('source-dir', 'workspace', 'output-dir'):

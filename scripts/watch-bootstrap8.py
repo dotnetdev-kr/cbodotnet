@@ -33,7 +33,9 @@ def fingerprint(path):
     return {"bytes": size, "sha256": sha256.hexdigest(), "sha512": sha512.hexdigest()}
 
 
-def archive_record(path, require_arm64=False):
+def archive_record(path, require_runtime=False, arch='arm64'):
+    if arch not in ('arm64', 'x64'):
+        raise ValueError('Unsupported bootstrap architecture')
     with tarfile.open(path, "r:gz") as archive:
         members = archive.getmembers()
         versions = [member for member in members if member.name.lstrip("./") == "PackageVersions.props"]
@@ -43,11 +45,11 @@ def archive_record(path, require_arm64=False):
             version_bytes = stream.read()
         ET.fromstring(version_bytes)
         names = [member.name.rsplit("/", 1)[-1].lower() for member in members if member.isfile()]
-        arm64 = [name for name in names if name.endswith(".nupkg") and "linux-arm64" in name]
-        if require_arm64 and not any(name.startswith("microsoft.netcore.app.runtime.linux-arm64.") for name in arm64):
-            raise ValueError("The bootstrapped archive lacks a native Linux ARM64 runtime package")
-    return {**fingerprint(path), "packageVersionsSha256": hashlib.sha256(version_bytes).hexdigest(),
-            "linuxArm64Packages": sorted(arm64)}
+        packages = [name for name in names if name.endswith(".nupkg") and "linux-" + arch in name]
+        if require_runtime and not any(name.startswith("microsoft.netcore.app.runtime.linux-" + arch + ".") for name in packages):
+            raise ValueError("The bootstrapped archive lacks a native runtime package for " + arch)
+    key = 'linuxArm64Packages' if arch == 'arm64' else 'linuxX64Packages'
+    return {**fingerprint(path), "packageVersionsSha256": hashlib.sha256(version_bytes).hexdigest(), key: sorted(packages)}
 
 
 def atomic_json(path, record):
@@ -61,6 +63,7 @@ def atomic_json(path, record):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=["watch", "finalize", "verify"])
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument("--source-dir", type=Path, required=True)
     parser.add_argument("--inputs-dir", type=Path, required=True)
     parser.add_argument("--report", type=Path)
@@ -119,15 +122,19 @@ def main():
                 raise ValueError("A different original PSB archive already exists in inputs")
         record = {"schemaVersion": 1, "preparedAtUtc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
                   "sourceCommit": COMMIT, "bootstrapSdk": "8.0.131", "originalUrl": urls[0],
-                  "originalArchive": {"path": str(preserved), **archive_record(preserved)},
+                  "originalArchive": {"path": str(preserved), **archive_record(preserved, arch=args.arch)},
                   "bootstrapArchive": {"relativePath": str(bootstrap.relative_to(source)),
-                                       **archive_record(bootstrap, require_arm64=True)},
+                                       **archive_record(bootstrap, require_runtime=True, arch=args.arch)},
                   "note": "Successful upstream prep replaced native/portable inputs using official packages; hashes record content, not publisher signature verification."}
+        if args.arch != 'arm64':
+            record.update(architecture=args.arch, targetRid='linux-' + args.arch)
         atomic_json(marker, record)
     else:
         record = json.loads(marker.read_text())
         if record["sourceCommit"] != COMMIT or record["bootstrapSdk"] != "8.0.131":
             raise ValueError("Bootstrap preparation marker does not match the pinned source")
+        if record.get('architecture', 'arm64') != args.arch or (args.arch != 'arm64' and record.get('targetRid') != 'linux-' + args.arch):
+            raise ValueError('Bootstrap preparation architecture differs')
         for path, expected in [(bootstrap, record["bootstrapArchive"]), (preserved, record["originalArchive"])]:
             actual = fingerprint(path)
             if any(actual[key] != expected[key] for key in actual):

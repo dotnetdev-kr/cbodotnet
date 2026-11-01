@@ -11,8 +11,12 @@ import sys
 import tarfile
 import urllib.request
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 VERSION = '9.0.121'
-HASH = '2c8288568d9827371d8d0daf0578590a956d955bef783bf1403953f8a816851f03be7aa366b6649e7cda77a8e7359ac3fc46fac87f010d71b6e7415a9457add5'
+HASH = LEGACY_ARCH['sdk_pin'](VERSION, ARCH['arch'])['sha512']
 
 
 def run(command, env, log):
@@ -45,7 +49,7 @@ def environment(workspace):
 
 def prepare(args):
     reports = args.reports_dir; reports.mkdir(parents=True)
-    inputs = args.workspace / 'inputs'; archive = inputs / ('dotnet-sdk-' + VERSION + '-linux-arm64.tar.gz')
+    inputs = args.workspace / 'inputs'; archive = inputs / ('dotnet-sdk-' + VERSION + ('-' + ARCH['rid'] + '.tar.gz'))
     if archive.exists():
         raise ValueError('Analysis prepare requires fresh inputs')
     url = 'https://builds.dotnet.microsoft.com/dotnet/Sdk/' + VERSION + '/' + archive.name
@@ -110,11 +114,12 @@ def origins(args):
     (reports / 'replays.json').write_text(json.dumps({'status': 'passed', 'replays': rows}, indent=2) + '\n')
     subprocess.run([sys.executable, str(Path(__file__).with_name('ci-legacy-origin.py')), 'audit',
                     '--family', args.family, '--source-dir', str(source), '--workspace', str(args.workspace),
-                    '--output-dir', str(args.output_dir)], check=True)
+                    '--output-dir', str(args.output_dir)] + ([] if ARCH['arch'] == 'arm64' else ['--arch', 'x64']), check=True)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument('action', choices=['prepare', 'origins'])
     parser.add_argument('--workspace', required=True, type=Path)
     parser.add_argument('--reports-dir', type=Path)

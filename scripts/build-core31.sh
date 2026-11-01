@@ -8,9 +8,11 @@ profile=''
 action=build
 cpu_affinity=2,3
 max_cpu=2
+arch=arm64
 while (($#)); do
   (($# >= 2)) || { echo 'Every option requires a value.' >&2; exit 2; }
   case "$1" in
+    --arch) arch=$2 ;;
     --source-dir) source_dir=$2 ;;
     --inputs-dir) inputs_dir=$2 ;;
     --reports-dir) reports_dir=$2 ;;
@@ -24,7 +26,11 @@ while (($#)); do
   shift 2
 done
 [[ $action == acquire || $action == prepare || $action == build || $action == test ]]
-[[ $(uname -s) == Linux && $(uname -m) == aarch64 && $(id -u) != 0 ]]
+case "$arch" in arm64) expected_uname=aarch64; native_host_property=NativeArm64Host ;; x64) expected_uname=x86_64; native_host_property=NativeX64Host ;; *) echo 'Unsupported native architecture.' >&2; exit 2 ;; esac
+[[ $(uname -s) == Linux && $(uname -m) == "$expected_uname" && $(id -u) != 0 ]]
+export CBODOTNET_LEGACY_ARCH=$arch
+arch_args=()
+[[ $arch == arm64 ]] || arch_args=(--arch x64)
 [[ $max_cpu == 2 && $cpu_affinity =~ ^[0-9]+,[0-9]+$ ]]
 for path in "$source_dir" "$inputs_dir" "$reports_dir" "$profile"; do
   [[ $path == /* && $path != / && $path != *[!A-Za-z0-9_./-]* && ! -L $path ]] || { echo 'Absolute ordinary control paths without shell metacharacters are required.' >&2; exit 2; }
@@ -35,6 +41,8 @@ reports_dir=$(realpath -e "$reports_dir")
 profile=$(realpath -e "$profile")
 [[ $reports_dir != "$source_dir" && $reports_dir != "$source_dir"/* && $inputs_dir != "$source_dir" && $inputs_dir != "$source_dir"/* ]]
 helpers=$(dirname "$(realpath -e "${BASH_SOURCE[0]}")")
+sysroot_verifier=("$helpers/verify-sysroot-core31.py")
+[[ $arch == arm64 ]] || sysroot_verifier=("$helpers/verify-legacy-x64-sysroot.py" --family core31)
 commit=ab8b115b5658237ee8916ae3586600b39fb2fd19
 [[ $(git -C "$source_dir" rev-parse --show-toplevel) == "$source_dir" && $(git -C "$source_dir" rev-parse HEAD) == "$commit" ]]
 for name in "$action.log" "$action-status.json" "$action-command.txt" "$action-resources.txt"; do
@@ -67,7 +75,7 @@ record = {'schemaVersion': 1, 'action': action, 'startedAtUtc': started,
           'finishedAtUtc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
           'exitCode': int(code), 'sourceCommit': 'ab8b115b5658237ee8916ae3586600b39fb2fd19',
           'sourceDirectory': source, 'buildSystem': 'legacy-source-build-direct',
-          'sourceOnly': True, 'targetRid': 'linux-arm64', 'maxCpuCount': 2,
+          'sourceOnly': True, 'targetRid': 'linux-' + __import__('os').environ['CBODOTNET_LEGACY_ARCH'], 'maxCpuCount': 2,
           'cpuAffinity': affinity, 'sysroot': rootfs or None, 'emulation': False,
           'nugetXmlDocMode': 'none',
           'bootstrapHttpHandler': 'SocketsHttpHandler',
@@ -95,12 +103,12 @@ else
   python3 "$helpers/prepare-legacy-xmldoc-recovery.py" --source-dir "$source_dir" --inputs-dir "$inputs_dir" \
     --reports-dir "$reports_dir" --profile "$profile" --dotnet "$source_dir/.dotnet/dotnet"
   export RestoreAdditionalProjectSources="$inputs_dir/xmldoc-recovery/feed;https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json"
-  export ROOTFS_DIR=$inputs_dir/arm64-xenial
-  python3 "$helpers/verify-sysroot-core31.py" --sysroot "$ROOTFS_DIR" --reports-dir "$sysroot_reports"
-  python3 "$helpers/core31-inputs.py" --source-dir "$source_dir" --profile "$profile" --require-bootstrap --report "$reports_dir/core31-inputs.json"
-  python3 "$helpers/apply-core31-patches.py" apply --source-dir "$source_dir" --profile "$profile" --reports-dir "$reports_dir"
+  export ROOTFS_DIR=$inputs_dir/$arch-xenial
+  python3 "${sysroot_verifier[@]}" --sysroot "$ROOTFS_DIR" --reports-dir "$sysroot_reports"
+  python3 "$helpers/core31-inputs.py" "${arch_args[@]}" --source-dir "$source_dir" --profile "$profile" --require-bootstrap --report "$reports_dir/core31-inputs.json"
+  python3 "$helpers/apply-core31-patches.py" "${arch_args[@]}" apply --source-dir "$source_dir" --profile "$profile" --reports-dir "$reports_dir"
   if [[ $action == test ]]; then
-    python3 "$helpers/prepare-core31-tests.py" prepare --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir"
+    python3 "$helpers/prepare-core31-tests.py" "${arch_args[@]}" prepare --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir"
     # Consumer projects must not inherit native producer compiler/sysroot switches.
     unset PortableBuild CrossBuild CROSSCOMPILE ROOTFS_DIR CC CXX CLR_CC CLR_CXX
   fi
@@ -144,7 +152,7 @@ PY
   [[ $clone_wrapper != *[!A-Za-z0-9_./-]* && -x $clone_wrapper ]]
   args=(taskset --cpu-list "$cpu_affinity" ./build.sh)
   [[ $action != test ]] || args+=(--run-smoke-test)
-  args+=(/p:Configuration=Release /p:Platform=arm64 /p:TargetOS=Linux /p:TargetRid=linux-arm64
+  args+=(/p:Configuration=Release /p:Platform=$arch /p:TargetOS=Linux /p:TargetRid=linux-$arch
     /p:PortableBuild=true /p:SkipAcquireDarc=true "/p:DarcCloneCommand=$clone_wrapper"
     /p:SkipDownloadingReferencePackages=true /p:SkipDownloadingPreviouslySourceBuiltPackages=true "/m:$max_cpu")
 fi
@@ -165,7 +173,7 @@ code=${codes[0]}
 if ((code == 0 && codes[1] != 0)); then code=${codes[1]}; fi
 if [[ $action == test ]]; then
   set +e
-  python3 "$helpers/prepare-core31-tests.py" finalize --source-dir "$source_dir" --inputs-dir "$inputs_dir" \
+  python3 "$helpers/prepare-core31-tests.py" "${arch_args[@]}" finalize --source-dir "$source_dir" --inputs-dir "$inputs_dir" \
     --reports-dir "$reports_dir" --upstream-exit-code "$code"
   validation=$?
   set -e
@@ -173,7 +181,7 @@ if [[ $action == test ]]; then
 fi
 ((code == 0)) || exit "$code"
 if [[ $action == acquire || $action == prepare ]]; then
-  verification=(python3 "$helpers/core31-inputs.py" --source-dir "$source_dir" --profile "$profile" --report "$reports_dir/core31-inputs.json")
+  verification=(python3 "$helpers/core31-inputs.py" "${arch_args[@]}" --source-dir "$source_dir" --profile "$profile" --report "$reports_dir/core31-inputs.json")
   [[ $action != prepare ]] || verification+=(--require-bootstrap)
   "${verification[@]}"
 fi

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Inspect a locally built SDK and run isolated native ARM64 smoke tests.
+# Inspect a locally built SDK and run isolated native Linux smoke tests.
 set -euo pipefail
 
 usage() {
@@ -14,10 +14,11 @@ Usage: verify-sdk.sh (--sdk-dir /absolute/sdk | --archive /absolute/sdk.tar.gz)
   --expected-rid RID      Require dotnet --info to report this RID.
   --framework TFM         netX.Y or netcoreapp3.0/3.1 (default: net10.0).
   --max-glibc VERSION     Fail if any shipped ELF requires a newer GLIBC version.
+  --arch ARCH             Native arm64 or x64 target (default: arm64).
   --no-smoke             Inspect ELF/SDK identity without console and HTTP tests.
   --help                 Show this help.
 
-Requires native ARM64 Linux, Python 3, readelf, tar and curl (for HTTP smoke).
+Requires native target Linux, Python 3, readelf, tar and curl (for HTTP smoke).
 Outputs verification.json, abi-summary.json, elf-abi.tsv and text build logs.
 Smoke restores use an empty NuGet source list, an isolated home, runtime state,
 caches and a temporary workspace. Console tests include RSA signing/verification, cryptographic random
@@ -38,10 +39,11 @@ expected_rid=''
 framework='net10.0'
 max_glibc=''
 run_smoke=true
+arch=arm64
 while (($#)); do
   case "$1" in
     --help|-h) usage; exit 0 ;;
-    --sdk-dir|--archive|--output-dir|--expected-version|--expected-rid|--framework|--max-glibc)
+    --sdk-dir|--archive|--output-dir|--expected-version|--expected-rid|--framework|--max-glibc|--arch)
       (($# >= 2)) || die "missing value for $1"
       case "$1" in
         --sdk-dir) sdk_dir=$2 ;;
@@ -51,6 +53,7 @@ while (($#)); do
         --expected-rid) expected_rid=$2 ;;
         --framework) framework=$2 ;;
         --max-glibc) max_glibc=$2 ;;
+        --arch) arch=$2 ;;
       esac
       shift 2 ;;
     --no-smoke) run_smoke=false; shift ;;
@@ -58,7 +61,12 @@ while (($#)); do
   esac
 done
 
-[[ $(uname -s) == Linux && $(uname -m) =~ ^(aarch64|arm64)$ ]] || die 'native ARM64 Linux is required'
+case "$arch" in
+  arm64) host_pattern='^(aarch64|arm64)$'; elf_machine='AArch64' ;;
+  x64) host_pattern='^x86_64$'; elf_machine='Advanced Micro Devices X86-64' ;;
+  *) die '--arch must be arm64 or x64' ;;
+esac
+[[ $(uname -s) == Linux && $(uname -m) =~ $host_pattern ]] || die "native $arch Linux is required"
 [[ -n "$sdk_dir" || -n "$archive" ]] || die '--sdk-dir or --archive is required'
 [[ "$output_dir" == /* ]] || die '--output-dir must be an absolute path'
 [[ "$framework" =~ ^net([0-9]+\.[0-9]+|coreapp3\.[01])$ ]] || die '--framework must be netX.Y, netcoreapp3.0 or netcoreapp3.1'
@@ -221,7 +229,7 @@ fi
 [[ -x "$sdk_dir/dotnet" ]] || die "SDK executable not found: $sdk_dir/dotnet"
 
 # Read four magic bytes per file; invoke readelf only for actual ELF files.
-python3 - "$sdk_dir" "$output_dir" "$max_glibc" <<'PY'
+python3 - "$sdk_dir" "$output_dir" "$max_glibc" "$elf_machine" <<'PY'
 import csv
 import json
 import os
@@ -233,6 +241,7 @@ import sys
 root = pathlib.Path(sys.argv[1]).resolve()
 report = pathlib.Path(sys.argv[2])
 ceiling = sys.argv[3]
+expected_machine = sys.argv[4]
 prefixes = ("GLIBC", "GLIBCXX", "CXXABI")
 maxima = {prefix: None for prefix in prefixes}
 requirements = {prefix: set() for prefix in prefixes}
@@ -270,8 +279,8 @@ for directory, subdirectories, files in os.walk(root, followlinks=False):
         machines[machine] = machines.get(machine, 0) + 1
         if relative == "dotnet":
             dotnet_seen = True
-            if machine != "AArch64":
-                raise SystemExit("dotnet executable is not AArch64: " + machine)
+            if machine != expected_machine:
+                raise SystemExit("dotnet executable has the wrong native architecture: " + machine)
         needed = re.findall(r"\(NEEDED\).*?\[(.*?)\]", result.stdout)
         # Version definitions describe what a file provides. Only version-needs
         # entries express external ABI requirements, so ignore definitions.
@@ -313,7 +322,8 @@ if not ceiling_ok:
 PY
 
 export DOTNET_ROOT="$sdk_dir"
-export DOTNET_ROOT_ARM64="$sdk_dir"
+unset DOTNET_ROOT_ARM64 DOTNET_ROOT_X64
+if [[ $arch == arm64 ]]; then export DOTNET_ROOT_ARM64="$sdk_dir"; else export DOTNET_ROOT_X64="$sdk_dir"; fi
 export DOTNET_MULTILEVEL_LOOKUP=0
 # Native user-scoped mutexes can use XDG_RUNTIME_DIR or the passwd home rather
 # than HOME. Keep their state private even for containers using a synthetic UID.

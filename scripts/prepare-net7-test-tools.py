@@ -9,6 +9,7 @@ This is a test input adaptation, not the upstream default download behavior.
 import argparse
 import datetime
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -26,6 +27,17 @@ SHA256 = '6e097febba7dc2a1422f1cb992e358a063412c05a08eb6719388561e3a75c734'
 INSTALLER = '25b977658c06fd0217ec0bc0714398bb9d0a7bb0'
 DESTINATION = 'test/Microsoft.DotNet.SourceBuild.SmokeTests/bin/Release/net7.0/omnisharp'
 CACHE_NAME = 'omnisharp-v1.39.6-linux-arm64-net6.0.tar.gz'
+ARCH_SPEC = importlib.util.spec_from_file_location('ci_arch_test_tools', Path(__file__).with_name('ci_arch.py'))
+ARCH = importlib.util.module_from_spec(ARCH_SPEC); ARCH_SPEC.loader.exec_module(ARCH)
+
+
+def tool_input(arch='arm64'):
+    identity = ARCH.get_arch(arch)
+    if arch == 'arm64':
+        return dict(url=URL, bytes=SIZE, sha256=SHA256, cacheName=CACHE_NAME, machine=identity['machine'])
+    return dict(url='https://github.com/OmniSharp/omnisharp-roslyn/releases/download/v1.39.6/omnisharp-linux-x64-net6.0.tar.gz',
+                bytes=43149563, sha256='c631cf552590ee8f00cbea441e99a94f689bf1832f1f8de2d5a00d5d5d18140c',
+                cacheName='omnisharp-v1.39.6-linux-x64-net6.0.tar.gz', machine=identity['machine'])
 
 
 def fingerprint(path):
@@ -63,24 +75,25 @@ def write_identical_or_new(path, contents):
         stream.write(contents)
 
 
-def cached_archive(directory):
-    target = directory / CACHE_NAME
+def cached_archive(directory, arch='arm64'):
+    pin = tool_input(arch)
+    target = directory / pin['cacheName']
     downloaded = False
     if not target.exists() and not target.is_symlink():
         staged = None
         try:
             with tempfile.NamedTemporaryFile(dir=directory, prefix='.omnisharp-download-', delete=False) as output:
                 staged = Path(output.name)
-                with urllib.request.urlopen(URL, timeout=120) as response:
+                with urllib.request.urlopen(pin['url'], timeout=120) as response:
                     if not response.geturl().startswith('https://'):
                         raise ValueError('The official download redirected outside HTTPS')
                     size = 0
                     for data in iter(lambda: response.read(1024 * 1024), b''):
                         size += len(data)
-                        if size > SIZE:
+                        if size > pin['bytes']:
                             raise ValueError('OmniSharp download exceeds the pinned byte count')
                         output.write(data)
-            if fingerprint(staged) != {'bytes': SIZE, 'sha256': SHA256}:
+            if fingerprint(staged) != {'bytes': pin['bytes'], 'sha256': pin['sha256']}:
                 raise ValueError('Downloaded OmniSharp archive differs from the pinned input')
             # Publish without replacing a concurrent or pre-existing cache entry.
             try:
@@ -91,7 +104,7 @@ def cached_archive(directory):
         finally:
             if staged is not None:
                 staged.unlink(missing_ok=True)
-    if target.is_symlink() or not target.is_file() or fingerprint(target) != {'bytes': SIZE, 'sha256': SHA256}:
+    if target.is_symlink() or not target.is_file() or fingerprint(target) != {'bytes': pin['bytes'], 'sha256': pin['sha256']}:
         raise ValueError('Existing OmniSharp archive differs; preserve it and select a clean input cache')
     return target, downloaded
 
@@ -159,7 +172,8 @@ def archive_inventory(archive_path, staging=None):
     return sorted(records.values(), key=lambda item: item['path'])
 
 
-def verify_extraction(destination, expected):
+def verify_extraction(destination, expected, arch='arm64'):
+    pin = tool_input(arch)
     actual = {'.': {'path': '.', 'type': 'directory', 'mode': stat.S_IMODE(destination.stat().st_mode)}}
     for directory, directories, files in os.walk(destination, followlinks=False):
         for name in directories + files:
@@ -188,12 +202,13 @@ def verify_extraction(destination, expected):
         raise ValueError('Unexpected OmniSharp runtime/roll-forward requirements')
     with (destination / 'OmniSharp').open('rb') as stream:
         header = stream.read(20)
-    if len(header) != 20 or header[:6] != b'\x7fELF\x02\x01' or int.from_bytes(header[18:20], 'little') != 183:
-        raise ValueError('Expected an ELF64 little-endian AArch64 OmniSharp apphost')
+    if len(header) != 20 or header[:6] != b'\x7fELF\x02\x01' or int.from_bytes(header[18:20], 'little') != pin['machine']:
+        raise ValueError('Expected an ELF64 little-endian matching-architecture OmniSharp apphost')
     return config
 
 
 def prepare(args, record):
+    arch = getattr(args, 'arch', 'arm64'); pin = tool_input(arch)
     source = ordinary_directory(args.source_dir)
     inputs = ordinary_directory(args.inputs_dir)
     reports = ordinary_directory(args.reports_dir)
@@ -213,7 +228,7 @@ def prepare(args, record):
     if destination.exists() and not destination.is_dir():
         raise ValueError('The test-tool destination already exists as a non-directory')
     cache = ordinary_directory(inputs / 'test-tools', create=True)
-    archive, downloaded = cached_archive(cache)
+    archive, downloaded = cached_archive(cache, arch)
     reused = destination.exists()
     if reused:
         members = archive_inventory(archive)
@@ -223,15 +238,15 @@ def prepare(args, record):
             staging.mkdir()
             members = archive_inventory(archive, staging)
             (staging / 'run').symlink_to('OmniSharp')
-            verify_extraction(staging, members)
+            verify_extraction(staging, members, arch)
             if destination.exists() or destination.is_symlink():
                 raise ValueError('A concurrent test-tool destination appeared; preserve it for inspection')
             staging.rename(destination)
-    config = verify_extraction(destination, members)
-    receipt = {'schemaVersion': 1, 'archiveSha256': SHA256, 'archiveBytes': SIZE, 'members': members,
+    config = verify_extraction(destination, members, arch)
+    receipt = {'schemaVersion': 1, 'archiveSha256': pin['sha256'], 'archiveBytes': pin['bytes'], 'members': members,
                'extraEntries': [{'path': 'run', 'type': 'symlink', 'target': 'OmniSharp'}]}
     receipt_bytes = (json.dumps(receipt, indent=2) + '\n').encode('utf-8')
-    cache_receipt = cache / 'omnisharp-v1.39.6-linux-arm64-net6.0.members.json'
+    cache_receipt = cache / pin['cacheName'].replace('.tar.gz', '.members.json')
     write_identical_or_new(cache_receipt, receipt_bytes)
     attempt_receipt = reports / 'net7-test-tool-members.json'
     write_identical_or_new(attempt_receipt, receipt_bytes)
@@ -249,7 +264,9 @@ def main():
     parser.add_argument('--source-dir', type=Path, required=True)
     parser.add_argument('--inputs-dir', type=Path, required=True)
     parser.add_argument('--reports-dir', type=Path, required=True)
+    parser.add_argument('--arch', choices=['arm64','x64'], default='arm64')
     args = parser.parse_args()
+    pin = tool_input(args.arch)
     source = ordinary_directory(args.source_dir)
     inputs = ordinary_directory(args.inputs_dir)
     reports = ordinary_directory(args.reports_dir)
@@ -257,8 +274,8 @@ def main():
         raise ValueError('Reports must be outside the generated source and input directories')
     report = reports / 'net7-test-tools.json'
     record = {'schemaVersion': 1, 'preparedAtUtc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
-              'status': 'failed', 'tool': 'OmniSharp', 'version': VERSION, 'url': URL,
-              'expectedArchive': {'bytes': SIZE, 'sha256': SHA256},
+              'status': 'failed', 'tool': 'OmniSharp', 'version': VERSION, 'url': pin['url'],
+              'expectedArchive': {'bytes': pin['bytes'], 'sha256': pin['sha256']},
               'scope': 'Pinned external test fixture and one launcher-name adapter for the unmodified .NET 7 scenarios. This is not the upstream default download, an SDK/source patch, or a claim that the scenarios passed. Archive file contents are preserved; ownership and timestamps are not compared. No Mono installation or test exclusion is used.'}
     result = 0
     with report.open('x', encoding='utf-8') as output:

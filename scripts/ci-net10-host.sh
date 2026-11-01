@@ -5,7 +5,7 @@ set -euo pipefail
 usage() {
   cat <<'HELP'
 Usage: ci-net10-host.sh prepare|monitor --workspace DIR --reports-dir DIR
-                          [--minimum-free-gib 30] [--interval-seconds 15]
+                          [--arch arm64|x64] [--minimum-free-gib 30] [--interval-seconds 15]
 Preparation installs host tools and records a 30-GiB planning capacity gate.
 Only disposable GitHub-hosted VMs permit the fixed unused-tool cleanup list.
 Monitor writes until SIGTERM/SIGINT; stop and wait before final collection.
@@ -19,6 +19,7 @@ workspace=''
 reports_dir=''
 minimum_free_gib=30
 interval_seconds=15
+arch=arm64
 while (($#)); do
   (($# >= 2)) || { usage >&2; exit 2; }
   case "$1" in
@@ -26,12 +27,14 @@ while (($#)); do
     --reports-dir) reports_dir=$2 ;;
     --minimum-free-gib) minimum_free_gib=$2 ;;
     --interval-seconds) interval_seconds=$2 ;;
+    --arch) arch=$2 ;;
     *) usage >&2; exit 2 ;;
   esac
   shift 2
 done
-[[ $(uname -s) == Linux && $(uname -m) == aarch64 && $(id -u) != 0 ]] || {
-  echo 'An unprivileged native Linux ARM64 runner is required.' >&2; exit 2;
+case "$arch" in arm64) host_machine=aarch64 ;; x64) host_machine=x86_64 ;; *) usage >&2; exit 2 ;; esac
+[[ $(uname -s) == Linux && $(uname -m) == "$host_machine" && $(id -u) != 0 ]] || {
+  echo "An unprivileged native Linux $arch runner is required." >&2; exit 2;
 }
 [[ $minimum_free_gib =~ ^[1-9][0-9]*$ && $interval_seconds =~ ^[1-9][0-9]*$ ]] || exit 2
 ((minimum_free_gib >= 30 && interval_seconds <= 60)) || exit 2
@@ -133,8 +136,12 @@ cleanup_record=$reports_dir/cleanup.jsonl
 : > "$cleanup_record"
 # These fixed host installations are unused: all product tools run in the image.
 # Never derive a recursive deletion target from a workflow input or environment.
-for target in /usr/share/dotnet /usr/lib/jvm /usr/share/swift /opt/az \
-              /usr/local/share/powershell /usr/lib/llvm-16 /usr/lib/llvm-17 /usr/lib/llvm-18; do
+cleanup_targets=(/usr/share/dotnet /usr/lib/jvm /usr/share/swift /opt/az
+                 /usr/local/share/powershell /usr/lib/llvm-16 /usr/lib/llvm-17 /usr/lib/llvm-18)
+if [[ $arch == x64 ]]; then
+  cleanup_targets+=(/usr/local/lib/android /opt/ghc /usr/local/share/boost /opt/hostedtoolcache)
+fi
+for target in "${cleanup_targets[@]}"; do
   result=not-present
   allocated=0
   if [[ $hosted_cleanup != true ]]; then
@@ -211,4 +218,4 @@ with (reports / 'host-preparation.json').open('x', encoding='utf-8') as output:
 if not passed:
     raise SystemExit('Insufficient free disk for the cold-build pilot. Configure an existing larger/self-hosted runner explicitly; no paid fallback is selected.')
 PY
-echo 'Native ARM64 host preparation passed; no host SDK was installed.'
+echo "Native $arch host preparation passed; no host SDK was installed."

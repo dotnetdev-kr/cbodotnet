@@ -6,6 +6,10 @@ import json
 from pathlib import Path, PurePosixPath
 import re
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 CONFIG = {
     'net5': ('5.0.214', '5.0.17', 'd414ecb2d997a9b3f38aaaeddace30ca097e546d'),
     'core31': ('3.1.426', '3.1.32', 'ab8b115b5658237ee8916ae3586600b39fb2fd19'),
@@ -110,7 +114,7 @@ def validate(release, family, expected):
     snapshot_path = member(release, 'reports/ci-inputs/snapshot.json'); snapshot = load(snapshot_path)
     require(snapshot['family'] == family and snapshot['sdkVersion'] == sdk and snapshot['sourceCommit'] == commit
             and snapshot['projectInitiallyPristine'] is True and snapshot['sourceInitiallyPristine'] is True, 'Fresh pinned source snapshot required')
-    require(snapshot.get('executionContext') == 'github-actions' and snapshot.get('workflowRef', '').endswith('/.github/workflows/sdk-matrix.yml@refs/heads/main'),
+    require(snapshot.get('executionContext') == 'github-actions' and snapshot.get('workflowRef', '').endswith('/.github/workflows/' + ('sdk-matrix.yml' if ARCH['arch'] == 'arm64' else 'sdk-x64.yml') + '@refs/heads/main') and snapshot.get('architecture', 'arm64') == ARCH['arch'],
             'Actual trusted main workflow identity is required')
     for key, value in expected.items():
         require(snapshot[key] == value, 'Unexpected delivery identity: ' + key)
@@ -123,16 +127,16 @@ def validate(release, family, expected):
     original_profile = load(checked(release, snapshot['profile']))
     require(original_profile['source']['commit'] == commit and original_profile['sdkVersion'] == sdk, 'Pinned profile differs')
     manifest_path = member(release, 'build-manifest.json'); manifest = load(manifest_path)
-    require(manifest['sdkVersion'] == sdk and manifest['targetRid'] == 'linux-arm64' and manifest['sourceOnly'] is True
+    require(manifest['sdkVersion'] == sdk and manifest['targetRid'] == ARCH['rid'] and manifest['sourceOnly'] is True
             and manifest['buildRevision'] == snapshot['buildRevision']
             and manifest['source']['actualCommit'] == manifest['source']['expectedCommit'] == commit
             and manifest['source']['commitVerified'] is True and manifest['construction']['upstreamSharedRuntimeReused'] is False,
             'Final SDK/source/construction identity differs')
     archive = manifest['sdkArchive']; archive_path = checked(release, archive)
     require(archive['copiedWithoutModification'] is True and archive['bodyIdentity']['sdkVersion'] == sdk
-            and archive['bodyIdentity']['runtimeVersion'] == runtime and archive['bodyIdentity']['targetRid'] == 'linux-arm64',
+            and archive['bodyIdentity']['runtimeVersion'] == runtime and archive['bodyIdentity']['targetRid'] == ARCH['rid'],
             'The actual SDK body identity differs')
-    require(archive['path'] == 'cbodotnet-sdk-' + sdk + '-linux-arm64-build.' + snapshot['buildRevision'] + '.tar.gz', 'Unexpected final archive name')
+    require(archive['path'] == 'cbodotnet-sdk-' + sdk + ('-' + ARCH['rid'] + '-build.') + snapshot['buildRevision'] + '.tar.gz', 'Unexpected final archive name')
     for name in ('SHA256SUMS', 'SHA512SUMS'):
         algorithm = 'sha256' if name == 'SHA256SUMS' else 'sha512'
         require(member(release, name).read_text() == archive[algorithm] + '  ' + archive['path'] + '\n', 'Checksum file differs')
@@ -147,7 +151,7 @@ def validate(release, family, expected):
         data = load(member(release, 'reports/ci/stages/' + name + '.json'))
         require(data['stage'] == name and data['status'] == 'passed' and data['exitCode'] == 0 and data['commands']
                 and all(data.get(key) == snapshot[key] for key in IDENTITY), 'Actual stage did not pass: ' + name)
-        require(data['environment']['nativeArchitecture'] == 'aarch64' and data['environment']['uid'] > 0, 'Native nonroot product execution required')
+        require(data['environment']['nativeArchitecture'] == ARCH['uname'] and data['environment']['uid'] > 0, 'Native nonroot product execution required')
         stages[name] = data
     status = load(member(release, 'reports/build/product-build/build-status.json'))
     require(status['exitCode'] == 0 and status['sourceCommit'] == commit and status['sourceOnly'] is True,
@@ -155,7 +159,7 @@ def validate(release, family, expected):
     require(any('build' in command and any(str(v).endswith(('build-ci-net5.sh', 'build-core31.sh', 'build-core30.sh')) for v in command)
                 for command in stages['build']['commands']), 'Normal upstream graph invocation is missing')
     image = load(member(release, 'reports/prepare/build-image.json'))
-    require(len(image) == 1 and image[0]['Architecture'] == 'arm64' and image[0]['Os'] == 'linux'
+    require(len(image) == 1 and image[0]['Architecture'] == ARCH['image'] and image[0]['Os'] == 'linux'
             and stages['build']['imageId'] == manifest['buildImage']['id'] == image[0]['Id'], 'Actual native build image differs')
     policy = load(member(release, 'reports/prepare/seccomp.json'))
     require(policy['seccompUnconfined'] is False and policy['allOtherRulesUnchanged'] is True and policy['addedRuleCount'] in (0, 1),
@@ -167,6 +171,18 @@ def validate(release, family, expected):
     current = load(member(release, 'reports/sysroot/current-validation.json'))
     require(sysroot['sourceCommit'] == commit and sysroot['packageSignatureVerification'] is True and sysroot['emulation'] is False
             and current['status'] == 'passed' and current['files'] > 0 and current['symlinks'] > 0, 'Authenticated complete sysroot verification is absent')
+    if ARCH['arch'] == 'x64':
+        producer = member(release, 'reports/ci-inputs/project/scripts/prepare-legacy-x64-sysroot.sh')
+        require(sysroot['architecture'] == 'amd64' and sysroot['family'] == family
+                and sysroot['method'] == 'explicit-native-amd64-debootstrap' and sysroot['originalGeneratorVerified'] is True
+                and sysroot['releaseSignatureLogVerified'] is True
+                and sysroot['producer']['sha256'] == fp(producer)['sha256'], 'Pinned native amd64 sysroot producer differs')
+        for key in ('archiveRelease', 'archiveSignature', 'signatureStatus'):
+            row = sysroot[key]; retained = member(release, 'reports/sysroot/' + Path(row['path']).name)
+            require(fp(retained)['sha256'] == row['sha256'] and fp(retained)['bytes'] == row['bytes'], 'Signed amd64 archive input differs')
+        signature = member(release, 'reports/sysroot/archive-signature-status.txt').read_text()
+        require(re.search(r'^\[GNUPG:\] VALIDSIG (790BC7277767219C42C86F933B4FE6ACC0B21F32|F6ECB3762474EDA9D21B7022871920D1991BC93C|630239CC130E1A7FD81A27B140976EAF437D05B5) ', signature, re.MULTILINE),
+                'The native amd64 archive signature lacks its accepted Ubuntu signer')
     producer_log = member(release, 'reports/sysroot/' + Path(sysroot['logFile']).name).read_text(errors='replace')
     require(('Release signature verified' in producer_log or 'Valid Release signature' in producer_log)
             and '--no-check-gpg' not in producer_log and '--skipsigcheck' not in producer_log, 'Actual authenticated sysroot producer did not pass')
@@ -176,7 +192,7 @@ def validate(release, family, expected):
         checked(release, key)
     analysis = load(member(release, 'reports/prepare/analysis/analysis.json'))
     require(analysis['status'] == 'passed' and analysis['sdkVersion'] == '9.0.121'
-            and analysis['archiveSha512'] == '2c8288568d9827371d8d0daf0578590a956d955bef783bf1403953f8a816851f03be7aa366b6649e7cda77a8e7359ac3fc46fac87f010d71b6e7415a9457add5',
+            and analysis['archiveSha512'] == LEGACY_ARCH['sdk_pin']('9.0.121', ARCH['arch'])['sha512'],
             'Pinned isolated analysis tool preparation is absent')
     tests = load(member(release, test_report_path(family)))
     require(tests['status'] == 'passed' and tests['upstreamExitCode'] == 0 and tests['suiteExclusions'] == []
@@ -218,14 +234,14 @@ def validate(release, family, expected):
     native = {}
     for name in ('ubuntu22', 'ubuntu24', 'debian13'):
         data = load(member(release, 'reports/verify-' + name + '/verification.json'))
-        rid = 'ubuntu.22.04-arm64' if family == 'core31' and name == 'ubuntu22' else 'linux-arm64'
+        rid = ('ubuntu.22.04-' + ARCH['arch']) if family == 'core31' and name == 'ubuntu22' else ARCH['rid']
         framework = 'net5.0' if family == 'net5' else 'netcoreapp' + ('3.1' if family == 'core31' else '3.0')
         require(data['verificationStatus'] == data['smokeStatus'] == 'passed' and data['sdkVersion'] == sdk and data['reportedRid'] == rid
                 and data['framework'] == framework and data['functionalChecks'] == dict.fromkeys(CHECKS, 'passed')
                 and data['archive']['sha256'] == archive['sha256'] and data['archive']['sdkContentMatched'] is True,
                 'Native functional checks failed: ' + name)
         abi = data['abi']; version = lambda value: tuple(map(int, value.split('.')))
-        require(abi['elfFileCount'] > 0 and abi['machines'] == {'AArch64': abi['elfFileCount']} and abi['glibcCeilingPassed'] is True
+        require(abi['elfFileCount'] > 0 and abi['machines'] == {ARCH['elf']: abi['elfFileCount']} and abi['glibcCeilingPassed'] is True
                 and abi['glibcCeiling'] == '2.23' and version(abi['maximumRequiredVersions']['GLIBC']) <= (2, 23), 'Native ABI gate failed')
         native[name] = {'rid': rid, 'checks': 6, 'abi': abi['maximumRequiredVersions']}
     verification = load(member(release, 'reports/ci/legacy-verification.json'))
@@ -235,7 +251,7 @@ def validate(release, family, expected):
     for key in ('commandJournal', 'log'):
         checked(release, verification[key])
     producer = load(checked(release, verification['producerImage']))
-    require(len(producer) == 1 and producer[0]['Architecture'] == 'arm64' and producer[0]['Os'] == 'linux', 'Native compatibility producer required')
+    require(len(producer) == 1 and producer[0]['Architecture'] == ARCH['image'] and producer[0]['Os'] == 'linux', 'Native compatibility producer required')
     producer_id = producer[0]['Id'].removeprefix('sha256:')
     if family != 'core30':
         require(producer_id == image[0]['Id'].removeprefix('sha256:'), 'Compatibility inputs came from another builder')
@@ -260,7 +276,7 @@ def validate(release, family, expected):
                     and {file['path'] for file in contract['files']} == {'lib/libssl.so.1.1', 'lib/libcrypto.so.1.1', 'LICENSE.openssl.txt', 'openssl.cnf'},
                     'Explicit OpenSSL1.1 library, configuration and license inputs are required')
         else:
-            require(contract['package']['name'] == 'libicu66' and contract['package']['architecture'] == 'arm64'
+            require(contract['package']['name'] == 'libicu66' and contract['package']['architecture'] == ARCH['deb']
                     and contract['package']['version'].startswith('66.1-') and contract['package']['status'] == 'installed', 'Native Focal ICU66 identity differs')
     userlands = verification['userlands']
     require(set(userlands) == {'ubuntu22', 'ubuntu24', 'debian13'}, 'All three modern native user spaces are required')
@@ -276,16 +292,18 @@ def validate(release, family, expected):
         require(row['compatibilityInputs'] == selected and row['consumerEnvironment'] == environment
                 and row['sdkArchiveSha256'] == archive['sha256'] and row['osRelease'] == {'ID': distribution, 'VERSION_ID': os_version},
                 'Controlled dependency/OS selection differs: ' + name)
-        require(metadata['architecture'] == 'aarch64' and metadata['uid'] > 0 and metadata['osRelease'] == row['osRelease']
+        require(metadata['architecture'] == ARCH['uname'] and metadata['uid'] > 0 and metadata['osRelease'] == row['osRelease']
                 and all(metadata['consumerEnvironment'][key] == value for key, value in environment.items()), 'Actual native verifier identity differs')
         for key in ('DOTNET_SYSTEM_GLOBALIZATION_INVARIANT', 'DOTNET_ROOT', 'DOTNET_EnableDiagnostics', 'COMPlus_EnableDiagnostics'):
             require(metadata['consumerEnvironment'][key] is None, 'Unreviewed runtime/globalization override')
+        if ARCH['arch'] == 'x64':
+            require(metadata['consumerEnvironment']['DOTNET_ROOT_X64'] is None, 'Unreviewed x64 runtime root')
         if 'icu66' not in selected:
             require(metadata['consumerEnvironment']['CLR_ICU_VERSION_OVERRIDE'] is None, 'Unexpected ICU override')
         installed = {key.split(':')[0]: value for key, value in metadata['installedPackages'].items()}
         require({icu, ssl, 'libc6', 'libstdc++6', 'zlib1g', 'libgssapi-krb5-2'} <= set(installed), 'Stock user-space dependency identities are incomplete')
         inspected = load(checked(release, row['imageInspection'])); base = load(checked(release, row['baseInspection']))
-        require(len(inspected) == len(base) == 1 and inspected[0]['Architecture'] == base[0]['Architecture'] == 'arm64'
+        require(len(inspected) == len(base) == 1 and inspected[0]['Architecture'] == base[0]['Architecture'] == ARCH['image']
                 and inspected[0]['Os'] == base[0]['Os'] == 'linux' and inspected[0]['Id'] == row['imageId'] == metadata['imageId']
                 and row['baseManifest'] == 'docker.io/library/' + distribution + '@' + base[0]['Digest']
                 and row['baseManifest'] in base[0]['RepoDigests'], 'Actual native image manifest binding differs')
@@ -306,7 +324,7 @@ def validate(release, family, expected):
         allowed.add('ci-validation.json')
     outer = {p.relative_to(release).as_posix() for p in entries if p.is_file() and p.relative_to(release).parts[0] not in ('reports', 'sources')}
     require(outer == allowed, 'Unbound outer delivery files')
-    return dict(schemaVersion=1, status='passed', family=family, targetRid='linux-arm64', **{key: snapshot[key] for key in IDENTITY},
+    return dict(schemaVersion=1, status='passed', family=family, targetRid=ARCH['rid'], **{key: snapshot[key] for key in IDENTITY},
                 sdkArchive=archive, sourceManifest=record(release, source_manifest), buildManifest=record(release, manifest_path),
                 snapshot=record(release, snapshot_path), collectReceipt=record(release, release / 'collect-receipt.json'),
                 tests={'cases': 68 if family == 'net5' else 52, 'exclusions': []}, native=native,

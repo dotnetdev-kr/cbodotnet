@@ -1,0 +1,244 @@
+name: Linux x64 SDK matrix
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Pinned container profile to build and qualify
+        type: choice
+        required: true
+        default: all
+        options: [all, net10, net9, net8, net7, net6, net5, core31, core30]
+      create_draft:
+        description: Create unpublished drafts only after all selected builds pass
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
+concurrency:
+  group: sdk-x64-matrix-${{ github.repository }}-${{ inputs.target }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: Build and qualify ${{ matrix.target }} x64
+    runs-on: ${{ fromJSON(vars.SDK_X64_BUILD_RUNNER_JSON || '["ubuntu-24.04"]') }}
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        target: ${{ fromJSON(inputs.target == 'all' && '["net10","net9","net8","net7","net6","net5","core31","core30"]' || format('["{0}"]', inputs.target)) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Select pinned target and isolated paths
+        id: profile
+        env:
+          SDK_TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REF" == refs/heads/main && "$GITHUB_WORKFLOW_SHA" == "$GITHUB_SHA" ]]
+          [[ $(git rev-parse HEAD) == "$GITHUB_SHA" ]]
+          selection=$(python3 scripts/ci-sdk.py describe --arch x64 --target "$SDK_TARGET")
+          version=$(python3 -c 'import json,sys;print(json.load(sys.stdin)["sdk_version"])' <<< "$selection")
+          {
+            echo "SDK_TARGET=$SDK_TARGET"
+            echo "SDK_VERSION=$version"
+            echo "SDK_WORKSPACE=$RUNNER_TEMP/cbodotnet-$SDK_TARGET-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+            echo "SDK_RELEASE=$GITHUB_WORKSPACE/artifacts/$version-linux-x64"
+            echo "SDK_HOST_REPORTS=$RUNNER_TEMP/cbodotnet-host-$SDK_TARGET-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+            echo "SDK_BUNDLE_DIR=$RUNNER_TEMP/cbodotnet-bundle-$SDK_TARGET-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+            echo "SDK_BUILD_ID=$(date -u +%Y%m%d).$GITHUB_RUN_NUMBER"
+          } >> "$GITHUB_ENV"
+
+      - name: Prepare native host and measure capacity
+        timeout-minutes: 25
+        run: |
+          bash scripts/ci-net10-host.sh prepare --arch x64 --workspace "$SDK_WORKSPACE" \
+            --reports-dir "$SDK_HOST_REPORTS" --minimum-free-gib "${{ steps.profile.outputs.minimum_free_gib }}"
+
+      - name: Freeze inputs and prepare this version's source, image and sysroot
+        timeout-minutes: 90
+        run: |
+          set -euo pipefail
+          bash "${{ steps.profile.outputs.driver }}" prepare --arch x64 --workspace "$SDK_WORKSPACE" \
+            --output-dir "$SDK_RELEASE" --build-id "$SDK_BUILD_ID" --build-revision "$GITHUB_RUN_ID"
+          [[ ! -e "$SDK_RELEASE/reports/ci-host" ]]
+          cp -a -- "$SDK_HOST_REPORTS" "$SDK_RELEASE/reports/ci-host"
+
+      - name: Build, test, preserve actual sources and verify native user spaces
+        timeout-minutes: 270
+        run: |
+          set -euo pipefail
+          bash scripts/ci-net10-host.sh monitor --arch x64 --workspace "$SDK_WORKSPACE" \
+            --reports-dir "$SDK_RELEASE/reports/ci-host" &
+          monitor_pid=$!
+          stop_monitor() {
+            if [[ -n "${monitor_pid:-}" ]]; then
+              kill -TERM "$monitor_pid" 2>/dev/null || true
+              wait "$monitor_pid"
+              monitor_pid=''
+            fi
+          }
+          trap stop_monitor EXIT
+          for stage in build scan test; do
+            bash "${{ steps.profile.outputs.driver }}" "$stage" --arch x64 --workspace "$SDK_WORKSPACE" \
+              --output-dir "$SDK_RELEASE" --build-id "$SDK_BUILD_ID" --build-revision "$GITHUB_RUN_ID"
+          done
+          python3 scripts/package-used-source.py --roots-json "$SDK_RELEASE/reports/ci/source-roots.json" \
+            --output-dir "$SDK_RELEASE/sources" --project-root "$GITHUB_WORKSPACE" \
+            --project-commit "$GITHUB_SHA" --sdk-version "$SDK_VERSION" --target-rid linux-x64 \
+            --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT"
+          bash "${{ steps.profile.outputs.driver }}" verify --arch x64 --workspace "$SDK_WORKSPACE" \
+            --output-dir "$SDK_RELEASE" --build-id "$SDK_BUILD_ID" --build-revision "$GITHUB_RUN_ID"
+          stop_monitor
+          trap - EXIT
+          bash "${{ steps.profile.outputs.driver }}" collect --arch x64 --workspace "$SDK_WORKSPACE" \
+            --output-dir "$SDK_RELEASE" --build-id "$SDK_BUILD_ID" --build-revision "$GITHUB_RUN_ID"
+
+      - name: Require actual version-specific and source-delivery evidence
+        run: python3 scripts/ci-sdk.py validate --arch x64 --target "$SDK_TARGET" --release-dir "$SDK_RELEASE"
+
+      - name: Preserve this run's SDK, sources and evidence, including failures
+        if: always() && steps.profile.outcome == 'success'
+        run: |
+          set -euo pipefail
+          mkdir -p -- "$SDK_RELEASE" "$SDK_BUNDLE_DIR"
+          if [[ ! -e "$SDK_RELEASE/collect-receipt.json" && -d "$SDK_HOST_REPORTS" && ! -e "$SDK_RELEASE/reports/ci-host" ]]; then
+            mkdir -p -- "$SDK_RELEASE/reports"
+            cp -a -- "$SDK_HOST_REPORTS" "$SDK_RELEASE/reports/ci-host"
+          fi
+          if [[ ! -e "$SDK_RELEASE/collect-receipt.json" && -d "$SDK_WORKSPACE/candidate" && ! -e "$SDK_RELEASE/failure-candidate" ]]; then
+            cp -a -- "$SDK_WORKSPACE/candidate" "$SDK_RELEASE/failure-candidate"
+            printf '%s\n' 'Unvalidated diagnostic candidate; this run did not complete final collection.' > "$SDK_RELEASE/failure-candidate/UNVALIDATED.txt"
+          fi
+          bundle="cbodotnet-$SDK_TARGET-linux-x64-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.tar.gz"
+          tar --hard-dereference -czf "$SDK_BUNDLE_DIR/$bundle" \
+            -C "$GITHUB_WORKSPACE/artifacts" "$SDK_VERSION-linux-x64"
+          (cd "$SDK_BUNDLE_DIR" && sha256sum "$bundle" > "$bundle.sha256" && sha512sum "$bundle" > "$bundle.sha512")
+
+      - name: Upload SDK, actual used sources and complete evidence
+        if: always() && steps.profile.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sdk-${{ matrix.target }}-linux-x64-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.SDK_BUNDLE_DIR }}/*
+          compression-level: 0
+          retention-days: 14
+          if-no-files-found: error
+          overwrite: false
+
+  draft:
+    name: Prepare verified ${{ matrix.target }} draft
+    needs: build
+    if: inputs.create_draft && needs.build.result == 'success' && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: write
+      actions: read
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        target: ${{ fromJSON(inputs.target == 'all' && '["net10","net9","net8","net7","net6","net5","core31","core30"]' || format('["{0}"]', inputs.target)) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Select this run's immutable artifact
+        id: artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SDK_TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_WORKFLOW_SHA" == "$GITHUB_SHA" && $(git rev-parse HEAD) == "$GITHUB_SHA" ]]
+          name="sdk-$SDK_TARGET-linux-x64-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" > "$RUNNER_TEMP/artifacts.json"
+          python3 - "$RUNNER_TEMP/artifacts.json" "$name" "$GITHUB_OUTPUT" <<'PY'
+          import json, sys
+          rows = [row for row in json.load(open(sys.argv[1]))['artifacts'] if row['name'] == sys.argv[2] and not row['expired']]
+          if len(rows) != 1 or not isinstance(rows[0]['id'], int):
+              raise SystemExit('An exact unique current-run artifact is required')
+          with open(sys.argv[3], 'a') as output:
+              output.write('id=' + str(rows[0]['id']) + '\n')
+          PY
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          artifact-ids: ${{ steps.artifact.outputs.id }}
+          path: ${{ runner.temp }}/sdk-download
+          merge-multiple: true
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.run_id }}
+
+      - name: Verify SDK, actual sources and every delivery gate
+        env:
+          SDK_TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          version=$(python3 scripts/ci-sdk.py describe --arch x64 --target "$SDK_TARGET" | python3 -c 'import json,sys;print(json.load(sys.stdin)["sdk_version"])')
+          python3 scripts/ci-delivery.py --download-dir "$RUNNER_TEMP/sdk-download" \
+            --destination "$RUNNER_TEMP/sdk-verified" --arch x64 --target "$SDK_TARGET" --sdk-version "$version" \
+            --expected-project-commit "$GITHUB_SHA" --expected-run-id "$GITHUB_RUN_ID" \
+            --expected-run-attempt "$GITHUB_RUN_ATTEMPT"
+          echo "SDK_VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Create a new unpublished draft with SDK and source assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SDK_TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          tag="sdk-$SDK_VERSION-linux-x64-run-$GITHUB_RUN_ID-attempt-$GITHUB_RUN_ATTEMPT"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo 'Refusing an existing release.' >&2; exit 1
+          fi
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null; then
+            echo 'Refusing an existing tag.' >&2; exit 1
+          else
+            code=$?
+            [[ $code == 2 ]] || exit "$code"
+          fi
+          release="$RUNNER_TEMP/sdk-verified/$SDK_VERSION-linux-x64"
+          assets=("$release"/cbodotnet-sdk-*.tar.gz "$release/SHA256SUMS" "$release/SHA512SUMS"
+            "$release/build-manifest.json" "$release/ci-validation.json")
+          for file in "$release/sources"/*; do assets+=("$file"); done
+          for file in "$RUNNER_TEMP/sdk-download"/*; do assets+=("$file"); done
+          for file in "${assets[@]}"; do
+            [[ -f "$file" && ! -L "$file" && $(stat -c %s -- "$file") -lt 2147483648 ]] || {
+              echo 'A release asset is absent, linked or exceeds the under-2-GiB limit.' >&2; exit 1;
+            }
+          done
+          notes="$RUNNER_TEMP/sdk-draft.md"
+          {
+            echo "Community .NET SDK $SDK_VERSION for Linux x64, with the actual used source snapshot."
+            echo
+            echo "Orchestration commit: $GITHUB_SHA"
+            echo "Workflow run: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo 'Version-specific upstream, native user-space and source-delivery gates passed.'
+            echo 'Construction and compatibility scope are recorded in the build and source manifests.'
+            echo 'This is an unpublished draft; publishing requires a separate deliberate action.'
+          } > "$notes"
+          gh release create "$tag" "${assets[@]}" --draft --latest=false --target "$GITHUB_SHA" \
+            --title ".NET SDK $SDK_VERSION Linux x64 community build" --notes-file "$notes"
+          [[ $(gh release view "$tag" --json isDraft --jq .isDraft) == true ]]

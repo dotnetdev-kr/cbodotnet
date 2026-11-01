@@ -15,6 +15,10 @@ import subprocess
 import xml.etree.ElementTree as ET
 import zipfile
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 
 ROOT = '40de72d1087a1d05dfd39c87f888a0611ec6c60f'
 PACKAGE_ID = 'FSharp.NET.Sdk'
@@ -140,7 +144,7 @@ def prove(source, package):
     if (git(source, 'rev-parse', 'HEAD').decode().strip() != ROOT
             or Path(git(source, 'rev-parse', '--show-toplevel').decode().strip()).resolve() != source):
         raise ValueError('The exact pinned Core 3.0 root is required')
-    expected_package = source / 'bin/obj/arm64/Release/blob-feed/packages' / NAME
+    expected_package = source / ('bin/obj/' + ARCH['arch'] + '/Release/blob-feed/packages') / NAME
     if package != expected_package:
         raise ValueError('Only the exact direct feed output can use this producer contract')
     if package.stat().st_size > 65536:
@@ -225,6 +229,7 @@ def prove(source, package):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument('--source-dir', required=True, type=Path)
     parser.add_argument('--package', required=True, type=Path)
     arguments = parser.parse_args()

@@ -13,6 +13,10 @@ import tarfile
 import tempfile
 import zipfile
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 
 COMMIT = 'd414ecb2d997a9b3f38aaaeddace30ca097e546d'
 SDK = '5.0.214'
@@ -108,7 +112,7 @@ def dev_certs_tool(source, stage, reports):
             row = dict({'path': str(file(path))}, **fingerprint(path))
             row['matchesSdkToolAssembly'] = row['sha256'] == actual['sha256']
             binaries.append(row)
-    feed = directory(source / 'artifacts/obj/arm64/Release/blob-feed/packages')
+    feed = directory(source / ('artifacts/obj/' + ARCH['arch'] + '/Release/blob-feed/packages'))
     for package in sorted(feed.iterdir()):
         if (not package.name.lower().startswith('dotnet-dev-certs.') or not package.name.endswith('.nupkg')
                 or package.name.endswith('.symbols.nupkg')):
@@ -177,7 +181,7 @@ def adapt_certificate_setup(source, reports):
 
 
 def prepare(source, inputs, reports, record):
-    archive = file(source / ('artifacts/arm64/Release/dotnet-sdk-' + SDK + '-linux-arm64.tar.gz'))
+    archive = file(source / (('artifacts/' + ARCH['arch'] + '/Release/dotnet-sdk-') + SDK + ('-' + ARCH['rid'] + '.tar.gz')))
     record['sdkArchive'] = dict({'path': str(archive)}, **fingerprint(archive))
     parent = inputs / 'test-runs'
     if parent.exists():
@@ -270,6 +274,7 @@ def finalize(source, reports, code, record):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument('action', choices=['prepare', 'finalize'])
     parser.add_argument('--source-dir', required=True, type=Path)
     parser.add_argument('--inputs-dir', required=True, type=Path)

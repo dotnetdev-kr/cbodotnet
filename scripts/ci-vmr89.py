@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run fresh pinned .NET 8/9 native Linux ARM64 CI stages."""
+"""Run fresh pinned .NET 8/9 native Linux CI stages."""
 import argparse
 import json
 import os
@@ -20,6 +20,7 @@ PROJECT = Path(__file__).resolve().parents[1]
 class Driver:
     def __init__(self, args):
         self.args, self.version, self.config = args, args.version, S.V[args.version]
+        self.arch = getattr(args, 'arch', 'arm64'); self.target = S.get_arch(self.arch)
         self.workspace, self.output = args.workspace.absolute(), args.output_dir.absolute()
         self.source, self.inputs = self.workspace / 'source', self.workspace / 'inputs'
         self.home, self.candidate = self.workspace / 'home', self.workspace / 'candidate'
@@ -73,24 +74,27 @@ class Driver:
     def inspect(self, reference, destination):
         text = self.run(self.engine + ['image', 'inspect', reference], capture=True)
         data = json.loads(text)
-        S.require(len(data) == 1 and data[0]['Architecture'] == 'arm64' and data[0]['Os'] == 'linux'
-                  and re.fullmatch(r'(?:sha256:)?[a-f0-9]{64}', data[0]['Id']), 'An immutable native ARM64 image is required')
+        S.require(len(data) == 1 and data[0]['Architecture'] == self.target['image'] and data[0]['Os'] == 'linux'
+                  and re.fullmatch(r'(?:sha256:)?[a-f0-9]{64}', data[0]['Id']), 'An immutable image for the selected native architecture is required')
         destination.write_text(text); return data[0]
 
     def verify_prepared(self):
         self.container(['python3', '/delivery/reports/ci-inputs/project/scripts/ci_vmr89_support.py', 'sysroot',
-                        '--version', self.version, '--output', '/delivery/reports/' + self.args.stage + '/sysroot-validation.json'], readonly=True, network='none')
+                        '--version', self.version, '--arch', self.arch, '--output', '/delivery/reports/' + self.args.stage + '/sysroot-validation.json'], readonly=True, network='none')
 
     def prepare(self):
         self.run(['git', 'clone', '--depth', '1', '--branch', 'v' + self.config['sdk'], '--', 'https://github.com/dotnet/dotnet', self.source])
-        S.freeze(PROJECT, self.source, self.output, self.version, self.identity, os.environ.get('GITHUB_WORKFLOW_REF', 'local'))
-        self.run(self.engine + ['pull', 'mcr.microsoft.com/dotnet-buildtools/prereqs@sha256:7ef8f6ee1b9982511349757443eb4844f0db4f8cef1aff6148a7ba1c25d7c6f4'])
-        self.inspect('mcr.microsoft.com/dotnet-buildtools/prereqs@sha256:7ef8f6ee1b9982511349757443eb4844f0db4f8cef1aff6148a7ba1c25d7c6f4', self.reports / 'prepare/base-image.json')
-        tag = 'localhost/cbodotnet-net' + self.version + '-ci:' + self.identity['runId'] + '-' + self.identity['runAttempt']
-        self.run(self.engine + ['build', '--network=host', '--file', self.frozen / ('containers/arm64-net' + self.version + '.Containerfile'), '--tag', tag, self.frozen])
+        S.freeze(PROJECT, self.source, self.output, self.version, self.identity, os.environ.get('GITHUB_WORKFLOW_REF', 'local'), self.arch)
+        profile = S.load(self.profile)
+        base = profile['container']['repository'] + '@' + profile['container']['digest']
+        self.run(self.engine + ['pull', base])
+        self.inspect(base, self.reports / 'prepare/base-image.json')
+        suffix = '' if self.arch == 'arm64' else '-' + self.arch
+        tag = 'localhost/cbodotnet-net' + self.version + suffix + '-ci:' + self.identity['runId'] + '-' + self.identity['runAttempt']
+        self.run(self.engine + ['build', '--network=host', '--file', self.frozen / ('containers/' + self.arch + '-net' + self.version + '.Containerfile'), '--tag', tag, self.frozen])
         self.image = self.inspect(tag, self.reports / 'prepare/build-image.json')['Id']
         self.container(['bash', '/delivery/reports/ci-inputs/project/scripts/prepare-sysroot' + self.version + '.sh',
-                        '/vmr', '/inputs', '/reports', str(os.getuid()), str(os.getgid())], readonly=True, root=True, privileged=True)
+                        '/vmr', '/inputs', '/reports', str(os.getuid()), str(os.getgid()), '--arch', self.arch], readonly=True, root=True, privileged=True)
         if self.version == '8':
             tools = self.inputs / 'ci-tools'; (tools / 'scripts').mkdir(parents=True)
             original = (self.frozen / 'scripts/build-vmr8.sh').read_text()
@@ -104,23 +108,25 @@ class Driver:
             S.dump(self.reports / 'prepare/source-preservation-adaptation.json', dict(original=S.record(self.output, self.frozen / 'scripts/build-vmr8.sh'),
                    adapted=S.record(self.output, preserved), removedOptionalArgument='--clean-while-building', productSourcesChanged=False,
                    reason='Retain actual generated source-build consumer trees for the used-source delivery.'))
-            self.container(['bash', '/inputs/ci-tools/scripts/build-vmr8.sh', '--source-dir', '/vmr', '--sysroot', '/inputs/arm64-xenial',
+            self.container(['bash', '/inputs/ci-tools/scripts/build-vmr8.sh', '--arch', self.arch, '--source-dir', '/vmr', '--sysroot', '/inputs/' + self.arch + '-xenial',
                             '--reports-dir', '/delivery/reports/prepare/bootstrap', '--action', 'prepare'])
         self.verify_prepared()
         self.run([sys.executable, self.frozen / 'scripts/fetch-test-sdk.py', '--profile', self.profile,
                   '--inputs-dir', self.inputs, '--reports-dir', self.reports / 'prepare/test-inputs'])
-        S.dump(self.state_path, dict(self.identity, imageId=self.image, workspace=str(self.workspace), output=str(self.output)))
+        state = dict(self.identity, imageId=self.image, workspace=str(self.workspace), output=str(self.output))
+        if self.arch != 'arm64': state.update(architecture=self.arch)
+        S.dump(self.state_path, state)
 
     def product(self, action):
         self.verify_prepared()
         if action == 'test' and self.version == '9':
-            S.N9.before_test(self.source, self.output)
+            S.N9.before_test(self.source, self.output, self.arch)
             self.container(['python3', '/delivery/reports/ci-inputs/project/scripts/prepare-scenario-report-fence.py', 'apply',
                             '--version', '9', '--source-dir', '/vmr', '--reports-dir', '/delivery/reports/test/scenario-report-fence'])
         script = '/inputs/ci-tools/scripts/build-vmr8.sh' if self.version == '8' else '/delivery/reports/ci-inputs/project/scripts/build-vmr9.sh'
-        args = ['bash', script, '--source-dir', '/vmr', '--sysroot', '/inputs/arm64-xenial', '--reports-dir', '/delivery/reports/' + action, '--action', action]
-        if action == 'test': args += ['--official-sdk-archive', '/inputs/official-sdk/dotnet-sdk-' + self.config['sdk'] + '-linux-arm64.tar.gz']
-        observer = S.Observer(self.source, self.output, self.version) if action == 'build' else None
+        args = ['bash', script, '--arch', self.arch, '--source-dir', '/vmr', '--sysroot', '/inputs/' + self.arch + '-xenial', '--reports-dir', '/delivery/reports/' + action, '--action', action]
+        if action == 'test': args += ['--official-sdk-archive', '/inputs/official-sdk/dotnet-sdk-' + self.config['sdk'] + '-' + self.target['rid'] + '.tar.gz']
+        observer = S.Observer(self.source, self.output, self.version, self.arch) if action == 'build' else None
         if observer: observer.start()
         try: self.container(args)
         finally:
@@ -137,12 +143,12 @@ class Driver:
             source = self.source / 'test/Microsoft.DotNet.SourceBuild.SmokeTests/TestResults'
             files = list(source.glob('*.trx')); S.require(len(files) == 1, 'Exactly one fresh .NET 8 smoke TRX is required')
             shutil.copytree(source, destination)
-            summary = S.test_results('8', destination / files[0].name)
+            summary = S.test_results('8', destination / files[0].name, arch=self.arch)
         else:
-            S.N9.capture(self.source, self.output)
+            S.N9.capture(self.source, self.output, self.arch)
             source = self.source / 'artifacts/TestResults/Release'; shutil.copytree(source, destination)
             scenario = list((destination / 'scenario-tests').glob('*.xml')); S.require(len(scenario) == 1, 'One fresh scenario XML required')
-            summary = S.test_results('9', destination / 'Microsoft.DotNet.UnifiedBuild.Tests.trx', scenario[0])
+            summary = S.test_results('9', destination / 'Microsoft.DotNet.UnifiedBuild.Tests.trx', scenario[0], self.arch)
         S.dump(self.reports / 'test/upstream-summary.json', summary)
         prebuilt=self.reports/'prebuilt-usage';prebuilt.mkdir()
         generated_reports=self.source/'artifacts/prebuilt-report'
@@ -164,7 +170,7 @@ class Driver:
         S.require(S.git(clean, 'rev-parse', 'HEAD') == self.config['commit'] and not S.git(clean, 'status', '--porcelain', '--untracked-files=all', '--ignored=matching'), 'A pristine separate scan target is required')
         if self.version == '9':
             self.container(['bash', '/delivery/reports/ci-inputs/project/scripts/scan-clean-source9.sh', '--source-dir', '/vmr',
-                            '--clean-source-dir', '/clean9', '--reports-dir', '/delivery/reports/scan/upstream'])
+                            '--clean-source-dir', '/clean9', '--reports-dir', '/delivery/reports/scan/upstream', '--arch', self.arch])
         else:
             S.dump(self.reports / 'scan/pinned-source-inventory.json', S.write_source_header_inventory(clean,self.output))
 
@@ -184,23 +190,24 @@ class Driver:
                         '/p:BootstrapMajor=' + self.version, '/p:BootstrapSdkDir=' + sdk], readonly=True, network='none')
         reader = '/inputs/analysis/bin/Release/net' + self.version + '.0/Reader.dll'
         self.container(['/vmr/.dotnet/dotnet', reader, '/delivery/reports/construction/consumer.binlog', sdk,
-                        '/delivery/reports/construction/downloads', self.config['runtime']], readonly=True, network='none')
+                        '/delivery/reports/construction/downloads', self.config['runtime'], self.arch], readonly=True, network='none')
         reader_output = analysis / ('bin/Release/net' + self.version + '.0')
         shutil.copytree(reader_output, self.reports / 'construction/reader')
         S.dump(self.reports / 'construction/reader-inputs.json', dict(sourceFiles=[S.record(self.output, self.frozen / 'scripts/ci-vmr89-reader' / name)
                for name in ('Program.cs', 'Reader.csproj')], reader=S.record(self.output, self.reports / 'construction/reader/Reader.dll'),
                compilerSdk=self.config['bootstrap'], sourceCommit=self.config['commit']))
-        S.construct(self.output, self.version, self.candidate)
+        S.construct(self.output, self.version, self.candidate, self.arch)
         for name, (distribution, version, icu, ssl) in S.G.USERLANDS.items():
             reference = 'docker.io/library/' + distribution + ':' + version
             self.run(self.engine + ['pull', reference])
             base = self.inspect(reference, self.reports / ('ci/' + name + '-base-image.json'))
-            pinned = S.G.verification_base(base, distribution)
-            tag = 'localhost/cbodotnet-net' + self.version + '-verify-' + name + ':' + self.identity['runId'] + '-' + self.identity['runAttempt']
+            pinned = S.G.verification_base(base, distribution, arch=self.arch)
+            suffix = '' if self.arch == 'arm64' else '-' + self.arch
+            tag = 'localhost/cbodotnet-net' + self.version + suffix + '-verify-' + name + ':' + self.identity['runId'] + '-' + self.identity['runAttempt']
             self.run(self.engine + ['build', '--network=host', '--file', self.frozen / 'containers/verify-net10.Containerfile', '--build-arg', 'BASE_IMAGE=' + pinned,
                       '--build-arg', 'ICU_PACKAGE=' + icu, '--build-arg', 'SSL_PACKAGE=' + ssl, '--tag', tag, self.frozen])
             image = self.inspect(tag, self.reports / ('ci/' + name + '-verification-image.json'))['Id']
-            script = S.userland_script()
+            script = S.userland_script(self.arch)
             self.run(self.engine + ['run', '--rm', '--interactive', '--network=none', '--user', str(os.getuid()) + ':' + str(os.getgid()),
                       '--env', 'LANG=C.UTF-8', '--env', 'LC_ALL=C.UTF-8', '--env', 'DOTNET_GENERATE_ASPNET_CERTIFICATE=false',
                       '--env', 'PYTHONDONTWRITEBYTECODE=1',
@@ -214,7 +221,7 @@ class Driver:
 
     def execute(self):
         stage = self.args.stage
-        S.require(platform.system() == 'Linux' and platform.machine() == 'aarch64' and os.getuid() > 0, 'Use a nonroot native Linux ARM64 worker')
+        S.require(platform.system() == 'Linux' and platform.machine() == self.target['uname'] and os.getuid() > 0, 'Use a nonroot native Linux worker for the selected architecture')
         S.require(len(os.sched_getaffinity(0)) >= 2, 'At least two allowed CPUs are required')
         for value in (self.workspace, self.output):
             S.require(value != Path('/') and '..' not in value.parts and not any(c in str(value) for c in ':\r\n\0')
@@ -230,12 +237,13 @@ class Driver:
             os.chmod(self.home, 0o700); os.chmod(self.home / '.xdg', 0o700)
         else:
             state = S.load(self.state_path)
-            S.require(all(state.get(k) == v for k, v in self.identity.items()) and state['workspace'] == str(self.workspace) and state['output'] == str(self.output), 'Prepared run identity differs')
+            S.require(all(state.get(k) == v for k, v in self.identity.items()) and state['workspace'] == str(self.workspace) and state['output'] == str(self.output)
+                      and state.get('architecture', 'arm64') == self.arch, 'Prepared run identity differs')
             self.image = state['imageId']
             prior = dict(build='prepare', scan='build', test='scan', verify='test', collect='verify')[stage]
             receipt = S.load(self.reports / ('ci/stages/' + prior + '.json'))
             S.require(receipt['status'] == 'passed' and receipt['exitCode'] == 0, 'The prior stage must pass')
-            S.verify_frozen(self.output, self.version, PROJECT)
+            S.verify_frozen(self.output, self.version, PROJECT, self.arch)
             S.require(S.git(self.source, 'rev-parse', 'HEAD') == self.config['commit'], 'Source revision changed')
         directory = self.reports / stage; directory.mkdir(parents=True, exist_ok=True)
         self.log = self.output / 'collect.log' if stage == 'collect' else directory / 'ci-driver.log'
@@ -260,6 +268,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('stage', choices=['prepare', 'build', 'scan', 'test', 'verify', 'collect', 'validate', 'verify-release'])
     parser.add_argument('--version', choices=['8', '9'], required=True)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument('--output-dir', required=True, type=Path)
     parser.add_argument('--project-root', type=Path)
     parser.add_argument('--workspace', type=Path)

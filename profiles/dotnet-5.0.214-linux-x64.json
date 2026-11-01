@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "5.0.214",
+  "source": {
+    "repository": "https://github.com/dotnet/source-build",
+    "tag": null,
+    "branch": "release/5.0",
+    "commit": "d414ecb2d997a9b3f38aaaeddace30ca097e546d"
+  },
+  "selection": {
+    "latestPublishedSdk": "5.0.408",
+    "latestPublishedRuntime": "5.0.17",
+    "releaseDate": "2022-05-10",
+    "reason": "The final release/5.0 source-build commit coordinates SDK 5.0.214 and runtime 5.0.17. The 2xx SDK is the final serviced feature band represented by this legacy full-source graph; 5.0.408 is the newest published SDK across all bands. There is no v5.0.214-SDK tag in source-build, so the exact branch commit is pinned."
+  },
+  "legacySource": {
+    "componentManifest": "eng/Version.Details.xml",
+    "componentCommits": {
+      "installer": "430330f7c5428f031b4a835be3dcf5945f55a56a",
+      "runtime": "6a984143635bde23e728abaaccbde52f5ea8fa3e",
+      "aspnetcore": "02c6de4ba6022025fcda7581415f310f8c73cdc3",
+      "sdk": "3fdf76c35026e311b7edc245d4b3d9e812fe532e",
+      "arcade": "6eec4404c2df5bfa46e5da52383c881c5cca3a9f",
+      "source-build-reference-packages": "6ce5818b1c1828ccdc8ac63d460d029c6391a401"
+    },
+    "route": "Build the source-build repository directly. Its optional source-tarball packaging follows a completed production build; it does not use the .NET 6/7 installer source-generation target."
+  },
+  "upstreamInputs": {
+    "sourceBuiltArtifactsUrl": "https://builds.dotnet.microsoft.com/source-built-artifacts/assets/Private.SourceBuilt.Artifacts.0.1.0-5.0.213-1682896-20220325.6.tar.gz",
+    "sourceBuiltArtifactsBytes": 2542770679,
+    "bootstrapArcade": "5.0.0-beta.20426.4",
+    "retainedBootstrapArcade": {
+      "version": "5.0.0-beta.20431.1",
+      "sourceCommit": "6eec4404c2df5bfa46e5da52383c881c5cca3a9f",
+      "member": "Microsoft.DotNet.Arcade.Sdk.5.0.0-beta.20431.1.nupkg",
+      "bytes": 381694,
+      "sha256": "1d74b9f3bb3964e178f37ceba4a94783378be45d273d7884c295283ed7dab738",
+      "toolFramework": "net5.0"
+    },
+    "bootstrapSdk": "5.0.212",
+    "bootstrapSdkRid": "linux-x64",
+    "bootstrapSdkUrl": "https://builds.dotnet.microsoft.com/dotnet/Sdk/5.0.212/dotnet-sdk-5.0.212-linux-x64.tar.gz",
+    "bootstrapSdkSha512": "c13eb20d2356374c266b983ec15c5b12e06d3c39b04839916affe758f757c64ce3854701cdb2c25b6e8ad3f2914f67e9dec3993e85e575d3085b32a6b9dd7f12"
+  },
+  "selectedAt": "2026-11-01",
+  "status": "Pinned native x64 CI inputs; hosted and downloaded qualification is pending.",
+  "host": {
+    "os": "linux",
+    "architecture": "x64",
+    "emulation": false
+  },
+  "target": {
+    "rid": "linux-x64",
+    "libc": "glibc",
+    "intendedMaximumGlibcRequirement": "2.23"
+  },
+  "container": {
+    "repository": "mcr.microsoft.com/dotnet/sdk",
+    "referenceTag": "3.1.426-focal",
+    "digest": "sha256:1e34d3881f9e1da0b2e81de59656abc29be6993eef2362d9134d66530db8b6ba",
+    "configDigest": "sha256:4c21ad7ff05c77e6294bbe78dc1326b2a258376dff4173ecda4f8acc7ff676f3",
+    "architecture": "amd64",
+    "os": "linux",
+    "manifestAndConfigVerified": true,
+    "containerfile": "containers/x64-net5.Containerfile",
+    "purpose": "Pinned native x64 legacy toolchain; target headers and libraries come from a separate signed amd64 Xenial sysroot.",
+    "status": "Base manifest and configuration verified; this run must build and inspect its own derived image."
+  },
+  "toolchain": {
+    "compiler": "clang",
+    "compilerMajorVersion": 9,
+    "compilerPath": "/usr/bin/clang-9",
+    "status": "Actual native compiler and selected sysroot must be established by this run."
+  },
+  "sysroot": {
+    "architecture": "x64",
+    "debArchitecture": "amd64",
+    "suite": "xenial",
+    "path": "inputs/x64-xenial",
+    "generator": "scripts/prepare-legacy-x64-sysroot.sh",
+    "generatorArguments": [
+      "--force-check-gpg",
+      "--arch=amd64",
+      "xenial"
+    ],
+    "packageSignatureVerification": true,
+    "preparationRequiresRoot": true,
+    "emulation": false,
+    "status": "Fresh complete signed sysroot production and inventory verification are mandatory."
+  },
+  "build": {
+    "system": "legacy-source-build-direct",
+    "configuration": "Release",
+    "sourceOnly": true,
+    "online": true,
+    "crossBuild": true,
+    "portableBuild": true,
+    "continuousIntegration": true,
+    "maxCpuCount": 2,
+    "msbuildProperties": {
+      "Platform": "x64",
+      "TargetRid": "linux-x64"
+    },
+    "patches": [
+      {
+        "path": "patches/net5/0001-run-native-arm64-corelib-crossgen.patch",
+        "sha256": "08e6d58bd7541ee1abceef8bea1c177c4e810cf0799cd1b499a044eb93430d07",
+        "purpose": "Run the main native ARM64 crossgen for CoreLib in same-system sysroot mode while retaining cross compilation."
+      },
+      {
+        "path": "patches/net5/0002-avoid-duplicate-portable-aspnet-runtime.patch",
+        "sha256": "4084d484ea7a724662ebfddea32e83735147fe602a36d685091127e4548becc1",
+        "purpose": "Condition the upstream producer of the extra nonportable ASP.NET runtime reference; preserve the existing portable reference and native crossgen."
+      },
+      {
+        "path": "patches/net5/0003-preserve-explicit-source-clone-command.patch",
+        "sha256": "b3c951cc23bd46061e642c7fc9e5d5a4aef3a27117c057972b798b45ad392d42",
+        "purpose": "Keep an explicit immutable source acquisition wrapper during target execution without bypassing FetchSources."
+      },
+      {
+        "path": "patches/net5/0004-use-public-dotnet-feed-for-legacy-mapping.patch",
+        "sha256": "644fd832aaf440ecf8a46d9537bee4f499228f798e87b5e5928f9ff7652c492e",
+        "purpose": "Keep online restore and exact requested versions while mapping the retired dotnet-core index to the current official dotnet-public feed."
+      },
+      {
+        "path": "patches/net5/0005-map-remaining-retired-service-indexes.patch",
+        "sha256": "30d1fd9ecf175f4ac9364a8e7a39002c3e4a7e6b1753f93b9771c1d53295aa1f",
+        "purpose": "Extend the exact service-index mapping to retired tools and nuget-build feeds without changing versions, local feeds or archive URLs."
+      },
+      {
+        "path": "patches/net5/0006-run-native-x64-corelib-crossgen.patch",
+        "sha256": "7b5b973fc6c619eb6ac3b274eaf9b00557d2c703b653ef87bb5e8eaecae2a315",
+        "purpose": "Run the actual native x64 main crossgen for same-system signed-sysroot CoreLib generation, retaining original ARM behavior."
+      },
+      {
+        "path": "patches/net5/0007-native-x64-runtime-toolchain.patch",
+        "sha256": "280d3ee267964bf539aaae62d08b6891233a99ae515c841008e77fa6a7849c78",
+        "purpose": "Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation."
+      },
+      {
+        "path": "patches/net5/0008-native-x64-runtime-tryrun.patch",
+        "sha256": "657adc868cfcd0328dd8dd6d29d12770b1c0bc7b8ce5b6a7b264dd26f40b1599",
+        "purpose": "Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation."
+      },
+      {
+        "path": "patches/net5/0009-native-x64-runtime-tryrun.patch",
+        "sha256": "7461d4631511a8965ccf2195d3a1125e79ce7899b0352e49be675ad9b74c3b0f",
+        "purpose": "Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation."
+      },
+      {
+        "path": "patches/net5/0010-native-x64-runtime-tryrun.patch",
+        "sha256": "34bdacba27a8c03930ce838ce9bbbda95408da28a9984bb82dfd12d2206c02d7",
+        "purpose": "Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation."
+      }
+    ]
+  },
+  "construction": {
+    "upstreamSharedRuntimeReused": null,
+    "note": "Fresh native x64 local framework, native-image, full suite and final archive proof are required. Binary bootstrap inputs remain explicit."
+  }
+}

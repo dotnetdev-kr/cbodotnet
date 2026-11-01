@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Derive the native ARM64 build policy by allowing only fchmodat2 additionally.
+"""Derive the selected native build policy by allowing only fchmodat2 additionally.
 
 The host's default seccomp policy stays unchanged. Existing output policies must
 match the deterministic result exactly; different inputs require a new output.
@@ -16,6 +16,10 @@ import os
 from pathlib import Path
 import platform
 import tempfile
+
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
 
 
 def digests(data):
@@ -43,12 +47,13 @@ def atomic_write(path, content):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument("--source-policy", type=Path, default=Path("/usr/share/containers/seccomp.json"))
     parser.add_argument("--output-policy", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
     args = parser.parse_args()
-    if platform.system() != "Linux" or platform.machine() != "aarch64":
-        raise ValueError("Native Linux ARM64 is required")
+    if platform.system() != "Linux" or platform.machine() != ARCH['uname']:
+        raise ValueError("The selected native Linux architecture is required")
     for path in (args.source_policy, args.output_policy, args.report):
         if not path.is_absolute() or path.is_symlink():
             raise ValueError("Absolute paths without symbolic links are required")
@@ -65,9 +70,9 @@ def main():
         raise ValueError("The base policy must contain syscall rules")
     arch_map = baseline.get("archMap", [])
     architectures = baseline.get("architectures", [])
-    if not ("SCMP_ARCH_AARCH64" in architectures or any(
-            isinstance(entry, dict) and entry.get("architecture") == "SCMP_ARCH_AARCH64" for entry in arch_map)):
-        raise ValueError("The base policy does not declare native AArch64 support")
+    if not (ARCH['seccomp'] in architectures or any(
+            isinstance(entry, dict) and entry.get("architecture") == ARCH['seccomp'] for entry in arch_map)):
+        raise ValueError("The base policy does not declare the selected native architecture")
 
     # The external ldconfig probe can fail in WSL even when the runtime loader
     # can resolve the installed library. Keep the same native API checks below.
@@ -78,8 +83,8 @@ def main():
     library.seccomp_syscall_resolve_name.restype = ctypes.c_int
     native_architecture = library.seccomp_arch_native()
     syscall_number = library.seccomp_syscall_resolve_name(b"fchmodat2")
-    if native_architecture != 0xC00000B7 or syscall_number != 452:
-        raise ValueError("The host must resolve native AArch64 fchmodat2 to syscall 452")
+    if native_architecture != ARCH['seccompToken'] or syscall_number != 452:
+        raise ValueError("The host must resolve the selected native fchmodat2 to syscall 452")
 
     class Version(ctypes.Structure):
         _fields_ = [("major", ctypes.c_uint), ("minor", ctypes.c_uint), ("micro", ctypes.c_uint)]
@@ -116,7 +121,7 @@ def main():
     else:
         atomic_write(output, output_bytes)
     record = {"schemaVersion": 1, "preparedAtUtc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-              "status": "verified-existing" if reused else "created", "nativeArchitecture": "aarch64",
+              "status": "verified-existing" if reused else "created", "nativeArchitecture": ARCH['uname'],
               "libseccomp": {"library": library_name, "version": f"{version.major}.{version.minor}.{version.micro}",
                              "nativeArchitectureToken": hex(native_architecture), "fchmodat2SyscallNumber": syscall_number},
               "basePolicy": {"path": str(source), **digests(source_bytes)},

@@ -25,14 +25,18 @@ import uuid
 import xml.etree.ElementTree as ET
 import zipfile
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 
 OWNER = "cbodotnet-core30-bootstrap-v1"
 SOURCE_COMMIT = "40de72d1087a1d05dfd39c87f888a0611ec6c60f"
 SDK_VERSION = "3.0.100"
-SDK_NAME = "dotnet-sdk-3.0.100-linux-arm64.tar.gz"
+SDK_NAME = LEGACY_ARCH['sdk_pin'](SDK_VERSION, ARCH['arch'])['name']
 SDK_URL = "https://builds.dotnet.microsoft.com/dotnet/Sdk/3.0.100/" + SDK_NAME
-SDK_SHA512 = "18c3bc07c4486381f54d4b40eb8401bf56c14fef5febc4639e3134d74ce66172d1e66c2dea9684ad727f08e9dd7e89d74535a8642fb2a2203445483293f3b3c3"
-SDK_BYTES = 113669548
+SDK_SHA512 = LEGACY_ARCH['sdk_pin'](SDK_VERSION, ARCH['arch'])['sha512']
+SDK_BYTES = 113669548 if ARCH['arch'] == 'arm64' else 113463755
 PSB_NAME = "Private.SourceBuilt.Artifacts.0.1.0-3.0.100.tar.gz"
 PSB_BYTES = 469688508
 PSB_SHA256 = "e8542ab2d6c4383b8c2aee8cdb86cd1952a542f8633df57082054bf48588a09b"
@@ -466,13 +470,14 @@ def verify_completed(state, source_records, archive_info, psb_info, arcade_info,
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument("action", choices=["prepare", "verify"])
     parser.add_argument("--source-dir", required=True, type=Path)
     parser.add_argument("--inputs-dir", required=True, type=Path)
     parser.add_argument("--reports-dir", required=True, type=Path)
     parser.add_argument("--profile", required=True, type=Path)
     args = parser.parse_args()
-    if platform.system() != "Linux" or platform.machine().lower() not in ("aarch64", "arm64"):
+    if platform.system() != "Linux" or platform.machine().lower() not in (ARCH['uname'], ARCH['arch']):
         raise ValueError("Run the helper in the native Linux ARM64 build environment")
     source, inputs = directory(args.source_dir), directory(args.inputs_dir, create=True)
     reports = directory(args.reports_dir, create=True)

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "selectedAt": "2026-11-01",
+  "sdkVersion": "9.0.123",
+  "source": {
+    "repository": "https://github.com/dotnet/dotnet",
+    "tag": "v9.0.123",
+    "commit": "9f04b57d1366e21b3178648493d6edffeff2216e"
+  },
+  "selection": {
+    "latestPublishedSdk": "9.0.320",
+    "latestPublishedRuntime": "9.0.22",
+    "releaseDate": "2026-10-25",
+    "reason": "Latest published 1xx SDK has a pinned VMR tag; 9.0.320 has no matching VMR tag. Both use runtime 9.0.22."
+  },
+  "host": {
+    "os": "linux",
+    "architecture": "x64",
+    "emulation": false
+  },
+  "target": {
+    "rid": "linux-x64",
+    "libc": "glibc",
+    "intendedMaximumGlibcRequirement": "2.23"
+  },
+  "container": {
+    "repository": "mcr.microsoft.com/dotnet-buildtools/prereqs",
+    "referenceTag": "ubuntu-24.04",
+    "digest": "sha256:3c6f20064af0ba7844c51b17f6fe06fd499fb27af0aba281254bd573af830d73"
+  },
+  "sysroot": {
+    "architecture": "x64",
+    "suite": "xenial",
+    "generator": "eng/common/cross/build-rootfs.sh",
+    "generatorArguments": [
+      "x64",
+      "xenial"
+    ],
+    "packageSignatureVerification": true,
+    "preparationRequiresRoot": true
+  },
+  "build": {
+    "configuration": "Release",
+    "sourceOnly": false,
+    "crossBuild": true,
+    "portableBuild": true,
+    "continuousIntegration": true,
+    "maxCpuCount": 2,
+    "sharedComponents": "Requires fresh x64 proof of the locally built runtime and the consumed upstream ASP.NET fallback."
+  },
+  "construction": {
+    "upstreamSharedRuntimeReused": true,
+    "note": "Native x64 qualification requires fresh build, original upstream tests, complete consumed-framework byte comparisons, actual source delivery and three native user spaces. No ARM64 result or historical archive hash qualifies x64. Bootstrap and other upstream binary inputs remain in scope."
+  },
+  "additionalPackages": [],
+  "upstreamInputs": {
+    "bootstrapSdk": "9.0.121",
+    "sourceBuiltArtifacts": "9.0.121-servicing.26421.1",
+    "runtime": "9.0.22"
+  }
+}

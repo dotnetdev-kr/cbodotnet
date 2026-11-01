@@ -16,6 +16,16 @@ from types import SimpleNamespace
 SOURCE = '5a2162bea6845eabc1fc721624a43568c65db3b1'
 SDK = '10.0.403'
 PROFILE = 'profiles/dotnet-10.0.403-linux-arm64.json'
+_ARCH_SPEC = importlib.util.spec_from_file_location('ci_arch_net10', Path(__file__).with_name('ci_arch.py'))
+_ARCH = importlib.util.module_from_spec(_ARCH_SPEC); _ARCH_SPEC.loader.exec_module(_ARCH)
+
+
+def arch_info(arch='arm64'):
+    return _ARCH.get_arch(arch)
+
+
+def profile_path(arch='arm64'):
+    return 'profiles/dotnet-10.0.403-' + arch_info(arch)['rid'] + '.json'
 FUNCTIONS = {'consoleDllExecution', 'consoleApphostExecution', 'rsaSha256SignAndVerify',
              'cryptographicRandomBytes', 'frFrDecimalFormatting', 'aspNetCoreLoopbackHttp'}
 SKIPS = {'VerifyWorkloadCmd', 'VerifyAspireTemplate'}
@@ -28,6 +38,37 @@ USERLANDS = {'ubuntu22': ('ubuntu', '22.04', 'libicu70', 'libssl3'),
              'debian13': ('debian', '13', 'libicu76', 'libssl3t64')}
 ENVIRONMENT_OVERRIDES = {'LD_LIBRARY_PATH', 'DOTNET_ROOT', 'DOTNET_SYSTEM_GLOBALIZATION_INVARIANT',
                          'CLR_ICU_VERSION_OVERRIDE', 'DOTNET_EnableDiagnostics', 'COMPlus_EnableDiagnostics'}
+
+
+def environment_overrides(arch='arm64'):
+    arch_info(arch)
+    return ENVIRONMENT_OVERRIDES | ({'DOTNET_ROOT_X64'} if arch == 'x64' else set())
+
+
+def critical_inputs(arch='arm64'):
+    arch_info(arch)
+    if arch == 'arm64':
+        return set(CRITICAL)
+    return (CRITICAL - {PROFILE, 'containers/arm64-net10.Containerfile', '.github/workflows/net10-sdk.yml'}) | {
+        profile_path(arch), 'containers/x64-net10.Containerfile', 'scripts/ci_arch.py', '.github/workflows/sdk-x64.yml'}
+
+
+def x64_profile_check(profile):
+    require(profile.get('host') == {'os': 'linux', 'architecture': 'x64', 'emulation': False}
+            and profile.get('target', {}).get('rid') == 'linux-x64'
+            and profile['target'].get('libc') == 'glibc'
+            and profile['target'].get('intendedMaximumGlibcRequirement') == '2.27',
+            'The selected x64 native/glibc target profile differs')
+    require(profile.get('sysroot', {}).get('architecture') == 'x64'
+            and profile['sysroot'].get('suite') == 'bionic'
+            and profile['sysroot'].get('generatorArguments') == ['x64', 'bionic', '--skipemulation']
+            and profile['sysroot'].get('packageSignatureVerification') is True
+            and profile.get('build', {}).get('crossBuild') is True
+            and profile['build'].get('portableBuild') is True,
+            'The x64 build must retain its signed Bionic sysroot and portable cross-build policy')
+    require(profile.get('container', {}).get('repository') == 'mcr.microsoft.com/dotnet-buildtools/prereqs'
+            and profile['container'].get('digest') == 'sha256:3c6f20064af0ba7844c51b17f6fe06fd499fb27af0aba281254bd573af830d73',
+            'The selected x64 product image pin differs')
 
 
 def require(value, message):
@@ -96,7 +137,7 @@ def git_hash(kind, data):
     return hashlib.sha1(kind.encode() + b' ' + str(len(data)).encode() + b'\0' + data).hexdigest()
 
 
-def project_tree(release, rows):
+def project_tree(release, rows, arch='arm64'):
     """Reconstruct Git trees so downloaded source bytes bind the real commit."""
     tree = {}; names = set(); prefix = 'reports/ci-inputs/project/'
     for row in rows:
@@ -119,7 +160,7 @@ def project_tree(release, rows):
             require(isinstance(parent, dict), 'Git tree/file collision')
         require(parts[-1] not in parent, 'Git tree/file collision')
         parent[parts[-1]] = (row['gitMode'], blob)
-    require(CRITICAL <= names, 'Required current workflow/profile/tools are missing from the snapshot')
+    require(critical_inputs(arch) <= names, 'Required current workflow/profile/tools are missing from the snapshot')
 
     def digest(entries):
         body = []
@@ -222,11 +263,12 @@ def validate_scan(release, scan):
     return {key: scan[key] for key in ('report', 'toolAssembly', 'allowedBinaries', 'allowedSourceBuildBinaries', 'scanLog', 'scanBinlog')}
 
 
-def native_check(path, archive):
+def native_check(path, archive, arch='arm64'):
+    identity = arch_info(arch)
     data = load(path)
     require(data.get('verificationStatus') == 'passed' and data.get('smokeStatus') == 'passed'
-            and data.get('sdkVersion') == SDK and data.get('reportedRid') == 'linux-arm64'
-            and data.get('framework') == 'net10.0' and data.get('hostArchitecture') == 'aarch64',
+            and data.get('sdkVersion') == SDK and data.get('reportedRid') == identity['rid']
+            and data.get('framework') == 'net10.0' and data.get('hostArchitecture') == identity['uname'],
             'Native SDK identity/verification must pass')
     require(data.get('functionalChecks') == dict.fromkeys(FUNCTIONS, 'passed'), 'All six native functional checks are required')
     a = data['archive']
@@ -234,7 +276,7 @@ def native_check(path, archive):
             and a.get('sizeBytes') == archive['bytes'], 'Native tests must bind the exact collected SDK archive')
     abi = data['abi']; maxima = abi['maximumRequiredVersions']
     version = lambda s: tuple(int(n) for n in s.split('.'))
-    require(abi.get('elfFileCount', 0) > 0 and abi.get('machines') == {'AArch64': abi['elfFileCount']}
+    require(abi.get('elfFileCount', 0) > 0 and abi.get('machines') == {identity['elf']: abi['elfFileCount']}
             and abi.get('glibcCeilingPassed') is True and abi.get('glibcCeiling') == '2.27'
             and not abi.get('symbolicGlibcRequirements') and version(maxima['GLIBC']) <= version('2.27')
             and version(maxima['GLIBCXX']) <= version('3.4.22') and version(maxima['CXXABI']) <= version('1.3.7'),
@@ -243,7 +285,8 @@ def native_check(path, archive):
             'elfFileCount': abi['elfFileCount'], 'maximumRequiredVersions': maxima}
 
 
-def sysroot_check(release, preparation):
+def sysroot_check(release, preparation, arch='arm64'):
+    identity = arch_info(arch)
     require(preparation.get('status') == 'passed' and preparation.get('signatureVerificationRequired') is True
             and preparation.get('sourceCommit') == SOURCE and preparation.get('files', 0) > 0
             and preparation.get('symlinks', 0) > 0 and preparation.get('signatureSuccessRecords', 0) > 0,
@@ -271,7 +314,7 @@ def sysroot_check(release, preparation):
             'Actual upstream signed-package verification evidence is absent')
     files = ordinary(root / 'sysroot-files.sha256').read_text().splitlines()
     require(len(files) == preparation['files'] and len(files) == len(set(files))
-            and all(re.fullmatch(r'[a-f0-9]{64}  /inputs/arm64-bionic/.+', line) for line in files),
+            and all(re.fullmatch(r'[a-f0-9]{64}  /inputs/' + identity['arch'] + r'-bionic/.+', line) for line in files),
             'The complete current sysroot file inventory differs')
     links = ordinary(root / 'sysroot-symlinks.tsv').read_text().splitlines()
     require(len(links) == preparation['symlinks'] and len(links) == len(set(links)), 'The sysroot symlink inventory differs')
@@ -280,18 +323,20 @@ def sysroot_check(release, preparation):
             'The authenticated extraction inventory control differs')
 
 
-def image_check(path, expected):
+def image_check(path, expected, arch='arm64'):
+    identity = arch_info(arch)
     images = load(path)
     require(isinstance(images, list) and len(images) == 1, 'An exact actual container inspection is required')
     image = images[0]
     require(image['Id'].removeprefix('sha256:') == expected.removeprefix('sha256:')
-            and image.get('Architecture') == 'arm64' and image.get('Os') == 'linux', 'Container identity/architecture differs')
+            and image.get('Architecture') == identity['image'] and image.get('Os') == 'linux', 'Container identity/architecture differs')
     return image
 
 
-def verification_base(image, distribution):
+def verification_base(image, distribution, arch='arm64'):
+    identity = arch_info(arch)
     digest = image.get('Digest'); references = image.get('RepoDigests')
-    require(image.get('Architecture') == 'arm64' and image.get('Os') == 'linux'
+    require(image.get('Architecture') == identity['image'] and image.get('Os') == 'linux'
             and isinstance(digest, str) and re.fullmatch(r'sha256:[a-f0-9]{64}', digest)
             and isinstance(references, list) and references
             and all(isinstance(value, str) and re.fullmatch(r'[a-z0-9][a-z0-9._:/-]*/[a-z0-9._/-]+@sha256:[a-f0-9]{64}', value)
@@ -302,16 +347,17 @@ def verification_base(image, distribution):
     return reference
 
 
-def userland_check(release, name, stage):
+def userland_check(release, name, stage, arch='arm64'):
+    identity = arch_info(arch)
     distribution, version, icu, ssl = USERLANDS[name]
     data = load(member(release, 'reports/ci/' + name + '-userland.json'))
-    require(data.get('architecture') == 'aarch64' and data.get('uid', 0) > 0
+    require(data.get('architecture') == identity['uname'] and data.get('uid', 0) > 0
             and data.get('osRelease') == {'ID': distribution, 'VERSION_ID': version}, 'Actual native user-space identity differs: ' + name)
-    derived = image_check(member(release, 'reports/ci/' + name + '-verification-image.json'), data['imageId'])
+    derived = image_check(member(release, 'reports/ci/' + name + '-verification-image.json'), data['imageId'], arch)
     base = load(member(release, 'reports/ci/' + name + '-base-image.json'))
     require(isinstance(base, list) and len(base) == 1, 'An exact verification base inspection is required')
-    reference = verification_base(base[0], distribution)
-    tag = 'localhost/cbodotnet-net10-verify-' + name + ':' + str(stage['runId']) + '-' + str(stage['runAttempt'])
+    reference = verification_base(base[0], distribution, arch)
+    tag = 'localhost/cbodotnet-net10-' + ('' if arch == 'arm64' else arch + '-') + 'verify-' + name + ':' + str(stage['runId']) + '-' + str(stage['runAttempt'])
     require(tag in derived.get('RepoTags', []), 'The inspected derived verification image must carry this run/user-space tag')
     require(any(isinstance(command, list) and ('--build-arg', 'BASE_IMAGE=' + reference) in list(zip(command, command[1:]))
                 and ('--tag', tag) in list(zip(command, command[1:]))
@@ -321,7 +367,7 @@ def userland_check(release, name, stage):
     packages = {key.split(':', 1)[0]: value for key, value in data['installedPackages'].items()}
     require(all(packages.get(key) for key in (icu, ssl, 'libc6', 'libstdc++6', 'zlib1g', 'libgssapi-krb5-2')),
             'Actual system ICU, OpenSSL and native dependency package versions are required')
-    require(set(data.get('environmentOverrides', {})) == ENVIRONMENT_OVERRIDES
+    require(set(data.get('environmentOverrides', {})) == environment_overrides(arch)
             and all(value is None for value in data['environmentOverrides'].values()),
             'Unreviewed diagnostic, globalization or native-library overrides are not permitted')
     require(any(isinstance(command, list) and data['imageId'] in command and '--network=none' in command
@@ -331,6 +377,11 @@ def userland_check(release, name, stage):
 
 
 def freeze(args):
+    arch = getattr(args, 'arch', 'arm64'); identity = arch_info(arch)
+    selected_profile = profile_path(arch)
+    if arch == 'x64':
+        require(args.workflow_ref == 'dotnetdev-kr/cbodotnet/.github/workflows/sdk-x64.yml@refs/heads/main',
+                'The selected native x64 workflow reference is required')
     project, source, release = args.project_root.absolute(), args.source_dir.absolute(), args.release_dir.absolute()
     git = lambda root, *tail: subprocess.check_output(['git', '-C', str(root), *tail]).decode().strip()
     require(re.fullmatch('[a-f0-9]{40}', args.project_commit) is not None and git(project, 'rev-parse', 'HEAD') == args.project_commit,
@@ -355,16 +406,18 @@ def freeze(args):
         target = destination / 'project' / name
         target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(canonical)
         inventory.append(dict(record(release, target), gitMode=mode, gitBlobSha1=blob, **checkout))
-    for name in CRITICAL:
+    for name in critical_inputs(arch):
         ordinary(destination / 'project' / name)
     commit = subprocess.check_output(['git', '-C', str(project), 'cat-file', 'commit', args.project_commit])
     (destination / 'project-commit.txt').write_bytes(commit)
-    tree, _ = project_tree(release, inventory)
+    tree, _ = project_tree(release, inventory, arch)
     require(git_hash('commit', commit) == args.project_commit and commit.startswith(('tree ' + tree + '\n').encode()),
             'Frozen files do not reconstruct the original committed tree')
-    original_profile = load(destination / 'project' / PROFILE)
+    original_profile = load(destination / 'project' / selected_profile)
     require(original_profile['source']['commit'] == SOURCE and original_profile['sdkVersion'] == SDK,
             'Unexpected selected original profile')
+    if arch == 'x64':
+        x64_profile_check(original_profile)
     effective = copy.deepcopy(original_profile); effective['build']['officialBuildId'] = args.build_id
     with (destination / 'effective-profile.json').open('x', encoding='utf-8') as stream:
         json.dump(effective, stream, indent=2); stream.write('\n')
@@ -378,16 +431,25 @@ def freeze(args):
             'inputRepresentation': 'canonical-git-blobs-with-verified-checkout',
             'projectCommitObject': record(release, destination / 'project-commit.txt'),
             'effectiveProfile': record(release, destination / 'effective-profile.json'),
-            'originalProfile': record(release, destination / 'project' / PROFILE)}
+            'originalProfile': record(release, destination / 'project' / selected_profile)}
+    if arch == 'x64':
+        data.update(targetArchitecture=arch, targetRid=identity['rid'])
     with (destination / 'snapshot.json').open('x', encoding='utf-8') as stream:
         json.dump(data, stream, indent=2); stream.write('\n')
     print(json.dumps({'status': 'frozen', 'snapshot': str(destination / 'snapshot.json')}))
 
 
-def validate_bundle(release, project=None):
+def validate_bundle(release, project=None, arch='arm64'):
+    identity = arch_info(arch)
     release_files = tree_files(release)
     manifest_path = member(release, 'build-manifest.json'); manifest = load(manifest_path)
     snapshot_path = member(release, 'reports/ci-inputs/snapshot.json'); snapshot = load(snapshot_path)
+    if arch == 'x64':
+        require(snapshot.get('targetArchitecture') == arch and snapshot.get('targetRid') == identity['rid']
+                and snapshot.get('workflowRef') == 'dotnetdev-kr/cbodotnet/.github/workflows/sdk-x64.yml@refs/heads/main',
+                'The frozen native x64 target/workflow differs')
+        require(all(snapshot.get(key) is True for key in ('sourceDeliveryRequired', 'sharedSourceDeliveryRequired', 'scenarioReportFenceRequired')),
+                'The new x64 source delivery and original scenario completion-fence evidence are mandatory')
     require(snapshot.get('executionContext') == 'github-actions' and snapshot.get('sourceInitiallyPristine') is True
             and snapshot.get('projectInitiallyPristine') is True
             and snapshot.get('inputRepresentation') == 'canonical-git-blobs-with-verified-checkout',
@@ -398,7 +460,7 @@ def validate_bundle(release, project=None):
         require(re.fullmatch('[1-9][0-9]*', snapshot[key]) is not None, 'Positive actual CI run/revision identity required')
     require(re.fullmatch(r'20\d{6}\.[1-9]\d*', snapshot['buildId']) is not None
             and snapshot.get('workflowRef') and snapshot['workflowRef'] != 'local', 'Fresh actual workflow/build identity required')
-    tree, names = project_tree(release, snapshot['projectFiles'])
+    tree, names = project_tree(release, snapshot['projectFiles'], arch)
     commit = checked(release, snapshot['projectCommitObject']).read_bytes()
     require(git_hash('commit', commit) == snapshot['projectCommit'] and commit.startswith(('tree ' + tree + '\n').encode()),
             'The frozen project tree does not belong to the expected real commit')
@@ -413,7 +475,11 @@ def validate_bundle(release, project=None):
             require(checkout_details(project, name, row['gitBlobSha1'], path.read_bytes()) ==
                     {key: row[key] for key in ('checkout', 'checkoutRepresentation')},
                     'Current checkout representation differs from the verified frozen input')
+    require(snapshot['originalProfile']['path'] == 'reports/ci-inputs/project/' + profile_path(arch),
+            'The frozen profile belongs to another selected architecture')
     original = load(checked(release, snapshot['originalProfile']))
+    if arch == 'x64':
+        x64_profile_check(original)
     require(original.get('sdkVersion') == SDK and original.get('source', {}).get('commit') == SOURCE
             and original.get('build', {}).get('sourceOnly') is False, 'Only the selected regular .NET 10 profile is supported')
     effective_path = checked(release, snapshot['effectiveProfile']); effective = load(effective_path)
@@ -421,11 +487,11 @@ def validate_bundle(release, project=None):
     require(effective == expected and manifest['profile']['contents'] == effective,
             'Only the explicit CI OfficialBuildId profile override is permitted')
     require(all(manifest['profile'].get(k) == v for k, v in fingerprint(effective_path).items()), 'Collected profile bytes differ')
-    require(manifest['sdkVersion'] == SDK and manifest['targetRid'] == 'linux-arm64' and manifest['sourceOnly'] is False
+    require(manifest['sdkVersion'] == SDK and manifest['targetRid'] == identity['rid'] and manifest['sourceOnly'] is False
             and manifest['source']['actualCommit'] == SOURCE and manifest['source']['commitVerified'] is True
             and manifest['buildRevision'] == snapshot['buildRevision'], 'Collected SDK/source/build identity differs')
     archive = manifest['sdkArchive']; checked(release, archive)
-    require(archive['path'] == 'cbodotnet-sdk-' + SDK + '-linux-arm64-build.' + snapshot['buildRevision'] + '.tar.gz'
+    require(archive['path'] == 'cbodotnet-sdk-' + SDK + '-' + identity['rid'] + '-build.' + snapshot['buildRevision'] + '.tar.gz'
             and archive.get('copiedWithoutModification') is True, 'The delivery must retain the actual SDK bytes and version/revision name')
     require(manifest.get('construction', {}).get('upstreamSharedRuntimeReused') is True,
             'The regular 4xx construction must disclose upstream shared runtime reuse')
@@ -437,7 +503,7 @@ def validate_bundle(release, project=None):
         source_manifest = module.verify(SimpleNamespace(
             release_dir=release, expected_project_commit=snapshot['projectCommit'],
             expected_run_id=snapshot['runId'], expected_run_attempt=snapshot['runAttempt']))
-        require(source_manifest['sdkVersion'] == SDK and source_manifest['targetRid'] == 'linux-arm64',
+        require(source_manifest['sdkVersion'] == SDK and source_manifest['targetRid'] == identity['rid'],
                 'Source package targets another SDK')
         closure_path = release / 'reports/ci/shared-input-source.json'
         # Older source-only pilot snapshots did not yet declare corresponding
@@ -456,7 +522,7 @@ def validate_bundle(release, project=None):
                 require(closure['sdkArchive'][key] == archive[key], 'Shared source proof belongs to another SDK archive')
             shared_spec = importlib.util.spec_from_file_location('shared_source', Path(__file__).parent / 'ci-net10-shared-source.py')
             shared_module = importlib.util.module_from_spec(shared_spec); shared_spec.loader.exec_module(shared_module)
-            require(shared_module.archive_markers(checked(release, archive), original) == closure['sharedMarkers'],
+            require(shared_module.archive_markers(checked(release, archive), original, arch) == closure['sharedMarkers'],
                     'Actual delivered shared-framework source markers differ')
             preparation = load(member(release, 'reports/prepare/shared-source-checkout.json'))
             require(all(preparation[key] == closure['sharedSource'][key]
@@ -492,30 +558,30 @@ def validate_bundle(release, project=None):
         require(data.get('stage') == name and data.get('status') == 'passed' and data.get('exitCode') == 0
                 and data.get('commands') and all(str(data.get(k)) == str(snapshot[k]) for k in identities),
                 'A fresh successful identity-bound stage receipt is required: ' + name)
-        require(data.get('environment', {}).get('nativeArchitecture') == 'aarch64'
-                and data['environment'].get('uid', 0) > 0, 'Actual nonroot native ARM64 stage environment required')
+        require(data.get('environment', {}).get('nativeArchitecture') == identity['uname']
+                and data['environment'].get('uid', 0) > 0, 'Actual nonroot native selected-architecture stage environment required')
         start, end = timestamp(data['startedAtUtc']), timestamp(data['finishedAtUtc'])
         require(start <= end and (prior_end is None or prior_end <= start), 'CI stage timestamps/order disagree')
         prior_end = end; stages[name] = data
     image = manifest['buildImage']['id'].removeprefix('sha256:')
     require(re.fullmatch('[a-f0-9]{64}', image) is not None
             and all(s['imageId'].removeprefix('sha256:') == image for s in stages.values()), 'Actual build image identity differs')
-    image_check(member(release, 'reports/prepare/build-image.json'), image)
+    image_check(member(release, 'reports/prepare/build-image.json'), image, arch)
     build = load(member(release, stages['build']['paths']['buildStatus']))
     require(build.get('exitCode') == 0 and build.get('sourceCommit') == SOURCE
             and build.get('officialBuildId') == snapshot['buildId'] and build.get('sourceOnly') is False,
             'The actual VMR build did not pass under the CI build ID')
-    require(build.get('action') == 'build' and build.get('targetRid') == 'linux-arm64'
+    require(build.get('action') == 'build' and build.get('targetRid') == identity['rid']
             and timestamp(stages['build']['startedAtUtc']) <= timestamp(build['startedAt']) <= timestamp(build['finishedAt'])
             <= timestamp(stages['build']['finishedAtUtc']), 'Fresh inner VMR build timestamps/action must belong to its outer stage')
     preparation = load(member(release, stages['prepare']['paths']['sysrootValidation']))
-    sysroot_check(release, preparation)
+    sysroot_check(release, preparation, arch)
     scan = load(member(release, stages['scan']['paths']['scanExecution']))
     scan_summary = validate_scan(release, scan)
     test = stages['test']['paths']; test_status = load(member(release, test['testStatus']))
     require(test_status.get('exitCode') == 0 and test_status.get('sourceCommit') == SOURCE
             and test_status.get('officialBuildId') == snapshot['buildId'], 'The actual upstream test command failed')
-    require(test_status.get('action') == 'test' and test_status.get('targetRid') == 'linux-arm64'
+    require(test_status.get('action') == 'test' and test_status.get('targetRid') == identity['rid']
             and timestamp(stages['test']['startedAtUtc']) <= timestamp(test_status['startedAt']) <= timestamp(test_status['finishedAt'])
             <= timestamp(stages['test']['finishedAtUtc']), 'Fresh inner upstream test timestamps/action must belong to its outer stage')
     tests = parse_tests(member(release, test['commonTrx']), member(release, test['scenarioXml']))
@@ -524,11 +590,11 @@ def validate_bundle(release, project=None):
         require(snapshot.get('scenarioReportFenceRequired') is True, 'The new report completion fence is mandatory')
         fence = scenario_fence_check(release, test, timestamp(stages['test']['startedAtUtc']),
                                      timestamp(test_status['startedAt']), stages['test']['commands'])
-    native = {name: native_check(member(release, stages['verify']['paths'][name]), archive)
+    native = {name: native_check(member(release, stages['verify']['paths'][name]), archive, arch)
               for name in ('ubuntu22', 'ubuntu24', 'debian13')}
     require(len({json.dumps(n, sort_keys=True) for n in native.values()}) == 1, 'Native archive ABI results differ between user spaces')
     for name, data in native.items():
-        data['userland'] = userland_check(release, name, stages['verify'])
+        data['userland'] = userland_check(release, name, stages['verify'], arch)
     collect_path = member(release, 'collect-receipt.json'); collect = load(collect_path)
     require(collect.get('status') == 'passed' and collect.get('exitCode') == 0
             and all(str(collect.get(k)) == str(snapshot[k]) for k in identities), 'The final collection receipt differs')
@@ -560,21 +626,21 @@ def validate_bundle(release, project=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__); commands = parser.add_subparsers(dest='command', required=True)
-    p = commands.add_parser('freeze')
+    p = commands.add_parser('freeze'); p.add_argument('--arch', choices=('arm64', 'x64'), default='arm64')
     for name in ('project-root', 'source-dir', 'release-dir'):
         p.add_argument('--' + name, type=Path, required=True)
     for name in ('build-id', 'build-revision', 'run-id', 'run-attempt', 'project-commit', 'workflow-ref'):
         p.add_argument('--' + name, required=True)
-    p = commands.add_parser('validate')
+    p = commands.add_parser('validate'); p.add_argument('--arch', choices=('arm64', 'x64'), default='arm64')
     for name in ('release-dir', 'project-root', 'output'):
         p.add_argument('--' + name, type=Path, required=True)
-    p = commands.add_parser('verify-release'); p.add_argument('--release-dir', type=Path, required=True)
+    p = commands.add_parser('verify-release'); p.add_argument('--arch', choices=('arm64', 'x64'), default='arm64'); p.add_argument('--release-dir', type=Path, required=True)
     p.add_argument('--expected-project-commit', required=True); p.add_argument('--expected-run-id', required=True)
     p.add_argument('--expected-run-attempt')
     args = parser.parse_args()
     if args.command == 'freeze':
         freeze(args); return 0
-    release = args.release_dir.absolute(); result = validate_bundle(release, args.project_root.absolute() if args.command == 'validate' else None)
+    release = args.release_dir.absolute(); result = validate_bundle(release, args.project_root.absolute() if args.command == 'validate' else None, args.arch)
     if args.command == 'validate':
         require(args.output.absolute() == release / 'ci-validation.json' and not args.output.exists(), 'Use a new validation envelope outside reports')
         for environment, key in (('GITHUB_SHA', 'projectCommit'), ('GITHUB_RUN_ID', 'runId'), ('GITHUB_RUN_ATTEMPT', 'runAttempt')):

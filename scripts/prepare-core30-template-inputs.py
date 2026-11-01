@@ -12,14 +12,22 @@ import uuid
 import xml.etree.ElementTree as ET
 import zipfile
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 OWNER = 'cbodotnet-core30-retained-test-templates-v1'
 ARCHIVES = {
     '2.2.207': {'name': 'dotnet-sdk-2.2.207-linux-x64.tar.gz', 'architecture': 'x64', 'bytes': 169751938,
         'sha256': '4fb5fb9956e9e019c3eef093cc65c676df9874f715c76eb8638f3aa057ba28cd',
         'sha512': '9d70b4a8a63b66da90544087199a0f681d135bf90d43ca53b12ea97cc600a768b0a3d2f824cfe27bd3228e058b060c63319cd86033be8b8d27925283f99de958'},
-    '3.0.100': {'name': 'dotnet-sdk-3.0.100-linux-arm64.tar.gz', 'architecture': 'arm64', 'bytes': 113669548,
+    '3.0.100': {'name': 'dotnet-sdk-3.0.100-linux-arm64.tar.gz', 'architecture': ARCH['arch'], 'bytes': 113669548,
         'sha256': 'ffcd9db434dab9f068bbf229a4e20f935cab0b48b28e4a83c114c6c1f0f5f6f6',
         'sha512': '18c3bc07c4486381f54d4b40eb8401bf56c14fef5febc4639e3134d74ce66172d1e66c2dea9684ad727f08e9dd7e89d74535a8642fb2a2203445483293f3b3c3'}}
+if ARCH['arch'] == 'x64':
+    ARCHIVES['3.0.100'] = {'name': LEGACY_ARCH['sdk_pin']('3.0.100', 'x64')['name'], 'architecture': 'x64',
+        'bytes': 113463755, 'sha256': '12098fe29d5c857fd6093b1fd63eda9f91b92798e3748fcedc0e0727f1ac01c2',
+        'sha512': LEGACY_ARCH['sdk_pin']('3.0.100', 'x64')['sha512']}
 PACKAGES = [
     {'id': 'Microsoft.DotNet.Test.ProjectTemplates.2.2', 'version': '1.0.2-beta4.19155.2', 'sdk': '2.2.207',
      'member': './sdk/2.2.207/Templates/microsoft.dotnet.test.projecttemplates.2.2.1.0.2-beta4.19155.2.nupkg',
@@ -149,13 +157,14 @@ def prepare(inputs, reports, sdk22_archive=None):
         with receipt.open('xb') as output: output.write(receipt_bytes)
     result = {'schemaVersion': 1, 'status': 'passed', 'feedDirectory': str(feed), 'packages': records, 'verifiedArchivesThisInvocation': archive_records,
               'contractReceipt': dict({'path': str(receipt)}, **fingerprint(receipt)),
-              'scope': 'Exact original template nupkgs retained as external build inputs. No version changes, source-built label, product-source edits, SDK binary replacement, x64 execution or emulation.'}
+              'scope': 'Exact original template nupkgs retained as external build inputs. No version changes, source-built label, product-source edits, SDK binary replacement, archive execution or emulation.'}
     with report.open('x') as output: json.dump(result, output, indent=2); output.write('\n')
     return result
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument('--inputs-dir', type=Path, required=True)
     parser.add_argument('--reports-dir', type=Path, required=True)
     parser.add_argument('--sdk22-archive', type=Path)

@@ -1,0 +1,20 @@
+--- a/artifacts/src/coreclr.c17d273aa03d4b9d14c92248a91f0d0faa881b98/build.sh
++++ b/artifacts/src/coreclr.c17d273aa03d4b9d14c92248a91f0d0faa881b98/build.sh
+@@ -473,7 +473,7 @@
+            exit 1
+        fi
+     else
+-       if [[ ( "$__HostArch" == "arm64" ) && ( "$__BuildArch" == "arm64" ) ]]; then
++       if [[ "$__HostArch" == "$__BuildArch" && ( "$__BuildArch" == "arm64" || "$__BuildArch" == "x64" ) ]]; then
+            # The sysroot switch does not change the native crossgen architecture.
+            build_CoreLib_ni "$__BinDir/crossgen" $__CoreLibILDir
+        elif [[ ( "$__CrossArch" == "x86" ) && ( "$__BuildArch" == "arm" ) ]]; then
+@@ -504,7 +504,7 @@
+     fi
+ 
+     local __DoCrossArchBuild=$__CrossBuild
+-    if [[ "$__HostArch" == "arm64" && "$__BuildArch" == "arm64" ]]; then
++    if [[ "$__HostArch" == "$__BuildArch" && ( "$__BuildArch" == "arm64" || "$__BuildArch" == "x64" ) ]]; then
+         # Same-architecture sysroot builds have no separate cross-host tools.
+         __DoCrossArchBuild=0
+     fi

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Evidence primitives for the pinned .NET 8/9 native ARM64 CI adapters."""
+"""Evidence primitives for pinned .NET 8/9 native Linux CI adapters."""
 import copy
 import datetime as dt
 import hashlib
@@ -21,6 +21,7 @@ import xml.etree.ElementTree as ET
 sys.dont_write_bytecode = True
 os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
 import ci_net9_cases as N9
+from ci_arch import get_arch
 HERE = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location('ci10_primitives', HERE / 'ci-net10-evidence.py')
 G = importlib.util.module_from_spec(spec); spec.loader.exec_module(G)
@@ -165,7 +166,8 @@ def scenario_fence(release, stage, helper):
     return record(release, directory / 'scenario-report-fence.json')
 
 
-def freeze(project, source, release, version, identity, workflow):
+def freeze(project, source, release, version, identity, workflow, arch='arm64'):
+    target = get_arch(arch)
     require(git(project, 'rev-parse', 'HEAD') == identity['projectCommit'] and not git(project, 'status', '--porcelain', '--untracked-files=all'), 'A pristine committed orchestration checkout is required')
     require(git(source, 'rev-parse', 'HEAD') == V[version]['commit'] and not git(source, 'status', '--porcelain', '--untracked-files=all'), 'A fresh pinned VMR checkout is required')
     destination = release / 'reports/ci-inputs'; require(not destination.exists(), 'Refusing existing frozen inputs'); destination.mkdir(parents=True)
@@ -180,27 +182,31 @@ def freeze(project, source, release, version, identity, workflow):
         rows.append(dict(record(release, path), gitMode=mode, gitBlobSha1=blob, **checkout))
     commit = subprocess.check_output(['git', '-C', str(project), 'cat-file', 'commit', identity['projectCommit']])
     (destination / 'project-commit.txt').write_bytes(commit)
-    tree, _ = G.project_tree(release, rows)
+    tree, _ = G.project_tree(release, rows, arch=arch)
     require(G.git_hash('commit', commit) == identity['projectCommit'] and commit.startswith(('tree ' + tree + '\n').encode()), 'The frozen Git tree differs')
-    profile = destination / 'project/profiles' / ('dotnet-' + V[version]['sdk'] + '-linux-arm64.json')
+    profile = destination / 'project/profiles' / ('dotnet-' + V[version]['sdk'] + '-' + target['rid'] + '.json')
     original = load(profile)
-    require(original['source']['commit'] == V[version]['commit'] and original['build']['sourceOnly'] is V[version]['sourceOnly'], 'Selected profile differs')
+    require(original['source']['commit'] == V[version]['commit'] and original['build']['sourceOnly'] is V[version]['sourceOnly']
+            and original['host']['architecture'] == arch and original['target']['rid'] == target['rid'], 'Selected profile differs')
     dump(destination / 'effective-profile.json', effective(original, version))
     result = dict(identity, schemaVersion=1, scenarioReportFenceRequired=version == '9', packageCaseCoverageRequired=version == '9', executionContext='github-actions' if os.environ.get('GITHUB_ACTIONS') == 'true' else 'local-unverified',
                   workflowRef=workflow, sourceInitiallyPristine=True, projectInitiallyPristine=True,
                   inputRepresentation='canonical-git-blobs-with-verified-checkout', projectFiles=rows,
                   projectCommitObject=record(release, destination / 'project-commit.txt'), originalProfile=record(release, profile),
                   effectiveProfile=record(release, destination / 'effective-profile.json'))
+    if arch != 'arm64':
+        result.update(architecture=arch, targetRid=target['rid'])
     dump(destination / 'snapshot.json', result)
 
 
-def verify_sysroot(root, reports, version, output):
+def verify_sysroot(root, reports, version, output, arch='arm64'):
+    get_arch(arch)
     provenance = load(reports / 'sysroot-provenance.json')
     require(provenance['sourceCommit'] == V[version]['commit'] and provenance['packageSignatureVerification'] is True
             and provenance['emulation'] is False, 'Signed native sysroot provenance differs')
     expected = {}
     for line in (reports / 'sysroot-files.sha256').read_text().splitlines():
-        match = re.fullmatch(r'([a-f0-9]{64})  (/inputs/arm64-xenial/.+)', line)
+        match = re.fullmatch(r'([a-f0-9]{64})  (/inputs/' + re.escape(arch) + r'-xenial/.+)', line)
         require(match is not None and match[2] not in expected, 'Invalid sysroot inventory')
         expected[match[2]] = match[1]
     actual, links = {}, set()
@@ -220,13 +226,14 @@ def verify_sysroot(root, reports, version, output):
     dump(output, record_value)
 
 
-def test_results(version, trx, scenario=None):
+def test_results(version, trx, scenario=None, arch='arm64'):
+    get_arch(arch)
     root = G.xml(trx); ns = {'t': 'http://microsoft.com/schemas/VisualStudio/TeamTest/2010'}
     results = root.findall('./t:Results/t:UnitTestResult', ns); counters = root.find('./t:ResultSummary/t:Counters', ns)
     if version == '8':
         total, passed = 46, 44
     else:
-        total = passed = len(N9.available_ids()) * len(N9.policy()['packageMethods']) + len(N9.policy()['factMethods'])
+        total = passed = len(N9.available_ids(arch)) * len(N9.policy(arch)['packageMethods']) + len(N9.policy(arch)['factMethods'])
     require(counters is not None and len(results) == total and len({r.get('executionId') for r in results}) == total,
             'Incomplete actual upstream TRX results')
     require(all(int(counters.get(k, '-1')) == v for k, v in dict(total=total, executed=passed, passed=passed, failed=0).items()), 'Unexpected upstream counters')
@@ -236,7 +243,7 @@ def test_results(version, trx, scenario=None):
             and all(r.get('outcome') == 'NotExecuted' for r in skipped), 'Unexpected upstream failures/skips')
     value = {'total': total, 'passed': passed, 'failed': 0, 'skipped': len(skipped), 'skippedTests': sorted(expected)}
     if version == '9':
-        value['packageCases'] = N9.common_cases(results)
+        value['packageCases'] = N9.common_cases(results, arch)
         scenarios = G.xml(scenario); assemblies = scenarios.findall('./assembly'); tests = scenarios.findall('./assembly/collection/test')
         require(len(assemblies) == 1 and len(tests) == 34 and len({t.get('name') for t in tests}) == 34,
                 'All 34 actual scenarios are required')
@@ -250,14 +257,15 @@ def test_results(version, trx, scenario=None):
 
 class Observer:
     """Preserve completed component and consumed archives before upstream cleanup."""
-    def __init__(self, source, release, version):
+    def __init__(self, source, release, version, arch='arm64'):
         self.source, self.release, self.version = source, release, version
+        self.arch, self.target = arch, get_arch(arch)
         self.stop = threading.Event(); self.error = None; self.seen = set()
         self.thread = threading.Thread(target=self.watch, daemon=True)
 
     def watch(self):
-        names = {'dotnet-runtime-' + V[self.version]['runtime'] + '-linux-arm64.tar.gz',
-                 'aspnetcore-runtime-' + V[self.version]['runtime'] + '-linux-arm64.tar.gz'}
+        names = {'dotnet-runtime-' + V[self.version]['runtime'] + '-' + self.target['rid'] + '.tar.gz',
+                 'aspnetcore-runtime-' + V[self.version]['runtime'] + '-' + self.target['rid'] + '.tar.gz'}
         report = self.release / 'reports/construction'; report.mkdir(parents=True, exist_ok=True)
         pending=report/'observed-inodes';pending.mkdir()
         retained=report/'retained';retained.mkdir()
@@ -271,8 +279,8 @@ class Observer:
                     for prefix in ('artifacts','artifacts/source-build/self/src/artifacts'):
                         base=self.source/'src'/component/prefix
                         result.extend([base/'packages/Release/Shipping'/name,base/'installers/Release'/name])
-                result.extend([self.source/'artifacts/obj/arm64/Release/blob-feed/assets'/name,
-                               self.source/'artifacts/arm64/Release'/name,
+                result.extend([self.source/('artifacts/obj/'+self.arch+'/Release/blob-feed/assets')/name,
+                               self.source/('artifacts/'+self.arch+'/Release')/name,
                                self.source/'artifacts/feed'/name,
                                self.source/'src/sdk/artifacts/obj/redist-installer/Release/downloads'/name,
                                self.source/'src/installer/artifacts/source-build/self/src/artifacts/obj/redist/Release/downloads'/name])
@@ -319,7 +327,8 @@ class Observer:
         self.stop.set(); self.thread.join(); require(self.error is None, 'Archive observer failed: ' + str(self.error))
 
 
-def origin(release, version, write=True):
+def origin(release, version, write=True, arch='arm64'):
+    target = get_arch(arch)
     root = release / 'reports/construction'
     replay = load(root / 'downloads-status.json')
     require(replay['completedReplay'] is True and replay['buildSucceeded'] is True and replay['completedDownloadTasks'] >= 2
@@ -336,7 +345,7 @@ def origin(release, version, write=True):
     require(mapped==COMPONENTS[version],'Pinned component source revisions differ')
     for framework, prefix, local in [('Microsoft.NETCore.App', 'dotnet-runtime-', True),
                                      ('Microsoft.AspNetCore.App', 'aspnetcore-runtime-', version == '8')]:
-        basename = prefix + V[version]['runtime'] + '-linux-arm64.tar.gz'
+        basename = prefix + V[version]['runtime'] + '-' + target['rid'] + '.tar.gz'
         selected = []
         for task in tasks:
             if task.get('succeeded') is not True: continue
@@ -400,12 +409,13 @@ def origin(release, version, write=True):
     return result
 
 
-def construct(release, version, candidate):
+def construct(release, version, candidate, arch='arm64'):
+    target = get_arch(arch)
     directory = release / 'reports/construction'
     observations = [json.loads(line) for line in (directory / 'observations.jsonl').read_text().splitlines() if line]
     inputs = []
-    for basename in ['dotnet-runtime-' + V[version]['runtime'] + '-linux-arm64.tar.gz',
-                     'aspnetcore-runtime-' + V[version]['runtime'] + '-linux-arm64.tar.gz']:
+    for basename in ['dotnet-runtime-' + V[version]['runtime'] + '-' + target['rid'] + '.tar.gz',
+                     'aspnetcore-runtime-' + V[version]['runtime'] + '-' + target['rid'] + '.tar.gz']:
         rows = [row for row in observations if '/downloads/' in row['recordedPath'] and row['recordedPath'].endswith('/' + basename)]
         require(rows and len({row['archive']['sha256'] for row in rows}) == 1, 'One actually observed consumed input generation is required: ' + basename)
         inputs.append(checked(release, rows[0]['archive']))
@@ -419,14 +429,18 @@ def construct(release, version, candidate):
     dump(directory / 'comparison/shared-framework-identity.json', dict(status='passed', comparisons=pairs,
          sdkArchive=comparison.archive_record(sdk), originVerified=False,
          scope='Byte identity only; the separate completed-task origin report establishes input provenance.'))
-    origin(release, version)
+    origin(release, version, arch=arch)
 
 
-def verify_frozen(release, version, project=None):
+def verify_frozen(release, version, project=None, arch='arm64'):
+    target = get_arch(arch)
     snapshot = load(release / 'reports/ci-inputs/snapshot.json')
+    require(snapshot.get('architecture', 'arm64') == arch, 'Frozen producer architecture differs')
+    if arch != 'arm64':
+        require(snapshot.get('targetRid') == target['rid'], 'Frozen producer RID differs')
     require(snapshot['sourceCommit'] == V[version]['commit'] and snapshot['sourceInitiallyPristine'] is True
             and snapshot['projectInitiallyPristine'] is True and snapshot['inputRepresentation'] == 'canonical-git-blobs-with-verified-checkout', 'Fresh pinned source and orchestration snapshot required')
-    tree, names = G.project_tree(release, snapshot['projectFiles'])
+    tree, names = G.project_tree(release, snapshot['projectFiles'], arch=arch)
     commit = checked(release, snapshot['projectCommitObject']).read_bytes()
     require(G.git_hash('commit', commit) == snapshot['projectCommit'] and commit.startswith(('tree ' + tree + '\n').encode()), 'Frozen source does not belong to the orchestration commit')
     frozen = release / 'reports/ci-inputs/project'
@@ -438,7 +452,8 @@ def verify_frozen(release, version, project=None):
             require(G.checkout_details(project, name, row['gitBlobSha1'], checked(release, row).read_bytes()) ==
                     {key: row[key] for key in ('checkout', 'checkoutRepresentation')}, 'Live orchestration differs from the frozen input')
     original, selected = load(checked(release, snapshot['originalProfile'])), load(checked(release, snapshot['effectiveProfile']))
-    require(selected == effective(original, version), 'Unreviewed effective-profile change')
+    require(selected == effective(original, version) and original['host']['architecture'] == arch
+            and original['target']['rid'] == target['rid'], 'Unreviewed effective-profile or architecture change')
     return snapshot
 
 
@@ -461,8 +476,9 @@ def consumer_roots(source, version):
     return roots,ledger
 
 
-def userland_script():
-    return r'''set -euo pipefail
+def userland_script(arch='arm64'):
+    target = get_arch(arch)
+    script = r'''set -euo pipefail
 python3 - "$1" "$2" "$3" "$4" <<'PY'
 import json,os,pathlib,platform,subprocess,sys
 values={}
@@ -481,15 +497,22 @@ exec bash /delivery/reports/ci-inputs/project/scripts/verify-sdk.sh \
  --archive "/candidate/cbodotnet-sdk-$5-linux-arm64-build.$6.tar.gz" \
  --output-dir "/delivery/reports/verify-$2" --expected-version "$5" --expected-rid linux-arm64 --framework "net$7.0" --max-glibc 2.23
 '''
+    if arch != 'arm64':
+        script = script.replace('linux-arm64', target['rid']).replace(' --archive ', ' --arch ' + arch + ' --archive ', 1)
+        script = script.replace("'LD_LIBRARY_PATH','DOTNET_ROOT',", "'LD_LIBRARY_PATH','DOTNET_ROOT','DOTNET_ROOT_X64',", 1)
+    return script
 
 
 def qualify(args):
     version, release = args.version, args.output_dir.absolute()
+    arch = getattr(args, 'arch', 'arm64'); target = get_arch(arch)
     # A portable download is checked by trusted current code, not by requiring
     # that its historical producer inputs equal today's trusted working tree.
     project = args.project_root.absolute() if args.stage == 'validate' and args.project_root is not None else None
-    snapshot = verify_frozen(release, version, project)
+    snapshot = verify_frozen(release, version, project, arch)
     require(snapshot['executionContext'] == 'github-actions', 'Only actual GitHub Actions evidence qualifies')
+    if arch != 'arm64':
+        require(snapshot['workflowRef'] == 'dotnetdev-kr/cbodotnet/.github/workflows/sdk-x64.yml@refs/heads/main', 'The exact native x64 workflow is required')
     require(all(isinstance(snapshot[key],str) and re.fullmatch('[1-9][0-9]*',snapshot[key]) for key in ('runId','runAttempt','buildRevision'))
             and re.fullmatch(r'20\d{6}\.[1-9]\d*',snapshot['buildId']), 'Valid actual CI build/run identity required')
     for supplied, key, environment in [(args.expected_project_commit, 'projectCommit', 'GITHUB_SHA'),
@@ -499,9 +522,9 @@ def qualify(args):
     manifest = load(release / 'build-manifest.json'); archive = manifest['sdkArchive']; checked(release, archive)
     require(manifest['sdkVersion'] == V[version]['sdk'] and manifest['source']['actualCommit'] == V[version]['commit']
             and manifest['source']['commitVerified'] is True and manifest['sourceOnly'] is V[version]['sourceOnly']
-            and manifest['buildRevision'] == snapshot['buildRevision'] and manifest['targetRid'] == 'linux-arm64'
+            and manifest['buildRevision'] == snapshot['buildRevision'] and manifest['targetRid'] == target['rid']
             and archive['copiedWithoutModification'] is True, 'Actual collected SDK identity/construction differs')
-    require(archive['path']=='cbodotnet-sdk-'+V[version]['sdk']+'-linux-arm64-build.'+snapshot['buildRevision']+'.tar.gz', 'SDK filename must bind this version and run revision')
+    require(archive['path']=='cbodotnet-sdk-'+V[version]['sdk']+'-'+target['rid']+'-build.'+snapshot['buildRevision']+'.tar.gz', 'SDK filename must bind this version and run revision')
     require(manifest['profile']['contents'] == load(checked(release, snapshot['effectiveProfile']))
             and all(manifest['profile'][key] == value for key, value in fingerprint(checked(release, snapshot['effectiveProfile'])).items()), 'Collected effective profile differs')
     require(manifest['construction']['upstreamSharedRuntimeReused'] is (version == '9'), 'The version-specific shared component disclosure differs')
@@ -519,20 +542,25 @@ def qualify(args):
     for name in ('prepare', 'build', 'scan', 'test', 'verify'):
         receipt = load(reports / ('ci/stages/' + name + '.json'))
         require(receipt['status'] == 'passed' and receipt['exitCode'] == 0 and receipt['stage'] == name and receipt['commands']
-                and all(receipt[key] == snapshot[key] for key in identities) and receipt['nativeArchitecture'] == 'aarch64'
+                and all(receipt[key] == snapshot[key] for key in identities) and receipt['nativeArchitecture'] == target['uname']
                 and receipt['uid'] > 0 and receipt['imageId'].removeprefix('sha256:') == manifest['buildImage']['id'].removeprefix('sha256:'), 'Fresh successful actual stage required: ' + name)
         start, end = G.timestamp(receipt['startedAtUtc']), G.timestamp(receipt['finishedAtUtc'])
         require(start <= end and (prior is None or prior <= start), 'Stage chronology differs')
         prior = end; stages[name] = receipt
-    G.image_check(reports / 'prepare/build-image.json', manifest['buildImage']['id'])
+    G.image_check(reports / 'prepare/build-image.json', manifest['buildImage']['id'], arch=arch)
     provenance = load(reports / 'sysroot/sysroot-provenance.json')
     require(provenance['sourceCommit'] == V[version]['commit'] and provenance['packageSignatureVerification'] is True
             and provenance['emulation'] is False and len(provenance['keyrings']) == 3, 'Actual signed native sysroot producer provenance required')
+    if arch != 'arm64':
+        require(provenance['generatorArguments'] == [arch, 'xenial', '--rootfsdir', '/inputs/' + arch + '-xenial'], 'The native sysroot generator target differs')
+        packages = (reports / 'sysroot/sysroot-packages.tsv').read_text().splitlines()
+        require(packages and all(len(row.split('\t')) == 3 and row.split('\t')[2] in (target['deb'], 'all') for row in packages)
+                and any(row.endswith('\t' + target['deb']) for row in packages), 'The signed sysroot package architecture differs')
     sysroot_log = reports / 'sysroot' / Path(provenance['logFile']).name
     require('Valid Release signature' in sysroot_log.read_text() and '--skipsigcheck' not in sysroot_log.read_text(), 'Actual authenticated debootstrap log required')
     sysroot_rows = (reports / 'sysroot/sysroot-files.sha256').read_text().splitlines()
     require(sysroot_rows and len(sysroot_rows) == len(set(sysroot_rows))
-            and all(re.fullmatch(r'[a-f0-9]{64}  /inputs/arm64-xenial/.+', row) for row in sysroot_rows), 'Actual complete Xenial file inventory required')
+            and all(re.fullmatch(r'[a-f0-9]{64}  /inputs/' + re.escape(arch) + r'-xenial/.+', row) for row in sysroot_rows), 'Actual complete Xenial file inventory required')
     for action in ('prepare','build','test'):
         validation=load(reports/action/'sysroot-validation.json')
         require(validation['status']=='passed' and validation['files']==len(sysroot_rows) and validation['symlinks']>0
@@ -549,14 +577,15 @@ def qualify(args):
                 <= G.timestamp(status['finishedAt']) <= G.timestamp(stages[name]['finishedAtUtc']), 'Inner action times differ')
     if version == '9':
         require(snapshot.get('packageCaseCoverageRequired') is True, 'Current pinned package case coverage is mandatory')
-        N9.validate(release)
+        N9.validate(release, arch=arch)
         before = load(reports / 'test/package-cases-before.json'); coverage = load(reports / 'test/package-cases/coverage.json')
         inner = load(reports / 'test/test-status.json')
         require(G.timestamp(stages['test']['startedAtUtc']) <= G.timestamp(before['observedAtUtc'])
                 <= G.timestamp(inner['startedAt']) + dt.timedelta(seconds=1)
                 and G.timestamp(inner['finishedAt']) <= G.timestamp(coverage['capturedAtUtc']) <= G.timestamp(stages['test']['finishedAtUtc']),
                 'Package baseline observations must bracket the actual fresh test invocation')
-        require(fingerprint(release / 'reports/ci-inputs/project/scripts/ci-net9-test-cases.json') == fingerprint(HERE / 'ci-net9-test-cases.json'),
+        policy_name = N9.policy_filename(arch)
+        require(fingerprint(release / 'reports/ci-inputs/project/scripts' / policy_name) == fingerprint(HERE / policy_name),
                 'Frozen package case policy differs from trusted pinned coverage')
         helper = release / 'reports/ci-inputs/project/scripts/prepare-scenario-report-fence.py'
         # Old frozen runs predate this helper. New committed inputs must require it.
@@ -576,19 +605,22 @@ def qualify(args):
         patches = load(reports / 'build/net8-patches-apply.json')
         require(patches['status'] == 'passed' and len(patches['patches']) == 2, 'The two guarded compatibility patches are required')
         bootstrap = load(reports / 'prepare/bootstrap/bootstrap-inputs.json')
-        require(bootstrap['sourceCommit'] == V[version]['commit'] and bootstrap['bootstrapSdk'] == V[version]['bootstrap'], 'Actual successful ARM64 bootstrap proof required')
+        require(bootstrap['sourceCommit'] == V[version]['commit'] and bootstrap['bootstrapSdk'] == V[version]['bootstrap'], 'Actual successful target bootstrap proof required')
+        if arch != 'arm64':
+            require(bootstrap.get('targetRid') == target['rid'] and bootstrap['bootstrapArchive'].get('linuxX64Packages')
+                    and any(name.startswith('microsoft.netcore.app.runtime.linux-x64.') for name in bootstrap['bootstrapArchive']['linuxX64Packages']), 'Actual native x64 bootstrap runtime proof required')
     upstream = reports / 'test/upstream-results'
     if version == '8':
-        trx = list(upstream.glob('*.trx')); require(len(trx) == 1, 'One actual fresh smoke TRX required'); tests = test_results(version, trx[0])
+        trx = list(upstream.glob('*.trx')); require(len(trx) == 1, 'One actual fresh smoke TRX required'); tests = test_results(version, trx[0], arch=arch)
     else:
         scenarios = list((upstream / 'scenario-tests').glob('*.xml')); require(len(scenarios) == 1, 'One actual scenario result required')
-        tests = test_results(version, upstream / 'Microsoft.DotNet.UnifiedBuild.Tests.trx', scenarios[0])
+        tests = test_results(version, upstream / 'Microsoft.DotNet.UnifiedBuild.Tests.trx', scenarios[0], arch)
     require(tests == load(reports / 'test/upstream-summary.json'), 'Raw upstream test results differ from summary')
     origins = load(reports / 'construction/origin-evidence.json')
     require(origins['status'] == 'passed' and origins['sourceCommit'] == V[version]['commit'] and origins['sdkArchive']['sha256'] == archive['sha256'], 'Actual current-run shared-framework provenance required')
     # Re-evaluate proof without writing any report during portable qualification.
     existing_origin = reports / 'construction/origin-evidence.json'
-    parsed_origin = origin_value(release, version)
+    parsed_origin = origin_value(release, version, arch)
     require(parsed_origin == origins, 'The completed-task shared-framework origin proof differs')
     reader=load(reports/'construction/reader-inputs.json')
     require(reader['compilerSdk']==V[version]['bootstrap'] and reader['sourceCommit']==V[version]['commit']
@@ -599,24 +631,25 @@ def qualify(args):
     for name, (distribution, release_version, icu, ssl) in G.USERLANDS.items():
         verification = load(reports / ('verify-' + name + '/verification.json'))
         require(verification['verificationStatus'] == verification['smokeStatus'] == 'passed' and verification['sdkVersion'] == V[version]['sdk']
-                and verification['reportedRid'] == 'linux-arm64' and verification['hostArchitecture'] == 'aarch64'
+                and verification['reportedRid'] == target['rid'] and verification['hostArchitecture'] == target['uname']
                 and verification['framework'] == 'net' + version + '.0' and verification['functionalChecks'] == dict.fromkeys(G.FUNCTIONS, 'passed')
                 and verification['archive']['sdkContentMatched'] is True and verification['archive']['sha256'] == archive['sha256']
                 and verification['archive']['sizeBytes'] == archive['bytes'], 'All six actual native functions must bind the exact SDK')
         abi = verification['abi']; maxima = abi['maximumRequiredVersions']; numeric = lambda value: tuple(map(int, value.split('.')))
-        require(abi['elfFileCount'] > 0 and abi['machines'] == {'AArch64': abi['elfFileCount']} and abi['glibcCeiling'] == '2.23'
+        require(abi['elfFileCount'] > 0 and abi['machines'] == {target['elf']: abi['elfFileCount']} and abi['glibcCeiling'] == '2.23'
                 and abi['glibcCeilingPassed'] is True and not abi['symbolicGlibcRequirements'] and numeric(maxima['GLIBC']) <= (2,23)
                 and numeric(maxima['GLIBCXX']) <= (3,4,21) and numeric(maxima['CXXABI']) <= (1,3,7), 'Actual native ABI policy failed')
         userland = load(reports / ('ci/' + name + '-userland.json'))
-        require(userland['osRelease'] == {'ID': distribution, 'VERSION_ID': release_version} and userland['architecture'] == 'aarch64'
-                and userland['uid'] > 0 and set(userland['environmentOverrides']) == G.ENVIRONMENT_OVERRIDES
+        require(userland['osRelease'] == {'ID': distribution, 'VERSION_ID': release_version} and userland['architecture'] == target['uname']
+                and userland['uid'] > 0 and set(userland['environmentOverrides']) == G.environment_overrides(arch)
                 and all(value is None for value in userland['environmentOverrides'].values()), 'Actual unmodified native user-space policy differs')
         packages = {key.split(':',1)[0]: value for key,value in userland['installedPackages'].items()}
         require(all(packages.get(key) for key in (icu,ssl,'libc6','libstdc++6','zlib1g','libgssapi-krb5-2')), 'Actual native dependency versions missing')
         base = load(reports / ('ci/' + name + '-base-image.json')); require(len(base) == 1, 'One actual base inspection required')
-        pinned = G.verification_base(base[0], distribution)
-        derived = G.image_check(reports / ('ci/' + name + '-verification-image.json'), userland['imageId'])
-        tag = 'localhost/cbodotnet-net' + version + '-verify-' + name + ':' + snapshot['runId'] + '-' + snapshot['runAttempt']
+        pinned = G.verification_base(base[0], distribution, arch=arch)
+        derived = G.image_check(reports / ('ci/' + name + '-verification-image.json'), userland['imageId'], arch=arch)
+        suffix = '' if arch == 'arm64' else '-' + arch
+        tag = 'localhost/cbodotnet-net' + version + suffix + '-verify-' + name + ':' + snapshot['runId'] + '-' + snapshot['runAttempt']
         require(tag in derived['RepoTags'] and any(('--build-arg','BASE_IMAGE='+pinned) in list(zip(command,command[1:]))
                 and ('--tag',tag) in list(zip(command,command[1:])) for command in stages['verify']['commands'])
                 and any(userland['imageId'] in command and '--network=none' in command for command in stages['verify']['commands']), 'Actual native base/build/execution chain differs')
@@ -641,20 +674,23 @@ def qualify(args):
                   tests=tests, origin=record(release,existing_origin), native=native,
                   sourceScanScope=scan.get('scope','Original standalone BinaryToolKit validation'),
                   scope='Current native CI build, actual version-specific upstream tests, consumed framework origins and three user spaces. Used-source archive content validation is a separate required common gate. No Stage 2, zero-prebuilt or universal distribution claim.')
+    if arch != 'arm64':
+        result.update(architecture=arch, targetRid=target['rid'])
     envelope = release / 'ci-validation.json'
     if args.stage == 'verify-release': require(load(envelope) == result, 'Portable version evidence envelope differs')
     else: dump(envelope,result)
     print(json.dumps({'status':'passed','sdkVersion':V[version]['sdk'],'runId':snapshot['runId']})); return 0
 
 
-def origin_value(release, version):
+def origin_value(release, version, arch='arm64'):
     # The producer proof function writes only when explicitly requested.
-    return origin(release, version, write=False)
+    return origin(release, version, write=False, arch=arch)
 
 
 if __name__ == '__main__':
     import argparse
     parser=argparse.ArgumentParser(description=__doc__); parser.add_argument('action',choices=['sysroot'])
     parser.add_argument('--version',choices=['8','9'],required=True); parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     args=parser.parse_args()
-    verify_sysroot(Path('/inputs/arm64-xenial'),Path('/reports'),args.version,args.output)
+    verify_sysroot(Path('/inputs/' + args.arch + '-xenial'),Path('/reports'),args.version,args.output,args.arch)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fresh native Linux ARM64 orchestration for the pinned .NET 6/7 profiles."""
+"""Fresh native Linux orchestration for the pinned .NET 6/7 profiles."""
 import argparse
 import datetime as dt
 import hashlib
@@ -36,14 +36,18 @@ def ordinary_directory(path):
 
 
 class Run:
+    arch = 'arm64'
+    architecture = E.get_arch('arm64')
+
     def __init__(self, args):
-        self.args = args; self.major = args.major; self.selected = E.VERSIONS[self.major]
+        self.args = args; self.major = args.major; self.arch = getattr(args, 'arch', 'arm64')
+        self.architecture = E.get_arch(self.arch); self.selected = E.version_config(self.major, self.arch)
         self.sdk = self.selected['sdk']; self.project = HELPERS.parent
         self.workspace = ordinary_directory(args.workspace); self.output = ordinary_directory(args.output_dir)
         E.require(self.workspace != self.output and self.workspace not in self.output.parents
                   and self.output not in self.workspace.parents, 'Workspace and output must be separate')
-        E.require(platform.system() == 'Linux' and platform.machine() == 'aarch64' and os.getuid() != 0,
-                  'Run as the checkout owner on native ARM64 Linux')
+        E.require(platform.system() == 'Linux' and platform.machine() == self.architecture['uname'] and os.getuid() != 0,
+                  'Run as the checkout owner on native ' + self.arch + ' Linux')
         E.require(re.fullmatch(r'20\d{6}\.[1-9]\d*', args.build_id) and re.fullmatch(r'[1-9]\d*', args.build_revision), 'Invalid CI build identity')
         dt.datetime.strptime(args.build_id.split('.')[0], '%Y%m%d')
         for name in ['git', 'podman', 'sudo', 'taskset']: E.require(shutil.which(name), 'Missing host tool: '+name)
@@ -110,13 +114,19 @@ class Run:
 
     def inspect(self, reference, path):
         text = self.command(self.engine+['image','inspect',reference], capture=True)
-        rows = json.loads(text); E.require(len(rows) == 1 and rows[0]['Architecture'] == 'arm64' and rows[0]['Os'] == 'linux', 'An exact native image is required')
+        rows = json.loads(text); E.require(len(rows) == 1 and rows[0]['Architecture'] == self.architecture['image'] and rows[0]['Os'] == 'linux', 'An exact native image is required')
         E.require(re.fullmatch(r'(sha256:)?[a-f0-9]{64}', rows[0]['Id']), 'An immutable image identity is required')
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open('x') as out: out.write(text)
         return rows[0]
 
     def container(self, command, readonly=False, privileged=False, network='host', input=None, capture=False):
+        command = list(command)
+        architecture_helpers = {'build-source6.sh', 'build-source7.sh', 'bootstrap6-inputs.py', 'bootstrap7-inputs.py',
+                                'prepare-sysroot6.sh', 'prepare-sysroot7.sh', 'verify-sysroot6.py', 'verify-sysroot7.py'}
+        if self.arch != 'arm64' and len(command) > 1 and Path(command[1]).name in architecture_helpers:
+            E.require('--arch' not in command, 'Architecture options must be added exactly once')
+            command += ['--arch', self.arch]
         suffix = ':ro' if readonly or privileged else ''
         args = self.engine+['run','--rm','--interactive','--network='+network]
         if privileged: args += ['--privileged','--user','0:0']
@@ -140,14 +150,14 @@ class Run:
         args = ['bash',self.script('build-source'+self.major+'.sh'),'--installer-dir','/installer',
                 '--source-dir','/work/source-v'+self.sdk,'--reports-dir','/delivery/reports/'+name,
                 '--generation-reports-dir','/delivery/reports/generation','--action',name,'--max-cpu-count','2']
-        if name == 'test': args += ['--official-sdk-archive','/inputs/official-sdk/dotnet-sdk-'+self.sdk+'-linux-arm64.tar.gz']
+        if name == 'test': args += ['--official-sdk-archive','/inputs/official-sdk/dotnet-sdk-'+self.sdk+'-'+self.architecture['rid']+'.tar.gz']
         self.container(args)
         self.paths[name+'Status'] = 'reports/'+name+'/'+name+'-status.json'
 
     def verify_inputs(self):
         self.container(['python3',self.script('source'+self.major+'-provenance.py'),'verify','--installer-dir','/installer',
                         '--source-dir','/work/source-v'+self.sdk,'--reports-dir','/delivery/reports/generation'], readonly=True, network='none')
-        text = self.container(['python3',self.script('verify-sysroot'+self.major+'.py'),'--sysroot','/inputs/arm64-xenial',
+        text = self.container(['python3',self.script('verify-sysroot'+self.major+'.py'),'--sysroot','/inputs/'+self.arch+'-xenial',
                                '--reports-dir','/delivery/reports/sysroot'], readonly=True, network='none',capture=True)
         current = json.loads(text); E.require(current['status'] == 'passed' and current['files'] > 0 and current['symlinks'] > 0, 'Complete sysroot verification failed')
         path = self.reports/'sysroot/current-validation.json'
@@ -155,27 +165,28 @@ class Run:
         else: E.write(path,current)
 
     def baseline(self):
-        destination = self.inputs / 'official-sdk' / ('dotnet-sdk-'+self.sdk+'-linux-arm64.tar.gz')
+        destination = self.inputs / 'official-sdk' / ('dotnet-sdk-'+self.sdk+'-'+self.architecture['rid']+'.tar.gz')
         destination.parent.mkdir()
         url = 'https://builds.dotnet.microsoft.com/dotnet/Sdk/'+self.sdk+'/'+destination.name
         with urllib.request.urlopen(url, timeout=120) as response, destination.open('xb') as out:
             shutil.copyfileobj(response, out, 1024*1024)
         actual = E.fingerprint(destination)
         E.require(actual['bytes'] == self.selected['baselineSize'] and actual['sha512'] == self.selected['baselineSha512'], 'Official comparison input differs from its fixed pin')
-        E.write(self.reports / 'test-inputs/official-sdk-baseline.json', dict(version=self.sdk,rid='linux-arm64',url=url,
+        E.write(self.reports / 'test-inputs/official-sdk-baseline.json', dict(version=self.sdk,rid=self.architecture['rid'],url=url,
                 purpose='Exact official SDK comparison baseline only; never a community product input',**actual))
 
     def prepare(self):
         self.command(['git','clone','--depth','1','--branch','v'+self.sdk,'--','https://github.com/dotnet/installer',self.installer])
         E.require(self.command(['git','-C',self.installer,'rev-parse','HEAD'], capture=True).strip() == self.selected['commit'], 'Fetched installer tag differs from selected commit')
-        snapshot = E.freeze(self.project, self.output, self.major, self.identity)
+        snapshot = E.freeze(self.project, self.output, self.major, self.identity, **({'arch': self.arch} if self.arch != 'arm64' else {}))
         (self.reports/'prepare').mkdir()
         self.command([sys.executable,self.frozen/'scripts'/('prepare-net'+self.major+'-seccomp.py'),
-                      '--output-policy',self.inputs/'seccomp.json','--report',self.reports/'prepare/seccomp.json'])
+                      '--output-policy',self.inputs/'seccomp.json','--report',self.reports/'prepare/seccomp.json']
+                     + (['--arch', self.arch] if self.arch != 'arm64' else []))
         shutil.copyfile(self.inputs/'seccomp.json',self.reports/'prepare/seccomp-policy.json')
         shutil.copyfile('/usr/share/containers/seccomp.json',self.reports/'prepare/seccomp-base-policy.json')
         profile = E.load(self.profile); base = profile['container']['repository']+'@'+profile['container']['digest']
-        recipe = self.frozen / 'containers' / ('arm64-net'+self.major+'.Containerfile')
+        recipe = self.frozen / 'containers' / (self.arch+'-net'+self.major+'.Containerfile')
         E.require(next(line for line in recipe.read_text().splitlines() if line.startswith('FROM ')) == 'FROM '+base, 'Product image base differs from profile')
         self.command(self.engine+['pull',base]); self.inspect(base, self.reports / 'prepare/base-image.json')
         tag = 'localhost/cbodotnet-net'+self.major+'-ci:'+self.run_id+'-'+self.attempt
@@ -212,9 +223,9 @@ with (root/'producer-inputs.json').open('x') as out: json.dump({'keyrings':recor
                           bootstrap='reports/bootstrap/bootstrap-inputs.json')
 
     def observe(self, stopping, errors):
-        names = ['dotnet-runtime-'+self.selected['runtime']+'-linux-arm64.tar.gz',
-                 'aspnetcore-runtime-internal-'+self.selected['runtime']+'-linux-arm64.tar.gz']
-        feed = self.source / 'artifacts/obj/arm64/Release/blob-feed/assets'; known = {}; seen = set()
+        names = ['dotnet-runtime-'+self.selected['runtime']+'-'+self.architecture['rid']+'.tar.gz',
+                 'aspnetcore-runtime-internal-'+self.selected['runtime']+'-'+self.architecture['rid']+'.tar.gz']
+        feed = self.source / ('artifacts/obj/'+self.arch+'/Release/blob-feed/assets'); known = {}; seen = set()
         path = self.reports / 'build/installer-observations.jsonl'
         try:
             with path.open('x') as out:
@@ -289,15 +300,15 @@ with (root/'producer-inputs.json').open('x') as out: json.dump({'keyrings':recor
         self.paths['applicability'] = 'reports/scan/applicability.json'
 
     def origin(self):
-        sdk_archive = self.source / 'artifacts/arm64/Release' / ('dotnet-sdk-'+self.sdk+'-linux-arm64.tar.gz')
-        feed = self.source / 'artifacts/obj/arm64/Release/blob-feed/assets'
-        runtime_name = 'dotnet-runtime-'+self.selected['runtime']+'-linux-arm64.tar.gz'
-        asp_name = 'aspnetcore-runtime-internal-'+self.selected['runtime']+'-linux-arm64.tar.gz'
-        runtime = self.source / 'artifacts/arm64/Release/runtime' / runtime_name
+        sdk_archive = self.source / ('artifacts/'+self.arch+'/Release') / ('dotnet-sdk-'+self.sdk+'-'+self.architecture['rid']+'.tar.gz')
+        feed = self.source / ('artifacts/obj/'+self.arch+'/Release/blob-feed/assets')
+        runtime_name = 'dotnet-runtime-'+self.selected['runtime']+'-'+self.architecture['rid']+'.tar.gz'
+        asp_name = 'aspnetcore-runtime-internal-'+self.selected['runtime']+'-'+self.architecture['rid']+'.tar.gz'
+        runtime = self.source / ('artifacts/'+self.arch+'/Release/runtime') / runtime_name
         directory = self.reports / 'construction'; directory.mkdir()
-        self.container(['python3',self.script('inspect-sdk-construction9.py'),'--sdk-archive','/work/source-v'+self.sdk+'/artifacts/arm64/Release/'+sdk_archive.name,
-                        '--runtime-archive','/work/source-v'+self.sdk+'/artifacts/arm64/Release/runtime/'+runtime_name,
-                        '--aspnetcore-archive','/work/source-v'+self.sdk+'/artifacts/obj/arm64/Release/blob-feed/assets/'+asp_name,
+        self.container(['python3',self.script('inspect-sdk-construction9.py'),'--sdk-archive','/work/source-v'+self.sdk+'/artifacts/'+self.arch+'/Release/'+sdk_archive.name,
+                        '--runtime-archive','/work/source-v'+self.sdk+'/artifacts/'+self.arch+'/Release/runtime/'+runtime_name,
+                        '--aspnetcore-archive','/work/source-v'+self.sdk+'/artifacts/obj/'+self.arch+'/Release/blob-feed/assets/'+asp_name,
                         '--runtime-version',self.selected['runtime'],'--reports-dir','/delivery/reports/construction/identity'],readonly=True,network='none')
         identity = E.load(directory / 'identity/shared-framework-identity.json')
         replay = E.load(self.reports / 'origin-tools/replay.json')
@@ -419,17 +430,17 @@ for line in pathlib.Path('/etc/os-release').read_text().splitlines():
     if '=' in line:
         key,value=line.split('=',1); release[key]=value.strip('"')
 packages=subprocess.check_output(['dpkg-query','-W','-f=${binary:Package}\\t${Version}\\n',sys.argv[3],sys.argv[4],'libc6','libstdc++6','zlib1g','libgssapi-krb5-2'],text=True)
-value={'imageId':sys.argv[1],'architecture':platform.machine(),'uid':os.getuid(),'osRelease':{'ID':release['ID'],'VERSION_ID':release['VERSION_ID']},'installedPackages':dict(line.split('\\t',1) for line in packages.splitlines()),'environmentOverrides':{key:os.environ.get(key) for key in ['LD_LIBRARY_PATH','DOTNET_ROOT','DOTNET_SYSTEM_GLOBALIZATION_INVARIANT','CLR_ICU_VERSION_OVERRIDE','DOTNET_EnableDiagnostics','COMPlus_EnableDiagnostics']}}
+value={'imageId':sys.argv[1],'architecture':platform.machine(),'uid':os.getuid(),'osRelease':{'ID':release['ID'],'VERSION_ID':release['VERSION_ID']},'installedPackages':dict(line.split('\\t',1) for line in packages.splitlines()),'environmentOverrides':{key:os.environ.get(key) for key in ['LD_LIBRARY_PATH','DOTNET_ROOT','DOTNET_SYSTEM_GLOBALIZATION_INVARIANT','CLR_ICU_VERSION_OVERRIDE','DOTNET_EnableDiagnostics','COMPlus_EnableDiagnostics'] + (['DOTNET_ROOT_X64'] if len(sys.argv) > 5 and sys.argv[5] == 'x64' else [])}}
 with pathlib.Path('/delivery/reports/ci/'+sys.argv[2]+'-userland.json').open('x') as out: json.dump(value,out,indent=2)
 '''
             self.command(self.engine+['run','--rm','--interactive','--network=none','--security-opt','seccomp='+str(self.inputs/'seccomp.json'),'--user',str(self.uid)+':'+str(self.gid),
-                         '--volume',str(self.output)+':/delivery',image['Id'],'python3','-',image['Id'],name,icu,ssl],input=metadata)
+                         '--volume',str(self.output)+':/delivery',image['Id'],'python3','-',image['Id'],name,icu,ssl] + (['x64'] if self.arch == 'x64' else []),input=metadata)
             self.command(self.engine+['run','--rm','--network=none','--security-opt','seccomp='+str(self.inputs/'seccomp.json'),'--user',str(self.uid)+':'+str(self.gid),
                          '--env','LANG=C.UTF-8','--env','LC_ALL=C.UTF-8','--env','DOTNET_GENERATE_ASPNET_CERTIFICATE=false',
                          '--volume',str(self.output)+':/delivery','--volume',str(self.candidate)+':/artifacts:ro','--workdir','/tmp',image['Id'],
                          'taskset','--cpu-list',self.cpus,'bash',self.script('verify-sdk.sh'),'--archive','/artifacts/'+candidate['sdkArchive']['path'],
                          '--output-dir','/delivery/reports/verify-'+name,'--expected-version',self.sdk,'--expected-rid',rid,
-                         '--framework','net'+self.major+'.0','--max-glibc','2.23'])
+                         '--framework','net'+self.major+'.0','--max-glibc','2.23'] + (['--arch',self.arch] if self.arch != 'arm64' else []))
             self.paths[name] = 'reports/verify-'+name+'/verification.json'
 
     def collect(self):
@@ -442,7 +453,7 @@ with pathlib.Path('/delivery/reports/ci/'+sys.argv[2]+'-userland.json').open('x'
         receipt = dict(schemaVersion=1,stage=self.stage,status='passed' if code == 0 else 'failed',exitCode=code,
                        sourceCommit=self.selected['commit'],imageId=self.image,startedAtUtc=self.started,finishedAtUtc=now(),
                        commands=self.commands,paths=self.paths,**self.identity,
-                       environment=dict(architecture='aarch64',uid=self.uid,gid=self.gid,allowedCpuSelection=self.cpus,
+                       environment=dict(architecture=self.architecture['uname'],uid=self.uid,gid=self.gid,allowedCpuSelection=self.cpus,
                                         workspace=str(self.workspace),delivery=str(self.output)))
         if self.stage == 'collect' and code == 0:
             receipt.update(manifest=E.record(self.output,self.output/'build-manifest.json'),
@@ -455,13 +466,14 @@ def main():
         parser = argparse.ArgumentParser(description='Validate a completed generated-source CI delivery')
         parser.add_argument('major',choices=['6','7']); parser.add_argument('command',choices=['validate','verify-release'])
         parser.add_argument('--output-dir',type=Path,required=True); parser.add_argument('--project-root',type=Path,required=True)
+        parser.add_argument('--arch', choices=['arm64','x64'], default='arm64')
         parser.add_argument('--expected-project-commit'); parser.add_argument('--expected-run-id'); parser.add_argument('--expected-run-attempt')
         args = parser.parse_args(); release = args.output_dir.absolute()
         expected = dict(projectCommit=args.expected_project_commit or os.environ.get('GITHUB_SHA'),
                         runId=args.expected_run_id or os.environ.get('GITHUB_RUN_ID'),
                         runAttempt=args.expected_run_attempt or os.environ.get('GITHUB_RUN_ATTEMPT'))
         E.require(all(expected.values()), 'Explicit or actual GitHub run identity is required')
-        result = E.validate(release,expected)
+        result = E.validate(release,expected,args.arch)
         E.require(result['sdkVersion'] == E.VERSIONS[args.major]['sdk'], 'The selected version gate differs')
         path = release / 'ci-validation.json'
         if args.command == 'verify-release': E.require(E.load(path) == result, 'Downloaded validation envelope differs')
@@ -471,6 +483,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('major',choices=['6','7']); parser.add_argument('stage',choices=['prepare','build','scan','test','verify','collect'])
     parser.add_argument('--workspace',type=Path,required=True); parser.add_argument('--output-dir',type=Path,required=True)
+    parser.add_argument('--arch', choices=['arm64','x64'], default='arm64')
     parser.add_argument('--build-id',required=True); parser.add_argument('--build-revision',required=True)
     args = parser.parse_args(); run = Run(args); code = 1
     try:

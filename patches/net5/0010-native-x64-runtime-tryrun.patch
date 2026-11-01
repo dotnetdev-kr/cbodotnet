@@ -1,0 +1,18 @@
+--- a/artifacts/src/runtime.6a984143635bde23e728abaaccbde52f5ea8fa3e/src/libraries/Native/Unix/tryrun.cmake
++++ b/artifacts/src/runtime.6a984143635bde23e728abaaccbde52f5ea8fa3e/src/libraries/Native/Unix/tryrun.cmake
+@@ -20,7 +20,7 @@
+   set(CLR_CMAKE_TARGET_OS SunOS)
+ endif()
+ 
+-if(TARGET_ARCH_NAME MATCHES "^(armel|arm|arm64|x86)$" OR FREEBSD OR ILLUMOS)
++if(TARGET_ARCH_NAME MATCHES "^(armel|arm|arm64|x86|x64)$" OR FREEBSD OR ILLUMOS)
+   set_cache_value(HAVE_CLOCK_MONOTONIC_EXITCODE 0)
+   set_cache_value(HAVE_CLOCK_REALTIME_EXITCODE 0)
+ 
+@@ -36,5 +36,5 @@
+     set_cache_value(HAVE_CLOCK_REALTIME 1)
+   endif()
+ else()
+-  message(FATAL_ERROR "Arch is ${TARGET_ARCH_NAME}. Only armel, arm, arm64 and x86 are supported!")
++  message(FATAL_ERROR "Arch is ${TARGET_ARCH_NAME}. Only armel, arm, arm64, x86 and x64 are supported!")
+ endif()

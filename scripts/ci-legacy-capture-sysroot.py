@@ -8,16 +8,25 @@ import shutil
 import subprocess
 import sys
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument('--family', required=True, choices=['net5', 'core31', 'core30'])
     for name in ('inputs-dir', 'reports-dir'):
         parser.add_argument('--' + name, required=True, type=Path)
     args = parser.parse_args()
     reports = args.reports_dir; helper = Path(__file__).parent / ('verify-sysroot' + ('5' if args.family == 'net5' else '-' + args.family) + '.py')
-    result = subprocess.run([sys.executable, str(helper), '--sysroot', str(args.inputs_dir / 'arm64-xenial'),
-                             '--reports-dir', str(reports)], check=True, stdout=subprocess.PIPE, universal_newlines=True)
+    extra = []
+    if ARCH['arch'] == 'x64':
+        helper = Path(__file__).parent / 'verify-legacy-x64-sysroot.py'
+        extra = ['--family', args.family]
+    result = subprocess.run([sys.executable, str(helper), '--sysroot', str(args.inputs_dir / (ARCH['arch'] + '-xenial')),
+                             '--reports-dir', str(reports)] + extra, check=True, stdout=subprocess.PIPE, universal_newlines=True)
     verified = json.loads(result.stdout)
     if verified.get('status') != 'passed' or verified['files'] <= 0 or verified['symlinks'] <= 0:
         raise ValueError('Whole sysroot revalidation did not pass')

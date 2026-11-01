@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "selectedAt": "2026-11-01",
+  "sdkVersion": "6.0.136",
+  "status": "prepared-native-x64-profile",
+  "source": {
+    "repository": "https://github.com/dotnet/installer",
+    "tag": "v6.0.136",
+    "commit": "d638663530d923adbe0442604b7a6562127321e9"
+  },
+  "selection": {
+    "latestPublishedSdk": "6.0.428",
+    "latestPublishedRuntime": "6.0.36",
+    "releaseDate": "2024-11-12",
+    "reason": "Latest published 1xx SDK from the legacy installer source-build generation; the final release metadata also publishes SDK 6.0.428 in the later band."
+  },
+  "host": {
+    "os": "linux",
+    "architecture": "x64",
+    "emulation": false
+  },
+  "target": {
+    "rid": "linux-x64",
+    "libc": "glibc",
+    "intendedMaximumGlibcRequirement": "2.23"
+  },
+  "container": {
+    "repository": "mcr.microsoft.com/dotnet-buildtools/prereqs",
+    "referenceTag": "ubuntu-24.04",
+    "digest": "sha256:3c6f20064af0ba7844c51b17f6fe06fd499fb27af0aba281254bd573af830d73",
+    "containerfile": "containers/x64-net6.Containerfile"
+  },
+  "generatedSource": {
+    "templatePath": "src/SourceBuild/tarball/content",
+    "preserveTarballGitFolders": true,
+    "convertInternalRepos": true,
+    "componentCommits": {
+      "installer": "d638663530d923adbe0442604b7a6562127321e9",
+      "runtime": "f1dd57165bfd91875761329ac3a8b17f6606ad18",
+      "aspnetcore": "64ea4108e7dcf1ca575f8dd2028363b0b1ef6ebc",
+      "sdk": "1d205826ddc14c8f868eb6373e7a6bafcb9fe5be",
+      "source-build": "7649ca7106e7e91ac06f169626bf01a77c2258eb"
+    }
+  },
+  "toolchain": {
+    "compiler": "clang",
+    "compilerMajorVersion": 16,
+    "cppCompilerAndLinker": "/usr/bin/clang-16",
+    "note": "Native x64 LLVM 16 tools and a separately authenticated Xenial sysroot are selected; actual compiler and ABI evidence is produced by each run."
+  },
+  "sysroot": {
+    "architecture": "x64",
+    "suite": "xenial",
+    "generator": "src/runtime/eng/common/cross/build-rootfs.sh",
+    "generatorArguments": [
+      "x64",
+      "xenial"
+    ],
+    "packageSignatureVerification": true,
+    "preparationRequiresRoot": true
+  },
+  "build": {
+    "system": "legacy-installer-source-build",
+    "configuration": "Release",
+    "sourceOnly": true,
+    "online": true,
+    "crossBuild": true,
+    "portableBuild": true,
+    "continuousIntegration": true,
+    "maxCpuCount": 2,
+    "patches": [
+      {
+        "path": "patches/net6/0001-support-arm64-cross-components-host.patch",
+        "sha256": "00fed1b880f80dba95cfc8a50734b197afe9c234cd23dd394524a3811f6ec6c5",
+        "purpose": "Backport native ARM64 build-host detection for required runtime cross-components."
+      },
+      {
+        "path": "patches/net6/0002-preserve-portable-runtime-target.patch",
+        "sha256": "80cc92244c4ec6df240a81e081e1fa1d5f83bce3546f9c0d2f068f0f3fbf586c",
+        "purpose": "Honor explicit PortableBuild=true while preserving the runtime adapter's nonportable default."
+      },
+      {
+        "purpose": "Build the portable runtime once when PortableBuild=true, retaining the original portable/nonportable dependency graph otherwise.",
+        "path": "patches/net6/0003-build-portable-runtime-once.patch",
+        "sha256": "3312390ac9e81d24497fb21187d90a4cfd1c34ff531886876e1171758755cd00"
+      },
+      {
+        "purpose": "Remove only the redundant direct portable runtime pass when the regular runtime node already produces the requested portable SDK inputs.",
+        "path": "patches/net6/0004-select-one-portable-runtime-root.patch",
+        "sha256": "7dff4418b2ed2661fdd80c7ef8c81975400e897f84aa2320407d1be7a9cb5670"
+      },
+      {
+        "path": "patches/net6/0005-support-linux-x64-cross-toolchain.patch",
+        "sha256": "7b8ad38e53973d7fbff2660274110b32bc0aaf8212a2faba9e9c589408112799",
+        "purpose": "Use the signed x64 sysroot and GNU x86_64 target for same-host Linux cross builds."
+      },
+      {
+        "path": "patches/net6/0006-support-linux-x64-cross-tryrun.patch",
+        "sha256": "0c453ef032c07c1ad44a38720c190d10b76f1671780eb4257cafede3ef435b0b",
+        "purpose": "Backport Linux x64 cross try-run selection and its functional robust-pthread cache from the newer runtime."
+      }
+    ],
+    "entryPoint": "./build.sh",
+    "rootBuildOptions": [
+      "--clean-while-building",
+      "--online"
+    ],
+    "note": "All four pinned compatibility patches remain selected. The full native x64 portable product graph and local shared-framework origins require current-run validation."
+  },
+  "construction": {
+    "upstreamSharedRuntimeReused": false,
+    "sharedComponents": "The selected source-build graph constructs runtime and ASP.NET locally; completed copy tasks and final SDK bytes must establish their actual origins.",
+    "note": "Native x64 retains original upstream previously-source-built archives, bootstrap SDK, reference packages and online inputs. No ARM64 substitution, Stage 2 or zero-prebuilt claim is made."
+  },
+  "additionalPackages": [],
+  "upstreamInputs": {
+    "bootstrapSdk": "6.0.135",
+    "sourceBuiltArtifacts": "6.0.135",
+    "sourceBuiltArtifactsRid": "centos.7-x64",
+    "runtime": "6.0.36",
+    "sourceBuiltArtifactsDeclaration": "Generated packages/archive/archiveArtifacts.txt",
+    "bootstrapProject": "scripts/bootstrap/buildBootstrapPreviouslySB.csproj",
+    "bootstrapTransformation": "Native x64 preserves and consumes the original CentOS x64 previously-source-built archive byte-for-byte. It does not run prep.sh --bootstrap or substitute ARM64 packages."
+  }
+}

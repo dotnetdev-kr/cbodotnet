@@ -19,12 +19,14 @@ import subprocess
 import sys
 import tempfile
 
-parser = argparse.ArgumentParser(description="Record an ARM64 Linux build environment as JSON.")
+parser = argparse.ArgumentParser(description="Record a native Linux build environment as JSON.")
+parser.add_argument("--arch", choices=("arm64", "x64"), default="arm64")
 parser.add_argument("--output", type=pathlib.Path, help="Absolute JSON output path; defaults to stdout.")
 parser.add_argument("--workspace", type=pathlib.Path, default=pathlib.Path.cwd(), help="Workspace whose disk capacity is measured.")
 args = parser.parse_args()
-if platform.system() != "Linux" or platform.machine().lower() not in ("aarch64", "arm64"):
-    parser.error("this build profile requires native ARM64 Linux")
+machines = {"arm64": ("aarch64", "arm64"), "x64": ("x86_64",)}
+if platform.system() != "Linux" or platform.machine().lower() not in machines[args.arch]:
+    parser.error("this build profile requires native " + args.arch + " Linux")
 if args.output is not None and not args.output.is_absolute():
     parser.error("--output must be an absolute path")
 if not args.workspace.is_absolute() or not args.workspace.is_dir():

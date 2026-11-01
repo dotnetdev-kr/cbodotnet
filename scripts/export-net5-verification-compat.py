@@ -15,11 +15,15 @@ import stat
 import subprocess
 import uuid
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 
 IMAGE = 'd7f3d9624f9f2ec9d6dfb3c0ed1743eab582378d0a4ee40dfb0bc9e66bed288a'
 OWNER = 'cbodotnet-net5-verification-openssl11-v1'
-FILES = [('/usr/lib/aarch64-linux-gnu/libssl.so.1.1', 'lib/libssl.so.1.1', 'libssl1.1'),
-         ('/usr/lib/aarch64-linux-gnu/libcrypto.so.1.1', 'lib/libcrypto.so.1.1', 'libssl1.1'),
+FILES = [(('/usr/lib/' + ARCH['libdir'] + '/libssl.so.1.1'), 'lib/libssl.so.1.1', 'libssl1.1'),
+         (('/usr/lib/' + ARCH['libdir'] + '/libcrypto.so.1.1'), 'lib/libcrypto.so.1.1', 'libssl1.1'),
          ('/usr/share/doc/libssl1.1/copyright', 'LICENSE.openssl.txt', 'libssl1.1'),
          ('/etc/ssl/openssl.cnf', 'openssl.cnf', 'openssl')]
 
@@ -84,7 +88,7 @@ def inspect_inputs(image_inspect, consumer):
     if not isinstance(inspected, list) or len(inspected) != 1:
         raise ValueError('One host-supplied Podman image-inspection record is required')
     image = inspected[0]
-    if (image.get('Id', '').replace('sha256:', '') != IMAGE or image.get('Architecture') != 'arm64' or image.get('Os') != 'linux'):
+    if (image.get('Id', '').replace('sha256:', '') != IMAGE or image.get('Architecture') != ARCH['image'] or image.get('Os') != 'linux'):
         raise ValueError('The host image-inspection receipt does not select the fixed Focal builder')
     os_release, os_proof = os_identity()
     if not re.search(r'^VERSION_ID="?20\.04"?$', os_release, re.MULTILINE):
@@ -92,7 +96,7 @@ def inspect_inputs(image_inspect, consumer):
     packages = []
     for name in ['libssl1.1', 'openssl']:
         values = command('dpkg-query', '-W', '-f=${binary:Package}\t${Version}\t${Architecture}\t${db:Status-Abbrev}\t${source:Package}\t${source:Version}', name).split('\t')
-        if len(values) != 6 or values[2] != 'arm64' or values[3] != 'ii ' or values[4] != 'openssl':
+        if len(values) != 6 or values[2] != ARCH['deb'] or values[3] != 'ii ' or values[4] != 'openssl':
             raise ValueError('The expected installed native OpenSSL package differs')
         packages.append(dict(zip(['package', 'version', 'architecture', 'status', 'sourcePackage', 'sourceVersion'], values)))
     upstream_versions = [row['version'].split(':')[-1].rsplit('-', 1)[0] for row in packages]
@@ -102,17 +106,17 @@ def inspect_inputs(image_inspect, consumer):
     for original, relative, owner in FILES:
         path = file(Path(original))
         owned = command('dpkg-query', '-S', original).strip()
-        if not owned.startswith(owner + ':') and not owned.startswith(owner + ':arm64:'):
+        if not owned.startswith(owner + ':') and not owned.startswith(owner + ':' + ARCH['deb'] + ':'):
             raise ValueError('The declared OpenSSL input is owned by a different package')
         row = dict({'sourcePath': original, 'path': relative, 'packageOwnership': owned,
                     'mode': oct(stat.S_IMODE(path.stat().st_mode))}, **digest(path))
         if relative.startswith('lib/'):
             header = command('readelf', '-h', original)
-            if not re.search(r'Machine:\s+AArch64\s*$', header, re.MULTILINE):
+            if not re.search(r'Machine:\s+' + re.escape(ARCH['elf']) + r'\s*$', header, re.MULTILINE):
                 raise ValueError('A compatibility input is not AArch64 ELF')
             versions = command('readelf', '--version-info', original)
             requirements = sorted(set(re.findall(r'\bGLIBC_(\d+(?:\.\d+)+)', versions)), key=lambda value: tuple(map(int, value.split('.'))))
-            row.update({'elfMachine': 'AArch64', 'glibcVersionRequirements': requirements,
+            row.update({'elfMachine': ARCH['elf'], 'glibcVersionRequirements': requirements,
                         'maximumGlibcRequirement': requirements[-1] if requirements else None,
                         'dynamicSection': command('readelf', '-d', original)})
         entries.append(row)
@@ -179,12 +183,13 @@ def export(destination, contract):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument('--destination', required=True, type=Path)
     parser.add_argument('--reports-dir', required=True, type=Path)
     parser.add_argument('--image-inspect', required=True, type=Path)
     parser.add_argument('--consumer-directory', default='/verification-compat')
     args = parser.parse_args()
-    if platform.system() != 'Linux' or platform.machine().lower() not in ('aarch64', 'arm64'):
+    if platform.system() != 'Linux' or platform.machine().lower() not in (ARCH['uname'], ARCH['arch']):
         raise ValueError('Run in the native ARM64 Focal builder')
     reports = directory(args.reports_dir)
     destination = args.destination

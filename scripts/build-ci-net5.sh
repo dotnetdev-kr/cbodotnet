@@ -9,9 +9,11 @@ action=build
 cpu_affinity=0,1
 max_cpu=2
 root_logger=false
+arch=arm64
 while (($#)); do
   (($# >= 2)) || { echo 'Every option requires a value.' >&2; exit 2; }
   case "$1" in
+    --arch) arch=$2 ;;
     --source-dir) source_dir=$2 ;;
     --inputs-dir) inputs_dir=$2 ;;
     --reports-dir) reports_dir=$2 ;;
@@ -29,7 +31,11 @@ done
 [[ $root_logger == true || $root_logger == false ]]
 [[ $source_dir == /* && $inputs_dir == /* && $reports_dir == /* && $profile == /* && $sysroot_reports == /* ]]
 [[ $max_cpu == 2 && $cpu_affinity =~ ^[0-9]+,[0-9]+$ ]]
-[[ $(uname -s) == Linux && $(uname -m) == aarch64 && $(id -u) != 0 ]]
+case "$arch" in arm64) expected_uname=aarch64; native_host_property=NativeArm64Host ;; x64) expected_uname=x86_64; native_host_property=NativeX64Host ;; *) echo 'Unsupported native architecture.' >&2; exit 2 ;; esac
+[[ $(uname -s) == Linux && $(uname -m) == "$expected_uname" && $(id -u) != 0 ]]
+export CBODOTNET_LEGACY_ARCH=$arch
+arch_args=()
+[[ $arch == arm64 ]] || arch_args=(--arch x64)
 source_dir=$(realpath -e "$source_dir")
 inputs_dir=$(realpath -e "$inputs_dir")
 profile=$(realpath -e "$profile")
@@ -40,6 +46,8 @@ for name in "$action.log" "$action-status.json" "$action-command.txt" "$action-r
   [[ ! -e $reports_dir/$name && ! -L $reports_dir/$name ]] || { echo 'Refusing a previous action report.' >&2; exit 1; }
 done
 helpers=$(dirname "$(realpath -e "${BASH_SOURCE[0]}")")
+sysroot_verifier=("$helpers/verify-sysroot5.py")
+[[ $arch == arm64 ]] || sysroot_verifier=("$helpers/verify-legacy-x64-sysroot.py" --family net5)
 commit=d414ecb2d997a9b3f38aaaeddace30ca097e546d
 started=$(date -u +%FT%TZ)
 phase=preflight
@@ -53,7 +61,7 @@ record={'action':action,'startedAtUtc':started,'finishedAtUtc':datetime.datetime
         'exitCode':int(code),'lastPhase':phase,'sourceRoot':source,
         'sourceCommit':'d414ecb2d997a9b3f38aaaeddace30ca097e546d','sdkVersion':'5.0.214',
         'buildSystem':'legacy-source-build-direct','sourceOnly':True,'online':True,'rootDotNetBuildFromSource':True,
-        'targetRid':'linux-arm64','cpuAffinity':affinity,'maxCpuCount':2,
+        'targetRid':'linux-'+__import__('os').environ['CBODOTNET_LEGACY_ARCH'],'cpuAffinity':affinity,'maxCpuCount':2,
         'portableBuild':action in ('build','test'),'crossBuild':action in ('build','test'),
         'rootPipelineLogger':logger=='true','productBuildExecuted':phase=='upstream-build'}
 with open(path,'x',encoding='utf-8') as output:
@@ -86,7 +94,7 @@ mkdir "$reports_dir/bootstrap"
 phase=bootstrap
 bootstrap_action=verify
 [[ $action != prepare ]] || bootstrap_action=prepare
-taskset --cpu-list "$cpu_affinity" python3 "$helpers/prepare-net5-bootstrap.py" "$bootstrap_action" \
+taskset --cpu-list "$cpu_affinity" python3 "$helpers/prepare-net5-bootstrap.py" "${arch_args[@]}" "$bootstrap_action" \
   --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir/bootstrap" --profile "$profile"
 contract=$inputs_dir/bootstrap-state/net5-bootstrap-contract.json
 source "$inputs_dir/bootstrap-state/net5-bootstrap-env.sh"
@@ -130,21 +138,21 @@ if [[ $action == prepare ]]; then
   args=(taskset --cpu-list "$cpu_affinity" "$wrapper" --repos-folder "$source_dir/artifacts/src")
 else
   phase=sysroot-verification
-  python3 "$helpers/verify-sysroot5.py" --sysroot "$inputs_dir/arm64-xenial" --reports-dir "$sysroot_reports"
+  python3 "${sysroot_verifier[@]}" --sysroot "$inputs_dir/$arch-xenial" --reports-dir "$sysroot_reports"
   phase=compatibility-patches
-  python3 "$helpers/apply-net5-patches.py" apply --source-dir "$source_dir" --reports-dir "$reports_dir"
+  python3 "$helpers/apply-net5-patches.py" "${arch_args[@]}" apply --source-dir "$source_dir" --reports-dir "$reports_dir"
   if [[ $action == test ]]; then
     phase=fresh-test-setup
-    python3 "$helpers/prepare-net5-tests.py" prepare --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir"
+    python3 "$helpers/prepare-net5-tests.py" "${arch_args[@]}" prepare --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir"
     # Generated consumer projects should not inherit native producer switches.
     unset PortableBuild CrossBuild ROOTFS_DIR CC CXX CLR_CC CLR_CXX
   else
-    export PortableBuild=true CrossBuild=true ROOTFS_DIR=$inputs_dir/arm64-xenial
+    export PortableBuild=true CrossBuild=true ROOTFS_DIR=$inputs_dir/$arch-xenial
   fi
   args=(taskset --cpu-list "$cpu_affinity" ./build.sh --with-sdk "$DOTNET_INSTALL_DIR")
   [[ $action != test ]] || args+=(--run-smoke-test)
   [[ $root_logger != true || $action != build ]] || args+=(--ci)
-  args+=(/p:Configuration=Release /p:Platform=arm64 /p:TargetOS=Linux /p:TargetRid=linux-arm64
+  args+=(/p:Configuration=Release /p:Platform=$arch /p:TargetOS=Linux /p:TargetRid=linux-$arch
     /p:DotNetBuildFromSource=true
     /p:PortableBuild=true /p:CrossBuild=true /p:UseSystemLibraries=false /p:UseSystemLibunwind=false
     /p:BuildPortableRuntime=false /p:BuildPortableSdk=false /p:ContinuousIntegrationBuild=true
@@ -173,7 +181,7 @@ code=${codes[0]}
 if ((code == 0 && codes[1] != 0)); then code=${codes[1]}; fi
 if [[ $action == test ]]; then
   set +e
-  python3 "$helpers/prepare-net5-tests.py" finalize --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir" --upstream-exit-code "$code"
+  python3 "$helpers/prepare-net5-tests.py" "${arch_args[@]}" finalize --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir" --upstream-exit-code "$code"
   validation=$?
   set -e
   if ((code == 0 && validation != 0)); then code=$validation; fi

@@ -9,6 +9,10 @@ import shutil
 import xml.etree.ElementTree as ET
 import zipfile
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 spec = importlib.util.spec_from_file_location('legacy_origin', Path(__file__).with_name('ci-legacy-origin.py'))
 origin = importlib.util.module_from_spec(spec); spec.loader.exec_module(origin)
 require, fp, same, ordinary, digest = origin.require, origin.fp, origin.same, origin.ordinary, origin.digest
@@ -20,13 +24,13 @@ def audit(args, sdk):
     roots = {name: source / layout / 'src' / (name + '.' + sha) for name, sha in pins.items()}
     for name, root in roots.items():
         require(ordinary(root / '.git/HEAD').read_text().strip() == pins[name], 'Split component source pin differs')
-    clr = roots['coreclr'] / 'bin/Product/Linux.arm64.Release'
+    clr = roots['coreclr'] / ('bin/Product/Linux.' + ARCH['arch'] + '.Release')
     fx = roots['corefx'] / 'artifacts/bin'; setup = roots['core-setup']
     native_corelib, il_corelib = fp(clr / 'System.Private.CoreLib.dll'), fp(clr / 'IL/System.Private.CoreLib.dll')
     require(native_corelib['sha256'] != il_corelib['sha256'], 'CoreLib is an IL-only copy')
     header = ordinary(clr / 'crossgen').read_bytes()[:20]
-    require(header[:6] == b'\x7fELF\x02\x01' and int.from_bytes(header[18:20], 'little') == 183, 'Native crossgen must be AArch64')
-    clr_log = roots['coreclr'] / 'bin/Logs/CrossgenCoreLib_Linux.arm64.Release.log'
+    require(header[:6] == b'\x7fELF\x02\x01' and int.from_bytes(header[18:20], 'little') == ARCH['machine'], 'Native crossgen has the wrong ELF architecture')
+    clr_log = roots['coreclr'] / ('bin/Logs/CrossgenCoreLib_Linux.' + ARCH['arch'] + '.Release.log')
     text = ordinary(clr_log).read_text(errors='replace')
     markers = ['Native image ' + str(clr / 'System.Private.CoreLib.dll') + ' generated successfully.',
                "Successfully generated perfmap for native assembly '" + str(clr / 'System.Private.CoreLib.dll') + "'."]
@@ -35,13 +39,13 @@ def audit(args, sdk):
     assets = json.loads(ordinary(assets_path).read_text())
     cache = source / 'packages/restored'
     require(list(assets['packageFolders']) == [str(cache) + '/'], 'CoreSetup restored another package folder')
-    feed = source / layout / 'obj/arm64/Release/blob-feed/packages'
+    feed = source / layout / ('obj/' + ARCH['arch'] + '/Release/blob-feed/packages')
     prefix = 'shared/Microsoft.NETCore.App/' + version + '/'
     tfm = 'netcoreapp' + ('3.0' if args.family == 'core30' else '3.1')
     package_definitions = [
-        ('transport.runtime.linux-arm64.Microsoft.NETCore.Runtime.CoreCLR', 'coreclr', clr / '.nuget/pkg'),
-        ('transport.runtime.linux-arm64.Microsoft.NETCore.Jit', 'coreclr', clr / '.nuget/pkg'),
-        ('runtime.linux-arm64.Microsoft.Private.CoreFx.NETCoreApp', 'corefx', roots['corefx'] / 'artifacts/packages/Release/NonShipping')]
+        (('transport.runtime.' + ARCH['rid'] + '.Microsoft.NETCore.Runtime.CoreCLR'), 'coreclr', clr / '.nuget/pkg'),
+        (('transport.runtime.' + ARCH['rid'] + '.Microsoft.NETCore.Jit'), 'coreclr', clr / '.nuget/pkg'),
+        (('runtime.' + ARCH['rid'] + '.Microsoft.Private.CoreFx.NETCoreApp'), 'corefx', roots['corefx'] / 'artifacts/packages/Release/NonShipping')]
     payloads = {}; packages = []; tools = []
     preserved = args.output_dir / 'reports/construction/split-inputs'; preserved.mkdir()
     shutil.copyfile(assets_path, preserved / 'core-setup-project.assets.json')
@@ -82,13 +86,13 @@ def audit(args, sdk):
                 name = entry.filename; parsed = PurePosixPath(name)
                 require(not parsed.is_absolute() and '..' not in parsed.parts and '\\' not in name, 'Unsafe split archive member')
                 basename = parsed.name
-                native = name.startswith('runtimes/linux-arm64/native/') and (name.endswith('.so') or basename == 'System.Private.CoreLib.dll')
-                managed = component == 'corefx' and name.startswith('runtimes/linux-arm64/lib/' + tfm + '/') and name.endswith('.dll')
+                native = name.startswith(('runtimes/' + ARCH['rid'] + '/native/')) and (name.endswith('.so') or basename == 'System.Private.CoreLib.dll')
+                managed = component == 'corefx' and name.startswith(('runtimes/' + ARCH['rid'] + '/lib/') + tfm + '/') and name.endswith('.dll')
                 tool = name == 'tools/crossgen'
                 if not (native or managed or tool):
                     continue
                 require(not entry.is_dir() and (entry.external_attr >> 16) & 0o170000 in (0, 0o100000), 'Selected split payload must be regular')
-                output = clr / basename if component == 'coreclr' else fx / ('runtime' if managed else 'native') / 'netcoreapp-Linux-Release-arm64' / basename
+                output = clr / basename if component == 'coreclr' else fx / ('runtime' if managed else 'native') / ('netcoreapp-Linux-Release-' + ARCH['arch']) / basename
                 with archive.open(entry) as stream:
                     packed = dict(member=name, **digest(stream))
                 built = fp(output); same(packed, built)
@@ -108,9 +112,9 @@ def audit(args, sdk):
     require(managed == 164 and native_count == 13 and len(tools) == 1, 'Pinned split payload coverage differs')
     for name, member in [('dotnet', 'dotnet'), ('libhostfxr.so', 'host/fxr/' + version + '/libhostfxr.so'),
                          ('libhostpolicy.so', prefix + 'libhostpolicy.so')]:
-        payloads[member] = {'component': 'core-setup', 'componentOutput': fp(setup / 'artifacts/bin/linux-arm64.Release/corehost' / name),
+        payloads[member] = {'component': 'core-setup', 'componentOutput': fp(setup / ('artifacts/bin/' + ARCH['rid'] + '.Release/corehost') / name),
                             'managedCoreFxAssembly': False}
-    runtime_path = source / layout / 'obj/arm64/Release/blob-feed/assets' / ('dotnet-runtime-' + version + '-linux-arm64.tar.gz')
+    runtime_path = source / layout / ('obj/' + ARCH['arch'] + '/Release/blob-feed/assets') / ('dotnet-runtime-' + version + ('-' + ARCH['rid'] + '.tar.gz'))
     runtime = origin.tar_tree(runtime_path, payload_only=True)
     require(set(runtime) == set(payloads), 'Every runtime DLL/shared library/dotnet host needs a component producer')
     setup_log = source / layout / 'logs/core-setup.log'; text = ordinary(setup_log).read_text(errors='replace')
@@ -120,7 +124,7 @@ def audit(args, sdk):
         if (actual['bytes'], actual['sha256']) == (built['bytes'], built['sha256']):
             row['transform'] = 'unchanged'
         elif row['managedCoreFxAssembly']:
-            generated = setup / 'artifacts/bin/linux-arm64.Release/crossgen/netcoreapp/runtimes/linux-arm64/lib' / tfm / PurePosixPath(member).name
+            generated = setup / ('artifacts/bin/' + ARCH['rid'] + '.Release/crossgen/netcoreapp/runtimes/' + ARCH['rid'] + '/lib') / tfm / PurePosixPath(member).name
             same(fp(generated), actual)
             marker = 'Native image ' + str(generated) + ' generated successfully.'
             require(marker in text, 'Completed CoreFX native-image generation is absent')
@@ -138,7 +142,7 @@ def audit(args, sdk):
             'componentPackages': packages, 'runtimePayloads': payloads, 'nativeCrossgenTool': tools[0],
             'finalSdkCompared': True, 'freshCurrentGenerationOnly': True,
             'coreLibNativeImage': {'ilInput': il_corelib, 'nativeOutput': native_corelib, 'nativeOutputDiffersFromIl': True,
-                                   'crossgenElfMachine': 'AArch64', 'completedLog': fp(preserved / 'corelib-crossgen.log')},
+                                   'crossgenElfMachine': ARCH['elf'], 'completedLog': fp(preserved / 'corelib-crossgen.log')},
             'counts': {'coreFxManagedPackageAssemblies': managed, 'coreFxNativeImageTransformations': len(transformations),
                        'nativeAndCoreLibPayloads': native_count, 'coreSetupHostOutputs': 3, 'runtimeArchiveMembersVerified': len(payloads)},
             'completeRuntimePayloadCoverage': {'verified': True, 'members': sorted(payloads)},

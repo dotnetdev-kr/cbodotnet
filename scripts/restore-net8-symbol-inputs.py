@@ -97,6 +97,7 @@ def copy_unchanged(source, destination, expected):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     parser.add_argument("--source-dir", type=Path, required=True)
     parser.add_argument("--reports-dir", type=Path, required=True)
     args = parser.parse_args()
@@ -115,8 +116,8 @@ def main():
     report_path = reports / "net8-symbol-inputs.json"
     if report_path.exists() or report_path.is_symlink():
         raise ValueError("Refusing to overwrite an existing symbol-input report")
-    assets = fixed_directory(source, "artifacts/obj/arm64/Release/blob-feed/assets")
-    output = fixed_directory(source, "artifacts/arm64/Release")
+    assets = fixed_directory(source, "artifacts/obj/" + args.arch + "/Release/blob-feed/assets")
+    output = fixed_directory(source, "artifacts/" + args.arch + "/Release")
     inputs = sorted(assets.glob("Symbols.*.tar.gz")) if assets.is_dir() else []
     record = {"schemaVersion": 1, "recordedAtUtc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
               "sourceCommit": COMMIT, "sourceDirectory": str(source), "retainedAssetsDirectory": str(assets),

@@ -1,0 +1,11 @@
+--- a/repos/core-setup.common.props
++++ b/repos/core-setup.common.props
+@@ -16,7 +16,7 @@
+     <BuildArguments>$(BuildArguments) $(FlagParameterPrefix)ci</BuildArguments>
+     <BuildArguments>$(BuildArguments) /p:PortableBuild=$(OverridePortable)</BuildArguments>
+     <!-- Same-architecture sysroot compilation can execute the native ARM64 crossgen. -->
+-    <BuildArguments Condition="'$(TargetOS)' == 'Linux' AND '$(PortableBuild)' == 'true' AND '$(Platform)' == 'arm64' AND '$(BuildArchitecture)' == 'arm64'">$(BuildArguments) /p:TargetArchitecture=arm64 /p:CrossBuild=true /p:DisableCrossgen=false</BuildArguments>
++    <BuildArguments Condition="'$(TargetOS)' == 'Linux' AND '$(PortableBuild)' == 'true' AND '$(Platform)' == 'x64' AND '$(BuildArchitecture)' == 'x64'">$(BuildArguments) /p:TargetArchitecture=x64 /p:CrossBuild=true /p:DisableCrossgen=false</BuildArguments>
+     <BuildArguments Condition="$(Platform.Contains('arm')) AND '$(BuildArchitecture)' != 'arm64'">$(BuildArguments) /p:TargetArchitecture=$(Platform) /p:DisableCrossgen=true /p:CrossBuild=true</BuildArguments>
+     <BuildArguments>$(BuildArguments) /p:BuildDebPackage=false</BuildArguments>
+     <BuildArguments>$(BuildArguments) /p:BuildAllPackages=true</BuildArguments>

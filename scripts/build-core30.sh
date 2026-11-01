@@ -12,9 +12,11 @@ max_cpu=2
 sdk_archive=''
 allow_cold_feed=false
 skip_source_bundle_downloads=false
+arch=arm64
 while (($#)); do
   (($# >= 2)) || { echo 'Every option requires a value.' >&2; exit 2; }
   case "$1" in
+    --arch) arch=$2 ;;
     --source-dir) source_dir=$2 ;;
     --inputs-dir) inputs_dir=$2 ;;
     --reports-dir) reports_dir=$2 ;;
@@ -35,7 +37,11 @@ done
 [[ $allow_cold_feed == false || $action == build ]]
 [[ $skip_source_bundle_downloads == true || $skip_source_bundle_downloads == false ]]
 [[ $skip_source_bundle_downloads == false || $action == build ]]
-[[ $(uname -s) == Linux && $(uname -m) == aarch64 && $(id -u) != 0 ]]
+case "$arch" in arm64) expected_uname=aarch64; native_host_property=NativeArm64Host ;; x64) expected_uname=x86_64; native_host_property=NativeX64Host ;; *) echo 'Unsupported native architecture.' >&2; exit 2 ;; esac
+[[ $(uname -s) == Linux && $(uname -m) == "$expected_uname" && $(id -u) != 0 ]]
+export CBODOTNET_LEGACY_ARCH=$arch
+arch_args=()
+[[ $arch == arm64 ]] || arch_args=(--arch x64)
 [[ $max_cpu == 2 && $cpu_affinity =~ ^[0-9]+,[0-9]+$ ]]
 for path in "$source_dir" "$inputs_dir" "$reports_dir" "$profile"; do
   [[ $path == /* && $path != / && $path != *[!A-Za-z0-9_./-]* && ! -L $path ]] || { echo 'Absolute ordinary control paths without shell metacharacters are required.' >&2; exit 2; }
@@ -46,6 +52,8 @@ reports_dir=$(realpath -e "$reports_dir")
 profile=$(realpath -e "$profile")
 [[ $reports_dir != "$source_dir" && $reports_dir != "$source_dir"/* && $inputs_dir != "$source_dir" && $inputs_dir != "$source_dir"/* ]]
 helpers=$(dirname "$(realpath -e "${BASH_SOURCE[0]}")")
+sysroot_verifier=("$helpers/verify-sysroot-core30.py")
+[[ $arch == arm64 ]] || sysroot_verifier=("$helpers/verify-legacy-x64-sysroot.py" --family core30)
 commit=40de72d1087a1d05dfd39c87f888a0611ec6c60f
 [[ $(git -C "$source_dir" rev-parse --show-toplevel) == "$source_dir" && $(git -C "$source_dir" rev-parse HEAD) == "$commit" ]]
 for name in "$action.log" "$action-status.json" "$action-command.txt" "$action-resources.txt"; do
@@ -83,7 +91,7 @@ record = {'schemaVersion': 1, 'action': action, 'startedAtUtc': started,
           'finishedAtUtc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
           'exitCode': int(code), 'sourceCommit': '40de72d1087a1d05dfd39c87f888a0611ec6c60f',
           'sourceDirectory': source, 'buildSystem': 'legacy-source-build-direct',
-          'sourceOnly': True, 'targetRid': 'linux-arm64', 'maxCpuCount': 2,
+          'sourceOnly': True, 'targetRid': 'linux-' + __import__('os').environ['CBODOTNET_LEGACY_ARCH'], 'maxCpuCount': 2,
           'cpuAffinity': affinity, 'sysroot': rootfs or None, 'emulation': False,
           'nugetXmlDocumentationMode': xml_mode,
           'socketsHttpHandlerSelection': http_handler,
@@ -103,27 +111,27 @@ if [[ $action == acquire ]]; then
     --include-toolset --depth 0)
 elif [[ $action == prepare ]]; then
   mkdir "$reports_dir/bootstrap"
-  args=(taskset --cpu-list "$cpu_affinity" python3 "$helpers/prepare-core30-bootstrap.py" prepare
+  args=(taskset --cpu-list "$cpu_affinity" python3 "$helpers/prepare-core30-bootstrap.py" "${arch_args[@]}" prepare
     --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir/bootstrap" --profile "$profile")
 else
   [[ $sysroot_reports == /* && -d $sysroot_reports && ! -L $sysroot_reports ]]
-  export ROOTFS_DIR=$inputs_dir/arm64-xenial
-  python3 "$helpers/verify-sysroot-core30.py" --sysroot "$ROOTFS_DIR" --reports-dir "$sysroot_reports"
-  python3 "$helpers/core30-inputs.py" --source-dir "$source_dir" --profile "$profile" --require-bootstrap --inputs-dir "$inputs_dir" --report "$reports_dir/core30-inputs.json"
+  export ROOTFS_DIR=$inputs_dir/$arch-xenial
+  python3 "${sysroot_verifier[@]}" --sysroot "$ROOTFS_DIR" --reports-dir "$sysroot_reports"
+  python3 "$helpers/core30-inputs.py" "${arch_args[@]}" --source-dir "$source_dir" --profile "$profile" --require-bootstrap --inputs-dir "$inputs_dir" --report "$reports_dir/core30-inputs.json"
   # core30-inputs verifies these exact environment bytes against the original
   # completed bootstrap contract before this file is sourced.
   source "$inputs_dir/bootstrap-state/core30-bootstrap-env.sh"
-  python3 "$helpers/apply-core30-patches.py" apply --source-dir "$source_dir" --profile "$profile" --reports-dir "$reports_dir"
+  python3 "$helpers/apply-core30-patches.py" "${arch_args[@]}" apply --source-dir "$source_dir" --profile "$profile" --reports-dir "$reports_dir"
   # The original resolver and XPlat tasks share an assembly identity. Install
   # the reviewed current task output before starting the fresh root process.
   mkdir "$reports_dir/resolver-refresh"
-  python3 "$helpers/refresh-core30-resolver.py" --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir/resolver-refresh" --profile "$profile"
+  python3 "$helpers/refresh-core30-resolver.py" "${arch_args[@]}" --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir/resolver-refresh" --profile "$profile"
   if [[ $action == test ]]; then
     umask 077
     [[ $sdk_archive == /* && $sdk_archive != *[!A-Za-z0-9_./-]* && -f $sdk_archive && ! -L $sdk_archive ]] || { echo 'Test requires an explicit ordinary SDK archive.' >&2; exit 2; }
     test_root=$inputs_dir/core30-tests/$(basename "$reports_dir")
-    python3 "$helpers/prepare-core30-smoke.py" --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir" --sdk-archive "$sdk_archive" --test-root "$test_root"
-    export SOURCE_BUILD_SMOKE_ARCH=arm64 SOURCE_BUILD_SMOKE_TEST_DIR=$test_root/testing-smoke
+    python3 "$helpers/prepare-core30-smoke.py" "${arch_args[@]}" --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir" --sdk-archive "$sdk_archive" --test-root "$test_root"
+    export SOURCE_BUILD_SMOKE_ARCH=$arch SOURCE_BUILD_SMOKE_TEST_DIR=$test_root/testing-smoke
     export DOTNET_CLI_HOME=$test_root/testing-smoke/home
     export XDG_RUNTIME_DIR=$test_root/runtime
     export SOURCE_BUILD_SMOKE_SOURCE_ROOT=$source_dir SOURCE_BUILD_SMOKE_NUGET_CONFIG=$reports_dir/test-inputs/NuGet.Config.template
@@ -131,7 +139,7 @@ else
       --configuration Release --archiveRestoredPackages --dotnetDir "$test_root/sdk" --prodConBlobFeedUrl '')
   else
   mkdir "$reports_dir/retained-test-templates"
-  python3 "$helpers/prepare-core30-template-inputs.py" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir/retained-test-templates"
+  python3 "$helpers/prepare-core30-template-inputs.py" "${arch_args[@]}" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir/retained-test-templates"
   export RestoreAdditionalProjectSources="$RestoreAdditionalProjectSources;$inputs_dir/core30-retained-test-templates/feed"
   mkdir "$reports_dir/coreclr-platforms"
   python3 "$helpers/prepare-core30-platforms.py" --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir/coreclr-platforms" --profile "$profile"
@@ -183,8 +191,8 @@ with record.open('x') as output:
 PY
   [[ $clone_wrapper != *[!A-Za-z0-9_./-]* && -x $clone_wrapper ]]
   args=(taskset --cpu-list "$cpu_affinity" ./build.sh)
-  args+=(/p:Configuration=Release /p:Platform=arm64 /p:TargetOS=Linux /p:TargetRid=linux-arm64
-    /p:RootRepo=core-sdk /p:NativeArm64Host=true /p:PortableBuild=true /p:DotNetBuildFromSource=true /p:SkipAcquireDarc=true /p:SkipGenerateRootFs=true
+  args+=(/p:Configuration=Release /p:Platform=$arch /p:TargetOS=Linux /p:TargetRid=linux-$arch
+    /p:RootRepo=core-sdk "/p:$native_host_property=true" /p:PortableBuild=true /p:DotNetBuildFromSource=true /p:SkipAcquireDarc=true /p:SkipGenerateRootFs=true
     "/p:CbodotnetSkipSourceBundleDownloads=$skip_source_bundle_downloads"
     /p:CbodotnetBootstrapPlatformsVersion=3.0.0
     "/p:CbodotnetFrameworkReferenceRoot=$inputs_dir/core30-framework-refs/extracted/build/"
@@ -211,11 +219,11 @@ set -e
 code=${codes[0]}
 if ((code == 0 && codes[1] != 0)); then code=${codes[1]}; fi
 if [[ $action == test ]]; then
-  python3 "$helpers/prepare-core30-smoke.py" --summarize --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir" --sdk-archive "$sdk_archive" --test-root "$test_root" --upstream-exit-code "$code"
+  python3 "$helpers/prepare-core30-smoke.py" "${arch_args[@]}" --summarize --source-dir "$source_dir" --inputs-dir "$inputs_dir" --reports-dir "$reports_dir" --sdk-archive "$sdk_archive" --test-root "$test_root" --upstream-exit-code "$code"
 fi
 ((code == 0)) || exit "$code"
 if [[ $action == acquire || $action == prepare ]]; then
-  verification=(python3 "$helpers/core30-inputs.py" --source-dir "$source_dir" --profile "$profile" --report "$reports_dir/core30-inputs.json")
+  verification=(python3 "$helpers/core30-inputs.py" "${arch_args[@]}" --source-dir "$source_dir" --profile "$profile" --report "$reports_dir/core30-inputs.json")
   [[ $action != prepare ]] || verification+=(--require-bootstrap --inputs-dir "$inputs_dir")
   "${verification[@]}"
 fi

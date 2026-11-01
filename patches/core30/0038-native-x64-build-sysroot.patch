@@ -1,0 +1,20 @@
+--- a/bin/src/coreclr.259ce7d4619478cfefe7b0c0f6fa765f765f7e37/build.sh
++++ b/bin/src/coreclr.259ce7d4619478cfefe7b0c0f6fa765f765f7e37/build.sh
+@@ -473,7 +473,7 @@
+            exit 1
+        fi
+     else
+-       if [[ ( "$__HostArch" == "arm64" ) && ( "$__BuildArch" == "arm64" ) ]]; then
++       if [[ "$__HostArch" == "$__BuildArch" && ( "$__BuildArch" == "arm64" || "$__BuildArch" == "x64" ) ]]; then
+            build_CoreLib_ni "$__BinDir/crossgen" $__CoreLibILDir
+        elif [[ ( "$__CrossArch" == "x86" ) && ( "$__BuildArch" == "arm" ) ]]; then
+            build_CoreLib_ni "$__CrossComponentBinDir/crossgen" $__CoreLibILDir
+@@ -508,7 +508,7 @@
+     # Build the packages
+     # Same-architecture sysroot builds use the native tools in the main output.
+     local doCrossArchBuild=$__CrossBuild
+-    if [[ "$__HostArch" == "arm64" && "$__BuildArch" == "arm64" ]]; then
++    if [[ "$__HostArch" == "$__BuildArch" && ( "$__BuildArch" == "arm64" || "$__BuildArch" == "x64" ) ]]; then
+         doCrossArchBuild=0
+     fi
+     # Package build uses the Arcade system and scripts, relying on it to restore required toolsets as part of build

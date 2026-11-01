@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "selectedAt": "2026-11-01",
+  "sdkVersion": "8.0.133",
+  "source": {
+    "repository": "https://github.com/dotnet/dotnet",
+    "tag": "v8.0.133",
+    "commit": "7d1bf90885cff22e7da72b27e9848e42fd3cb1ae"
+  },
+  "selection": {
+    "latestPublishedSdk": "8.0.427",
+    "latestPublishedRuntime": "8.0.33",
+    "releaseDate": "2026-10-25",
+    "reason": "Latest published 1xx SDK with a matching VMR tag; this is a source-build selection rather than the newest SDK across all feature bands."
+  },
+  "host": {
+    "os": "linux",
+    "architecture": "x64",
+    "emulation": false
+  },
+  "target": {
+    "rid": "linux-x64",
+    "libc": "glibc",
+    "intendedMaximumGlibcRequirement": "2.23"
+  },
+  "container": {
+    "repository": "mcr.microsoft.com/dotnet-buildtools/prereqs",
+    "referenceTag": "ubuntu-24.04",
+    "digest": "sha256:3c6f20064af0ba7844c51b17f6fe06fd499fb27af0aba281254bd573af830d73"
+  },
+  "sysroot": {
+    "architecture": "x64",
+    "suite": "xenial",
+    "generator": "eng/common/cross/build-rootfs.sh",
+    "generatorArguments": [
+      "x64",
+      "xenial"
+    ],
+    "packageSignatureVerification": true,
+    "preparationRequiresRoot": true
+  },
+  "build": {
+    "system": "legacy-vmr-source-build",
+    "configuration": "Release",
+    "sourceOnly": true,
+    "online": true,
+    "crossBuild": true,
+    "portableBuild": true,
+    "continuousIntegration": true,
+    "maxCpuCount": 2,
+    "patches": [
+      {
+        "path": "patches/net8/0001-support-arm64-cross-components-host.patch",
+        "sha256": "d8d94bc40c11ed96bb9cc14a9ada399929999cda9c09da86eac4a2d961c1e1e3",
+        "purpose": "Backport ARM64 Linux build-host detection for the required cross-components tools from the pinned .NET 9 source."
+      },
+      {
+        "path": "patches/net8/0002-preserve-portable-aspnetcore-target.patch",
+        "sha256": "b03fab8085c959debc05892fb1920edaa8f514f90d4189994de23608abcc7d8a",
+        "purpose": "Preserve an explicitly requested portable ASP.NET Core target and avoid duplicate implicit runtime package references."
+      }
+    ],
+    "sharedComponents": "Requires fresh x64 proof that both shared frameworks were built locally."
+  },
+  "construction": {
+    "upstreamSharedRuntimeReused": false,
+    "note": "Native x64 qualification requires fresh build, original upstream tests, complete consumed-framework byte comparisons, actual source delivery and three native user spaces. No ARM64 result or historical archive hash qualifies x64. Bootstrap and other upstream binary inputs remain in scope."
+  },
+  "additionalPackages": [],
+  "upstreamInputs": {
+    "bootstrapSdk": "8.0.131",
+    "sourceBuiltArtifacts": "8.0.131-servicing.26422.1",
+    "runtime": "8.0.33",
+    "sourceBuiltArtifactsRid": "centos.9-x64",
+    "bootstrapTransformation": "The tagged prep.sh replaces portable/native packages for six Unix RIDs, including linux-arm64."
+  }
+}

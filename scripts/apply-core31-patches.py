@@ -15,8 +15,11 @@ import runpy
 import subprocess
 import tempfile
 
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
 
-MANIFEST_SHA256 = '7e7bc078ddcdd7fbcc762418acf9e76da62c7babb5a33fbed68aebb1ffcbb844'
+
+MANIFEST_SHA256 = '7e7bc078ddcdd7fbcc762418acf9e76da62c7babb5a33fbed68aebb1ffcbb844' if ARCH['arch'] == 'arm64' else 'c21ba2ea6c77727225c282e482c6431ee137e9642fc571f120991a1ddc767b85'
 PRIOR_MANIFEST_SHA256 = '198ef0c3014a501a6aaf4e24d4ea7444cc9c7648031f3e779f4c1828e5839889'
 
 
@@ -105,6 +108,7 @@ def apply_chains(source, groups, originals, action, record, reports):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--arch', choices=['arm64','x64'], default='arm64')
     parser.add_argument('action', choices=['apply', 'verify'])
     parser.add_argument('--source-dir', type=Path, required=True)
     parser.add_argument('--profile', type=Path, required=True)
@@ -120,7 +124,7 @@ def main():
     if report_path.exists() or report_path.is_symlink():
         raise ValueError('Refusing a previous patch report')
     patch_root = helpers.parent / 'patches/core31'
-    manifest_path = fixed(patch_root, 'manifest.json')
+    manifest_path = fixed(patch_root, 'manifest.json' if ARCH['arch'] == 'arm64' else 'manifest-x64.json')
     if sha(manifest_path.read_bytes()) != MANIFEST_SHA256:
         raise ValueError('Fixed patch manifest SHA-256 mismatch')
     manifest = json.loads(manifest_path.read_text())

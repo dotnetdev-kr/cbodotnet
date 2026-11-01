@@ -1,0 +1,18 @@
+--- a/artifacts/src/corefx.b58ef0a19eca6269799664d6288be14b7f0cef3e/cross/tryrun.cmake
++++ b/artifacts/src/corefx.b58ef0a19eca6269799664d6288be14b7f0cef3e/cross/tryrun.cmake
+@@ -14,7 +14,7 @@
+    SET(ALPINE_LINUX 0)
+ endif()
+ 
+-if(TARGET_ARCH_NAME MATCHES "^(armel|arm|arm64|x86)$")
++if(TARGET_ARCH_NAME MATCHES "^(armel|arm|arm64|x86|x64)$")
+   set_cache_value(HAVE_CLOCK_MONOTONIC_EXITCODE 0)
+   set_cache_value(HAVE_CLOCK_REALTIME_EXITCODE 0)
+ 
+@@ -24,5 +24,5 @@
+     set_cache_value(HAVE_SHM_OPEN_THAT_WORKS_WELL_ENOUGH_WITH_MMAP_EXITCODE 0)
+   endif()
+ else()
+-  message(FATAL_ERROR "Arch is ${TARGET_ARCH_NAME}. Only armel, arm, arm64 and x86 are supported!")
++  message(FATAL_ERROR "Arch is ${TARGET_ARCH_NAME}. Only armel, arm, arm64, x86 and x64 are supported!")
+ endif()

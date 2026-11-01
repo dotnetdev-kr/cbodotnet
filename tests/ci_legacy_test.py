@@ -205,6 +205,8 @@ class LegacyFixtures(unittest.TestCase):
         scripts = self.root / 'scripts'; scripts.mkdir()
         helper = scripts / 'ci-legacy-capture-sysroot.py'
         shutil.copyfile(ROOT / 'scripts/ci-legacy-capture-sysroot.py', helper)
+        for dependency in ('ci_legacy_arch.py', 'ci_arch.py'):
+            shutil.copyfile(ROOT / 'scripts' / dependency, scripts / dependency)
         # Model only the external whole-tree verifier; run the real capture
         # helper, subprocess decoding, keyring hashing/copying and file writes.
         (scripts / 'verify-sysroot-core30.py').write_text(

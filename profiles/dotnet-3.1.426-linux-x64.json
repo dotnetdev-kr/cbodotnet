@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "3.1.426",
+  "source": {
+    "repository": "https://github.com/dotnet/source-build",
+    "branch": "release/3.1",
+    "commit": "ab8b115b5658237ee8916ae3586600b39fb2fd19",
+    "commitSubject": "Update to Dec 2022 3.1.426 release. (#3183)",
+    "tag": null
+  },
+  "selection": {
+    "latestPublishedSdk": "3.1.426",
+    "latestPublishedRuntime": "3.1.32",
+    "releaseDate": "2022-12-13",
+    "reason": "The final legacy source-build branch updates its complete component graph to the final 4xx SDK. The exact branch commit is pinned because no v3.1.426-SDK tag was found."
+  },
+  "legacySource": {
+    "componentManifest": "eng/Version.Details.xml",
+    "componentCommits": {
+      "arcade": "15f00efd583eab4372b2e9ca25bd80ace5b119ad",
+      "coreclr": "c17d273aa03d4b9d14c92248a91f0d0faa881b98",
+      "corefx": "b58ef0a19eca6269799664d6288be14b7f0cef3e",
+      "core-setup": "f94bb2c3ff432dcc4a6229eca2f978197bf06150",
+      "aspnetcore": "3eeb12e106b9e913c3a4dec1a7d16da7b74149eb",
+      "sdk": "eb0cfa780959c0c63217a7d8225dc260e7f6ce65",
+      "core-sdk": "e81f6c85654f91c5eab0cb78386db4b32df63b4b"
+    },
+    "route": "Build the pinned source-build repository directly; CoreCLR, CoreFX and CoreSetup remain separate source components."
+  },
+  "upstreamInputs": {
+    "bootstrapSdk": "3.1.422",
+    "bootstrapSdkRid": "linux-x64",
+    "bootstrapSdkUrl": "https://builds.dotnet.microsoft.com/dotnet/Sdk/3.1.422/dotnet-sdk-3.1.422-linux-x64.tar.gz",
+    "bootstrapSdkSha512": "690759982b12cce7a06ed22b9311ec3b375b8de8600bd647c0257c866d2f9c99d7c9add4a506f4c6c37ef01db85c0f7862d9ae3de0d11e9bec60958bd1b3b72c"
+  },
+  "selectedAt": "2026-11-01",
+  "status": "Pinned native x64 CI inputs; hosted and downloaded qualification is pending.",
+  "host": {
+    "os": "linux",
+    "architecture": "x64",
+    "emulation": false
+  },
+  "target": {
+    "rid": "linux-x64",
+    "libc": "glibc",
+    "intendedMaximumGlibcRequirement": "2.23"
+  },
+  "container": {
+    "repository": "mcr.microsoft.com/dotnet/sdk",
+    "referenceTag": "3.1.426-focal",
+    "digest": "sha256:1e34d3881f9e1da0b2e81de59656abc29be6993eef2362d9134d66530db8b6ba",
+    "configDigest": "sha256:4c21ad7ff05c77e6294bbe78dc1326b2a258376dff4173ecda4f8acc7ff676f3",
+    "architecture": "amd64",
+    "os": "linux",
+    "manifestAndConfigVerified": true,
+    "containerfile": "containers/x64-core31.Containerfile",
+    "purpose": "Pinned native x64 legacy toolchain; target headers and libraries come from a separate signed amd64 Xenial sysroot.",
+    "status": "Base manifest and configuration verified; this run must build and inspect its own derived image."
+  },
+  "toolchain": {
+    "compiler": "clang",
+    "compilerMajorVersion": 9,
+    "compilerPath": "/usr/bin/clang-9",
+    "status": "Actual native compiler and selected sysroot must be established by this run."
+  },
+  "sysroot": {
+    "architecture": "x64",
+    "debArchitecture": "amd64",
+    "suite": "xenial",
+    "path": "inputs/x64-xenial",
+    "generator": "scripts/prepare-legacy-x64-sysroot.sh",
+    "generatorArguments": [
+      "--force-check-gpg",
+      "--arch=amd64",
+      "xenial"
+    ],
+    "packageSignatureVerification": true,
+    "preparationRequiresRoot": true,
+    "emulation": false,
+    "status": "Fresh complete signed sysroot production and inventory verification are mandatory."
+  },
+  "build": {
+    "system": "legacy-source-build-direct",
+    "configuration": "Release",
+    "sourceOnly": true,
+    "online": true,
+    "portableBuild": true,
+    "continuousIntegration": true,
+    "maxCpuCount": 2,
+    "crossBuild": true,
+    "msbuildProperties": {
+      "Platform": "x64",
+      "TargetRid": "linux-x64"
+    },
+    "patches": [
+      {
+        "path": "patches/core31/0001-forward-coreclr-native-arm64-sysroot.patch",
+        "sha256": "3fde4882844987a9bbf68db30825dff7ed1d2755b4bb4811c3ecc59845fc107d",
+        "purpose": "Forward the independent target sysroot to CoreCLR on native ARM64; omit only redundant cross-architecture host tools."
+      },
+      {
+        "path": "patches/core31/0002-forward-corefx-native-arm64-sysroot.patch",
+        "sha256": "1c445abb88ab5731399cd3b56640d929702c9f4c9e2ebc974d5518d65dfc3dac",
+        "purpose": "Forward explicit cross and LLVM9 arguments through the existing CoreFX native compiler pass-through."
+      },
+      {
+        "path": "patches/core31/0003-forward-core-setup-native-arm64-sysroot.patch",
+        "sha256": "4a6355ab3fba2e22b682e6b17edc88020c713e0e1e3dee5c28623999170fd1d3",
+        "purpose": "Select the target sysroot for native hosts without disabling CoreSetup native image generation."
+      },
+      {
+        "path": "patches/core31/0004-run-native-arm64-corelib-crossgen.patch",
+        "sha256": "c069d03fc3e7dad5e5f3af41ac9b3334f8be0860aa76d1d787a4f3e951a758d0",
+        "purpose": "Run native ARM64 crossgen during same-architecture sysroot builds rather than copying the IL-only CoreLib. Package the actual native tools without assuming separate cross-architecture host outputs."
+      },
+      {
+        "path": "patches/core31/0005-preserve-explicit-source-acquisition-command.patch",
+        "sha256": "3960e84b9ea36e1badadfaea11e4e3048c346d767d3ae8735e0d41e65056e6a9",
+        "purpose": "Preserve an explicit source-acquisition executable instead of overwriting it with the unavailable historical Darc DLL during target execution."
+      },
+      {
+        "path": "patches/core31/0006-route-retired-dotnet-core-feed.patch",
+        "sha256": "858b143a85c32ab272008fb7387ba8049007035903a8644116e5e46ad07f9859",
+        "purpose": "Route only the retired dotnet-core service indices to the official public package mirror while preserving all requested versions and local source-built precedence."
+      },
+      {
+        "path": "patches/core31/0007-expand-recorded-retired-package-index-mapping.patch",
+        "sha256": "33fc1394589d07b5354e732cd580d5aed49cb23ddb90996933f378fbb8f12848",
+        "purpose": "Extend the original common feed-mapping producer to all five recorded retired package indexes, preserving exact requested versions, local source-built precedence and blob asset URLs. Apply only after the byte-exact original patch0006 state."
+      },
+      {
+        "path": "patches/core31/0008-forward-corefx-cross-mode-with-singleword-properties.patch",
+        "sha256": "a3d2bbac759d34cca89dedc2163717a5c9592c300d33182980fcb83fb027e279",
+        "purpose": "Pass compiler selection and explicit cross mode as separate singleword MSBuild properties through the historical Arcade shell driver."
+      },
+      {
+        "path": "patches/core31/0009-forward-corefx-native-cross-build-property.patch",
+        "sha256": "c684d049f576ddf77d3d70c3f37ef0886e4c58f876a9ef554f1376b39843fd32",
+        "purpose": "Forward explicit CrossBuild to the existing native cross switch so the independent target sysroot is retained without a multiword compiler property."
+      },
+      {
+        "path": "patches/core31/0010-complete-corefx-cross-tryrun-cache.patch",
+        "sha256": "6ad90d347056896e4da9bd6ea91f7cf8b2bf959a2bd59131cca4a3f4a5a09f17",
+        "purpose": "Supply empty captured output for the three silent cross feature probes whose exit statuses are already specified upstream, retaining all existing feature decisions and compile/link checks."
+      },
+      {
+        "path": "patches/core31/0011-preserve-explicit-bootstrap-http-handler.patch",
+        "sha256": "acf484280e07d4898990c47cf224ec796ff6bef4b247c9aea730d237149ac2ec",
+        "purpose": "Honor an explicit supported bootstrap HTTP handler instead of unconditionally forcing the obsolete CurlHandler; retain the historical workaround only as the standalone default."
+      },
+      {
+        "path": "patches/core31/0012-native-x64-coreclr-common-sysroot.patch",
+        "sha256": "e33c0e3ec261ce2b4fa05d1bd905a884e8d2f6af918b0707c4eb78125dd26151",
+        "purpose": "Select the explicit same-host native x64 signed-sysroot path, compiler and actual crossgen while retaining the full product graph."
+      },
+      {
+        "path": "patches/core31/0013-native-x64-corefx-common-sysroot.patch",
+        "sha256": "51d9aeeb73e372af081bef002e6ccc78cb73c2d8edc06dda2af8f89e7d966a1d",
+        "purpose": "Select the explicit same-host native x64 signed-sysroot path, compiler and actual crossgen while retaining the full product graph."
+      },
+      {
+        "path": "patches/core31/0014-native-x64-core-setup-common-sysroot.patch",
+        "sha256": "7f1a6f7472297eff1320f9dd32795331e33ee200758ca5f91420f3ded6e1f727",
+        "purpose": "Select the explicit same-host native x64 signed-sysroot path, compiler and actual crossgen while retaining the full product graph."
+      },
+      {
+        "path": "patches/core31/0015-native-x64-build-sysroot.patch",
+        "sha256": "3a4e304fccda4d6f57bf2b2d8b16fa79a9b8c2d340a850e4689d7f0dcfc7f39c",
+        "purpose": "Select the explicit same-host native x64 signed-sysroot path, compiler and actual crossgen while retaining the full product graph."
+      },
+      {
+        "path": "patches/core31/0016-native-x64-core-setup-toolchain.patch",
+        "sha256": "fd7944c19d5aa90f5c2a1ad5937e25f52c26fe06895ac5dca78d7cbfaf979021",
+        "purpose": "Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation."
+      },
+      {
+        "path": "patches/core31/0017-native-x64-core-setup-tryrun.patch",
+        "sha256": "b22d861f597c06620590cab1aedab0a9303ab00584686bfa444c36496645da52",
+        "purpose": "Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation."
+      },
+      {
+        "path": "patches/core31/0018-native-x64-core-setup-toolchain.patch",
+        "sha256": "20515860409190a202e7db4e2af6779fbb934aecf4ec6ff5a1e55128b708b5b8",
+        "purpose": "Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation."
+      },
+      {
+        "path": "patches/core31/0019-native-x64-coreclr-toolchain.patch",
+        "sha256": "6ec1b359fae528edf0e0598674ad88419119754d824c6026d04b9ceec33888ae",
+        "purpose": "Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation."
+      },
+      {
+        "path": "patches/core31/0020-native-x64-coreclr-tryrun.patch",
+        "sha256": "97ac18ea414b657cdaf22caebe48204696cac6269c21196bc2184c685ff960fb",
+        "purpose": "Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation."
+      },
+      {
+        "path": "patches/core31/0021-native-x64-coreclr-toolchain.patch",
+        "sha256": "23702443c1aded6b2d5868f5dd8f2503c06b54f4b4ecbd1806452063c454f367",
+        "purpose": "Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation."
+      },
+      {
+        "path": "patches/core31/0022-native-x64-corefx-toolchain.patch",
+        "sha256": "cdf314622520a6ec1207c4808eb4a045e5ed98f362a714f7c13e0aaf6f88d15c",
+        "purpose": "Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation."
+      },
+      {
+        "path": "patches/core31/0023-native-x64-corefx-tryrun.patch",
+        "sha256": "ff510f54a222bb6f54ff11cd7d4c358137e77055310e2e80dad96ff96943042d",
+        "purpose": "Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation."
+      },
+      {
+        "path": "patches/core31/0024-native-x64-corefx-toolchain.patch",
+        "sha256": "afc695d67ba4bfd6793126b5db7ac1d5c87c38a668782e1622de5a4668b979da",
+        "purpose": "Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation."
+      }
+    ],
+    "patchManifest": {
+      "path": "patches/core31/manifest-x64.json",
+      "sha256": "c21ba2ea6c77727225c282e482c6431ee137e9642fc571f120991a1ddc767b85"
+    }
+  },
+  "construction": {
+    "upstreamSharedRuntimeReused": null,
+    "note": "Fresh native x64 local framework, native-image, full suite and final archive proof are required. Binary bootstrap inputs remain explicit."
+  }
+}

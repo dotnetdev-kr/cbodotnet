@@ -37,9 +37,10 @@ class NativeManifestSelectionTests(unittest.TestCase):
         self.addCleanup(self.temporary.cleanup)
         self.inspection = Path(self.temporary.name) / 'inspection.json'
 
-    def invoke(self, rows, anchor='pinned=$(python3', distribution='ubuntu'):
+    def invoke(self, rows, anchor='pinned=$(python3', distribution='ubuntu', arch='arm64'):
         self.inspection.write_text(json.dumps(rows), encoding='utf-8')
-        return subprocess.run([sys.executable, '-', str(self.inspection), distribution],
+        selection = {'arm64': 'arm64', 'x64': 'amd64'}[arch] if anchor == 'inspect_image() {' else distribution
+        return subprocess.run([sys.executable, '-', str(self.inspection), selection],
                               input=embedded_python(anchor), text=True,
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -83,6 +84,16 @@ class NativeManifestSelectionTests(unittest.TestCase):
         for rows in [[], [ACTUAL, ACTUAL]]:
             with self.subTest(rows=len(rows)):
                 self.assertNotEqual(self.invoke(rows, anchor='inspect_image() {').returncode, 0)
+
+    def test_x64_inspection_requires_amd64_and_rejects_cross_architecture(self):
+        row = copy.deepcopy(ACTUAL); row['Architecture'] = 'amd64'
+        result = self.invoke([row], anchor='inspect_image() {', arch='x64')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip(), row['Id'])
+        self.assertNotEqual(self.invoke([ACTUAL], anchor='inspect_image() {', arch='x64').returncode, 0)
+        self.assertNotEqual(self.invoke([row], anchor='inspect_image() {', arch='arm64').returncode, 0)
+        row['Os'] = 'windows'
+        self.assertNotEqual(self.invoke([row], anchor='inspect_image() {', arch='x64').returncode, 0)
 
 
 if __name__ == '__main__':

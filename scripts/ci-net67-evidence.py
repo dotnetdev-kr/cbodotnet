@@ -9,8 +9,11 @@ import os
 import posixpath
 from pathlib import Path, PurePosixPath
 import re
+import runpy
 import subprocess
 import xml.etree.ElementTree as ET
+
+get_arch = runpy.run_path(str(Path(__file__).with_name('ci_arch.py')))['get_arch']
 
 VERSIONS = {
     '6': {'sdk': '6.0.136', 'runtime': '6.0.36', 'bootstrap': '6.0.135',
@@ -26,6 +29,19 @@ VERSIONS = {
           'baselineSha512': 'f530f794afe3c3b9bd87b8ed509a1a13b1c8fe6f2bc6e6cce3e8cd6b56327c0ff27fc138122c2dad68770cc5015737e007ef5706599c189ef0cc7521cbf0b654',
           'rids': ['ubuntu.22.04-arm64', 'linux-arm64', 'linux-arm64']},
 }
+
+
+def version_config(major, arch='arm64'):
+    selected = copy.deepcopy(VERSIONS[major])
+    get_arch(arch)
+    if arch == 'x64':
+        pins = {
+            '6': (177318505, 'bf9d5a4a8868f6806e7c4a2b13d081fc9c0a1475b52751ca211bc85faa2003fbf63e658e1158911ff1fe25fe3aab691e5a2181b14da919c9114ffdcb9b3c90be'),
+            '7': (195141235, 'cb9faba83ab276c935ef35b31f016ca4617f0d967c5b4bf1e993c2159992fb59d1dd25dce09928915b9ff586ead7acf92ec1dd96937c93317a99ca0c92b616c9'),
+        }
+        selected['baselineSize'], selected['baselineSha512'] = pins[major]
+        selected['rids'] = [rid.replace('-arm64', '-x64') for rid in selected['rids']]
+    return selected
 CHECKS = {'consoleDllExecution', 'consoleApphostExecution', 'rsaSha256SignAndVerify',
           'cryptographicRandomBytes', 'frFrDecimalFormatting', 'aspNetCoreLoopbackHttp'}
 
@@ -128,8 +144,9 @@ def snapshot_tree(release, rows):
     return digest(tree)
 
 
-def freeze(project, release, major, identity):
-    selected = VERSIONS[major]
+def freeze(project, release, major, identity, arch='arm64'):
+    selected = version_config(major, arch)
+    architecture = get_arch(arch)
     git = lambda *args: subprocess.check_output(['git', '-C', str(project), *args])
     require(not git('status', '--porcelain', '--untracked-files=all').strip(), 'A pristine orchestration checkout is required')
     require(git('rev-parse', 'HEAD').decode().strip() == identity['projectCommit'], 'Project commit changed')
@@ -149,12 +166,14 @@ def freeze(project, release, major, identity):
     commit = git('cat-file', 'commit', identity['projectCommit'])
     (destination / 'project-commit.txt').write_bytes(commit)
     require(commit.startswith(('tree '+snapshot_tree(release, rows)+'\n').encode()), 'Frozen Git tree differs')
-    original = destination / 'project/profiles' / ('dotnet-'+selected['sdk']+'-linux-arm64.json')
+    original = destination / 'project/profiles' / ('dotnet-'+selected['sdk']+'-'+architecture['rid']+'.json')
     write(destination / 'effective-profile.json', effective_profile(load(original), identity['buildId']))
     snapshot = dict(schemaVersion=1, major=major, sdkVersion=selected['sdk'], sourceCommit=selected['commit'],
                     executionContext='github-actions' if os.environ.get('GITHUB_ACTIONS') == 'true' else 'local-diagnostic',
                     projectFiles=rows, projectCommitObject=record(release, destination / 'project-commit.txt'),
                     originalProfile=record(release, original), effectiveProfile=record(release, destination / 'effective-profile.json'), **identity)
+    if arch == 'x64':
+        snapshot.update(architecture=arch, targetRid=architecture['rid'], workflowRef=os.environ.get('GITHUB_WORKFLOW_REF'))
     write(destination / 'snapshot.json', snapshot)
     return snapshot
 
@@ -185,18 +204,27 @@ def smoke_results(trx):
             'scope':'Original suite and assertions; only absent poison-report input skipped. OmniSharp timed scenarios do not prove full editor functionality.'}
 
 
-def validate(release, expected):
-    snap = load(member(release, 'reports/ci-inputs/snapshot.json')); major = snap['major']; selected = VERSIONS[major]
+def validate(release, expected, arch='arm64'):
+    architecture = get_arch(arch)
+    snap = load(member(release, 'reports/ci-inputs/snapshot.json')); major = snap['major']; selected = version_config(major, arch)
     require(snap['executionContext'] == 'github-actions' and all(str(snap[k]) == str(v) for k,v in expected.items()), 'Wrong run/project identity')
     tree = snapshot_tree(release, snap['projectFiles']); commit = checked(release, snap['projectCommitObject']).read_bytes()
     require(git_hash('commit', commit) == snap['projectCommit'] and commit.startswith(('tree '+tree+'\n').encode()), 'Frozen source is not the expected Git commit')
     profile = load(checked(release, snap['effectiveProfile'])); original = load(checked(release, snap['originalProfile']))
+    require(profile['host']['architecture'] == arch and profile['target']['rid'] == architecture['rid'], 'Wrong native architecture profile')
+    if arch == 'x64':
+        require(snap.get('architecture') == arch and snap.get('targetRid') == architecture['rid']
+                and snap.get('workflowRef') == 'dotnetdev-kr/cbodotnet/.github/workflows/sdk-x64.yml@refs/heads/main',
+                'The x64 producer workflow and target must be explicit')
     require(profile == effective_profile(original, snap['buildId']), 'Unapproved effective profile changes')
     require(profile['source']['commit'] == selected['commit'] and profile['build']['sourceOnly'] is True
             and profile['construction']['upstreamSharedRuntimeReused'] is False, 'Source/construction policy changed')
     manifest_path = member(release, 'build-manifest.json'); manifest = load(manifest_path)
     archive = manifest['sdkArchive']; checked(release, archive)
-    require(manifest['sdkVersion'] == selected['sdk'] and manifest['targetRid'] == 'linux-arm64'
+    if arch == 'x64':
+        require(archive['path'] == 'cbodotnet-sdk-'+selected['sdk']+'-linux-x64-build.'+str(snap['buildRevision'])+'.tar.gz',
+                'The x64 SDK filename must bind its target and build revision')
+    require(manifest['sdkVersion'] == selected['sdk'] and manifest['targetRid'] == architecture['rid']
             and manifest['sourceOnly'] is True and manifest['profile']['contents'] == profile
             and manifest['source']['actualCommit'] == selected['commit'], 'Collected SDK identity differs')
     for algorithm,name in [('sha256','SHA256SUMS'),('sha512','SHA512SUMS')]:
@@ -215,6 +243,8 @@ def validate(release, expected):
         require(stage['stage'] == name and stage['status'] == 'passed' and stage['exitCode'] == 0 and stage['commands']
                 and all(str(stage[k]) == str(snap[k]) for k in identities), 'Missing successful fresh stage: '+name)
         require(stage['sourceCommit'] == selected['commit'] and stage['imageId'] == manifest['buildImage']['id'], 'Build image/source changed')
+        if arch == 'x64':
+            require(stage['environment']['architecture'] == architecture['uname'], 'A native x64 producer is required')
     applicability=load(member(release,'reports/scan/applicability.json'))
     require(applicability['status'] == 'not-applicable' and applicability['reason'], 'The absence of a legacy VMR source scanner must be explicit')
     policy=load(member(release,'reports/prepare/seccomp.json'))
@@ -237,6 +267,8 @@ def validate(release, expected):
     require(sysroot['sourceCommit'] == selected['commit'] and sysroot['runtimeCommit'] == generation['componentCommits']['runtime']
             and sysroot['packageSignatureVerification'] is True and sysroot['emulation'] is False
             and current['status'] == 'passed' and current['files'] > 0 and current['symlinks'] > 0, 'Authenticated complete sysroot verification is required')
+    if arch == 'x64':
+        require(sysroot['generatorArguments'][:2] == ['x64', 'xenial'], 'The x64 Xenial sysroot producer is required')
     log = member(release,'reports/sysroot/'+Path(sysroot['logFile']).name).read_text()
     require('Valid Release signature' in log and '--no-check-gpg' not in log and '--skipsigcheck' not in log,
             'Actual successful upstream Release signature verification is required')
@@ -246,8 +278,20 @@ def validate(release, expected):
     bootstrap = load(member(release,'reports/bootstrap/bootstrap-inputs.json'))
     require(bootstrap['installerCommit'] == selected['commit'] and bootstrap['bootstrapSdk'] == selected['bootstrap']
             and any(row['bytes'] == selected['psbSize'] and row['sha256'] == selected['psbSha256'] for row in bootstrap['originalInputs']),
-            'The fixed original PSB and explicit bootstrap transformation are required')
-    require(bootstrap['finalInputs'] and bootstrap['arm64PackageEntries'], 'Transformed native bootstrap inputs are missing')
+            'The fixed original PSB and selected bootstrap SDK are required')
+    if arch == 'arm64':
+        require(bootstrap['finalInputs'] and bootstrap['arm64PackageEntries'], 'Transformed native bootstrap inputs are missing')
+    else:
+        require(bootstrap.get('targetArchitecture') == 'x64' and bootstrap.get('bootstrapMode') == 'native-original-inputs'
+                and bootstrap['finalInputs'] and bootstrap['nativePackageEntries'], 'Original native x64 bootstrap inputs are required')
+        native_rid, native_count = ('linux-x64', 14) if major == '6' else ('centos.8-x64', 12)
+        require(bootstrap.get('nativePackageRid') == native_rid and len(bootstrap['nativePackageEntries']) == native_count
+                and all(native_rid + '.' in name.lower() and name.lower().endswith('.nupkg')
+                        for name in bootstrap['nativePackageEntries']), 'Pinned native x64 PSB package identities differ')
+        identity = lambda row: (Path(row['path']).name, row['bytes'], row['sha256'], row['sha512'])
+        require({identity(row) for row in bootstrap['finalInputs']} == {identity(row) for row in bootstrap['originalInputs']}
+                and all('Bootstrap' not in Path(row['path']).name for row in bootstrap['finalInputs']),
+                'The native x64 PSB inputs must remain byte-identical to the originals')
     origin = load(member(release, 'reports/construction/origin.json'))
     require(origin['status'] == 'passed' and origin['sdkArchive']['sha256'] == archive['sha256']
             and len(origin['components']) == 2 and all(x['originVerified'] and x['identicalEntryCount'] > 0 for x in origin['components']),
@@ -260,6 +304,9 @@ def validate(release, expected):
     replay = load(member(release,'reports/origin-tools/replay.json'))
     require(replay['completedReplay'] and replay['eventsRead'] > 0
             and replay['inputSha256'] == fingerprint(member(release,'reports/origin-tools/installer.binlog'))['sha256'], 'Actual closed installer replay is required')
+    observation_data = member(release, 'reports/build/installer-observations.jsonl').read_bytes()
+    require(len(observation_data) <= 64 * 1024 * 1024, 'Installer observations exceed the bounded evidence size')
+    raw_observations = [json.loads(line) for line in observation_data.decode('utf-8').splitlines() if line]
     for component in origin['components']:
         require(component['version'] == selected['runtime'] and component['completedLocalCopies'], 'A current local copy proof is missing')
         for copy in component['completedLocalCopies']:
@@ -267,18 +314,29 @@ def validate(release, expected):
                     and len(task['Attempts']) == 1 and task['Attempts'][0]['Kind'] == 'local-copy'
                     and task['Started'] < task['Attempts'][0]['Event'] < task['Finished'], 'Malformed completed local-copy task proof')
             attempt=task['Attempts'][0]
-            feed='artifacts/obj/arm64/Release/blob-feed/assets/'+component['localFeedArchive']['name']
+            feed='artifacts/obj/'+arch+'/Release/blob-feed/assets/'+component['localFeedArchive']['name']
             destination=generated_relative(attempt['Destination'],selected['sdk'])
             require(generated_relative(attempt['Source'],selected['sdk']) == feed and destination.startswith('src/installer/'), 'Completed task copied another input')
             require(copy['destinationObservations'] and all(all(row[key] == component['localFeedArchive'][key]
                     for key in ['bytes','sha256','sha512']) and row['feed'] == feed and row['destination'] == destination
                     for row in copy['destinationObservations']), 'Observed destination bytes differ from local framework input')
+            require(all(row in raw_observations for row in copy['destinationObservations']),
+                    'Inline destination observations are not present in the actual producer journal')
     tests = smoke_results(member(release, 'reports/test/upstream.trx'))
     tools = load(member(release, 'reports/test/net'+major+'-test-tools.json'))
     require(tools.get('status') == 'passed', 'Pinned OmniSharp fixture did not verify')
+    if arch == 'x64':
+        require(tools['url'] == 'https://github.com/OmniSharp/omnisharp-roslyn/releases/download/v1.39.6/omnisharp-linux-x64-net6.0.tar.gz'
+                and tools['expectedArchive'] == {'bytes': 43149563, 'sha256': 'c631cf552590ee8f00cbea441e99a94f689bf1832f1f8de2d5a00d5d5d18140c'}
+                and tools['extractedMembersVerified'] is True, 'The pinned native x64 OmniSharp fixture is required')
+        tool_members = member(release, 'reports/test/net'+major+'-test-tool-members.json')
+        actual = fingerprint(tool_members)
+        require(all(tools['memberReceipt'][key] == actual[key] for key in ('bytes', 'sha256')), 'OmniSharp inventory differs')
     official = load(member(release,'reports/test-inputs/official-sdk-baseline.json'))
     require(official['version'] == selected['sdk'] and official['bytes'] == selected['baselineSize']
             and official['sha512'] == selected['baselineSha512'], 'The exact official comparison baseline is required')
+    if arch == 'x64':
+        require(official['rid'] == architecture['rid'], 'Official comparison SDK architecture differs')
     content = load(member(release,'reports/test/comparison/summary.json'))
     require(content['warningMode'] is True, 'The original SDK content comparison policy must remain explicit')
     checked(release,content['actualDiff']); checked(release,content['baselineDiff'])
@@ -292,7 +350,10 @@ def validate(release, expected):
                 and data['archive']['sha256'] == archive['sha256'] and data['archive']['sdkContentMatched'] is True,
                 'Native checks failed: '+name)
         abi = data['abi']; version = lambda s: tuple(map(int, s.split('.')))
-        require(abi['machines'] == {'AArch64':abi['elfFileCount']} and abi['elfFileCount'] > 0
+        if arch == 'x64':
+            require(data.get('hostArchitecture') == architecture['uname'] and abi.get('symbolicGlibcRequirements') == [],
+                    'The actual x64 verifier host and supported GLIBC symbols are required')
+        require(abi['machines'] == {architecture['elf']:abi['elfFileCount']} and abi['elfFileCount'] > 0
                 and abi['glibcCeilingPassed'] and abi['glibcCeiling'] == '2.23'
                 and version(abi['maximumRequiredVersions']['GLIBC']) <= version('2.23')
                 and version(abi['maximumRequiredVersions']['GLIBCXX']) <= version('3.4.21')
@@ -300,14 +361,19 @@ def validate(release, expected):
         native[name] = {'rid':rid, 'checks':6, 'abi':abi['maximumRequiredVersions']}
         userland = load(member(release,'reports/ci/'+name+'-userland.json'))
         os_id,os_version = ('ubuntu','22.04') if name == 'ubuntu22' else ('ubuntu','24.04') if name == 'ubuntu24' else ('debian','13')
-        require(userland['architecture'] == 'aarch64' and userland['uid'] > 0 and userland['osRelease'] == {'ID':os_id,'VERSION_ID':os_version}
+        require(userland['architecture'] == architecture['uname'] and userland['uid'] > 0 and userland['osRelease'] == {'ID':os_id,'VERSION_ID':os_version}
                 and all(value is None for value in userland['environmentOverrides'].values()), 'Actual native user-space identity/overrides differ')
+        if arch == 'x64':
+            require(set(userland['environmentOverrides']) == {'LD_LIBRARY_PATH','DOTNET_ROOT','DOTNET_SYSTEM_GLOBALIZATION_INVARIANT',
+                    'CLR_ICU_VERSION_OVERRIDE','DOTNET_EnableDiagnostics','COMPlus_EnableDiagnostics','DOTNET_ROOT_X64'}, 'Complete x64 ambient overrides are required')
         inspected = load(member(release,'reports/ci/'+name+'-verification-image.json'))[0]
-        require(inspected['Id'] == userland['imageId'] and inspected['Architecture'] == 'arm64' and inspected['Os'] == 'linux'
+        require(inspected['Id'] == userland['imageId'] and inspected['Architecture'] == architecture['image'] and inspected['Os'] == 'linux'
                 and any(userland['imageId'] in command and '--network=none' in command and 'bash' in command
                         for command in stages['verify']['commands']), 'Actual native verifier image invocation is missing')
     source = member(release, 'sources/source-manifest.json')
     require(source.read_bytes() == member(release, 'reports/ci/used-source.json').read_bytes(), 'Used-source controls differ')
+    if arch == 'x64':
+        require(load(source)['targetRid'] == architecture['rid'], 'Source delivery architecture differs')
     collect = load(member(release, 'collect-receipt.json'))
     require(collect['status'] == 'passed' and collect['exitCode'] == 0 and all(str(collect[k]) == str(snap[k]) for k in identities), 'Final collector failed')
     require(checked(release, collect['manifest']) == manifest_path, 'Final manifest is not bound')
@@ -317,7 +383,7 @@ def validate(release, expected):
     if (release/'ci-validation.json').exists(): outer.add('ci-validation.json')
     actual={path.relative_to(release).as_posix() for path in release.rglob('*') if path.is_file() and path.relative_to(release).parts[0] not in ['reports','sources']}
     require(actual == outer, 'Unexpected unbound files outside report/source inventories')
-    return dict(schemaVersion=1, status='passed', sdkVersion=selected['sdk'], targetRid='linux-arm64',
+    return dict(schemaVersion=1, status='passed', sdkVersion=selected['sdk'], targetRid=architecture['rid'],
                 **{k:snap[k] for k in identities}, sdkArchive=archive, sourceManifest=record(release, source),
                 buildManifest=record(release, manifest_path), tests=tests, native=native,
                 constructionScope='Actual current-run source-only online graph, local framework copy/task and full-payload proof. External bootstrap/reference inputs remain; no Stage2 or zero-prebuilt claim.')
@@ -329,8 +395,9 @@ def main():
     parser.add_argument('--expected-project-commit', required=True)
     parser.add_argument('--expected-run-id', required=True)
     parser.add_argument('--expected-run-attempt', required=True)
+    parser.add_argument('--arch', choices=('arm64', 'x64'), default='arm64')
     args = parser.parse_args(); release = args.release_dir.absolute()
-    result = validate(release, dict(projectCommit=args.expected_project_commit, runId=args.expected_run_id, runAttempt=args.expected_run_attempt))
+    result = validate(release, dict(projectCommit=args.expected_project_commit, runId=args.expected_run_id, runAttempt=args.expected_run_attempt), args.arch)
     path = release / 'ci-validation.json'
     if path.exists(): require(load(path) == result, 'Existing portable validation differs')
     else: write(path, result)

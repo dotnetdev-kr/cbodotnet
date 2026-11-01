@@ -13,6 +13,10 @@ import shutil
 import subprocess
 import uuid
 
+import runpy
+LEGACY_ARCH = runpy.run_path(str(Path(__file__).with_name('ci_legacy_arch.py')))
+ARCH = LEGACY_ARCH['selected_arch']()
+
 IMAGE='ab750d90bdf890c078039cf6f52d3dd44862f3df8f6cdaf4ea771a802e18e3a0'
 OWNER='cbodotnet-core31-verification-icu66-v1'
 LIBRARIES=['libicuuc.so.66','libicui18n.so.66','libicudata.so.66']
@@ -45,7 +49,7 @@ def write(path,record):
 
 def inspect(image_receipt,consumer):
     data=json.loads(file(image_receipt).read_text())
-    if len(data)!=1 or data[0].get('Id','').replace('sha256:','')!=IMAGE or data[0].get('Architecture')!='arm64' or data[0].get('Os')!='linux':
+    if len(data)!=1 or data[0].get('Id','').replace('sha256:','')!=IMAGE or data[0].get('Architecture')!=ARCH['image'] or data[0].get('Os')!='linux':
         raise ValueError('The exact host-inspected Core 3.1 Focal image is required')
     os_path=Path('/etc/os-release')
     if os_path.is_symlink():
@@ -58,8 +62,8 @@ def inspect(image_receipt,consumer):
     if not re.search(r'^ID=ubuntu$',os_text,re.M) or not re.search(r'^VERSION_ID="?20\.04"?$',os_text,re.M):raise ValueError('Run in the actual Ubuntu20.04 producer')
     os_record.update(fingerprint(target))
     package=command('dpkg-query','-W','-f=${Package}\t${Version}\t${Architecture}\t${db:Status-Status}\n','libicu66').strip().split('\t')
-    if len(package)!=4 or package[0]!='libicu66' or not package[1].startswith('66.1-') or package[2]!='arm64' or package[3]!='installed':raise ValueError('The installed native ICU66 package identity differs')
-    root=Path('/usr/lib/aarch64-linux-gnu');directory(root)
+    if len(package)!=4 or package[0]!='libicu66' or not package[1].startswith('66.1-') or package[2]!=ARCH['deb'] or package[3]!='installed':raise ValueError('The installed native ICU66 package identity differs')
+    root=Path(('/usr/lib/' + ARCH['libdir']));directory(root)
     files=[]
     for name in LIBRARIES:
         source=root/name
@@ -67,7 +71,7 @@ def inspect(image_receipt,consumer):
         actual=file(root/(name+'.1'))
         if source.resolve(strict=True)!=actual:raise ValueError('The ICU66 symlink escapes its fixed directory')
         with actual.open('rb') as stream:header=stream.read(20)
-        if header[:6]!=b'\x7fELF\x02\x01' or int.from_bytes(header[18:20],'little')!=183:raise ValueError('A source ICU library is not ELF64 AArch64')
+        if header[:6]!=b'\x7fELF\x02\x01' or int.from_bytes(header[18:20],'little')!=ARCH['machine']:raise ValueError('A source ICU library is not ELF64 AArch64')
         dynamic=command('readelf','--dynamic','--wide',str(actual))
         soname=re.search(r'\(SONAME\).*\[([^\]]+)\]',dynamic)
         needed=re.findall(r'\(NEEDED\).*\[([^\]]+)\]',dynamic)
@@ -75,15 +79,15 @@ def inspect(image_receipt,consumer):
         versions=command('readelf','--version-info','--wide',str(actual))
         glibc=sorted(set(re.findall(r'\bGLIBC_([0-9]+\.[0-9]+(?:\.[0-9]+)?)\b',versions)),key=lambda s:tuple(map(int,s.split('.'))))
         ownership=command('dpkg-query','-S',str(actual)).strip()
-        if not ownership.startswith('libicu66:arm64: '):raise ValueError('The source ICU library lacks expected package ownership')
+        if not ownership.startswith(('libicu66:' + ARCH['deb'] + ': ')):raise ValueError('The source ICU library lacks expected package ownership')
         files.append(dict({'path':'lib/'+name,'sourcePath':str(actual),'sourceSonamePath':str(source),
                            'sourceLinkTarget':os.readlink(str(source)),'packageOwnership':ownership,
-                           'mode':oct(actual.stat().st_mode&0o777),'elfMachine':'AArch64','soname':name,
+                           'mode':oct(actual.stat().st_mode&0o777),'elfMachine':ARCH['elf'],'soname':name,
                            'needed':needed,'maximumGlibcRequirement':glibc[-1] if glibc else None,
                            'glibcRequirements':glibc,'dynamicSection':dynamic},**fingerprint(actual)))
     license_path=file(Path('/usr/share/doc/libicu66/copyright'))
     ownership=command('dpkg-query','-S',str(license_path)).strip()
-    if not ownership.startswith('libicu66:arm64: '):raise ValueError('The ICU copyright ownership differs')
+    if not ownership.startswith(('libicu66:' + ARCH['deb'] + ': ')):raise ValueError('The ICU copyright ownership differs')
     files.append(dict({'path':'LICENSE.icu.txt','sourcePath':str(license_path),'packageOwnership':ownership,
                        'mode':oct(license_path.stat().st_mode&0o777)},**fingerprint(license_path)))
     return {'owner':OWNER,'producerImageId':IMAGE,'producerImageInspection':fingerprint(image_receipt),
@@ -122,7 +126,7 @@ def export(destination,contract):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--destination',type=Path,required=True);p.add_argument('--reports-dir',type=Path,required=True);p.add_argument('--image-inspect',type=Path,required=True);p.add_argument('--consumer-directory',default='/verification-icu');a=p.parse_args()
-    if platform.system()!='Linux' or platform.machine().lower() not in ('arm64','aarch64'):raise ValueError('Run in native ARM64 Linux')
+    if platform.system()!='Linux' or platform.machine().lower() not in (ARCH['uname'], ARCH['arch']):raise ValueError('Run in native ARM64 Linux')
     directory(a.destination.parent);directory(a.reports_dir)
     if a.destination==a.reports_dir or a.destination in a.reports_dir.parents or a.reports_dir in a.destination.parents:raise ValueError('Inputs and reports must be separate')
     if not a.consumer_directory.startswith('/') or a.consumer_directory=='/' or '..' in Path(a.consumer_directory).parts or re.search(r'[\s:\x00]',a.consumer_directory):raise ValueError('An ordinary absolute consumer path is required')

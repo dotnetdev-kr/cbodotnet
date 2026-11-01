@@ -17,11 +17,12 @@ internal static class Program
 
     private static int Main(string[] args)
     {
-        if (args.Length != 4)
+        if (args.Length != 4 && args.Length != 5)
         {
-            Console.Error.WriteLine("Usage: Reader BINLOG SDK-DIRECTORY NEW-PREFIX RUNTIME-VERSION");
+            Console.Error.WriteLine("Usage: Reader BINLOG SDK-DIRECTORY NEW-PREFIX RUNTIME-VERSION [arm64|x64]");
             return 2;
         }
+        if (args.Length == 5 && args[4] != "arm64" && args[4] != "x64") return 2;
         var sdk = Path.GetFullPath(args[1]);
         AssemblyLoadContext.Default.Resolving += (_, name) =>
         {
@@ -40,6 +41,7 @@ internal static class Program
         if (!File.Exists(input) || File.Exists(output) || File.Exists(status)) return 2;
         Directory.CreateDirectory(Path.GetDirectoryName(output)!);
         var version = args[3];
+        var rid = "linux-" + (args.Length == 5 ? args[4] : "arm64");
         var tasks = new Dictionary<string, Download>();
         var attempt = new Regex("^(?<kind>Copying|Downloading) '(?<source>[^']+)' to '(?<destination>[^']+)'$", RegexOptions.Compiled);
         long count = 0, completed = 0;
@@ -47,7 +49,7 @@ internal static class Program
         string? failure = null;
         using var stream = new StreamWriter(new FileStream(output, FileMode.CreateNew));
         string Context(BuildEventContext? context) => context == null ? "" : $"{context.NodeId}:{context.ProjectContextId}:{context.TargetId}:{context.TaskId}";
-        bool Relevant(string value) => value.Contains("-" + version + "-linux-arm64.tar.gz", StringComparison.Ordinal)
+        bool Relevant(string value) => value.Contains("-" + version + "-" + rid + ".tar.gz", StringComparison.Ordinal)
             && (value.Contains("dotnet-runtime-", StringComparison.Ordinal) || value.Contains("aspnetcore-runtime-", StringComparison.Ordinal));
         void Event(BuildEventArgs e, string kind, string? field, string? value, bool? succeeded = null)
         {

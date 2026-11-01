@@ -6,6 +6,7 @@ import datetime
 import hashlib
 import json
 from pathlib import Path
+import platform
 import shutil
 import subprocess
 import tarfile
@@ -13,6 +14,9 @@ import xml.etree.ElementTree as ET
 
 INSTALLER = 'd638663530d923adbe0442604b7a6562127321e9'
 RUNTIME = 'f1dd57165bfd91875761329ac3a8b17f6606ad18'
+NATIVE_PSB = {'bytes': 4149235810,
+              'sha256': '9b6befe3f7aab2bdb876940c89cc7bc738fa3e96effef619b701da9e8768fdb9',
+              'sha512': '8e59420cc6175b342426e4123c1e382535697d415d774150507741e77352ad5296c1ed94c4f40c25fe469642ecf3503d502f6eaed72729371db525eb810c660c'}
 ARM64_PACKAGES = (
     'runtime.linux-arm64.Microsoft.NETCore.ILAsm',
     'runtime.linux-arm64.Microsoft.NETCore.ILDAsm',
@@ -21,7 +25,7 @@ ARM64_PACKAGES = (
 )
 
 
-def source_identity(source):
+def source_identity(source, arch='arm64'):
     for name, expected in [('installer', INSTALLER), ('runtime', RUNTIME)]:
         metadata = source / 'git-info' / (name + '.props')
         if metadata.is_symlink() or not metadata.is_file():
@@ -32,7 +36,7 @@ def source_identity(source):
     project = source / 'scripts/bootstrap/buildBootstrapPreviouslySB.csproj'
     references = ET.parse(project).getroot().findall('./ItemGroup/PackageReference')
     actual = [item.get('Include') for item in references if 'linux-arm64' in item.get('Include', '')]
-    if sorted(actual) != sorted(ARM64_PACKAGES):
+    if arch == 'arm64' and sorted(actual) != sorted(ARM64_PACKAGES):
         raise ValueError('Expected the four pinned .NET 6 ARM64 PackageReference replacements')
     return [fingerprint(path) for path in [source / 'prep.sh', project,
             source / 'scripts/bootstrap/OverrideBootstrapVersions.props',
@@ -62,13 +66,57 @@ def write_new(path, value):
         output.write('\n')
 
 
+def native_host(sdk):
+    if sdk.is_symlink() or not sdk.is_file():
+        raise ValueError('The native x64 bootstrap SDK host must be an ordinary file')
+    with sdk.open('rb') as stream: header = stream.read(20)
+    if len(header) != 20 or header[:6] != b'\x7fELF\x02\x01' or int.from_bytes(header[18:20], 'little') != 62:
+        raise ValueError('The native x64 bootstrap SDK host must be ELF64 little-endian machine 62')
+
+
+def native_inputs(source, archives, original_record, sdk, version):
+    """Bind the unchanged original CentOS x64 PSB input on a native x64 host."""
+    expected = 'Private.SourceBuilt.Artifacts.6.0.135.centos.7-x64.tar.gz'
+    if original_record.get('targetArchitecture') != 'x64' or original_record.get('bootstrapMode') != 'native-original-inputs':
+        raise ValueError('Preserved bootstrap inputs belong to another architecture/mode')
+    if any(path.is_symlink() or not path.is_file() for path in archives):
+        raise ValueError('Native x64 archives must remain ordinary files')
+    candidates = [path for path in archives if path.name.startswith('Private.SourceBuilt.Artifacts.')]
+    if len(candidates) != 1 or candidates[0].name != expected or any('Bootstrap' in path.name for path in archives):
+        raise ValueError('Native x64 requires the unchanged original CentOS x64 PSB archive')
+    saved = {Path(row['path']).name: {key: row[key] for key in ['bytes', 'sha256', 'sha512']}
+             for row in original_record['originalInputs']}
+    current = {path.name: {key: value for key, value in fingerprint(path).items() if key != 'path'} for path in archives}
+    if saved != current:
+        raise ValueError('Native x64 PSB inputs differ from the preserved original bytes')
+    if current[expected] != NATIVE_PSB:
+        raise ValueError('Native x64 PSB differs from the exact retained upstream input pin')
+    with tarfile.open(candidates[0], 'r:gz') as archive:
+        names = [item.name for item in archive if item.isfile()]
+    entries = sorted(name for name in names if 'linux-x64' in name.lower() and name.lower().endswith('.nupkg'))
+    if len(entries) != 14 or not any(name.endswith('PackageVersions.props') for name in names):
+        raise ValueError('The original x64 PSB lacks native packages or version metadata')
+    native_host(sdk)
+    return {'schemaVersion': 1, 'preparedAtUtc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            **original_record, 'installerCommit': INSTALLER, 'bootstrapSdk': version,
+            'targetArchitecture': 'x64', 'bootstrapMode': 'native-original-inputs',
+            'nativePackageRid': 'linux-x64',
+            'finalInputs': [fingerprint(path) for path in archives], 'nativePackageEntries': entries,
+            'observedBootstrapHost': fingerprint(sdk),
+            'bootstrapHostNote': 'Observed before the product build; versioned SDK input files remain verified after upstream host initialization.',
+            'scope': 'Native x64 consumes the preserved original x64 PSB without ARM64 package substitution or prep.sh --bootstrap transformation.'}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['save-originals', 'finalize', 'verify'])
     parser.add_argument('--source-dir', type=Path, required=True)
     parser.add_argument('--inputs-dir', type=Path, required=True)
     parser.add_argument('--report', type=Path, required=True)
+    parser.add_argument('--arch', choices=['arm64', 'x64'], default='arm64')
     args = parser.parse_args()
+    if args.arch == 'x64' and (platform.system() != 'Linux' or platform.machine() != 'x86_64'):
+        raise ValueError('A matching native Linux x64 preparation host is required')
     for path in [args.source_dir, args.inputs_dir, args.report]:
         if not path.is_absolute() or path.is_symlink():
             raise ValueError('Absolute ordinary input/output paths are required')
@@ -77,11 +125,12 @@ def main():
         raise ValueError('Bootstrap preservation inputs must be outside the generated source')
     if args.report.exists() or args.report.is_symlink():
         raise ValueError('Refusing a previous bootstrap attempt report')
-    tool_sources = source_identity(source)
+    tool_sources = source_identity(source, args.arch)
     archive_dir = source / 'packages/archive'
     marker = inputs / 'bootstrap6-prepared.json'
     originals = inputs / 'bootstrap6-originals.json'
     sdk = source / '.dotnet/dotnet'
+    if args.arch == 'x64': native_host(sdk)
     version = subprocess.check_output([str(sdk), '--version'], cwd=source, text=True).strip()
     if version != '6.0.135':
         raise ValueError('Expected the .NET 6.0.135 bootstrap SDK, got ' + version)
@@ -124,7 +173,8 @@ def main():
                       'installerCommit': INSTALLER, 'bootstrapSdk': version,
                       'bootstrapSourceFiles': tool_sources,
                       'bootstrapToolFiles': [fingerprint(path) for path in versioned_tools],
-                      'declaredArm64PackageReferences': list(ARM64_PACKAGES),
+                      **({'declaredArm64PackageReferences': list(ARM64_PACKAGES)} if args.arch == 'arm64' else
+                         {'targetArchitecture': 'x64', 'bootstrapMode': 'native-original-inputs'}),
                       'declaredUrls': (archive_dir / 'archiveArtifacts.txt').read_text().splitlines()}
             write_new(originals, record)
     elif args.action == 'finalize':
@@ -133,6 +183,11 @@ def main():
         verify_files(original_record['bootstrapToolFiles'])
         verify_files(original_record['bootstrapSourceFiles'])
         archives = sorted(archive_dir.glob('Private.SourceBuilt.*.tar.gz'))
+        if args.arch == 'x64':
+            record = native_inputs(source, archives, original_record, sdk, version)
+            write_new(marker, record); write_new(args.report, record)
+            print(json.dumps({'status': 'passed', 'action': args.action, 'report': str(args.report)}))
+            return
         candidates = [path for path in archives if path.name.startswith('Private.SourceBuilt.Artifacts.')]
         if len(candidates) != 1 or 'Bootstrap' not in candidates[0].name:
             raise ValueError('Expected the single explicitly bootstrapped PSB archive')
@@ -155,6 +210,14 @@ def main():
         record = json.loads(marker.read_text())
         if record['installerCommit'] != 'd638663530d923adbe0442604b7a6562127321e9' or record['bootstrapSdk'] != version:
             raise ValueError('Bootstrap marker identity mismatch')
+        if record.get('targetArchitecture', 'arm64') != args.arch:
+            raise ValueError('Bootstrap marker belongs to another architecture')
+        if args.arch == 'x64':
+            if record.get('targetArchitecture') != 'x64' or record.get('bootstrapMode') != 'native-original-inputs':
+                raise ValueError('Native x64 bootstrap marker architecture/mode differs')
+            current = native_inputs(source, sorted(archive_dir.glob('Private.SourceBuilt.*.tar.gz')), record, sdk, version)
+            if current['nativePackageEntries'] != record['nativePackageEntries']:
+                raise ValueError('Native x64 package inventory differs')
         verify_files(record['originalInputs'])
         verify_files(record['finalInputs'])
         verify_files(record['bootstrapToolFiles'])

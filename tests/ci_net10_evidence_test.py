@@ -210,6 +210,67 @@ class EvidenceTests(unittest.TestCase):
         dump(self.root / 'ci-validation.json', result)
         self.assertEqual(GATE.validate_bundle(self.root), result)
 
+    def test_x64_native_identity_rejects_arm_images_and_arm_elf_reports(self):
+        bundle=Bundle(self.root)
+        path=self.root/'reports/verify-ubuntu22/verification.json'
+        original=GATE.load(path)
+        with self.assertRaises(ValueError): GATE.native_check(path,bundle.archive,'x64')
+        x64=copy.deepcopy(original);x64.update(reportedRid='linux-x64',hostArchitecture='x86_64')
+        x64['abi']['machines']={'Advanced Micro Devices X86-64':x64['abi']['elfFileCount']}
+        dump(path,x64)
+        self.assertEqual(GATE.native_check(path,bundle.archive,'x64')['reportedRid'],'linux-x64')
+        with self.assertRaises(ValueError): GATE.native_check(path,bundle.archive)
+        image_path=self.root/'reports/prepare/build-image.json'
+        with self.assertRaises(ValueError): GATE.image_check(image_path,bundle.image,'x64')
+        image=GATE.load(image_path);image[0]['Architecture']='amd64';dump(image_path,image)
+        self.assertEqual(GATE.image_check(image_path,bundle.image,'x64')['Architecture'],'amd64')
+        with self.assertRaises(ValueError): GATE.image_check(image_path,bundle.image)
+        with self.assertRaises(ValueError): GATE.validate_bundle(self.root,arch='x64')
+
+    def test_x64_profile_preserves_signed_portable_sysroot_policy(self):
+        profile=GATE.load(ROOT/GATE.profile_path('x64'))
+        GATE.x64_profile_check(profile)
+        for section,key,value in [('host','architecture','arm64'),('host','emulation',True),
+                                  ('target','rid','linux-arm64'),('build','crossBuild',False),
+                                  ('build','portableBuild',False),('sysroot','architecture','arm64'),
+                                  ('sysroot','packageSignatureVerification',False),
+                                  ('container','digest','sha256:'+'0'*64)]:
+            wrong=copy.deepcopy(profile);wrong[section][key]=value
+            with self.subTest(section=section,key=key),self.assertRaises(ValueError):GATE.x64_profile_check(wrong)
+
+    def test_x64_sysroot_cannot_accept_the_arm64_inventory(self):
+        Bundle(self.root)
+        prepare=self.root/'reports/prepare';path=prepare/'sysroot-validation.json';proof=GATE.load(path)
+        with self.assertRaises(ValueError):GATE.sysroot_check(self.root,proof,'x64')
+        for name in ['sysroot-files.sha256','sysroot-symlinks.tsv']:
+            control=prepare/name;control.write_text(control.read_text().replace('/inputs/arm64-bionic/','/inputs/x64-bionic/'))
+        (prepare/'sysroot-file-list.sha256').write_text(GATE.fingerprint(prepare/'sysroot-files.sha256')['sha256']+'  /delivery/reports/prepare/sysroot-files.sha256\n')
+        proof['inventory']={name:GATE.record(self.root,prepare/name) for name in proof['inventory']}
+        GATE.sysroot_check(self.root,proof,'x64')
+        with self.assertRaises(ValueError):GATE.sysroot_check(self.root,proof)
+
+    def test_x64_freeze_binds_native_profile_workflow_and_complete_git_tree(self):
+        project,source,release=[self.root/name for name in ['x64-project','x64-source','x64-release']]
+        def git(root,*args):return subprocess.check_output(['git','-C',str(root),*args]).decode().strip()
+        def commit(root):
+            git(root,'init','-q');git(root,'config','user.email','fixture@example.invalid');git(root,'config','user.name','Fixture')
+            git(root,'add','.');git(root,'commit','-qm','Fixture source');return git(root,'rev-parse','HEAD')
+        write(source/'source.cs','// Fixture pinned product source\n');source_pin=commit(source)
+        for name in GATE.critical_inputs('x64'):write(project/name,'# Fixture source\n')
+        profile=GATE.load(ROOT/GATE.profile_path('x64'));profile['source']['commit']=source_pin
+        dump(project/GATE.profile_path('x64'),profile);project_pin=commit(project)
+        args=SimpleNamespace(project_root=project,source_dir=source,release_dir=release,arch='x64',
+            build_id='20261101.1',build_revision='42',run_id='42',run_attempt='1',project_commit=project_pin,
+            workflow_ref='dotnetdev-kr/cbodotnet/.github/workflows/sdk-x64.yml@refs/heads/main')
+        with mock.patch.object(GATE,'SOURCE',source_pin),contextlib.redirect_stdout(io.StringIO()):GATE.freeze(args)
+        snapshot=GATE.load(release/'reports/ci-inputs/snapshot.json')
+        self.assertEqual(snapshot['targetArchitecture'],'x64');self.assertEqual(snapshot['targetRid'],'linux-x64')
+        self.assertTrue(all(snapshot[key] for key in ['sourceDeliveryRequired','sharedSourceDeliveryRequired','scenarioReportFenceRequired']))
+        tree,names=GATE.project_tree(release,snapshot['projectFiles'],'x64')
+        self.assertEqual(tree,git(project,'rev-parse','HEAD^{tree}'));self.assertTrue(GATE.critical_inputs('x64')<=names)
+        args.release_dir=self.root/'wrong-workflow';args.workflow_ref='dotnetdev-kr/cbodotnet/.github/workflows/sdk-matrix.yml@refs/heads/main'
+        with self.assertRaisesRegex(ValueError,'workflow reference'):GATE.freeze(args)
+
     def test_freeze_preserves_canonical_git_blobs_from_clean_crlf_checkout(self):
         project, source, release = [self.root / name for name in ('project', 'source', 'delivery')]
 
