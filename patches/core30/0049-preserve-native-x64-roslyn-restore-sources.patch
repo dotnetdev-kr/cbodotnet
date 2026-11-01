@@ -1,0 +1,11 @@
+--- a/repos/roslyn.proj
++++ b/repos/roslyn.proj
+@@ -13,6 +13,8 @@
+     <BuildCommandArgs>$(BuildCommandArgs) /p:EnablePartialNgenOptimization=false</BuildCommandArgs>
+     <BuildCommandArgs>$(BuildCommandArgs) /p:PublishWindowsPdb=false</BuildCommandArgs>
+     <BuildCommandArgs>$(BuildCommandArgs) /p:DotNetPackageVersionPropsPath=$(PackageVersionPropsPath)</BuildCommandArgs>
++    <!-- Preserve local source-built packages and the recorded official additional feeds. -->
++    <BuildCommandArgs Condition="'$(NativeX64Host)' == 'true' AND '$(Platform)' == 'x64' AND '$(TargetOS)' == 'Linux' AND '$(OfflineBuild)' != 'true'">$(BuildCommandArgs) /p:RestoreSources=$(SourceBuiltPackagesPath)</BuildCommandArgs>
+ 
+     <PackagesOutput>$(ProjectDirectory)artifacts/packages/$(Configuration)/Shipping/</PackagesOutput>
+     <RepoApiImplemented>false</RepoApiImplemented>

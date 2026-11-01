@@ -212,11 +212,16 @@
         "path": "patches/core31/0024-native-x64-corefx-toolchain.patch",
         "sha256": "afc695d67ba4bfd6793126b5db7ac1d5c87c38a668782e1622de5a4668b979da",
         "purpose": "Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation."
+      },
+      {
+        "path": "patches/core31/0025-select-native-x64-coreclr-objcopy.patch",
+        "sha256": "433c592a021335de1e22248c294e63d7285af4f397caefd7a5827d8a6df1d2ec",
+        "purpose": "Recognize the same-host x86_64 sysroot build in the existing cross objcopy selection and use x86_64-linux-gnu-objcopy. Preserve all other architecture branches, debug-symbol operations, native compilation, and sysroot-only library/include/package search."
       }
     ],
     "patchManifest": {
       "path": "patches/core31/manifest-x64.json",
-      "sha256": "c21ba2ea6c77727225c282e482c6431ee137e9642fc571f120991a1ddc767b85"
+      "sha256": "1bffe8b8ac1dd11988b48fa1bf34c9a724f8451fd160431b702efaa89f52bd75"
     }
   },
   "construction": {

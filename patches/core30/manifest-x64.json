@@ -617,6 +617,32 @@
         "path": "eng/common/cross/toolchain.cmake"
       },
       "purpose": "Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation."
+    },
+    {
+      "name": "0049-preserve-native-x64-roslyn-restore-sources.patch",
+      "target": "repos/roslyn.proj",
+      "originalSha256": "6b46b45fa7846dd8855543955a5c9b1812298f962936ec4d76b3ccb30945f307",
+      "patchedSha256": "22377410559dc2fe00bcd1fcf9e9fbf4ba381c4e66fea8c9246dbb7167cc1879",
+      "patchSha256": "6aac81273badc94318773dc5cd8003e5b6940944fa373250dfec803ea42e5a4b",
+      "addedLines": 2,
+      "removedLines": 0,
+      "component": null,
+      "purpose": "For the explicit native x64 online graph, pass local source-built RestoreSources as a global property to the unchanged Roslyn pack command. The existing five official RestoreAdditionalProjectSources remain available. Preserve all original solution and package project invocations, package versions, TLS verification, local precedence and offline behavior; avoid the retired unused service indexes appended by Roslyn Versions.props."
+    },
+    {
+      "name": "0050-select-native-x64-coreclr-objcopy.patch",
+      "target": "bin/src/coreclr.259ce7d4619478cfefe7b0c0f6fa765f765f7e37/CMakeLists.txt",
+      "originalSha256": "b191911b7097806960c3c8a49901bd6c8cdebbb6e6502c8a8a16a89cc5488d13",
+      "patchedSha256": "bdb7443c1f7ec2a4dac28bbcbed5d745e4e445311c25650faf3ed1a3b7bb32ce",
+      "patchSha256": "f014c81812d01b08c5a5f4d6e1455a06e986655fd6f3d07af5f068f2891ffb2d",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": {
+        "name": "coreclr",
+        "commit": "259ce7d4619478cfefe7b0c0f6fa765f765f7e37",
+        "path": "CMakeLists.txt"
+      },
+      "purpose": "Recognize the same-host x86_64 sysroot build in the existing cross objcopy selection and use x86_64-linux-gnu-objcopy. Preserve all other architecture branches, debug-symbol operations, native compilation, and sysroot-only library/include/package search."
     }
   ]
 }

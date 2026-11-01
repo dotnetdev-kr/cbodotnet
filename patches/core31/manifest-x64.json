@@ -331,6 +331,21 @@
         "path": "eng/common/cross/toolchain.cmake"
       },
       "purpose": "Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation."
+    },
+    {
+      "name": "0025-select-native-x64-coreclr-objcopy.patch",
+      "target": "artifacts/src/coreclr.c17d273aa03d4b9d14c92248a91f0d0faa881b98/CMakeLists.txt",
+      "originalSha256": "b191911b7097806960c3c8a49901bd6c8cdebbb6e6502c8a8a16a89cc5488d13",
+      "patchedSha256": "bdb7443c1f7ec2a4dac28bbcbed5d745e4e445311c25650faf3ed1a3b7bb32ce",
+      "patchSha256": "433c592a021335de1e22248c294e63d7285af4f397caefd7a5827d8a6df1d2ec",
+      "addedLines": 1,
+      "removedLines": 1,
+      "component": {
+        "name": "coreclr",
+        "commit": "c17d273aa03d4b9d14c92248a91f0d0faa881b98",
+        "path": "CMakeLists.txt"
+      },
+      "purpose": "Recognize the same-host x86_64 sysroot build in the existing cross objcopy selection and use x86_64-linux-gnu-objcopy. Preserve all other architecture branches, debug-symbol operations, native compilation, and sysroot-only library/include/package search."
     }
   ]
 }

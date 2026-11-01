@@ -204,6 +204,41 @@ class NativeHelpers(unittest.TestCase):
             self.assertIn('linux-x64', native['url']); self.assertNotEqual(native['sha256'], arm['sha256'])
             self.assertNotEqual(native['cacheName'], arm['cacheName'])
 
+    def test_net7_bootstrap_iltools_patch_binds_original_git_blob_and_only_x64(self):
+        helper = module('apply-net7-patches.py')
+        selected = next(row for row in helper.X64_PATCHES if row.get('bootstrapIlToolsRid'))
+        original = (ROOT / 'tests/fixtures/net7-original-iltools-adapter.proj').read_bytes()
+        self.assertEqual(hashlib.sha256(original).hexdigest(), selected['originalSha256'])
+        self.assertEqual(hashlib.sha1(b'blob ' + str(len(original)).encode() + b'\0' + original).hexdigest(), selected['sourceGitBlobSha1'])
+        self.assertEqual(len(helper.PATCHES), 4)
+        self.assertNotIn(selected, helper.PATCHES)
+        source, installer = self.root / 'generated', self.root / 'installer'; source.mkdir(); installer.mkdir()
+        target = write(source / selected['target'], original)
+        write(installer / selected['sourceGitPath'], original)
+        def git(*args): return subprocess.check_output(['git', '-C', str(installer), *args], stderr=subprocess.PIPE).decode().strip()
+        git('init', '-q'); git('config', 'user.name', 'Bootstrap adapter fixture'); git('config', 'user.email', 'fixture@example.invalid')
+        git('add', '.'); git('commit', '-qm', 'Exact original bootstrap adapter fixture')
+        specification = copy.deepcopy(selected); specification['sourceCommit'] = git('rev-parse', 'HEAD')
+        args = SimpleNamespace(source_dir=source, installer_dir=installer, arch='arm64', action='apply')
+        with mock.patch.object(helper, 'verify_identity'), mock.patch.object(helper, 'PATCHES', []), mock.patch.object(helper, 'X64_PATCHES', [specification]):
+            record = {'changed': False}; helper.run(args, record)
+            self.assertEqual(record['patches'], []); self.assertEqual(target.read_bytes(), original)
+            args.arch = 'x64'; record = {'changed': False}; helper.run(args, record)
+            self.assertEqual(helper.digest(target), selected['patchedSha256'])
+            self.assertTrue(record['patches'][0]['sourceGitBlobVerified']); self.assertTrue(record['changed'])
+            self.assertIn(b'MicrosoftNetCoreIlasmPackageRuntimeId=centos.8-x64', target.read_bytes())
+            self.assertEqual(target.read_bytes(), original.replace(b'MicrosoftNetCoreIlasmPackageRuntimeId=$(NETCoreSdkRuntimeIdentifier)', b'MicrosoftNetCoreIlasmPackageRuntimeId=centos.8-x64'))
+            args.action = 'verify'; helper.run(args, {'changed': False})
+            target.write_bytes(original)
+            specification['sourceGitBlobSha1'] = '0' * 40
+            with self.assertRaisesRegex(helper.PatchError, 'Original adapter Git blob differs'): helper.run(args, {'changed': False})
+            self.assertEqual(target.read_bytes(), original)
+        x64 = json.loads((ROOT / 'profiles/dotnet-7.0.120-linux-x64.json').read_text())
+        arm = json.loads((ROOT / 'profiles/dotnet-7.0.120-linux-arm64.json').read_text())
+        self.assertEqual(x64['target']['rid'], 'linux-x64'); self.assertEqual(x64['upstreamInputs']['bootstrapIlToolsRid'], 'centos.8-x64')
+        self.assertTrue(x64['build']['portableBuild']); self.assertTrue(x64['build']['crossBuild'])
+        self.assertFalse(any(row['path'].endswith(selected['name']) for row in arm['build']['patches']))
+
     def test_native_x64_seccomp_adds_only_the_resolved_fchmodat2_rule(self):
         class Call:
             def __init__(self, result): self.result=result

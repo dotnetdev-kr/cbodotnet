@@ -7,16 +7,30 @@ Implementation, architecture rejection fixtures and workflow linting are complet
 | .NET 10 | 10.0.403 | [41295429028](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295429028), in progress | Pending |
 | .NET 9 | 9.0.123 | [41295430879](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295430879), in progress | Pending |
 | .NET 8 | 8.0.133 | [41295751388](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295751388), in progress | Pending |
-| .NET 7 | 7.0.120 | [41295753622](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295753622), failed preparation | Pending replacement |
-| .NET 6 | 6.0.136 | [41295755838](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295755838), failed preparation | Pending replacement |
-| .NET 5 | 5.0.214 | [41295758152](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295758152), failed preparation | Pending replacement |
-| .NET Core 3.1 | 3.1.426 | [41295433032](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295433032), failed preparation | Pending replacement |
-| .NET Core 3.0 | 3.0.103 | [41295434962](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295434962), failed preparation | Pending replacement |
+| .NET 7 | 7.0.120 | [41297565182](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41297565182), failed build | Pending replacement |
+| .NET 6 | 6.0.136 | [41297567596](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41297567596), in progress | Pending |
+| .NET 5 | 5.0.214 | [41297570076](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41297570076), in progress | Pending |
+| .NET Core 3.1 | 3.1.426 | [41297572302](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41297572302), failed build | Pending replacement |
+| .NET Core 3.0 | 3.0.103 | [41297574501](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41297574501), failed build | Pending replacement |
 
 The [x64 guide](ci-x64.md) describes the native workers, version-specific construction, source delivery and trusted portable verifier. Qualification must bind each artifact to its exact orchestration commit, source revision, run and attempt. Original ARM64 records remain separately available in the [ARM64 results](ci-matrix-results.md).
 
 ## Preserved initial failures
 
+| Profile | Initial failed run | Preparation failure |
+| --- | --- | --- |
+| .NET 7 | [41295753622](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295753622) | Missing upstream x64 Xenial source list |
+| .NET 6 | [41295755838](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295755838) | Unsupported generator argument selected ARM defaults |
+| .NET 5 | [41295758152](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295758152) | Xenial archive HTTPS trust |
+| .NET Core 3.1 | [41295433032](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295433032) | Xenial archive HTTPS trust |
+| .NET Core 3.0 | [41295434962](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295434962) | Xenial archive HTTPS trust |
+
 The initial .NET 5/Core 3.x runs authenticated the Ubuntu archive but stopped before product compilation because Xenial's initial CA bundle could not verify its current HTTPS certificate. The replacement producer retains and fingerprints the working container CA bundle and requires explicit peer/hostname verification and unchanged package signature verification.
 
 The initial .NET 6 generator silently selected its default ARM target for an unsupported x64 argument. The .NET 7 generator selected amd64 but lacked the requested x64 Xenial source list. Their replacements use an explicit native amd64 producer with the exact pinned upstream package set, authenticated archive, recorded source-list transport adaptation and complete inventories. These failed runs remain failed; replacement runs must independently qualify.
+
+The subsequent Core 3.0 and 3.1 runs passed the corrected signed sysroot preparation. Core 3.0 then stopped at a retired MyGet system-commandline index with an invalid TLS certificate. Core 3.1 passed its Clang 9/sysroot compiler checks but stopped in CoreCLR's architecture-detection branch. Their retained diagnostic ZIPs independently matched the GitHub API SHA-256 values; safe transport extraction passed and complete delivery verification correctly rejected the missing product/source deliveries. Neither is a qualified SDK.
+
+The subsequent .NET 7 run also passed native preparation. Its source-build reference-package adapter selected a `linux-x64` ILAsm package while the unchanged original bootstrap archive contains the `centos.8-x64` build tool. The bootstrap tool RID and final portable SDK RID must remain distinct. The retained failure is not a qualified SDK.
+
+The bounded corrections add x86_64 to the existing prefixed CoreCLR objcopy selection in the byte-identical Core 3.0/3.1 branches, explicitly preserve the local/official restore policy in Core 3.0's native online Roslyn command, and select the original CentOS ILAsm tool in .NET 7's x64-only adapter patch. They preserve the original project graph, package versions, ARM manifests, TLS verification and portable product target. Exact original Git blobs, patch input/output hashes, MSBuild property evaluation and CMake tool selection were checked before replacement dispatches. Fresh hosted runs and downloaded SDK/source qualification remain required.

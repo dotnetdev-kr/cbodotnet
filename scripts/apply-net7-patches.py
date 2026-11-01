@@ -85,6 +85,21 @@ X64_PATCHES = [
         "removedLines": 3,
         "purpose": "Backport Linux x64 cross try-run selection and its functional robust-pthread cache from the newer runtime.",
         "reference": "https://github.com/dotnet/dotnet/blob/7d1bf90885cff22e7da72b27e9848e42fd3cb1ae/src/runtime/eng/native/tryrun.cmake#L92"
+    },
+    {
+        "target": "repos/source-build-reference-packages.proj",
+        "name": "0006-use-original-x64-bootstrap-iltools.patch",
+        "originalSha256": "c26ee7f2f314c5ef96e2ddbbe2f12adb589c89fb3ea7240f66b2e5a23ae87357",
+        "patchedSha256": "206465fb67a4e9b70c32336e5cb45223821cb2c50aaf7181d6d4d35b610de700",
+        "patchSha256": "4223609805be49229a9fea294f468fc999ec9198b342ba9682931f3589f85d96",
+        "addedLines": 1,
+        "removedLines": 1,
+        "sourceCommit": INSTALLER_COMMIT,
+        "sourceGitPath": "src/SourceBuild/tarball/content/repos/source-build-reference-packages.proj",
+        "sourceGitBlobSha1": "c1321e716c4c067208e00d00d657efc4b98cba20",
+        "bootstrapIlToolsRid": "centos.8-x64",
+        "purpose": "Use the original CentOS x64 PSB ILAsm and ILDAsm tools when generating reference packages; the generic product target is unchanged.",
+        "reference": "https://github.com/dotnet/installer/blob/25b977658c06fd0217ec0bc0714398bb9d0a7bb0/src/SourceBuild/tarball/content/repos/source-build-reference-packages.proj#L8"
     }
 ]
 
@@ -162,16 +177,29 @@ def verify_identity(source, installer, record):
                    "installerCommit": INSTALLER_COMMIT, "components": identities})
 
 
+def verify_template(installer, specification):
+    """Bind an adapter patch to its exact original installer Git blob."""
+    reference = specification["sourceCommit"] + ":" + specification["sourceGitPath"]
+    if git(installer, "rev-parse", reference) != specification["sourceGitBlobSha1"]:
+        raise PatchError("Original adapter Git blob differs: " + specification["target"])
+    process = subprocess.run(["git", "--no-optional-locks", "-c", "core.fsmonitor=false", "show", reference],
+                             cwd=installer, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if process.returncode or hashlib.sha256(process.stdout).hexdigest() != specification["originalSha256"]:
+        raise PatchError("Original adapter template bytes differ: " + specification["target"])
+
+
 def run(args, record):
     source = ordinary_directory(args.source_dir)
     installer = ordinary_directory(args.installer_dir)
     verify_identity(source, installer, record)
     if getattr(args, "arch", "arm64") == "x64":
         record["targetArchitecture"] = "x64"
-        record["scope"] = "Four common fixed compatibility patches plus one exact Linux x64 CMake backport; component identities, source metadata and all hashes are preflighted before mutation."
+        record["scope"] = "Four common compatibility patches, one Linux x64 CMake backport and original native PSB ILAsm/ILDAsm selection; component identities, source metadata and all hashes are preflighted before mutation."
     record["patches"] = []
     pending = []
     for specification in PATCHES + (X64_PATCHES if getattr(args, "arch", "arm64") == "x64" else []):
+        if "sourceGitBlobSha1" in specification:
+            verify_template(installer, specification)
         target = fixed_path(source, specification["target"])
         patch_root = Path(__file__).resolve().parent.parent / "patches" / "net7"
         patch = fixed_path(patch_root, specification["name"])
@@ -179,6 +207,8 @@ def run(args, record):
             raise PatchError("Patch SHA-256 mismatch: " + specification["name"])
         before = digest(target)
         item = {**specification, "patch": str(patch), "beforeSha256": before, "changed": False}
+        if "sourceGitBlobSha1" in specification:
+            item["sourceGitBlobVerified"] = True
         record["patches"].append(item)
         if before not in (specification["originalSha256"], specification["patchedSha256"]):
             raise PatchError("Unknown target content; preserve and inspect it: " + specification["target"])

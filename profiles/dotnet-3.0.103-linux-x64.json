@@ -356,11 +356,21 @@
         "path": "patches/core30/0048-native-x64-corefx-toolchain.patch",
         "sha256": "91e8a2ff80e4356f65cf2ad3d3c599a1f5e8ec3719f5f27f36ab59896c5107d4",
         "purpose": "Support the explicit native x64 Linux signed-sysroot CMake triple and existing glibc probe policy without changing cached probe answers or enabling emulation."
+      },
+      {
+        "path": "patches/core30/0049-preserve-native-x64-roslyn-restore-sources.patch",
+        "sha256": "6aac81273badc94318773dc5cd8003e5b6940944fa373250dfec803ea42e5a4b",
+        "purpose": "For the explicit native x64 online graph, pass local source-built RestoreSources as a global property to the unchanged Roslyn pack command. The existing five official RestoreAdditionalProjectSources remain available. Preserve all original solution and package project invocations, package versions, TLS verification, local precedence and offline behavior; avoid the retired unused service indexes appended by Roslyn Versions.props."
+      },
+      {
+        "path": "patches/core30/0050-select-native-x64-coreclr-objcopy.patch",
+        "sha256": "f014c81812d01b08c5a5f4d6e1455a06e986655fd6f3d07af5f068f2891ffb2d",
+        "purpose": "Recognize the same-host x86_64 sysroot build in the existing cross objcopy selection and use x86_64-linux-gnu-objcopy. Preserve all other architecture branches, debug-symbol operations, native compilation, and sysroot-only library/include/package search."
       }
     ],
     "patchManifest": {
       "path": "patches/core30/manifest-x64.json",
-      "sha256": "7850c19c29976701ffcf917fd494144a352fbe3e75d585c46e48647dee8bef24"
+      "sha256": "1e0b24e01f35af1e5914ea5879c6f66cc93b631560075c690c9817537fd3ffdb"
     },
     "retainedCoreClrPlatforms": {
       "originalVersion": "3.0.0-rc2.19461.13",
@@ -391,6 +401,23 @@
       "resolutionTargetsSha256": "94498f7f27b5309fbe79b2eb0707c9a964cee5e0acdb27dfb12d621b38aaa084",
       "referenceRoot": "Extracted package build/ directory, as specified by the original package targets.",
       "scope": "Explicit official prebuilt reference assemblies/metadata only for extra GenAPI net472 compilation. Preserve original TFMs and exact own metadata. No Windows/reference binary is executed and no product SDK/runtime reference root is overridden."
+    },
+    "roslynRestorePolicy": {
+      "scope": "Explicit native x64 online graph only; original source-build pack/project graph and all package versions remain unchanged.",
+      "globalRestoreSources": "$(SourceBuiltPackagesPath)",
+      "additionalSources": [
+        "https://api.nuget.org/v3/index.json",
+        "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json",
+        "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json",
+        "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json",
+        "https://pkgs.dev.azure.com/dnceng/public/_packaging/myget-legacy/nuget/v3/index.json"
+      ],
+      "sourceReferences": [
+        "https://github.com/dotnet/source-build/blob/40de72d1087a1d05dfd39c87f888a0611ec6c60f/repos/roslyn.proj",
+        "https://github.com/dotnet/roslyn/blob/39d545dc14bc4d5a546e5e2f58d1ebaca72fcd61/SourceBuild.sln",
+        "https://github.com/dotnet/roslyn/blob/39d545dc14bc4d5a546e5e2f58d1ebaca72fcd61/eng/Versions.props"
+      ],
+      "inactiveSystemCommandLineProperties": "The pinned source-build project graph contains no System.CommandLine package reference; its two unused alpha version properties are preserved."
     }
   },
   "construction": {
