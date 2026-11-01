@@ -55,4 +55,4 @@ python3 scripts/ci-delivery.py \
 
 The verifier checks both transport hashes, safe extraction, the exact x64 source target, SDK identity and every matching family gate. It executes trusted checkout code; downloaded source and orchestration files are evidence. AArch64 remains the default for existing commands, so x64 delivery verification requires explicit `--arch x64`.
 
-Actions artifacts use 14-day retention. Optional unpublished drafts default off, require all selected builds to pass, revalidate the downloaded SDK/source delivery and refuse existing tags or assets. Public release publication remains a separate action.
+Actions artifacts use 14-day retention; permanent qualified downloads are available in the [download index](https://dotnetdev.kr/cbodotnet/). Optional matrix drafts remain unpublished, default off, require all selected builds to pass, revalidate the downloaded SDK/source delivery and refuse existing tags or assets. Joint-architecture public publication uses the separate promotion or [upstream workflow](upstream-automation.md).

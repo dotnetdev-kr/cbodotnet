@@ -4,6 +4,8 @@ All eight selected Linux AArch64 profiles passed actual hosted builds and comple
 
 Each row is a separate version dispatch of the matrix workflow using `create_draft=false`. These runs exercise build, source delivery, validation and Actions artifact upload; they do not exercise optional draft release creation or public release publication.
 
+The unchanged qualified SDK/source payloads were subsequently published with their x64 counterparts in eight [public releases](https://github.com/dotnetdev-kr/cbodotnet/releases), available through the [download index](https://dotnetdev.kr/cbodotnet/). [Publication run 41320486485](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41320486485) resumed all eight successful independent verification/staging jobs from [41318628106](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41318628106). All 64 assets passed API digest and public HTTPS byte-length checks; public AArch64 filenames map to the original names in each release manifest.
+
 | Profile | SDK | Qualification run | Downloaded delivery |
 | --- | --- | --- | --- |
 | .NET 10 | 10.0.403 | [41211183670](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41211183670) | Passed; [artifact 13048586144](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41211183670/artifacts/13048586144) |

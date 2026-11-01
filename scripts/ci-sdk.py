@@ -21,7 +21,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('command', choices=['describe', 'validate', 'verify-release'])
     parser.add_argument('--target', choices=PROFILES, required=True)
-    parser.add_argument('--arch', type=canonical_arch, choices=('arm64', 'x64'), default='arm64')
+    parser.add_argument('--arch', type=canonical_arch, choices=('arm64', 'x64'), metavar='{aarch64,x64}', default='arm64')
     parser.add_argument('--release-dir', type=Path)
     parser.add_argument('--project-root', type=Path, default=ROOT)
     parser.add_argument('--expected-project-commit')

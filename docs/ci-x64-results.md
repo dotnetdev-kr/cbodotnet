@@ -4,6 +4,8 @@ All eight selected Linux x64 profiles passed actual hosted builds and complete i
 
 Each row is a separate version dispatch with `create_draft=false`. These runs exercise SDK/source construction, native checks, validation and Actions artifact upload. Optional draft creation and public release publication were not exercised.
 
+The unchanged qualified SDK/source payloads were subsequently published with their AArch64 counterparts in eight [public releases](https://github.com/dotnetdev-kr/cbodotnet/releases), available through the [download index](https://dotnetdev.kr/cbodotnet/). [Publication run 41320486485](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41320486485) reused the exact successful stages from [41318628106](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41318628106). All 16 SDK/source pairs retained their qualified SHA-256 values, byte sizes and producer identities; all 64 public asset links passed HTTPS and byte-length checks.
+
 | Profile | SDK | Hosted run | Downloaded delivery |
 | --- | --- | --- | --- |
 | .NET 10 | 10.0.403 | [41301145771](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41301145771), passed | Passed; [artifact 13083076281](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41301145771/artifacts/13083076281) |

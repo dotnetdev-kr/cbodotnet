@@ -30,14 +30,14 @@ Select `all` or one target:
 
 | Target | SDK |
 | --- | --- |
-| `net10` | 10.0.403 |
-| `net9` | 9.0.123 |
-| `net8` | 8.0.133 |
-| `net7` | 7.0.120 |
-| `net6` | 6.0.136 |
-| `net5` | 5.0.214 |
-| `core31` | 3.1.426 |
-| `core30` | 3.0.103 |
+| `net10` | [10.0.403](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-10.0.403) |
+| `net9` | [9.0.123](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-9.0.123) |
+| `net8` | [8.0.133](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-8.0.133) |
+| `net7` | [7.0.120](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-7.0.120) |
+| `net6` | [6.0.136](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-6.0.136) |
+| `net5` | [5.0.214](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-5.0.214) |
+| `core31` | [3.1.426](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-3.1.426) |
+| `core30` | [3.0.103](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-3.0.103) |
 
 Each workflow builds at most two selected profiles concurrently. Every run uses fresh inputs and must pass its own build, upstream tests, source-delivery and native verification gates.
 
