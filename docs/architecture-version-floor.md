@@ -2,6 +2,8 @@
 
 Research date: **2026-10-31, Asia/Seoul**. This is a source and release-metadata assessment. It does not add a completed .NET Core 2.x build, an x64 validation result, or a new release policy.
 
+**Subsequent qualification, 2026-11-01:** independent native x64 CI builds and downloaded SDK/source verification now cover Core 3.0/3.1 and .NET 5–10. Together with the [ARM64 results](ci-matrix-results.md), the [x64 results](ci-x64-results.md) establish Core 3.0 as this project's oldest qualified dual-architecture generation. The Core 2.x research evidence below remains distinct from completed project builds.
+
 ## Finding
 
 **.NET Core 3.0 is not a hard technical minimum for producing Linux ARM64 and x64 SDKs.** Microsoft's release metadata already contains both architectures for the .NET Core 2.1 release line, including stable SDK **2.1.300**, and for .NET Core 2.2. Core 3.0 marks the supported and feature-complete Linux ARM64 transition described by upstream maintainers. It is also this project's oldest locally built and validated ARM64 SDK generation.
@@ -13,7 +15,7 @@ These are different boundaries:
 | Earliest stable release line with published SDK archives for both Linux architectures in the inspected metadata | .NET Core **2.1**, starting with SDK **2.1.300** on 2018-05-30 |
 | First upstream supported and feature-complete Linux ARM64 generation in the inspected maintainer record | .NET Core **3.0** |
 | Oldest SDK generation this project has rebuilt and validated on ARM64 | .NET Core **3.0**, SDK 3.0.103 |
-| Oldest generation this project has rebuilt and validated on both architectures | Not established: the current project measurements cover ARM64; x64 needs independent build and native validation |
+| Oldest generation this project has rebuilt and validated on both architectures | .NET Core **3.0**, SDK 3.0.103; subsequent native ARM64/x64 hosted and downloaded qualification is recorded separately |
 | Lower boundary for a future community experiment | Core **2.2**, then **2.1**, have concrete upstream SDK/bootstrap and source evidence; neither is a completed project profile |
 
 Microsoft support status is evidence about historical engineering coverage. It does not determine community inclusion, and Microsoft's support lifecycle is not a reason to exclude an older version from investigation.

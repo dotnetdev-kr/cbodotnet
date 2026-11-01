@@ -2,19 +2,19 @@
 
 This project aims to keep building and providing community Linux SDK binaries for **every .NET major version from .NET 5 onward, plus .NET Core 3.0 and 3.1**, independently of Microsoft's support lifecycle. It uses the .NET VMR (`dotnet/dotnet`) where applicable and version-specific legacy build paths where needed. The intended architectures are Linux ARM64 and x64; inclusion in that scope does not mean a working build is already available.
 
-The current portable target is **glibc Linux**, with release-specific system-library requirements. `linux-arm64` describes the package target; a distro-specific RID printed by an older SDK describes its detected host. Neither proves compatibility with every Linux system or musl/Alpine. The [Linux portability review](docs/linux-portability-review.md) separates the target, measured ABI, native execution results and required OpenSSL/ICU inputs.
+The current portable target is **glibc Linux**, with release-specific system-library requirements. `linux-arm64` and `linux-x64` describe package targets; a distro-specific RID printed by an older SDK describes its detected host. Neither proves compatibility with every Linux system or musl/Alpine. The [Linux portability review](docs/linux-portability-review.md) separates the target, measured ABI, native execution results and required OpenSSL/ICU inputs.
 
 All repository documentation, code comments, and contributor-facing text are maintained in English.
 
-The [legacy build progress](docs/legacy-build-progress.md) records the ongoing .NET 6, .NET 5, .NET Core 3.1 and .NET Core 3.0 ARM64 work. Source selection and prepared containers are distinguished from completed SDK builds.
+The [legacy build progress](docs/legacy-build-progress.md) records the completed local .NET 6, .NET 5, .NET Core 3.1 and .NET Core 3.0 ARM64 work and its historical stages. Source selection and prepared containers are distinguished from completed SDK builds.
 
 **Project direction, 2026-10-30, expanded 2026-10-31:** establish and validate the environment for each version in local WSL and containers before migrating the build profiles to CI. Microsoft end-of-support dates remain descriptive metadata, not criteria for excluding a version or ending community build availability. Version-specific legacy research and implementation stages are recorded in the progress guide; a researched route is distinct from a completed SDK build.
 
 The [.NET 10 CI guide](docs/ci-net10.md) describes the manual native ARM64 GitHub Actions pipeline, fresh source/input snapshots, upstream and three-user-space validation, and optional unpublished draft delivery. Its [earlier SDK-only pilot](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41191037279) passed hosted and downloaded verification. Current source-inclusive qualification is recorded separately in the [ARM64 CI results](docs/ci-matrix-results.md). Native x64 remains a separate target.
 
-All eight selected ARM64 profiles, **.NET Core 3.0/3.1 and .NET 5–10**, have now passed actual hosted builds and complete downloaded SDK/source delivery verification. The [version-specific CI matrix](docs/ci-matrix.md) runs each pinned environment; the [qualification records](docs/ci-matrix-results.md) provide exact commits, run/artifact links, SDK/source checksums, test counts and measured resources. Each artifact includes the actual source snapshot, file index, source manifest and validation reports. Native x64 and public binary releases remain separate work.
+All eight selected ARM64 profiles, **.NET Core 3.0/3.1 and .NET 5–10**, have now passed actual hosted builds and complete downloaded SDK/source delivery verification. The [version-specific CI matrix](docs/ci-matrix.md) runs each pinned environment; the [qualification records](docs/ci-matrix-results.md) provide exact commits, run/artifact links, SDK/source checksums, test counts and measured resources. Each artifact includes the actual source snapshot, file index, source manifest and validation reports. Public binary releases remain a separate publishing step.
 
-The separate [native x64 CI workflow](docs/ci-x64.md) implements the same eight SDK profiles with x64-specific inputs, signed sysroots, source compatibility patches and strict architecture validation. Actual hosted and downloaded qualification is tracked in the [x64 results](docs/ci-x64-results.md); implementation and fixture passes are distinct from completed x64 SDK builds.
+All eight matching **native x64 CI profiles**, .NET Core 3.0/3.1 and .NET 5–10, also passed actual hosted builds and complete independent downloaded SDK/source verification. The [x64 workflow guide](docs/ci-x64.md) records the pinned native workers, signed sysroots, compatibility patches and delivery process; the [x64 qualification results](docs/ci-x64-results.md) provide each run/artifact, SDK/source checksum, original test outcome, native user-space conditions and measured resources.
 
 **Native ARM64 builds and SDK validation have been completed for .NET Core 3.0.103, 3.1.426 and .NET 5.0.214, 6.0.136, 7.0.120, 8.0.133, 9.0.123, and 10.0.403 on Windows ARM64 with WSL 2.** Each version has its own container and sysroot profile. Archives, checksums, manifests and validation reports are generated under `artifacts/<version>-linux-arm64`. The .NET 5/Core 3.x modern-distribution tests use explicit OpenSSL 1.1 inputs; Core 3.x on Debian 13 additionally uses recorded ICU 66. Core 3.0's supported incremental completion and separate failed/full/targeted evidence remain explicit. Final strict delivery audits passed for all four newly completed legacy targets.
 
@@ -61,7 +61,7 @@ On Windows ARM64 with PowerShell 7.3 or later and wslc 3.0.3 or later installed,
 .\scripts\start-wslc-arm64.cmd
 ```
 
-This opens Bash in `/work` with the SDK from the locally built archive installed. After leaving with `exit`, run the same CMD again to resume work with your files. The Windows x64 launcher is `scripts/start-wslc-x64.cmd`; its x64 archive has not been built yet. See the [wslc guide](docs/test-wslc.md) for archive, name, and port options and instructions for running web apps.
+This opens Bash in `/work` with the SDK from the locally built archive installed. After leaving with `exit`, run the same CMD again to resume work with your files. On native Windows x64, `scripts/start-wslc-x64.cmd` can select a downloaded Linux x64 CI SDK with its archive option; launcher execution on that Windows host remains separately unvalidated. See the [wslc guide](docs/test-wslc.md) for archive, name, and port options and instructions for running web apps.
 
 The launcher defaults to the .NET 10 archive. Select the collected .NET 9 archive with a separate container name:
 
@@ -125,7 +125,7 @@ The complete commands are documented in the [ARM64 build reproduction guide](doc
 
 The build uses the official Ubuntu 24.04 ARM64 image and an ARM64 Bionic sysroot. This is a regular VMR build: it builds SDK components from the VMR and reuses the upstream portable shared runtime inputs specified by the 4xx tag. It is distinct from a source-only build that also rebuilds the entire runtime.
 
-Other majors need their own source, bootstrap, toolchain, sysroot, and validation profiles. Linux x64 builds and a download website also remain future work.
+Additional majors need their own source, bootstrap, toolchain, sysroot, and validation profiles. Native x64 profiles and their qualification are recorded in the [x64 CI guide](docs/ci-x64.md). A download website remains future work.
 
 ## Initial feasibility review
 

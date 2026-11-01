@@ -2,7 +2,7 @@
 
 Run the architecture-specific CMD launcher on Windows to enter Bash in a Linux container with the built SDK archive installed. The SDK path and environment variables are configured so that `dotnet` is ready to use. Leaving Bash retains the SDK and the files in `/work` in the same named container.
 
-The launchers default to **.NET SDK 10.0.403 Linux ARM64 build.1**, whose ARM64 wslc session has been validated on this Windows ARM64 PC. Other locally built ARM64 archives are listed in [version coverage](dotnet-version-coverage.md). Selecting another archive does not install its system dependencies: follow its build report, including the controlled OpenSSL/ICU inputs for older SDKs. Those other archives' native validation does not establish a wslc session result. An x64 launcher is provided, but an x64 archive and actual x64 execution remain unvalidated.
+The launchers default to **.NET SDK 10.0.403 Linux ARM64 build.1**, whose ARM64 wslc session has been validated on this Windows ARM64 PC. Other locally built ARM64 archives are listed in [version coverage](dotnet-version-coverage.md). Selecting another archive does not install its system dependencies: follow its build report, including the controlled OpenSSL/ICU inputs for older SDKs. Those other archives' native validation does not establish a wslc session result. Qualified Linux x64 archives and native user-space results are recorded in the [x64 CI results](ci-x64-results.md); the Windows x64 wslc launcher remains separately unvalidated.
 
 ## Prerequisites
 
@@ -39,10 +39,10 @@ The default archives and container names are:
 | ARM64 | `scripts/start-wslc-arm64.cmd` | `artifacts/10.0.403-linux-arm64/cbodotnet-sdk-10.0.403-linux-arm64-build.1.tar.gz` | `cbodotnet-sdk-test-arm64` |
 | x64 | `scripts/start-wslc-x64.cmd` | `artifacts/10.0.403-linux-x64/cbodotnet-sdk-10.0.403-linux-x64-build.1.tar.gz` | `cbodotnet-sdk-test-x64` |
 
-On Windows x64, use the following launcher once a separately built x64 archive is available:
+The `build.1` paths are configured defaults. CI archives use their actual run ID and must be selected explicitly. On native Windows x64, download and extract the qualified CI delivery, then select its SDK archive, for example:
 
 ```powershell
-.\scripts\start-wslc-x64.cmd
+.\scripts\start-wslc-x64.cmd -ArchivePath "D:\Releases\cbodotnet-sdk-10.0.403-linux-x64-build.41301145771.tar.gz"
 ```
 
 If the archive is stored elsewhere, pass its path as the first argument or with `-ArchivePath`. Quote paths that contain spaces.
@@ -173,4 +173,4 @@ The following checks were completed on Windows ARM64 with `wslc 3.0.3.0`, using 
 
 The runtime-deps base image digest used for validation was `sha256:1b1cd2aa285ed1175fe4027ba1f26c88bb17beeaeccc43ded69083383c52dd95`. The launcher uses an image tag and `--pull missing`, so a new environment is not guaranteed to select this digest.
 
-After validation, the default `cbodotnet-sdk-test-arm64` container was restarted and left running. It contains the `/work/Hello` and `/work/Web` examples. The web process used during validation was terminated when the container was stopped; start the app in Bash to access it again. Building the x64 archive and validating it on Windows x64 remain future work.
+After validation, the default `cbodotnet-sdk-test-arm64` container was restarted and left running. It contains the `/work/Hello` and `/work/Web` examples. The web process used during validation was terminated when the container was stopped; start the app in Bash to access it again. Later Linux x64 archives are qualified separately in the [native x64 CI results](ci-x64-results.md). Launcher execution on native Windows x64 remains separately unvalidated.

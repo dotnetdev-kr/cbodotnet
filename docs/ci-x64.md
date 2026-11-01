@@ -1,6 +1,6 @@
 # Native Linux x64 CI and source delivery
 
-The [x64 workflow](../.github/workflows/sdk-x64.yml) provides separate native x64 jobs for the same eight pinned SDK versions as the ARM64 matrix. Build environments, bootstrap inputs, sysroots, package identities, ELF checks and native user-space results are selected explicitly for x64. Implementation and fixture checks do not establish a successful product build; actual hosted and downloaded qualification is tracked in the [x64 results](ci-x64-results.md).
+The [x64 workflow](../.github/workflows/sdk-x64.yml) provides separate native x64 jobs for the same eight pinned SDK versions as the ARM64 matrix. All eight have passed actual hosted builds and complete independent downloaded SDK/source qualification, recorded in the [x64 results](ci-x64-results.md). Build environments, bootstrap inputs, sysroots, package identities, ELF checks and native user-space results are selected explicitly for x64. These qualifications apply to their exact pinned inputs and run identities.
 
 ## Run a pinned profile
 
