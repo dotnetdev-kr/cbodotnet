@@ -273,7 +273,9 @@ class GitAdmissionTests(unittest.TestCase):
         for arch in ('aarch64', 'x64'):
             self.put('profiles/dotnet-8.0.133-linux-' + arch + '.json', '{"sdkVersion":"8.0.133"}')
         parent = self.commit()
-        inputs = {'runtime': '8.0.34', 'bootstrapSdk': '8.0.133'}
+        inputs = {'runtime': '8.0.34', 'bootstrapSdk': '8.0.133',
+                  'archive': {'url': 'https://example.invalid/immutable.tar.gz', 'bytes': 123,
+                              'hashes': {'sha512': '2' * 128, 'sha256': '3' * 64}}}
         candidate = dict(schemaVersion=1, adapter=policy['adapter']['name'], target='net8', sdkVersion='8.0.134',
                          sourceCommit='3' * 40, sourceTag='v8.0.134', upstreamInputs=inputs,
                          runtimeVersion='8.0.34', releaseDate='2026-11-10')
@@ -282,7 +284,7 @@ class GitAdmissionTests(unittest.TestCase):
         def transform(destination, supplied_policy, supplied_candidate, helpers):
             self.assertEqual(supplied_policy, policy); self.assertEqual(supplied_candidate, candidate)
             self.assertEqual(helpers.WORKFLOW, MODULE.WORKFLOW)
-            (destination / 'scripts/ci-sdk.py').write_text("SDK='8.0.134'\n")
+            (destination / 'scripts/ci-sdk.py').write_text("SDK='8.0.134'\nINPUTS=" + repr(supplied_candidate['upstreamInputs']) + '\n')
             for arch in ('aarch64', 'x64'):
                 (destination / ('profiles/dotnet-8.0.134-linux-' + arch + '.json')).write_text('{"sdkVersion":"8.0.134"}')
 
@@ -302,6 +304,24 @@ class GitAdmissionTests(unittest.TestCase):
             self.assertNotIn('sharedAttributeAuditSha256', result)
             self.assertIn('profiles/dotnet-8.0.134-linux-aarch64.json', result['changedFiles'])
             module.compatibility.assert_called_once()
+
+            def reverse_keys(value):
+                if isinstance(value, dict):
+                    return {key: reverse_keys(item) for key, item in reversed(list(value.items()))}
+                if isinstance(value, list):
+                    return [reverse_keys(item) for item in value]
+                return value
+
+            reordered = self.root / 'reordered-candidate.json'
+            reordered.write_text(json.dumps(reverse_keys(candidate)))
+            self.assertEqual(MODULE.digest(MODULE.load(reordered)), MODULE.digest(candidate))
+            reordered_attestation = self.root / 'reordered-attestation.json'
+            MODULE.generate(argparse.Namespace(project_root=self.repo, candidate=reordered,
+                            destination=self.root / 'family-reordered', attestation=reordered_attestation))
+            replay = MODULE.load(reordered_attestation)
+            self.assertEqual(replay['candidateSha256'], result['candidateSha256'])
+            self.assertEqual(replay['generatedProjectTree'], result['generatedProjectTree'])
+            self.assertEqual(replay['generatedProjectCommit'], result['generatedProjectCommit'])
 
             def unbounded(*args):
                 transform(*args)

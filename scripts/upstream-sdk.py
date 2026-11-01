@@ -36,6 +36,11 @@ def digest(value):
     return hashlib.sha256(encode(value)).hexdigest()
 
 
+def canonical(value):
+    """Make every nested mapping's insertion order agree with its content hash."""
+    return json.loads(encode(value))
+
+
 def write(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open('xb') as stream:
@@ -267,6 +272,7 @@ def plan(policy, documents, published, resolve=peel_tag, values=None, drafts=(),
                                          runtimeVersion=row['runtimeVersion'], releaseDate=row['releaseDate'])
                         if adapter.get('target', 'net10') != 'net10':
                             candidate['target'] = adapter['target']
+                        candidate = canonical(candidate)
                         row.update(status='candidate', reason='Requires immutable input compatibility checks and both native builds',
                                    candidateSha256=digest(candidate))
                         candidates.append(candidate)
@@ -292,7 +298,7 @@ def admit_candidates(result, maximum, check):
             row['compatibilityInventorySha256'] = digest(proof)
     result['candidates'] = admitted[:maximum]
     result['deferredCandidates'] = len(admitted) - len(result['candidates'])
-    return result
+    return canonical(result)
 
 
 def baseline_candidate(policy, documents, resolve=peel_tag, values=manifest_values):
@@ -307,7 +313,7 @@ def baseline_candidate(policy, documents, resolve=peel_tag, values=manifest_valu
                   upstreamInputs=inputs, runtimeVersion=row['runtimeVersion'], releaseDate=row['releaseDate'], qualificationOnly=True)
     if adapter.get('target', 'net10') != 'net10':
         result['target'] = adapter['target']
-    return result
+    return canonical(result)
 
 
 def git(root, *args, data=None, env=None):
@@ -427,7 +433,7 @@ def transform(root, policy, candidate, audit):
 
 
 def generate(args):
-    master_policy = load(args.project_root / 'profiles/upstream-policy.json'); candidate = load(args.candidate)
+    master_policy = load(args.project_root / 'profiles/upstream-policy.json'); candidate = canonical(load(args.candidate))
     policy, module = selected_adapter(adapter_registry(master_policy, args.project_root), candidate['adapter'])
     adapter = policy['adapter']; sdk = candidate['sdkVersion']; parts = version(sdk)
     require(candidate['schemaVersion'] == 1 and candidate['adapter'] == adapter['name']
@@ -549,8 +555,10 @@ def discover(args):
         reason = next(row['reason'] for row in result['records'] if row['sdkVersion'] == requested)
         raise ValueError('Requested baseline ' + requested + ' failed immutable source admission: ' + reason)
     if os.environ.get('GITHUB_OUTPUT'):
-        versions = [{'sdk': row['sdkVersion'], 'target': candidate_target(row), 'candidate': row} for row in result['candidates']]
-        matrix = [{'sdk': row['sdkVersion'], 'target': candidate_target(row), 'arch': arch, 'runner': runner, 'candidate': row}
+        versions = [{'sdk': row['sdkVersion'], 'target': candidate_target(row), 'candidate': canonical(row),
+                     'candidate_json': encode(row).decode()} for row in result['candidates']]
+        matrix = [{'sdk': row['sdkVersion'], 'target': candidate_target(row), 'arch': arch, 'runner': runner,
+                   'candidate': canonical(row), 'candidate_json': encode(row).decode()}
                   for row in result['candidates'] for arch, runner in [('aarch64', 'ubuntu-24.04-arm'), ('x64', 'ubuntu-24.04')]]
         with open(os.environ['GITHUB_OUTPUT'], 'a') as stream:
             stream.write('matrix=' + json.dumps({'include': matrix}, separators=(',', ':')) + '\n')

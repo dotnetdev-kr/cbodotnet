@@ -81,7 +81,7 @@ jobs:
           persist-credentials: false
       - name: Admit immutable source inputs and generate the constrained adapter
         env:
-          CANDIDATE_JSON: ${{ toJSON(matrix.candidate) }}
+          CANDIDATE_JSON: ${{ matrix.candidate_json }}
           QUALIFICATION_ONLY: ${{ matrix.candidate.qualificationOnly || false }}
         run: |
           [[ "$GITHUB_WORKFLOW_SHA" == "$GITHUB_SHA" ]]
@@ -120,6 +120,10 @@ jobs:
             ${{ runner.temp }}/adapter.json
             ${{ runner.temp }}/releases/*/reports/ci/stages/*.json
             ${{ runner.temp }}/releases/*/reports/ci/logs/*.log
+            ${{ runner.temp }}/releases/*/reports/*/ci-driver.log
+            ${{ runner.temp }}/releases/*/reports/*/*.log
+            ${{ runner.temp }}/releases/*/reports/*/*-status.json
+            ${{ runner.temp }}/releases/*/reports/*/bootstrap-sdk-input.json
           retention-days: 14
           if-no-files-found: warn
 
@@ -141,7 +145,7 @@ jobs:
           persist-credentials: false
       - name: Independently regenerate trusted verification code from original inputs
         env:
-          CANDIDATE_JSON: ${{ toJSON(matrix.candidate) }}
+          CANDIDATE_JSON: ${{ matrix.candidate_json }}
           QUALIFICATION_ONLY: ${{ matrix.candidate.qualificationOnly || false }}
         run: |
           [[ "$GITHUB_WORKFLOW_SHA" == "$GITHUB_SHA" ]]
