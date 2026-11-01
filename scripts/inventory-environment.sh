@@ -82,7 +82,7 @@ document = {
     "tools": tools,
     "packages": packages,
     "buildConfiguration": {key: os.environ[key] for key in ("ROOTFS_DIR", "CC", "CXX") if key in os.environ},
-    "notes": ["WSL filesystem free space is virtual capacity; also check the physical drive containing its VHD.",
+    "notes": ["Reserve CI runner disk capacity for source, downloaded inputs, intermediate output and final deliveries.",
               "This inventory records installed tools and does not establish build compatibility."],
 }
 encoded = json.dumps(document, indent=2, ensure_ascii=False) + "\n"

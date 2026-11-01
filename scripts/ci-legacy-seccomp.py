@@ -74,8 +74,8 @@ def main():
             isinstance(entry, dict) and entry.get("architecture") == ARCH['seccomp'] for entry in arch_map)):
         raise ValueError("The base policy does not declare the selected native architecture")
 
-    # The external ldconfig probe can fail in WSL even when the runtime loader
-    # can resolve the installed library. Keep the same native API checks below.
+    # An external ldconfig probe may miss a library that the runtime loader can
+    # resolve. Keep the same native API checks below.
     library_name = ctypes.util.find_library("seccomp") or "libseccomp.so.2"
     library = ctypes.CDLL(library_name)
     library.seccomp_arch_native.restype = ctypes.c_uint32

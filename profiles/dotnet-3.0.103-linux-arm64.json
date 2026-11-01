@@ -568,7 +568,6 @@
   },
   "testing": {
     "status": "passed-complete-original-upstream-shell-suite",
-    "entryPoint": "Invoke-Core30Build.ps1 -Mode Test",
     "helper": "scripts/prepare-core30-smoke.py",
     "freshSdkRequired": true,
     "expectedTemplateCases": 52,

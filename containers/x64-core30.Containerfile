@@ -32,8 +32,8 @@ RUN cp /usr/share/keyrings/ubuntu-archive-keyring.gpg /usr/share/keyrings/cbodot
          > /usr/share/keyrings/ubuntu-archive-keyring.gpg
 
 # Bionic's Python 3 is sufficient for upstream scripts. Current project helpers
-# requiring Python 3.9+ must run on the WSL host or use a separately pinned
-# interpreter; this recipe does not claim to supply that interpreter yet.
+# requiring Python 3.9+ run on the CI host or in a separately pinned analysis
+# container; this recipe does not supply that interpreter.
 RUN test "$(uname -m)" = x86_64 \
     && test -f /usr/lib/x86_64-linux-gnu/libssl.so.1.1 \
     && clang-6.0 --version && cmake --version && python2.7 --version && python3 --version \

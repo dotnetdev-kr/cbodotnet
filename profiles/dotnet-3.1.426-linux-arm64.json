@@ -380,7 +380,6 @@
   },
   "testing": {
     "status": "passed",
-    "entryPoint": "Invoke-Core31Build.ps1 -Mode Test",
     "helper": "scripts/prepare-core31-tests.py",
     "freshSdkRequired": true,
     "expectedTemplateCases": 52,

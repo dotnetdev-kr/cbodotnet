@@ -132,7 +132,6 @@
       "originReport": "artifacts/5.0.214-linux-arm64/reports/construction/origin-evidence.json"
     },
     "status": "passed-full-upstream-suite-and-controlled-native-matrix",
-    "entryPoint": "Invoke-Net5Build.ps1 -Mode Test",
     "suite": "The complete pinned upstream shell smoke suite through the unmodified RunSmokeTest target.",
     "freshSdkRequired": true,
     "expectedTemplateCases": 68,

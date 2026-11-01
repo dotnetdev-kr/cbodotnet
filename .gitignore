@@ -29,7 +29,7 @@ __pycache__/
 *.deb
 *.rpm
 
-# Local WSL/container disks and virtual-machine images.
+# Container disks and virtual-machine images.
 *.ext4
 *.vhd
 *.vhdx
