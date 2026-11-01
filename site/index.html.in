@@ -1,24 +1,26 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" prefix="og: https://ogp.me/ns#">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Community .NET SDK builds for glibc Linux x64 and aarch64, with the sources used for each build.">
-<title>cbodotnet — .NET SDK builds</title>
+<meta name="description" content="Community .NET SDK builds for glibc Linux x64 and aarch64. Download binaries, the actual build sources and verification evidence.">
+<title>cbodotnet — Community .NET SDK builds</title>
 <link rel="canonical" href="https://dotnetdev.kr/cbodotnet/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="cbodotnet">
+<meta property="og:locale" content="en_US">
 <meta property="og:title" content="cbodotnet — Community .NET SDK builds">
-<meta property="og:description" content="Download community .NET SDK builds for glibc Linux x64 and aarch64, with the actual sources and verification evidence.">
+<meta property="og:description" content="Community .NET SDK builds for glibc Linux x64 and aarch64. Download binaries, the actual build sources and verification evidence.">
 <meta property="og:url" content="https://dotnetdev.kr/cbodotnet/">
 <meta property="og:image" content="https://dotnetdev.kr/cbodotnet/assets/social-card.jpg">
+<meta property="og:image:secure_url" content="https://dotnetdev.kr/cbodotnet/assets/social-card.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1730">
 <meta property="og:image:height" content="909">
 <meta property="og:image:alt" content="An abstract violet and cyan loop suggesting connected software components and two Linux architectures.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="cbodotnet — Community .NET SDK builds">
-<meta name="twitter:description" content="Community .NET SDK builds for glibc Linux x64 and aarch64, with the actual sources and verification evidence.">
+<meta name="twitter:description" content="Community .NET SDK builds for glibc Linux x64 and aarch64. Download binaries, the actual build sources and verification evidence.">
 <meta name="twitter:image" content="https://dotnetdev.kr/cbodotnet/assets/social-card.jpg">
 <meta name="twitter:image:alt" content="An abstract violet and cyan loop suggesting connected software components and two Linux architectures.">
 <style>
