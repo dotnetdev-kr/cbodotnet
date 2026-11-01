@@ -47,7 +47,7 @@ To resume a failed publication without rebuilding, dispatch the publication work
 
 ## Upstream updates
 
-The [upstream workflow](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/upstream-sdk.yml) checks official stable SDK metadata every day at **03:23 UTC**, including end-of-life channels. Constrained adapters cover successors to .NET 8.0.133/9.0.123 in their 1xx bands and .NET 10.0.403 in its 4xx band. Each new SDK needs both native builds, actual used sources and complete verification before automatic publication. The generated .NET 10 route has passed hosted qualification; the .NET 8/9 extensions are undergoing that qualification.
+The [upstream workflow](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/upstream-sdk.yml) checks official stable SDK metadata every day at **03:23 UTC**, including end-of-life channels. Constrained adapters cover successors to .NET 8.0.133/9.0.123 in their 1xx bands and .NET 10.0.403 in its 4xx band. Each new SDK needs both native builds, actual used sources and complete verification before automatic publication. All three generated baseline adapters have passed both native hosted builds and independent SDK/source verification and release staging.
 
 Other bands and new major versions remain visible as `pending-adapter`; missing exact source tags remain `pending-source`, and unavailable bootstrap inputs remain `pending-bootstrap`. An incompatible source layout requires a qualified adapter update. [Automation and recovery details](docs/upstream-automation.md) describe the admission gates and retry behavior.
 
