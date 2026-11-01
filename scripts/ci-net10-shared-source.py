@@ -147,7 +147,7 @@ def archive_markers(archive,profile,arch='arm64'):
 
 
 def bind(args):
-    arch=getattr(args,'arch','arm64'); identity=ARCH.get_arch(arch)
+    arch=getattr(args,'arch','arm64'); architecture=ARCH.get_arch(arch)
     profile=load(args.profile); pin=selected(profile,arch)
     require(git(args.source_dir,'rev-parse','HEAD')==MAIN,'The current SDK VMR source pin changed')
     identity=checkout_identity(args.shared_source_dir,pin)
@@ -158,7 +158,7 @@ def bind(args):
     require(preparation['profile']==fingerprint(args.profile),'The selected profile changed after shared-source acquisition')
     spec=importlib.util.spec_from_file_location('ci_shared_collector',Path(__file__).with_name('collect-artifacts.py'))
     collector=importlib.util.module_from_spec(spec); spec.loader.exec_module(collector)
-    archive,candidates,_=collector.select_sdk(args.source_dir,SDK,identity['rid'],False)
+    archive,candidates,_=collector.select_sdk(args.source_dir,SDK,architecture['rid'],False)
     before=fingerprint(archive); markers=archive_markers(archive,profile,arch)
     require(fingerprint(archive)==before,'Produced SDK archive changed while binding source markers')
     roots={'schemaVersion':1,'roots':[

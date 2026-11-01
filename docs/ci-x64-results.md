@@ -4,14 +4,14 @@ Implementation, architecture rejection fixtures and workflow linting are complet
 
 | Profile | SDK | Hosted run | Downloaded delivery |
 | --- | --- | --- | --- |
-| .NET 10 | 10.0.403 | [41295429028](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295429028), in progress | Pending |
+| .NET 10 | 10.0.403 | [41295429028](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295429028), failed source binding | Pending replacement |
 | .NET 9 | 9.0.123 | [41295430879](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295430879), in progress | Pending |
 | .NET 8 | 8.0.133 | [41295751388](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295751388), in progress | Pending |
-| .NET 7 | 7.0.120 | [41297565182](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41297565182), failed build | Pending replacement |
+| .NET 7 | 7.0.120 | [41299659746](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41299659746), in progress | Pending |
 | .NET 6 | 6.0.136 | [41297567596](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41297567596), in progress | Pending |
 | .NET 5 | 5.0.214 | [41297570076](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41297570076), in progress | Pending |
-| .NET Core 3.1 | 3.1.426 | [41297572302](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41297572302), failed build | Pending replacement |
-| .NET Core 3.0 | 3.0.103 | [41297574501](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41297574501), failed build | Pending replacement |
+| .NET Core 3.1 | 3.1.426 | [41299661978](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41299661978), in progress | Pending |
+| .NET Core 3.0 | 3.0.103 | [41299664194](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41299664194), in progress | Pending |
 
 The [x64 guide](ci-x64.md) describes the native workers, version-specific construction, source delivery and trusted portable verifier. Qualification must bind each artifact to its exact orchestration commit, source revision, run and attempt. Original ARM64 records remain separately available in the [ARM64 results](ci-matrix-results.md).
 
@@ -29,8 +29,18 @@ The initial .NET 5/Core 3.x runs authenticated the Ubuntu archive but stopped be
 
 The initial .NET 6 generator silently selected its default ARM target for an unsupported x64 argument. The .NET 7 generator selected amd64 but lacked the requested x64 Xenial source list. Their replacements use an explicit native amd64 producer with the exact pinned upstream package set, authenticated archive, recorded source-list transport adaptation and complete inventories. These failed runs remain failed; replacement runs must independently qualify.
 
-The subsequent Core 3.0 and 3.1 runs passed the corrected signed sysroot preparation. Core 3.0 then stopped at a retired MyGet system-commandline index with an invalid TLS certificate. Core 3.1 passed its Clang 9/sysroot compiler checks but stopped in CoreCLR's architecture-detection branch. Their retained diagnostic ZIPs independently matched the GitHub API SHA-256 values; safe transport extraction passed and complete delivery verification correctly rejected the missing product/source deliveries. Neither is a qualified SDK.
+| Profile | Subsequent failed run | Build failure |
+| --- | --- | --- |
+| .NET 7 | [41297565182](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41297565182) | Bootstrap ILAsm package RID mismatch |
+| .NET Core 3.1 | [41297572302](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41297572302) | CoreCLR cross objcopy selection omitted x86_64 |
+| .NET Core 3.0 | [41297574501](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41297574501) | Retired MyGet system-commandline index |
+
+These subsequent runs passed the corrected signed sysroot preparation. Core 3.0 then stopped at a retired MyGet system-commandline index with an invalid TLS certificate. Core 3.1 passed its Clang 9/sysroot compiler checks but stopped in CoreCLR's architecture-detection branch. Their retained diagnostic ZIPs independently matched the GitHub API SHA-256 values; safe transport extraction passed and complete delivery verification correctly rejected the missing product/source deliveries. Neither is a qualified SDK.
 
 The subsequent .NET 7 run also passed native preparation. Its source-build reference-package adapter selected a `linux-x64` ILAsm package while the unchanged original bootstrap archive contains the `centos.8-x64` build tool. The bootstrap tool RID and final portable SDK RID must remain distinct. The retained failure is not a qualified SDK.
 
 The bounded corrections add x86_64 to the existing prefixed CoreCLR objcopy selection in the byte-identical Core 3.0/3.1 branches, explicitly preserve the local/official restore policy in Core 3.0's native online Roslyn command, and select the original CentOS ILAsm tool in .NET 7's x64-only adapter patch. They preserve the original project graph, package versions, ARM manifests, TLS verification and portable product target. Exact original Git blobs, patch input/output hashes, MSBuild property evaluation and CMake tool selection were checked before replacement dispatches. Fresh hosted runs and downloaded SDK/source qualification remain required.
+
+The initial [.NET 10 run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295429028) completed its product build, all 13 common tests and the 36 original scenarios (34 passed and two original skips). Its subsequent source-binding helper incorrectly read the target RID from Git checkout metadata. Source delivery and native user-space qualification were not reached. Its diagnostic ZIP matched the GitHub API digest, but this failed run is not a complete SDK/source qualification.
+
+The source-binding correction keeps architecture selection separate from Git identity. Complete default-ARM64 and explicit-x64 regressions exercise genuine archive selection with a foreign-architecture candidate, pristine Git identities, both framework markers and the resulting source roots/report. The failed product run remains preserved; its fresh replacement must complete source delivery and native verification independently.

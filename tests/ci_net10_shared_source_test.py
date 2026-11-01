@@ -9,6 +9,8 @@ import subprocess
 import tarfile
 import tempfile
 import unittest
+from unittest import mock
+from types import SimpleNamespace
 
 ROOT=Path(__file__).resolve().parents[1]
 SPEC=importlib.util.spec_from_file_location('shared_source',ROOT/'scripts/ci-net10-shared-source.py')
@@ -86,6 +88,42 @@ class ReusedFrameworkSourceTests(unittest.TestCase):
         self.assertEqual(result['submodules'][0]['commit'],child_pin)
         (root/'src/runtime/source.cs').write_text('tampered\n')
         with self.assertRaises(ValueError): S.checkout_identity(root,pin)
+
+    def test_complete_bind_selects_each_sdk_rid_separately_from_the_shared_git_identity(self):
+        for arch,other in [('arm64','x64'),('x64','arm64')]:
+            with self.subTest(arch=arch):
+                base=self.root/arch; base.mkdir()
+                source=self.repository(base/'vmr'); (source/'source.cs').write_text('synthetic SDK source\n')
+                self.git(source,'add','.'); self.git(source,'commit','-qm','Synthetic SDK source')
+                main_pin=self.git(source,'rev-parse','HEAD')
+                shared=self.repository(base/'shared')
+                for name in ['runtime','aspnetcore']:
+                    path=shared/'src'/name; path.mkdir(parents=True); (path/'source.cs').write_text(name+'\n')
+                self.git(shared,'add','.'); self.git(shared,'commit','-qm','Synthetic complete shared source')
+                shared_pin=self.git(shared,'rev-parse','HEAD')
+                profile=json.loads((ROOT/('profiles/dotnet-10.0.403-linux-'+arch+'.json')).read_text())
+                profile['source']['commit']=main_pin; profile['upstreamInputs']['sharedVmrCommit']=shared_pin
+                profile_path=base/'profile.json'; profile_path.write_text(json.dumps(profile))
+                archive=source/('artifacts/assets/Release/Sdk/dotnet-sdk-10.0.403-linux-'+arch+'.tar.gz')
+                archive.parent.mkdir(parents=True)
+                foreign=archive.with_name('dotnet-sdk-10.0.403-linux-'+other+'.tar.gz'); foreign.write_bytes(b'Foreign architecture is never selected')
+                with mock.patch.object(S,'MAIN',main_pin), mock.patch.object(S,'SHARED',shared_pin):
+                    archive.write_bytes(self.archive().read_bytes())
+                    identity=S.checkout_identity(shared,shared_pin)
+                    self.assertNotIn('rid',identity)
+                    preparation=base/'prepare.json'
+                    preparation.write_text(json.dumps(dict(role=S.ROLE,checkoutDirectory=str(shared),profile=S.fingerprint(profile_path),**identity)))
+                    args=SimpleNamespace(profile=profile_path,source_dir=source,shared_source_dir=shared,
+                                         prepare_report=preparation,roots_output=base/'roots.json',report=base/'binding.json')
+                    if arch=='x64': args.arch='x64'
+                    S.bind(args)
+                    report=json.loads(args.report.read_text()); roots=json.loads(args.roots_output.read_text())
+                    self.assertEqual(report['status'],'passed'); self.assertEqual(report['sharedSource'],identity)
+                    self.assertEqual(report['sdkArchive']['upstreamPath'],archive.relative_to(source).as_posix())
+                    self.assertEqual(report['sdkArchive']['sha256'],S.fingerprint(archive)['sha256'])
+                    self.assertEqual({row['commit'] for row in report['sharedMarkers']},{shared_pin})
+                    self.assertEqual([row['expectedCommit'] for row in roots['roots']],[main_pin,shared_pin])
+                    self.assertEqual(S.checkout_identity(shared,shared_pin),identity)
 
     def test_fetch_and_bind_cli_help_are_read_only(self):
         for args in [['--help'],['prepare','--help'],['bind','--help']]:
