@@ -81,6 +81,7 @@ def prepare(args):
     env=dict(os.environ,DEBIAN_FRONTEND='noninteractive')
     run(['apt-get','update','-qq'],env=env)
     run(['apt-get','install','-y','--no-install-recommends','python3','util-linux','passwd',
+         *(['binutils'] if 'nativeHttpCompatibility' in plan else []),
          *native_dependencies(load_contract(),plan['sdkVersion'],args.variant)],env=env)
     run(['useradd','--create-home','--user-group','--uid','10001',USER])
     INSTALL.mkdir(); sdk_tools().extract_sdk(args.workspace/'build'/build['artifact']['name'],INSTALL/'original')

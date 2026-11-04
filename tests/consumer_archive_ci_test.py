@@ -1,12 +1,14 @@
 """Archive CI may mutate only disposable native containers and trusted main runs."""
 import os
 import errno
+import json
 from pathlib import Path
 import re
 import sys
 import unittest
 import tempfile
 from unittest import mock
+from types import SimpleNamespace
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'scripts'))
@@ -14,6 +16,25 @@ import consumer_archive_ci as CI
 
 
 class ConsumerArchiveCiTests(unittest.TestCase):
+    def test_core3_preparation_installs_readelf_before_companion_elf_validation(self):
+        for version in ('3.0.103','3.1.426','5.0.214','10.0.403'):
+            with self.subTest(version=version),tempfile.TemporaryDirectory() as temporary:
+                workspace=Path(temporary);(workspace/'build').mkdir()
+                plan=dict(sdkVersion=version,architecture='x64')
+                if version.startswith('3.'):plan['nativeHttpCompatibility']={'required':True}
+                (workspace/'build/package-build.json').write_text(json.dumps({'plan':plan}))
+                calls=[]
+                def run(arguments,**kwargs):
+                    calls.append(arguments)
+                    if arguments[0]=='useradd':raise RuntimeError('stop after validation prerequisites')
+                    return ''
+                with mock.patch.object(CI,'guard'),mock.patch.object(CI,'load_contract',return_value={}),\
+                        mock.patch.object(CI,'native_dependencies',return_value=[]),mock.patch.object(CI,'run',side_effect=run):
+                    with self.assertRaisesRegex(RuntimeError,'validation prerequisites'):
+                        CI.prepare(SimpleNamespace(workspace=workspace,variant='ubuntu-22.04'))
+                self.assertEqual(version.startswith('3.'),'binutils' in calls[1])
+                self.assertEqual('useradd',calls[2][0])
+
     @unittest.skipUnless(os.name=='posix','Preserved Linux modes and symlinks required')
     def test_overlay_lower_layer_exdev_relocation_preserves_bytes_modes_and_links(self):
         with tempfile.TemporaryDirectory() as directory:
