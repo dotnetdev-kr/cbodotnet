@@ -425,6 +425,15 @@ file verification. The four reports are preserved in the
 Immutable source/command/artifact bindings and public archive/image results
 are retained in [distribution status](../releases/downstream-status.json).
 
+OCI revision 2 additionally passed the complete
+[native publication and anonymous digest-pull run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41831153506).
+Both platform images retain the original SDK and notices while adding complete
+source/license labels. The same non-root offline DLL/apphost, HTTP, RSA/random
+and ICU probe passed before publication and after public digest pull, together
+with exact SDK listings, root/RID, user/workdir and ownership checks. The
+[OCI validation record](oci-publication-validation.json) binds these reports to
+the signed immutable index. Prior OCI, APT and RPM receipts remain preserved.
+
 RPM qualification passed on native x64 and AArch64 workers in pinned Fedora 45
 and Rocky Linux 9.8 user-space containers. The
 [native build and signing run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41784038274)

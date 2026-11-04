@@ -1,0 +1,1228 @@
+{
+  "anonymousRegistryMetadata": {
+    "platforms": [
+      {
+        "configDigest": "sha256:c8066c25e91ef18091de03beaa78b220aa5557bcda772dd83d075fbfb094ddad",
+        "inspectedConfig": {
+          "architecture": "amd64",
+          "labels": {
+            "kr.dotnetdev.cbodotnet.evidence.sha256": "56941c7c987707506784618cc992bab611c2f97623d4c1b56d4d4d00a1221a5e",
+            "kr.dotnetdev.cbodotnet.evidence.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-x64.tar.gz",
+            "kr.dotnetdev.cbodotnet.license.path": "/opt/cbodotnet/10.0/LICENSE.txt",
+            "kr.dotnetdev.cbodotnet.manifest.sha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+            "kr.dotnetdev.cbodotnet.manifest.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json",
+            "kr.dotnetdev.cbodotnet.notices.path": "/opt/cbodotnet/10.0/ThirdPartyNotices.txt",
+            "kr.dotnetdev.cbodotnet.notices.url": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md#licenses-and-notices",
+            "kr.dotnetdev.cbodotnet.package.revision": "2",
+            "kr.dotnetdev.cbodotnet.sdk.sha256": "0ff27ca9775fb8d3c83fce60ad511754956f311a950878dcbc05bd6737a4bc09",
+            "kr.dotnetdev.cbodotnet.sdk.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-x64.tar.gz",
+            "kr.dotnetdev.cbodotnet.source.sha256": "222a3f28450c258c8179eb5f4360e96f5886cd4af8fe36d33533f3bc6491009c",
+            "kr.dotnetdev.cbodotnet.source.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-x64.tar.gz",
+            "org.opencontainers.image.base.name": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+            "org.opencontainers.image.documentation": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md",
+            "org.opencontainers.image.licenses": "MIT AND LicenseRef-Dotnet-ThirdPartyNotices",
+            "org.opencontainers.image.source": "https://github.com/dotnetdev-kr/cbodotnet",
+            "org.opencontainers.image.title": "Community Build of .NET (built by .NET Dev)",
+            "org.opencontainers.image.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-10.0.403",
+            "org.opencontainers.image.version": "10.0.403"
+          },
+          "sdkRoot": "/opt/cbodotnet/10.0",
+          "user": "app",
+          "workdir": "/work"
+        },
+        "manifestDigest": "sha256:ac2d3b3d13ef5b935a6e0eca7e120e72367954ad8c3f3c4c51c13cd615c9ce2d",
+        "platform": "amd64"
+      },
+      {
+        "configDigest": "sha256:cee5ff3081bd3898b194e893192928a3664bad516d33c551bcb90d1ed535c299",
+        "inspectedConfig": {
+          "architecture": "arm64",
+          "labels": {
+            "kr.dotnetdev.cbodotnet.evidence.sha256": "97843567a562a42fed38f7b89bc3026496b39017f46f524f11c6073039025309",
+            "kr.dotnetdev.cbodotnet.evidence.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-aarch64.tar.gz",
+            "kr.dotnetdev.cbodotnet.license.path": "/opt/cbodotnet/10.0/LICENSE.txt",
+            "kr.dotnetdev.cbodotnet.manifest.sha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+            "kr.dotnetdev.cbodotnet.manifest.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json",
+            "kr.dotnetdev.cbodotnet.notices.path": "/opt/cbodotnet/10.0/ThirdPartyNotices.txt",
+            "kr.dotnetdev.cbodotnet.notices.url": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md#licenses-and-notices",
+            "kr.dotnetdev.cbodotnet.package.revision": "2",
+            "kr.dotnetdev.cbodotnet.sdk.sha256": "410491f0166109c2c3d115705ab64601cec56c3b1c1995267d3b16567f9c0d5b",
+            "kr.dotnetdev.cbodotnet.sdk.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz",
+            "kr.dotnetdev.cbodotnet.source.sha256": "c074b74287d15691ee0ce01bb0d4912db017e35b91010d9380b04f1b62c8b745",
+            "kr.dotnetdev.cbodotnet.source.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-aarch64.tar.gz",
+            "org.opencontainers.image.base.name": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+            "org.opencontainers.image.documentation": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md",
+            "org.opencontainers.image.licenses": "MIT AND LicenseRef-Dotnet-ThirdPartyNotices",
+            "org.opencontainers.image.source": "https://github.com/dotnetdev-kr/cbodotnet",
+            "org.opencontainers.image.title": "Community Build of .NET (built by .NET Dev)",
+            "org.opencontainers.image.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-10.0.403",
+            "org.opencontainers.image.version": "10.0.403"
+          },
+          "sdkRoot": "/opt/cbodotnet/10.0",
+          "user": "app",
+          "workdir": "/work"
+        },
+        "manifestDigest": "sha256:45139a41544c105840147a5d2b5750fe7ed9df7f5be5cfb93c369529962b537d",
+        "platform": "arm64"
+      }
+    ],
+    "status": "passed"
+  },
+  "distributionManifestSha256": "75282c76b18da5ba3cd9d0262c9c24594a4266a92a2aba50437b8e2c3f7eacb9",
+  "frozenPromotion": {
+    "artifact": {
+      "actualDownloadedZipSha256": "passed",
+      "createdAt": "2026-11-04T12:44:55Z",
+      "expiresAt": "2026-11-18T12:44:54Z",
+      "id": "13322758505",
+      "name": "downstream-frozen-promotion-41831153506-1",
+      "size": 49073,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41831153506/artifacts/13322758505",
+      "zipSha256": "83570e4770010da06901332d8bd4d5f5bfe1b6a42b55f1ea5b0f3deddc5bbab5"
+    },
+    "metadata": {
+      "channels": {
+        "oci": "distribution-oci-sdk-10.0.403-r2"
+      },
+      "ociIndexSha256": "6b71c6f5d41682b026aa8c874bbe94a304ed7a9cf3dc047849614cc9de7091bb",
+      "publisherCommit": "23b5bb75b046cbc4ceecb962e1a618a6ba121a1a",
+      "schemaVersion": 1,
+      "sourceOrchestration": {
+        "commit": "23b5bb75b046cbc4ceecb962e1a618a6ba121a1a",
+        "repository": "dotnetdev-kr/cbodotnet",
+        "runAttempt": "1",
+        "runId": "41831153506",
+        "workflow": ".github/workflows/distribution-release.yml"
+      },
+      "status": "signed-and-frozen"
+    },
+    "publicAssetByteEquality": "passed",
+    "selectedChannels": [
+      "oci"
+    ]
+  },
+  "index": {
+    "digest": "sha256:c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9",
+    "platforms": [
+      {
+        "architecture": "amd64",
+        "configDigest": "sha256:c8066c25e91ef18091de03beaa78b220aa5557bcda772dd83d075fbfb094ddad",
+        "digest": "sha256:ac2d3b3d13ef5b935a6e0eca7e120e72367954ad8c3f3c4c51c13cd615c9ce2d",
+        "labels": {
+          "kr.dotnetdev.cbodotnet.evidence.sha256": "56941c7c987707506784618cc992bab611c2f97623d4c1b56d4d4d00a1221a5e",
+          "kr.dotnetdev.cbodotnet.evidence.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-x64.tar.gz",
+          "kr.dotnetdev.cbodotnet.license.path": "/opt/cbodotnet/10.0/LICENSE.txt",
+          "kr.dotnetdev.cbodotnet.manifest.sha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+          "kr.dotnetdev.cbodotnet.manifest.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json",
+          "kr.dotnetdev.cbodotnet.notices.path": "/opt/cbodotnet/10.0/ThirdPartyNotices.txt",
+          "kr.dotnetdev.cbodotnet.notices.url": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md#licenses-and-notices",
+          "kr.dotnetdev.cbodotnet.package.revision": "2",
+          "kr.dotnetdev.cbodotnet.sdk.sha256": "0ff27ca9775fb8d3c83fce60ad511754956f311a950878dcbc05bd6737a4bc09",
+          "kr.dotnetdev.cbodotnet.sdk.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-x64.tar.gz",
+          "kr.dotnetdev.cbodotnet.source.sha256": "222a3f28450c258c8179eb5f4360e96f5886cd4af8fe36d33533f3bc6491009c",
+          "kr.dotnetdev.cbodotnet.source.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-x64.tar.gz",
+          "org.opencontainers.image.base.name": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+          "org.opencontainers.image.documentation": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md",
+          "org.opencontainers.image.licenses": "MIT AND LicenseRef-Dotnet-ThirdPartyNotices",
+          "org.opencontainers.image.source": "https://github.com/dotnetdev-kr/cbodotnet",
+          "org.opencontainers.image.title": "Community Build of .NET (built by .NET Dev)",
+          "org.opencontainers.image.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-10.0.403",
+          "org.opencontainers.image.version": "10.0.403"
+        },
+        "metadataPolicyVersion": 2,
+        "os": "linux",
+        "sdkRoot": "/opt/cbodotnet/10.0"
+      },
+      {
+        "architecture": "arm64",
+        "configDigest": "sha256:cee5ff3081bd3898b194e893192928a3664bad516d33c551bcb90d1ed535c299",
+        "digest": "sha256:45139a41544c105840147a5d2b5750fe7ed9df7f5be5cfb93c369529962b537d",
+        "labels": {
+          "kr.dotnetdev.cbodotnet.evidence.sha256": "97843567a562a42fed38f7b89bc3026496b39017f46f524f11c6073039025309",
+          "kr.dotnetdev.cbodotnet.evidence.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-aarch64.tar.gz",
+          "kr.dotnetdev.cbodotnet.license.path": "/opt/cbodotnet/10.0/LICENSE.txt",
+          "kr.dotnetdev.cbodotnet.manifest.sha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+          "kr.dotnetdev.cbodotnet.manifest.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json",
+          "kr.dotnetdev.cbodotnet.notices.path": "/opt/cbodotnet/10.0/ThirdPartyNotices.txt",
+          "kr.dotnetdev.cbodotnet.notices.url": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md#licenses-and-notices",
+          "kr.dotnetdev.cbodotnet.package.revision": "2",
+          "kr.dotnetdev.cbodotnet.sdk.sha256": "410491f0166109c2c3d115705ab64601cec56c3b1c1995267d3b16567f9c0d5b",
+          "kr.dotnetdev.cbodotnet.sdk.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz",
+          "kr.dotnetdev.cbodotnet.source.sha256": "c074b74287d15691ee0ce01bb0d4912db017e35b91010d9380b04f1b62c8b745",
+          "kr.dotnetdev.cbodotnet.source.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-aarch64.tar.gz",
+          "org.opencontainers.image.base.name": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+          "org.opencontainers.image.documentation": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md",
+          "org.opencontainers.image.licenses": "MIT AND LicenseRef-Dotnet-ThirdPartyNotices",
+          "org.opencontainers.image.source": "https://github.com/dotnetdev-kr/cbodotnet",
+          "org.opencontainers.image.title": "Community Build of .NET (built by .NET Dev)",
+          "org.opencontainers.image.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-10.0.403",
+          "org.opencontainers.image.version": "10.0.403"
+        },
+        "metadataPolicyVersion": 2,
+        "os": "linux",
+        "sdkRoot": "/opt/cbodotnet/10.0"
+      }
+    ],
+    "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+    "schemaVersion": 1,
+    "tag": "10.0.403-debian13-r2"
+  },
+  "limitations": [
+    "This independent retention audit downloads only signed descriptors, reports and registry configuration metadata. Native image transport archives and registry filesystem layers are not downloaded locally; protected native verification and public digest-pull jobs execute those images.",
+    "SDK license metadata preserves the original MIT license plus aggregate third-party notices; Debian/system packages retain their own licenses."
+  ],
+  "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json",
+  "nativePublicDigestReports": [
+    {
+      "architecture": "x64",
+      "artifact": {
+        "actualDownloadedZipSha256": "passed",
+        "createdAt": "2026-11-04T12:45:51Z",
+        "expiresAt": "2026-12-04T12:45:50Z",
+        "id": "13323660287",
+        "name": "downstream-postverify-x64-41831153506-1",
+        "size": 1357,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41831153506/artifacts/13323660287",
+        "zipSha256": "306a70e7ee4503f98d151ce500a578ae053c85ec7d1f31c854c09a54f7db6b57"
+      },
+      "rawReport": {
+        "aptTargets": [],
+        "architecture": "x64",
+        "checks": [
+          "anonymous-pull",
+          "native-config",
+          "non-root",
+          "command-aliases",
+          "cli-branding",
+          "offline-build-run",
+          "sdk-list-paths",
+          "image-ownership",
+          "image-no-build-secrets",
+          "image-no-source-build-toolchain",
+          "console-apphost",
+          "http-crypto-globalization",
+          "sdk-info-root-rid",
+          "image-labels"
+        ],
+        "digest": "sha256:c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9",
+        "functionalChecks": {
+          "aspNetCoreLoopbackHttp": "passed",
+          "consoleApphostExecution": "passed",
+          "consoleDllExecution": "passed",
+          "cryptographicRandomBytes": "passed",
+          "frFrDecimalFormatting": "passed",
+          "nonRootRuntimeRoot": "passed",
+          "rsaSha256SignAndVerify": "passed"
+        },
+        "imageConfig": {
+          "architecture": "amd64",
+          "labels": {
+            "kr.dotnetdev.cbodotnet.evidence.sha256": "56941c7c987707506784618cc992bab611c2f97623d4c1b56d4d4d00a1221a5e",
+            "kr.dotnetdev.cbodotnet.evidence.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-x64.tar.gz",
+            "kr.dotnetdev.cbodotnet.license.path": "/opt/cbodotnet/10.0/LICENSE.txt",
+            "kr.dotnetdev.cbodotnet.manifest.sha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+            "kr.dotnetdev.cbodotnet.manifest.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json",
+            "kr.dotnetdev.cbodotnet.notices.path": "/opt/cbodotnet/10.0/ThirdPartyNotices.txt",
+            "kr.dotnetdev.cbodotnet.notices.url": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md#licenses-and-notices",
+            "kr.dotnetdev.cbodotnet.package.revision": "2",
+            "kr.dotnetdev.cbodotnet.sdk.sha256": "0ff27ca9775fb8d3c83fce60ad511754956f311a950878dcbc05bd6737a4bc09",
+            "kr.dotnetdev.cbodotnet.sdk.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-x64.tar.gz",
+            "kr.dotnetdev.cbodotnet.source.sha256": "222a3f28450c258c8179eb5f4360e96f5886cd4af8fe36d33533f3bc6491009c",
+            "kr.dotnetdev.cbodotnet.source.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-x64.tar.gz",
+            "org.opencontainers.image.base.name": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+            "org.opencontainers.image.documentation": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md",
+            "org.opencontainers.image.licenses": "MIT AND LicenseRef-Dotnet-ThirdPartyNotices",
+            "org.opencontainers.image.source": "https://github.com/dotnetdev-kr/cbodotnet",
+            "org.opencontainers.image.title": "Community Build of .NET (built by .NET Dev)",
+            "org.opencontainers.image.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-10.0.403",
+            "org.opencontainers.image.version": "10.0.403"
+          },
+          "sdkRoot": "/opt/cbodotnet/10.0",
+          "user": "app",
+          "workdir": "/work"
+        },
+        "imageFiles": {
+          "credentialEnvironment": "absent",
+          "ownership": "root:root:0755",
+          "sourceBuildToolchain": "absent"
+        },
+        "networkForBuild": "none",
+        "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+        "schemaVersion": 1,
+        "status": "passed"
+      },
+      "reportSha256": "6988f59888dff9d269f157f8fb85e7b9935ee1fb61974c838705f90602412e97"
+    },
+    {
+      "architecture": "aarch64",
+      "artifact": {
+        "actualDownloadedZipSha256": "passed",
+        "createdAt": "2026-11-04T12:45:54Z",
+        "expiresAt": "2026-12-04T12:45:53Z",
+        "id": "13322774084",
+        "name": "downstream-postverify-aarch64-41831153506-1",
+        "size": 1365,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41831153506/artifacts/13322774084",
+        "zipSha256": "3218a64f4ceb4e3c948c1ee0cb5982d4d18b4c93b83b537e34ced96071977c2e"
+      },
+      "rawReport": {
+        "aptTargets": [],
+        "architecture": "aarch64",
+        "checks": [
+          "anonymous-pull",
+          "native-config",
+          "non-root",
+          "command-aliases",
+          "cli-branding",
+          "offline-build-run",
+          "sdk-list-paths",
+          "image-ownership",
+          "image-no-build-secrets",
+          "image-no-source-build-toolchain",
+          "console-apphost",
+          "http-crypto-globalization",
+          "sdk-info-root-rid",
+          "image-labels"
+        ],
+        "digest": "sha256:c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9",
+        "functionalChecks": {
+          "aspNetCoreLoopbackHttp": "passed",
+          "consoleApphostExecution": "passed",
+          "consoleDllExecution": "passed",
+          "cryptographicRandomBytes": "passed",
+          "frFrDecimalFormatting": "passed",
+          "nonRootRuntimeRoot": "passed",
+          "rsaSha256SignAndVerify": "passed"
+        },
+        "imageConfig": {
+          "architecture": "arm64",
+          "labels": {
+            "kr.dotnetdev.cbodotnet.evidence.sha256": "97843567a562a42fed38f7b89bc3026496b39017f46f524f11c6073039025309",
+            "kr.dotnetdev.cbodotnet.evidence.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-aarch64.tar.gz",
+            "kr.dotnetdev.cbodotnet.license.path": "/opt/cbodotnet/10.0/LICENSE.txt",
+            "kr.dotnetdev.cbodotnet.manifest.sha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+            "kr.dotnetdev.cbodotnet.manifest.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json",
+            "kr.dotnetdev.cbodotnet.notices.path": "/opt/cbodotnet/10.0/ThirdPartyNotices.txt",
+            "kr.dotnetdev.cbodotnet.notices.url": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md#licenses-and-notices",
+            "kr.dotnetdev.cbodotnet.package.revision": "2",
+            "kr.dotnetdev.cbodotnet.sdk.sha256": "410491f0166109c2c3d115705ab64601cec56c3b1c1995267d3b16567f9c0d5b",
+            "kr.dotnetdev.cbodotnet.sdk.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz",
+            "kr.dotnetdev.cbodotnet.source.sha256": "c074b74287d15691ee0ce01bb0d4912db017e35b91010d9380b04f1b62c8b745",
+            "kr.dotnetdev.cbodotnet.source.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-aarch64.tar.gz",
+            "org.opencontainers.image.base.name": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+            "org.opencontainers.image.documentation": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md",
+            "org.opencontainers.image.licenses": "MIT AND LicenseRef-Dotnet-ThirdPartyNotices",
+            "org.opencontainers.image.source": "https://github.com/dotnetdev-kr/cbodotnet",
+            "org.opencontainers.image.title": "Community Build of .NET (built by .NET Dev)",
+            "org.opencontainers.image.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-10.0.403",
+            "org.opencontainers.image.version": "10.0.403"
+          },
+          "sdkRoot": "/opt/cbodotnet/10.0",
+          "user": "app",
+          "workdir": "/work"
+        },
+        "imageFiles": {
+          "credentialEnvironment": "absent",
+          "ownership": "root:root:0755",
+          "sourceBuildToolchain": "absent"
+        },
+        "networkForBuild": "none",
+        "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+        "schemaVersion": 1,
+        "status": "passed"
+      },
+      "reportSha256": "b93f3528e1238ee595aed34f42b1cdc805a16213d079b728a33e465e2fd6d721"
+    }
+  ],
+  "pagesWorkflow": {
+    "conclusion": "success",
+    "head_sha": "8bb3e4548d800a36ac7ecf9d18be1b6e1a610b52",
+    "html_url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41832127910",
+    "id": 41832127910
+  },
+  "payloadPolicy": "Existing qualified SDK archive bytes are preserved; only downstream image packaging and metadata change.",
+  "r1IndexRetained": {
+    "digest": "sha256:11939c01e8cf35aa21a56dd1f2365832cc71012d2a3e3142f9be5e3d1aed897d",
+    "status": "passed"
+  },
+  "reportEncoding": "JSON sort_keys=True, indent=2, UTF-8 and final LF; re-encoding rawReport recovers its exact original bytes",
+  "schemaVersion": 1,
+  "scope": "oci-sdk-10.0.403-r2-native-signed-public-digest-verification",
+  "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json.asc",
+  "signedNativeReports": [
+    {
+      "architecture": "aarch64",
+      "rawReport": {
+        "artifact": {
+          "name": "oci-arm64.json",
+          "sha256": "3ea7f2c79697e14449b71c585f532d97e0defe98339dc92f291b7a765c7b0837",
+          "size": 2744
+        },
+        "branding": {
+          "displayName": "Community Build of .NET (built by .NET Dev)",
+          "implementation": "distribution-wrapper",
+          "informationCommand": "--cbodotnet-info",
+          "modifyQualifiedPayload": false,
+          "versionBrandingStream": "stderr",
+          "versionStdout": "unchanged-numeric-sdk-version"
+        },
+        "checks": {
+          "cli-branding": "passed",
+          "command-aliases": "passed",
+          "host-root": "passed",
+          "http-crypto-globalization": "passed",
+          "image-config": "passed",
+          "image-labels": "passed",
+          "image-no-build-secrets": "passed",
+          "image-no-source-build-toolchain": "passed",
+          "image-ownership": "passed",
+          "native-dependencies": "passed",
+          "non-root": "passed",
+          "oci-platforms": "passed",
+          "official-dotnet-coexistence": "passed",
+          "offline-build-run": "passed",
+          "payload-preservation": "passed",
+          "pinned-base-image": "passed",
+          "removal": "passed",
+          "rollback": "passed",
+          "sdk-list-paths": "passed",
+          "source-integrity": "passed",
+          "upgrade": "passed",
+          "version-stdout-compatible": "passed"
+        },
+        "commandNames": [
+          "cbodotnet-10.0",
+          "cbodotnet",
+          "dotnet"
+        ],
+        "commands": {
+          "containerDirectory": "/usr/local/bin",
+          "containerDotnet": "/usr/local/bin/dotnet",
+          "default": "/usr/bin/cbodotnet",
+          "defaultOwner": "cbodotnet-host",
+          "defaultSelection": "highest-installed-major-minor",
+          "versioned": "/usr/bin/cbodotnet-10.0"
+        },
+        "contractVersion": 2,
+        "extraFiles": [
+          {
+            "mode": "0755",
+            "owner": "cbodotnet-host",
+            "path": "/usr/bin/cbodotnet",
+            "sha256": "fc11bb057a04fa743839034a8c422d7a2ae6fc89b712f254563be82c478f775d",
+            "size": 44
+          },
+          {
+            "mode": "0755",
+            "owner": "cbodotnet-sdk-10.0",
+            "path": "/usr/bin/cbodotnet-10.0",
+            "sha256": "552e8ff2b3d40276256472482fd133f784b49079e6e39379a8b8f837a4b6a68e",
+            "size": 1460
+          },
+          {
+            "mode": "0755",
+            "owner": "cbodotnet-sdk-10.0",
+            "path": "/usr/local/bin/cbodotnet",
+            "sha256": "fc11bb057a04fa743839034a8c422d7a2ae6fc89b712f254563be82c478f775d",
+            "size": 44
+          },
+          {
+            "mode": "0755",
+            "owner": "cbodotnet-sdk-10.0",
+            "path": "/usr/local/bin/cbodotnet-10.0",
+            "sha256": "fc11bb057a04fa743839034a8c422d7a2ae6fc89b712f254563be82c478f775d",
+            "size": 44
+          },
+          {
+            "mode": "0755",
+            "owner": "cbodotnet-sdk-10.0",
+            "path": "/usr/local/bin/dotnet",
+            "sha256": "fc11bb057a04fa743839034a8c422d7a2ae6fc89b712f254563be82c478f775d",
+            "size": 44
+          }
+        ],
+        "functionalChecks": {
+          "aspNetCoreLoopbackHttp": "passed",
+          "consoleApphostExecution": "passed",
+          "consoleDllExecution": "passed",
+          "cryptographicRandomBytes": "passed",
+          "frFrDecimalFormatting": "passed",
+          "nonRootRuntimeRoot": "passed",
+          "rsaSha256SignAndVerify": "passed"
+        },
+        "identity": {
+          "channel": "oci",
+          "packageRevision": 2,
+          "sdkVersion": "10.0.403",
+          "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+          "sourceReleaseTag": "sdk-10.0.403",
+          "targetRid": "linux-arm64",
+          "variant": "debian-13"
+        },
+        "imageConfig": {
+          "architecture": "arm64",
+          "labels": {
+            "kr.dotnetdev.cbodotnet.evidence.sha256": "97843567a562a42fed38f7b89bc3026496b39017f46f524f11c6073039025309",
+            "kr.dotnetdev.cbodotnet.evidence.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-aarch64.tar.gz",
+            "kr.dotnetdev.cbodotnet.license.path": "/opt/cbodotnet/10.0/LICENSE.txt",
+            "kr.dotnetdev.cbodotnet.manifest.sha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+            "kr.dotnetdev.cbodotnet.manifest.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json",
+            "kr.dotnetdev.cbodotnet.notices.path": "/opt/cbodotnet/10.0/ThirdPartyNotices.txt",
+            "kr.dotnetdev.cbodotnet.notices.url": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md#licenses-and-notices",
+            "kr.dotnetdev.cbodotnet.package.revision": "2",
+            "kr.dotnetdev.cbodotnet.sdk.sha256": "410491f0166109c2c3d115705ab64601cec56c3b1c1995267d3b16567f9c0d5b",
+            "kr.dotnetdev.cbodotnet.sdk.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz",
+            "kr.dotnetdev.cbodotnet.source.sha256": "c074b74287d15691ee0ce01bb0d4912db017e35b91010d9380b04f1b62c8b745",
+            "kr.dotnetdev.cbodotnet.source.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-aarch64.tar.gz",
+            "org.opencontainers.image.base.name": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+            "org.opencontainers.image.documentation": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md",
+            "org.opencontainers.image.licenses": "MIT AND LicenseRef-Dotnet-ThirdPartyNotices",
+            "org.opencontainers.image.source": "https://github.com/dotnetdev-kr/cbodotnet",
+            "org.opencontainers.image.title": "Community Build of .NET (built by .NET Dev)",
+            "org.opencontainers.image.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-10.0.403",
+            "org.opencontainers.image.version": "10.0.403"
+          },
+          "sdkRoot": "/opt/cbodotnet/10.0",
+          "user": "app",
+          "workdir": "/work"
+        },
+        "imageFiles": {
+          "credentialEnvironment": "absent",
+          "ownership": "root:root:0755",
+          "sourceBuildToolchain": "absent"
+        },
+        "imageFunctionalNetwork": "none",
+        "orchestration": {
+          "commit": "23b5bb75b046cbc4ceecb962e1a618a6ba121a1a",
+          "repository": "dotnetdev-kr/cbodotnet",
+          "runAttempt": "1",
+          "runId": "41831153506",
+          "workflow": ".github/workflows/distribution-release.yml"
+        },
+        "phase": "prepublication",
+        "producer": {
+          "artifactId": "13048586144",
+          "originalSdkName": "cbodotnet-sdk-10.0.403-linux-arm64-build.41211183670.tar.gz",
+          "originalSourceName": "cbodotnet-sources-10.0.403-linux-arm64-build.41211183670.tar.gz",
+          "projectCommit": "5721c5989e277d98b6af7c782d1b660459f8298e",
+          "runAttempt": "1",
+          "runId": "41211183670",
+          "targetRid": "linux-arm64",
+          "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41211183670"
+        },
+        "schemaVersion": 1,
+        "scope": "channel-installation",
+        "source": {
+          "evidence": {
+            "name": "evidence-aarch64.tar.gz",
+            "sha256": "97843567a562a42fed38f7b89bc3026496b39017f46f524f11c6073039025309",
+            "size": 42620012,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-aarch64.tar.gz"
+          },
+          "licensePaths": [
+            "LICENSE.txt",
+            "ThirdPartyNotices.txt"
+          ],
+          "sdk": {
+            "name": "cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz",
+            "sha256": "410491f0166109c2c3d115705ab64601cec56c3b1c1995267d3b16567f9c0d5b",
+            "size": 217817416,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz"
+          },
+          "securitySupport": "community-build-no-additional-security-maintenance",
+          "source": {
+            "name": "cbodotnet-source-10.0.403-linux-aarch64.tar.gz",
+            "sha256": "c074b74287d15691ee0ce01bb0d4912db017e35b91010d9380b04f1b62c8b745",
+            "size": 783799313,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-aarch64.tar.gz"
+          },
+          "sourceManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json"
+        },
+        "status": "passed",
+        "target": {
+          "architecture": "aarch64",
+          "dependencies": {
+            "ca-certificates": "20250419+deb13u1",
+            "libc6": "2.41-12+deb13u4",
+            "libgcc-s1": "14.2.0-19",
+            "libgssapi-krb5-2": "1.21.3-5+deb13u1",
+            "libicu76": "76.1-4",
+            "libssl3t64": "3.5.7-1~deb13u3",
+            "libstdc++6": "14.2.0-19",
+            "zlib1g": "1:1.3.dfsg+really1.3.1-1+b1"
+          },
+          "native": true,
+          "osId": "debian",
+          "versionId": "13"
+        }
+      },
+      "reportAsset": "oci-debian-13-aarch64--installation-report.json",
+      "reportSha256": "90909645f07ed0ce8457a13c32979a87a493004974775f7907009507d34cfd18",
+      "signatureAsset": "oci-debian-13-aarch64--installation-report.json.asc"
+    },
+    {
+      "architecture": "x64",
+      "rawReport": {
+        "artifact": {
+          "name": "oci-amd64.json",
+          "sha256": "f1ae0d69156e136c0b291192203414385e5009ac929a9bbfea205786e3b4f049",
+          "size": 2728
+        },
+        "branding": {
+          "displayName": "Community Build of .NET (built by .NET Dev)",
+          "implementation": "distribution-wrapper",
+          "informationCommand": "--cbodotnet-info",
+          "modifyQualifiedPayload": false,
+          "versionBrandingStream": "stderr",
+          "versionStdout": "unchanged-numeric-sdk-version"
+        },
+        "checks": {
+          "cli-branding": "passed",
+          "command-aliases": "passed",
+          "host-root": "passed",
+          "http-crypto-globalization": "passed",
+          "image-config": "passed",
+          "image-labels": "passed",
+          "image-no-build-secrets": "passed",
+          "image-no-source-build-toolchain": "passed",
+          "image-ownership": "passed",
+          "native-dependencies": "passed",
+          "non-root": "passed",
+          "oci-platforms": "passed",
+          "official-dotnet-coexistence": "passed",
+          "offline-build-run": "passed",
+          "payload-preservation": "passed",
+          "pinned-base-image": "passed",
+          "removal": "passed",
+          "rollback": "passed",
+          "sdk-list-paths": "passed",
+          "source-integrity": "passed",
+          "upgrade": "passed",
+          "version-stdout-compatible": "passed"
+        },
+        "commandNames": [
+          "cbodotnet-10.0",
+          "cbodotnet",
+          "dotnet"
+        ],
+        "commands": {
+          "containerDirectory": "/usr/local/bin",
+          "containerDotnet": "/usr/local/bin/dotnet",
+          "default": "/usr/bin/cbodotnet",
+          "defaultOwner": "cbodotnet-host",
+          "defaultSelection": "highest-installed-major-minor",
+          "versioned": "/usr/bin/cbodotnet-10.0"
+        },
+        "contractVersion": 2,
+        "extraFiles": [
+          {
+            "mode": "0755",
+            "owner": "cbodotnet-host",
+            "path": "/usr/bin/cbodotnet",
+            "sha256": "fc11bb057a04fa743839034a8c422d7a2ae6fc89b712f254563be82c478f775d",
+            "size": 44
+          },
+          {
+            "mode": "0755",
+            "owner": "cbodotnet-sdk-10.0",
+            "path": "/usr/bin/cbodotnet-10.0",
+            "sha256": "68a81609efbca9d71c726c43af83839caf55cf9e568eed462aed08d4165b9ef1",
+            "size": 1454
+          },
+          {
+            "mode": "0755",
+            "owner": "cbodotnet-sdk-10.0",
+            "path": "/usr/local/bin/cbodotnet",
+            "sha256": "fc11bb057a04fa743839034a8c422d7a2ae6fc89b712f254563be82c478f775d",
+            "size": 44
+          },
+          {
+            "mode": "0755",
+            "owner": "cbodotnet-sdk-10.0",
+            "path": "/usr/local/bin/cbodotnet-10.0",
+            "sha256": "fc11bb057a04fa743839034a8c422d7a2ae6fc89b712f254563be82c478f775d",
+            "size": 44
+          },
+          {
+            "mode": "0755",
+            "owner": "cbodotnet-sdk-10.0",
+            "path": "/usr/local/bin/dotnet",
+            "sha256": "fc11bb057a04fa743839034a8c422d7a2ae6fc89b712f254563be82c478f775d",
+            "size": 44
+          }
+        ],
+        "functionalChecks": {
+          "aspNetCoreLoopbackHttp": "passed",
+          "consoleApphostExecution": "passed",
+          "consoleDllExecution": "passed",
+          "cryptographicRandomBytes": "passed",
+          "frFrDecimalFormatting": "passed",
+          "nonRootRuntimeRoot": "passed",
+          "rsaSha256SignAndVerify": "passed"
+        },
+        "identity": {
+          "channel": "oci",
+          "packageRevision": 2,
+          "sdkVersion": "10.0.403",
+          "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+          "sourceReleaseTag": "sdk-10.0.403",
+          "targetRid": "linux-x64",
+          "variant": "debian-13"
+        },
+        "imageConfig": {
+          "architecture": "amd64",
+          "labels": {
+            "kr.dotnetdev.cbodotnet.evidence.sha256": "56941c7c987707506784618cc992bab611c2f97623d4c1b56d4d4d00a1221a5e",
+            "kr.dotnetdev.cbodotnet.evidence.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-x64.tar.gz",
+            "kr.dotnetdev.cbodotnet.license.path": "/opt/cbodotnet/10.0/LICENSE.txt",
+            "kr.dotnetdev.cbodotnet.manifest.sha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+            "kr.dotnetdev.cbodotnet.manifest.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json",
+            "kr.dotnetdev.cbodotnet.notices.path": "/opt/cbodotnet/10.0/ThirdPartyNotices.txt",
+            "kr.dotnetdev.cbodotnet.notices.url": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md#licenses-and-notices",
+            "kr.dotnetdev.cbodotnet.package.revision": "2",
+            "kr.dotnetdev.cbodotnet.sdk.sha256": "0ff27ca9775fb8d3c83fce60ad511754956f311a950878dcbc05bd6737a4bc09",
+            "kr.dotnetdev.cbodotnet.sdk.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-x64.tar.gz",
+            "kr.dotnetdev.cbodotnet.source.sha256": "222a3f28450c258c8179eb5f4360e96f5886cd4af8fe36d33533f3bc6491009c",
+            "kr.dotnetdev.cbodotnet.source.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-x64.tar.gz",
+            "org.opencontainers.image.base.name": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+            "org.opencontainers.image.documentation": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md",
+            "org.opencontainers.image.licenses": "MIT AND LicenseRef-Dotnet-ThirdPartyNotices",
+            "org.opencontainers.image.source": "https://github.com/dotnetdev-kr/cbodotnet",
+            "org.opencontainers.image.title": "Community Build of .NET (built by .NET Dev)",
+            "org.opencontainers.image.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-10.0.403",
+            "org.opencontainers.image.version": "10.0.403"
+          },
+          "sdkRoot": "/opt/cbodotnet/10.0",
+          "user": "app",
+          "workdir": "/work"
+        },
+        "imageFiles": {
+          "credentialEnvironment": "absent",
+          "ownership": "root:root:0755",
+          "sourceBuildToolchain": "absent"
+        },
+        "imageFunctionalNetwork": "none",
+        "orchestration": {
+          "commit": "23b5bb75b046cbc4ceecb962e1a618a6ba121a1a",
+          "repository": "dotnetdev-kr/cbodotnet",
+          "runAttempt": "1",
+          "runId": "41831153506",
+          "workflow": ".github/workflows/distribution-release.yml"
+        },
+        "phase": "prepublication",
+        "producer": {
+          "artifactId": "13083076281",
+          "originalSdkName": "cbodotnet-sdk-10.0.403-linux-x64-build.41301145771.tar.gz",
+          "originalSourceName": "cbodotnet-sources-10.0.403-linux-x64-build.41301145771.tar.gz",
+          "projectCommit": "29e878271353d95c8d6db4bb358976bd7ee6e988",
+          "runAttempt": "1",
+          "runId": "41301145771",
+          "targetRid": "linux-x64",
+          "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41301145771"
+        },
+        "schemaVersion": 1,
+        "scope": "channel-installation",
+        "source": {
+          "evidence": {
+            "name": "evidence-x64.tar.gz",
+            "sha256": "56941c7c987707506784618cc992bab611c2f97623d4c1b56d4d4d00a1221a5e",
+            "size": 42812798,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-x64.tar.gz"
+          },
+          "licensePaths": [
+            "LICENSE.txt",
+            "ThirdPartyNotices.txt"
+          ],
+          "sdk": {
+            "name": "cbodotnet-sdk-10.0.403-linux-x64.tar.gz",
+            "sha256": "0ff27ca9775fb8d3c83fce60ad511754956f311a950878dcbc05bd6737a4bc09",
+            "size": 224606406,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-x64.tar.gz"
+          },
+          "securitySupport": "community-build-no-additional-security-maintenance",
+          "source": {
+            "name": "cbodotnet-source-10.0.403-linux-x64.tar.gz",
+            "sha256": "222a3f28450c258c8179eb5f4360e96f5886cd4af8fe36d33533f3bc6491009c",
+            "size": 783949395,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-x64.tar.gz"
+          },
+          "sourceManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json"
+        },
+        "status": "passed",
+        "target": {
+          "architecture": "x64",
+          "dependencies": {
+            "ca-certificates": "20250419+deb13u1",
+            "libc6": "2.41-12+deb13u4",
+            "libgcc-s1": "14.2.0-19",
+            "libgssapi-krb5-2": "1.21.3-5+deb13u1",
+            "libicu76": "76.1-4",
+            "libssl3t64": "3.5.7-1~deb13u3",
+            "libstdc++6": "14.2.0-19",
+            "zlib1g": "1:1.3.dfsg+really1.3.1-1+b1"
+          },
+          "native": true,
+          "osId": "debian",
+          "versionId": "13"
+        }
+      },
+      "reportAsset": "oci-debian-13-x64--installation-report.json",
+      "reportSha256": "ca999d128aa06e4f9e66384da0a7c7e7d9e06df49077e6d152266af507ba332b",
+      "signatureAsset": "oci-debian-13-x64--installation-report.json.asc"
+    }
+  ],
+  "signedPublicationAssets": [
+    {
+      "name": "distribution-signing-key.gpg",
+      "sha256": "562e4c9a893c1a0ffabf3d3bb4a6e4ae1090427250c2818df196a8174583a665",
+      "size": 273,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-signing-key.gpg"
+    },
+    {
+      "name": "oci-debian-13-aarch64--installation-report.json",
+      "sha256": "90909645f07ed0ce8457a13c32979a87a493004974775f7907009507d34cfd18",
+      "size": 8251,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-aarch64--installation-report.json"
+    },
+    {
+      "name": "oci-debian-13-aarch64--installation-report.json.asc",
+      "sha256": "f2466853d581f14216686716279bc82df816b75cfe4f8352d53712047d7d5e87",
+      "size": 119,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-aarch64--installation-report.json.asc"
+    },
+    {
+      "name": "oci-debian-13-aarch64--oci-arm64.json",
+      "sha256": "3ea7f2c79697e14449b71c585f532d97e0defe98339dc92f291b7a765c7b0837",
+      "size": 2744,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-aarch64--oci-arm64.json"
+    },
+    {
+      "name": "oci-debian-13-x64--installation-report.json",
+      "sha256": "ca999d128aa06e4f9e66384da0a7c7e7d9e06df49077e6d152266af507ba332b",
+      "size": 8203,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-x64--installation-report.json"
+    },
+    {
+      "name": "oci-debian-13-x64--installation-report.json.asc",
+      "sha256": "19458a277698904eea48e2cc3f9400e7e2356145281a9cf3116ee0476d6f852a",
+      "size": 119,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-x64--installation-report.json.asc"
+    },
+    {
+      "name": "oci-debian-13-x64--oci-amd64.json",
+      "sha256": "f1ae0d69156e136c0b291192203414385e5009ac929a9bbfea205786e3b4f049",
+      "size": 2728,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-x64--oci-amd64.json"
+    },
+    {
+      "name": "oci-index.json",
+      "sha256": "6b71c6f5d41682b026aa8c874bbe94a304ed7a9cf3dc047849614cc9de7091bb",
+      "size": 5236,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-index.json"
+    },
+    {
+      "name": "distribution-manifest.json",
+      "sha256": "75282c76b18da5ba3cd9d0262c9c24594a4266a92a2aba50437b8e2c3f7eacb9",
+      "size": 13298,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json"
+    },
+    {
+      "name": "distribution-manifest.json.asc",
+      "sha256": "298ddf2bbe2681173ff2e3be668241fab2dc6164a10ef064f13a03187cbf2ee4",
+      "size": 228,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json.asc"
+    }
+  ],
+  "signedRegistryDescriptors": [
+    {
+      "architecture": "arm64",
+      "configDigest": "sha256:cee5ff3081bd3898b194e893192928a3664bad516d33c551bcb90d1ed535c299",
+      "digest": "sha256:45139a41544c105840147a5d2b5750fe7ed9df7f5be5cfb93c369529962b537d",
+      "indexDigest": "sha256:c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9",
+      "labels": {
+        "kr.dotnetdev.cbodotnet.evidence.sha256": "97843567a562a42fed38f7b89bc3026496b39017f46f524f11c6073039025309",
+        "kr.dotnetdev.cbodotnet.evidence.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-aarch64.tar.gz",
+        "kr.dotnetdev.cbodotnet.license.path": "/opt/cbodotnet/10.0/LICENSE.txt",
+        "kr.dotnetdev.cbodotnet.manifest.sha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+        "kr.dotnetdev.cbodotnet.manifest.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json",
+        "kr.dotnetdev.cbodotnet.notices.path": "/opt/cbodotnet/10.0/ThirdPartyNotices.txt",
+        "kr.dotnetdev.cbodotnet.notices.url": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md#licenses-and-notices",
+        "kr.dotnetdev.cbodotnet.package.revision": "2",
+        "kr.dotnetdev.cbodotnet.sdk.sha256": "410491f0166109c2c3d115705ab64601cec56c3b1c1995267d3b16567f9c0d5b",
+        "kr.dotnetdev.cbodotnet.sdk.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz",
+        "kr.dotnetdev.cbodotnet.source.sha256": "c074b74287d15691ee0ce01bb0d4912db017e35b91010d9380b04f1b62c8b745",
+        "kr.dotnetdev.cbodotnet.source.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-aarch64.tar.gz",
+        "org.opencontainers.image.base.name": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+        "org.opencontainers.image.documentation": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md",
+        "org.opencontainers.image.licenses": "MIT AND LicenseRef-Dotnet-ThirdPartyNotices",
+        "org.opencontainers.image.source": "https://github.com/dotnetdev-kr/cbodotnet",
+        "org.opencontainers.image.title": "Community Build of .NET (built by .NET Dev)",
+        "org.opencontainers.image.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-10.0.403",
+        "org.opencontainers.image.version": "10.0.403"
+      },
+      "metadataPolicyVersion": 2,
+      "nativeTransport": {
+        "name": "cbodotnet-sdk-aarch64.image.tar",
+        "sha256": "47dfce259cf47fe57421d8786c72519173c15ab0f3ff22815c62fbba152a88fc",
+        "size": 804069376
+      },
+      "os": "linux",
+      "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+      "schemaVersion": 1,
+      "sdkRoot": "/opt/cbodotnet/10.0"
+    },
+    {
+      "architecture": "amd64",
+      "configDigest": "sha256:c8066c25e91ef18091de03beaa78b220aa5557bcda772dd83d075fbfb094ddad",
+      "digest": "sha256:ac2d3b3d13ef5b935a6e0eca7e120e72367954ad8c3f3c4c51c13cd615c9ce2d",
+      "indexDigest": "sha256:c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9",
+      "labels": {
+        "kr.dotnetdev.cbodotnet.evidence.sha256": "56941c7c987707506784618cc992bab611c2f97623d4c1b56d4d4d00a1221a5e",
+        "kr.dotnetdev.cbodotnet.evidence.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-x64.tar.gz",
+        "kr.dotnetdev.cbodotnet.license.path": "/opt/cbodotnet/10.0/LICENSE.txt",
+        "kr.dotnetdev.cbodotnet.manifest.sha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+        "kr.dotnetdev.cbodotnet.manifest.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json",
+        "kr.dotnetdev.cbodotnet.notices.path": "/opt/cbodotnet/10.0/ThirdPartyNotices.txt",
+        "kr.dotnetdev.cbodotnet.notices.url": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md#licenses-and-notices",
+        "kr.dotnetdev.cbodotnet.package.revision": "2",
+        "kr.dotnetdev.cbodotnet.sdk.sha256": "0ff27ca9775fb8d3c83fce60ad511754956f311a950878dcbc05bd6737a4bc09",
+        "kr.dotnetdev.cbodotnet.sdk.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-x64.tar.gz",
+        "kr.dotnetdev.cbodotnet.source.sha256": "222a3f28450c258c8179eb5f4360e96f5886cd4af8fe36d33533f3bc6491009c",
+        "kr.dotnetdev.cbodotnet.source.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-x64.tar.gz",
+        "org.opencontainers.image.base.name": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+        "org.opencontainers.image.documentation": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md",
+        "org.opencontainers.image.licenses": "MIT AND LicenseRef-Dotnet-ThirdPartyNotices",
+        "org.opencontainers.image.source": "https://github.com/dotnetdev-kr/cbodotnet",
+        "org.opencontainers.image.title": "Community Build of .NET (built by .NET Dev)",
+        "org.opencontainers.image.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-10.0.403",
+        "org.opencontainers.image.version": "10.0.403"
+      },
+      "metadataPolicyVersion": 2,
+      "nativeTransport": {
+        "name": "cbodotnet-sdk-x64.image.tar",
+        "sha256": "945d21c66ce925d476e86ddf1550b68ae00de677765835b263a8060f6ad7aa85",
+        "size": 750091264
+      },
+      "os": "linux",
+      "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+      "schemaVersion": 1,
+      "sdkRoot": "/opt/cbodotnet/10.0"
+    }
+  ],
+  "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+  "smallWorkflowArtifacts": [
+    {
+      "actualDownloadedZipSha256": "passed",
+      "createdAt": "2026-11-04T12:45:24Z",
+      "expiresAt": "2026-12-04T12:45:23Z",
+      "id": "13322114576",
+      "name": "downstream-publication-41831153506-1",
+      "size": 2723,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41831153506/artifacts/13322114576",
+      "zipSha256": "c626dd5676c3ee6d229bc985766872d3e5e4469032dd8787b10deafc64050f56"
+    },
+    {
+      "actualDownloadedZipSha256": "passed",
+      "createdAt": "2026-11-04T12:45:51Z",
+      "expiresAt": "2026-12-04T12:45:50Z",
+      "id": "13323660287",
+      "name": "downstream-postverify-x64-41831153506-1",
+      "size": 1357,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41831153506/artifacts/13323660287",
+      "zipSha256": "306a70e7ee4503f98d151ce500a578ae053c85ec7d1f31c854c09a54f7db6b57"
+    },
+    {
+      "actualDownloadedZipSha256": "passed",
+      "createdAt": "2026-11-04T12:45:54Z",
+      "expiresAt": "2026-12-04T12:45:53Z",
+      "id": "13322774084",
+      "name": "downstream-postverify-aarch64-41831153506-1",
+      "size": 1365,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41831153506/artifacts/13322774084",
+      "zipSha256": "3218a64f4ceb4e3c948c1ee0cb5982d4d18b4c93b83b537e34ced96071977c2e"
+    },
+    {
+      "actualDownloadedZipSha256": "passed",
+      "createdAt": "2026-11-04T12:44:55Z",
+      "expiresAt": "2026-11-18T12:44:54Z",
+      "id": "13322758505",
+      "name": "downstream-frozen-promotion-41831153506-1",
+      "size": 49073,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41831153506/artifacts/13322758505",
+      "zipSha256": "83570e4770010da06901332d8bd4d5f5bfe1b6a42b55f1ea5b0f3deddc5bbab5"
+    }
+  ],
+  "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+  "sourceWorkflow": {
+    "conclusion": "success",
+    "created_at": "2026-11-04T12:39:26Z",
+    "event": "workflow_dispatch",
+    "head_sha": "23b5bb75b046cbc4ceecb962e1a618a6ba121a1a",
+    "html_url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41831153506",
+    "id": 41831153506,
+    "path": ".github/workflows/distribution-release.yml",
+    "run_attempt": 1,
+    "updated_at": "2026-11-04T12:46:12Z"
+  },
+  "status": "passed",
+  "successfulPublicationWorkflow": {
+    "conclusion": "success",
+    "created_at": "2026-11-04T12:39:26Z",
+    "event": "workflow_dispatch",
+    "head_sha": "23b5bb75b046cbc4ceecb962e1a618a6ba121a1a",
+    "html_url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41831153506",
+    "id": 41831153506,
+    "path": ".github/workflows/distribution-release.yml",
+    "run_attempt": 1,
+    "updated_at": "2026-11-04T12:46:12Z"
+  },
+  "verifiedWorkflowJobs": [
+    {
+      "conclusion": "success",
+      "id": "126578385023",
+      "name": "Install packages and OCI on native x64",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test repository controls"
+        },
+        {
+          "conclusion": "success",
+          "name": "Build unchanged SDK packages and execute the full installation matrix"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job"
+        }
+      ]
+    },
+    {
+      "conclusion": "success",
+      "id": "126578385479",
+      "name": "Install packages and OCI on native aarch64",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test repository controls"
+        },
+        {
+          "conclusion": "success",
+          "name": "Build unchanged SDK packages and execute the full installation matrix"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job"
+        }
+      ]
+    },
+    {
+      "conclusion": "success",
+      "id": "126579922818",
+      "name": "Sign, promote and post-verify immutable distributions",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Reject ambiguous resume modes"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install signed repository metadata tools"
+        },
+        {
+          "conclusion": "success",
+          "name": "Import only the approved protected-environment signing identity"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Prepare the trusted public keyring for frozen promotion recovery"
+        },
+        {
+          "conclusion": "success",
+          "name": "Authenticate every source/output/report and freeze signed channel bundles"
+        },
+        {
+          "conclusion": "success",
+          "name": "Check whether complete frozen bundles are ready for durable recovery"
+        },
+        {
+          "conclusion": "success",
+          "name": "Freeze signed promotion bytes before publication"
+        },
+        {
+          "conclusion": "success",
+          "name": "Publish and post-verify the exact frozen promotion bytes"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Recover verified frozen promotion bytes and resume publication without re-signing"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9"
+        },
+        {
+          "conclusion": "success",
+          "name": "Remove the imported private signing material"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job"
+        }
+      ]
+    },
+    {
+      "conclusion": "success",
+      "id": "126581305897",
+      "name": "Anonymous digest pull and non-root smoke on x64",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333"
+        },
+        {
+          "conclusion": "success",
+          "name": "Pull the published index by digest with no registry credentials"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job"
+        }
+      ]
+    },
+    {
+      "conclusion": "success",
+      "id": "126581305999",
+      "name": "Anonymous digest pull and non-root smoke on aarch64",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333"
+        },
+        {
+          "conclusion": "success",
+          "name": "Pull the published index by digest with no registry credentials"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job"
+        }
+      ]
+    },
+    {
+      "conclusion": "success",
+      "id": "126581552651",
+      "name": "Activate verified distribution availability and refresh Pages",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333"
+        },
+        {
+          "conclusion": "success",
+          "name": "Authenticate receipts and native results, commit availability, dispatch Pages"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job"
+        }
+      ]
+    }
+  ],
+  "website": "https://dotnetdev.kr/cbodotnet/"
+}

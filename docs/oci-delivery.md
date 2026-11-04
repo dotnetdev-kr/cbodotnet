@@ -6,19 +6,24 @@ using a digest-pinned Debian 13 glibc base on native `linux/amd64` and
 `linux/arm64`. One versioned tag resolves to the complete two-platform index.
 Public architecture names `x64` and `aarch64` map to those OCI platforms.
 
-Revision 1, `10.0.403-debian13-r1`, is already public. Its verified index is:
+Revision 2, `10.0.403-debian13-r2`, is public. Its verified index is:
 
 ```text
-sha256:11939c01e8cf35aa21a56dd1f2365832cc71012d2a3e3142f9be5e3d1aed897d
+sha256:c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9
 ```
 
 Revision 2 adds explicit license/notice/source labels and records the exact SDK
 listing, image ownership and consumer configuration before publication and after
-anonymous digest pull. Treat revision 2 as pending until its signed receipt and
-both native public verification jobs succeed. The
+anonymous digest pull. The [native publication run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41831153506)
+passed both architectures, protected signing/publication, anonymous native
+functional checks and status activation. The
+[retained validation record](oci-publication-validation.json) includes exact
+reports, independently checked artifact ZIP hashes, signed source/configuration
+bindings and registry metadata. The
 [published status and receipts](../releases/downstream-status.json) and
 [installation website](https://dotnetdev.kr/cbodotnet/) identify the current
-verified image. Revision 1 remains immutable.
+verified image. Revision 1 remains immutable at
+`sha256:11939c01e8cf35aa21a56dd1f2365832cc71012d2a3e3142f9be5e3d1aed897d`.
 
 ## Pull and run
 
@@ -27,7 +32,7 @@ selects the matching verified native platform; specify `--platform` explicitly
 when checking a particular platform.
 
 ```bash
-image=ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:11939c01e8cf35aa21a56dd1f2365832cc71012d2a3e3142f9be5e3d1aed897d
+image=ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9
 docker pull "$image"
 docker run --rm "$image" cbodotnet --info
 docker run --rm "$image" cbodotnet-10.0 --list-sdks
@@ -65,8 +70,10 @@ The descriptor binds the public index, both platform manifests and their tested
 image configuration digests. The same signed SDK manifest pin is used by every
 package channel.
 
-For revision 1, the public signed record is under
-[distribution-oci-sdk-10.0.403-r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-oci-sdk-10.0.403-r1).
+The current public signed record is under
+[distribution-oci-sdk-10.0.403-r2](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-oci-sdk-10.0.403-r2).
+The previous [revision 1 record](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-oci-sdk-10.0.403-r1)
+remains available for explicit rollback and audit.
 To inspect it, first authenticate the public key fingerprint through the trusted
 project-owner channel, then verify the detached manifest signature with that
 dedicated keyring. Verify the downloaded `oci-index.json` size and SHA-256 against
