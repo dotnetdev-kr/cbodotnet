@@ -400,6 +400,15 @@ OCI command names in separate private prefixes, including branding, exact
 numeric version stdout, JSON provenance and SDK payload preservation. This
 tests the OCI command layout with the real SDK, not a built consumer image.
 
+The latest [native contract run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41789475598)
+passed on both x64 and AArch64 Ubuntu 24.04 workers. The
+[retained native contract reports](distribution-contract-native-validation.json)
+include independently downloaded artifact ZIP hashes, exact package/OCI-layout
+reports, observed official SDK versions and archive/functional verification.
+These complete the native root/launcher evidence for issue #2 while preserving
+the historical WSL report above. They do not substitute for channel installation
+or public image checks.
+
 Real package/image qualification is separate from those historical foundation
 results. Native jobs in
 [the initial delivery run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41765223368)

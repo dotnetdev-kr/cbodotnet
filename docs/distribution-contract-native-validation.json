@@ -1,0 +1,665 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "scope": "native-contract-roots-launchers-and-official-sdk-coexistence",
+  "contractVersion": 2,
+  "sdkVersion": "10.0.403",
+  "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+  "workflow": {
+    "repository": "dotnetdev-kr/cbodotnet",
+    "path": ".github/workflows/distribution-contract.yml",
+    "commit": "d780979abebe24d6858b871970268ceeb16a2aad",
+    "runId": "41789475598",
+    "runAttempt": "1",
+    "event": "push",
+    "branch": "main",
+    "conclusion": "success",
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41789475598"
+  },
+  "targets": [
+    {
+      "architecture": "aarch64",
+      "status": "passed",
+      "artifact": {
+        "id": "13303805161",
+        "name": "distribution-contract-aarch64-41789475598-1",
+        "size": 9759,
+        "zipSha256": "f608a72a1d580418438fec1562e8948fa588a810cafa287df7f6532e52a8cc1c",
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41789475598/artifacts/13303805161"
+      },
+      "downloadedZipDigest": "passed",
+      "members": [
+        {
+          "path": "contract-coexistence/coexistence.json",
+          "size": 1935,
+          "sha256": "12397839c3cc1325533b098e7692f5fb66c829fe7eb092c7e5346825952076a7"
+        },
+        {
+          "path": "contract-coexistence/build.txt",
+          "size": 168,
+          "sha256": "60ca5d3c82da4964f7c9237a3fa6ebb96d53d12a842d4311cfd1a7fd798b1a5d"
+        },
+        {
+          "path": "contract-coexistence/restore.txt",
+          "size": 126,
+          "sha256": "49f9cb86b32db05b86b3fa41a9ebb307cac713ebcad7fc63524d11dd387185f3"
+        },
+        {
+          "path": "contract-coexistence/command-inventory.json",
+          "size": 398,
+          "sha256": "ff924eb07bdfbb47c311ffbf8201e9c5f98b15192e95e806e4e61a571ede444c"
+        },
+        {
+          "path": "contract-oci-commands/coexistence.json",
+          "size": 2590,
+          "sha256": "2e020d9fa2902a72a2dd129aabc0bfefeb6473db378d775efef79c6125fa2b4e"
+        },
+        {
+          "path": "contract-oci-commands/command-inventory.json",
+          "size": 1001,
+          "sha256": "857e2445ec1fd10390577f5566ae0a3db9ae5c10521c05ca7df8d9b4a9985ab0"
+        },
+        {
+          "path": "contract-verification/abi-summary.json",
+          "size": 586,
+          "sha256": "0f9685efbc36f8dbf8cf647c824e4619b731c1b105063a35c4bca1a0b479b980"
+        },
+        {
+          "path": "contract-verification/archive.json",
+          "size": 235,
+          "sha256": "8879c9f04a0972de4ec67da104ce8330b81b7c2bf77bc0e3a995b711605a0d41"
+        },
+        {
+          "path": "contract-verification/console-apphost-run.txt",
+          "size": 14,
+          "sha256": "c98c24b677eff44860afea6f493bbaec5bb1c4cbb209c6fc2bbb47f66ff2ad31"
+        },
+        {
+          "path": "contract-verification/console-build.log",
+          "size": 533,
+          "sha256": "4f9b22e579ab2237609c064c919d9deb30b808b456d0e4379b83e769ad8f93b4"
+        },
+        {
+          "path": "contract-verification/console-run.txt",
+          "size": 14,
+          "sha256": "c98c24b677eff44860afea6f493bbaec5bb1c4cbb209c6fc2bbb47f66ff2ad31"
+        },
+        {
+          "path": "contract-verification/dotnet-info.txt",
+          "size": 1686,
+          "sha256": "3c8127b1aa7e91161f3572717e84a03bd773d6c5880e570223660ca76f09b189"
+        },
+        {
+          "path": "contract-verification/dotnet-runtimes.txt",
+          "size": 210,
+          "sha256": "62088aeffb3c1f08939c357afde02d439685709c4b819cf6c0c9ff290eb11532"
+        },
+        {
+          "path": "contract-verification/dotnet-sdks.txt",
+          "size": 56,
+          "sha256": "1e1173553874090aa80e74628618f1bb7cb823c7ece81299ac2e9d9611d2b3db"
+        },
+        {
+          "path": "contract-verification/elf-abi.tsv",
+          "size": 3967,
+          "sha256": "90d281a9476cb48af826ff6be9644f7fd616962a82b5028e6b685000bb73ce30"
+        },
+        {
+          "path": "contract-verification/status.txt",
+          "size": 7,
+          "sha256": "945e979857a00aeaae461be449d6470c978d71fdd37495dd6df7d6c47f8b6662"
+        },
+        {
+          "path": "contract-verification/verification.json",
+          "size": 1923,
+          "sha256": "fb7bdffcb58fa2de8dab88679bcaf591665c554a191b2838e00f43b0490a8e84"
+        },
+        {
+          "path": "contract-verification/web-build.log",
+          "size": 500,
+          "sha256": "154605f7206726d778647452c228b9a46eaa2ee3763d44b1deb16a92b4946dc7"
+        },
+        {
+          "path": "contract-verification/web-response.txt",
+          "size": 18,
+          "sha256": "ad20ccc7d1379e8beff6131e4e5606646514ecd435e68d860d1715de5b7978d3"
+        },
+        {
+          "path": "contract-verification/web-server.log",
+          "size": 904,
+          "sha256": "95e95bd766bef72346f10199109ef004d6637e70674b41446b2ddaffa8bff972"
+        }
+      ],
+      "reports": [
+        {
+          "path": "contract-coexistence/coexistence.json",
+          "sha256": "12397839c3cc1325533b098e7692f5fb66c829fe7eb092c7e5346825952076a7",
+          "rawJson": "{\n  \"status\": \"passed\",\n  \"sdkVersion\": \"10.0.403\",\n  \"architecture\": \"aarch64\",\n  \"officialVersion\": \"10.0.403\",\n  \"officialDotnet\": \"/usr/share/dotnet/dotnet\",\n  \"targetRid\": \"linux-arm64\",\n  \"additionalDirectories\": [\n    \"metadata\"\n  ],\n  \"preparedVariant\": \"ubuntu-24.04\",\n  \"osRelease\": \"PRETTY_NAME=\\\"Ubuntu 24.04.5 LTS\\\"\\nNAME=\\\"Ubuntu\\\"\\nVERSION_ID=\\\"24.04\\\"\\nVERSION=\\\"24.04.5 LTS (Noble Numbat)\\\"\\nVERSION_CODENAME=noble\\nID=ubuntu\\nID_LIKE=debian\\nHOME_URL=\\\"https://www.ubuntu.com/\\\"\\nSUPPORT_URL=\\\"https://help.ubuntu.com/\\\"\\nBUG_REPORT_URL=\\\"https://bugs.launchpad.net/ubuntu/\\\"\\nPRIVACY_POLICY_URL=\\\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\\\"\\nUBUNTU_CODENAME=noble\\nLOGO=ubuntu-logo\\n\",\n  \"commandMode\": \"package\",\n  \"commandNames\": [\n    \"cbodotnet-10.0\",\n    \"cbodotnet\"\n  ],\n  \"branding\": {\n    \"displayName\": \"Community Build of .NET (built by .NET Dev)\",\n    \"implementation\": \"distribution-wrapper\",\n    \"versionStdout\": \"unchanged-numeric-sdk-version\",\n    \"versionBrandingStream\": \"stderr\",\n    \"informationCommand\": \"--cbodotnet-info\",\n    \"modifyQualifiedPayload\": false\n  },\n  \"commandInventory\": [\n    {\n      \"path\": \"/usr/bin/cbodotnet\",\n      \"size\": 1658,\n      \"sha256\": \"f9716e2bd56a5e72b4f972a082a1abd91d14c89528ff4eee59613b7a71975881\",\n      \"mode\": \"0755\",\n      \"owner\": \"cbodotnet-host\"\n    },\n    {\n      \"path\": \"/usr/bin/cbodotnet-10.0\",\n      \"size\": 1562,\n      \"sha256\": \"47b2fabe429a79c182f61a90e59c3f4acd6dade2915d30e26498c60771c96f46\",\n      \"mode\": \"0755\",\n      \"owner\": \"cbodotnet-sdk-10.0\"\n    }\n  ],\n  \"checks\": [\n    \"non-root\",\n    \"qualified-archive\",\n    \"isolated-host-runtime\",\n    \"offline-build-run\",\n    \"crypto-globalization\",\n    \"no-global-host-fallback\",\n    \"sdk-payload-unchanged\",\n    \"official-tree-unchanged\",\n    \"command-aliases\",\n    \"cli-branding\",\n    \"version-stdout-compatible\",\n    \"uninstall\"\n  ],\n  \"publicationQualified\": false\n}\n",
+          "report": {
+            "status": "passed",
+            "sdkVersion": "10.0.403",
+            "architecture": "aarch64",
+            "officialVersion": "10.0.403",
+            "officialDotnet": "/usr/share/dotnet/dotnet",
+            "targetRid": "linux-arm64",
+            "additionalDirectories": [
+              "metadata"
+            ],
+            "preparedVariant": "ubuntu-24.04",
+            "osRelease": "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.5 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo\n",
+            "commandMode": "package",
+            "commandNames": [
+              "cbodotnet-10.0",
+              "cbodotnet"
+            ],
+            "branding": {
+              "displayName": "Community Build of .NET (built by .NET Dev)",
+              "implementation": "distribution-wrapper",
+              "versionStdout": "unchanged-numeric-sdk-version",
+              "versionBrandingStream": "stderr",
+              "informationCommand": "--cbodotnet-info",
+              "modifyQualifiedPayload": false
+            },
+            "commandInventory": [
+              {
+                "path": "/usr/bin/cbodotnet",
+                "size": 1658,
+                "sha256": "f9716e2bd56a5e72b4f972a082a1abd91d14c89528ff4eee59613b7a71975881",
+                "mode": "0755",
+                "owner": "cbodotnet-host"
+              },
+              {
+                "path": "/usr/bin/cbodotnet-10.0",
+                "size": 1562,
+                "sha256": "47b2fabe429a79c182f61a90e59c3f4acd6dade2915d30e26498c60771c96f46",
+                "mode": "0755",
+                "owner": "cbodotnet-sdk-10.0"
+              }
+            ],
+            "checks": [
+              "non-root",
+              "qualified-archive",
+              "isolated-host-runtime",
+              "offline-build-run",
+              "crypto-globalization",
+              "no-global-host-fallback",
+              "sdk-payload-unchanged",
+              "official-tree-unchanged",
+              "command-aliases",
+              "cli-branding",
+              "version-stdout-compatible",
+              "uninstall"
+            ],
+            "publicationQualified": false
+          }
+        },
+        {
+          "path": "contract-oci-commands/coexistence.json",
+          "sha256": "2e020d9fa2902a72a2dd129aabc0bfefeb6473db378d775efef79c6125fa2b4e",
+          "rawJson": "{\n  \"status\": \"passed\",\n  \"sdkVersion\": \"10.0.403\",\n  \"architecture\": \"aarch64\",\n  \"officialVersion\": \"10.0.403\",\n  \"officialDotnet\": \"/usr/share/dotnet/dotnet\",\n  \"targetRid\": \"linux-arm64\",\n  \"additionalDirectories\": [\n    \"metadata\"\n  ],\n  \"preparedVariant\": \"ubuntu-24.04\",\n  \"osRelease\": \"PRETTY_NAME=\\\"Ubuntu 24.04.5 LTS\\\"\\nNAME=\\\"Ubuntu\\\"\\nVERSION_ID=\\\"24.04\\\"\\nVERSION=\\\"24.04.5 LTS (Noble Numbat)\\\"\\nVERSION_CODENAME=noble\\nID=ubuntu\\nID_LIKE=debian\\nHOME_URL=\\\"https://www.ubuntu.com/\\\"\\nSUPPORT_URL=\\\"https://help.ubuntu.com/\\\"\\nBUG_REPORT_URL=\\\"https://bugs.launchpad.net/ubuntu/\\\"\\nPRIVACY_POLICY_URL=\\\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\\\"\\nUBUNTU_CODENAME=noble\\nLOGO=ubuntu-logo\\n\",\n  \"commandMode\": \"oci\",\n  \"commandNames\": [\n    \"cbodotnet-10.0\",\n    \"cbodotnet\",\n    \"dotnet\"\n  ],\n  \"branding\": {\n    \"displayName\": \"Community Build of .NET (built by .NET Dev)\",\n    \"implementation\": \"distribution-wrapper\",\n    \"versionStdout\": \"unchanged-numeric-sdk-version\",\n    \"versionBrandingStream\": \"stderr\",\n    \"informationCommand\": \"--cbodotnet-info\",\n    \"modifyQualifiedPayload\": false\n  },\n  \"commandInventory\": [\n    {\n      \"path\": \"/usr/bin/cbodotnet\",\n      \"size\": 96,\n      \"sha256\": \"aacef5d83d4911fe2efc6705a12fcf894c7ee7abc292173268e586f2e2d0fceb\",\n      \"mode\": \"0755\",\n      \"owner\": \"cbodotnet-host\"\n    },\n    {\n      \"path\": \"/usr/bin/cbodotnet-10.0\",\n      \"size\": 1564,\n      \"sha256\": \"6e72d660fa626d5dc90bc0a225a738de387e58c1a0206622f9dd544c31911865\",\n      \"mode\": \"0755\",\n      \"owner\": \"cbodotnet-sdk-10.0\"\n    },\n    {\n      \"path\": \"/usr/local/bin/cbodotnet\",\n      \"size\": 96,\n      \"sha256\": \"aacef5d83d4911fe2efc6705a12fcf894c7ee7abc292173268e586f2e2d0fceb\",\n      \"mode\": \"0755\",\n      \"owner\": \"cbodotnet-sdk-10.0\"\n    },\n    {\n      \"path\": \"/usr/local/bin/cbodotnet-10.0\",\n      \"size\": 96,\n      \"sha256\": \"aacef5d83d4911fe2efc6705a12fcf894c7ee7abc292173268e586f2e2d0fceb\",\n      \"mode\": \"0755\",\n      \"owner\": \"cbodotnet-sdk-10.0\"\n    },\n    {\n      \"path\": \"/usr/local/bin/dotnet\",\n      \"size\": 96,\n      \"sha256\": \"aacef5d83d4911fe2efc6705a12fcf894c7ee7abc292173268e586f2e2d0fceb\",\n      \"mode\": \"0755\",\n      \"owner\": \"cbodotnet-sdk-10.0\"\n    }\n  ],\n  \"checks\": [\n    \"non-root\",\n    \"qualified-archive\",\n    \"isolated-host-runtime\",\n    \"offline-build-run\",\n    \"crypto-globalization\",\n    \"no-global-host-fallback\",\n    \"sdk-payload-unchanged\",\n    \"official-tree-unchanged\",\n    \"command-aliases\",\n    \"cli-branding\",\n    \"version-stdout-compatible\",\n    \"uninstall\"\n  ],\n  \"publicationQualified\": false\n}\n",
+          "report": {
+            "status": "passed",
+            "sdkVersion": "10.0.403",
+            "architecture": "aarch64",
+            "officialVersion": "10.0.403",
+            "officialDotnet": "/usr/share/dotnet/dotnet",
+            "targetRid": "linux-arm64",
+            "additionalDirectories": [
+              "metadata"
+            ],
+            "preparedVariant": "ubuntu-24.04",
+            "osRelease": "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.5 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo\n",
+            "commandMode": "oci",
+            "commandNames": [
+              "cbodotnet-10.0",
+              "cbodotnet",
+              "dotnet"
+            ],
+            "branding": {
+              "displayName": "Community Build of .NET (built by .NET Dev)",
+              "implementation": "distribution-wrapper",
+              "versionStdout": "unchanged-numeric-sdk-version",
+              "versionBrandingStream": "stderr",
+              "informationCommand": "--cbodotnet-info",
+              "modifyQualifiedPayload": false
+            },
+            "commandInventory": [
+              {
+                "path": "/usr/bin/cbodotnet",
+                "size": 96,
+                "sha256": "aacef5d83d4911fe2efc6705a12fcf894c7ee7abc292173268e586f2e2d0fceb",
+                "mode": "0755",
+                "owner": "cbodotnet-host"
+              },
+              {
+                "path": "/usr/bin/cbodotnet-10.0",
+                "size": 1564,
+                "sha256": "6e72d660fa626d5dc90bc0a225a738de387e58c1a0206622f9dd544c31911865",
+                "mode": "0755",
+                "owner": "cbodotnet-sdk-10.0"
+              },
+              {
+                "path": "/usr/local/bin/cbodotnet",
+                "size": 96,
+                "sha256": "aacef5d83d4911fe2efc6705a12fcf894c7ee7abc292173268e586f2e2d0fceb",
+                "mode": "0755",
+                "owner": "cbodotnet-sdk-10.0"
+              },
+              {
+                "path": "/usr/local/bin/cbodotnet-10.0",
+                "size": 96,
+                "sha256": "aacef5d83d4911fe2efc6705a12fcf894c7ee7abc292173268e586f2e2d0fceb",
+                "mode": "0755",
+                "owner": "cbodotnet-sdk-10.0"
+              },
+              {
+                "path": "/usr/local/bin/dotnet",
+                "size": 96,
+                "sha256": "aacef5d83d4911fe2efc6705a12fcf894c7ee7abc292173268e586f2e2d0fceb",
+                "mode": "0755",
+                "owner": "cbodotnet-sdk-10.0"
+              }
+            ],
+            "checks": [
+              "non-root",
+              "qualified-archive",
+              "isolated-host-runtime",
+              "offline-build-run",
+              "crypto-globalization",
+              "no-global-host-fallback",
+              "sdk-payload-unchanged",
+              "official-tree-unchanged",
+              "command-aliases",
+              "cli-branding",
+              "version-stdout-compatible",
+              "uninstall"
+            ],
+            "publicationQualified": false
+          }
+        },
+        {
+          "path": "contract-verification/verification.json",
+          "sha256": "fb7bdffcb58fa2de8dab88679bcaf591665c554a191b2838e00f43b0490a8e84",
+          "rawJson": "{\n  \"schemaVersion\": 1,\n  \"verificationStatus\": \"passed\",\n  \"verifiedAtUtc\": \"2026-11-04T07:11:47.994986+00:00\",\n  \"hostArchitecture\": \"aarch64\",\n  \"sdkDirectory\": \"/tmp/cbodotnet-verify.JaSLYJX4/extracted\",\n  \"sdkVersion\": \"10.0.403\",\n  \"expectedVersion\": \"10.0.403\",\n  \"reportedRid\": \"linux-arm64\",\n  \"expectedRid\": \"linux-arm64\",\n  \"framework\": \"net10.0\",\n  \"smokeStatus\": \"passed\",\n  \"smokeRestore\": \"isolated caches with no NuGet package sources\",\n  \"stateIsolation\": \"Private HOME, XDG_RUNTIME_DIR (0700), DOTNET_CLI_HOME and NuGet caches\",\n  \"functionalChecks\": {\n    \"consoleDllExecution\": \"passed\",\n    \"consoleApphostExecution\": \"passed\",\n    \"rsaSha256SignAndVerify\": \"passed\",\n    \"cryptographicRandomBytes\": \"passed\",\n    \"frFrDecimalFormatting\": \"passed\",\n    \"aspNetCoreLoopbackHttp\": \"passed\"\n  },\n  \"abi\": {\n    \"elfFileCount\": 24,\n    \"machines\": {\n      \"AArch64\": 24\n    },\n    \"maximumRequiredVersions\": {\n      \"GLIBC\": \"2.27\",\n      \"GLIBCXX\": \"3.4.22\",\n      \"CXXABI\": \"1.3.7\"\n    },\n    \"symbolicGlibcRequirements\": [],\n    \"glibcCeiling\": \"2.27\",\n    \"glibcCeilingPassed\": true,\n    \"scope\": \"Regular ELF files inside the SDK, excluding archive members and PE managed images.\",\n    \"limitations\": [\n      \"ABI symbol maxima do not cover kernel requirements, runtime dlopen dependencies or complete OS support.\",\n      \"Relocatable objects and foreign-target ELF files, if shipped, are included in the table.\"\n    ]\n  },\n  \"archive\": {\n    \"path\": \"/home/runner/work/_temp/contract-inputs/cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz\",\n    \"sizeBytes\": 217817416,\n    \"sha256\": \"410491f0166109c2c3d115705ab64601cec56c3b1c1995267d3b16567f9c0d5b\",\n    \"sdkContentMatched\": true\n  },\n  \"limitations\": [\n    \"Does not certify support for untested Linux distributions, workloads, NativeAOT or external NuGet packages.\",\n    \"Does not replace upstream VMR source-build tests or Stage 2 validation.\"\n  ]\n}\n",
+          "report": {
+            "schemaVersion": 1,
+            "verificationStatus": "passed",
+            "verifiedAtUtc": "2026-11-04T07:11:47.994986+00:00",
+            "hostArchitecture": "aarch64",
+            "sdkDirectory": "/tmp/cbodotnet-verify.JaSLYJX4/extracted",
+            "sdkVersion": "10.0.403",
+            "expectedVersion": "10.0.403",
+            "reportedRid": "linux-arm64",
+            "expectedRid": "linux-arm64",
+            "framework": "net10.0",
+            "smokeStatus": "passed",
+            "smokeRestore": "isolated caches with no NuGet package sources",
+            "stateIsolation": "Private HOME, XDG_RUNTIME_DIR (0700), DOTNET_CLI_HOME and NuGet caches",
+            "functionalChecks": {
+              "consoleDllExecution": "passed",
+              "consoleApphostExecution": "passed",
+              "rsaSha256SignAndVerify": "passed",
+              "cryptographicRandomBytes": "passed",
+              "frFrDecimalFormatting": "passed",
+              "aspNetCoreLoopbackHttp": "passed"
+            },
+            "abi": {
+              "elfFileCount": 24,
+              "machines": {
+                "AArch64": 24
+              },
+              "maximumRequiredVersions": {
+                "GLIBC": "2.27",
+                "GLIBCXX": "3.4.22",
+                "CXXABI": "1.3.7"
+              },
+              "symbolicGlibcRequirements": [],
+              "glibcCeiling": "2.27",
+              "glibcCeilingPassed": true,
+              "scope": "Regular ELF files inside the SDK, excluding archive members and PE managed images.",
+              "limitations": [
+                "ABI symbol maxima do not cover kernel requirements, runtime dlopen dependencies or complete OS support.",
+                "Relocatable objects and foreign-target ELF files, if shipped, are included in the table."
+              ]
+            },
+            "archive": {
+              "path": "/home/runner/work/_temp/contract-inputs/cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz",
+              "sizeBytes": 217817416,
+              "sha256": "410491f0166109c2c3d115705ab64601cec56c3b1c1995267d3b16567f9c0d5b",
+              "sdkContentMatched": true
+            },
+            "limitations": [
+              "Does not certify support for untested Linux distributions, workloads, NativeAOT or external NuGet packages.",
+              "Does not replace upstream VMR source-build tests or Stage 2 validation."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "architecture": "x64",
+      "status": "passed",
+      "artifact": {
+        "id": "13302484374",
+        "name": "distribution-contract-x64-41789475598-1",
+        "size": 9805,
+        "zipSha256": "895f218918d6d44999b6ee1adde9e764c1a4f4612f5766bf84148675ce2c7f4f",
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41789475598/artifacts/13302484374"
+      },
+      "downloadedZipDigest": "passed",
+      "members": [
+        {
+          "path": "contract-coexistence/coexistence.json",
+          "size": 1929,
+          "sha256": "cbe51ffbe766d5194bf8efc6d69c5b15a3c195c224c3d491d08be693fe6e4351"
+        },
+        {
+          "path": "contract-coexistence/restore.txt",
+          "size": 126,
+          "sha256": "eb6d4dc203254b822d1b86b66eade56fbe3e1b2d4ff41207a19e65f914a2ec42"
+        },
+        {
+          "path": "contract-coexistence/build.txt",
+          "size": 168,
+          "sha256": "7aa16decefbd9c579d09b161e591993b265e7e44d6e1a5927aad479ed1086d33"
+        },
+        {
+          "path": "contract-coexistence/command-inventory.json",
+          "size": 398,
+          "sha256": "3706ad692021fae372da6f1aaf869caeae405259f0b222fc921c46b04b00fdc3"
+        },
+        {
+          "path": "contract-oci-commands/coexistence.json",
+          "size": 2584,
+          "sha256": "c728a54c6b5e423347af1039e6bcb96d479da7c5ad9f71735223745754585b3f"
+        },
+        {
+          "path": "contract-oci-commands/command-inventory.json",
+          "size": 1001,
+          "sha256": "78c781f1539e69c9e44de3e9fb4f8b9a0d4cb0d73bb6ea3de99e58bf743201c2"
+        },
+        {
+          "path": "contract-verification/abi-summary.json",
+          "size": 608,
+          "sha256": "ce14ebfb5ee2719fa5aac0c75103a16315fceb170908071c418b7f25e7480264"
+        },
+        {
+          "path": "contract-verification/archive.json",
+          "size": 231,
+          "sha256": "7cfcb93409fff60a0fd62652129b669983c6ad6c2e7310dcf0876f8e6f20eb7e"
+        },
+        {
+          "path": "contract-verification/console-apphost-run.txt",
+          "size": 14,
+          "sha256": "c98c24b677eff44860afea6f493bbaec5bb1c4cbb209c6fc2bbb47f66ff2ad31"
+        },
+        {
+          "path": "contract-verification/console-build.log",
+          "size": 533,
+          "sha256": "44ac887c8803b1f6c205fd26120355b6c401fe964a518d04cca77724b1541cfa"
+        },
+        {
+          "path": "contract-verification/console-run.txt",
+          "size": 14,
+          "sha256": "c98c24b677eff44860afea6f493bbaec5bb1c4cbb209c6fc2bbb47f66ff2ad31"
+        },
+        {
+          "path": "contract-verification/dotnet-info.txt",
+          "size": 1682,
+          "sha256": "a36dad7d05b8827749980447a507202c66dfae502674652e2e15029470c52473"
+        },
+        {
+          "path": "contract-verification/dotnet-runtimes.txt",
+          "size": 210,
+          "sha256": "5b82aa5939f123e7f23c37989ff2bd32b80d5bbb11c30e2accce95c7d941123e"
+        },
+        {
+          "path": "contract-verification/dotnet-sdks.txt",
+          "size": 56,
+          "sha256": "245026fb1aa8dd97e9a71ef4f494518fd9214a056c2dc219779ed0edcd7302b2"
+        },
+        {
+          "path": "contract-verification/elf-abi.tsv",
+          "size": 4331,
+          "sha256": "ea8cafa1c044160a9025b3243eb2c33af702d1202c07d6bffcac64bf8d0c1691"
+        },
+        {
+          "path": "contract-verification/status.txt",
+          "size": 7,
+          "sha256": "945e979857a00aeaae461be449d6470c978d71fdd37495dd6df7d6c47f8b6662"
+        },
+        {
+          "path": "contract-verification/verification.json",
+          "size": 1936,
+          "sha256": "31bdaea491366e38f8d4aba1e957e0f979408b22346532a87183198c0f787a84"
+        },
+        {
+          "path": "contract-verification/web-build.log",
+          "size": 500,
+          "sha256": "366f73388c4dee3d698ca516fea8b51f93b3a29c83386fa3ffe7edcb8e330af2"
+        },
+        {
+          "path": "contract-verification/web-response.txt",
+          "size": 18,
+          "sha256": "ad20ccc7d1379e8beff6131e4e5606646514ecd435e68d860d1715de5b7978d3"
+        },
+        {
+          "path": "contract-verification/web-server.log",
+          "size": 904,
+          "sha256": "e978f166e110a3bd99017fc15f78bd40a985bdc62ffe3a06ce8376add419f108"
+        }
+      ],
+      "reports": [
+        {
+          "path": "contract-coexistence/coexistence.json",
+          "sha256": "cbe51ffbe766d5194bf8efc6d69c5b15a3c195c224c3d491d08be693fe6e4351",
+          "rawJson": "{\n  \"status\": \"passed\",\n  \"sdkVersion\": \"10.0.403\",\n  \"architecture\": \"x64\",\n  \"officialVersion\": \"10.0.403\",\n  \"officialDotnet\": \"/usr/share/dotnet/dotnet\",\n  \"targetRid\": \"linux-x64\",\n  \"additionalDirectories\": [\n    \"metadata\"\n  ],\n  \"preparedVariant\": \"ubuntu-24.04\",\n  \"osRelease\": \"PRETTY_NAME=\\\"Ubuntu 24.04.5 LTS\\\"\\nNAME=\\\"Ubuntu\\\"\\nVERSION_ID=\\\"24.04\\\"\\nVERSION=\\\"24.04.5 LTS (Noble Numbat)\\\"\\nVERSION_CODENAME=noble\\nID=ubuntu\\nID_LIKE=debian\\nHOME_URL=\\\"https://www.ubuntu.com/\\\"\\nSUPPORT_URL=\\\"https://help.ubuntu.com/\\\"\\nBUG_REPORT_URL=\\\"https://bugs.launchpad.net/ubuntu/\\\"\\nPRIVACY_POLICY_URL=\\\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\\\"\\nUBUNTU_CODENAME=noble\\nLOGO=ubuntu-logo\\n\",\n  \"commandMode\": \"package\",\n  \"commandNames\": [\n    \"cbodotnet-10.0\",\n    \"cbodotnet\"\n  ],\n  \"branding\": {\n    \"displayName\": \"Community Build of .NET (built by .NET Dev)\",\n    \"implementation\": \"distribution-wrapper\",\n    \"versionStdout\": \"unchanged-numeric-sdk-version\",\n    \"versionBrandingStream\": \"stderr\",\n    \"informationCommand\": \"--cbodotnet-info\",\n    \"modifyQualifiedPayload\": false\n  },\n  \"commandInventory\": [\n    {\n      \"path\": \"/usr/bin/cbodotnet\",\n      \"size\": 1658,\n      \"sha256\": \"f9716e2bd56a5e72b4f972a082a1abd91d14c89528ff4eee59613b7a71975881\",\n      \"mode\": \"0755\",\n      \"owner\": \"cbodotnet-host\"\n    },\n    {\n      \"path\": \"/usr/bin/cbodotnet-10.0\",\n      \"size\": 1556,\n      \"sha256\": \"31037543dcd9fcfd6dd3c0c3f1fc76223cd7910c53d365358e838865cc02e66e\",\n      \"mode\": \"0755\",\n      \"owner\": \"cbodotnet-sdk-10.0\"\n    }\n  ],\n  \"checks\": [\n    \"non-root\",\n    \"qualified-archive\",\n    \"isolated-host-runtime\",\n    \"offline-build-run\",\n    \"crypto-globalization\",\n    \"no-global-host-fallback\",\n    \"sdk-payload-unchanged\",\n    \"official-tree-unchanged\",\n    \"command-aliases\",\n    \"cli-branding\",\n    \"version-stdout-compatible\",\n    \"uninstall\"\n  ],\n  \"publicationQualified\": false\n}\n",
+          "report": {
+            "status": "passed",
+            "sdkVersion": "10.0.403",
+            "architecture": "x64",
+            "officialVersion": "10.0.403",
+            "officialDotnet": "/usr/share/dotnet/dotnet",
+            "targetRid": "linux-x64",
+            "additionalDirectories": [
+              "metadata"
+            ],
+            "preparedVariant": "ubuntu-24.04",
+            "osRelease": "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.5 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo\n",
+            "commandMode": "package",
+            "commandNames": [
+              "cbodotnet-10.0",
+              "cbodotnet"
+            ],
+            "branding": {
+              "displayName": "Community Build of .NET (built by .NET Dev)",
+              "implementation": "distribution-wrapper",
+              "versionStdout": "unchanged-numeric-sdk-version",
+              "versionBrandingStream": "stderr",
+              "informationCommand": "--cbodotnet-info",
+              "modifyQualifiedPayload": false
+            },
+            "commandInventory": [
+              {
+                "path": "/usr/bin/cbodotnet",
+                "size": 1658,
+                "sha256": "f9716e2bd56a5e72b4f972a082a1abd91d14c89528ff4eee59613b7a71975881",
+                "mode": "0755",
+                "owner": "cbodotnet-host"
+              },
+              {
+                "path": "/usr/bin/cbodotnet-10.0",
+                "size": 1556,
+                "sha256": "31037543dcd9fcfd6dd3c0c3f1fc76223cd7910c53d365358e838865cc02e66e",
+                "mode": "0755",
+                "owner": "cbodotnet-sdk-10.0"
+              }
+            ],
+            "checks": [
+              "non-root",
+              "qualified-archive",
+              "isolated-host-runtime",
+              "offline-build-run",
+              "crypto-globalization",
+              "no-global-host-fallback",
+              "sdk-payload-unchanged",
+              "official-tree-unchanged",
+              "command-aliases",
+              "cli-branding",
+              "version-stdout-compatible",
+              "uninstall"
+            ],
+            "publicationQualified": false
+          }
+        },
+        {
+          "path": "contract-oci-commands/coexistence.json",
+          "sha256": "c728a54c6b5e423347af1039e6bcb96d479da7c5ad9f71735223745754585b3f",
+          "rawJson": "{\n  \"status\": \"passed\",\n  \"sdkVersion\": \"10.0.403\",\n  \"architecture\": \"x64\",\n  \"officialVersion\": \"10.0.403\",\n  \"officialDotnet\": \"/usr/share/dotnet/dotnet\",\n  \"targetRid\": \"linux-x64\",\n  \"additionalDirectories\": [\n    \"metadata\"\n  ],\n  \"preparedVariant\": \"ubuntu-24.04\",\n  \"osRelease\": \"PRETTY_NAME=\\\"Ubuntu 24.04.5 LTS\\\"\\nNAME=\\\"Ubuntu\\\"\\nVERSION_ID=\\\"24.04\\\"\\nVERSION=\\\"24.04.5 LTS (Noble Numbat)\\\"\\nVERSION_CODENAME=noble\\nID=ubuntu\\nID_LIKE=debian\\nHOME_URL=\\\"https://www.ubuntu.com/\\\"\\nSUPPORT_URL=\\\"https://help.ubuntu.com/\\\"\\nBUG_REPORT_URL=\\\"https://bugs.launchpad.net/ubuntu/\\\"\\nPRIVACY_POLICY_URL=\\\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\\\"\\nUBUNTU_CODENAME=noble\\nLOGO=ubuntu-logo\\n\",\n  \"commandMode\": \"oci\",\n  \"commandNames\": [\n    \"cbodotnet-10.0\",\n    \"cbodotnet\",\n    \"dotnet\"\n  ],\n  \"branding\": {\n    \"displayName\": \"Community Build of .NET (built by .NET Dev)\",\n    \"implementation\": \"distribution-wrapper\",\n    \"versionStdout\": \"unchanged-numeric-sdk-version\",\n    \"versionBrandingStream\": \"stderr\",\n    \"informationCommand\": \"--cbodotnet-info\",\n    \"modifyQualifiedPayload\": false\n  },\n  \"commandInventory\": [\n    {\n      \"path\": \"/usr/bin/cbodotnet\",\n      \"size\": 96,\n      \"sha256\": \"aacef5d83d4911fe2efc6705a12fcf894c7ee7abc292173268e586f2e2d0fceb\",\n      \"mode\": \"0755\",\n      \"owner\": \"cbodotnet-host\"\n    },\n    {\n      \"path\": \"/usr/bin/cbodotnet-10.0\",\n      \"size\": 1558,\n      \"sha256\": \"e26616def8e02353f24a08ac48be764fb2b99827cba7555c518b5cd40611b9ab\",\n      \"mode\": \"0755\",\n      \"owner\": \"cbodotnet-sdk-10.0\"\n    },\n    {\n      \"path\": \"/usr/local/bin/cbodotnet\",\n      \"size\": 96,\n      \"sha256\": \"aacef5d83d4911fe2efc6705a12fcf894c7ee7abc292173268e586f2e2d0fceb\",\n      \"mode\": \"0755\",\n      \"owner\": \"cbodotnet-sdk-10.0\"\n    },\n    {\n      \"path\": \"/usr/local/bin/cbodotnet-10.0\",\n      \"size\": 96,\n      \"sha256\": \"aacef5d83d4911fe2efc6705a12fcf894c7ee7abc292173268e586f2e2d0fceb\",\n      \"mode\": \"0755\",\n      \"owner\": \"cbodotnet-sdk-10.0\"\n    },\n    {\n      \"path\": \"/usr/local/bin/dotnet\",\n      \"size\": 96,\n      \"sha256\": \"aacef5d83d4911fe2efc6705a12fcf894c7ee7abc292173268e586f2e2d0fceb\",\n      \"mode\": \"0755\",\n      \"owner\": \"cbodotnet-sdk-10.0\"\n    }\n  ],\n  \"checks\": [\n    \"non-root\",\n    \"qualified-archive\",\n    \"isolated-host-runtime\",\n    \"offline-build-run\",\n    \"crypto-globalization\",\n    \"no-global-host-fallback\",\n    \"sdk-payload-unchanged\",\n    \"official-tree-unchanged\",\n    \"command-aliases\",\n    \"cli-branding\",\n    \"version-stdout-compatible\",\n    \"uninstall\"\n  ],\n  \"publicationQualified\": false\n}\n",
+          "report": {
+            "status": "passed",
+            "sdkVersion": "10.0.403",
+            "architecture": "x64",
+            "officialVersion": "10.0.403",
+            "officialDotnet": "/usr/share/dotnet/dotnet",
+            "targetRid": "linux-x64",
+            "additionalDirectories": [
+              "metadata"
+            ],
+            "preparedVariant": "ubuntu-24.04",
+            "osRelease": "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.5 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo\n",
+            "commandMode": "oci",
+            "commandNames": [
+              "cbodotnet-10.0",
+              "cbodotnet",
+              "dotnet"
+            ],
+            "branding": {
+              "displayName": "Community Build of .NET (built by .NET Dev)",
+              "implementation": "distribution-wrapper",
+              "versionStdout": "unchanged-numeric-sdk-version",
+              "versionBrandingStream": "stderr",
+              "informationCommand": "--cbodotnet-info",
+              "modifyQualifiedPayload": false
+            },
+            "commandInventory": [
+              {
+                "path": "/usr/bin/cbodotnet",
+                "size": 96,
+                "sha256": "aacef5d83d4911fe2efc6705a12fcf894c7ee7abc292173268e586f2e2d0fceb",
+                "mode": "0755",
+                "owner": "cbodotnet-host"
+              },
+              {
+                "path": "/usr/bin/cbodotnet-10.0",
+                "size": 1558,
+                "sha256": "e26616def8e02353f24a08ac48be764fb2b99827cba7555c518b5cd40611b9ab",
+                "mode": "0755",
+                "owner": "cbodotnet-sdk-10.0"
+              },
+              {
+                "path": "/usr/local/bin/cbodotnet",
+                "size": 96,
+                "sha256": "aacef5d83d4911fe2efc6705a12fcf894c7ee7abc292173268e586f2e2d0fceb",
+                "mode": "0755",
+                "owner": "cbodotnet-sdk-10.0"
+              },
+              {
+                "path": "/usr/local/bin/cbodotnet-10.0",
+                "size": 96,
+                "sha256": "aacef5d83d4911fe2efc6705a12fcf894c7ee7abc292173268e586f2e2d0fceb",
+                "mode": "0755",
+                "owner": "cbodotnet-sdk-10.0"
+              },
+              {
+                "path": "/usr/local/bin/dotnet",
+                "size": 96,
+                "sha256": "aacef5d83d4911fe2efc6705a12fcf894c7ee7abc292173268e586f2e2d0fceb",
+                "mode": "0755",
+                "owner": "cbodotnet-sdk-10.0"
+              }
+            ],
+            "checks": [
+              "non-root",
+              "qualified-archive",
+              "isolated-host-runtime",
+              "offline-build-run",
+              "crypto-globalization",
+              "no-global-host-fallback",
+              "sdk-payload-unchanged",
+              "official-tree-unchanged",
+              "command-aliases",
+              "cli-branding",
+              "version-stdout-compatible",
+              "uninstall"
+            ],
+            "publicationQualified": false
+          }
+        },
+        {
+          "path": "contract-verification/verification.json",
+          "sha256": "31bdaea491366e38f8d4aba1e957e0f979408b22346532a87183198c0f787a84",
+          "rawJson": "{\n  \"schemaVersion\": 1,\n  \"verificationStatus\": \"passed\",\n  \"verifiedAtUtc\": \"2026-11-04T07:13:21.133280+00:00\",\n  \"hostArchitecture\": \"x86_64\",\n  \"sdkDirectory\": \"/tmp/cbodotnet-verify.vjuuARLl/extracted\",\n  \"sdkVersion\": \"10.0.403\",\n  \"expectedVersion\": \"10.0.403\",\n  \"reportedRid\": \"linux-x64\",\n  \"expectedRid\": \"linux-x64\",\n  \"framework\": \"net10.0\",\n  \"smokeStatus\": \"passed\",\n  \"smokeRestore\": \"isolated caches with no NuGet package sources\",\n  \"stateIsolation\": \"Private HOME, XDG_RUNTIME_DIR (0700), DOTNET_CLI_HOME and NuGet caches\",\n  \"functionalChecks\": {\n    \"consoleDllExecution\": \"passed\",\n    \"consoleApphostExecution\": \"passed\",\n    \"rsaSha256SignAndVerify\": \"passed\",\n    \"cryptographicRandomBytes\": \"passed\",\n    \"frFrDecimalFormatting\": \"passed\",\n    \"aspNetCoreLoopbackHttp\": \"passed\"\n  },\n  \"abi\": {\n    \"elfFileCount\": 24,\n    \"machines\": {\n      \"Advanced Micro Devices X86-64\": 24\n    },\n    \"maximumRequiredVersions\": {\n      \"GLIBC\": \"2.27\",\n      \"GLIBCXX\": \"3.4.22\",\n      \"CXXABI\": \"1.3.7\"\n    },\n    \"symbolicGlibcRequirements\": [],\n    \"glibcCeiling\": \"2.27\",\n    \"glibcCeilingPassed\": true,\n    \"scope\": \"Regular ELF files inside the SDK, excluding archive members and PE managed images.\",\n    \"limitations\": [\n      \"ABI symbol maxima do not cover kernel requirements, runtime dlopen dependencies or complete OS support.\",\n      \"Relocatable objects and foreign-target ELF files, if shipped, are included in the table.\"\n    ]\n  },\n  \"archive\": {\n    \"path\": \"/home/runner/work/_temp/contract-inputs/cbodotnet-sdk-10.0.403-linux-x64.tar.gz\",\n    \"sizeBytes\": 224606406,\n    \"sha256\": \"0ff27ca9775fb8d3c83fce60ad511754956f311a950878dcbc05bd6737a4bc09\",\n    \"sdkContentMatched\": true\n  },\n  \"limitations\": [\n    \"Does not certify support for untested Linux distributions, workloads, NativeAOT or external NuGet packages.\",\n    \"Does not replace upstream VMR source-build tests or Stage 2 validation.\"\n  ]\n}\n",
+          "report": {
+            "schemaVersion": 1,
+            "verificationStatus": "passed",
+            "verifiedAtUtc": "2026-11-04T07:13:21.133280+00:00",
+            "hostArchitecture": "x86_64",
+            "sdkDirectory": "/tmp/cbodotnet-verify.vjuuARLl/extracted",
+            "sdkVersion": "10.0.403",
+            "expectedVersion": "10.0.403",
+            "reportedRid": "linux-x64",
+            "expectedRid": "linux-x64",
+            "framework": "net10.0",
+            "smokeStatus": "passed",
+            "smokeRestore": "isolated caches with no NuGet package sources",
+            "stateIsolation": "Private HOME, XDG_RUNTIME_DIR (0700), DOTNET_CLI_HOME and NuGet caches",
+            "functionalChecks": {
+              "consoleDllExecution": "passed",
+              "consoleApphostExecution": "passed",
+              "rsaSha256SignAndVerify": "passed",
+              "cryptographicRandomBytes": "passed",
+              "frFrDecimalFormatting": "passed",
+              "aspNetCoreLoopbackHttp": "passed"
+            },
+            "abi": {
+              "elfFileCount": 24,
+              "machines": {
+                "Advanced Micro Devices X86-64": 24
+              },
+              "maximumRequiredVersions": {
+                "GLIBC": "2.27",
+                "GLIBCXX": "3.4.22",
+                "CXXABI": "1.3.7"
+              },
+              "symbolicGlibcRequirements": [],
+              "glibcCeiling": "2.27",
+              "glibcCeilingPassed": true,
+              "scope": "Regular ELF files inside the SDK, excluding archive members and PE managed images.",
+              "limitations": [
+                "ABI symbol maxima do not cover kernel requirements, runtime dlopen dependencies or complete OS support.",
+                "Relocatable objects and foreign-target ELF files, if shipped, are included in the table."
+              ]
+            },
+            "archive": {
+              "path": "/home/runner/work/_temp/contract-inputs/cbodotnet-sdk-10.0.403-linux-x64.tar.gz",
+              "sizeBytes": 224606406,
+              "sha256": "0ff27ca9775fb8d3c83fce60ad511754956f311a950878dcbc05bd6737a4bc09",
+              "sdkContentMatched": true
+            },
+            "limitations": [
+              "Does not certify support for untested Linux distributions, workloads, NativeAOT or external NuGet packages.",
+              "Does not replace upstream VMR source-build tests or Stage 2 validation."
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "publicationQualified": false,
+  "limitations": [
+    "Private-prefix launcher and root tests do not establish package-manager or consumer image qualification.",
+    "The actual official SDK version is retained verbatim in each report; setup-dotnet input alone does not determine default SDK selection.",
+    "Channel qualification and public installation evidence remain in the separate publication records and authenticated status."
+  ]
+}
