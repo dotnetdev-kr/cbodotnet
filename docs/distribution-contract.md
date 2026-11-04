@@ -9,7 +9,7 @@ requirements require a new contract version and review.
 
 The initial packaging input is the already-qualified **SDK 10.0.403** release.
 This contract defines preparation rules; successful planning alone does not
-authorize publication. SDK 10.0.403's published APT and OCI targets are recorded
+authorize publication. SDK 10.0.403's published APT, RPM and OCI targets are recorded
 with native and public verification evidence in
 [distribution status](../releases/downstream-status.json). Additional targets
 require their own complete downstream gates.
@@ -17,7 +17,9 @@ require their own complete downstream gates.
 those shared gates; [OCI #3](https://github.com/dotnetdev-kr/cbodotnet/issues/3),
 [APT #4](https://github.com/dotnetdev-kr/cbodotnet/issues/4),
 [RPM #5](https://github.com/dotnetdev-kr/cbodotnet/issues/5) and
-[AUR #6](https://github.com/dotnetdev-kr/cbodotnet/issues/6) supply channel delivery.
+[Arch recipe validation #6](https://github.com/dotnetdev-kr/cbodotnet/issues/6)
+supply channel implementation. Authenticated AUR publication is separately
+tracked in [issue #10](https://github.com/dotnetdev-kr/cbodotnet/issues/10).
 
 ## Installation identity and coexistence
 
@@ -196,7 +198,7 @@ native SDKs.
 | Debian package | Ubuntu 24.04 | 10.0.403, `amd64` and `arm64` | Published; native lifecycle and public repository checks passed |
 | Debian package | Debian 13 | 10.0.403, `amd64` and `arm64` | Published; native lifecycle and public repository checks passed |
 | OCI | Debian 13, variant `debian13` | 10.0.403, `linux/amd64` and `linux/arm64` | Published; native image and anonymous digest-pull checks passed |
-| RPM | Fedora 45 and Rocky Linux 9.8 | 10.0.403, `x86_64` and `aarch64` | Reviewed candidate matrix; complete public verification pending |
+| RPM | Fedora 45 and Rocky Linux 9.8 | 10.0.403, `x86_64` and `aarch64` | Published; signed packages/metadata and native HTTPS DNF checks passed |
 | AUR | Arch Linux rolling | 10.0.403, `x86_64` only | Native recipe build/lifecycle validation passed; AUR submission deferred to issue #10 |
 
 Ubuntu 22.04 has archive evidence, but is not an initial package target.
@@ -305,17 +307,18 @@ plan or checksum check cannot be relabeled as a successful package installation.
 
 ## Channel trust, corrections and rollback
 
-APT metadata and downstream manifests use the
+APT/RPM metadata, RPM packages and downstream manifests use the
 [approved distribution signing identity](distribution-signing.md). Published
 endpoints, immutable image digests and verification receipts are recorded in
-[distribution status](../releases/downstream-status.json). RPM/AUR require
-separate target admission before availability is declared. Every enabled
-channel follows this trust model:
+[distribution status](../releases/downstream-status.json). Additional SDK/OS/CPU
+targets require separate reviewed admission before availability is declared.
+AUR publication remains deferred to issue #10. Every enabled channel follows
+this trust model:
 
 | Channel | Required verification and source linkage |
 | --- | --- |
 | APT | Project-controlled repository with signed `InRelease` metadata binding package indexes and package hashes. Use a dedicated keyring and `signed-by`; publish and verify the full signing-key fingerprint. |
-| RPM | Signed package payloads with `gpgcheck=1`; sign repository metadata and use `repo_gpgcheck=1` when enabled by the selected repository policy. Document actual metadata-signature behavior before publishing a `.repo` file. |
+| RPM | Signed packages with `gpgcheck=1` and signed repository metadata with `repo_gpgcheck=1`. Verify the pinned project signing fingerprint and exact SDK/source identity before installation. |
 | AUR | Reviewed PKGBUILD and generated matching `.SRCINFO`, exact non-`SKIP` SDK SHA-256 and verified canonical source manifest/producer identity. AUR distributes a recipe; it is not a project binary repository or a signature on the downloaded SDK. |
 | OCI | Pull and verify immutable platform/index digests. Bind provenance/attestation to the exact repository, publishing workflow identity and source SDK/manifest digests; document signer or certificate trust roots and verification commands. |
 
@@ -413,8 +416,26 @@ file verification. The four reports are preserved in the
 Immutable source/command/artifact bindings and public archive/image results
 are retained in [distribution status](../releases/downstream-status.json).
 
+RPM qualification passed on native x64 and AArch64 workers in pinned Fedora 45
+and Rocky Linux 9.8 user-space containers. The
+[native build and signing run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41784038274)
+completed all four lifecycle targets and froze the signed revision 1 bytes.
+Its original post-publication verifier failed; the
+[successful recovery run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41787695177)
+reused those exact signed bytes without rebuilding or signing again, installed
+the public packages on all four targets and activated the status receipts.
+[Pages deployment](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41788312381)
+then succeeded, and
+[hosted HTTPS DNF verification](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41788510887)
+passed all four targets with package and metadata signature checking enabled.
+The [retained RPM publication record](rpm-publication-validation.json) includes
+the exact reports and immutable source, artifact, signing and repository bindings.
+The [Arch validation record](aur-validation.json) separately records the completed
+native x86_64 recipe build/lifecycle scope of issue #6; authenticated AUR
+publication remains in [issue #10](https://github.com/dotnetdev-kr/cbodotnet/issues/10).
+
 Copyable instructions expose only channels marked published after complete
-native and public verification. Each additional SDK/target, including RPM/AUR,
+native and public verification. Each additional SDK/target and AUR publication
 requires its own installation, lifecycle, dependency and publication gates.
 Include the signing identity, source links, lifecycle limits, selection,
 uninstall and rollback procedure with every published channel.

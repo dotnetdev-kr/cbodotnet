@@ -166,6 +166,9 @@ class DistributionStatusTests(unittest.TestCase):
 class RpmStatusTests(unittest.TestCase):
     def setUp(self):
         self.policy = copy.deepcopy(load_status())
+        # Exercise first RPM activation independently of the live immutable
+        # publication ledger, while retaining the existing APT/OCI channels.
+        self.policy['channels']['rpm'].update(status='not-published', publications=[], receipts=[])
         identity = dict(channel='rpm', sdkVersion='10.0.403', packageRevision=1,
                         sourceReleaseTag='sdk-10.0.403', sourceManifestSha256='d' * 64)
         self.receipt = dict(schemaVersion=1, repository=STATUS.REPOSITORY, status='published-postverified',

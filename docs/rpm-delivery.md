@@ -1,12 +1,13 @@
 # RPM delivery and qualification
 
-Issue [#5](https://github.com/dotnetdev-kr/cbodotnet/issues/5) prepares the qualified
-.NET SDK 10.0.403 for the following exact targets. Qualification and first public
-installation evidence are still pending; this document does **not** announce an
-available RPM channel. Availability comes from
-[`releases/downstream-status.json`](../releases/downstream-status.json), its signed
-publication receipts and the target reports, rather than the presence of packaging
-code or a workflow run.
+The qualified .NET SDK **10.0.403, packaging revision 1**, is published through
+signed RPM repositories for the following four targets under
+issue [#5](https://github.com/dotnetdev-kr/cbodotnet/issues/5). Native package
+lifecycle checks, public release installation and installation from the actual
+HTTPS repository all passed. Availability and signed publication receipts are
+recorded in [`releases/downstream-status.json`](../releases/downstream-status.json).
+The [retained publication evidence](rpm-publication-validation.json) binds the
+source, signed release, native reports, recovery and hosted repository checks.
 
 | Variant | Native public architectures | RPM architectures | Required native packages |
 | --- | --- | --- | --- |
@@ -156,11 +157,12 @@ The matching frozen artifact must still exist and its freeze step must have
 succeeded. Conflicting or incomplete already-public assets cannot be overwritten;
 diagnose the failure and use a new packaging revision when new bytes are needed.
 
-## Installation and package lifecycle after publication
+## Installation and package lifecycle
 
-Use these commands only after RPM is `published` in the authenticated status and
-the HTTPS target checks pass. First confirm the full primary fingerprint through
-the project's trusted signing-policy channel. Set `variant` for the actual OS:
+Revision 1 is `published` in the authenticated status and has passed all four
+[native HTTPS target checks](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41788510887).
+First confirm the full primary fingerprint through the project's trusted
+signing-policy channel. Set `variant` for the actual OS:
 
 ```bash
 variant=fedora-45 # rocky-9.8 on Rocky Linux 9.8
@@ -169,7 +171,8 @@ case "$variant" in
   rocky-9.8) distro=rocky9.8 ;;
   *) exit 1 ;;
 esac
-sudo dnf install -y ca-certificates curl gnupg2
+sudo dnf install -y ca-certificates gnupg2
+command -v curl >/dev/null || sudo dnf install -y curl
 curl -fsSLo /tmp/cbodotnet-signing-key.asc \
   https://dotnetdev.kr/cbodotnet/distribution-signing-key.asc
 test "$(gpg --show-keys --with-colons /tmp/cbodotnet-signing-key.asc | \

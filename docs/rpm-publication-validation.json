@@ -1,0 +1,2473 @@
+{
+  "channel": "rpm",
+  "distributionManifestSha256": "7db9128b351c27cf2e7b2ef57cab2b544933b36329c6a8b94738b312f0e63820",
+  "frozenRecovery": {
+    "finalizerJob": {
+      "conclusion": "success",
+      "id": "126435418667",
+      "name": "Activate verified RPM availability and refresh Pages",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333"
+        },
+        {
+          "conclusion": "success",
+          "name": "Authenticate RPM receipts and native results before enabling installation commands"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job"
+        }
+      ]
+    },
+    "frozenArchiveVerification": "Protected recovery independently downloaded and verified the original API artifact SHA-256; this documentation audit did not repeat the 577 MB download.",
+    "frozenArtifact": {
+      "id": "13301955287",
+      "name": "downstream-rpm-frozen-41784038274-1",
+      "size": 577430146,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41784038274/artifacts/13301955287",
+      "zipSha256": "f9f015d6a817d8fd5c487bbffb7d5e7058c12da9a8e2cc7ce40ece5e1e6ddf06"
+    },
+    "newSignatures": "not-generated",
+    "originalManifestAndAllAssetDescriptorsUnchanged": "passed",
+    "originalSignaturesReused": "passed",
+    "privateKeyImport": "skipped",
+    "publicVerificationJobs": [
+      {
+        "conclusion": "success",
+        "id": "126433889980",
+        "name": "Verify public RPM repositories on native x64",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install and execute the anonymously downloaded signed RPM repositories"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job"
+          }
+        ]
+      },
+      {
+        "conclusion": "success",
+        "id": "126433890011",
+        "name": "Verify public RPM repositories on native aarch64",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install and execute the anonymously downloaded signed RPM repositories"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job"
+          }
+        ]
+      }
+    ],
+    "publicationJob": {
+      "conclusion": "success",
+      "id": "126433524260",
+      "name": "Sign and publish RPM distributions",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Reject ambiguous RPM recovery inputs"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Run actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install RPM signing and repository metadata tools"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Inspect native common RPM determinism before importing a private key"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Retain small common RPM diagnostics"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Import the approved main-only distribution signing identity"
+        },
+        {
+          "conclusion": "success",
+          "name": "Prepare the pinned public verification keyring"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Sign RPM payloads and authenticate the complete frozen matrix"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Validate readiness for durable RPM recovery"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Freeze signed RPM publication bytes"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Publish the exact frozen RPM bytes"
+        },
+        {
+          "conclusion": "success",
+          "name": "Recover and publish original signed RPM bytes"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Remove imported RPM private signing material"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job"
+        }
+      ]
+    },
+    "workflow": {
+      "commit": "d643dd0801fb076a12cd30bf8fca8d460184a75e",
+      "conclusion": "success",
+      "createdAt": "2026-11-04T06:45:52Z",
+      "path": ".github/workflows/distribution-release.yml",
+      "runAttempt": "1",
+      "runId": "41787695177",
+      "updatedAt": "2026-11-04T06:51:36Z",
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41787695177"
+    }
+  },
+  "hostedHttpsDnf": {
+    "jobs": [
+      {
+        "conclusion": "success",
+        "id": "126436137153",
+        "name": "HTTPS DNF and offline SDK on native x64",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install both live signed HTTPS DNF targets"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job"
+          }
+        ]
+      },
+      {
+        "conclusion": "success",
+        "id": "126436137599",
+        "name": "HTTPS DNF and offline SDK on native aarch64",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install both live signed HTTPS DNF targets"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job"
+          }
+        ]
+      }
+    ],
+    "reports": [
+      {
+        "architecture": "x64",
+        "artifact": {
+          "actualDownloadedZipSha256": "passed",
+          "architecture": "x64",
+          "createdAt": "2026-11-04T06:57:06Z",
+          "exactLocalReportBytes": "passed",
+          "expiresAt": "2026-12-04T06:57:06Z",
+          "id": "13302835423",
+          "name": "published-https-rpm-x64-41788510887-1",
+          "size": 2128,
+          "zipSha256": "8d27f1a41aced160207ff72b3ad209a1e07c879eb59d9ecf7c0dd00614c32db5"
+        },
+        "rawReport": {
+          "architecture": "x64",
+          "rpmTargets": [
+            {
+              "abi": {
+                "elfFileCount": 24,
+                "glibcCeiling": "2.27",
+                "glibcCeilingPassed": true,
+                "limitations": [
+                  "ABI symbol maxima do not cover kernel requirements, runtime dlopen dependencies or complete OS support.",
+                  "Relocatable objects and foreign-target ELF files, if shipped, are included in the table."
+                ],
+                "machines": {
+                  "Advanced Micro Devices X86-64": 24
+                },
+                "maximumRequiredVersions": {
+                  "CXXABI": "1.3.7",
+                  "GLIBC": "2.27",
+                  "GLIBCXX": "3.4.22"
+                },
+                "scope": "Regular ELF files inside the SDK, excluding archive members and PE managed images.",
+                "symbolicGlibcRequirements": []
+              },
+              "architecture": "x64",
+              "checks": {
+                "cli-branding": "passed",
+                "command-aliases": "passed",
+                "dnf-install": "passed",
+                "host-root": "passed",
+                "http-crypto-globalization": "passed",
+                "native-dependencies": "passed",
+                "non-root": "passed",
+                "official-dotnet-coexistence": "passed",
+                "offline-build-run": "passed",
+                "package-integrity": "passed",
+                "package-manager-install": "passed",
+                "package-signatures": "passed",
+                "payload-preservation": "passed",
+                "removal": "passed",
+                "repository-metadata": "passed",
+                "rollback": "verified-before-publication",
+                "rpm-integrity": "passed",
+                "source-integrity": "passed",
+                "upgrade": "verified-before-publication",
+                "version-stdout-compatible": "passed"
+              },
+              "functionalChecks": {
+                "aspNetCoreLoopbackHttp": "passed",
+                "consoleApphostExecution": "passed",
+                "consoleDllExecution": "passed",
+                "cryptographicRandomBytes": "passed",
+                "frFrDecimalFormatting": "passed",
+                "rsaSha256SignAndVerify": "passed"
+              },
+              "networkForBuild": "none",
+              "packageIdentities": {
+                "cbodotnet-host": {
+                  "architecture": "noarch",
+                  "release": "1.cbot.fedora45",
+                  "version": "1.0.0"
+                },
+                "cbodotnet-sdk-10.0": {
+                  "architecture": "x86_64",
+                  "release": "1.cbot.fedora45",
+                  "version": "10.0.403"
+                }
+              },
+              "packageRevision": 1,
+              "repositorySha256": "0decd9524824471f9cbf263bbe314f75bc05eab6144696c7a573a003307e00c6",
+              "schemaVersion": 1,
+              "scope": "published-https-dnf-installation",
+              "sdkVersion": "10.0.403",
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "status": "passed",
+              "target": {
+                "architecture": "x64",
+                "dependencies": {
+                  "ca-certificates": "ca-certificates-2026.2.92_v9.0.319-2.fc45.noarch",
+                  "glibc": "glibc-2.44-2.fc45.x86_64",
+                  "krb5-libs": "krb5-libs-1.22.2-11.fc45.x86_64",
+                  "libgcc": "libgcc-16.2.1-3.fc45.x86_64",
+                  "libicu": "libicu-78.3-8.fc45.x86_64",
+                  "libstdc++": "libstdc++-16.2.1-3.fc45.x86_64",
+                  "openssl3-libs": "openssl3-libs-3.5.9-1.fc45.x86_64",
+                  "zlib-ng-compat": "zlib-ng-compat-2.3.3-6.fc45.x86_64"
+                },
+                "native": true,
+                "osId": "fedora",
+                "osRelease": "NAME=\"Fedora Linux\"\nVERSION=\"45 (Container Image)\"\nRELEASE_TYPE=stable\nID=fedora\nVERSION_ID=45\nVERSION_CODENAME=\"\"\nPRETTY_NAME=\"Fedora Linux 45 (Container Image)\"\nANSI_COLOR=\"0;38;2;60;110;180\"\nLOGO=fedora-logo-icon\nCPE_NAME=\"cpe:/o:fedoraproject:fedora:45\"\nDEFAULT_HOSTNAME=\"fedora\"\nHOME_URL=\"https://fedoraproject.org/\"\nDOCUMENTATION_URL=\"https://docs.fedoraproject.org/en-US/fedora/f45/\"\nSUPPORT_URL=\"https://ask.fedoraproject.org/\"\nBUG_REPORT_URL=\"https://bugzilla.redhat.com/\"\nREDHAT_BUGZILLA_PRODUCT=\"Fedora\"\nREDHAT_BUGZILLA_PRODUCT_VERSION=45\nREDHAT_SUPPORT_PRODUCT=\"Fedora\"\nREDHAT_SUPPORT_PRODUCT_VERSION=45\nSUPPORT_END=2027-12-08\nVARIANT=\"Container Image\"\nVARIANT_ID=container\n",
+                "versionId": "45"
+              },
+              "variant": "fedora-45"
+            },
+            {
+              "abi": {
+                "elfFileCount": 24,
+                "glibcCeiling": "2.27",
+                "glibcCeilingPassed": true,
+                "limitations": [
+                  "ABI symbol maxima do not cover kernel requirements, runtime dlopen dependencies or complete OS support.",
+                  "Relocatable objects and foreign-target ELF files, if shipped, are included in the table."
+                ],
+                "machines": {
+                  "Advanced Micro Devices X86-64": 24
+                },
+                "maximumRequiredVersions": {
+                  "CXXABI": "1.3.7",
+                  "GLIBC": "2.27",
+                  "GLIBCXX": "3.4.22"
+                },
+                "scope": "Regular ELF files inside the SDK, excluding archive members and PE managed images.",
+                "symbolicGlibcRequirements": []
+              },
+              "architecture": "x64",
+              "checks": {
+                "cli-branding": "passed",
+                "command-aliases": "passed",
+                "dnf-install": "passed",
+                "host-root": "passed",
+                "http-crypto-globalization": "passed",
+                "native-dependencies": "passed",
+                "non-root": "passed",
+                "official-dotnet-coexistence": "passed",
+                "offline-build-run": "passed",
+                "package-integrity": "passed",
+                "package-manager-install": "passed",
+                "package-signatures": "passed",
+                "payload-preservation": "passed",
+                "removal": "passed",
+                "repository-metadata": "passed",
+                "rollback": "verified-before-publication",
+                "rpm-integrity": "passed",
+                "source-integrity": "passed",
+                "upgrade": "verified-before-publication",
+                "version-stdout-compatible": "passed"
+              },
+              "functionalChecks": {
+                "aspNetCoreLoopbackHttp": "passed",
+                "consoleApphostExecution": "passed",
+                "consoleDllExecution": "passed",
+                "cryptographicRandomBytes": "passed",
+                "frFrDecimalFormatting": "passed",
+                "rsaSha256SignAndVerify": "passed"
+              },
+              "networkForBuild": "none",
+              "packageIdentities": {
+                "cbodotnet-host": {
+                  "architecture": "noarch",
+                  "release": "1.cbot.rocky9.8",
+                  "version": "1.0.0"
+                },
+                "cbodotnet-sdk-10.0": {
+                  "architecture": "x86_64",
+                  "release": "1.cbot.rocky9.8",
+                  "version": "10.0.403"
+                }
+              },
+              "packageRevision": 1,
+              "repositorySha256": "e0d224cf603f4db6a907e9601bcbbcca02af750b3d8ae77546e03927d4e28d50",
+              "schemaVersion": 1,
+              "scope": "published-https-dnf-installation",
+              "sdkVersion": "10.0.403",
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "status": "passed",
+              "target": {
+                "architecture": "x64",
+                "dependencies": {
+                  "ca-certificates": "ca-certificates-2026.2.92_v9.0.319-90.3.el9_8.noarch",
+                  "glibc": "glibc-2.34-283.el9_8.x86_64",
+                  "krb5-libs": "krb5-libs-1.21.1-10.el9_8.1.x86_64",
+                  "libgcc": "libgcc-11.5.0-14.el9.x86_64",
+                  "libicu": "libicu-67.1-10.el9_6.x86_64",
+                  "libstdc++": "libstdc++-11.5.0-14.el9.x86_64",
+                  "openssl-libs": "openssl-libs-3.5.8-2.el9_8.x86_64",
+                  "zlib": "zlib-1.2.11-40.el9.x86_64"
+                },
+                "native": true,
+                "osId": "rocky",
+                "osRelease": "NAME=\"Rocky Linux\"\nVERSION=\"9.8 (Blue Onyx)\"\nRELEASE_TYPE=\"stable\"\nID=\"rocky\"\nID_LIKE=\"rhel centos fedora\"\nVERSION_ID=\"9.8\"\nPLATFORM_ID=\"platform:el9\"\nPRETTY_NAME=\"Rocky Linux 9.8 (Blue Onyx)\"\nANSI_COLOR=\"0;32\"\nLOGO=\"fedora-logo-icon\"\nCPE_NAME=\"cpe:/o:rocky:rocky:9::baseos\"\nHOME_URL=\"https://rockylinux.org/\"\nVENDOR_NAME=\"RESF\"\nVENDOR_URL=\"https://resf.org/\"\nBUG_REPORT_URL=\"https://bugs.rockylinux.org/\"\nSUPPORT_END=\"2032-05-31\"\nROCKY_SUPPORT_PRODUCT=\"Rocky-Linux-9\"\nROCKY_SUPPORT_PRODUCT_VERSION=\"9.8\"\nREDHAT_SUPPORT_PRODUCT=\"Rocky Linux\"\nREDHAT_SUPPORT_PRODUCT_VERSION=\"9.8\"\n",
+                "versionId": "9.8"
+              },
+              "variant": "rocky-9.8"
+            }
+          ],
+          "schemaVersion": 1,
+          "status": "passed"
+        },
+        "reportEncoding": "JSON sort_keys=True, indent=2, UTF-8 and final LF; re-encoding rawReport recovers exact original bytes",
+        "reportSha256": "2ee99eab15da13fb1f18f25d49268935f09f796cab8741b90618d439219cbf41"
+      },
+      {
+        "architecture": "aarch64",
+        "artifact": {
+          "actualDownloadedZipSha256": "passed",
+          "architecture": "aarch64",
+          "createdAt": "2026-11-04T06:56:34Z",
+          "exactLocalReportBytes": "passed",
+          "expiresAt": "2026-12-04T06:56:33Z",
+          "id": "13301809855",
+          "name": "published-https-rpm-aarch64-41788510887-1",
+          "size": 2114,
+          "zipSha256": "fb8ea3d47c4e815f5780ea78a04c7ac07c848ef574c3b52e9e41a332296af2c7"
+        },
+        "rawReport": {
+          "architecture": "aarch64",
+          "rpmTargets": [
+            {
+              "abi": {
+                "elfFileCount": 24,
+                "glibcCeiling": "2.27",
+                "glibcCeilingPassed": true,
+                "limitations": [
+                  "ABI symbol maxima do not cover kernel requirements, runtime dlopen dependencies or complete OS support.",
+                  "Relocatable objects and foreign-target ELF files, if shipped, are included in the table."
+                ],
+                "machines": {
+                  "AArch64": 24
+                },
+                "maximumRequiredVersions": {
+                  "CXXABI": "1.3.7",
+                  "GLIBC": "2.27",
+                  "GLIBCXX": "3.4.22"
+                },
+                "scope": "Regular ELF files inside the SDK, excluding archive members and PE managed images.",
+                "symbolicGlibcRequirements": []
+              },
+              "architecture": "aarch64",
+              "checks": {
+                "cli-branding": "passed",
+                "command-aliases": "passed",
+                "dnf-install": "passed",
+                "host-root": "passed",
+                "http-crypto-globalization": "passed",
+                "native-dependencies": "passed",
+                "non-root": "passed",
+                "official-dotnet-coexistence": "passed",
+                "offline-build-run": "passed",
+                "package-integrity": "passed",
+                "package-manager-install": "passed",
+                "package-signatures": "passed",
+                "payload-preservation": "passed",
+                "removal": "passed",
+                "repository-metadata": "passed",
+                "rollback": "verified-before-publication",
+                "rpm-integrity": "passed",
+                "source-integrity": "passed",
+                "upgrade": "verified-before-publication",
+                "version-stdout-compatible": "passed"
+              },
+              "functionalChecks": {
+                "aspNetCoreLoopbackHttp": "passed",
+                "consoleApphostExecution": "passed",
+                "consoleDllExecution": "passed",
+                "cryptographicRandomBytes": "passed",
+                "frFrDecimalFormatting": "passed",
+                "rsaSha256SignAndVerify": "passed"
+              },
+              "networkForBuild": "none",
+              "packageIdentities": {
+                "cbodotnet-host": {
+                  "architecture": "noarch",
+                  "release": "1.cbot.fedora45",
+                  "version": "1.0.0"
+                },
+                "cbodotnet-sdk-10.0": {
+                  "architecture": "aarch64",
+                  "release": "1.cbot.fedora45",
+                  "version": "10.0.403"
+                }
+              },
+              "packageRevision": 1,
+              "repositorySha256": "0decd9524824471f9cbf263bbe314f75bc05eab6144696c7a573a003307e00c6",
+              "schemaVersion": 1,
+              "scope": "published-https-dnf-installation",
+              "sdkVersion": "10.0.403",
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "status": "passed",
+              "target": {
+                "architecture": "aarch64",
+                "dependencies": {
+                  "ca-certificates": "ca-certificates-2026.2.92_v9.0.319-2.fc45.noarch",
+                  "glibc": "glibc-2.44-2.fc45.aarch64",
+                  "krb5-libs": "krb5-libs-1.22.2-11.fc45.aarch64",
+                  "libgcc": "libgcc-16.2.1-3.fc45.aarch64",
+                  "libicu": "libicu-78.3-8.fc45.aarch64",
+                  "libstdc++": "libstdc++-16.2.1-3.fc45.aarch64",
+                  "openssl3-libs": "openssl3-libs-3.5.9-1.fc45.aarch64",
+                  "zlib-ng-compat": "zlib-ng-compat-2.3.3-6.fc45.aarch64"
+                },
+                "native": true,
+                "osId": "fedora",
+                "osRelease": "NAME=\"Fedora Linux\"\nVERSION=\"45 (Container Image)\"\nRELEASE_TYPE=stable\nID=fedora\nVERSION_ID=45\nVERSION_CODENAME=\"\"\nPRETTY_NAME=\"Fedora Linux 45 (Container Image)\"\nANSI_COLOR=\"0;38;2;60;110;180\"\nLOGO=fedora-logo-icon\nCPE_NAME=\"cpe:/o:fedoraproject:fedora:45\"\nDEFAULT_HOSTNAME=\"fedora\"\nHOME_URL=\"https://fedoraproject.org/\"\nDOCUMENTATION_URL=\"https://docs.fedoraproject.org/en-US/fedora/f45/\"\nSUPPORT_URL=\"https://ask.fedoraproject.org/\"\nBUG_REPORT_URL=\"https://bugzilla.redhat.com/\"\nREDHAT_BUGZILLA_PRODUCT=\"Fedora\"\nREDHAT_BUGZILLA_PRODUCT_VERSION=45\nREDHAT_SUPPORT_PRODUCT=\"Fedora\"\nREDHAT_SUPPORT_PRODUCT_VERSION=45\nSUPPORT_END=2027-12-08\nVARIANT=\"Container Image\"\nVARIANT_ID=container\n",
+                "versionId": "45"
+              },
+              "variant": "fedora-45"
+            },
+            {
+              "abi": {
+                "elfFileCount": 24,
+                "glibcCeiling": "2.27",
+                "glibcCeilingPassed": true,
+                "limitations": [
+                  "ABI symbol maxima do not cover kernel requirements, runtime dlopen dependencies or complete OS support.",
+                  "Relocatable objects and foreign-target ELF files, if shipped, are included in the table."
+                ],
+                "machines": {
+                  "AArch64": 24
+                },
+                "maximumRequiredVersions": {
+                  "CXXABI": "1.3.7",
+                  "GLIBC": "2.27",
+                  "GLIBCXX": "3.4.22"
+                },
+                "scope": "Regular ELF files inside the SDK, excluding archive members and PE managed images.",
+                "symbolicGlibcRequirements": []
+              },
+              "architecture": "aarch64",
+              "checks": {
+                "cli-branding": "passed",
+                "command-aliases": "passed",
+                "dnf-install": "passed",
+                "host-root": "passed",
+                "http-crypto-globalization": "passed",
+                "native-dependencies": "passed",
+                "non-root": "passed",
+                "official-dotnet-coexistence": "passed",
+                "offline-build-run": "passed",
+                "package-integrity": "passed",
+                "package-manager-install": "passed",
+                "package-signatures": "passed",
+                "payload-preservation": "passed",
+                "removal": "passed",
+                "repository-metadata": "passed",
+                "rollback": "verified-before-publication",
+                "rpm-integrity": "passed",
+                "source-integrity": "passed",
+                "upgrade": "verified-before-publication",
+                "version-stdout-compatible": "passed"
+              },
+              "functionalChecks": {
+                "aspNetCoreLoopbackHttp": "passed",
+                "consoleApphostExecution": "passed",
+                "consoleDllExecution": "passed",
+                "cryptographicRandomBytes": "passed",
+                "frFrDecimalFormatting": "passed",
+                "rsaSha256SignAndVerify": "passed"
+              },
+              "networkForBuild": "none",
+              "packageIdentities": {
+                "cbodotnet-host": {
+                  "architecture": "noarch",
+                  "release": "1.cbot.rocky9.8",
+                  "version": "1.0.0"
+                },
+                "cbodotnet-sdk-10.0": {
+                  "architecture": "aarch64",
+                  "release": "1.cbot.rocky9.8",
+                  "version": "10.0.403"
+                }
+              },
+              "packageRevision": 1,
+              "repositorySha256": "e0d224cf603f4db6a907e9601bcbbcca02af750b3d8ae77546e03927d4e28d50",
+              "schemaVersion": 1,
+              "scope": "published-https-dnf-installation",
+              "sdkVersion": "10.0.403",
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "status": "passed",
+              "target": {
+                "architecture": "aarch64",
+                "dependencies": {
+                  "ca-certificates": "ca-certificates-2026.2.92_v9.0.319-90.3.el9_8.noarch",
+                  "glibc": "glibc-2.34-283.el9_8.aarch64",
+                  "krb5-libs": "krb5-libs-1.21.1-10.el9_8.1.aarch64",
+                  "libgcc": "libgcc-11.5.0-14.el9.aarch64",
+                  "libicu": "libicu-67.1-10.el9_6.aarch64",
+                  "libstdc++": "libstdc++-11.5.0-14.el9.aarch64",
+                  "openssl-libs": "openssl-libs-3.5.8-2.el9_8.aarch64",
+                  "zlib": "zlib-1.2.11-40.el9.aarch64"
+                },
+                "native": true,
+                "osId": "rocky",
+                "osRelease": "NAME=\"Rocky Linux\"\nVERSION=\"9.8 (Blue Onyx)\"\nRELEASE_TYPE=\"stable\"\nID=\"rocky\"\nID_LIKE=\"rhel centos fedora\"\nVERSION_ID=\"9.8\"\nPLATFORM_ID=\"platform:el9\"\nPRETTY_NAME=\"Rocky Linux 9.8 (Blue Onyx)\"\nANSI_COLOR=\"0;32\"\nLOGO=\"fedora-logo-icon\"\nCPE_NAME=\"cpe:/o:rocky:rocky:9::baseos\"\nHOME_URL=\"https://rockylinux.org/\"\nVENDOR_NAME=\"RESF\"\nVENDOR_URL=\"https://resf.org/\"\nBUG_REPORT_URL=\"https://bugs.rockylinux.org/\"\nSUPPORT_END=\"2032-05-31\"\nROCKY_SUPPORT_PRODUCT=\"Rocky-Linux-9\"\nROCKY_SUPPORT_PRODUCT_VERSION=\"9.8\"\nREDHAT_SUPPORT_PRODUCT=\"Rocky Linux\"\nREDHAT_SUPPORT_PRODUCT_VERSION=\"9.8\"\n",
+                "versionId": "9.8"
+              },
+              "variant": "rocky-9.8"
+            }
+          ],
+          "schemaVersion": 1,
+          "status": "passed"
+        },
+        "reportEncoding": "JSON sort_keys=True, indent=2, UTF-8 and final LF; re-encoding rawReport recovers exact original bytes",
+        "reportSha256": "2f260b9ae0b8a09b7f02edf8fce006e5cd6f17955b5f3d07bd4dc0393b7d981b"
+      }
+    ],
+    "repositoryBase": "https://dotnetdev.kr/cbodotnet/packages/rpm",
+    "status": "passed",
+    "targetCount": 4,
+    "workflow": {
+      "commit": "740b604651465bb4628271b34378190be6e28e01",
+      "conclusion": "success",
+      "createdAt": "2026-11-04T06:53:26Z",
+      "path": ".github/workflows/rpm-site-check.yml",
+      "runAttempt": "1",
+      "runId": "41788510887",
+      "updatedAt": "2026-11-04T06:57:08Z",
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41788510887"
+    }
+  },
+  "independentPublicMetadataAudit": {
+    "channelAvailabilityActivated": false,
+    "distributionManifestSha256": "7db9128b351c27cf2e7b2ef57cab2b544933b36329c6a8b94738b312f0e63820",
+    "downloadedPublicSmallAssets": [
+      {
+        "name": "distribution-manifest.json",
+        "sha256": "7db9128b351c27cf2e7b2ef57cab2b544933b36329c6a8b94738b312f0e63820",
+        "size": 23621
+      },
+      {
+        "name": "distribution-manifest.json.asc",
+        "sha256": "7ef62128dc0beff8e9cf8890a8662eea13175601ffa9f08892b0eefae6a021c9",
+        "size": 228
+      },
+      {
+        "name": "distribution-signing-key.gpg",
+        "sha256": "562e4c9a893c1a0ffabf3d3bb4a6e4ae1090427250c2818df196a8174583a665",
+        "size": 273
+      },
+      {
+        "name": "rpm-fedora-45-aarch64--installation-report.json",
+        "sha256": "9f5dc5184d6de28201347d00708173a8a104b9ad25ed3292a7c4acb2c28926e8",
+        "size": 7780
+      },
+      {
+        "name": "rpm-fedora-45-aarch64--installation-report.json.asc",
+        "sha256": "422b1f8a922702e0e9d9ef1e8fc6805123583841defa7a521d735fa864d07e4b",
+        "size": 119
+      },
+      {
+        "name": "rpm-fedora-45-x64--installation-report.json",
+        "sha256": "0b02455dbcdf0bb631cde0cbce57cdc8bd76f186b7e43eafbb8e52c4b35a3869",
+        "size": 7748
+      },
+      {
+        "name": "rpm-fedora-45-x64--installation-report.json.asc",
+        "sha256": "6c142ce56bc7b0dc9fbb0f9f7871cd188dd2a920b7d8f0c3d22f8e101943e924",
+        "size": 119
+      },
+      {
+        "name": "rpm-rocky-9.8-aarch64--installation-report.json",
+        "sha256": "144018838441f4bc449c226fc3d3bab2fa85dc67a6fca760c670fe97aea16d1f",
+        "size": 7675
+      },
+      {
+        "name": "rpm-rocky-9.8-aarch64--installation-report.json.asc",
+        "sha256": "a59349d2a5710a1a51165a28fb026960fbcd0aaddb777b03a73654438879ff5f",
+        "size": 119
+      },
+      {
+        "name": "rpm-rocky-9.8-x64--installation-report.json",
+        "sha256": "2df8f0a6e0b9db958a88de9afa7da75d8e15dd25fe52b925f2545c7602ef6843",
+        "size": 7643
+      },
+      {
+        "name": "rpm-rocky-9.8-x64--installation-report.json.asc",
+        "sha256": "6d1cd1f002ea2e6900ab8a341324e3c871c6f984aeb0019a11d916d61f731fe0",
+        "size": 119
+      }
+    ],
+    "limitations": [
+      "Large SDK RPM payloads were not re-downloaded during this independent audit. Their signed descriptors match the public GitHub asset sizes and SHA-256 digests; the protected publisher independently downloaded all public assets before issuing the receipt.",
+      "The temporary RPM-only site policy and extracted metadata remain under .build; no checked-in status or public website was activated by this audit."
+    ],
+    "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/distribution-manifest.json",
+    "publicReleaseAssetCount": 19,
+    "qualifiedSourceDescriptors": [
+      {
+        "architecture": "aarch64",
+        "evidence": {
+          "name": "evidence-aarch64.tar.gz",
+          "sha256": "97843567a562a42fed38f7b89bc3026496b39017f46f524f11c6073039025309",
+          "size": 42620012,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-aarch64.tar.gz"
+        },
+        "sdk": {
+          "name": "cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz",
+          "sha256": "410491f0166109c2c3d115705ab64601cec56c3b1c1995267d3b16567f9c0d5b",
+          "size": 217817416,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz"
+        },
+        "source": {
+          "name": "cbodotnet-source-10.0.403-linux-aarch64.tar.gz",
+          "sha256": "c074b74287d15691ee0ce01bb0d4912db017e35b91010d9380b04f1b62c8b745",
+          "size": 783799313,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-aarch64.tar.gz"
+        },
+        "variant": "fedora-45"
+      },
+      {
+        "architecture": "x64",
+        "evidence": {
+          "name": "evidence-x64.tar.gz",
+          "sha256": "56941c7c987707506784618cc992bab611c2f97623d4c1b56d4d4d00a1221a5e",
+          "size": 42812798,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-x64.tar.gz"
+        },
+        "sdk": {
+          "name": "cbodotnet-sdk-10.0.403-linux-x64.tar.gz",
+          "sha256": "0ff27ca9775fb8d3c83fce60ad511754956f311a950878dcbc05bd6737a4bc09",
+          "size": 224606406,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-x64.tar.gz"
+        },
+        "source": {
+          "name": "cbodotnet-source-10.0.403-linux-x64.tar.gz",
+          "sha256": "222a3f28450c258c8179eb5f4360e96f5886cd4af8fe36d33533f3bc6491009c",
+          "size": 783949395,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-x64.tar.gz"
+        },
+        "variant": "fedora-45"
+      },
+      {
+        "architecture": "aarch64",
+        "evidence": {
+          "name": "evidence-aarch64.tar.gz",
+          "sha256": "97843567a562a42fed38f7b89bc3026496b39017f46f524f11c6073039025309",
+          "size": 42620012,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-aarch64.tar.gz"
+        },
+        "sdk": {
+          "name": "cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz",
+          "sha256": "410491f0166109c2c3d115705ab64601cec56c3b1c1995267d3b16567f9c0d5b",
+          "size": 217817416,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz"
+        },
+        "source": {
+          "name": "cbodotnet-source-10.0.403-linux-aarch64.tar.gz",
+          "sha256": "c074b74287d15691ee0ce01bb0d4912db017e35b91010d9380b04f1b62c8b745",
+          "size": 783799313,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-aarch64.tar.gz"
+        },
+        "variant": "rocky-9.8"
+      },
+      {
+        "architecture": "x64",
+        "evidence": {
+          "name": "evidence-x64.tar.gz",
+          "sha256": "56941c7c987707506784618cc992bab611c2f97623d4c1b56d4d4d00a1221a5e",
+          "size": 42812798,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-x64.tar.gz"
+        },
+        "sdk": {
+          "name": "cbodotnet-sdk-10.0.403-linux-x64.tar.gz",
+          "sha256": "0ff27ca9775fb8d3c83fce60ad511754956f311a950878dcbc05bd6737a4bc09",
+          "size": 224606406,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-x64.tar.gz"
+        },
+        "source": {
+          "name": "cbodotnet-source-10.0.403-linux-x64.tar.gz",
+          "sha256": "222a3f28450c258c8179eb5f4360e96f5886cd4af8fe36d33533f3bc6491009c",
+          "size": 783949395,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-x64.tar.gz"
+        },
+        "variant": "rocky-9.8"
+      }
+    ],
+    "releaseAssetDescriptors": "exactly-match-signed-manifest-and-receipt",
+    "releaseUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-rpm-sdk-10.0.403-r1",
+    "schemaVersion": 1,
+    "scope": "independent-public-signed-rpm-metadata-and-native-evidence-verification",
+    "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/distribution-manifest.json.asc",
+    "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+    "sourceCommit": "b1238f959f26f4dbbb4b9bc23d49a7ba89eb4002",
+    "sourceDescriptorsAgainstPinnedCanonicalManifest": "passed",
+    "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+    "sourceRunAttempt": "1",
+    "sourceRunId": "41784038274",
+    "status": "passed",
+    "verifiedNativeReports": [
+      {
+        "architecture": "aarch64",
+        "artifact": {
+          "name": "rpm-fedora-45-aarch64--cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.aarch64.rpm",
+          "sha256": "93e3fb9d24426d670b50d03f2063fa381502a43816fba981190d6a012c7c9f31",
+          "size": 139239761,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-fedora-45-aarch64--cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.aarch64.rpm"
+        },
+        "report": {
+          "abi": {
+            "elfFileCount": 24,
+            "glibcCeiling": "2.27",
+            "glibcCeilingPassed": true,
+            "limitations": [
+              "ABI symbol maxima do not cover kernel requirements, runtime dlopen dependencies or complete OS support.",
+              "Relocatable objects and foreign-target ELF files, if shipped, are included in the table."
+            ],
+            "machines": {
+              "AArch64": 24
+            },
+            "maximumRequiredVersions": {
+              "CXXABI": "1.3.7",
+              "GLIBC": "2.27",
+              "GLIBCXX": "3.4.22"
+            },
+            "scope": "Regular ELF files inside the SDK, excluding archive members and PE managed images.",
+            "symbolicGlibcRequirements": []
+          },
+          "artifact": {
+            "name": "cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.aarch64.rpm",
+            "sha256": "93e3fb9d24426d670b50d03f2063fa381502a43816fba981190d6a012c7c9f31",
+            "size": 139239761
+          },
+          "branding": {
+            "displayName": "Community Build of .NET (built by .NET Dev)",
+            "implementation": "distribution-wrapper",
+            "informationCommand": "--cbodotnet-info",
+            "modifyQualifiedPayload": false,
+            "versionBrandingStream": "stderr",
+            "versionStdout": "unchanged-numeric-sdk-version"
+          },
+          "checks": {
+            "cli-branding": "passed",
+            "command-aliases": "passed",
+            "dnf-install": "passed",
+            "host-root": "passed",
+            "http-crypto-globalization": "passed",
+            "native-dependencies": "passed",
+            "non-root": "passed",
+            "official-dotnet-coexistence": "passed",
+            "offline-build-run": "passed",
+            "package-integrity": "passed",
+            "package-manager-install": "passed",
+            "package-signatures": "passed",
+            "payload-preservation": "passed",
+            "removal": "passed",
+            "repository-metadata": "passed",
+            "rollback": "passed",
+            "rpm-integrity": "passed",
+            "source-integrity": "passed",
+            "upgrade": "passed",
+            "version-stdout-compatible": "passed"
+          },
+          "commands": {
+            "containerDirectory": "/usr/local/bin",
+            "containerDotnet": "/usr/local/bin/dotnet",
+            "default": "/usr/bin/cbodotnet",
+            "defaultOwner": "cbodotnet-host",
+            "defaultSelection": "highest-installed-major-minor",
+            "versioned": "/usr/bin/cbodotnet-10.0"
+          },
+          "contractVersion": 2,
+          "extraFiles": [
+            {
+              "mode": "0755",
+              "owner": "cbodotnet-host",
+              "path": "/usr/bin/cbodotnet",
+              "sha256": "22d23c82d1c279367d8456bf319faaaa36065d15b2c1c80bf548f06fac2ed805",
+              "size": 1556
+            },
+            {
+              "mode": "0755",
+              "owner": "cbodotnet-sdk-10.0",
+              "path": "/usr/bin/cbodotnet-10.0",
+              "sha256": "2f459ca9dbcb36dbc0eb31390fcc6e864b23739fa8b3fbbbe03a4ddcc216ccb9",
+              "size": 1460
+            }
+          ],
+          "functionalChecks": {
+            "aspNetCoreLoopbackHttp": "passed",
+            "consoleApphostExecution": "passed",
+            "consoleDllExecution": "passed",
+            "cryptographicRandomBytes": "passed",
+            "frFrDecimalFormatting": "passed",
+            "rsaSha256SignAndVerify": "passed"
+          },
+          "identity": {
+            "channel": "rpm",
+            "packageRevision": 1,
+            "sdkVersion": "10.0.403",
+            "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+            "sourceReleaseTag": "sdk-10.0.403",
+            "targetRid": "linux-arm64",
+            "variant": "fedora-45"
+          },
+          "networkForBuild": "none",
+          "orchestration": {
+            "commit": "b1238f959f26f4dbbb4b9bc23d49a7ba89eb4002",
+            "repository": "dotnetdev-kr/cbodotnet",
+            "runAttempt": "1",
+            "runId": "41784038274",
+            "workflow": ".github/workflows/distribution-release.yml"
+          },
+          "packageIdentities": {
+            "cbodotnet-host": {
+              "architecture": "noarch",
+              "release": "1.cbot.fedora45",
+              "version": "1.0.0"
+            },
+            "cbodotnet-sdk-10.0": {
+              "architecture": "aarch64",
+              "release": "1.cbot.fedora45",
+              "version": "10.0.403"
+            }
+          },
+          "phase": "prepublication",
+          "producer": {
+            "artifactId": "13048586144",
+            "originalSdkName": "cbodotnet-sdk-10.0.403-linux-arm64-build.41211183670.tar.gz",
+            "originalSourceName": "cbodotnet-sources-10.0.403-linux-arm64-build.41211183670.tar.gz",
+            "projectCommit": "5721c5989e277d98b6af7c782d1b660459f8298e",
+            "runAttempt": "1",
+            "runId": "41211183670",
+            "targetRid": "linux-arm64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41211183670"
+          },
+          "rpmSignatures": {
+            "host": {
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "status": "passed",
+              "verification": "/home/runner/work/_temp/rpm-received/delivery-rpm-aarch64/rpm-fedora-45/packages/cbodotnet-host-1.0.0-1.cbot.fedora45.noarch.rpm:\n    Header V4 EdDSA/SHA256 Signature, key ID acd9c0ea: OK\n    Header SHA256 digest: OK\n    Header SHA1 digest: OK\n    Payload SHA256 digest: OK\n    MD5 digest: OK"
+            },
+            "sdk": {
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "status": "passed",
+              "verification": "/home/runner/work/_temp/rpm-received/delivery-rpm-aarch64/rpm-fedora-45/packages/cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.aarch64.rpm:\n    Header V4 EdDSA/SHA256 Signature, key ID acd9c0ea: OK\n    Header SHA256 digest: OK\n    Header SHA1 digest: OK\n    Payload SHA256 digest: OK\n    MD5 digest: OK"
+            }
+          },
+          "schemaVersion": 1,
+          "scope": "channel-installation",
+          "source": {
+            "evidence": {
+              "name": "evidence-aarch64.tar.gz",
+              "sha256": "97843567a562a42fed38f7b89bc3026496b39017f46f524f11c6073039025309",
+              "size": 42620012,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-aarch64.tar.gz"
+            },
+            "licensePaths": [
+              "LICENSE.txt",
+              "ThirdPartyNotices.txt"
+            ],
+            "sdk": {
+              "name": "cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz",
+              "sha256": "410491f0166109c2c3d115705ab64601cec56c3b1c1995267d3b16567f9c0d5b",
+              "size": 217817416,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz"
+            },
+            "securitySupport": "community-build-no-additional-security-maintenance",
+            "source": {
+              "name": "cbodotnet-source-10.0.403-linux-aarch64.tar.gz",
+              "sha256": "c074b74287d15691ee0ce01bb0d4912db017e35b91010d9380b04f1b62c8b745",
+              "size": 783799313,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-aarch64.tar.gz"
+            },
+            "sourceManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json"
+          },
+          "status": "passed",
+          "target": {
+            "architecture": "aarch64",
+            "dependencies": {
+              "ca-certificates": "ca-certificates-2026.2.92_v9.0.319-2.fc45.noarch",
+              "glibc": "glibc-2.44-2.fc45.aarch64",
+              "krb5-libs": "krb5-libs-1.22.2-11.fc45.aarch64",
+              "libgcc": "libgcc-16.2.1-3.fc45.aarch64",
+              "libicu": "libicu-78.3-8.fc45.aarch64",
+              "libstdc++": "libstdc++-16.2.1-3.fc45.aarch64",
+              "openssl3-libs": "openssl3-libs-3.5.9-1.fc45.aarch64",
+              "zlib-ng-compat": "zlib-ng-compat-2.3.3-6.fc45.aarch64"
+            },
+            "native": true,
+            "osId": "fedora",
+            "osRelease": "NAME=\"Fedora Linux\"\nVERSION=\"45 (Container Image)\"\nRELEASE_TYPE=stable\nID=fedora\nVERSION_ID=45\nVERSION_CODENAME=\"\"\nPRETTY_NAME=\"Fedora Linux 45 (Container Image)\"\nANSI_COLOR=\"0;38;2;60;110;180\"\nLOGO=fedora-logo-icon\nCPE_NAME=\"cpe:/o:fedoraproject:fedora:45\"\nDEFAULT_HOSTNAME=\"fedora\"\nHOME_URL=\"https://fedoraproject.org/\"\nDOCUMENTATION_URL=\"https://docs.fedoraproject.org/en-US/fedora/f45/\"\nSUPPORT_URL=\"https://ask.fedoraproject.org/\"\nBUG_REPORT_URL=\"https://bugzilla.redhat.com/\"\nREDHAT_BUGZILLA_PRODUCT=\"Fedora\"\nREDHAT_BUGZILLA_PRODUCT_VERSION=45\nREDHAT_SUPPORT_PRODUCT=\"Fedora\"\nREDHAT_SUPPORT_PRODUCT_VERSION=45\nSUPPORT_END=2027-12-08\nVARIANT=\"Container Image\"\nVARIANT_ID=container\n",
+            "versionId": "45"
+          }
+        },
+        "reportAsset": "rpm-fedora-45-aarch64--installation-report.json",
+        "signatureAsset": "rpm-fedora-45-aarch64--installation-report.json.asc",
+        "signer": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+        "variant": "fedora-45"
+      },
+      {
+        "architecture": "x64",
+        "artifact": {
+          "name": "rpm-fedora-45-x64--cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.x86_64.rpm",
+          "sha256": "525cf139e9b88635137c4b066eca06c2f20871b581ece9b1ed349618db2b1d78",
+          "size": 149388745,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-fedora-45-x64--cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.x86_64.rpm"
+        },
+        "report": {
+          "abi": {
+            "elfFileCount": 24,
+            "glibcCeiling": "2.27",
+            "glibcCeilingPassed": true,
+            "limitations": [
+              "ABI symbol maxima do not cover kernel requirements, runtime dlopen dependencies or complete OS support.",
+              "Relocatable objects and foreign-target ELF files, if shipped, are included in the table."
+            ],
+            "machines": {
+              "Advanced Micro Devices X86-64": 24
+            },
+            "maximumRequiredVersions": {
+              "CXXABI": "1.3.7",
+              "GLIBC": "2.27",
+              "GLIBCXX": "3.4.22"
+            },
+            "scope": "Regular ELF files inside the SDK, excluding archive members and PE managed images.",
+            "symbolicGlibcRequirements": []
+          },
+          "artifact": {
+            "name": "cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.x86_64.rpm",
+            "sha256": "525cf139e9b88635137c4b066eca06c2f20871b581ece9b1ed349618db2b1d78",
+            "size": 149388745
+          },
+          "branding": {
+            "displayName": "Community Build of .NET (built by .NET Dev)",
+            "implementation": "distribution-wrapper",
+            "informationCommand": "--cbodotnet-info",
+            "modifyQualifiedPayload": false,
+            "versionBrandingStream": "stderr",
+            "versionStdout": "unchanged-numeric-sdk-version"
+          },
+          "checks": {
+            "cli-branding": "passed",
+            "command-aliases": "passed",
+            "dnf-install": "passed",
+            "host-root": "passed",
+            "http-crypto-globalization": "passed",
+            "native-dependencies": "passed",
+            "non-root": "passed",
+            "official-dotnet-coexistence": "passed",
+            "offline-build-run": "passed",
+            "package-integrity": "passed",
+            "package-manager-install": "passed",
+            "package-signatures": "passed",
+            "payload-preservation": "passed",
+            "removal": "passed",
+            "repository-metadata": "passed",
+            "rollback": "passed",
+            "rpm-integrity": "passed",
+            "source-integrity": "passed",
+            "upgrade": "passed",
+            "version-stdout-compatible": "passed"
+          },
+          "commands": {
+            "containerDirectory": "/usr/local/bin",
+            "containerDotnet": "/usr/local/bin/dotnet",
+            "default": "/usr/bin/cbodotnet",
+            "defaultOwner": "cbodotnet-host",
+            "defaultSelection": "highest-installed-major-minor",
+            "versioned": "/usr/bin/cbodotnet-10.0"
+          },
+          "contractVersion": 2,
+          "extraFiles": [
+            {
+              "mode": "0755",
+              "owner": "cbodotnet-host",
+              "path": "/usr/bin/cbodotnet",
+              "sha256": "22d23c82d1c279367d8456bf319faaaa36065d15b2c1c80bf548f06fac2ed805",
+              "size": 1556
+            },
+            {
+              "mode": "0755",
+              "owner": "cbodotnet-sdk-10.0",
+              "path": "/usr/bin/cbodotnet-10.0",
+              "sha256": "8872ade05c29eca9c76f4f609aa1d3248988bf83e7a200d3e1757df9a7724a08",
+              "size": 1454
+            }
+          ],
+          "functionalChecks": {
+            "aspNetCoreLoopbackHttp": "passed",
+            "consoleApphostExecution": "passed",
+            "consoleDllExecution": "passed",
+            "cryptographicRandomBytes": "passed",
+            "frFrDecimalFormatting": "passed",
+            "rsaSha256SignAndVerify": "passed"
+          },
+          "identity": {
+            "channel": "rpm",
+            "packageRevision": 1,
+            "sdkVersion": "10.0.403",
+            "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+            "sourceReleaseTag": "sdk-10.0.403",
+            "targetRid": "linux-x64",
+            "variant": "fedora-45"
+          },
+          "networkForBuild": "none",
+          "orchestration": {
+            "commit": "b1238f959f26f4dbbb4b9bc23d49a7ba89eb4002",
+            "repository": "dotnetdev-kr/cbodotnet",
+            "runAttempt": "1",
+            "runId": "41784038274",
+            "workflow": ".github/workflows/distribution-release.yml"
+          },
+          "packageIdentities": {
+            "cbodotnet-host": {
+              "architecture": "noarch",
+              "release": "1.cbot.fedora45",
+              "version": "1.0.0"
+            },
+            "cbodotnet-sdk-10.0": {
+              "architecture": "x86_64",
+              "release": "1.cbot.fedora45",
+              "version": "10.0.403"
+            }
+          },
+          "phase": "prepublication",
+          "producer": {
+            "artifactId": "13083076281",
+            "originalSdkName": "cbodotnet-sdk-10.0.403-linux-x64-build.41301145771.tar.gz",
+            "originalSourceName": "cbodotnet-sources-10.0.403-linux-x64-build.41301145771.tar.gz",
+            "projectCommit": "29e878271353d95c8d6db4bb358976bd7ee6e988",
+            "runAttempt": "1",
+            "runId": "41301145771",
+            "targetRid": "linux-x64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41301145771"
+          },
+          "rpmSignatures": {
+            "host": {
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "status": "passed",
+              "verification": "/home/runner/work/_temp/rpm-received/delivery-rpm-x64/rpm-fedora-45/packages/cbodotnet-host-1.0.0-1.cbot.fedora45.noarch.rpm:\n    Header V4 EdDSA/SHA256 Signature, key ID acd9c0ea: OK\n    Header SHA256 digest: OK\n    Header SHA1 digest: OK\n    Payload SHA256 digest: OK\n    MD5 digest: OK"
+            },
+            "sdk": {
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "status": "passed",
+              "verification": "/home/runner/work/_temp/rpm-received/delivery-rpm-x64/rpm-fedora-45/packages/cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.x86_64.rpm:\n    Header V4 EdDSA/SHA256 Signature, key ID acd9c0ea: OK\n    Header SHA256 digest: OK\n    Header SHA1 digest: OK\n    Payload SHA256 digest: OK\n    MD5 digest: OK"
+            }
+          },
+          "schemaVersion": 1,
+          "scope": "channel-installation",
+          "source": {
+            "evidence": {
+              "name": "evidence-x64.tar.gz",
+              "sha256": "56941c7c987707506784618cc992bab611c2f97623d4c1b56d4d4d00a1221a5e",
+              "size": 42812798,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-x64.tar.gz"
+            },
+            "licensePaths": [
+              "LICENSE.txt",
+              "ThirdPartyNotices.txt"
+            ],
+            "sdk": {
+              "name": "cbodotnet-sdk-10.0.403-linux-x64.tar.gz",
+              "sha256": "0ff27ca9775fb8d3c83fce60ad511754956f311a950878dcbc05bd6737a4bc09",
+              "size": 224606406,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-x64.tar.gz"
+            },
+            "securitySupport": "community-build-no-additional-security-maintenance",
+            "source": {
+              "name": "cbodotnet-source-10.0.403-linux-x64.tar.gz",
+              "sha256": "222a3f28450c258c8179eb5f4360e96f5886cd4af8fe36d33533f3bc6491009c",
+              "size": 783949395,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-x64.tar.gz"
+            },
+            "sourceManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json"
+          },
+          "status": "passed",
+          "target": {
+            "architecture": "x64",
+            "dependencies": {
+              "ca-certificates": "ca-certificates-2026.2.92_v9.0.319-2.fc45.noarch",
+              "glibc": "glibc-2.44-2.fc45.x86_64",
+              "krb5-libs": "krb5-libs-1.22.2-11.fc45.x86_64",
+              "libgcc": "libgcc-16.2.1-3.fc45.x86_64",
+              "libicu": "libicu-78.3-8.fc45.x86_64",
+              "libstdc++": "libstdc++-16.2.1-3.fc45.x86_64",
+              "openssl3-libs": "openssl3-libs-3.5.9-1.fc45.x86_64",
+              "zlib-ng-compat": "zlib-ng-compat-2.3.3-6.fc45.x86_64"
+            },
+            "native": true,
+            "osId": "fedora",
+            "osRelease": "NAME=\"Fedora Linux\"\nVERSION=\"45 (Container Image)\"\nRELEASE_TYPE=stable\nID=fedora\nVERSION_ID=45\nVERSION_CODENAME=\"\"\nPRETTY_NAME=\"Fedora Linux 45 (Container Image)\"\nANSI_COLOR=\"0;38;2;60;110;180\"\nLOGO=fedora-logo-icon\nCPE_NAME=\"cpe:/o:fedoraproject:fedora:45\"\nDEFAULT_HOSTNAME=\"fedora\"\nHOME_URL=\"https://fedoraproject.org/\"\nDOCUMENTATION_URL=\"https://docs.fedoraproject.org/en-US/fedora/f45/\"\nSUPPORT_URL=\"https://ask.fedoraproject.org/\"\nBUG_REPORT_URL=\"https://bugzilla.redhat.com/\"\nREDHAT_BUGZILLA_PRODUCT=\"Fedora\"\nREDHAT_BUGZILLA_PRODUCT_VERSION=45\nREDHAT_SUPPORT_PRODUCT=\"Fedora\"\nREDHAT_SUPPORT_PRODUCT_VERSION=45\nSUPPORT_END=2027-12-08\nVARIANT=\"Container Image\"\nVARIANT_ID=container\n",
+            "versionId": "45"
+          }
+        },
+        "reportAsset": "rpm-fedora-45-x64--installation-report.json",
+        "signatureAsset": "rpm-fedora-45-x64--installation-report.json.asc",
+        "signer": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+        "variant": "fedora-45"
+      },
+      {
+        "architecture": "aarch64",
+        "artifact": {
+          "name": "rpm-rocky-9.8-aarch64--cbodotnet-sdk-10.0-10.0.403-1.cbot.rocky9.8.aarch64.rpm",
+          "sha256": "b13501ea48c229d6fe359e9ca053b00bc0430b0f15a83c7d08a0ad1e9c190b8f",
+          "size": 139224829,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-rocky-9.8-aarch64--cbodotnet-sdk-10.0-10.0.403-1.cbot.rocky9.8.aarch64.rpm"
+        },
+        "report": {
+          "abi": {
+            "elfFileCount": 24,
+            "glibcCeiling": "2.27",
+            "glibcCeilingPassed": true,
+            "limitations": [
+              "ABI symbol maxima do not cover kernel requirements, runtime dlopen dependencies or complete OS support.",
+              "Relocatable objects and foreign-target ELF files, if shipped, are included in the table."
+            ],
+            "machines": {
+              "AArch64": 24
+            },
+            "maximumRequiredVersions": {
+              "CXXABI": "1.3.7",
+              "GLIBC": "2.27",
+              "GLIBCXX": "3.4.22"
+            },
+            "scope": "Regular ELF files inside the SDK, excluding archive members and PE managed images.",
+            "symbolicGlibcRequirements": []
+          },
+          "artifact": {
+            "name": "cbodotnet-sdk-10.0-10.0.403-1.cbot.rocky9.8.aarch64.rpm",
+            "sha256": "b13501ea48c229d6fe359e9ca053b00bc0430b0f15a83c7d08a0ad1e9c190b8f",
+            "size": 139224829
+          },
+          "branding": {
+            "displayName": "Community Build of .NET (built by .NET Dev)",
+            "implementation": "distribution-wrapper",
+            "informationCommand": "--cbodotnet-info",
+            "modifyQualifiedPayload": false,
+            "versionBrandingStream": "stderr",
+            "versionStdout": "unchanged-numeric-sdk-version"
+          },
+          "checks": {
+            "cli-branding": "passed",
+            "command-aliases": "passed",
+            "dnf-install": "passed",
+            "host-root": "passed",
+            "http-crypto-globalization": "passed",
+            "native-dependencies": "passed",
+            "non-root": "passed",
+            "official-dotnet-coexistence": "passed",
+            "offline-build-run": "passed",
+            "package-integrity": "passed",
+            "package-manager-install": "passed",
+            "package-signatures": "passed",
+            "payload-preservation": "passed",
+            "removal": "passed",
+            "repository-metadata": "passed",
+            "rollback": "passed",
+            "rpm-integrity": "passed",
+            "source-integrity": "passed",
+            "upgrade": "passed",
+            "version-stdout-compatible": "passed"
+          },
+          "commands": {
+            "containerDirectory": "/usr/local/bin",
+            "containerDotnet": "/usr/local/bin/dotnet",
+            "default": "/usr/bin/cbodotnet",
+            "defaultOwner": "cbodotnet-host",
+            "defaultSelection": "highest-installed-major-minor",
+            "versioned": "/usr/bin/cbodotnet-10.0"
+          },
+          "contractVersion": 2,
+          "extraFiles": [
+            {
+              "mode": "0755",
+              "owner": "cbodotnet-host",
+              "path": "/usr/bin/cbodotnet",
+              "sha256": "22d23c82d1c279367d8456bf319faaaa36065d15b2c1c80bf548f06fac2ed805",
+              "size": 1556
+            },
+            {
+              "mode": "0755",
+              "owner": "cbodotnet-sdk-10.0",
+              "path": "/usr/bin/cbodotnet-10.0",
+              "sha256": "2f459ca9dbcb36dbc0eb31390fcc6e864b23739fa8b3fbbbe03a4ddcc216ccb9",
+              "size": 1460
+            }
+          ],
+          "functionalChecks": {
+            "aspNetCoreLoopbackHttp": "passed",
+            "consoleApphostExecution": "passed",
+            "consoleDllExecution": "passed",
+            "cryptographicRandomBytes": "passed",
+            "frFrDecimalFormatting": "passed",
+            "rsaSha256SignAndVerify": "passed"
+          },
+          "identity": {
+            "channel": "rpm",
+            "packageRevision": 1,
+            "sdkVersion": "10.0.403",
+            "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+            "sourceReleaseTag": "sdk-10.0.403",
+            "targetRid": "linux-arm64",
+            "variant": "rocky-9.8"
+          },
+          "networkForBuild": "none",
+          "orchestration": {
+            "commit": "b1238f959f26f4dbbb4b9bc23d49a7ba89eb4002",
+            "repository": "dotnetdev-kr/cbodotnet",
+            "runAttempt": "1",
+            "runId": "41784038274",
+            "workflow": ".github/workflows/distribution-release.yml"
+          },
+          "packageIdentities": {
+            "cbodotnet-host": {
+              "architecture": "noarch",
+              "release": "1.cbot.rocky9.8",
+              "version": "1.0.0"
+            },
+            "cbodotnet-sdk-10.0": {
+              "architecture": "aarch64",
+              "release": "1.cbot.rocky9.8",
+              "version": "10.0.403"
+            }
+          },
+          "phase": "prepublication",
+          "producer": {
+            "artifactId": "13048586144",
+            "originalSdkName": "cbodotnet-sdk-10.0.403-linux-arm64-build.41211183670.tar.gz",
+            "originalSourceName": "cbodotnet-sources-10.0.403-linux-arm64-build.41211183670.tar.gz",
+            "projectCommit": "5721c5989e277d98b6af7c782d1b660459f8298e",
+            "runAttempt": "1",
+            "runId": "41211183670",
+            "targetRid": "linux-arm64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41211183670"
+          },
+          "rpmSignatures": {
+            "host": {
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "status": "passed",
+              "verification": "/home/runner/work/_temp/rpm-received/delivery-rpm-aarch64/rpm-rocky-9.8/packages/cbodotnet-host-1.0.0-1.cbot.rocky9.8.noarch.rpm:\n    Header V4 EdDSA/SHA256 Signature, key ID acd9c0ea: OK\n    Header SHA256 digest: OK\n    Header SHA1 digest: OK\n    Payload SHA256 digest: OK\n    MD5 digest: OK"
+            },
+            "sdk": {
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "status": "passed",
+              "verification": "/home/runner/work/_temp/rpm-received/delivery-rpm-aarch64/rpm-rocky-9.8/packages/cbodotnet-sdk-10.0-10.0.403-1.cbot.rocky9.8.aarch64.rpm:\n    Header V4 EdDSA/SHA256 Signature, key ID acd9c0ea: OK\n    Header SHA256 digest: OK\n    Header SHA1 digest: OK\n    Payload SHA256 digest: OK\n    MD5 digest: OK"
+            }
+          },
+          "schemaVersion": 1,
+          "scope": "channel-installation",
+          "source": {
+            "evidence": {
+              "name": "evidence-aarch64.tar.gz",
+              "sha256": "97843567a562a42fed38f7b89bc3026496b39017f46f524f11c6073039025309",
+              "size": 42620012,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-aarch64.tar.gz"
+            },
+            "licensePaths": [
+              "LICENSE.txt",
+              "ThirdPartyNotices.txt"
+            ],
+            "sdk": {
+              "name": "cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz",
+              "sha256": "410491f0166109c2c3d115705ab64601cec56c3b1c1995267d3b16567f9c0d5b",
+              "size": 217817416,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz"
+            },
+            "securitySupport": "community-build-no-additional-security-maintenance",
+            "source": {
+              "name": "cbodotnet-source-10.0.403-linux-aarch64.tar.gz",
+              "sha256": "c074b74287d15691ee0ce01bb0d4912db017e35b91010d9380b04f1b62c8b745",
+              "size": 783799313,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-aarch64.tar.gz"
+            },
+            "sourceManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json"
+          },
+          "status": "passed",
+          "target": {
+            "architecture": "aarch64",
+            "dependencies": {
+              "ca-certificates": "ca-certificates-2026.2.92_v9.0.319-90.3.el9_8.noarch",
+              "glibc": "glibc-2.34-283.el9_8.aarch64",
+              "krb5-libs": "krb5-libs-1.21.1-10.el9_8.1.aarch64",
+              "libgcc": "libgcc-11.5.0-14.el9.aarch64",
+              "libicu": "libicu-67.1-10.el9_6.aarch64",
+              "libstdc++": "libstdc++-11.5.0-14.el9.aarch64",
+              "openssl-libs": "openssl-libs-3.5.8-2.el9_8.aarch64",
+              "zlib": "zlib-1.2.11-40.el9.aarch64"
+            },
+            "native": true,
+            "osId": "rocky",
+            "osRelease": "NAME=\"Rocky Linux\"\nVERSION=\"9.8 (Blue Onyx)\"\nRELEASE_TYPE=\"stable\"\nID=\"rocky\"\nID_LIKE=\"rhel centos fedora\"\nVERSION_ID=\"9.8\"\nPLATFORM_ID=\"platform:el9\"\nPRETTY_NAME=\"Rocky Linux 9.8 (Blue Onyx)\"\nANSI_COLOR=\"0;32\"\nLOGO=\"fedora-logo-icon\"\nCPE_NAME=\"cpe:/o:rocky:rocky:9::baseos\"\nHOME_URL=\"https://rockylinux.org/\"\nVENDOR_NAME=\"RESF\"\nVENDOR_URL=\"https://resf.org/\"\nBUG_REPORT_URL=\"https://bugs.rockylinux.org/\"\nSUPPORT_END=\"2032-05-31\"\nROCKY_SUPPORT_PRODUCT=\"Rocky-Linux-9\"\nROCKY_SUPPORT_PRODUCT_VERSION=\"9.8\"\nREDHAT_SUPPORT_PRODUCT=\"Rocky Linux\"\nREDHAT_SUPPORT_PRODUCT_VERSION=\"9.8\"\n",
+            "versionId": "9.8"
+          }
+        },
+        "reportAsset": "rpm-rocky-9.8-aarch64--installation-report.json",
+        "signatureAsset": "rpm-rocky-9.8-aarch64--installation-report.json.asc",
+        "signer": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+        "variant": "rocky-9.8"
+      },
+      {
+        "architecture": "x64",
+        "artifact": {
+          "name": "rpm-rocky-9.8-x64--cbodotnet-sdk-10.0-10.0.403-1.cbot.rocky9.8.x86_64.rpm",
+          "sha256": "efee299f9ffcaffb72ef7e917069c602caab56e356add68c8234bf903c5b058e",
+          "size": 149373729,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-rocky-9.8-x64--cbodotnet-sdk-10.0-10.0.403-1.cbot.rocky9.8.x86_64.rpm"
+        },
+        "report": {
+          "abi": {
+            "elfFileCount": 24,
+            "glibcCeiling": "2.27",
+            "glibcCeilingPassed": true,
+            "limitations": [
+              "ABI symbol maxima do not cover kernel requirements, runtime dlopen dependencies or complete OS support.",
+              "Relocatable objects and foreign-target ELF files, if shipped, are included in the table."
+            ],
+            "machines": {
+              "Advanced Micro Devices X86-64": 24
+            },
+            "maximumRequiredVersions": {
+              "CXXABI": "1.3.7",
+              "GLIBC": "2.27",
+              "GLIBCXX": "3.4.22"
+            },
+            "scope": "Regular ELF files inside the SDK, excluding archive members and PE managed images.",
+            "symbolicGlibcRequirements": []
+          },
+          "artifact": {
+            "name": "cbodotnet-sdk-10.0-10.0.403-1.cbot.rocky9.8.x86_64.rpm",
+            "sha256": "efee299f9ffcaffb72ef7e917069c602caab56e356add68c8234bf903c5b058e",
+            "size": 149373729
+          },
+          "branding": {
+            "displayName": "Community Build of .NET (built by .NET Dev)",
+            "implementation": "distribution-wrapper",
+            "informationCommand": "--cbodotnet-info",
+            "modifyQualifiedPayload": false,
+            "versionBrandingStream": "stderr",
+            "versionStdout": "unchanged-numeric-sdk-version"
+          },
+          "checks": {
+            "cli-branding": "passed",
+            "command-aliases": "passed",
+            "dnf-install": "passed",
+            "host-root": "passed",
+            "http-crypto-globalization": "passed",
+            "native-dependencies": "passed",
+            "non-root": "passed",
+            "official-dotnet-coexistence": "passed",
+            "offline-build-run": "passed",
+            "package-integrity": "passed",
+            "package-manager-install": "passed",
+            "package-signatures": "passed",
+            "payload-preservation": "passed",
+            "removal": "passed",
+            "repository-metadata": "passed",
+            "rollback": "passed",
+            "rpm-integrity": "passed",
+            "source-integrity": "passed",
+            "upgrade": "passed",
+            "version-stdout-compatible": "passed"
+          },
+          "commands": {
+            "containerDirectory": "/usr/local/bin",
+            "containerDotnet": "/usr/local/bin/dotnet",
+            "default": "/usr/bin/cbodotnet",
+            "defaultOwner": "cbodotnet-host",
+            "defaultSelection": "highest-installed-major-minor",
+            "versioned": "/usr/bin/cbodotnet-10.0"
+          },
+          "contractVersion": 2,
+          "extraFiles": [
+            {
+              "mode": "0755",
+              "owner": "cbodotnet-host",
+              "path": "/usr/bin/cbodotnet",
+              "sha256": "22d23c82d1c279367d8456bf319faaaa36065d15b2c1c80bf548f06fac2ed805",
+              "size": 1556
+            },
+            {
+              "mode": "0755",
+              "owner": "cbodotnet-sdk-10.0",
+              "path": "/usr/bin/cbodotnet-10.0",
+              "sha256": "8872ade05c29eca9c76f4f609aa1d3248988bf83e7a200d3e1757df9a7724a08",
+              "size": 1454
+            }
+          ],
+          "functionalChecks": {
+            "aspNetCoreLoopbackHttp": "passed",
+            "consoleApphostExecution": "passed",
+            "consoleDllExecution": "passed",
+            "cryptographicRandomBytes": "passed",
+            "frFrDecimalFormatting": "passed",
+            "rsaSha256SignAndVerify": "passed"
+          },
+          "identity": {
+            "channel": "rpm",
+            "packageRevision": 1,
+            "sdkVersion": "10.0.403",
+            "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+            "sourceReleaseTag": "sdk-10.0.403",
+            "targetRid": "linux-x64",
+            "variant": "rocky-9.8"
+          },
+          "networkForBuild": "none",
+          "orchestration": {
+            "commit": "b1238f959f26f4dbbb4b9bc23d49a7ba89eb4002",
+            "repository": "dotnetdev-kr/cbodotnet",
+            "runAttempt": "1",
+            "runId": "41784038274",
+            "workflow": ".github/workflows/distribution-release.yml"
+          },
+          "packageIdentities": {
+            "cbodotnet-host": {
+              "architecture": "noarch",
+              "release": "1.cbot.rocky9.8",
+              "version": "1.0.0"
+            },
+            "cbodotnet-sdk-10.0": {
+              "architecture": "x86_64",
+              "release": "1.cbot.rocky9.8",
+              "version": "10.0.403"
+            }
+          },
+          "phase": "prepublication",
+          "producer": {
+            "artifactId": "13083076281",
+            "originalSdkName": "cbodotnet-sdk-10.0.403-linux-x64-build.41301145771.tar.gz",
+            "originalSourceName": "cbodotnet-sources-10.0.403-linux-x64-build.41301145771.tar.gz",
+            "projectCommit": "29e878271353d95c8d6db4bb358976bd7ee6e988",
+            "runAttempt": "1",
+            "runId": "41301145771",
+            "targetRid": "linux-x64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41301145771"
+          },
+          "rpmSignatures": {
+            "host": {
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "status": "passed",
+              "verification": "/home/runner/work/_temp/rpm-received/delivery-rpm-x64/rpm-rocky-9.8/packages/cbodotnet-host-1.0.0-1.cbot.rocky9.8.noarch.rpm:\n    Header V4 EdDSA/SHA256 Signature, key ID acd9c0ea: OK\n    Header SHA256 digest: OK\n    Header SHA1 digest: OK\n    Payload SHA256 digest: OK\n    MD5 digest: OK"
+            },
+            "sdk": {
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "status": "passed",
+              "verification": "/home/runner/work/_temp/rpm-received/delivery-rpm-x64/rpm-rocky-9.8/packages/cbodotnet-sdk-10.0-10.0.403-1.cbot.rocky9.8.x86_64.rpm:\n    Header V4 EdDSA/SHA256 Signature, key ID acd9c0ea: OK\n    Header SHA256 digest: OK\n    Header SHA1 digest: OK\n    Payload SHA256 digest: OK\n    MD5 digest: OK"
+            }
+          },
+          "schemaVersion": 1,
+          "scope": "channel-installation",
+          "source": {
+            "evidence": {
+              "name": "evidence-x64.tar.gz",
+              "sha256": "56941c7c987707506784618cc992bab611c2f97623d4c1b56d4d4d00a1221a5e",
+              "size": 42812798,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-x64.tar.gz"
+            },
+            "licensePaths": [
+              "LICENSE.txt",
+              "ThirdPartyNotices.txt"
+            ],
+            "sdk": {
+              "name": "cbodotnet-sdk-10.0.403-linux-x64.tar.gz",
+              "sha256": "0ff27ca9775fb8d3c83fce60ad511754956f311a950878dcbc05bd6737a4bc09",
+              "size": 224606406,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-x64.tar.gz"
+            },
+            "securitySupport": "community-build-no-additional-security-maintenance",
+            "source": {
+              "name": "cbodotnet-source-10.0.403-linux-x64.tar.gz",
+              "sha256": "222a3f28450c258c8179eb5f4360e96f5886cd4af8fe36d33533f3bc6491009c",
+              "size": 783949395,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-x64.tar.gz"
+            },
+            "sourceManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json"
+          },
+          "status": "passed",
+          "target": {
+            "architecture": "x64",
+            "dependencies": {
+              "ca-certificates": "ca-certificates-2026.2.92_v9.0.319-90.3.el9_8.noarch",
+              "glibc": "glibc-2.34-283.el9_8.x86_64",
+              "krb5-libs": "krb5-libs-1.21.1-10.el9_8.1.x86_64",
+              "libgcc": "libgcc-11.5.0-14.el9.x86_64",
+              "libicu": "libicu-67.1-10.el9_6.x86_64",
+              "libstdc++": "libstdc++-11.5.0-14.el9.x86_64",
+              "openssl-libs": "openssl-libs-3.5.8-2.el9_8.x86_64",
+              "zlib": "zlib-1.2.11-40.el9.x86_64"
+            },
+            "native": true,
+            "osId": "rocky",
+            "osRelease": "NAME=\"Rocky Linux\"\nVERSION=\"9.8 (Blue Onyx)\"\nRELEASE_TYPE=\"stable\"\nID=\"rocky\"\nID_LIKE=\"rhel centos fedora\"\nVERSION_ID=\"9.8\"\nPLATFORM_ID=\"platform:el9\"\nPRETTY_NAME=\"Rocky Linux 9.8 (Blue Onyx)\"\nANSI_COLOR=\"0;32\"\nLOGO=\"fedora-logo-icon\"\nCPE_NAME=\"cpe:/o:rocky:rocky:9::baseos\"\nHOME_URL=\"https://rockylinux.org/\"\nVENDOR_NAME=\"RESF\"\nVENDOR_URL=\"https://resf.org/\"\nBUG_REPORT_URL=\"https://bugs.rockylinux.org/\"\nSUPPORT_END=\"2032-05-31\"\nROCKY_SUPPORT_PRODUCT=\"Rocky-Linux-9\"\nROCKY_SUPPORT_PRODUCT_VERSION=\"9.8\"\nREDHAT_SUPPORT_PRODUCT=\"Rocky Linux\"\nREDHAT_SUPPORT_PRODUCT_VERSION=\"9.8\"\n",
+            "versionId": "9.8"
+          }
+        },
+        "reportAsset": "rpm-rocky-9.8-x64--installation-report.json",
+        "signatureAsset": "rpm-rocky-9.8-x64--installation-report.json.asc",
+        "signer": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+        "variant": "rocky-9.8"
+      }
+    ],
+    "verifiedRepositoryRoutes": [
+      {
+        "metadataTargetVariant": "fedora-45",
+        "packageAssets": {
+          "rpm-fedora-45--cbodotnet-host-1.0.0-1.cbot.fedora45.noarch.rpm": {
+            "sha256": "e99cf8e2ecb8703dba0eafc23ba8c9cf018f0e84f445fd39da55ac073d8d29da",
+            "size": 7941,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-fedora-45--cbodotnet-host-1.0.0-1.cbot.fedora45.noarch.rpm"
+          },
+          "rpm-fedora-45-aarch64--cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.aarch64.rpm": {
+            "sha256": "93e3fb9d24426d670b50d03f2063fa381502a43816fba981190d6a012c7c9f31",
+            "size": 139239761,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-fedora-45-aarch64--cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.aarch64.rpm"
+          },
+          "rpm-fedora-45-x64--cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.x86_64.rpm": {
+            "sha256": "525cf139e9b88635137c4b066eca06c2f20871b581ece9b1ed349618db2b1d78",
+            "size": 149388745,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-fedora-45-x64--cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.x86_64.rpm"
+          }
+        },
+        "repomdSha256": "83f5f673f9b3a87c04c999399f63edac74272c07174210b6f7f1e341a0a7f6cf",
+        "routingStatus": "passed",
+        "signedRepositoryAsset": "rpm-fedora-45.tar.gz",
+        "signedTargetVariant": "fedora-45",
+        "signer": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+        "websitePath": "packages/rpm/fedora-45"
+      },
+      {
+        "metadataTargetVariant": "rocky-9.8",
+        "packageAssets": {
+          "rpm-rocky-9.8--cbodotnet-host-1.0.0-1.cbot.rocky9.8.noarch.rpm": {
+            "sha256": "51da24fa8d58089aa53def30697b50babee8b76d2cf5f843e14d74e1c351dbde",
+            "size": 7945,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-rocky-9.8--cbodotnet-host-1.0.0-1.cbot.rocky9.8.noarch.rpm"
+          },
+          "rpm-rocky-9.8-aarch64--cbodotnet-sdk-10.0-10.0.403-1.cbot.rocky9.8.aarch64.rpm": {
+            "sha256": "b13501ea48c229d6fe359e9ca053b00bc0430b0f15a83c7d08a0ad1e9c190b8f",
+            "size": 139224829,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-rocky-9.8-aarch64--cbodotnet-sdk-10.0-10.0.403-1.cbot.rocky9.8.aarch64.rpm"
+          },
+          "rpm-rocky-9.8-x64--cbodotnet-sdk-10.0-10.0.403-1.cbot.rocky9.8.x86_64.rpm": {
+            "sha256": "efee299f9ffcaffb72ef7e917069c602caab56e356add68c8234bf903c5b058e",
+            "size": 149373729,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-rocky-9.8-x64--cbodotnet-sdk-10.0-10.0.403-1.cbot.rocky9.8.x86_64.rpm"
+          }
+        },
+        "repomdSha256": "4f2ea397da5116c6b12c403ba31c4abf316121ac98dec01b1d91d97e5027761e",
+        "routingStatus": "passed",
+        "signedRepositoryAsset": "rpm-rocky-9.8.tar.gz",
+        "signedTargetVariant": "rocky-9.8",
+        "signer": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+        "websitePath": "packages/rpm/rocky-9.8"
+      }
+    ]
+  },
+  "lifecycleEvidence": "Real packaging-revision upgrade and rollback passed in the signed prepublication native reports. Both public-DNF and hosted-HTTPS reports explicitly retain verified-before-publication for these two checks; install, signatures, integrity, non-root execution, HTTP/crypto/ICU and removal were repeated publicly.",
+  "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/distribution-manifest.json",
+  "nativePublicDnfReports": [
+    {
+      "architecture": "x64",
+      "artifact": {
+        "actualDownloadedZipSha256": "passed",
+        "architecture": "x64",
+        "createdAt": "2026-11-04T06:50:56Z",
+        "exactLocalReportBytes": "passed",
+        "expiresAt": "2026-12-04T06:50:55Z",
+        "id": "13301578237",
+        "name": "downstream-rpm-postverify-x64-41787695177-1",
+        "size": 2124,
+        "zipSha256": "a16fe287554e6845a29bb4c45ca2c4a0cd0ae0eebb517dbb844b781ba1497c9e"
+      },
+      "rawReport": {
+        "architecture": "x64",
+        "rpmTargets": [
+          {
+            "abi": {
+              "elfFileCount": 24,
+              "glibcCeiling": "2.27",
+              "glibcCeilingPassed": true,
+              "limitations": [
+                "ABI symbol maxima do not cover kernel requirements, runtime dlopen dependencies or complete OS support.",
+                "Relocatable objects and foreign-target ELF files, if shipped, are included in the table."
+              ],
+              "machines": {
+                "Advanced Micro Devices X86-64": 24
+              },
+              "maximumRequiredVersions": {
+                "CXXABI": "1.3.7",
+                "GLIBC": "2.27",
+                "GLIBCXX": "3.4.22"
+              },
+              "scope": "Regular ELF files inside the SDK, excluding archive members and PE managed images.",
+              "symbolicGlibcRequirements": []
+            },
+            "architecture": "x64",
+            "checks": {
+              "cli-branding": "passed",
+              "command-aliases": "passed",
+              "dnf-install": "passed",
+              "host-root": "passed",
+              "http-crypto-globalization": "passed",
+              "native-dependencies": "passed",
+              "non-root": "passed",
+              "official-dotnet-coexistence": "passed",
+              "offline-build-run": "passed",
+              "package-integrity": "passed",
+              "package-manager-install": "passed",
+              "package-signatures": "passed",
+              "payload-preservation": "passed",
+              "removal": "passed",
+              "repository-metadata": "passed",
+              "rollback": "verified-before-publication",
+              "rpm-integrity": "passed",
+              "source-integrity": "passed",
+              "upgrade": "verified-before-publication",
+              "version-stdout-compatible": "passed"
+            },
+            "functionalChecks": {
+              "aspNetCoreLoopbackHttp": "passed",
+              "consoleApphostExecution": "passed",
+              "consoleDllExecution": "passed",
+              "cryptographicRandomBytes": "passed",
+              "frFrDecimalFormatting": "passed",
+              "rsaSha256SignAndVerify": "passed"
+            },
+            "networkForBuild": "none",
+            "packageIdentities": {
+              "cbodotnet-host": {
+                "architecture": "noarch",
+                "release": "1.cbot.fedora45",
+                "version": "1.0.0"
+              },
+              "cbodotnet-sdk-10.0": {
+                "architecture": "x86_64",
+                "release": "1.cbot.fedora45",
+                "version": "10.0.403"
+              }
+            },
+            "packageRevision": 1,
+            "repositorySha256": "0decd9524824471f9cbf263bbe314f75bc05eab6144696c7a573a003307e00c6",
+            "schemaVersion": 1,
+            "scope": "published-dnf-installation",
+            "sdkVersion": "10.0.403",
+            "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+            "status": "passed",
+            "target": {
+              "architecture": "x64",
+              "dependencies": {
+                "ca-certificates": "ca-certificates-2026.2.92_v9.0.319-2.fc45.noarch",
+                "glibc": "glibc-2.44-2.fc45.x86_64",
+                "krb5-libs": "krb5-libs-1.22.2-11.fc45.x86_64",
+                "libgcc": "libgcc-16.2.1-3.fc45.x86_64",
+                "libicu": "libicu-78.3-8.fc45.x86_64",
+                "libstdc++": "libstdc++-16.2.1-3.fc45.x86_64",
+                "openssl3-libs": "openssl3-libs-3.5.9-1.fc45.x86_64",
+                "zlib-ng-compat": "zlib-ng-compat-2.3.3-6.fc45.x86_64"
+              },
+              "native": true,
+              "osId": "fedora",
+              "osRelease": "NAME=\"Fedora Linux\"\nVERSION=\"45 (Container Image)\"\nRELEASE_TYPE=stable\nID=fedora\nVERSION_ID=45\nVERSION_CODENAME=\"\"\nPRETTY_NAME=\"Fedora Linux 45 (Container Image)\"\nANSI_COLOR=\"0;38;2;60;110;180\"\nLOGO=fedora-logo-icon\nCPE_NAME=\"cpe:/o:fedoraproject:fedora:45\"\nDEFAULT_HOSTNAME=\"fedora\"\nHOME_URL=\"https://fedoraproject.org/\"\nDOCUMENTATION_URL=\"https://docs.fedoraproject.org/en-US/fedora/f45/\"\nSUPPORT_URL=\"https://ask.fedoraproject.org/\"\nBUG_REPORT_URL=\"https://bugzilla.redhat.com/\"\nREDHAT_BUGZILLA_PRODUCT=\"Fedora\"\nREDHAT_BUGZILLA_PRODUCT_VERSION=45\nREDHAT_SUPPORT_PRODUCT=\"Fedora\"\nREDHAT_SUPPORT_PRODUCT_VERSION=45\nSUPPORT_END=2027-12-08\nVARIANT=\"Container Image\"\nVARIANT_ID=container\n",
+              "versionId": "45"
+            },
+            "variant": "fedora-45"
+          },
+          {
+            "abi": {
+              "elfFileCount": 24,
+              "glibcCeiling": "2.27",
+              "glibcCeilingPassed": true,
+              "limitations": [
+                "ABI symbol maxima do not cover kernel requirements, runtime dlopen dependencies or complete OS support.",
+                "Relocatable objects and foreign-target ELF files, if shipped, are included in the table."
+              ],
+              "machines": {
+                "Advanced Micro Devices X86-64": 24
+              },
+              "maximumRequiredVersions": {
+                "CXXABI": "1.3.7",
+                "GLIBC": "2.27",
+                "GLIBCXX": "3.4.22"
+              },
+              "scope": "Regular ELF files inside the SDK, excluding archive members and PE managed images.",
+              "symbolicGlibcRequirements": []
+            },
+            "architecture": "x64",
+            "checks": {
+              "cli-branding": "passed",
+              "command-aliases": "passed",
+              "dnf-install": "passed",
+              "host-root": "passed",
+              "http-crypto-globalization": "passed",
+              "native-dependencies": "passed",
+              "non-root": "passed",
+              "official-dotnet-coexistence": "passed",
+              "offline-build-run": "passed",
+              "package-integrity": "passed",
+              "package-manager-install": "passed",
+              "package-signatures": "passed",
+              "payload-preservation": "passed",
+              "removal": "passed",
+              "repository-metadata": "passed",
+              "rollback": "verified-before-publication",
+              "rpm-integrity": "passed",
+              "source-integrity": "passed",
+              "upgrade": "verified-before-publication",
+              "version-stdout-compatible": "passed"
+            },
+            "functionalChecks": {
+              "aspNetCoreLoopbackHttp": "passed",
+              "consoleApphostExecution": "passed",
+              "consoleDllExecution": "passed",
+              "cryptographicRandomBytes": "passed",
+              "frFrDecimalFormatting": "passed",
+              "rsaSha256SignAndVerify": "passed"
+            },
+            "networkForBuild": "none",
+            "packageIdentities": {
+              "cbodotnet-host": {
+                "architecture": "noarch",
+                "release": "1.cbot.rocky9.8",
+                "version": "1.0.0"
+              },
+              "cbodotnet-sdk-10.0": {
+                "architecture": "x86_64",
+                "release": "1.cbot.rocky9.8",
+                "version": "10.0.403"
+              }
+            },
+            "packageRevision": 1,
+            "repositorySha256": "e0d224cf603f4db6a907e9601bcbbcca02af750b3d8ae77546e03927d4e28d50",
+            "schemaVersion": 1,
+            "scope": "published-dnf-installation",
+            "sdkVersion": "10.0.403",
+            "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+            "status": "passed",
+            "target": {
+              "architecture": "x64",
+              "dependencies": {
+                "ca-certificates": "ca-certificates-2026.2.92_v9.0.319-90.3.el9_8.noarch",
+                "glibc": "glibc-2.34-283.el9_8.x86_64",
+                "krb5-libs": "krb5-libs-1.21.1-10.el9_8.1.x86_64",
+                "libgcc": "libgcc-11.5.0-14.el9.x86_64",
+                "libicu": "libicu-67.1-10.el9_6.x86_64",
+                "libstdc++": "libstdc++-11.5.0-14.el9.x86_64",
+                "openssl-libs": "openssl-libs-3.5.8-2.el9_8.x86_64",
+                "zlib": "zlib-1.2.11-40.el9.x86_64"
+              },
+              "native": true,
+              "osId": "rocky",
+              "osRelease": "NAME=\"Rocky Linux\"\nVERSION=\"9.8 (Blue Onyx)\"\nRELEASE_TYPE=\"stable\"\nID=\"rocky\"\nID_LIKE=\"rhel centos fedora\"\nVERSION_ID=\"9.8\"\nPLATFORM_ID=\"platform:el9\"\nPRETTY_NAME=\"Rocky Linux 9.8 (Blue Onyx)\"\nANSI_COLOR=\"0;32\"\nLOGO=\"fedora-logo-icon\"\nCPE_NAME=\"cpe:/o:rocky:rocky:9::baseos\"\nHOME_URL=\"https://rockylinux.org/\"\nVENDOR_NAME=\"RESF\"\nVENDOR_URL=\"https://resf.org/\"\nBUG_REPORT_URL=\"https://bugs.rockylinux.org/\"\nSUPPORT_END=\"2032-05-31\"\nROCKY_SUPPORT_PRODUCT=\"Rocky-Linux-9\"\nROCKY_SUPPORT_PRODUCT_VERSION=\"9.8\"\nREDHAT_SUPPORT_PRODUCT=\"Rocky Linux\"\nREDHAT_SUPPORT_PRODUCT_VERSION=\"9.8\"\n",
+              "versionId": "9.8"
+            },
+            "variant": "rocky-9.8"
+          }
+        ],
+        "schemaVersion": 1,
+        "status": "passed"
+      },
+      "reportEncoding": "JSON sort_keys=True, indent=2, UTF-8 and final LF; re-encoding rawReport recovers exact original bytes",
+      "reportSha256": "c23b67fc42bb5f49cc0312cefdd9a811e9c5e03e14c3033faa61e9daad7111b9"
+    },
+    {
+      "architecture": "aarch64",
+      "artifact": {
+        "actualDownloadedZipSha256": "passed",
+        "architecture": "aarch64",
+        "createdAt": "2026-11-04T06:51:18Z",
+        "exactLocalReportBytes": "passed",
+        "expiresAt": "2026-12-04T06:51:17Z",
+        "id": "13301992616",
+        "name": "downstream-rpm-postverify-aarch64-41787695177-1",
+        "size": 2113,
+        "zipSha256": "99ea0826c2ea0ab992284a49146c5500f2f09f0a329f0b8090aa6768220b8425"
+      },
+      "rawReport": {
+        "architecture": "aarch64",
+        "rpmTargets": [
+          {
+            "abi": {
+              "elfFileCount": 24,
+              "glibcCeiling": "2.27",
+              "glibcCeilingPassed": true,
+              "limitations": [
+                "ABI symbol maxima do not cover kernel requirements, runtime dlopen dependencies or complete OS support.",
+                "Relocatable objects and foreign-target ELF files, if shipped, are included in the table."
+              ],
+              "machines": {
+                "AArch64": 24
+              },
+              "maximumRequiredVersions": {
+                "CXXABI": "1.3.7",
+                "GLIBC": "2.27",
+                "GLIBCXX": "3.4.22"
+              },
+              "scope": "Regular ELF files inside the SDK, excluding archive members and PE managed images.",
+              "symbolicGlibcRequirements": []
+            },
+            "architecture": "aarch64",
+            "checks": {
+              "cli-branding": "passed",
+              "command-aliases": "passed",
+              "dnf-install": "passed",
+              "host-root": "passed",
+              "http-crypto-globalization": "passed",
+              "native-dependencies": "passed",
+              "non-root": "passed",
+              "official-dotnet-coexistence": "passed",
+              "offline-build-run": "passed",
+              "package-integrity": "passed",
+              "package-manager-install": "passed",
+              "package-signatures": "passed",
+              "payload-preservation": "passed",
+              "removal": "passed",
+              "repository-metadata": "passed",
+              "rollback": "verified-before-publication",
+              "rpm-integrity": "passed",
+              "source-integrity": "passed",
+              "upgrade": "verified-before-publication",
+              "version-stdout-compatible": "passed"
+            },
+            "functionalChecks": {
+              "aspNetCoreLoopbackHttp": "passed",
+              "consoleApphostExecution": "passed",
+              "consoleDllExecution": "passed",
+              "cryptographicRandomBytes": "passed",
+              "frFrDecimalFormatting": "passed",
+              "rsaSha256SignAndVerify": "passed"
+            },
+            "networkForBuild": "none",
+            "packageIdentities": {
+              "cbodotnet-host": {
+                "architecture": "noarch",
+                "release": "1.cbot.fedora45",
+                "version": "1.0.0"
+              },
+              "cbodotnet-sdk-10.0": {
+                "architecture": "aarch64",
+                "release": "1.cbot.fedora45",
+                "version": "10.0.403"
+              }
+            },
+            "packageRevision": 1,
+            "repositorySha256": "0decd9524824471f9cbf263bbe314f75bc05eab6144696c7a573a003307e00c6",
+            "schemaVersion": 1,
+            "scope": "published-dnf-installation",
+            "sdkVersion": "10.0.403",
+            "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+            "status": "passed",
+            "target": {
+              "architecture": "aarch64",
+              "dependencies": {
+                "ca-certificates": "ca-certificates-2026.2.92_v9.0.319-2.fc45.noarch",
+                "glibc": "glibc-2.44-2.fc45.aarch64",
+                "krb5-libs": "krb5-libs-1.22.2-11.fc45.aarch64",
+                "libgcc": "libgcc-16.2.1-3.fc45.aarch64",
+                "libicu": "libicu-78.3-8.fc45.aarch64",
+                "libstdc++": "libstdc++-16.2.1-3.fc45.aarch64",
+                "openssl3-libs": "openssl3-libs-3.5.9-1.fc45.aarch64",
+                "zlib-ng-compat": "zlib-ng-compat-2.3.3-6.fc45.aarch64"
+              },
+              "native": true,
+              "osId": "fedora",
+              "osRelease": "NAME=\"Fedora Linux\"\nVERSION=\"45 (Container Image)\"\nRELEASE_TYPE=stable\nID=fedora\nVERSION_ID=45\nVERSION_CODENAME=\"\"\nPRETTY_NAME=\"Fedora Linux 45 (Container Image)\"\nANSI_COLOR=\"0;38;2;60;110;180\"\nLOGO=fedora-logo-icon\nCPE_NAME=\"cpe:/o:fedoraproject:fedora:45\"\nDEFAULT_HOSTNAME=\"fedora\"\nHOME_URL=\"https://fedoraproject.org/\"\nDOCUMENTATION_URL=\"https://docs.fedoraproject.org/en-US/fedora/f45/\"\nSUPPORT_URL=\"https://ask.fedoraproject.org/\"\nBUG_REPORT_URL=\"https://bugzilla.redhat.com/\"\nREDHAT_BUGZILLA_PRODUCT=\"Fedora\"\nREDHAT_BUGZILLA_PRODUCT_VERSION=45\nREDHAT_SUPPORT_PRODUCT=\"Fedora\"\nREDHAT_SUPPORT_PRODUCT_VERSION=45\nSUPPORT_END=2027-12-08\nVARIANT=\"Container Image\"\nVARIANT_ID=container\n",
+              "versionId": "45"
+            },
+            "variant": "fedora-45"
+          },
+          {
+            "abi": {
+              "elfFileCount": 24,
+              "glibcCeiling": "2.27",
+              "glibcCeilingPassed": true,
+              "limitations": [
+                "ABI symbol maxima do not cover kernel requirements, runtime dlopen dependencies or complete OS support.",
+                "Relocatable objects and foreign-target ELF files, if shipped, are included in the table."
+              ],
+              "machines": {
+                "AArch64": 24
+              },
+              "maximumRequiredVersions": {
+                "CXXABI": "1.3.7",
+                "GLIBC": "2.27",
+                "GLIBCXX": "3.4.22"
+              },
+              "scope": "Regular ELF files inside the SDK, excluding archive members and PE managed images.",
+              "symbolicGlibcRequirements": []
+            },
+            "architecture": "aarch64",
+            "checks": {
+              "cli-branding": "passed",
+              "command-aliases": "passed",
+              "dnf-install": "passed",
+              "host-root": "passed",
+              "http-crypto-globalization": "passed",
+              "native-dependencies": "passed",
+              "non-root": "passed",
+              "official-dotnet-coexistence": "passed",
+              "offline-build-run": "passed",
+              "package-integrity": "passed",
+              "package-manager-install": "passed",
+              "package-signatures": "passed",
+              "payload-preservation": "passed",
+              "removal": "passed",
+              "repository-metadata": "passed",
+              "rollback": "verified-before-publication",
+              "rpm-integrity": "passed",
+              "source-integrity": "passed",
+              "upgrade": "verified-before-publication",
+              "version-stdout-compatible": "passed"
+            },
+            "functionalChecks": {
+              "aspNetCoreLoopbackHttp": "passed",
+              "consoleApphostExecution": "passed",
+              "consoleDllExecution": "passed",
+              "cryptographicRandomBytes": "passed",
+              "frFrDecimalFormatting": "passed",
+              "rsaSha256SignAndVerify": "passed"
+            },
+            "networkForBuild": "none",
+            "packageIdentities": {
+              "cbodotnet-host": {
+                "architecture": "noarch",
+                "release": "1.cbot.rocky9.8",
+                "version": "1.0.0"
+              },
+              "cbodotnet-sdk-10.0": {
+                "architecture": "aarch64",
+                "release": "1.cbot.rocky9.8",
+                "version": "10.0.403"
+              }
+            },
+            "packageRevision": 1,
+            "repositorySha256": "e0d224cf603f4db6a907e9601bcbbcca02af750b3d8ae77546e03927d4e28d50",
+            "schemaVersion": 1,
+            "scope": "published-dnf-installation",
+            "sdkVersion": "10.0.403",
+            "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+            "status": "passed",
+            "target": {
+              "architecture": "aarch64",
+              "dependencies": {
+                "ca-certificates": "ca-certificates-2026.2.92_v9.0.319-90.3.el9_8.noarch",
+                "glibc": "glibc-2.34-283.el9_8.aarch64",
+                "krb5-libs": "krb5-libs-1.21.1-10.el9_8.1.aarch64",
+                "libgcc": "libgcc-11.5.0-14.el9.aarch64",
+                "libicu": "libicu-67.1-10.el9_6.aarch64",
+                "libstdc++": "libstdc++-11.5.0-14.el9.aarch64",
+                "openssl-libs": "openssl-libs-3.5.8-2.el9_8.aarch64",
+                "zlib": "zlib-1.2.11-40.el9.aarch64"
+              },
+              "native": true,
+              "osId": "rocky",
+              "osRelease": "NAME=\"Rocky Linux\"\nVERSION=\"9.8 (Blue Onyx)\"\nRELEASE_TYPE=\"stable\"\nID=\"rocky\"\nID_LIKE=\"rhel centos fedora\"\nVERSION_ID=\"9.8\"\nPLATFORM_ID=\"platform:el9\"\nPRETTY_NAME=\"Rocky Linux 9.8 (Blue Onyx)\"\nANSI_COLOR=\"0;32\"\nLOGO=\"fedora-logo-icon\"\nCPE_NAME=\"cpe:/o:rocky:rocky:9::baseos\"\nHOME_URL=\"https://rockylinux.org/\"\nVENDOR_NAME=\"RESF\"\nVENDOR_URL=\"https://resf.org/\"\nBUG_REPORT_URL=\"https://bugs.rockylinux.org/\"\nSUPPORT_END=\"2032-05-31\"\nROCKY_SUPPORT_PRODUCT=\"Rocky-Linux-9\"\nROCKY_SUPPORT_PRODUCT_VERSION=\"9.8\"\nREDHAT_SUPPORT_PRODUCT=\"Rocky Linux\"\nREDHAT_SUPPORT_PRODUCT_VERSION=\"9.8\"\n",
+              "versionId": "9.8"
+            },
+            "variant": "rocky-9.8"
+          }
+        ],
+        "schemaVersion": 1,
+        "status": "passed"
+      },
+      "reportEncoding": "JSON sort_keys=True, indent=2, UTF-8 and final LF; re-encoding rawReport recovers exact original bytes",
+      "reportSha256": "3c5a851b0726eef016fabe322d413885f7403aa0c36691d3568f5e6285b9531f"
+    }
+  ],
+  "packageRevision": 1,
+  "pages": {
+    "repositoryUrls": {
+      "fedora-45": "https://dotnetdev.kr/cbodotnet/packages/rpm/fedora-45/",
+      "rocky-9.8": "https://dotnetdev.kr/cbodotnet/packages/rpm/rocky-9.8/"
+    },
+    "statusCommit": "740b604651465bb4628271b34378190be6e28e01",
+    "url": "https://dotnetdev.kr/cbodotnet/",
+    "workflow": {
+      "commit": "740b604651465bb4628271b34378190be6e28e01",
+      "conclusion": "success",
+      "createdAt": "2026-11-04T06:51:33Z",
+      "path": ".github/workflows/pages.yml",
+      "runAttempt": "1",
+      "runId": "41788312381",
+      "updatedAt": "2026-11-04T06:52:35Z",
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41788312381"
+    }
+  },
+  "releaseUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-rpm-sdk-10.0.403-r1",
+  "schemaVersion": 1,
+  "scope": "sdk-10.0.403-r1-rpm-native-publication-and-hosted-https-verification",
+  "sdkVersion": "10.0.403",
+  "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/distribution-manifest.json.asc",
+  "signedPublicationAssetDescriptors": [
+    {
+      "name": "distribution-signing-key.gpg",
+      "sha256": "562e4c9a893c1a0ffabf3d3bb4a6e4ae1090427250c2818df196a8174583a665",
+      "size": 273,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/distribution-signing-key.gpg"
+    },
+    {
+      "name": "rpm-fedora-45--cbodotnet-host-1.0.0-1.cbot.fedora45.noarch.rpm",
+      "sha256": "e99cf8e2ecb8703dba0eafc23ba8c9cf018f0e84f445fd39da55ac073d8d29da",
+      "size": 7941,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-fedora-45--cbodotnet-host-1.0.0-1.cbot.fedora45.noarch.rpm"
+    },
+    {
+      "name": "rpm-fedora-45-aarch64--cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.aarch64.rpm",
+      "sha256": "93e3fb9d24426d670b50d03f2063fa381502a43816fba981190d6a012c7c9f31",
+      "size": 139239761,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-fedora-45-aarch64--cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.aarch64.rpm"
+    },
+    {
+      "name": "rpm-fedora-45-aarch64--installation-report.json",
+      "sha256": "9f5dc5184d6de28201347d00708173a8a104b9ad25ed3292a7c4acb2c28926e8",
+      "size": 7780,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-fedora-45-aarch64--installation-report.json"
+    },
+    {
+      "name": "rpm-fedora-45-aarch64--installation-report.json.asc",
+      "sha256": "422b1f8a922702e0e9d9ef1e8fc6805123583841defa7a521d735fa864d07e4b",
+      "size": 119,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-fedora-45-aarch64--installation-report.json.asc"
+    },
+    {
+      "name": "rpm-fedora-45-x64--cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.x86_64.rpm",
+      "sha256": "525cf139e9b88635137c4b066eca06c2f20871b581ece9b1ed349618db2b1d78",
+      "size": 149388745,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-fedora-45-x64--cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.x86_64.rpm"
+    },
+    {
+      "name": "rpm-fedora-45-x64--installation-report.json",
+      "sha256": "0b02455dbcdf0bb631cde0cbce57cdc8bd76f186b7e43eafbb8e52c4b35a3869",
+      "size": 7748,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-fedora-45-x64--installation-report.json"
+    },
+    {
+      "name": "rpm-fedora-45-x64--installation-report.json.asc",
+      "sha256": "6c142ce56bc7b0dc9fbb0f9f7871cd188dd2a920b7d8f0c3d22f8e101943e924",
+      "size": 119,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-fedora-45-x64--installation-report.json.asc"
+    },
+    {
+      "name": "rpm-fedora-45.tar.gz",
+      "sha256": "0decd9524824471f9cbf263bbe314f75bc05eab6144696c7a573a003307e00c6",
+      "size": 63432,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-fedora-45.tar.gz"
+    },
+    {
+      "name": "rpm-rocky-9.8--cbodotnet-host-1.0.0-1.cbot.rocky9.8.noarch.rpm",
+      "sha256": "51da24fa8d58089aa53def30697b50babee8b76d2cf5f843e14d74e1c351dbde",
+      "size": 7945,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-rocky-9.8--cbodotnet-host-1.0.0-1.cbot.rocky9.8.noarch.rpm"
+    },
+    {
+      "name": "rpm-rocky-9.8-aarch64--cbodotnet-sdk-10.0-10.0.403-1.cbot.rocky9.8.aarch64.rpm",
+      "sha256": "b13501ea48c229d6fe359e9ca053b00bc0430b0f15a83c7d08a0ad1e9c190b8f",
+      "size": 139224829,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-rocky-9.8-aarch64--cbodotnet-sdk-10.0-10.0.403-1.cbot.rocky9.8.aarch64.rpm"
+    },
+    {
+      "name": "rpm-rocky-9.8-aarch64--installation-report.json",
+      "sha256": "144018838441f4bc449c226fc3d3bab2fa85dc67a6fca760c670fe97aea16d1f",
+      "size": 7675,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-rocky-9.8-aarch64--installation-report.json"
+    },
+    {
+      "name": "rpm-rocky-9.8-aarch64--installation-report.json.asc",
+      "sha256": "a59349d2a5710a1a51165a28fb026960fbcd0aaddb777b03a73654438879ff5f",
+      "size": 119,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-rocky-9.8-aarch64--installation-report.json.asc"
+    },
+    {
+      "name": "rpm-rocky-9.8-x64--cbodotnet-sdk-10.0-10.0.403-1.cbot.rocky9.8.x86_64.rpm",
+      "sha256": "efee299f9ffcaffb72ef7e917069c602caab56e356add68c8234bf903c5b058e",
+      "size": 149373729,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-rocky-9.8-x64--cbodotnet-sdk-10.0-10.0.403-1.cbot.rocky9.8.x86_64.rpm"
+    },
+    {
+      "name": "rpm-rocky-9.8-x64--installation-report.json",
+      "sha256": "2df8f0a6e0b9db958a88de9afa7da75d8e15dd25fe52b925f2545c7602ef6843",
+      "size": 7643,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-rocky-9.8-x64--installation-report.json"
+    },
+    {
+      "name": "rpm-rocky-9.8-x64--installation-report.json.asc",
+      "sha256": "6d1cd1f002ea2e6900ab8a341324e3c871c6f984aeb0019a11d916d61f731fe0",
+      "size": 119,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-rocky-9.8-x64--installation-report.json.asc"
+    },
+    {
+      "name": "rpm-rocky-9.8.tar.gz",
+      "sha256": "e0d224cf603f4db6a907e9601bcbbcca02af750b3d8ae77546e03927d4e28d50",
+      "size": 63724,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/rpm-rocky-9.8.tar.gz"
+    },
+    {
+      "name": "distribution-manifest.json",
+      "sha256": "7db9128b351c27cf2e7b2ef57cab2b544933b36329c6a8b94738b312f0e63820",
+      "size": 23621,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/distribution-manifest.json"
+    },
+    {
+      "name": "distribution-manifest.json.asc",
+      "sha256": "7ef62128dc0beff8e9cf8890a8662eea13175601ffa9f08892b0eefae6a021c9",
+      "size": 228,
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/distribution-manifest.json.asc"
+    }
+  ],
+  "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+  "sourceAndSigning": {
+    "nativeJobs": [
+      {
+        "conclusion": "success",
+        "id": "126421936705",
+        "name": "Install RPM packages on native x64",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+          },
+          {
+            "conclusion": "success",
+            "name": "Test repository controls"
+          },
+          {
+            "conclusion": "success",
+            "name": "Build and install both RPM distro targets with unchanged SDK bytes"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job"
+          }
+        ]
+      },
+      {
+        "conclusion": "success",
+        "id": "126421936901",
+        "name": "Install RPM packages on native aarch64",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+          },
+          {
+            "conclusion": "success",
+            "name": "Test repository controls"
+          },
+          {
+            "conclusion": "success",
+            "name": "Build and install both RPM distro targets with unchanged SDK bytes"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job"
+          }
+        ]
+      }
+    ],
+    "outcome": "Native lifecycle and original signed publication succeeded. The overall original run later failed its public verifier cache lookup; frozen recovery completed the public checks with corrected verifier code.",
+    "signingPublicationJob": {
+      "conclusion": "success",
+      "id": "126429888077",
+      "name": "Sign and publish RPM distributions",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Reject ambiguous RPM recovery inputs"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install RPM signing and repository metadata tools"
+        },
+        {
+          "conclusion": "success",
+          "name": "Inspect native common RPM determinism before importing a private key"
+        },
+        {
+          "conclusion": "success",
+          "name": "Retain small common RPM diagnostics"
+        },
+        {
+          "conclusion": "success",
+          "name": "Import the approved main-only distribution signing identity"
+        },
+        {
+          "conclusion": "success",
+          "name": "Prepare the pinned public verification keyring"
+        },
+        {
+          "conclusion": "success",
+          "name": "Sign RPM payloads and authenticate the complete frozen matrix"
+        },
+        {
+          "conclusion": "success",
+          "name": "Validate readiness for durable RPM recovery"
+        },
+        {
+          "conclusion": "success",
+          "name": "Freeze signed RPM publication bytes"
+        },
+        {
+          "conclusion": "success",
+          "name": "Publish the exact frozen RPM bytes"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Recover and publish original signed RPM bytes"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9"
+        },
+        {
+          "conclusion": "success",
+          "name": "Remove imported RPM private signing material"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job"
+        }
+      ]
+    },
+    "workflow": {
+      "commit": "b1238f959f26f4dbbb4b9bc23d49a7ba89eb4002",
+      "conclusion": "failure",
+      "createdAt": "2026-11-04T06:12:51Z",
+      "path": ".github/workflows/distribution-release.yml",
+      "runAttempt": "1",
+      "runId": "41784038274",
+      "updatedAt": "2026-11-04T06:39:16Z",
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41784038274"
+    }
+  },
+  "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+  "status": "passed",
+  "targets": [
+    {
+      "architecture": "aarch64",
+      "variant": "fedora-45"
+    },
+    {
+      "architecture": "x64",
+      "variant": "fedora-45"
+    },
+    {
+      "architecture": "aarch64",
+      "variant": "rocky-9.8"
+    },
+    {
+      "architecture": "x64",
+      "variant": "rocky-9.8"
+    }
+  ],
+  "trustLimits": [
+    "This is a Community Build of .NET distribution signature, not a Microsoft signature or upstream security-maintenance promise.",
+    "Only Fedora 45 and Rocky Linux 9.8, SDK 10.0.403 revision 1, on x64 and aarch64 are covered; other distro/release/SDK combinations require their own reviewed admission and native evidence."
+  ]
+}

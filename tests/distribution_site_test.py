@@ -82,6 +82,10 @@ class DistributionSiteTests(unittest.TestCase):
         self.assertIn('D7D154B4B33C19A82B95B13688135410ACD9C0EA', markup)
         self.assertIn('packages/rpm/fedora-45/', markup)
         self.assertIn('packages/rpm/rocky-9.8/', markup)
+        self.assertIn('sudo dnf install -y ca-certificates gnupg2', markup)
+        self.assertIn('command -v curl', markup)
+        self.assertIn('|| sudo dnf install -y curl', markup)
+        self.assertNotIn('install -y ca-certificates curl', markup)
         self.assertNotIn('aur.archlinux.org', markup)
 
     def test_rpm_archive_cannot_be_hosted_under_another_variant_or_source_identity(self):

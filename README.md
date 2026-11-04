@@ -22,12 +22,12 @@ Public names use `aarch64`. The official .NET RID remains `linux-arm64`; upstrea
 ## Package repositories and containers
 
 SDK **10.0.403** is available through signed project-operated APT repositories
-for **Ubuntu 24.04 and Debian 13**, on `amd64` and `arm64`, and a Debian 13-based
-GHCR SDK image for `linux/amd64` and `linux/arm64`. Use the
+for **Ubuntu 24.04 and Debian 13** (`amd64`, `arm64`), signed RPM repositories
+for **Fedora 45 and Rocky Linux 9.8** (`x86_64`, `aarch64`), and a Debian 13-based
+GHCR SDK image (`linux/amd64`, `linux/arm64`). Use the
 [verified installation commands](https://dotnetdev.kr/cbodotnet/) and
 [distribution status and receipts](releases/downstream-status.json).
-RPM is undergoing native qualification under issue #5. The
-[Arch x86_64 recipes](docs/aur-delivery.md) have passed native build, installation
+The [Arch x86_64 recipes](docs/aur-delivery.md) have passed native build, installation
 and lifecycle validation; authenticated AUR submission is tracked separately in
 [issue #10](https://github.com/dotnetdev-kr/cbodotnet/issues/10).
 
@@ -95,6 +95,7 @@ SDK archives and corresponding source bundles retain their upstream copyrights, 
 
 - [Downstream distribution contract and rollout](docs/distribution-contract.md)
 - [CLI branding and command aliases](docs/cli-branding.md)
+- [Signed RPM repositories and qualification](docs/rpm-delivery.md)
 - [Validated Arch recipes and deferred AUR publication](docs/aur-delivery.md)
 - [Downstream verification and promotion runbook](docs/downstream-release-runbook.md)
 - [AArch64 CI, source delivery and verification](docs/ci-matrix.md)

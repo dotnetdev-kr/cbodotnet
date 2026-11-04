@@ -228,7 +228,8 @@ def render_channels(status):
             rows.append('<h3>OCI SDK image</h3><pre><code>' + html.escape(command) + '</code></pre>')
         if channel == 'rpm':
             for variant in sorted({row['variant'] for row in data['publications']}):
-                command = ('sudo dnf install -y ca-certificates curl gnupg2\n'
+                command = ('sudo dnf install -y ca-certificates gnupg2\n'
+                           'command -v curl >/dev/null || sudo dnf install -y curl\n'
                            'curl -fsSLo /tmp/cbodotnet-signing-key.asc https://dotnetdev.kr/cbodotnet/distribution-signing-key.asc\n'
                            'test "$(gpg --show-keys --with-colons /tmp/cbodotnet-signing-key.asc | '
                            "awk -F: '$1==\"pub\" {primary=1} $1==\"fpr\" && primary {print $10; primary=0}')\" = D7D154B4B33C19A82B95B13688135410ACD9C0EA || exit 1\n"
