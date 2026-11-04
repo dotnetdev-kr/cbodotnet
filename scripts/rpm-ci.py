@@ -225,13 +225,17 @@ def source_payload(plan, delivery):
 
 def native_libraries(plan, output, runtime_env=None):
     root = Path(plan['package']['root'])
+    require((root / 'dotnet').is_file(), 'The baseline native dotnet host is missing')
     selected = [root / 'dotnet']
-    for pattern in ('host/fxr/*/libhostfxr.so', 'shared/Microsoft.NETCore.App/*/libcoreclr.so',
-                    'shared/Microsoft.NETCore.App/*/libhostpolicy.so', 'shared/Microsoft.NETCore.App/*/libSystem.Native.so',
-                    'shared/Microsoft.NETCore.App/*/libSystem.Globalization.Native.so',
-                    'shared/Microsoft.NETCore.App/*/libSystem.Security.Cryptography.Native.OpenSsl.so'):
-        selected.extend(sorted(root.glob(pattern)))
-    require(len(selected) >= 7, 'The complete baseline native runtime library set is required')
+    baseline = {'hostfxr': ('host/fxr/*/libhostfxr.so',),
+        'coreclr': ('shared/Microsoft.NETCore.App/*/libcoreclr.so',),
+        'hostpolicy': ('shared/Microsoft.NETCore.App/*/libhostpolicy.so',)}
+    for component in ('System.Native', 'System.Globalization.Native', 'System.Security.Cryptography.Native.OpenSsl'):
+        baseline[component] = tuple('shared/Microsoft.NETCore.App/*/' + prefix + component + '.so' for prefix in ('lib', ''))
+    for component, patterns in baseline.items():
+        matches = sorted({path for pattern in patterns for path in root.glob(pattern)})
+        require(len(matches) == 1 and matches[0].is_file(), 'Missing or ambiguous baseline native runtime component: ' + component)
+        selected.append(matches[0])
     rows = []
     for path in selected:
         value = run(['ldd', path], env=dict(os.environ, **(runtime_env or {})))

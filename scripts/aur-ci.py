@@ -50,6 +50,110 @@ def workflow_identity():
                 runId=os.environ['GITHUB_RUN_ID'], runAttempt=os.environ['GITHUB_RUN_ATTEMPT'])
 
 
+def build_recipe(directory, label, logs, build_records, tools):
+    """Use one source/build/lint path for full SDK and provider-only validation."""
+    progress('makepkg verification and build: ' + label)
+    generate_srcinfo(directory, ['runuser', '-u', 'cbot-smoke', '--'])
+    def as_user(command):
+        return tools.run(tools.user_command(command, directory), cwd=directory)
+    source = as_user(['makepkg', '--verifysource', '--noconfirm'])
+    (logs / (label + '-source.log')).write_text(source)
+    built = as_user(['makepkg', '--cleanbuild', '--noconfirm'])
+    (logs / (label + '-build.log')).write_text(built)
+    packages = list(directory.glob('*.pkg.tar.zst'))
+    require(len(packages) == 1, 'Exactly one binary package must be produced per independent AUR pkgbase')
+    analyses, reviewed = [], []
+    for target in (directory / 'PKGBUILD', packages[0]):
+        lint = subprocess.run(['namcap', str(target)], text=True, capture_output=True)
+        output = lint.stdout + lint.stderr
+        analyses.append(output)
+        (logs / (label + '-namcap.log')).write_text('\n'.join(analyses))
+        require(lint.returncode == 0, 'namcap invocation failed for ' + target.name + ':\n' + '\n'.join(output.splitlines()[-12:]))
+        reviewed.extend(review_namcap(output, directory.name, binary_package=target == packages[0]))
+    build_records.append(dict(pkgbase=directory.name, revision=label, package=packages[0].name,
+        sha256=tools.digest(packages[0]), srcinfoSha256=tools.digest(directory / '.SRCINFO'),
+        sourceVerification='passed', makepkg='passed', namcap='passed-with-reviewed-findings' if reviewed else 'passed',
+        namcapReviewedFindings=reviewed, namcapOutput=analyses))
+    return packages[0]
+
+
+def verify_provider_notices(run):
+    for filename in ('LICENSE.openssl.txt', 'LICENSE.icu.txt', 'NOTICE.txt'):
+        notice = Path('/usr/share/licenses') / legacy_compat.PACKAGE_NAME / filename
+        require(notice.is_file() and notice.read_bytes() == (Path(legacy_compat.PROVIDER_ROOT) / filename).read_bytes()
+                and run(['pacman', '-Qoq', notice]).strip() == legacy_compat.PACKAGE_NAME,
+                'Separate provider original license/notice ownership differs')
+    original = (Path(legacy_compat.PROVIDER_ROOT) / 'LICENSE.icu.txt').read_bytes()
+    for filename, content in legacy_compat.icu_license_sections(original).items():
+        notice = Path('/usr/share/licenses') / legacy_compat.PACKAGE_NAME / filename
+        require(notice.is_file() and notice.read_bytes() == content
+                and run(['pacman', '-Qoq', notice]).strip() == legacy_compat.PACKAGE_NAME,
+                'Separate provider component notice or ownership differs')
+
+
+def compatibility_native(args):
+    require(platform.system() == 'Linux' and platform.machine() == 'x86_64' and os.getuid() != 0,
+            'A native non-root Linux x86_64 producer is required')
+    workspace = args.workspace.resolve()
+    require(not workspace.exists(), 'A fresh provider-only validation workspace is required')
+    workspace.mkdir(parents=True)
+    # This selects the reviewed provider policy without receiving, building or
+    # executing any SDK archive. It is not an SDK qualification plan/report.
+    plan = dict(sdkVersion='5.0.214', architecture={'public': 'x64'}, channel='aur', variant='arch-rolling', providerOnly=True)
+    (workspace / 'plan.json').write_bytes(encoded(plan))
+    run = native_tools().run
+    docker = ['--platform', 'linux/amd64', '-e', 'AUR_OUTPUT_UID=' + str(os.getuid()),
+              '-e', 'AUR_OUTPUT_GID=' + str(os.getgid()), '-v', f'{ROOT}:/repo:ro', '-v', f'{workspace}:/delivery']
+    prepared = None
+    container = run(['docker', 'create', *docker, ARCH_BASE, 'bash', '/repo/scripts/verify-aur-install.sh', '/repo', '/delivery', 'prepare']).strip()
+    try:
+        run(['docker', 'start', '--attach', container])
+        state = json.loads(run(['docker', 'inspect', '--format', '{{json .State}}', container]))
+        require(state.get('ExitCode') == 0 and state.get('Status') == 'exited', 'Arch provider-only preparation failed')
+        prepared = run(['docker', 'commit', container]).strip()
+        recipe = workspace / 'recipes' / legacy_compat.PACKAGE_NAME
+        recipe.mkdir(parents=True)
+        for name in ('PKGBUILD', '.SRCINFO', 'openssl.cnf', 'NOTICE.txt', 'provider-manifest.json'):
+            shutil.copy2(workspace / 'compatibility-provider' / name, recipe / name)
+        policy = legacy_compat.load_policy()
+        for item in [*policy['architectures']['x64']['packages'], *policy['sources'], policy['key']]:
+            shutil.copy2(workspace / 'compatibility-sources' / item['name'], recipe / item['name'])
+        verify_tracked_sources(workspace / 'recipes', ROOT / 'packaging/aur')
+        run(['docker', 'run', '--rm', '--network', 'none', *docker, prepared,
+             'bash', '/repo/scripts/verify-aur-install.sh', '/repo', '/delivery', 'installed-provider'])
+        verify_tracked_sources(workspace / 'recipes', ROOT / 'packaging/aur', srcinfo=True)
+    finally:
+        run(['docker', 'rm', '--force', container])
+        if prepared:
+            run(['docker', 'image', 'rm', prepared])
+    progress('provider-only native source/build/namcap/pacman checks passed; no SDK qualification performed')
+
+
+def compatibility_installed(args):
+    require(os.geteuid() == 0 and platform.machine() == 'x86_64' and Path('/.dockerenv').is_file(),
+            'A disposable native x86_64 root container is required')
+    require({path.name for path in Path('/sys/class/net').iterdir()} == {'lo'}, 'Provider-only build requires Docker --network none')
+    delivery = args.delivery.resolve()
+    plan = json.loads((delivery / 'plan.json').read_bytes())
+    require(plan.get('providerOnly') is True and plan['variant'] == 'arch-rolling', 'An explicit provider-only diagnostic is required')
+    tools = native_tools()
+    tools.run(['chown', '-R', 'cbot-smoke:cbot-smoke', delivery / 'recipes'])
+    logs = delivery / 'makepkg-logs'
+    logs.mkdir()
+    records = []
+    package = build_recipe(delivery / 'recipes' / legacy_compat.PACKAGE_NAME, 'compatibility', logs, records, tools)
+    tools.run(['pacman', '-U', '--noconfirm', package])
+    proof = legacy_compat.assert_unchanged(delivery / 'compatibility-state.json')
+    verify_provider_notices(tools.run)
+    integrity = tools.run(['pacman', '-Qkk', legacy_compat.PACKAGE_NAME], env=dict(os.environ, LC_ALL='C'))
+    verify_package_integrity(integrity, 1)
+    result = dict(schemaVersion=1, scope='provider-package-only', status='passed', sdkQualificationPerformed=False,
+                  sdkArchivesDownloaded=0, sdkBuilds=0, publicationStatus='not-published', networkForBuild='none',
+                  architecture='x64', startingImage=ARCH_BASE, compatibilityProvider=[proof], packageBuilds=records,
+                  packageIdentity=tools.run(['pacman', '-Q', legacy_compat.PACKAGE_NAME]).strip(), packageIntegrity=integrity)
+    (delivery / 'provider-only-result.json').write_bytes(encoded(result))
+
+
 def native(args):
     require(platform.system() == 'Linux' and platform.machine() == 'x86_64', 'Native Linux x86_64 is required')
     workspace = args.workspace.resolve()
@@ -170,28 +274,7 @@ def installed(args):
         return run(tools.user_command(command, cwd), cwd=cwd)
 
     def build(directory, label):
-        progress('makepkg verification and build: ' + label)
-        generate_srcinfo(directory, ['runuser', '-u', 'cbot-smoke', '--'])
-        source = as_user(['makepkg', '--verifysource', '--noconfirm'], directory)
-        (logs / (label + '-source.log')).write_text(source)
-        built = as_user(['makepkg', '--cleanbuild', '--noconfirm'], directory)
-        (logs / (label + '-build.log')).write_text(built)
-        packages = list(directory.glob('*.pkg.tar.zst'))
-        require(len(packages) == 1, 'Exactly one binary package must be produced per independent AUR pkgbase')
-        analyses = []
-        reviewed = []
-        for target in (directory / 'PKGBUILD', packages[0]):
-            lint = subprocess.run(['namcap', str(target)], text=True, capture_output=True)
-            output = lint.stdout + lint.stderr
-            analyses.append(output)
-            (logs / (label + '-namcap.log')).write_text('\n'.join(analyses))
-            require(lint.returncode == 0, 'namcap invocation failed for ' + target.name + ':\n' + '\n'.join(output.splitlines()[-12:]))
-            reviewed.extend(review_namcap(output, directory.name, binary_package=target == packages[0]))
-        build_records.append(dict(pkgbase=directory.name, revision=label, package=packages[0].name,
-            sha256=tools.digest(packages[0]), srcinfoSha256=tools.digest(directory / '.SRCINFO'),
-            sourceVerification='passed', makepkg='passed', namcap='passed-with-reviewed-findings' if reviewed else 'passed',
-            namcapReviewedFindings=reviewed, namcapOutput=analyses))
-        return packages[0]
+        return build_recipe(directory, label, logs, build_records, tools)
 
     host = build(delivery / 'recipes/cbodotnet-host', 'host')
     run(['pacman', '-U', '--noconfirm', host])
@@ -199,11 +282,7 @@ def installed(args):
         companion = build(delivery / 'recipes' / legacy_compat.PACKAGE_NAME, 'compatibility')
         run(['pacman', '-U', '--noconfirm', companion])
         provider_unchanged('companion-reinstall')
-        for filename in ('LICENSE.openssl.txt', 'LICENSE.icu.txt', 'NOTICE.txt'):
-            notice = Path('/usr/share/licenses') / legacy_compat.PACKAGE_NAME / filename
-            require(notice.is_file() and notice.read_bytes() == (Path(legacy_compat.PROVIDER_ROOT) / filename).read_bytes()
-                    and run(['pacman', '-Qoq', notice]).strip() == legacy_compat.PACKAGE_NAME,
-                    'Separate provider original license/notice ownership differs')
+        verify_provider_notices(run)
     package = build(delivery / 'recipes' / name, 'sdk')
     upgrade = build(delivery / 'upgrade-recipes' / name, 'sdk-upgrade')
     # Shared command ownership stays independent of SDK packaging revisions.
@@ -320,8 +399,13 @@ def main():
     smoke.add_argument('--delivery', type=Path, required=True)
     preparation = commands.add_parser('prepare')
     preparation.add_argument('--delivery', type=Path, required=True)
+    provider = commands.add_parser('compatibility-native')
+    provider.add_argument('--workspace', type=Path, required=True)
+    installed_provider = commands.add_parser('compatibility-installed')
+    installed_provider.add_argument('--delivery', type=Path, required=True)
     args = parser.parse_args()
-    {'native': native, 'installed': installed, 'prepare': prepare}[args.command](args)
+    {'native': native, 'installed': installed, 'prepare': prepare,
+     'compatibility-native': compatibility_native, 'compatibility-installed': compatibility_installed}[args.command](args)
 
 
 if __name__ == '__main__':

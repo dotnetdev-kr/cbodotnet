@@ -37,6 +37,25 @@ class RpmCiTests(unittest.TestCase):
             self.assertTrue(all(call.kwargs['env']['LD_LIBRARY_PATH'] == scoped['LD_LIBRARY_PATH'] for call in inspect.call_args_list))
             self.assertEqual(original, dict(CI.os.environ))
 
+    def test_core3_native_library_names_are_checked_component_by_component_without_a_modern_lib_prefix(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            sdk = root / 'sdk'
+            shared = sdk / 'shared/Microsoft.NETCore.App/3.1.32'
+            shared.mkdir(parents=True)
+            (sdk / 'host/fxr/3.1.32').mkdir(parents=True)
+            (sdk / 'dotnet').write_bytes(b'host')
+            (sdk / 'host/fxr/3.1.32/libhostfxr.so').write_bytes(b'fxr')
+            for name in ('libcoreclr.so', 'libhostpolicy.so', 'System.Native.so', 'System.Globalization.Native.so',
+                         'System.Security.Cryptography.Native.OpenSsl.so'):
+                (shared / name).write_bytes(b'native-component')
+            with mock.patch.object(CI, 'run', return_value='all dependencies resolved') as inspect:
+                CI.native_libraries(dict(package=dict(root=str(sdk))), root)
+                self.assertEqual(7, inspect.call_count)
+                (shared / 'System.Globalization.Native.so').unlink()
+                with self.assertRaisesRegex(ValueError, 'System.Globalization.Native'):
+                    CI.native_libraries(dict(package=dict(root=str(sdk))), root)
+
     def test_signed_reinstall_retains_independent_verified_bytes_before_dnf_cache_cleanup(self):
         with tempfile.TemporaryDirectory() as temporary:
             delivery = Path(temporary)

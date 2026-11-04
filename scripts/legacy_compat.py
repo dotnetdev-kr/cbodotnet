@@ -2,6 +2,7 @@
 """Build an isolated, separately owned provider from pinned signed Rocky RPMs."""
 import argparse
 import hashlib
+import inspect
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -517,6 +518,24 @@ tar -xzf "%{{SOURCE0}}" -C "%{{buildroot}}"
     return descriptor(target)
 
 
+def icu_license_sections(data):
+    """Retain actual component notices in addition to the unchanged aggregate."""
+    markers = list(re.finditer(rb'(?m)^([1-6])\. ', data))
+    if [int(match[1]) for match in markers] != list(range(1, 7)):
+        raise ValueError('The pinned ICU component license section structure differs')
+    separator = data.find(b'\n---------------------\n')
+    if not 0 < separator < markers[0].start():
+        raise ValueError('The pinned ICU Unicode license separator differs')
+    sections = {}
+    for index, marker in enumerate(markers):
+        end = markers[index + 1].start() if index + 1 < len(markers) else len(data)
+        sections[int(marker[1])] = data[marker.start():end]
+    return {'LICENSE.Unicode-DFS-2016.txt': data[:separator] + b'\n',
+            'LICENSE.BSD-2-Clause.txt': sections[3],
+            'LICENSE.BSD-3-Clause.txt': sections[2] + sections[4] + sections[6],
+            'LICENSE.scancode-public-domain.txt': sections[5]}
+
+
 def arch_recipe(policy, architecture='x64'):
     require(architecture == 'x64', 'Arch delivery is qualified separately for x64 only')
     packages = policy['architectures'][architecture]['packages']
@@ -533,7 +552,11 @@ def arch_recipe(policy, architecture='x64'):
                      '  install -Dm644 "' + package['packageName'] + '/' + package['licenses'][0]['path']
                      + '" "$pkgdir/usr/share/licenses/$pkgname/LICENSE.'
                      + ('openssl' if package['packageName'] == 'compat-openssl11' else 'icu') + '.txt"']
-    # The recipe uses the same staged, reviewed metadata/configuration files.
+    license_script = ('import re, sys\nfrom pathlib import Path\n\n' + inspect.getsource(icu_license_sections)
+                      + '\nfor name, data in icu_license_sections(Path(sys.argv[1]).read_bytes()).items():\n'
+                        '    target = Path(sys.argv[2]) / name\n    target.write_bytes(data)\n    target.chmod(0o644)\n')
+    # The source RPM retains its vendor license identifier; Arch requires this
+    # canonical alias and individual component notices below its license root.
     return f'''# Separate provider; no SDK binaries are included or rebuilt.
 pkgname={PACKAGE_NAME}
 pkgver={VERSION}
@@ -541,9 +564,9 @@ pkgrel=1
 pkgdesc='Separately managed Rocky-origin OpenSSL 1.1 and ICU 67 for Community Build legacy SDKs'
 arch=('x86_64')
 url='https://dotnetdev.kr/cbodotnet/'
-license=('LicenseRef-OpenSSL-SSLeay' 'Apache-2.0' 'Unicode-DFS-2016' 'BSD-2-Clause' 'BSD-3-Clause' 'LicenseRef-Fedora-Public-Domain')
+license=('LicenseRef-OpenSSL-SSLeay' 'Apache-2.0' 'Unicode-DFS-2016' 'BSD-2-Clause' 'BSD-3-Clause' 'LicenseRef-scancode-public-domain')
 depends=('glibc>=2.34' 'libgcc' 'libstdc++' 'zlib' 'ca-certificates')
-makedepends=('rpm-tools' 'gnupg')
+makedepends=('rpm-tools' 'gnupg' 'python')
 options=('!strip' '!debug' '!lto')
 source=(
 {files}
@@ -570,6 +593,9 @@ package() {{
 {chr(10).join(selected)}
   install -m644 openssl.cnf NOTICE.txt provider-manifest.json "$dest/"
   install -Dm644 NOTICE.txt "$pkgdir/usr/share/licenses/$pkgname/NOTICE.txt"
+  python - "$srcdir/libicu/usr/share/licenses/libicu/LICENSE" "$pkgdir/usr/share/licenses/$pkgname" <<'CBODOTNET_ICU_LICENSES'
+{license_script}
+CBODOTNET_ICU_LICENSES
 }}
 '''
 
@@ -579,8 +605,8 @@ def arch_srcinfo(policy, notice_hash, manifest_hash):
     lines = ['pkgbase = ' + PACKAGE_NAME,
              '\tpkgdesc = Separately managed Rocky-origin OpenSSL 1.1 and ICU 67 for Community Build legacy SDKs',
              '\tpkgver = ' + VERSION, '\tpkgrel = 1', '\turl = https://dotnetdev.kr/cbodotnet/', '\tarch = x86_64']
-    fields = {'license': ['LicenseRef-OpenSSL-SSLeay', 'Apache-2.0', 'Unicode-DFS-2016', 'BSD-2-Clause', 'BSD-3-Clause', 'LicenseRef-Fedora-Public-Domain'],
-              'makedepends': ['rpm-tools', 'gnupg'], 'depends': ['glibc>=2.34', 'libgcc', 'libstdc++', 'zlib', 'ca-certificates'],
+    fields = {'license': ['LicenseRef-OpenSSL-SSLeay', 'Apache-2.0', 'Unicode-DFS-2016', 'BSD-2-Clause', 'BSD-3-Clause', 'LicenseRef-scancode-public-domain'],
+              'makedepends': ['rpm-tools', 'gnupg', 'python'], 'depends': ['glibc>=2.34', 'libgcc', 'libstdc++', 'zlib', 'ca-certificates'],
               'noextract': [item['name'] for item in sources], 'options': ['!strip', '!debug', '!lto'],
               'source': [item['url'] for item in sources] + ['openssl.cnf', 'NOTICE.txt', 'provider-manifest.json'],
               'sha256sums': [item['sha256'] for item in sources] + [policy['opensslConfiguration']['sha256'], notice_hash, manifest_hash]}

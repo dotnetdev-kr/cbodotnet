@@ -1,0 +1,36 @@
+name: Check isolated Arch compatibility provider
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  provider:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build and lint only the separate provider in pinned native Arch
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          python3 scripts/aur-ci.py compatibility-native \
+            --workspace "$RUNNER_TEMP/arch-provider-check"
+      - name: Retain provider diagnostics without an SDK qualification claim
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: arch-provider-only-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/arch-provider-check/provider-only-result.json
+            ${{ runner.temp }}/arch-provider-check/compatibility-state.json
+            ${{ runner.temp }}/arch-provider-check/makepkg-logs/
+            ${{ runner.temp }}/arch-provider-check/recipes/cbodotnet-compat-rocky9/PKGBUILD
+            ${{ runner.temp }}/arch-provider-check/recipes/cbodotnet-compat-rocky9/.SRCINFO
+          include-hidden-files: true
+          retention-days: 14
+          if-no-files-found: warn

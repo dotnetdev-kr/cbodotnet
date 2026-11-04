@@ -59,6 +59,22 @@ class LegacyCompatTests(unittest.TestCase):
             with self.subTest(values=values), self.assertRaises(ValueError):
                 COMPAT.validate_operating_system(values, variant)
 
+    def test_icu_component_notices_keep_original_bytes_and_reject_unknown_layout(self):
+        aggregate = b'Unicode copyright and complete license\n---------------------\n'
+        aggregate += b''.join(str(index).encode() + b'. Component heading\nCopyright and full component terms\n\n'
+                              for index in range(1, 7))
+        original = bytes(aggregate)
+        sections = COMPAT.icu_license_sections(aggregate)
+        self.assertEqual(original, aggregate)
+        self.assertEqual(4, len(sections))
+        self.assertEqual(b'Unicode copyright and complete license\n', sections['LICENSE.Unicode-DFS-2016.txt'])
+        self.assertIn(b'3. Component heading\nCopyright and full component terms', sections['LICENSE.BSD-2-Clause.txt'])
+        for index in [2, 4, 6]:
+            self.assertIn(str(index).encode() + b'. Component heading\nCopyright and full component terms', sections['LICENSE.BSD-3-Clause.txt'])
+        self.assertIn(b'5. Component heading\nCopyright and full component terms', sections['LICENSE.scancode-public-domain.txt'])
+        with self.assertRaisesRegex(ValueError, 'section structure'):
+            COMPAT.icu_license_sections(aggregate.replace(b'5. Component', b'7. Component'))
+
     def test_policy_binds_both_native_binary_and_matching_source_packages(self):
         policy = COMPAT.load_policy()
         self.assertEqual(COMPAT.FINGERPRINT, policy['signingFingerprint'])
@@ -224,6 +240,10 @@ class LegacyCompatTests(unittest.TestCase):
                     self.assertEqual(COMPAT.tree_inventory(output / 'rootfs'), COMPAT.tree_inventory(extracted))
                     control = subprocess.check_output(['dpkg-deb', '-f', str(package)], text=True)
                     self.assertIn('Package: cbodotnet-compat-rocky9\n', control)
+                    license_root = output / 'rootfs' / COMPAT.PROVIDER_ROOT.lstrip('/')
+                    notices = COMPAT.icu_license_sections((license_root / 'LICENSE.icu.txt').read_bytes())
+                    self.assertIn(b'Google double-conversion', notices['LICENSE.BSD-3-Clause.txt'])
+                    self.assertIn(b'Database Ownership', notices['LICENSE.scancode-public-domain.txt'])
                     self.assertNotIn('/opt/cbodotnet', '\n'.join(item['path'] for item in COMPAT.tree_inventory(extracted)))
                     native = {'x64': 'amd64', 'aarch64': 'arm64'}[architecture]
                     sdk_plan = plan(arch=architecture)

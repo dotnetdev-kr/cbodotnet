@@ -1,4 +1,5 @@
 name: Verify and publish downstream SDK distributions
+run-name: ${{ format('distribution {0} {1} r{2} publish={3} source={4}/{5} frozen={6}/{7}', inputs.channel || 'verification', inputs.tag || 'sdk-10.0.403', inputs.revision || '1', inputs.publish == true, inputs.source_run_id || '-', inputs.source_run_attempt || '1', inputs.promotion_run_id || '-', inputs.promotion_run_attempt || '1') }}
 
 on:
   pull_request:

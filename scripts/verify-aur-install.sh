@@ -28,5 +28,8 @@ case "$phase" in
   installed)
     python "$repo/scripts/aur-ci.py" installed --delivery "$delivery"
     ;;
+  installed-provider)
+    python "$repo/scripts/aur-ci.py" compatibility-installed --delivery "$delivery"
+    ;;
   *) echo 'Unknown Arch validation phase.' >&2; exit 2 ;;
 esac

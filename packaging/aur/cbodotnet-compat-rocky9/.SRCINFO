@@ -9,9 +9,10 @@ pkgbase = cbodotnet-compat-rocky9
 	license = Unicode-DFS-2016
 	license = BSD-2-Clause
 	license = BSD-3-Clause
-	license = LicenseRef-Fedora-Public-Domain
+	license = LicenseRef-scancode-public-domain
 	makedepends = rpm-tools
 	makedepends = gnupg
+	makedepends = python
 	depends = glibc>=2.34
 	depends = libgcc
 	depends = libstdc++
