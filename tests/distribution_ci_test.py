@@ -243,6 +243,36 @@ class DistributionCiTests(unittest.TestCase):
 
 
 class PublishedRepositoryLocationTests(unittest.TestCase):
+    def test_core3_production_image_audits_native_http_before_any_bootstrap_as_default_nonroot_offline(self):
+        path = '/opt/cbodotnet/3.1/shared/Microsoft.NETCore.App/3.1.32/System.Net.Http.Native.so'
+        output = 'CBODOTNET_NATIVE_HTTP=' + path + '\n' + 'a' * 64 + '  ' + path + '\nlibcurl.so.4 => /lib/aarch64-linux-gnu/libcurl.so.4 (0x123)\n'
+        with mock.patch.object(CI, 'run', side_effect=['0:0:755\n' * 4, '', output]) as command:
+            proof = CI.inspect_consumer_files('actual-pulled-image@sha256:fixed', '/opt/cbodotnet/3.1')
+        http = proof['nativeHttpLibraries']
+        self.assertEqual(('passed', '1654', 'none'), (http['status'], http['user'], http['network']))
+        self.assertEqual('a' * 64, http['libraries'][0]['sha256'])
+        invocation = command.call_args.args[0]
+        self.assertEqual(['docker', 'run', '--rm', '--network', 'none', 'actual-pulled-image@sha256:fixed'], invocation[:6])
+        self.assertNotIn('--user', invocation)
+        self.assertIn('test "$(id -u)" = 1654', invocation[-1])
+        self.assertIn('LD_LIBRARY_PATH=/usr/lib/cbodotnet/compat/rocky9/lib', invocation[-1])
+        self.assertNotIn('apt-get', invocation[-1])
+
+    def test_production_core3_missing_unresolved_or_substituted_native_http_proof_fails(self):
+        path = '/opt/cbodotnet/3.0/shared/Microsoft.NETCore.App/3.0.3/System.Net.Http.Native.so'
+        prefix = 'CBODOTNET_NATIVE_HTTP=' + path + '\n' + 'a' * 64 + '  ' + path + '\n'
+        for output in ('', prefix + 'libcurl.so.4 => not found\n', prefix + 'libc.so.6 => /lib/libc.so.6 (0x123)\n',
+                       prefix.replace('/opt/cbodotnet/3.0', '/usr/share/dotnet') + 'libcurl.so.4 => /lib/libcurl.so.4 (0x123)\n'):
+            with self.subTest(output=output), mock.patch.object(CI, 'run', return_value=output), self.assertRaises(ValueError):
+                CI.inspect_core3_image_http('actual-image', '/opt/cbodotnet/3.0')
+
+    def test_other_production_sdk_families_keep_existing_image_file_proofs_without_new_http_requirement(self):
+        for family in ('5.0', '6.0', '7.0', '8.0', '9.0', '10.0'):
+            with self.subTest(family=family), mock.patch.object(CI, 'run', side_effect=['0:0:755\n' * 4, '']) as command:
+                proof = CI.inspect_consumer_files('image', '/opt/cbodotnet/' + family)
+                self.assertNotIn('nativeHttpLibraries', proof)
+                self.assertEqual(2, command.call_count)
+
     def test_oci_managed_dependency_uses_verified_source_versions_without_claiming_dpkg_ownership(self):
         import legacy_compat
         provider = legacy_compat.load_policy()

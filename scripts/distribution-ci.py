@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import platform
 import re
+import shlex
 import shutil
 import signal
 import socket
@@ -91,7 +92,42 @@ def inspect_consumer_files(reference, sdk_root, *, wrapper_license=None):
         require(value.splitlines() == ['0:0:644', wrapper_license['sha256'] + '  ' + path],
                 'OCI wrapper MIT license bytes, ownership or permissions differ')
         result['wrapperLicense'] = dict(wrapper_license, ownership='0:0:644', status='passed')
+    if sdk_root in {'/opt/cbodotnet/3.0', '/opt/cbodotnet/3.1'}:
+        result['nativeHttpLibraries'] = inspect_core3_image_http(reference, sdk_root)
     return result
+
+
+def inspect_core3_image_http(reference, sdk_root):
+    """Read the production image before any test bootstrap can install curl."""
+    require(sdk_root in {'/opt/cbodotnet/3.0', '/opt/cbodotnet/3.1'}, 'Core3 production HTTP audit requires its exact isolated root')
+    from legacy_compat import environment
+    scoped = environment(dict(sdkVersion=Path(sdk_root).name + '.0', variant='debian-13'))
+    prefix = shlex.join(['env', *[name + '=' + value for name, value in scoped.items()], 'ldd'])
+    root = shlex.quote(sdk_root)
+    script = ('set -eu\ntest "$(id -u)" = 1654\nfound=0\nfor file in '
+        + root + '/shared/Microsoft.NETCore.App/*/System.Net.Http.Native.so '
+        + root + '/shared/Microsoft.NETCore.App/*/libSystem.Net.Http.Native.so; do\n'
+        '  [ -f "$file" ] || continue\n  found=1\n  printf "CBODOTNET_NATIVE_HTTP=%s\\n" "$file"\n'
+        '  sha256sum "$file"\n  ' + prefix + ' "$file"\ndone\ntest "$found" = 1\n')
+    output = run(['docker', 'run', '--rm', '--network', 'none', reference, 'sh', '-ec', script])
+    sections = output.split('CBODOTNET_NATIVE_HTTP=')
+    require(not sections[0].strip() and len(sections) > 1, 'Production Core3 image lacks its native HTTP audit')
+    libraries = []; names = set()
+    for section in sections[1:]:
+        lines = section.splitlines()
+        require(len(lines) >= 3, 'Incomplete production Core3 native HTTP proof')
+        path = lines[0]
+        require(re.fullmatch(re.escape(sdk_root) + r'/shared/Microsoft\.NETCore\.App/[0-9][A-Za-z0-9.+-]*/(?:lib)?System\.Net\.Http\.Native\.so', path)
+                and path not in names, 'Unexpected or duplicated production Core3 native HTTP object')
+        names.add(path)
+        checksum = re.fullmatch(r'([a-f0-9]{64})  ' + re.escape(path), lines[1])
+        linked = '\n'.join(lines[2:])
+        provider = re.search(r'^\s*libcurl\.so\.4\s+=>\s+(/\S+)\s+\(', linked, re.MULTILINE)
+        require(checksum is not None and 'not found' not in linked and provider is not None,
+                'Production Core3 image lacks a resolved stock libcurl.so.4')
+        libraries.append(dict(path=path.removeprefix(sdk_root + '/'), sha256=checksum[1], ldd=linked,
+                              libcurlProviderPath=provider[1]))
+    return dict(status='passed', user='1654', network='none', libraries=libraries)
 
 
 def qualified_oci_labels(index, architecture, manifest_bytes=None, contract=None, catalog=None):
