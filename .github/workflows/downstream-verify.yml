@@ -1,0 +1,71 @@
+name: Prepare qualified downstream release inputs
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Exact admitted published SDK release tag
+        type: string
+        required: true
+        default: sdk-10.0.403
+      channel:
+        description: Candidate channel (preparation only)
+        type: choice
+        required: true
+        default: deb
+        options: [deb, oci]
+      variant:
+        description: Exact candidate OS variant; unsupported combinations fail closed
+        type: choice
+        required: true
+        default: debian-13
+        options: [debian-13, ubuntu-24.04]
+      revision:
+        description: Positive packaging revision
+        type: string
+        required: true
+        default: '1'
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    name: Receive qualified ${{ matrix.arch }} input
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Verify the published source manifest, producer and selected SDK bytes
+        env:
+          TAG: ${{ inputs.tag }}
+          CHANNEL: ${{ inputs.channel }}
+          VARIANT: ${{ inputs.variant }}
+          REVISION: ${{ inputs.revision }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          python3 scripts/downstream-release.py prepare \
+            --tag "$TAG" --inputs "$RUNNER_TEMP/downstream-inputs" \
+            --channel "$CHANNEL" --variant "$VARIANT" --arch "$ARCH" --revision "$REVISION" \
+            > "$RUNNER_TEMP/downstream-plan.json"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: downstream-input-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/downstream-plan.json
+            ${{ runner.temp }}/downstream-inputs/release.json
+            ${{ runner.temp }}/downstream-inputs/release-manifest.json
+            ${{ runner.temp }}/downstream-inputs/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 14

@@ -244,9 +244,21 @@ def write_site(catalog, template_path, output_dir):
     require(assets.is_dir() and (assets / "social-card.jpg").is_file(), "Missing site social-card image")
     require(not assets.is_symlink() and not any(path.is_symlink() for path in assets.rglob("*")),
             "Site assets must not contain symbolic links")
+    policy = json.loads((ROOT / "releases/downstream-status.json").read_text(encoding="utf-8"))
+    require(policy.get("schemaVersion") == 1 and policy.get("repository") == "dotnetdev-kr/cbodotnet"
+            and set(policy.get("channels", {})) == {"deb", "oci", "rpm", "aur"}, "Invalid downstream status")
+    # Public channel links need post-publication verification from their adapters.
+    # Until those exist, refuse to turn planning records into install instructions.
+    require(all(row.get("status") in {"not-published", "deferred"} and row.get("publications") == []
+                and row.get("publisherConfigured") is False for row in policy["channels"].values()),
+            "Published channels require verified publication adapters before website promotion")
+    public_status = {"schemaVersion": 1, "repository": policy["repository"], "status": policy["status"],
+                     "channels": {name: {"status": row["status"], "publications": []}
+                                  for name, row in policy["channels"].items()}}
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "index.html").write_text(render_html(catalog, template_path.read_text(encoding="utf-8")), encoding="utf-8")
     (output_dir / "releases.json").write_text(json.dumps(catalog, indent=2) + "\n", encoding="utf-8")
+    (output_dir / "downstream-status.json").write_text(json.dumps(public_status, indent=2) + "\n", encoding="utf-8")
     (output_dir / ".nojekyll").write_text("", encoding="utf-8")
     shutil.copytree(assets, output_dir / "assets", dirs_exist_ok=True)
 

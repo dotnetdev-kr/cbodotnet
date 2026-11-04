@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "repository": "dotnetdev-kr/cbodotnet",
+  "status": "foundation-in-progress",
+  "implementedStages": ["prepare", "package-record", "validate-signed-evidence", "stage-local-matrix"],
+  "pendingStages": ["channel-packagers", "package-signing", "remote-publish", "post-publication-verification"],
+  "evidenceSigners": {},
+  "channels": {
+    "deb": {
+      "status": "not-published", "publisherConfigured": false, "publications": [],
+      "requiredChecks": ["package-integrity", "package-manager-install", "repository-metadata"],
+      "candidateMatrix": [
+        {"variant": "ubuntu-24.04", "architecture": "x64"},
+        {"variant": "ubuntu-24.04", "architecture": "aarch64"},
+        {"variant": "debian-13", "architecture": "x64"},
+        {"variant": "debian-13", "architecture": "aarch64"}
+      ]
+    },
+    "oci": {
+      "status": "not-published", "publisherConfigured": false, "publications": [],
+      "requiredChecks": ["image-config", "oci-platforms", "pinned-base-image"],
+      "candidateMatrix": [
+        {"variant": "debian-13", "architecture": "x64"},
+        {"variant": "debian-13", "architecture": "aarch64"}
+      ]
+    },
+    "rpm": {"status": "deferred", "publisherConfigured": false, "publications": [], "requiredChecks": [], "candidateMatrix": []},
+    "aur": {"status": "deferred", "publisherConfigured": false, "publications": [], "requiredChecks": [], "candidateMatrix": []}
+  }
+}

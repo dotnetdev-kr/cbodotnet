@@ -19,6 +19,19 @@ Community .NET SDK builds for **glibc Linux AArch64 and x64**, independently of 
 
 Public names use `aarch64`. The official .NET RID remains `linux-arm64`; upstream package names, container-platform identities and historical evidence retain that spelling. SDK/source payload bytes are preserved when public filenames change.
 
+## Package repositories and containers
+
+APT, RPM, AUR and consumer OCI channels are in preparation; current downloads
+remain the verified archives above. [Distribution status](releases/downstream-status.json)
+records channel readiness without advertising unpublished packages or image tags.
+
+The package contract provides `cbodotnet-10.0` and a common `cbodotnet` command
+selecting the highest installed SDK series. OCI command preparation exposes
+`cbodotnet-10.0`, `cbodotnet` and `dotnet` for the same SDK. Public launchers show
+**Community Build of .NET (built by .NET Dev)** in information/help; numeric
+`--version` stdout remains compatible. [CLI identity](docs/cli-branding.md)
+explains the branding and source-provenance boundary.
+
 ## Build
 
 Choose an architecture, open its workflow, and select **Run workflow** on `main`:
@@ -74,6 +87,9 @@ SDK archives and corresponding source bundles retain their upstream copyrights, 
 
 ## Documentation
 
+- [Downstream distribution contract and rollout](docs/distribution-contract.md)
+- [CLI branding and command aliases](docs/cli-branding.md)
+- [Downstream verification and promotion runbook](docs/downstream-release-runbook.md)
 - [AArch64 CI, source delivery and verification](docs/ci-matrix.md)
 - [x64 CI, source delivery and verification](docs/ci-x64.md)
 - [AArch64 qualification results and artifact links](docs/ci-matrix-results.md)

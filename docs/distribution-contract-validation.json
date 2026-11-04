@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "contractVersion": 2,
+  "testedOn": "2026-11-04",
+  "status": "passed",
+  "scope": "contract-root-and-launcher-in-a-private-prefix",
+  "executionEnvironment": "Native AArch64, non-root user, Ubuntu 22.04.5 under WSL",
+  "sdkVersion": "10.0.403",
+  "targetRid": "linux-arm64",
+  "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+  "sdkArchiveSha256": "410491f0166109c2c3d115705ab64601cec56c3b1c1995267d3b16567f9c0d5b",
+  "officialSdk": {
+    "version": "10.0.100",
+    "archiveUrl": "https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.100/dotnet-sdk-10.0.100-linux-arm64.tar.gz",
+    "archiveSha512": "24fc2b105ab8484c34213ef57ac4e6a36a6593241f0ebc6cf0a40ec2f5fea2d76de85c4b87b2a53814d194e32ec1288dd5053cd6f52768d79cd0ac948cbf84ea",
+    "checksumSource": "https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/10.0/releases.json"
+  },
+  "additionalDirectories": ["metadata"],
+  "distributionBrand": "Community Build of .NET (built by .NET Dev)",
+  "commandLayouts": {
+    "package": ["cbodotnet-10.0", "cbodotnet"],
+    "oci": ["cbodotnet-10.0", "cbodotnet", "dotnet"]
+  },
+  "coexistenceChecks": [
+    "non-root", "qualified-archive", "isolated-host-runtime", "offline-build-run",
+    "crypto-globalization", "no-global-host-fallback", "sdk-payload-unchanged",
+    "official-tree-unchanged", "command-aliases", "cli-branding", "version-stdout-compatible", "uninstall"
+  ],
+  "existingSdkVerifier": {
+    "status": "passed",
+    "checks": ["consoleDllExecution", "consoleApphostExecution", "rsaSha256SignAndVerify", "cryptographicRandomBytes", "frFrDecimalFormatting", "aspNetCoreLoopbackHttp"],
+    "archiveContentMatched": true,
+    "maximumRequiredGlibc": "2.27"
+  },
+  "publicationQualified": false,
+  "limitations": [
+    "Private-prefix extraction/removal demonstrates the root and launcher contract, not package-manager installation or upgrade.",
+    "The OCI command layout was exercised with the real SDK in a private prefix, not in a built/published container image.",
+    "The prepared Ubuntu 24.04 variant is planning metadata; the actual execution user space was Ubuntu 22.04.5.",
+    "Native x64 and Ubuntu 24.04 CI jobs are defined but were not executed in this workspace.",
+    "No package-install target or consumer container base is qualified by this report."
+  ]
+}

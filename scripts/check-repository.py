@@ -15,10 +15,12 @@ def main():
     for path in python_files:
         ast.parse(path.read_text(encoding="utf-8-sig"), filename=str(path))
     shell_files = sorted((root / "scripts").glob("*.sh"))
+    shell_files += sorted((root / "scripts").glob("*.sh.in"))
     for path in shell_files:
         subprocess.run(["bash", "-n", str(path)], check=True)
     json_files = sorted((root / "profiles").glob("*.json"))
     json_files += sorted((root / "patches").rglob("*.json"))
+    json_files += sorted((root / "releases").glob("*.json"))
     for path in json_files:
         json.loads(path.read_text(encoding="utf-8-sig"))
 

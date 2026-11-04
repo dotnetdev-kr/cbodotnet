@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 2,
+  "repository": "dotnetdev-kr/cbodotnet",
+  "installation": {
+    "rootTemplate": "/opt/cbodotnet/{series}",
+    "launcherTemplate": "/usr/bin/cbodotnet-{series}",
+    "packageTemplate": "cbodotnet-sdk-{series}",
+    "aurPackageTemplate": "cbodotnet-sdk-{series}-bin",
+    "selection": "one-complete-sdk-per-major-minor",
+    "defaultLauncher": "/usr/bin/cbodotnet",
+    "commonPackage": "cbodotnet-host",
+    "defaultSelection": "highest-installed-major-minor",
+    "containerCommandDirectory": "/usr/local/bin",
+    "additionalDirectories": ["metadata"],
+    "modifySystemDotnet": false,
+    "registerAlternatives": false
+  },
+  "branding": {
+    "displayName": "Community Build of .NET (built by .NET Dev)",
+    "implementation": "distribution-wrapper",
+    "versionStdout": "unchanged-numeric-sdk-version",
+    "versionBrandingStream": "stderr",
+    "informationCommand": "--cbodotnet-info",
+    "modifyQualifiedPayload": false
+  },
+  "architectures": {
+    "x64": {
+      "public": "x64",
+      "rid": "linux-x64",
+      "deb": "amd64",
+      "rpm": "x86_64",
+      "aur": "x86_64",
+      "oci": "linux/amd64"
+    },
+    "aarch64": {
+      "public": "aarch64",
+      "rid": "linux-arm64",
+      "deb": "arm64",
+      "rpm": "aarch64",
+      "aur": "aarch64",
+      "oci": "linux/arm64"
+    }
+  },
+  "releases": {
+    "10.0.403": {
+      "target": "net10",
+      "manifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "archiveUserSpaces": ["ubuntu-22.04", "ubuntu-24.04", "debian-13"],
+      "securitySupport": "community-build-no-additional-security-maintenance",
+      "licensePaths": ["LICENSE.txt", "ThirdPartyNotices.txt"]
+    }
+  },
+  "channels": {
+    "deb": {
+      "status": "preparation-only",
+      "variants": ["ubuntu-24.04", "debian-13"]
+    },
+    "oci": {
+      "status": "preparation-only",
+      "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+      "variants": ["debian-13"]
+    },
+    "rpm": {"status": "deferred", "variants": []},
+    "aur": {"status": "deferred", "variants": []}
+  },
+  "operatingSystems": {
+    "ubuntu-22.04": {
+      "id": "ubuntu", "versionId": "22.04", "libc": "glibc",
+      "dependencies": ["libc6", "libgcc-s1", "libstdc++6", "zlib1g", "libgssapi-krb5-2", "ca-certificates", "libicu70", "libssl3"]
+    },
+    "ubuntu-24.04": {
+      "id": "ubuntu", "versionId": "24.04", "libc": "glibc",
+      "dependencies": ["libc6", "libgcc-s1", "libstdc++6", "zlib1g", "libgssapi-krb5-2", "ca-certificates", "libicu74", "libssl3t64"]
+    },
+    "debian-13": {
+      "id": "debian", "versionId": "13", "libc": "glibc",
+      "dependencies": ["libc6", "libgcc-s1", "libstdc++6", "zlib1g", "libgssapi-krb5-2", "ca-certificates", "libicu76", "libssl3t64"]
+    }
+  },
+  "qualification": {
+    "packageInstallTargets": [],
+    "containerBases": [],
+    "publishedChannels": [],
+    "requiredChecks": ["source-integrity", "payload-preservation", "native-dependencies", "host-root", "offline-build-run", "http-crypto-globalization", "non-root", "official-dotnet-coexistence", "command-aliases", "cli-branding", "version-stdout-compatible", "upgrade", "removal", "post-publication-digest"]
+  },
+  "legacyPolicy": {
+    "downstreamPackaging": "blocked-until-separate-channel-qualification",
+    "net5AndCore3": "external-recorded-openssl-1.1-required-no-bundling",
+    "core3Debian13": "external-recorded-icu-66-required-no-bundling",
+    "musl": "blocked-until-separately-qualified-sdk"
+  }
+}

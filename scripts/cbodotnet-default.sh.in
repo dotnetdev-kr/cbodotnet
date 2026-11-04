@@ -1,0 +1,36 @@
+#!/bin/sh
+# The common launcher chooses the highest installed cbodotnet major/minor.
+root_parent=@ROOT_PARENT@
+bin_dir=@BIN_DIR@
+selected=''
+selected_major=0
+selected_minor=0
+if [ -d "$root_parent" ] && [ ! -L "$root_parent" ] && [ -d "$bin_dir" ] && [ ! -L "$bin_dir" ]; then
+    for root in "$root_parent"/*; do
+        [ -d "$root" ] && [ ! -L "$root" ] || continue
+        series=${root##*/}
+        case "$series" in ''|*[!0-9.]*|.*|*.) continue ;; esac
+        major=${series%%.*}
+        minor=${series#*.}
+        [ "$minor" != "$series" ] || continue
+        case "$minor" in *.*) continue ;; esac
+        case "$major" in 0|0*) continue ;; esac
+        case "$minor" in 0) ;; 0*) continue ;; esac
+        # Bound comparisons so malformed huge names cannot overflow shell integers.
+        [ "${#major}" -le 9 ] && [ "${#minor}" -le 9 ] || continue
+        host="$root/dotnet"
+        launcher="$bin_dir/cbodotnet-$series"
+        [ -f "$host" ] && [ -x "$host" ] && [ ! -L "$host" ] || continue
+        [ -f "$launcher" ] && [ -x "$launcher" ] && [ ! -L "$launcher" ] || continue
+        if [ "$major" -gt "$selected_major" ] || { [ "$major" -eq "$selected_major" ] && [ "$minor" -gt "$selected_minor" ]; }; then
+            selected=$series
+            selected_major=$major
+            selected_minor=$minor
+        fi
+    done
+fi
+if [ -z "$selected" ]; then
+    printf '%s\n' 'cbodotnet: no usable cbodotnet SDK is installed; use a versioned cbodotnet launcher after installation.' >&2
+    exit 127
+fi
+exec "$bin_dir/cbodotnet-$selected" "$@"

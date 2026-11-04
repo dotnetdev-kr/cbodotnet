@@ -12,6 +12,7 @@ on:
       - site/**
       - scripts/release-catalog.py
       - scripts/release_catalog.py
+      - releases/downstream-status.json
       - .github/workflows/pages.yml
 
 permissions:
