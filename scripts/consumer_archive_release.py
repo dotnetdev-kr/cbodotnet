@@ -5,9 +5,10 @@ import re
 import shutil
 import subprocess
 import tempfile
+import time
 from pathlib import Path
 
-from consumer_archive import (ARCHITECTURES, BRANDING, MANIFEST, PUBLIC_KEY, REPORT_CHECKS, REPOSITORY,
+from consumer_archive import (ARCHITECTURES, BRANDING, FUNCTIONAL_CHECKS, MANIFEST, PUBLIC_KEY, REPORT_CHECKS, REPOSITORY,
     ROOT, SIGNATURE, WORKFLOW, archive_name, compatibility_policy, descriptor, encoded, identity, intake, launcher_text,
     load_contract, load_status, ordinary_file, payload_summary, require, sdk_tools, verify_report_signature)
 from downstream_publish import GitHubReleases, verify_remote_assets
@@ -80,7 +81,8 @@ def validate_native_report(report, build, source):
     for space in spaces:
         require(space.get('status') == 'passed' and space.get('networkForBuild') == 'none'
             and space.get('native') is True and space.get('architecture') == plan['architecture']
-            and space.get('checks') == dict.fromkeys(REPORT_CHECKS,'passed'),'A native archive user-space gate failed')
+            and space.get('checks') == dict.fromkeys(REPORT_CHECKS,'passed')
+            and space.get('functionalChecks') == dict.fromkeys(FUNCTIONAL_CHECKS,'passed'),'A native archive user-space gate failed')
     return report
 
 
@@ -239,11 +241,18 @@ def publish_bundle(directory,keyring,*,policy=None,transport=None):
     missing=set(expected)-set(existing)
     require(not missing or release['draft'] is True,'An incomplete public consumer release cannot be repaired in place')
     for name in sorted(missing): transport.upload(release,directory/name)
-    release=transport.get(release)
+    for attempt in range(4):
+        release=transport.get(release)
+        if {item.get('name') for item in release.get('assets',[])}==set(expected):break
+        require(attempt<3,'Consumer release asset listing did not converge')
+        time.sleep(2**attempt)
     verify_remote_assets(release,expected,transport)
     if release['draft']: release=transport.publish(release)
-    release=transport.get(release)
-    require(release.get('draft') is False,'Consumer release remained a draft')
+    for attempt in range(4):
+        release=transport.get(release)
+        if release.get('draft') is False and release.get('html_url')==f'https://github.com/{REPOSITORY}/releases/tag/{manifest["tag"]}':break
+        require(attempt<3,'Consumer release remained a draft or public URL did not converge')
+        time.sleep(2**attempt)
     verify_remote_assets(release,expected,transport,public=True)
     base=f'https://github.com/{REPOSITORY}/releases/download/{manifest["tag"]}/'
     return dict(schemaVersion=1,kind='consumer-archive-publication-receipt',status='published-public-bytes-verified',

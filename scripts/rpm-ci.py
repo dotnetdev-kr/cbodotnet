@@ -141,6 +141,23 @@ def strict_integrity(names):
     require(not output.strip(), 'Installed RPM integrity verification reported changed or missing files: ' + output)
 
 
+def retain_signed_packages(delivery, paths):
+    retained = Path(delivery) / 'retained-packages'
+    retained.mkdir()
+    result = []
+    for source in paths:
+        require(source.is_file() and not source.is_symlink(), 'Signed RPM cache must contain ordinary package files')
+        verify_package_signature(source)
+        expected = SHARED.digest(source)
+        destination = retained / source.name
+        require(not destination.exists(), 'Duplicate retained signed RPM filename')
+        shutil.copyfile(source, destination)
+        require(source.stat().st_size == destination.stat().st_size and SHARED.digest(destination) == expected,
+                'Retained signed RPM bytes differ from authenticated cache')
+        result.append(destination)
+    return result
+
+
 def local_transaction(paths, action='install', signed=False):
     # Unsigned files are admitted only in the isolated producer test, after
     # source/package digests are verified. Public repositories always require
@@ -229,19 +246,13 @@ def prepare_installed(args):
     plan = load(delivery / 'plan.json')
     validate_target(plan)
     run(['useradd', '--create-home', '--uid', '10001', 'cbot-smoke'])
+    from rpm_official import bootstrap
+    progress('install the official SDK through the signed stock distribution RPM repositories')
+    official_baseline = bootstrap(plan['variant'], plan['architecture']['public'], 'cbot-smoke', delivery / 'official-state.json')
     compatibility = None
     if runtime_policy(plan['sdkVersion'], plan['architecture']['public'])['legacy']:
         from legacy_compat import provision
         compatibility = provision(plan, delivery, user='cbot-smoke')
-    official = Path('/usr/share/dotnet')
-    require(not official.exists(), 'Comparison official SDK root must be fresh')
-    official.parent.mkdir(parents=True, exist_ok=True)
-    SHARED.extractor()(Path('/delivery/official-sdk.tar.gz'), official)
-    (official / 'metadata').mkdir(mode=0o755, exist_ok=True)
-    require(not Path('/usr/bin/dotnet').exists(), 'The initial official command must not be replaced')
-    Path('/usr/bin/dotnet').symlink_to(official / 'dotnet')
-    require(as_user([official / 'dotnet', '--version']).strip() == '10.0.100', 'Official SDK comparison failed')
-    save(delivery / 'official-before.json', SHARED.inventory(official))
     published = args.published == 'yes'
     if published:
         # Legacy RPM4 imports ASCII-armored public keys; gpgv separately uses
@@ -283,7 +294,7 @@ def prepare_installed(args):
     strict_integrity([plan['package']['name'], 'cbodotnet-host'])
     save(delivery / 'sdk-before.json', SHARED.inventory(Path(plan['package']['root'])))
     save(delivery / 'installed-state.json', dict(published=published, osRelease=Path('/etc/os-release').read_text(),
-                                              compatibilityState=compatibility))
+                                              compatibilityState=compatibility, officialBaseline=official_baseline))
 
 
 def lifecycle(args):
@@ -293,10 +304,24 @@ def lifecycle(args):
     plan = load(delivery / 'plan.json')
     target = validate_target(plan)
     state = load(delivery / 'installed-state.json')
-    official = Path('/usr/share/dotnet')
+    official = Path(state['officialBaseline']['officialRoot'])
+    official_version = state['officialBaseline']['sdkVersion']
+    official_proofs = []
+    compatibility_proofs = []
+
+    def official_check(phase):
+        from rpm_official import assert_unchanged
+        proof = assert_unchanged(delivery / 'official-state.json')
+        require(proof['status'] == 'passed' and as_user(['dotnet', '--version']).strip() == official_version,
+                'RPM lifecycle changed official package-manager dotnet selection')
+        official_proofs.append(dict(phase=phase, **proof))
+        if state.get('compatibilityState'):
+            from legacy_compat import assert_unchanged as assert_provider
+            compatibility_proofs.append(dict(phase=phase, **assert_provider(state['compatibilityState'])))
+
     root = Path(plan['package']['root'])
+    official_check('after-install')
     check_aliases(plan)
-    require(as_user(['dotnet', '--version']).strip() == '10.0.100', 'RPM installation replaced official dotnet selection')
     report = Path('/home/cbot-smoke/verification')
     arch = 'x64' if plan['architecture']['public'] == 'x64' else 'arm64'
     policy = runtime_policy(plan['sdkVersion'], plan['architecture']['public'])
@@ -319,7 +344,7 @@ def lifecycle(args):
     dependencies = observed_dependencies(plan)
     strict_integrity([plan['package']['name'], 'cbodotnet-host'])
     require(SHARED.inventory(root) == load(delivery / 'sdk-before.json'), 'SDK execution modified qualified RPM payload')
-    require(SHARED.inventory(official) == load(delivery / 'official-before.json'), 'RPM execution modified official SDK files')
+    official_check('after-runtime')
     if not state['published']:
         progress('upgrade RPM revision then downgrade to the original immutable RPM')
         local_transaction(package_paths(delivery, 'upgrade'))
@@ -327,31 +352,50 @@ def lifecycle(args):
         check_aliases(upgraded)
         package_identities(plan, revision=plan['packageRevision'] + 1)
         require(SHARED.inventory(root) == load(delivery / 'sdk-before.json'), 'RPM upgrade changed SDK payload')
+        strict_integrity(list(required_package_identities(plan)))
+        official_check('after-upgrade')
         original_sdk = [path for path in package_paths(delivery) if path.name.startswith('cbodotnet-sdk-')]
         local_transaction(original_sdk, action='downgrade')
         check_aliases(plan)
         package_identities(plan)
         require(SHARED.inventory(root) == load(delivery / 'sdk-before.json'), 'RPM rollback changed SDK payload')
         strict_integrity([plan['package']['name'], 'cbodotnet-host'])
+        official_check('after-rollback')
+    originals = retain_signed_packages(delivery, cached_packages(plan)) if state['published'] else package_paths(delivery)
     run(['dnf', '-y', *repository_options(), '--setopt=clean_requirements_on_remove=False', 'remove', plan['package']['name']])
     require(not root.exists() and Path('/usr/bin/cbodotnet').is_file() and not Path(plan['package']['launcher']).exists(), 'RPM removal violated versioned/shared ownership')
     value = subprocess.run(['runuser', '-u', 'cbot-smoke', '--', 'cbodotnet', '--version'], text=True, capture_output=True)
     require(value.returncode == 127 and not value.stdout, 'Removed RPM SDK fell back to an official host')
     strict_integrity(['cbodotnet-host'])
-    require(as_user(['dotnet', '--version']).strip() == '10.0.100' and SHARED.inventory(official) == load(delivery / 'official-before.json'), 'RPM removal changed official dotnet')
+    official_check('after-remove')
+    progress('reinstall the original RPM before verifying complete installed-package erasure')
+    local_transaction(originals, signed=state['published'])
+    package_identities(plan)
+    check_aliases(plan)
+    require(SHARED.inventory(root) == load(delivery / 'sdk-before.json'), 'RPM reinstallation changed qualified SDK payload')
+    strict_integrity(list(required_package_identities(plan)))
+    official_check('after-reinstall')
+    run(['dnf', '-y', *repository_options(), '--setopt=clean_requirements_on_remove=False', 'remove', plan['package']['name']])
+    require(not root.exists() and not Path(plan['package']['launcher']).exists(), 'Installed RPM erasure left SDK payload or configuration')
+    erased = subprocess.run(['rpm', '-q', plan['package']['name']], text=True, capture_output=True)
+    require(erased.returncode == 1, 'Installed RPM erasure did not remove the package database record')
+    strict_integrity(['cbodotnet-host'] + (['cbodotnet-compat-rocky9'] if state.get('compatibilityState') else []))
+    official_check('after-erasure')
     checks = {name: 'passed' for name in PREPUBLICATION_CHECKS}
     checks.update({'rpm-integrity': 'passed', 'dnf-install': 'passed', 'package-integrity': 'passed',
                    'package-manager-install': 'passed', 'rollback': 'passed',
+                   'official-package-coexistence': 'passed', 'installed-package-erasure': 'passed',
                    'package-signatures': 'passed' if state['published'] else 'pending-signing-stage',
                    'repository-metadata': 'passed' if state['published'] else 'pending-signing-stage'})
     if state['published']:
         checks.update(upgrade='verified-before-publication', rollback='verified-before-publication')
     result = dict(schemaVersion=1, status='passed', target=dict(osId=target['id'], versionId=target['versionId'],
         architecture=plan['architecture']['public'], native=True, dependencies=dependencies, osRelease=state['osRelease']),
-        checks=checks, functionalChecks=functional, runtimePolicy=policy, abi=verification['abi'], networkForBuild='none')
+        checks=checks, functionalChecks=functional, runtimePolicy=policy, abi=verification['abi'], networkForBuild='none',
+        officialComparison=state['officialBaseline'], officialCoexistence=official_proofs)
     result['packageIdentities'] = load(delivery / 'installed-package-identities.json')
     if runtime_env:
-        result['compatibilityProvider'] = assert_compatibility(state['compatibilityState'])
+        result['compatibilityProvider'] = compatibility_proofs
     save(delivery / 'installation-result.json', result)
     # Only evidence ownership changes; never SDK payload modes or package bytes.
     uid, gid = (int(value) for value in os.environ.get('BUILDER_OWNER', '1001:1001').split(':'))
@@ -444,7 +488,6 @@ def native(args):
             shutil.copy2(source / name, inputs / name)
     else:
         receive_release(args.tag, inputs, 'rpm', variants[0], args.arch, args.revision)
-    SHARED.official_archive(workspace, args.arch)
     items = []
     for variant in variants:
         plan = local_intake(inputs, 'rpm', variant, args.arch, args.revision)
@@ -460,7 +503,6 @@ def native(args):
         items.append(record(delivery, inputs))
         shutil.rmtree(delivery / 'upgrade')
         progress('passed native RPM install/build/HTTP/upgrade/rollback/removal for ' + variant)
-    (workspace / 'official-sdk.tar.gz').unlink()
     save(workspace / 'items.json', items)
     print(json.dumps(dict(status='passed', architecture=args.arch, variants=variants)))
 
@@ -513,6 +555,14 @@ def bind_signed_receipt(receipt, manifest, signer, directory, contract=None):
             'RPM receipt assets differ from authenticated publication bytes')
 
 
+def hosted_repository_url(base, variant, version, revision):
+    require(base.rstrip('/') == 'https://dotnetdev.kr/cbodotnet/packages/rpm' and variant in BASES
+            and re.fullmatch(r'[1-9][0-9]*\.[0-9]+\.[0-9]+', version)
+            and type(revision) is int and revision > 0, 'Published DNF endpoint must match canonical project/variant/SDK/revision')
+    location = base.rstrip('/') + '/' + variant
+    return location if version == '10.0.403' and revision == 1 else location + '/sdk-' + version + '-r' + str(revision)
+
+
 def postverify(args):
     from downstream_publish import MANIFEST, SIGNATURE
     receipt = load(args.receipt)
@@ -536,7 +586,6 @@ def postverify(args):
     variants = [args.variant] if args.variant else list(BASES)
     inputs = workspace / 'inputs'
     receive_release('sdk-' + receipt['identity']['sdkVersion'], inputs, 'rpm', variants[0], args.arch, receipt['identity']['packageRevision'])
-    SHARED.official_archive(workspace, args.arch)
     assets = {item['name']: item for item in manifest['assets']}
     reports = []
     targets = []
@@ -560,8 +609,8 @@ def postverify(args):
             incoming.extractall(repository, filter='data')
         run(['gpgv', '--keyring', keyring, repository / 'repodata/repomd.xml.asc', repository / 'repodata/repomd.xml'])
         if args.repository_base:
-            require(args.repository_base.startswith('https://'), 'Published DNF endpoint must use HTTPS')
-            (delivery / 'repository-url.txt').write_text(args.repository_base.rstrip('/') + '/' + variant)
+            (delivery / 'repository-url.txt').write_text(hosted_repository_url(args.repository_base, variant,
+                receipt['identity']['sdkVersion'], receipt['identity']['packageRevision']))
         plan = local_intake(inputs, 'rpm', variant, args.arch, receipt['identity']['packageRevision'])
         save(delivery / 'plan.json', plan)
         (delivery / 'expected-fingerprint.txt').write_text(signer + '\n')

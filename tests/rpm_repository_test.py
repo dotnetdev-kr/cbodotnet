@@ -24,21 +24,29 @@ class RpmRepositoryTests(unittest.TestCase):
         self.root = Path(self.temporary.name)
         self.directory = self.root / 'fedora-45'
         (self.directory / 'repodata').mkdir(parents=True)
-        self.base = REPOSITORY.asset_base('10.0.403', 1)
+        self.matrix()
+
+    def matrix(self, version='10.0.403'):
+        self.base = REPOSITORY.asset_base(version, 1)
+        series = '.'.join(version.split('.')[:2])
         self.identities = {
-            'rpm-fedora-45-x64--cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.x86_64.rpm':
-                ('cbodotnet-sdk-10.0', 'x86_64', '10.0.403', '1.cbot.fedora45'),
-            'rpm-fedora-45-aarch64--cbodotnet-sdk-10.0-10.0.403-1.cbot.fedora45.aarch64.rpm':
-                ('cbodotnet-sdk-10.0', 'aarch64', '10.0.403', '1.cbot.fedora45'),
+            f'rpm-fedora-45-x64--cbodotnet-sdk-{series}-{version}-1.cbot.fedora45.x86_64.rpm':
+                ('cbodotnet-sdk-' + series, 'x86_64', version, '1.cbot.fedora45'),
+            f'rpm-fedora-45-aarch64--cbodotnet-sdk-{series}-{version}-1.cbot.fedora45.aarch64.rpm':
+                ('cbodotnet-sdk-' + series, 'aarch64', version, '1.cbot.fedora45'),
             'rpm-fedora-45--cbodotnet-host-1.0.0-1.cbot.fedora45.noarch.rpm':
                 ('cbodotnet-host', 'noarch', '1.0.0', '1.cbot.fedora45')}
+        if version in {'5.0.214', '3.1.426', '3.0.103'}:
+            for public, native in [('x64', 'x86_64'), ('aarch64', 'aarch64')]:
+                self.identities[f'rpm-fedora-45-{public}--cbodotnet-compat-rocky9-2026.11.4-1.cbot.fedora45.{native}.rpm'] = (
+                    'cbodotnet-compat-rocky9', native, '2026.11.4', '1.cbot.fedora45')
         self.assets = {name: {'name': name, 'size': 123 + index, 'sha256': str(index + 1) * 64}
                        for index, name in enumerate(self.identities)}
-        self.manifest = dict(schemaVersion=1, channel='rpm', sdkVersion='10.0.403', packageRevision=1,
+        self.manifest = dict(schemaVersion=1, channel='rpm', sdkVersion=version, packageRevision=1,
             variant='fedora-45', architectures=['x64', 'aarch64'], assetBaseUrl=self.base,
             packages={name: {key: value for key, value in row.items() if key != 'name'} | {'url': self.base + name}
                       for name, row in self.assets.items()})
-        self.primary = ET.Element(REPOSITORY.COMMON + 'metadata', packages='3')
+        self.primary = ET.Element(REPOSITORY.COMMON + 'metadata', packages=str(len(self.identities)))
         for name, (package, arch, version, release) in self.identities.items():
             row = ET.SubElement(self.primary, REPOSITORY.COMMON + 'package', type='rpm')
             ET.SubElement(row, REPOSITORY.COMMON + 'name').text = package
@@ -69,6 +77,40 @@ class RpmRepositoryTests(unittest.TestCase):
 
     def test_complete_matrix_binds_public_urls_and_all_compressed_and_open_digests(self):
         self.assertEqual(self.manifest, self.validate())
+
+    def test_legacy_repositories_require_both_exact_separate_compatibility_packages(self):
+        for version in ['5.0.214', '3.1.426', '3.0.103']:
+            with self.subTest(version=version):
+                self.matrix(version)
+                self.assertEqual(self.manifest, self.validate())
+                name = next(name for name in self.manifest['packages'] if '-aarch64--cbodotnet-compat-' in name)
+                self.manifest['packages'].pop(name)
+                self.save()
+                with self.assertRaisesRegex(ValueError, 'provider architectures'):
+                    self.validate()
+
+    def test_provider_name_release_version_architecture_and_epoch_are_pinned(self):
+        for field, value in [('name', 'openssl11'), ('arch', 'noarch'), ('ver', '2026.11.5'),
+                             ('rel', '1.cbot.rocky9.8'), ('epoch', '1')]:
+            with self.subTest(field=field):
+                self.matrix('3.1.426')
+                row = next(row for row in self.primary if row.findtext(REPOSITORY.COMMON + 'name') == 'cbodotnet-compat-rocky9')
+                if field in {'name', 'arch'}:
+                    row.find(REPOSITORY.COMMON + field).text = value
+                else:
+                    row.find(REPOSITORY.COMMON + 'version').set(field, value)
+                self.save()
+                with self.assertRaisesRegex(ValueError, 'authenticated packages'):
+                    self.validate()
+
+    def test_legacy_provider_cannot_be_added_to_a_modern_repository(self):
+        self.matrix('3.1.426')
+        self.manifest['sdkVersion'] = '10.0.403'
+        self.manifest['assetBaseUrl'] = REPOSITORY.asset_base('10.0.403', 1)
+        self.base = self.manifest['assetBaseUrl']
+        self.save()
+        with self.assertRaisesRegex(ValueError, 'provider architectures'):
+            self.validate()
 
     def test_asset_origin_revision_and_cross_variant_or_partial_matrices_are_rejected(self):
         for change in ('origin', 'revision', 'missing-arch', 'duplicate-arch', 'variant'):

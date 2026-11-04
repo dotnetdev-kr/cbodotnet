@@ -28,7 +28,9 @@ PUBLIC_KEY = 'distribution-signing-key.gpg'
 WORKFLOW = '.github/workflows/distribution-release.yml'
 REPORT_CHECKS = {'command-aliases','cli-branding','version-stdout-compatible','sdk-list-paths',
     'host-root','source-integrity','payload-preservation','original-notices','relocation',
-    'non-root','offline-network','offline-build-run','http-crypto-globalization'}
+    'non-root','offline-network','offline-build-run','http-crypto-globalization','tls12-loopback'}
+FUNCTIONAL_CHECKS={'consoleDllExecution','consoleApphostExecution','aspNetCoreLoopbackHttp','rsaSha256SignAndVerify',
+    'cryptographicRandomBytes','frFrDecimalFormatting','tls12LoopbackHandshake'}
 
 
 def sdk_tools():

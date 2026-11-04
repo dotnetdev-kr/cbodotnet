@@ -86,7 +86,8 @@
         "aur": [
           "arch-rolling"
         ]
-      }
+      },
+      "additionalDirectories": []
     },
     "8.0.133": {
       "target": "net8",
@@ -116,7 +117,8 @@
         "aur": [
           "arch-rolling"
         ]
-      }
+      },
+      "additionalDirectories": []
     },
     "7.0.120": {
       "target": "net7",
@@ -146,7 +148,8 @@
         "aur": [
           "arch-rolling"
         ]
-      }
+      },
+      "additionalDirectories": []
     },
     "6.0.136": {
       "target": "net6",
@@ -176,7 +179,8 @@
         "aur": [
           "arch-rolling"
         ]
-      }
+      },
+      "additionalDirectories": []
     },
     "5.0.214": {
       "target": "net5",
@@ -207,7 +211,8 @@
           "arch-rolling"
         ]
       },
-      "compatibilityProvider": "rocky9-20261104"
+      "compatibilityProvider": "rocky9-20261104",
+      "additionalDirectories": []
     },
     "3.1.426": {
       "target": "core31",
@@ -238,7 +243,8 @@
           "arch-rolling"
         ]
       },
-      "compatibilityProvider": "rocky9-20261104"
+      "compatibilityProvider": "rocky9-20261104",
+      "additionalDirectories": []
     },
     "3.0.103": {
       "target": "core30",
@@ -269,7 +275,8 @@
           "arch-rolling"
         ]
       },
-      "compatibilityProvider": "rocky9-20261104"
+      "compatibilityProvider": "rocky9-20261104",
+      "additionalDirectories": []
     }
   },
   "channels": {

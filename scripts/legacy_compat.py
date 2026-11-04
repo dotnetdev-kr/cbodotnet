@@ -39,6 +39,7 @@ def digest(path):
 
 def write_json(path, value):
     Path(path).write_text(json.dumps(value, sort_keys=True, indent=2) + '\n', encoding='utf-8', newline='\n')
+    Path(path).chmod(0o644)
 
 
 def descriptor(path):
@@ -485,6 +486,21 @@ package() {{
 '''
 
 
+def arch_srcinfo(policy, notice_hash, manifest_hash):
+    sources = [*policy['architectures']['x64']['packages'], *policy['sources'], policy['key']]
+    lines = ['pkgbase = ' + PACKAGE_NAME,
+             '\tpkgdesc = Separately managed Rocky-origin OpenSSL 1.1 and ICU 67 for Community Build legacy SDKs',
+             '\tpkgver = ' + VERSION, '\tpkgrel = 1', '\turl = https://dotnetdev.kr/cbodotnet/', '\tarch = x86_64']
+    fields = {'license': ['LicenseRef-OpenSSL-SSLeay', 'Apache-2.0', 'Unicode-DFS-2016', 'BSD-2-Clause', 'BSD-3-Clause', 'LicenseRef-Fedora-Public-Domain'],
+              'makedepends': ['rpm-tools', 'gnupg'], 'depends': ['glibc>=2.34', 'gcc-libs', 'zlib', 'ca-certificates'],
+              'noextract': [item['name'] for item in sources], 'options': ['!strip', '!debug', '!lto'],
+              'source': [item['url'] for item in sources] + ['openssl.cnf', 'NOTICE.txt', 'provider-manifest.json'],
+              'sha256sums': [item['sha256'] for item in sources] + [policy['opensslConfiguration']['sha256'], notice_hash, manifest_hash]}
+    for key, values in fields.items():
+        lines += ['\t' + key + ' = ' + value for value in values]
+    return '\n'.join([*lines, '', 'pkgname = ' + PACKAGE_NAME, ''])
+
+
 def build_provider(architecture, output, cache=None, variant=None):
     output, root, manifest = stage_provider(architecture, output, cache)
     result = {'schemaVersion': 1, 'providerRoot': PROVIDER_ROOT, 'architecture': architecture, 'variant': variant,
@@ -503,7 +519,10 @@ def build_provider(architecture, output, cache=None, variant=None):
             shutil.copyfile(root / filename, output / filename)
         text = text.replace('@NOTICE_SHA256@', digest(output / 'NOTICE.txt')).replace('@MANIFEST_SHA256@', digest(output / 'provider-manifest.json'))
         (output / 'PKGBUILD').write_text(text, encoding='utf-8', newline='\n')
+        (output / '.SRCINFO').write_text(arch_srcinfo(load_policy(), digest(output / 'NOTICE.txt'), digest(output / 'provider-manifest.json')),
+                                       encoding='utf-8', newline='\n')
         result['recipe'] = descriptor(output / 'PKGBUILD')
+        result['srcinfo'] = descriptor(output / '.SRCINFO')
     else:
         require(variant is None, 'Unknown compatibility provider packaging variant')
     write_json(output / 'provider-build.json', result)
@@ -522,7 +541,10 @@ def verified_build(path, plan, channel):
             and record.get('architecture') == plan['architecture']['public'] and record.get('policySha256') == policy_hash,
             'Prepared compatibility provider identity differs')
     manifest = record['manifest']
-    require(manifest['policySha256'] == policy_hash and manifest['signingFingerprint'] == FINGERPRINT
+    require(manifest.get('schemaVersion') == 1 and manifest.get('providerId') == policy['providerId']
+            and manifest.get('providerRoot') == PROVIDER_ROOT and manifest.get('architecture') == record['architecture']
+            and manifest['policySha256'] == policy_hash and manifest['signingFingerprint'] == FINGERPRINT
+            and manifest.get('key') == policy['key'] and manifest.get('securityScope') == policy['securityScope']
             and manifest['packages'] == policy['architectures'][record['architecture']]['packages']
             and manifest['sourcePackages'] == policy['sources'] and manifest['opensslConfiguration'] == policy['opensslConfiguration'],
             'Prepared compatibility source provenance differs')
@@ -550,9 +572,39 @@ def verified_build(path, plan, channel):
     require(tree_inventory(root) == sorted([*expected, {
         'path': 'provider-manifest.json', 'type': 'file', 'mode': '0o644',
         'size': (root / 'provider-manifest.json').stat().st_size, 'sha256': digest(root / 'provider-manifest.json')}], key=lambda row: row['path'])
-        and json.loads((root / 'provider-manifest.json').read_bytes()) == manifest,
+        and json.loads((root / 'provider-manifest.json').read_bytes()) == manifest
+        and json.loads((path.parent / 'provider-manifest.json').read_bytes()) == manifest,
         'Prepared compatibility tree differs')
+    verify_companion(path.parent / record['companion']['path'], path.parent)
     return path.parent, record
+
+
+def verify_companion(archive_path, prepared):
+    """Compare the actual companion archive with its independently checked tree."""
+    prepared = Path(prepared)
+    expected = {('rootfs/' + row['path']): row for row in tree_inventory(prepared / 'rootfs')}
+    expected['rootfs'] = {'type': 'directory', 'mode': '0o755'}
+    expected['provider-manifest.json'] = {'type': 'file', 'mode': '0o644', **descriptor(prepared / 'provider-manifest.json')}
+    seen = set()
+    with tarfile.open(archive_path, 'r:gz') as archive:
+        for member in archive:
+            require(member.name in expected and member.name not in seen and member.uid == 0 and member.gid == 0,
+                    'Compatibility companion contains an unexpected member or ownership')
+            seen.add(member.name)
+            item = expected[member.name]
+            require(oct(member.mode) == item['mode'], 'Compatibility companion mode differs')
+            if item['type'] == 'file':
+                require(member.isfile() and member.size == item['size'], 'Compatibility companion file type/length differs')
+                result = hashlib.sha256()
+                with archive.extractfile(member) as stream:
+                    for block in iter(lambda: stream.read(1024 * 1024), b''):
+                        result.update(block)
+                require(result.hexdigest() == item['sha256'], 'Compatibility companion file bytes differ')
+            elif item['type'] == 'symlink':
+                require(member.issym() and member.linkname == item['target'], 'Compatibility companion link differs')
+            else:
+                require(member.isdir(), 'Compatibility companion directory differs')
+    require(seen == set(expected), 'Compatibility companion is incomplete')
 
 
 def read_state(state):

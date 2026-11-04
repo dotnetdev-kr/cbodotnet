@@ -25,7 +25,8 @@ def require(value, message):
 
 
 def download(url, target, maximum, expected=None):
-    require(isinstance(url, str) and url.startswith(f'https://github.com/{REPOSITORY}/releases/download/distribution-'),
+    require(isinstance(url, str) and any(url.startswith(f'https://github.com/{REPOSITORY}/releases/download/' + prefix)
+                                       for prefix in ('distribution-', 'repository-deb-')),
             'Untrusted distribution asset URL')
     digest = hashlib.sha256()
     count = 0
@@ -152,6 +153,33 @@ def prepare_site(policy, output, public_key=None):
                         variant = repository['variants'][0]
                         require(variant in contract['channels']['deb']['variants']
                                 and name == 'apt-' + variant + '.tar.gz', 'Unverified APT variant')
+                        if repository.get('delivery') == 'github-release-flat':
+                            from apt_release import release_tag as flat_tag, repository_url
+                            expected_tag = flat_tag(variant, identity['sdkVersion'], identity['packageRevision'])
+                            require(repository.get('releaseTag') == expected_tag, 'Unverified flat APT repository tag')
+                            flat_base = repository_url(variant, identity['sdkVersion'], identity['packageRevision'])
+                            flat_assets = {row['name']: row for row in repository.get('flatAssets', [])}
+                            require(len(flat_assets) == len(repository.get('flatAssets', []))
+                                    and {'InRelease', 'Release', 'Release.gpg', 'Packages', 'Packages.gz',
+                                         'repository-manifest.json', 'cbodotnet-archive-keyring.gpg'} <= set(flat_assets),
+                                    'Incomplete signed flat APT asset map')
+                            metadata = temporary / expected_tag
+                            metadata.mkdir()
+                            for filename, asset in flat_assets.items():
+                                require(re.fullmatch(r'[A-Za-z0-9._+-]+', filename), 'Unsafe flat APT asset name')
+                                if filename.endswith('.deb'):
+                                    continue
+                                download(flat_base + filename, metadata / filename, 16 * 1024**2, asset)
+                            subprocess.run(['gpgv', '--keyring', str(keyring), str(metadata / 'InRelease')],
+                                           check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                            subprocess.run(['gpgv', '--keyring', str(keyring), str(metadata / 'Release.gpg'),
+                                            str(metadata / 'Release')], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                            from published_apt import verify_packages_index
+                            verify_packages_index((metadata / 'Release').read_text(), (metadata / 'Packages').read_bytes())
+                            status['channels'].setdefault(channel, {}).setdefault('repositories', []).append(dict(
+                                variant=variant, sdkVersion=identity['sdkVersion'], packageRevision=identity['packageRevision'],
+                                repositoryUrl=flat_base, delivery='github-release-flat'))
+                            continue
                         if variant in hosted_variants:
                             continue
                         archive = temporary / name
@@ -165,18 +193,24 @@ def prepare_site(policy, output, public_key=None):
                         subprocess.run(['gpgv', '--keyring', str(keyring), str(destination / 'InRelease')],
                                        check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                         hosted_variants.add(variant)
+                        status['channels'].setdefault(channel, {}).setdefault('repositories', []).append(dict(
+                            variant=variant, sdkVersion=identity['sdkVersion'], packageRevision=identity['packageRevision'],
+                            repositoryUrl='https://dotnetdev.kr/cbodotnet/packages/deb/' + variant + '/'))
                     elif repository['kind'] == 'rpm-repository':
                         require(channel == 'rpm' and len(repository['variants']) == 1, 'Ambiguous RPM repository variant')
                         variant = repository['variants'][0]
                         require(variant in contract['channels']['rpm']['variants'] and name == 'rpm-' + variant + '.tar.gz',
                                 'Unverified RPM variant')
-                        if variant in hosted_variants:
+                        target_key = (variant, identity['sdkVersion'], identity['packageRevision'])
+                        if target_key in hosted_variants:
                             continue
                         archive = temporary / name
                         download(base + name, archive, 64 * 1024**2, assets[name])
                         parent = output / 'packages/rpm'
                         parent.mkdir(parents=True, exist_ok=True)
-                        destination = parent / variant
+                        versioned = 'sdk-' + identity['sdkVersion'] + '-r' + str(identity['packageRevision'])
+                        destination = parent / variant / versioned
+                        destination.parent.mkdir(parents=True, exist_ok=True)
                         extract_repository(archive, destination)
                         require(not list(destination.rglob('*.rpm')), 'RPM packages must use immutable Release asset URLs')
                         repository_identity = verify_rpm_repository(destination, keyring, assets,
@@ -185,7 +219,18 @@ def prepare_site(policy, output, public_key=None):
                                 and repository_identity.get('sourceManifestSha256') == identity['sourceManifestSha256']
                                 and repository_identity.get('signingFingerprint') == signer,
                                 'RPM repository identity differs from its signed publication and hosted variant')
-                        hosted_variants.add(variant)
+                        hosted_variants.add(target_key)
+                        status['channels'].setdefault(channel, {}).setdefault('repositories', []).append(dict(
+                            variant=variant, sdkVersion=identity['sdkVersion'], packageRevision=identity['packageRevision'],
+                            repositoryUrl='https://dotnetdev.kr/cbodotnet/packages/rpm/' + variant + '/' + versioned + '/'))
+                        if variant not in hosted_variants:
+                            alias = parent / variant
+                            for path in destination.iterdir():
+                                if path.is_dir():
+                                    shutil.copytree(path, alias / path.name)
+                                else:
+                                    shutil.copyfile(path, alias / path.name)
+                            hosted_variants.add(variant)
                     elif repository['kind'] == 'oci-descriptor':
                         require(channel == 'oci', 'OCI descriptor in another channel')
                         descriptor = temporary / name

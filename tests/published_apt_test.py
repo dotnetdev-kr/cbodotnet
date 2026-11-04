@@ -44,6 +44,37 @@ class PublishedAptTests(unittest.TestCase):
             with self.subTest(listing=invalid), self.assertRaises(ValueError):
                 APT.verify_primary_fingerprint(invalid, self.fingerprint)
 
+    def test_immutable_repository_binds_exact_variant_version_revision_and_project(self):
+        for version in ('10.0.403', '9.0.123', '3.0.103'):
+            url = 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/repository-deb-debian-13-sdk-' + version + '-r2/'
+            self.assertEqual(url.rstrip('/'), APT.repository_url('debian-13', version, 2, url))
+            self.assertIn('URIs: ' + url.rstrip('/'), APT.deb822_source(url.rstrip('/'), 'arm64', version, 2, 'debian-13'))
+            for invalid in (url.replace('r2/', 'r1/'), url.replace('debian-13-sdk', 'ubuntu-24.04-sdk'),
+                            url.replace('dotnetdev-kr/', 'other/'), url + '../', url.replace('sdk-' + version, 'sdk-8.0.133')):
+                with self.subTest(version=version, invalid=invalid), self.assertRaises(ValueError):
+                    APT.repository_url('debian-13', version, 2, invalid)
+        with self.assertRaises(ValueError):
+            APT.repository_url('debian-13', '9.0.123', 1, 'https://dotnetdev.kr/cbodotnet/packages/deb/debian-13')
+
+    def test_flat_immutable_descriptors_accept_only_exact_native_basenames(self):
+        sdk = self.stanza('cbodotnet-sdk-9.0', '9.0.123-2', 'arm64', './cbodotnet-sdk-9.0_9.0.123-2_arm64.deb')
+        host = self.stanza('cbodotnet-host', '1.0.0-1', 'all', 'cbodotnet-host_1.0.0-1_all.deb')
+        self.assertEqual(2, len(APT.package_descriptors((sdk + host).encode(), '9.0.123', 2, 'arm64', flat=True)))
+        for invalid in ('https://example.com/sdk.deb', '../sdk.deb', 'pool/cbodotnet-sdk-9.0_9.0.123-2_arm64.deb',
+                        './cbodotnet-sdk-9.0_9.0.123-2_amd64.deb', '././cbodotnet-sdk-9.0_9.0.123-2_arm64.deb'):
+            wrong = self.stanza('cbodotnet-sdk-9.0', '9.0.123-2', 'arm64', invalid)
+            with self.subTest(filename=invalid), self.assertRaises(ValueError):
+                APT.package_descriptors((wrong + host).encode(), '9.0.123', 2, 'arm64', flat=True)
+
+    def test_legacy_index_requires_exact_independently_owned_compatibility_package(self):
+        sdk = self.stanza('cbodotnet-sdk-3.1', '3.1.426-1', 'arm64')
+        host = self.stanza('cbodotnet-host', '1.0.0-1', 'all')
+        provider = self.stanza('cbodotnet-compat-rocky9', '2026.11.4-1', 'arm64')
+        self.assertEqual(3, len(APT.package_descriptors((sdk + host + provider).encode(), '3.1.426', 1, 'arm64')))
+        for invalid in ('', provider.replace('2026.11.4-1', '2026.11.4-2'), provider.replace('arm64', 'amd64')):
+            with self.subTest(provider=invalid), self.assertRaises(ValueError):
+                APT.package_descriptors((sdk + host + invalid).encode(), '3.1.426', 1, 'arm64')
+
     def test_packages_must_match_signed_release_hash_and_size(self):
         packages = self.packages()
         row = f' {hashlib.sha256(packages).hexdigest()} {len(packages)} Packages\n'

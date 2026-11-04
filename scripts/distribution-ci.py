@@ -271,8 +271,13 @@ def prepare_installed(args):
         require(len(packages) == (3 if compatibility else 2), 'SDK, shared host and any required compatibility package are required')
         if (delivery / 'repository').is_dir():
             shutil.copy2(delivery / 'repository/cbodotnet-archive-keyring.gpg', '/usr/share/keyrings/cbodotnet-validation.gpg')
+            repository_location = 'file://' + str(delivery / 'repository')
+            if (delivery / 'repository-url.txt').exists():
+                from published_apt import repository_url
+                repository_location = repository_url(args.variant, plan['sdkVersion'], plan['packageRevision'],
+                    (delivery / 'repository-url.txt').read_text().strip())
             Path('/etc/apt/sources.list.d/cbodotnet-validation.list').write_text(
-                'deb [signed-by=/usr/share/keyrings/cbodotnet-validation.gpg] file://' + str(delivery / 'repository') + ' ./\n')
+                'deb [signed-by=/usr/share/keyrings/cbodotnet-validation.gpg] ' + repository_location + ' ./\n')
             run(['apt-get', 'update'])
             run(['apt-get', 'install', '-y', plan['package']['name'] + '=' + plan['package']['version'], 'cbodotnet-host=1.0.0-1'])
         else:
@@ -791,6 +796,8 @@ def promote(args):
         builds = sorted(args.received.resolve().glob('delivery-*/deb-*/packages/package-build.json'))
         run([sys.executable, ROOT / 'scripts/package-repository.py', '--channel', 'deb', '--package-builds', *builds,
              '--signing-key', args.signing_key, '--output', repository])
+        from apt_release import prepare_flat_repositories
+        prepare_flat_repositories(repository, args.signing_key, args.keyring)
         check_repository(repository, args.keyring)
     for item in items:
         report_path = Path(item['reportPath'])
@@ -832,7 +839,10 @@ def promote(args):
     manifests = []
     for channel in channels:
         selected = [item for item in items if item['package']['identity']['channel'] == channel]
-        extra = ([dict(path=str(path), kind='apt-repository', variants=[path.name.removeprefix('apt-').removesuffix('.tar.gz')])
+        from apt_release import release_tag as flat_tag
+        extra = ([dict(path=str(path), kind='apt-repository', variants=[path.name.removeprefix('apt-').removesuffix('.tar.gz')],
+                       delivery='github-release-flat', releaseTag=flat_tag(path.name.removeprefix('apt-').removesuffix('.tar.gz'),
+                           selected[0]['package']['identity']['sdkVersion'], selected[0]['package']['identity']['packageRevision']))
                   for path in sorted(repository.glob('apt-*.tar.gz'))] if channel == 'deb' else
                  [dict(path=str(output / 'oci-index.json'), kind='oci-descriptor', variants=['debian-13'])])
         bundle = output / ('bundle-' + channel)
@@ -943,6 +953,10 @@ def publish_staged(args):
             'Frozen index metadata differs from its signed publication manifest')
     for channel in channels:
         progress('publish or resume the exact frozen ' + channel + ' release bytes')
+        if channel == 'deb' and any(row.get('delivery') == 'github-release-flat' for row in manifests[channel].get('repositories', [])):
+            from apt_release import publish_flat_repositories
+            flat = publish_flat_repositories(promotion / 'bundle-deb', args.keyring)
+            (promotion / 'flat-apt-publication.json').write_bytes(encoded(flat))
         receipt = publish_bundle(promotion / ('bundle-' + channel), args.keyring, target_commit)
         (promotion / (channel + '-publication.json')).write_bytes(encoded(receipt))
     index = json.loads((promotion / 'oci-index.json').read_bytes())
@@ -1003,11 +1017,26 @@ def postverify(args):
     print(json.dumps(dict(status='passed', architecture=args.arch, digest=index['digest'])))
 
 
+def published_apt_location(metadata, plan):
+    if metadata.get('delivery') is None:
+        return None
+    from apt_release import release_tag as repository_tag, repository_url
+    require(metadata.get('delivery') == 'github-release-flat' and metadata.get('kind') == 'apt-repository'
+            and metadata.get('variants') == [plan['variant']]
+            and metadata.get('releaseTag') == repository_tag(plan['variant'], plan['sdkVersion'], plan['packageRevision']),
+            'Signed flat APT repository tag differs from exact SDK/variant/revision')
+    return repository_url(plan['variant'], plan['sdkVersion'], plan['packageRevision'])
+
+
 def postverify_apt(args):
     from downstream_release import verify_report_signature, load_status
     from downstream_publish import MANIFEST, SIGNATURE
     receipt = json.loads(args.deb_receipt.read_bytes())
     require(receipt.get('status') == 'published-postverified' and receipt['identity']['channel'] == 'deb', 'A published Debian receipt is required')
+    from downstream_publish import release_tag
+    require(receipt.get('repository') == 'dotnetdev-kr/cbodotnet'
+            and receipt['tag'] == release_tag('deb', receipt['identity']['sdkVersion'], receipt['identity']['packageRevision']),
+            'Published APT receipt repository/tag differs from its exact identity')
     workspace = args.output.parent / ('published-apt-' + args.arch)
     require(not workspace.exists(), 'Published installation workspace must be fresh')
     workspace.mkdir()
@@ -1020,7 +1049,9 @@ def postverify_apt(args):
     signer = verify_report_signature(workspace / MANIFEST, workspace / SIGNATURE, keyring,
                                      load_status(), '.github/workflows/distribution-release.yml')
     manifest = json.loads((workspace / MANIFEST).read_bytes())
-    require(signer == manifest['signingFingerprint'], 'Published manifest signer differs from pinned identity')
+    require(signer == manifest['signingFingerprint'] == receipt['signingFingerprint']
+            and manifest['identity'] == receipt['identity'] and manifest['tag'] == receipt['tag']
+            and manifest['repository'] == receipt['repository'], 'Published APT manifest identity/signer differs from its receipt')
     inputs = workspace / 'inputs'
     sdk_version = receipt['identity']['sdkVersion']
     receive_release('sdk-' + sdk_version, inputs, 'deb', 'debian-13', args.arch, receipt['identity']['packageRevision'])
@@ -1044,15 +1075,24 @@ def postverify_apt(args):
                 require(not relative.is_absolute() and '..' not in relative.parts and (member.isdir() or member.isfile())
                         and not member.mode & 0o7000, 'Unsafe signed repository archive member')
             incoming.extractall(repository, filter='data')
-        run(['gpgv', '--keyring', keyring, repository / 'InRelease'])
+        from published_apt import verify_packages_index, package_descriptors, verify_cache_file
+        release_text = run(['gpgv', '--keyring', keyring, '--output', '-', repository / 'InRelease'])
+        index_bytes = (repository / 'Packages').read_bytes()
+        verify_packages_index(release_text, index_bytes)
         plan = local_intake(inputs, 'deb', variant, args.arch, receipt['identity']['packageRevision'])
         (delivery / 'plan.json').write_bytes(encoded(plan))
         (delivery / 'post-publication').touch()
         (delivery / 'packages').mkdir()
         expected_arch = plan['architecture']['deb']
-        for path in (repository / 'pool').glob('*.deb'):
-            if path.name.endswith('_' + expected_arch + '.deb') or path.name.endswith('_all.deb'):
-                shutil.copy2(path, delivery / 'packages' / path.name)
+        location = published_apt_location(metadata[0], plan)
+        flat = location is not None
+        if location:
+            (delivery / 'repository-url.txt').write_text(location)
+        descriptors = package_descriptors(index_bytes, sdk_version, plan['packageRevision'], expected_arch, flat=flat)
+        for item in descriptors:
+            path = repository / item['filename']
+            verify_cache_file(path, item)
+            shutil.copy2(path, delivery / 'packages' / path.name)
         container_lifecycle(workspace, delivery, base_image, variant, 'deb')
         result = json.loads((delivery / 'installation-result.json').read_bytes())
         require(result['status'] == 'passed', 'Published APT installation did not pass')

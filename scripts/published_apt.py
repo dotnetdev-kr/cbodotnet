@@ -14,6 +14,7 @@ import urllib.request
 
 from distribution_contract import load_contract
 from downstream_release import encoded, require
+from sdk_runtime import series as sdk_series, smoke_script, validate_host_rid, validate_smoke_output
 
 ROOT = Path(__file__).resolve().parents[1]
 BRAND = 'Community Build of .NET (built by .NET Dev)'
@@ -37,10 +38,26 @@ def digest(path):
     return value.hexdigest()
 
 
-def deb822_source(repository, architecture):
-    require(repository in {'https://dotnetdev.kr/cbodotnet/packages/deb/ubuntu-24.04',
-                           'https://dotnetdev.kr/cbodotnet/packages/deb/debian-13'}
-            and architecture in {'amd64', 'arm64'}, 'Unsupported published APT target')
+def repository_url(variant, version, revision, requested=None):
+    require(variant in {'ubuntu-24.04', 'debian-13'} and type(revision) is int and revision > 0,
+            'Unsupported published APT repository identity')
+    sdk_series(version)
+    pages = 'https://dotnetdev.kr/cbodotnet/packages/deb/' + variant
+    immutable = ('https://github.com/dotnetdev-kr/cbodotnet/releases/download/repository-deb-'
+                 + variant + '-sdk-' + version + '-r' + str(revision) + '/')
+    chosen = requested or (pages if version == '10.0.403' else immutable)
+    require(chosen in ({pages, immutable} if version == '10.0.403' else {immutable}),
+            'Published APT repository must match its exact variant/SDK/revision')
+    return chosen.rstrip('/')
+
+
+def deb822_source(repository, architecture, version=None, revision=None, variant=None):
+    if version is not None:
+        repository_url(variant, version, revision, repository if repository.endswith('/') else repository + '/' if repository.startswith('https://github.com/') else repository)
+    else:
+        require(repository in {'https://dotnetdev.kr/cbodotnet/packages/deb/ubuntu-24.04',
+                               'https://dotnetdev.kr/cbodotnet/packages/deb/debian-13'}, 'Unsupported published APT target')
+    require(architecture in {'amd64', 'arm64'}, 'Unsupported published APT target')
     return f'Types: deb\nURIs: {repository}\nSuites: ./\nArchitectures: {architecture}\nSigned-By: {KEYRING}\n'
 
 
@@ -74,9 +91,13 @@ def verify_packages_index(release, packages):
             'APT Packages differs from signed Release size/SHA-256')
 
 
-def package_descriptors(packages, sdk, revision, architecture):
+def package_descriptors(packages, sdk, revision, architecture, flat=False):
     name = 'cbodotnet-sdk-' + '.'.join(sdk.split('.')[:2])
     expected = {(name, sdk + '-' + str(revision), architecture), ('cbodotnet-host', '1.0.0-1', 'all')}
+    if sdk_series(sdk) in {'3.0', '3.1', '5.0'}:
+        from legacy_compat import load_policy
+        provider = load_policy()
+        expected.add((provider['packageName'], provider['version'] + '-1', architecture))
     selected = {}
     for block in packages.decode('utf-8').split('\n\n'):
         fields = {}
@@ -90,8 +111,10 @@ def package_descriptors(packages, sdk, revision, architecture):
             continue
         filename = fields.get('Filename', '')
         path = PurePosixPath(filename)
-        require(identity not in selected and str(path) == filename and not path.is_absolute()
-                and path.parts and path.parts[0] == 'pool' and '..' not in path.parts
+        canonical = '_'.join(identity) + '.deb'
+        location_allowed = filename in {canonical, './' + canonical} if flat else str(path) == filename and path.parts and path.parts[0] == 'pool'
+        require(identity not in selected and location_allowed and not path.is_absolute()
+                and '..' not in path.parts
                 and not any(c in filename for c in '\\:\0\r\n')
                 and re.fullmatch(r'[a-f0-9]{64}', fields.get('SHA256', '')) and int(fields.get('Size', '0')) > 0,
                 'Incomplete or unsafe authenticated APT package descriptor')
@@ -158,7 +181,8 @@ def assert_community(args, state):
                 'Installed Community SDK provenance differs from reviewed identity')
         require(user_run([command, '--list-sdks']).splitlines() == [args.sdk + ' [' + str(root / 'sdk') + ']'], 'Community command fell back to another SDK root')
         details = user_run([command, '--info'])
-        require(details.startswith(BRAND + '\n') and str(root) in details and info['targetRid'] in details, 'Community host/root/RID differs')
+        require(details.startswith(BRAND + '\n') and str(root) in details, 'Community host/root/RID differs')
+        validate_host_rid(details, args.sdk, args.arch, args.variant)
     require(run(['dpkg-query', '-S', '/usr/bin/cbodotnet']).split(': ', 1)[0] == 'cbodotnet-host', 'Shared selector has another package owner')
     require(run(['dpkg-query', '-S', '/usr/bin/cbodotnet-' + state['series']]).split(': ', 1)[0] == state['package'], 'Versioned selector has another package owner')
     for package, version in ((state['package'], args.sdk + '-' + str(args.revision)), ('cbodotnet-host', '1.0.0-1')):
@@ -166,7 +190,7 @@ def assert_community(args, state):
                 'Installed package version differs from the authenticated repository selection')
     for notice in ('LICENSE.txt', 'ThirdPartyNotices.txt'):
         require((root / notice).read_bytes() == (Path('/usr/share/doc') / state['package'] / notice).read_bytes(), 'Original license/notice copy changed')
-    verification = run(['dpkg', '-V', state['package'], 'cbodotnet-host'])
+    verification = run(['dpkg', '-V', *[item['package'] for item in state['authenticatedPackages']]])
     require(not verification, 'Installed Community SDK package integrity failed:\n' + verification)
     return info
 
@@ -185,7 +209,7 @@ def install(args):
     series = '.'.join(args.sdk.split('.')[:2])
     package = 'cbodotnet-sdk-' + series
     architecture = 'amd64' if args.arch == 'x64' else 'arm64'
-    repository = 'https://dotnetdev.kr/cbodotnet/packages/deb/' + args.variant
+    repository = repository_url(args.variant, args.sdk, args.revision, getattr(args, 'repository', None))
     run(['useradd', '--create-home', '--user-group', '--uid', '10001', USER])
     Path('/etc/dpkg/dpkg.cfg.d/zz-cbodotnet-validation-docs').write_text(
         'path-include=/usr/share/doc/cbodotnet-*\npath-include=/usr/share/doc/dotnet-*\n'
@@ -199,15 +223,15 @@ def install(args):
     old.unlink(missing_ok=True)
     source_file = Path('/etc/apt/sources.list.d/cbodotnet.sources')
     require(not source_file.is_symlink(), 'Unexpected linked Community source configuration')
-    source_file.write_text(deb822_source(repository, architecture))
+    source_file.write_text(deb822_source(repository, architecture, args.sdk, args.revision, args.variant))
     download(repository + '/InRelease', STATE / 'InRelease')
     release = run(['gpgv', '--keyring', KEYRING, '--output', '-', STATE / 'InRelease'])
     download(repository + '/Packages', STATE / 'Packages')
     packages_bytes = (STATE / 'Packages').read_bytes()
     verify_packages_index(release, packages_bytes)
-    descriptors = package_descriptors(packages_bytes, args.sdk, args.revision, architecture)
+    descriptors = package_descriptors(packages_bytes, args.sdk, args.revision, architecture, flat=repository.startswith('https://github.com/'))
     run(['apt-get', 'update'])
-    names = [package + '=' + args.sdk + '-' + str(args.revision), 'cbodotnet-host=1.0.0-1']
+    names = [item['package'] + '=' + item['version'] for item in descriptors]
     run(['apt-get', 'install', '-y', '--download-only', *names])
     cache = STATE / 'cache'; cache.mkdir()
     for descriptor in descriptors:
@@ -221,39 +245,22 @@ def install(args):
         sourceManifestSha256=load_contract()['releases'][args.sdk]['manifestSha256'], repository=repository,
         deb822=source_file.read_text(), authenticatedPackages=descriptors,
         repositoryMetadata=dict(inReleaseSha256=digest(STATE / 'InRelease'), packagesSha256=digest(STATE / 'Packages')))
+    state['compatibilityState'] = None
+    if sdk_series(args.sdk) in {'3.0', '3.1', '5.0'}:
+        from legacy_compat import provision
+        run(['apt-get', 'install', '-y', '--no-install-recommends', 'rpm', 'rpm2cpio', 'binutils', 'gnupg'])
+        state['compatibilityState'] = provision(dict(sdkVersion=args.sdk, variant=args.variant,
+            architecture=dict(public=args.arch)), STATE, user=USER)
     state['communityIdentity'] = assert_community(args, state)
     state['communityInventory'] = inventory(Path(state['sdkRoot']))
     state['officialStages'] = [dict(stage='after-community-install', result=assert_unchanged(official_state))]
+    state['compatibilityStages'] = []
+    if state['compatibilityState']:
+        from legacy_compat import assert_unchanged as assert_provider
+        state['compatibilityStages'].append(dict(stage='after-community-install', result=assert_provider(state['compatibilityState'])))
     work = Path('/home/' + USER + '/project'); work.mkdir()
-    (work / 'global.json').write_bytes(encoded(dict(sdk=dict(version=args.sdk, rollForward='disable'))))
-    (work / 'NuGet.Config').write_text('<configuration><packageSources><clear /></packageSources></configuration>')
-    (work / 'AptSmoke.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk.Web"><PropertyGroup><TargetFramework>net' + series
-        + '</TargetFramework><OutputType>Exe</OutputType><UseAppHost>true</UseAppHost></PropertyGroup></Project>')
-    (work / 'Program.cs').write_text(smoke_source(state['sdkRoot'], series))
     run(['chown', '-R', USER + ':' + USER, work])
     (STATE / 'state.json').write_bytes(encoded(state))
-
-
-def smoke_source(root, series):
-    return '''using System; using System.IO; using System.Linq; using System.Globalization;
-using System.Net.Http; using System.Security.Cryptography;
-using Microsoft.AspNetCore.Builder; using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Server; using Microsoft.AspNetCore.Hosting.Server.Features;
-using Microsoft.Extensions.DependencyInjection;
-var root=ROOT;
-if(Environment.UserName!="cbot-apt-smoke" || !typeof(object).Assembly.Location.StartsWith(root+"/shared/")) throw new Exception("Wrong user/runtime");
-var expected=args[0]=="dll" ? root+"/dotnet" : Path.GetFullPath("bin/Debug/netSERIES/AptSmoke");
-if(Environment.ProcessPath!=expected) throw new Exception("Wrong DLL/apphost root");
-using var rsa=RSA.Create(); var bytes=RandomNumberGenerator.GetBytes(32);
-var signature=rsa.SignData(bytes,HashAlgorithmName.SHA256,RSASignaturePadding.Pkcs1);
-if(!rsa.VerifyData(bytes,signature,HashAlgorithmName.SHA256,RSASignaturePadding.Pkcs1)) throw new Exception("RSA");
-if(!1234.5m.ToString("N1",CultureInfo.GetCultureInfo("fr-FR")).Contains("234,5")) throw new Exception("ICU");
-var builder=WebApplication.CreateBuilder(Array.Empty<string>()); builder.WebHost.UseUrls("http://127.0.0.1:0");
-await using var app=builder.Build(); app.MapGet("/",()=>"published-https-apt-http-passed"); await app.StartAsync();
-var url=app.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>().Addresses.Single();
-using var client=new HttpClient(); if(await client.GetStringAsync(url)!="published-https-apt-http-passed") throw new Exception("HTTP");
-await app.StopAsync(); Console.WriteLine("published-https-apt-"+args[0]+"-http-crypto-icu-passed");
-'''.replace('ROOT', json.dumps(root)).replace('SERIES', series)
 
 
 def smoke(args):
@@ -263,35 +270,41 @@ def smoke(args):
     official_state = STATE / 'official.json'
     root = state['sdkRoot']; work = Path('/home/' + USER + '/project')
     assert_community(args, state)
-    user_run(['cbodotnet', 'restore', '--configfile', 'NuGet.Config'], cwd=work)
-    user_run(['cbodotnet', 'build', '--no-restore'], cwd=work)
-    for mode, arguments in [('dll', ['cbodotnet', 'bin/Debug/net' + state['series'] + '/AptSmoke.dll', 'dll']),
-                            ('apphost', ['./bin/Debug/net' + state['series'] + '/AptSmoke', 'apphost'])]:
-        output = user_run(arguments, cwd=work, sdk_root=root)
-        require('published-https-apt-' + mode + '-http-crypto-icu-passed' in output, 'Non-root published APT DLL/apphost/HTTP/RSA/random/ICU failed')
+    runtime_env = {}
+    compatibility_proofs = state.get('compatibilityStages', [])
+    if state.get('compatibilityState'):
+        from legacy_compat import runtime_environment, assert_unchanged as assert_provider
+        runtime_env = runtime_environment(dict(sdkVersion=args.sdk, variant=args.variant, architecture=dict(public=args.arch)), state['compatibilityState'])
+
+    def official_check(stage):
+        state['officialStages'].append(dict(stage=stage, result=assert_unchanged(official_state)))
+        if runtime_env:
+            compatibility_proofs.append(dict(stage=stage, result=assert_provider(state['compatibilityState'])))
+
+    functional = validate_smoke_output(user_run(['sh', '-ec', smoke_script(args.sdk, root, USER,
+        cli='cbodotnet', workdir=str(work), runtime_env=runtime_env)], cwd=work))
     require(inventory(Path(root)) == state['communityInventory'], 'Offline execution changed the installed Community payload')
     assert_community(args, state)
-    state['officialStages'].append(dict(stage='after-offline-sdk-execution', result=assert_unchanged(official_state)))
+    official_check('after-offline-sdk-execution')
     run(['apt-get', 'remove', '-y', state['package']])
     require(not Path(root).exists() and Path('/usr/bin/cbodotnet').is_file() and not Path('/usr/bin/cbodotnet-' + state['series']).exists(), 'SDK removal damaged shared selector ownership or left payload')
     missing = subprocess.run(['runuser', '-u', USER, '--', 'cbodotnet', '--version'], text=True, capture_output=True)
     require(missing.returncode == 127 and not missing.stdout, 'Removed Community SDK fell back to official dotnet')
-    state['officialStages'].append(dict(stage='after-community-sdk-removal', result=assert_unchanged(official_state)))
+    official_check('after-community-sdk-removal')
     reinstall_cached_packages(state)
     assert_community(args, state)
     require(inventory(Path(root)) == state['communityInventory'], 'Cached exact-version reinstall changed the Community payload')
-    state['officialStages'].append(dict(stage='after-authenticated-cached-reinstall', result=assert_unchanged(official_state)))
+    official_check('after-authenticated-cached-reinstall')
     run(['apt-get', 'purge', '-y', state['package'], 'cbodotnet-host'])
     require(not Path(root).exists() and not Path('/usr/bin/cbodotnet').exists() and not Path('/usr/bin/cbodotnet-' + state['series']).exists(), 'Community purge left SDK or command files')
-    state['officialStages'].append(dict(stage='after-community-purge', result=assert_unchanged(official_state)))
+    official_check('after-community-purge')
     result = dict(schemaVersion=1, status='passed', scope='published-https-apt-installation', variant=args.variant,
         sdkVersion=args.sdk, packageRevision=args.revision, architecture=args.arch, signingFingerprint=args.fingerprint,
         sourceManifestSha256=state['sourceManifestSha256'], repository=state['repository'], sourceFormat='deb822-flat',
         sourceConfiguration=state['deb822'], networkForBuild='none', communityIdentity=state['communityIdentity'],
         communityInventory=state['communityInventory'], authenticatedRetainedPackages=state['authenticatedPackages'],
         repositoryMetadata=state['repositoryMetadata'], officialBaseline=state['officialBaseline'], officialStages=state['officialStages'],
-        functionalChecks={name:'passed' for name in ('consoleDllExecution','consoleApphostExecution','aspNetCoreLoopbackHttp',
-            'rsaSha256SignAndVerify','cryptographicRandomBytes','frFrDecimalFormatting')},
+        functionalChecks=functional, compatibilityProvider=compatibility_proofs,
         checks=['https-signed-apt-install','pinned-key','deb822-scoped-source','command-aliases','cli-branding',
             'version-stdout-compatible','sdk-root-rid','non-root-offline-build-run','package-integrity','original-notices',
             'official-package-coexistence','official-root-package-inventory-unchanged','removal','shared-host-ownership',
@@ -307,6 +320,7 @@ def main():
     parser.add_argument('--revision', type=int, required=True); parser.add_argument('--fingerprint', required=True)
     parser.add_argument('--arch', choices=('x64','aarch64'), required=True)
     parser.add_argument('--report', type=Path, required=True)
+    parser.add_argument('--repository')
     args = parser.parse_args()
     require(os.geteuid() == 0 and Path('/.dockerenv').is_file(), 'A disposable root Docker container is required')
     contract = load_contract()

@@ -117,7 +117,7 @@ class ConsumerArchiveTests(unittest.TestCase):
             identity=CA.identity(plan),artifact=build['artifact'],commands=build['commands'],qualifiedPayload=build['qualifiedPayload'],
             orchestration=source,networkForBuild='none',checks=dict.fromkeys(CA.REPORT_CHECKS,'passed'),
             userSpaces=[dict(variant=variant,status='passed',architecture='x64',native=True,networkForBuild='none',
-                checks=dict.fromkeys(CA.REPORT_CHECKS,'passed')) for variant in plan['validatedUserSpaces']])
+                checks=dict.fromkeys(CA.REPORT_CHECKS,'passed'),functionalChecks=dict.fromkeys(CA.FUNCTIONAL_CHECKS,'passed')) for variant in plan['validatedUserSpaces']])
         CR.validate_native_report(report,build,source)
         for mutate in (lambda value:value['userSpaces'].pop(),lambda value:value['checks'].update({'relocation':'failed'}),
                        lambda value:value.update(architecture='aarch64'),lambda value:value['artifact'].update(sha256='f'*64)):

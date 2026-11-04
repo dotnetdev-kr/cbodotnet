@@ -360,6 +360,13 @@ def render_aur(plan):
     source = plan['sdk']['url']
     require(source.startswith('https://github.com/dotnetdev-kr/cbodotnet/releases/download/'), 'Unexpected AUR SDK URL')
     launcher = 'cbodotnet-' + '.'.join(version.split('.')[:2])
+    added_directories = []
+    for directory in plan['additionalDirectories']:
+        require(re.fullmatch(r'[A-Za-z0-9._/-]+', directory) and '..' not in PurePosixPath(directory).parts
+                and not directory.startswith('/') and str(PurePosixPath(directory)) == directory,
+                'Unsafe AUR metadata directory')
+        added_directories.append('  install -dm755 "$pkgdir' + plan['package']['root'] + '/' + directory + '"')
+    metadata_commands = '\n'.join(added_directories)
     text = f'''# Qualified binary SDK; source provenance is retained in distribution.json.
 pkgname={name}
 pkgver={version}
@@ -377,7 +384,7 @@ noextract=('{plan['sdk']['name']}')
 package() {{
   install -d "$pkgdir{plan['package']['root']}" "$pkgdir/usr/bin"
   bsdtar -xf "$srcdir/{plan['sdk']['name']}" -C "$pkgdir{plan['package']['root']}"
-  install -dm755 "$pkgdir{plan['package']['root']}/metadata"
+{metadata_commands}
   install -m755 "$startdir/{launcher}" "$pkgdir/usr/bin/{launcher}"
 }}
 '''

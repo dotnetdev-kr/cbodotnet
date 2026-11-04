@@ -242,6 +242,20 @@ class DistributionCiTests(unittest.TestCase):
                 CI.validate_published_metadata(index, expected)
 
 
+class PublishedRepositoryLocationTests(unittest.TestCase):
+    def test_only_signed_exact_flat_delivery_changes_installation_from_historical_file_pool(self):
+        plan = dict(variant='debian-13', sdkVersion='9.0.123', packageRevision=2)
+        metadata = dict(kind='apt-repository', variants=['debian-13'], delivery='github-release-flat',
+                        releaseTag='repository-deb-debian-13-sdk-9.0.123-r2')
+        self.assertEqual('https://github.com/dotnetdev-kr/cbodotnet/releases/download/' + metadata['releaseTag'] + '/',
+                         CI.published_apt_location(metadata, plan))
+        self.assertIsNone(CI.published_apt_location(dict(kind='apt-repository', variants=['debian-13']), plan))
+        for change in (dict(releaseTag='repository-deb-debian-13-sdk-9.0.123-r1'),
+                       dict(variants=['ubuntu-24.04']), dict(kind='rpm-repository'), dict(delivery='unknown')):
+            with self.subTest(change=change), self.assertRaisesRegex(ValueError, 'Signed flat APT'):
+                CI.published_apt_location(dict(metadata, **change), plan)
+
+
 class FrozenPromotionTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()

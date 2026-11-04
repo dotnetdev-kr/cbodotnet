@@ -9,6 +9,7 @@ from urllib.parse import urljoin
 import xml.etree.ElementTree as ET
 
 from downstream_release import require
+from legacy_compat import PACKAGE_NAME as COMPAT_NAME, VERSION as COMPAT_VERSION, required as compatibility_required
 
 REPO = '{http://linux.duke.edu/metadata/repo}'
 COMMON = '{http://linux.duke.edu/metadata/common}'
@@ -33,13 +34,19 @@ def validate_metadata(directory, assets, base):
             and isinstance(variant, str) and re.fullmatch(r'[a-z][a-z0-9]*-[1-9][0-9]*(?:\.[0-9]+)?', variant)
             and manifest.get('architectures') == ['x64', 'aarch64'], 'Invalid RPM repository matrix identity')
     packages = manifest.get('packages', {})
-    require(isinstance(packages, dict) and len(packages) == 3, 'Both RPM architectures and one common host are required')
+    legacy = compatibility_required({'sdkVersion': version})
+    require(isinstance(packages, dict) and len(packages) == (5 if legacy else 3),
+            'Both RPM architectures, one common host and required separate provider architectures are required')
     series = '.'.join(version.split('.')[:2])
     release = str(revision) + '.cbot.' + variant.replace('-', '')
     identities = {}
     for public_arch, rpm_arch in (('x64', 'x86_64'), ('aarch64', 'aarch64')):
         name = f'rpm-{variant}-{public_arch}--cbodotnet-sdk-{series}-{version}-{release}.{rpm_arch}.rpm'
         identities[name] = ('cbodotnet-sdk-' + series, rpm_arch, version, release)
+        if legacy:
+            compat_release = '1.cbot.' + variant.replace('-', '')
+            name = f'rpm-{variant}-{public_arch}--{COMPAT_NAME}-{COMPAT_VERSION}-{compat_release}.{rpm_arch}.rpm'
+            identities[name] = (COMPAT_NAME, rpm_arch, COMPAT_VERSION, compat_release)
     common = [name for name in packages if re.fullmatch(
         r'rpm-' + re.escape(variant) + r'--cbodotnet-host-([1-9][0-9]*(?:\.[0-9]+)*)-([1-9][0-9]*\.cbot\.'
         + re.escape(variant.replace('-', '')) + r')\.noarch\.rpm', name)]
@@ -82,7 +89,7 @@ def validate_metadata(directory, assets, base):
     require(primary is not None, 'Primary RPM metadata is absent')
     observed = set()
     primary_root = ET.fromstring(primary)
-    require(primary_root.tag == COMMON + 'metadata' and primary_root.get('packages') == '3',
+    require(primary_root.tag == COMMON + 'metadata' and primary_root.get('packages') == str(len(identities)),
             'Primary RPM metadata declares another package matrix')
     for row in primary_root.findall(COMMON + 'package'):
         location, checksum, size = row.find(COMMON + 'location'), row.find(COMMON + 'checksum'), row.find(COMMON + 'size')

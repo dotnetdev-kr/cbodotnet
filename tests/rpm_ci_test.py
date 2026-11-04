@@ -18,6 +18,29 @@ SPEC.loader.exec_module(CI)
 
 
 class RpmCiTests(unittest.TestCase):
+    def test_signed_reinstall_retains_independent_verified_bytes_before_dnf_cache_cleanup(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            delivery = Path(temporary)
+            source = delivery / 'cache/sdk.rpm'
+            source.parent.mkdir()
+            source.write_bytes(b'authenticated-rpm')
+            with mock.patch.object(CI, 'verify_package_signature') as signature:
+                paths = CI.retain_signed_packages(delivery, [source])
+            signature.assert_called_once_with(source)
+            source.unlink()
+            self.assertEqual(b'authenticated-rpm', paths[0].read_bytes())
+            self.assertEqual(delivery / 'retained-packages/sdk.rpm', paths[0])
+
+    def test_hosted_repository_preserves_initial_alias_and_isolates_each_later_sdk_revision(self):
+        base = 'https://dotnetdev.kr/cbodotnet/packages/rpm'
+        self.assertEqual(base + '/fedora-45', CI.hosted_repository_url(base, 'fedora-45', '10.0.403', 1))
+        self.assertEqual(base + '/rocky-9.8/sdk-9.0.123-r1', CI.hosted_repository_url(base, 'rocky-9.8', '9.0.123', 1))
+        self.assertEqual(base + '/fedora-45/sdk-10.0.403-r2', CI.hosted_repository_url(base, 'fedora-45', '10.0.403', 2))
+        for bad_base, variant, version, revision in [('https://example.com/rpm', 'fedora-45', '9.0.123', 1),
+                (base, '../fedora-45', '9.0.123', 1), (base, 'fedora-45', '9.0.123/..', 1), (base, 'fedora-45', '9.0.123', 0)]:
+            with self.subTest(base=bad_base, variant=variant, version=version, revision=revision), self.assertRaises(ValueError):
+                CI.hosted_repository_url(bad_base, variant, version, revision)
+
     def publication_fixture(self, directory):
         from downstream_publish import MANIFEST, SIGNATURE, PUBLIC_KEY, publication_rows
         from downstream_release import descriptor

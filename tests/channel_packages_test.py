@@ -65,6 +65,34 @@ class ChannelPackagesTests(unittest.TestCase):
         self.assertTrue((rootfs / 'opt/cbodotnet/10.0/metadata').is_dir())
         self.assertFalse((rootfs / 'usr/bin/dotnet').exists())
 
+    @unittest.skipUnless(shutil.which('dpkg-deb'), 'dpkg-deb is required')
+    def test_original_sdk_metadata_is_preserved_when_no_extra_directory_is_admitted(self):
+        plan, archive = self.fixture(version='8.0.133')
+        with tarfile.open(archive, 'r:gz') as source:
+            contents = [(entry, source.extractfile(entry).read()) for entry in source.getmembers()]
+        with tarfile.open(archive, 'w:gz') as target:
+            for entry, data in contents:
+                target.addfile(entry, io.BytesIO(data))
+            directory = tarfile.TarInfo('metadata')
+            directory.type, directory.mode = tarfile.DIRTYPE, 0o750
+            target.addfile(directory)
+            member = tarfile.TarInfo('metadata/qualified.json')
+            data = b'{"original":"qualified metadata"}\n'
+            member.size, member.mode = len(data), 0o640
+            target.addfile(member, io.BytesIO(data))
+        plan['sdk'].update(size=archive.stat().st_size, sha256=hashlib.sha256(archive.read_bytes()).hexdigest())
+        plan['additionalDirectories'] = []
+        output = self.directory / 'original-metadata'
+        result = PACKAGES.build_deb(plan, archive, output)
+        metadata = output / 'deb-verified/opt/cbodotnet/8.0/metadata'
+        self.assertEqual(data, (metadata / 'qualified.json').read_bytes())
+        self.assertEqual(0o750, metadata.stat().st_mode & 0o7777)
+        self.assertEqual(0o640, (metadata / 'qualified.json').stat().st_mode & 0o7777)
+        self.assertTrue(result['payloadPreserved'])
+        plan['channel'], plan['aurDependencies'] = 'aur', ['glibc']
+        recipe, _ = PACKAGES.render_aur(plan)
+        self.assertNotIn('install -dm755', recipe)
+
     def test_corrupt_archive_and_namespace_collision_fail_before_staging(self):
         plan, archive = self.fixture()
         original = plan['sdk']['sha256']

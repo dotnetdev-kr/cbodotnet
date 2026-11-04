@@ -93,6 +93,14 @@ def create_bundle(items, output, target_commit, signing_key, keyring, extra_asse
                     'Repository metadata advertises an unverified OS variant')
             repositories.append({'asset': name, 'kind': specification['kind'], 'variants': sorted(variants),
                                  'websitePath': 'packages/' + identity['channel']})
+            if specification.get('delivery') is not None:
+                from apt_release import release_tag as flat_tag, flat_asset_descriptors
+                require(identity['channel'] == 'deb' and len(variants) == 1
+                        and specification['delivery'] == 'github-release-flat', 'Unsupported repository delivery adapter')
+                expected_tag = flat_tag(variants[0], identity['sdkVersion'], identity['packageRevision'])
+                require(specification.get('releaseTag') == expected_tag, 'Noncanonical flat repository release tag')
+                repositories[-1].update(delivery='github-release-flat', releaseTag=expected_tag)
+                repositories[-1]['flatAssets'] = flat_asset_descriptors(path)
     copy(keyring, PUBLIC_KEY)
     manifest = {'schemaVersion': 1, 'contractVersion': staged['contractVersion'], 'repository': REPOSITORY,
                 'tag': tag, 'identity': identity, 'targetCommit': target_commit,

@@ -9,6 +9,7 @@ import shutil
 import stat
 import subprocess
 import sys
+import tarfile
 import tempfile
 import unittest
 from unittest import mock
@@ -156,6 +157,7 @@ class LegacyCompatTests(unittest.TestCase):
     def test_real_pinned_both_architecture_provider_bytes_and_debian_payload(self):
         cache = Path(os.environ['CBODOTNET_PROVIDER_CACHE'])
         with tempfile.TemporaryDirectory(prefix='cbodotnet-real-provider-test-') as temporary:
+            builds = []
             for architecture in ['x64', 'aarch64']:
                 with self.subTest(architecture=architecture):
                     output = Path(temporary) / architecture
@@ -169,6 +171,30 @@ class LegacyCompatTests(unittest.TestCase):
                     control = subprocess.check_output(['dpkg-deb', '-f', str(package)], text=True)
                     self.assertIn('Package: cbodotnet-compat-rocky9\n', control)
                     self.assertNotIn('/opt/cbodotnet', '\n'.join(item['path'] for item in COMPAT.tree_inventory(extracted)))
+                    native = {'x64': 'amd64', 'aarch64': 'arm64'}[architecture]
+                    sdk_plan = plan(arch=architecture)
+                    sdk_plan['architecture']['deb'] = native
+                    COMPAT.verified_build(output / 'provider-build.json', sdk_plan, 'deb')
+                    builds.append((output, result, sdk_plan))
+            output, result, sdk_plan = builds[-1]
+            # A modified report and matching artifact checksum do not authorize
+            # extra members in the companion itself.
+            companion = output / result['companion']['path']
+            with tarfile.open(companion, 'w:gz') as archive:
+                entry = tarfile.TarInfo('rootfs/etc/unsafe-extra')
+                entry.size = 4
+                archive.addfile(entry, io.BytesIO(b'evil'))
+            result['companion'] = COMPAT.descriptor(companion)
+            COMPAT.write_json(output / 'provider-build.json', result)
+            with self.assertRaisesRegex(ValueError, 'unexpected member'):
+                COMPAT.verified_build(output / 'provider-build.json', sdk_plan, 'deb')
+            # Nor may a self-reported inventory substitute another ELF binary.
+            root = output / 'rootfs' / COMPAT.PROVIDER_ROOT.lstrip('/')
+            library = root / 'lib/libcrypto.so.1.1.1k'
+            data = library.read_bytes()
+            library.write_bytes(data[:-1] + bytes([data[-1] ^ 1]))
+            with self.assertRaisesRegex(ValueError, 'ELF identity'):
+                COMPAT.verified_build(output / 'provider-build.json', sdk_plan, 'deb')
 
 
 if __name__ == '__main__':

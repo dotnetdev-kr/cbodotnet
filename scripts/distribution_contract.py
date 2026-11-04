@@ -64,6 +64,8 @@ def validate_contract(contract):
         require(re.fullmatch(r'[1-9][0-9]*\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)', version)
                 and isinstance(release, dict) and re.fullmatch(r'[a-f0-9]{64}', release.get('manifestSha256', '')),
                 'Invalid pinned release identity')
+        require(release.get('additionalDirectories', INSTALLATION['additionalDirectories'])
+                in ([], INSTALLATION['additionalDirectories']), 'Unreviewed SDK payload directory addition')
         targets = release.get('channelTargets')
         if targets is not None:
             require(isinstance(targets, dict) and set(targets) <= {'deb', 'rpm', 'oci', 'aur'},
@@ -212,7 +214,7 @@ def verified_plan(release, manifest_bytes, checksum_bytes, sdk_path, channel, va
         'sourceManifestUrl': record['manifestUrl'], 'source': entry['source'], 'sdk': sdk,
         'evidence': entry['evidence'], 'producer': entry['provenance'],
         'dependencies': list(contract['operatingSystems'][variant]['dependencies']),
-        'additionalDirectories': list(INSTALLATION['additionalDirectories']),
+        'additionalDirectories': list(admitted.get('additionalDirectories', INSTALLATION['additionalDirectories'])),
         'licensePaths': list(admitted['licensePaths']), 'securitySupport': admitted['securitySupport'],
         'publicationAllowed': False,
     }
