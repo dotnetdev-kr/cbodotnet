@@ -6,7 +6,8 @@ import hashlib
 import importlib.util
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+import posixpath
 import platform
 import re
 import shlex
@@ -860,20 +861,45 @@ def sign_report(path, key):
     return signature
 
 
+def extract_native_transport(archive_path, received):
+    """Keep provider SONAME links while confining extraction to a fresh delivery."""
+    match = re.fullmatch(r'native-((?:rpm-)?(?:x64|aarch64))\.tar\.gz', archive_path.name)
+    require(match, 'Unsafe native CI transport filename')
+    root = 'delivery-' + match[1]
+    destination = received / root
+    require(not destination.exists() and not destination.is_symlink(), 'Native delivery root must be fresh')
+    with tarfile.open(archive_path, 'r:gz') as archive:
+        entries = archive.getmembers()
+        require(0 < len(entries) <= 200000 and sum(entry.size for entry in entries) < 8 * 1024**3,
+                'Unexpected native transport size')
+        for entry in entries:
+            path = PurePosixPath(entry.name)
+            require(not path.is_absolute() and '..' not in path.parts and path.parts and path.parts[0] == root
+                    and entry.name.rstrip('/') == posixpath.normpath(entry.name)
+                    and not any(char in entry.name for char in '\\:\0\r\n')
+                    and (entry.isdir() or entry.isfile() or entry.issym() or entry.islnk())
+                    and not entry.mode & 0o7000, 'Unsafe native CI transport member')
+            if entry.issym() or entry.islnk():
+                target = PurePosixPath(entry.linkname)
+                require(not target.is_absolute() and '..' not in target.parts
+                        and entry.linkname == posixpath.normpath(entry.linkname)
+                        and not any(char in entry.linkname for char in '\\:\0\r\n'), 'Unsafe native CI link')
+    # The shared extractor rejects duplicate paths, link parents, directory
+    # links, dangling links and cycles, and requires links to ordinary members.
+    with tempfile.TemporaryDirectory(prefix='.native-unpack-', dir=received) as temporary:
+        staged = Path(temporary) / 'tree'
+        try:
+            extractor()(archive_path, staged)
+        except ValueError as error:
+            raise ValueError('Unsafe native CI transport: ' + str(error)) from error
+        require({path.name for path in staged.iterdir()} == {root} and (staged / root).is_dir()
+                and not (staged / root).is_symlink(), 'Unsafe native CI transport root')
+        (staged / root).rename(destination)
+
+
 def unpack_deliveries(received):
     for archive_path in sorted(received.rglob('native-*.tar.gz')):
-        with tarfile.open(archive_path, 'r:gz') as archive:
-            entries = archive.getmembers()
-            require(entries and sum(entry.size for entry in entries) < 8 * 1024**3, 'Unexpected native transport size')
-            for entry in entries:
-                path = Path(entry.name)
-                require(not path.is_absolute() and '..' not in path.parts and not entry.issym()
-                        and (entry.isdir() or entry.isfile() or entry.islnk()) and not entry.mode & 0o7000,
-                        'Unsafe native CI transport member')
-                if entry.islnk():
-                    target = Path(entry.linkname)
-                    require(not target.is_absolute() and '..' not in target.parts, 'Unsafe native CI hard link')
-            archive.extractall(received, filter='data')
+        extract_native_transport(archive_path, received)
     deliveries = sorted(received.glob('delivery-*'))
     require(len(deliveries) == 2, 'Both native delivery artifacts are required')
     items = []

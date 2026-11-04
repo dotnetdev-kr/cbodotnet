@@ -438,7 +438,7 @@ class FrozenPromotionTests(unittest.TestCase):
         self.assertTrue((self.destination / 'oci-publication.json').is_file())
         self.assertFalse((self.destination / 'deb-publication.json').exists())
 
-    def test_transport_symlink_and_escaping_hardlink_are_rejected(self):
+    def test_transport_dangling_symlink_and_escaping_hardlink_are_rejected(self):
         for kind, target in [(tarfile.SYMTYPE, 'inside'), (tarfile.LNKTYPE, '../outside')]:
             archive_path = self.root / 'native-aarch64.tar.gz'
             with tarfile.open(archive_path, 'w:gz') as archive:
@@ -448,6 +448,50 @@ class FrozenPromotionTests(unittest.TestCase):
             with self.subTest(kind=kind), self.assertRaisesRegex(ValueError, 'Unsafe native'):
                 CI.unpack_deliveries(self.root)
             archive_path.unlink()
+
+    def test_transport_preserves_contained_provider_soname_links_and_modes(self):
+        archive_path = self.root / 'native-rpm-aarch64.tar.gz'
+        prefix = 'delivery-rpm-aarch64/compatibility-build/rootfs/usr/lib/cbodotnet/compat/rocky9/lib/'
+        with tarfile.open(archive_path, 'w:gz') as archive:
+            ordinary = tarfile.TarInfo(prefix + 'libssl.so.1.1.1k')
+            ordinary.size, ordinary.mode = 3, 0o755
+            archive.addfile(ordinary, io.BytesIO(b'elf'))
+            link = tarfile.TarInfo(prefix + 'libssl.so.1.1')
+            link.type, link.linkname = tarfile.SYMTYPE, 'libssl.so.1.1.1k'
+            archive.addfile(link)
+        CI.extract_native_transport(archive_path, self.root)
+        target = self.root / prefix / 'libssl.so.1.1'
+        self.assertTrue(target.is_symlink())
+        self.assertEqual('libssl.so.1.1.1k', os.readlink(target))
+        self.assertEqual(b'elf', target.read_bytes())
+        self.assertEqual(0o755, target.stat().st_mode & 0o777)
+        with self.assertRaisesRegex(ValueError, 'fresh'):
+            CI.extract_native_transport(archive_path, self.root)
+
+    def test_transport_rejects_duplicate_link_parents_cycles_and_foreign_roots_before_activation(self):
+        for mutation in ('duplicate', 'link-parent', 'cycle', 'absolute-link', 'parent-link',
+                         'foreign-root', 'normalized-alias', 'fifo'):
+            archive_path = self.root / 'native-x64.tar.gz'
+            prefix = 'delivery-x64/'
+            with tarfile.open(archive_path, 'w:gz') as archive:
+                file = tarfile.TarInfo(prefix + 'ordinary'); file.size = 1
+                archive.addfile(file, io.BytesIO(b'x'))
+                member = tarfile.TarInfo(prefix + 'link')
+                member.type, member.linkname = tarfile.SYMTYPE, 'ordinary'
+                if mutation == 'duplicate': member.name = prefix + 'ordinary'
+                elif mutation == 'link-parent':
+                    child = tarfile.TarInfo(prefix + 'link/child'); child.size = 1
+                    archive.addfile(child, io.BytesIO(b'x'))
+                elif mutation == 'cycle': member.linkname = 'link'
+                elif mutation == 'absolute-link': member.linkname = '/etc/passwd'
+                elif mutation == 'parent-link': member.linkname = '../ordinary'
+                elif mutation == 'foreign-root': member.name = 'delivery-aarch64/link'
+                elif mutation == 'normalized-alias': member.name = prefix + './link'
+                else: member.type = tarfile.FIFOTYPE
+                archive.addfile(member)
+            with self.subTest(mutation=mutation), self.assertRaisesRegex(ValueError, 'Unsafe native'):
+                CI.extract_native_transport(archive_path, self.root)
+            self.assertFalse((self.root / 'delivery-x64').exists())
 
 
 if __name__ == '__main__':
