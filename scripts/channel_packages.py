@@ -162,11 +162,13 @@ def build_deb(plan, archive, output, compatibility_build=None):
     shutil.copyfile(ROOT / 'LICENSE', host_doc / 'copyright')
     common = {'Section': 'devel', 'Priority': 'optional', 'Maintainer': '.NET Dev contributors',
               'Homepage': 'https://dotnetdev.kr/cbodotnet/'}
+    from legacy_compat import PACKAGE_NAME, package_requirement
+    dependencies = [package_requirement('deb') if item == PACKAGE_NAME else item for item in plan['dependencies']]
     control(host_stage, {'Package': 'cbodotnet-host', 'Version': HOST_VERSION, 'Architecture': 'all', **common,
                          'Description': 'Shared command selector for Community Build of .NET'})
     control(sdk_stage, {'Package': plan['package']['name'], 'Version': plan['package']['version'],
                         'Architecture': plan['architecture']['deb'], **common,
-                        'Depends': ', '.join(['cbodotnet-host (>= ' + HOST_VERSION + ')', *plan['dependencies']]),
+                        'Depends': ', '.join(['cbodotnet-host (>= ' + HOST_VERSION + ')', *dependencies]),
                         'Description': 'Community Build of .NET (built by .NET Dev) SDK ' + plan['sdkVersion']})
     environment = dict(os.environ, SOURCE_DATE_EPOCH=SOURCE_DATE_EPOCH, TZ='UTC', LC_ALL='C')
     packages = []
@@ -253,6 +255,8 @@ def render_rpm_spec(plan, source_name='payload.tar.gz'):
     dependencies = plan.get('rpmDependencies')
     require(isinstance(dependencies, list) and dependencies and all(re.fullmatch(r'[A-Za-z0-9_().+<>= -]+', item) for item in dependencies),
             'Reviewed RPM-specific dependencies are required')
+    from legacy_compat import PACKAGE_NAME, package_requirement
+    dependencies = [package_requirement('rpm', plan['variant']) if item == PACKAGE_NAME else item for item in dependencies]
     return rpm_build_macros() + f'''
 Name: {name}
 Version: {version}
@@ -355,8 +359,10 @@ def render_aur(plan):
     name = plan['package']['name'] + '-bin'
     version, revision = plan['sdkVersion'], plan['packageRevision']
     require(plan.get('aurDependencies'), 'Reviewed Arch-specific dependencies are required')
-    depends = ' '.join("'" + item + "'" for item in plan['aurDependencies'])
     require(all(re.fullmatch(r'[A-Za-z0-9@._+-]+', item) for item in plan['aurDependencies']), 'Unsafe AUR dependency')
+    from legacy_compat import PACKAGE_NAME, package_requirement
+    dependencies = [package_requirement('aur') if item == PACKAGE_NAME else item for item in plan['aurDependencies']]
+    depends = ' '.join("'" + item + "'" for item in dependencies)
     source = plan['sdk']['url']
     require(source.startswith('https://github.com/dotnetdev-kr/cbodotnet/releases/download/'), 'Unexpected AUR SDK URL')
     launcher = 'cbodotnet-' + '.'.join(version.split('.')[:2])
@@ -389,7 +395,7 @@ package() {{
 }}
 '''
     srcinfo = f'pkgbase = {name}\n\tpkgdesc = Community Build of .NET (built by .NET Dev) SDK\n\tpkgver = {version}\n\tpkgrel = {revision}\n\turl = https://dotnetdev.kr/cbodotnet/\n\tarch = x86_64\n\tlicense = MIT\n\tlicense = Apache-2.0\n'
-    srcinfo += ''.join('\tdepends = ' + item + '\n' for item in [*plan['aurDependencies'], 'cbodotnet-host'])
+    srcinfo += ''.join('\tdepends = ' + item + '\n' for item in [*dependencies, 'cbodotnet-host'])
     srcinfo += '\toptions = !strip\n\toptions = !debug\n\toptions = !lto\n'
     srcinfo += f'\tsource_x86_64 = {source}\n\tsha256sums_x86_64 = {plan["sdk"]["sha256"]}\n\tnoextract = {plan["sdk"]["name"]}\n\npkgname = {name}\n'
     return text, srcinfo

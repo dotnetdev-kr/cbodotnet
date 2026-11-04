@@ -51,6 +51,8 @@ footer { margin-top: 2em; padding-top: .75em; border-top: 1px solid #bbb; }
 <a href="{{REPOSITORY_URL}}/actions/workflows/publish-releases.yml"><img src="{{REPOSITORY_URL}}/actions/workflows/publish-releases.yml/badge.svg?branch=main" alt="Release publication status"></a>
 <a href="{{REPOSITORY_URL}}/actions/workflows/pages.yml"><img src="{{REPOSITORY_URL}}/actions/workflows/pages.yml/badge.svg?branch=main" alt="Download pages deployment status"></a>
 </p>
+<h2>Branded SDK downloads</h2>
+{{CONSUMER_ARCHIVES}}
 <h2>Original source releases (experimental)</h2>
 <p><strong>These initial unbranded test releases are not recommended for installation or direct use.</strong> They are retained as immutable inputs for branded distributions and for provenance. Use the verified branded packages and containers below. Each original release also retains the actual build sources and verification evidence.</p>
 <div class="downloads">

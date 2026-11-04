@@ -210,9 +210,25 @@ def build_catalog(releases, fetch_asset, repository, generated_at=None):
             datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"), "releases": records}
 
 
-def render_html(catalog, template, downstream_status=None):
+def render_html(catalog, template, downstream_status=None, consumer_archives=None):
     from distribution_site import render_channels
     escape = html.escape
+    consumer_rows = []
+    for record in consumer_archives or []:
+        link = '<a href="' + escape(record['archiveUrl'], quote=True) + '">' + escape(record['archiveName']) + '</a>'
+        companion = record.get('compatibility')
+        if companion:
+            link += '<br><a href="' + escape(companion['url'], quote=True) + '">Required separate compatibility companion</a>'
+        consumer_rows.append('<tr><td>' + escape(record['sdkVersion']) + '</td><td>' + escape(record['architecture'])
+            + '</td><td>' + link + '<br><small>SHA-256: ' + escape(record['archiveSha256']) + '</small></td>'
+            + '<td><a href="' + escape(record['manifestUrl'], quote=True) + '">manifest</a> &middot; '
+            + '<a href="' + escape(record['signatureUrl'], quote=True) + '">signature</a></td></tr>')
+    consumer_markup = ('<p>Verified branded archives provide <code>cbodotnet</code>, a versioned command and '
+        '<code>dotnet</code>. Verify the signature and checksum before extracting. '
+        '<a href="https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/consumer-archives.md">Installation instructions</a>.</p>'
+        + '<div class="downloads"><table><thead><tr><th>SDK</th><th>Architecture</th><th>Download</th><th>Verification</th></tr></thead>'
+        + '<tbody>' + ''.join(consumer_rows) + '</tbody></table></div>' if consumer_rows else
+        '<p>Branded archives will appear here after signed publication and native public installation verification.</p>')
     rows = []
     for release in catalog["releases"]:
         cells = ['<th scope="row"><a href="' + escape(release["releaseUrl"], quote=True) + '">' +
@@ -231,6 +247,7 @@ def render_html(catalog, template, downstream_status=None):
     if not rows:
         rows.append('<tr><td colspan="4">No complete public builds are available yet.</td></tr>')
     replacements = {"{{DOWNLOAD_ROWS}}": "\n".join(rows), "{{GENERATED_AT}}": escape(catalog["generatedAt"]),
+                    "{{CONSUMER_ARCHIVES}}": consumer_markup,
                     "{{DOWNSTREAM_CHANNELS}}": render_channels(downstream_status or {}),
                     "{{REPOSITORY_URL}}": "https://github.com/" + escape(catalog["repository"], quote=True)}
     for key, value in replacements.items():
@@ -249,8 +266,12 @@ def write_site(catalog, template_path, output_dir):
     policy = json.loads((ROOT / "releases/downstream-status.json").read_text(encoding="utf-8"))
     from distribution_site import prepare_site
     public_status = prepare_site(policy, output_dir, ROOT / "releases/downstream-signing-key.asc")
+    from consumer_archive_site import archive_rows
+    consumers = archive_rows()
     output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / "index.html").write_text(render_html(catalog, template_path.read_text(encoding="utf-8"), public_status), encoding="utf-8")
+    (output_dir / "index.html").write_text(render_html(catalog, template_path.read_text(encoding="utf-8"), public_status, consumers), encoding="utf-8")
+    (output_dir / 'archive-status.json').write_text(json.dumps(dict(schemaVersion=1, repository=catalog['repository'],
+        status='published-postverified' if consumers else 'not-published', archives=consumers), indent=2) + '\n', encoding='utf-8')
     (output_dir / "releases.json").write_text(json.dumps(catalog, indent=2) + "\n", encoding="utf-8")
     (output_dir / "downstream-status.json").write_text(json.dumps(public_status, indent=2) + "\n", encoding="utf-8")
     (output_dir / ".nojekyll").write_text("", encoding="utf-8")

@@ -243,6 +243,26 @@ class DistributionCiTests(unittest.TestCase):
 
 
 class PublishedRepositoryLocationTests(unittest.TestCase):
+    def test_oci_managed_dependency_uses_verified_source_versions_without_claiming_dpkg_ownership(self):
+        import legacy_compat
+        provider = legacy_compat.load_policy()
+        plan = dict(sdkVersion='3.1.426', variant='debian-13', architecture=dict(public='aarch64'),
+                    dependencies=['libc6', 'cbodotnet-compat-rocky9'])
+        state = dict(required=True, packages=provider['architectures']['aarch64']['packages'],
+                     signingFingerprint=provider['signingFingerprint'])
+        with mock.patch.object(CI, 'run', return_value='2.41') as query:
+            with mock.patch.object(legacy_compat, 'runtime_environment'), mock.patch.object(legacy_compat, 'assert_unchanged', return_value={'status': 'passed'}):
+                observed = CI.observed_dependencies(plan, 'oci', state)
+                self.assertIn('isolated managed OCI tree', observed['cbodotnet-compat-rocky9'])
+                for package in state['packages']:
+                    self.assertIn(package['version'] + '-' + package['release'], observed['cbodotnet-compat-rocky9'])
+                query.assert_called_once_with(['dpkg-query', '-W', '-f=${Version}', 'libc6'])
+                with self.assertRaisesRegex(ValueError, 'authenticated native source versions'):
+                    CI.observed_dependencies(plan, 'oci', dict(state, packages=[]))
+                query.reset_mock()
+                CI.observed_dependencies(plan, 'deb', state)
+                self.assertEqual(['dpkg-query', '-W', '-f=${Version}', 'cbodotnet-compat-rocky9'], query.call_args.args[0])
+
     def test_oci_build_propagates_the_exact_sdk_series_for_initial_and_upgrade_contexts(self):
         base = 'debian:13@sha256:' + 'a' * 64
         for version in ('10.0.403', '9.0.123', '8.0.133', '7.0.120', '6.0.136', '5.0.214', '3.1.426', '3.0.103'):

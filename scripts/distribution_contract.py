@@ -218,6 +218,8 @@ def verified_plan(release, manifest_bytes, checksum_bytes, sdk_path, channel, va
         'licensePaths': list(admitted['licensePaths']), 'securitySupport': admitted['securitySupport'],
         'publicationAllowed': False,
     }
+    if version.startswith(('3.', '5.')):
+        result['dependencies'].append('cbodotnet-compat-rocky9')
     if channel == 'rpm':
         result['rpmDependencies'] = list(result['dependencies'])
         result['package']['rpmRelease'] = f'{revision}.cbot.' + variant.replace('-', '')

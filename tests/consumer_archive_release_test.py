@@ -13,6 +13,7 @@ from unittest import mock
 import consumer_archive_test as FIXTURES
 import consumer_archive as CA
 import consumer_archive_release as CR
+import consumer_archive_site as SITE
 
 
 class FakeGitHub:
@@ -79,6 +80,27 @@ class ConsumerArchiveReleaseTests(unittest.TestCase):
             self.assertEqual('pending-native-public-verification',receipt['consumerInstallationStatus'])
             uploads=transport.uploads;CR.publish_bundle(output,keyring,policy=policy,transport=transport)
             self.assertEqual(uploads,transport.uploads)
+            public_reports=[]
+            for record in manifest['records']:
+                report=json.loads((output/record['reportAsset']).read_bytes())
+                report.update(scope='published-consumer-archive-installation',manifestSha256=receipt['manifestSha256'],
+                    downloadUrl=f'https://github.com/{CA.REPOSITORY}/releases/download/{manifest["tag"]}/'+record['artifactAsset'])
+                raw=CA.encoded(report)
+                public_reports.append(dict(architecture=record['architecture'],rawJsonSha256=hashlib.sha256(raw).hexdigest(),rawJsonSize=len(raw),report=report))
+            complete=SITE.postverified_receipt(receipt,public_reports,manifest,source=source)
+            requested=[]
+            def metadata_only(url,maximum):
+                name=url.rsplit('/',1)[-1];requested.append(name)
+                self.assertFalse(name.endswith('.tar.gz'),'Pages attempted to download a large consumer payload')
+                return transport.files[name]
+            rows=SITE.archive_rows(status=dict(schemaVersion=1,repository=CA.REPOSITORY,publications=[complete]),
+                policy=policy,keyring=keyring,fetch=metadata_only)
+            self.assertEqual({'x64','aarch64'},{row['architecture'] for row in rows})
+            self.assertEqual(2,len(rows));self.assertTrue(requested)
+            changed=copy.deepcopy(complete)
+            next(item for item in changed['assets'] if item['name'].endswith('.tar.gz'))['sha256']='f'*64
+            with self.assertRaisesRegex(ValueError,'exact signed asset'):
+                SITE.authenticate_receipt(changed,policy=policy,keyring=keyring,fetch=metadata_only,historical=True)
             transport.corrupt_public=True
             with self.assertRaisesRegex(ValueError,'changed existing|Remote.*changed|digest|bytes'):
                 CR.publish_bundle(output,keyring,policy=policy,transport=transport)

@@ -73,6 +73,16 @@ def required(plan):
     return '.'.join(plan.get('sdkVersion', '').split('.')[:2]) in {'5.0', '3.1', '3.0'}
 
 
+def package_requirement(channel, variant=None):
+    if channel == 'deb':
+        return PACKAGE_NAME + ' (= ' + VERSION + '-1)'
+    if channel == 'rpm':
+        require(variant in {'fedora-45', 'rocky-9.8'}, 'Unknown provider RPM dependency variant')
+        return PACKAGE_NAME + ' = ' + VERSION + '-1.cbot.' + variant.replace('-', '')
+    require(channel == 'aur', 'Unknown provider dependency package format')
+    return PACKAGE_NAME + '=' + VERSION + '-1'
+
+
 def environment(plan, root=PROVIDER_ROOT):
     if not required(plan):
         return {}
@@ -505,7 +515,7 @@ pkgdesc='Separately managed Rocky-origin OpenSSL 1.1 and ICU 67 for Community Bu
 arch=('x86_64')
 url='https://dotnetdev.kr/cbodotnet/'
 license=('LicenseRef-OpenSSL-SSLeay' 'Apache-2.0' 'Unicode-DFS-2016' 'BSD-2-Clause' 'BSD-3-Clause' 'LicenseRef-Fedora-Public-Domain')
-depends=('glibc>=2.34' 'gcc-libs' 'zlib' 'ca-certificates')
+depends=('glibc>=2.34' 'libgcc' 'libstdc++' 'zlib' 'ca-certificates')
 makedepends=('rpm-tools' 'gnupg')
 options=('!strip' '!debug' '!lto')
 source=(
@@ -542,7 +552,7 @@ def arch_srcinfo(policy, notice_hash, manifest_hash):
              '\tpkgdesc = Separately managed Rocky-origin OpenSSL 1.1 and ICU 67 for Community Build legacy SDKs',
              '\tpkgver = ' + VERSION, '\tpkgrel = 1', '\turl = https://dotnetdev.kr/cbodotnet/', '\tarch = x86_64']
     fields = {'license': ['LicenseRef-OpenSSL-SSLeay', 'Apache-2.0', 'Unicode-DFS-2016', 'BSD-2-Clause', 'BSD-3-Clause', 'LicenseRef-Fedora-Public-Domain'],
-              'makedepends': ['rpm-tools', 'gnupg'], 'depends': ['glibc>=2.34', 'gcc-libs', 'zlib', 'ca-certificates'],
+              'makedepends': ['rpm-tools', 'gnupg'], 'depends': ['glibc>=2.34', 'libgcc', 'libstdc++', 'zlib', 'ca-certificates'],
               'noextract': [item['name'] for item in sources], 'options': ['!strip', '!debug', '!lto'],
               'source': [item['url'] for item in sources] + ['openssl.cnf', 'NOTICE.txt', 'provider-manifest.json'],
               'sha256sums': [item['sha256'] for item in sources] + [policy['opensslConfiguration']['sha256'], notice_hash, manifest_hash]}

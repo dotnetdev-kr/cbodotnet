@@ -87,7 +87,9 @@
           "arch-rolling"
         ]
       },
-      "additionalDirectories": []
+      "additionalDirectories": [
+        "metadata"
+      ]
     },
     "8.0.133": {
       "target": "net8",

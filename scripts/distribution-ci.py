@@ -229,6 +229,27 @@ def strict_dpkg_integrity(names):
     require(not run(['dpkg', '-V', *names]).strip(), 'Installed package failed full dpkg integrity verification')
 
 
+def observed_dependencies(plan, mode, compatibility=None):
+    result = {}
+    for name in plan['dependencies']:
+        if mode == 'oci' and name == 'cbodotnet-compat-rocky9':
+            from legacy_compat import load_policy, assert_unchanged, runtime_environment
+            provider = load_policy()
+            require(isinstance(compatibility, dict) and compatibility.get('required') is True
+                    and compatibility.get('packages') == provider['architectures'][plan['architecture']['public']]['packages']
+                    and compatibility.get('signingFingerprint') == provider['signingFingerprint'],
+                    'OCI compatibility dependency lacks authenticated native source versions')
+            runtime_environment(plan, compatibility)
+            require(assert_unchanged(compatibility)['status'] == 'passed', 'OCI managed compatibility dependency changed')
+            sources = [str(row.get('epoch', 0)) + ':' + row['version'] + '-' + row['release'] + '.' + row['architecture']
+                       for row in compatibility['packages']]
+            result[name] = provider['version'] + ' (isolated managed OCI tree; Rocky RPM sources: ' + ', '.join(sources) + ')'
+        else:
+            result[name] = run(['dpkg-query', '-W', '-f=${Version}', name]).strip()
+            require(result[name], 'Installed native dependency has no observed package version: ' + name)
+    return result
+
+
 def prepare_installed(args):
     delivery, plan, architecture, _ = installation_context(args)
     run(['useradd', '--create-home', '--uid', '10001', 'cbot-smoke'])
@@ -429,7 +450,7 @@ def installed(args):
         strict_dpkg_integrity([plan['package']['name'], 'cbodotnet-host'])
         phases = deb_lifecycle(plan, delivery, sdk_before, as_user, official_check)
         require([row['phase'] for row in official_proofs] == phases, 'Official package proof omits a lifecycle transition')
-    dependencies = {name: run(['dpkg-query', '-W', '-f=${Version}', name]).strip() for name in plan['dependencies']}
+    dependencies = observed_dependencies(plan, args.mode, state.get('compatibilityState'))
     checks = {name: 'passed' for name in PREPUBLICATION_CHECKS}
     checks['sdk-list-paths'] = 'passed'
     checks['offline-network'] = 'passed'
