@@ -26,7 +26,10 @@ for **Ubuntu 24.04 and Debian 13**, on `amd64` and `arm64`, and a Debian 13-base
 GHCR SDK image for `linux/amd64` and `linux/arm64`. Use the
 [verified installation commands](https://dotnetdev.kr/cbodotnet/) and
 [distribution status and receipts](releases/downstream-status.json).
-RPM and AUR remain deferred under issues #5 and #6.
+RPM is undergoing native qualification under issue #5. The
+[Arch x86_64 recipes](docs/aur-delivery.md) have passed native build, installation
+and lifecycle validation; authenticated AUR submission is tracked separately in
+[issue #10](https://github.com/dotnetdev-kr/cbodotnet/issues/10).
 
 The package contract provides `cbodotnet-10.0` and a common `cbodotnet` command
 selecting the highest installed SDK series. OCI images expose
@@ -92,6 +95,7 @@ SDK archives and corresponding source bundles retain their upstream copyrights, 
 
 - [Downstream distribution contract and rollout](docs/distribution-contract.md)
 - [CLI branding and command aliases](docs/cli-branding.md)
+- [Validated Arch recipes and deferred AUR publication](docs/aur-delivery.md)
 - [Downstream verification and promotion runbook](docs/downstream-release-runbook.md)
 - [AArch64 CI, source delivery and verification](docs/ci-matrix.md)
 - [x64 CI, source delivery and verification](docs/ci-x64.md)

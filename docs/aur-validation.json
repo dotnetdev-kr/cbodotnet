@@ -1,0 +1,336 @@
+{
+  "deferredPublicationIssue": 10,
+  "evidenceLimitations": [
+    "The original validationTools.pacman display field is empty because pacman --version begins with a blank line. Actual pacman install, ownership/integrity, upgrade, rollback and removal checks passed. A subsequent display-only capture correction strips leading whitespace; this original report and its SHA-256 remain unchanged."
+  ],
+  "implementationIssue": 6,
+  "independentVerification": {
+    "apiArtifactSha256": "passed",
+    "embeddedReportEncoding": "JSON sort_keys=True, indent=2, UTF-8 and final LF; recovers exact original report bytes",
+    "exactTrackedRecipeAndActualSrcinfoBytes": "passed",
+    "installationResultSha256": "6d44c4da782234065ae277c2b50f4cf37132f2b498e6f4702801a0cb48242fb9",
+    "recipeArchiveSha256": "passed",
+    "recipeSources": [
+      {
+        "path": "cbodotnet-host/.SRCINFO",
+        "sha256": "e9f131e8407f9dca711cd5dc6b8cb2a276db7966362cac4c5bead9adb80b5c87"
+      },
+      {
+        "path": "cbodotnet-host/LICENSE",
+        "sha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b"
+      },
+      {
+        "path": "cbodotnet-host/PKGBUILD",
+        "sha256": "2deac802d7536974d9201f884c98241b68a892c0502a4c16e3ac06f4e74e92f2"
+      },
+      {
+        "path": "cbodotnet-host/cbodotnet",
+        "sha256": "22d23c82d1c279367d8456bf319faaaa36065d15b2c1c80bf548f06fac2ed805"
+      },
+      {
+        "path": "cbodotnet-sdk-10.0-bin/.SRCINFO",
+        "sha256": "7bd63db03a94f90bf0260028a3a12abe9195c99e3d252831f14ae43fff337ca7"
+      },
+      {
+        "path": "cbodotnet-sdk-10.0-bin/PKGBUILD",
+        "sha256": "63aa9de2eb588dbe083d6d07e501bc8a20ccbc5d5e53b09433a194e20ca86c1f"
+      },
+      {
+        "path": "cbodotnet-sdk-10.0-bin/cbodotnet-10.0",
+        "sha256": "8872ade05c29eca9c76f4f609aa1d3248988bf83e7a200d3e1757df9a7724a08"
+      },
+      {
+        "path": "cbodotnet-sdk-10.0-bin/distribution.json",
+        "sha256": "497ce67e21749505fe6e54962fa17734f4512762a095fa2e26099d13303f9c85"
+      },
+      {
+        "path": "cbodotnet-sdk-10.0-bin/verify-source.py",
+        "sha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47"
+      }
+    ],
+    "reportSha256": "87b4c8f559687a3c9238771b21890705748e1c1425f2e74acf57e19f3167189c"
+  },
+  "publicationStatus": "not-published",
+  "report": {
+    "artifact": {
+      "name": "cbodotnet-aur-10.0.403-r1.tar.gz",
+      "sha256": "c4e28a574e1f12f778b07978026d3dd03fa8245bb7591ccf34ae13e99427e11e",
+      "size": 6701
+    },
+    "branding": {
+      "displayName": "Community Build of .NET (built by .NET Dev)",
+      "implementation": "distribution-wrapper",
+      "informationCommand": "--cbodotnet-info",
+      "modifyQualifiedPayload": false,
+      "versionBrandingStream": "stderr",
+      "versionStdout": "unchanged-numeric-sdk-version"
+    },
+    "checks": {
+      "cli-branding": "passed",
+      "command-aliases": "passed",
+      "host-root": "passed",
+      "http-crypto-globalization": "passed",
+      "namcap": "passed-with-reviewed-findings",
+      "native-dependencies": "passed",
+      "non-root": "passed",
+      "official-dotnet-coexistence": "passed",
+      "offline-build-run": "passed",
+      "package-integrity": "passed",
+      "package-manager-install": "passed",
+      "payload-preservation": "passed",
+      "recipe-metadata": "passed",
+      "removal": "passed",
+      "rollback": "passed",
+      "source-integrity": "passed",
+      "source-verification": "passed",
+      "upgrade": "passed",
+      "version-stdout-compatible": "passed"
+    },
+    "commandNames": [
+      "cbodotnet-10.0",
+      "cbodotnet"
+    ],
+    "commands": {
+      "containerDirectory": "/usr/local/bin",
+      "containerDotnet": "/usr/local/bin/dotnet",
+      "default": "/usr/bin/cbodotnet",
+      "defaultOwner": "cbodotnet-host",
+      "defaultSelection": "highest-installed-major-minor",
+      "versioned": "/usr/bin/cbodotnet-10.0"
+    },
+    "contractVersion": 2,
+    "extraFiles": [
+      {
+        "mode": "0755",
+        "owner": "cbodotnet-host",
+        "path": "/usr/bin/cbodotnet",
+        "sha256": "22d23c82d1c279367d8456bf319faaaa36065d15b2c1c80bf548f06fac2ed805",
+        "size": 1556
+      },
+      {
+        "mode": "0755",
+        "owner": "cbodotnet-sdk-10.0",
+        "path": "/usr/bin/cbodotnet-10.0",
+        "sha256": "8872ade05c29eca9c76f4f609aa1d3248988bf83e7a200d3e1757df9a7724a08",
+        "size": 1454
+      }
+    ],
+    "identity": {
+      "channel": "aur",
+      "packageRevision": 1,
+      "sdkVersion": "10.0.403",
+      "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "sourceReleaseTag": "sdk-10.0.403",
+      "targetRid": "linux-x64",
+      "variant": "arch-rolling"
+    },
+    "nativeDependencyOutput": "\tlinux-vdso.so.1 (0x00007f5059029000)\n\tlibdl.so.2 => /usr/lib/libdl.so.2 (0x00007f5059001000)\n\tlibpthread.so.0 => /usr/lib/libpthread.so.0 (0x00007f5058ffc000)\n\tlibstdc++.so.6 => /usr/lib/libstdc++.so.6 (0x00007f5058d29000)\n\tlibm.so.6 => /usr/lib/libm.so.6 (0x00007f5058bf2000)\n\tlibgcc_s.so.1 => /usr/lib/libgcc_s.so.1 (0x00007f5058bc5000)\n\tlibc.so.6 => /usr/lib/libc.so.6 (0x00007f50589a0000)\n\t/lib64/ld-linux-x86-64.so.2 => /usr/lib64/ld-linux-x86-64.so.2 (0x00007f505902b000)\n",
+    "networkForBuild": "none",
+    "orchestration": {
+      "commit": "95dbe62d3ca9acb3a92e31f896d4b7b321688188",
+      "repository": "dotnetdev-kr/cbodotnet",
+      "runAttempt": "1",
+      "runId": "41779636849",
+      "workflow": ".github/workflows/distribution-release.yml"
+    },
+    "packageBuilds": [
+      {
+        "makepkg": "passed",
+        "namcap": "passed",
+        "namcapOutput": [
+          "",
+          "cbodotnet-host W: Referenced library 'sh' is an uninstalled dependency (needed in files ['usr/bin/cbodotnet'])\ncbodotnet-host W: Dependency included, but may not be needed ('bash')\n"
+        ],
+        "namcapReviewedFindings": [],
+        "package": "cbodotnet-host-1.0.0-1-any.pkg.tar.zst",
+        "pkgbase": "cbodotnet-host",
+        "revision": "host",
+        "sha256": "180320a5a06b8baf206659071f1276ee43832c8864b03e7a2d8a8816b246d120",
+        "sourceVerification": "passed",
+        "srcinfoSha256": "e9f131e8407f9dca711cd5dc6b8cb2a276db7966362cac4c5bead9adb80b5c87"
+      },
+      {
+        "makepkg": "passed",
+        "namcap": "passed-with-reviewed-findings",
+        "namcapOutput": [
+          "",
+          "cbodotnet-sdk-10.0-bin E: ELF files outside of a valid path ('opt/').\ncbodotnet-sdk-10.0-bin W: Directory (opt/cbodotnet/10.0/metadata) is empty\ncbodotnet-sdk-10.0-bin W: Library (opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/libnethost.a) does not have permission set to 644 or 444\ncbodotnet-sdk-10.0-bin W: Referenced library 'sh' is an uninstalled dependency (needed in files ['usr/bin/cbodotnet-10.0', 'opt/cbodotnet/10.0/dnx'])\ncbodotnet-sdk-10.0-bin W: Referenced library 'liblttng-ust.so.0' is an uninstalled dependency (needed in files ['opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libcoreclrtraceptprovider.so'])\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/dotnet')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/dotnet')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/dotnet')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib64/ld-linux-x86-64.so.2' by file ('opt/cbodotnet/10.0/dotnet')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/host/fxr/10.0.14/libhostfxr.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/host/fxr/10.0.14/libhostfxr.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/apphost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/apphost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/apphost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib64/ld-linux-x86-64.so.2' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/apphost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/libnethost.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/libnethost.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/libnethost.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/singlefilehost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/librt.so.1' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/singlefilehost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/singlefilehost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/AppHostTemplate/apphost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/sdk/10.0.403/AppHostTemplate/apphost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/sdk/10.0.403/AppHostTemplate/apphost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib64/ld-linux-x86-64.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/AppHostTemplate/apphost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/MSBuild')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/sdk/10.0.403/MSBuild')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/sdk/10.0.403/MSBuild')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib64/ld-linux-x86-64.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/MSBuild')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/VBCSCompiler')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/VBCSCompiler')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/VBCSCompiler')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib64/ld-linux-x86-64.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/VBCSCompiler')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/csc')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/csc')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/csc')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib64/ld-linux-x86-64.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/csc')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/vbc')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/vbc')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/vbc')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib64/ld-linux-x86-64.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/vbc')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/createdump')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/createdump')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libSystem.Globalization.Native.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/librt.so.1' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libSystem.Native.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libSystem.Net.Security.Native.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libSystem.Security.Cryptography.Native.OpenSsl.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libSystem.Security.Cryptography.Native.OpenSsl.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libclrgc.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libclrjit.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/librt.so.1' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libclrjit.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libclrjit.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libcoreclr.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/librt.so.1' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libcoreclr.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libcoreclr.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libstdc++.so.6' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libcoreclrtraceptprovider.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libcoreclrtraceptprovider.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libgcc_s.so.1' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libcoreclrtraceptprovider.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libhostpolicy.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libhostpolicy.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libmscordaccore.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/librt.so.1' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libmscordaccore.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libmscordaccore.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libmscordaccore.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libmscordbi.so')\ncbodotnet-sdk-10.0-bin W: Dependency included, but may not be needed ('zlib')\ncbodotnet-sdk-10.0-bin W: Dependency included, but may not be needed ('krb5')\ncbodotnet-sdk-10.0-bin W: Dependency included, but may not be needed ('ca-certificates')\ncbodotnet-sdk-10.0-bin W: Dependency included, but may not be needed ('icu')\ncbodotnet-sdk-10.0-bin W: Dependency included, but may not be needed ('openssl')\ncbodotnet-sdk-10.0-bin W: Dependency included, but may not be needed ('cbodotnet-host')\n"
+        ],
+        "namcapReviewedFindings": [
+          {
+            "diagnostic": "cbodotnet-sdk-10.0-bin E: ELF files outside of a valid path ('opt/').",
+            "reason": "The reviewed contract isolates the complete unmodified SDK under /opt/cbodotnet/<series>; native installation independently verifies all qualified payload bytes, modes and links.",
+            "rule": "elfpaths"
+          }
+        ],
+        "package": "cbodotnet-sdk-10.0-bin-10.0.403-1-x86_64.pkg.tar.zst",
+        "pkgbase": "cbodotnet-sdk-10.0-bin",
+        "revision": "sdk",
+        "sha256": "fce54f7f8371ca6d7e136e03480e78bc5cb0c25a54be8977abf644e649785d3d",
+        "sourceVerification": "passed",
+        "srcinfoSha256": "7bd63db03a94f90bf0260028a3a12abe9195c99e3d252831f14ae43fff337ca7"
+      },
+      {
+        "makepkg": "passed",
+        "namcap": "passed-with-reviewed-findings",
+        "namcapOutput": [
+          "",
+          "cbodotnet-sdk-10.0-bin E: ELF files outside of a valid path ('opt/').\ncbodotnet-sdk-10.0-bin W: Directory (opt/cbodotnet/10.0/metadata) is empty\ncbodotnet-sdk-10.0-bin W: Library (opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/libnethost.a) does not have permission set to 644 or 444\ncbodotnet-sdk-10.0-bin W: Referenced library 'sh' is an uninstalled dependency (needed in files ['usr/bin/cbodotnet-10.0', 'opt/cbodotnet/10.0/dnx'])\ncbodotnet-sdk-10.0-bin W: Referenced library 'liblttng-ust.so.0' is an uninstalled dependency (needed in files ['opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libcoreclrtraceptprovider.so'])\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/dotnet')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/dotnet')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/dotnet')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib64/ld-linux-x86-64.so.2' by file ('opt/cbodotnet/10.0/dotnet')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/host/fxr/10.0.14/libhostfxr.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/host/fxr/10.0.14/libhostfxr.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/apphost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/apphost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/apphost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib64/ld-linux-x86-64.so.2' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/apphost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/libnethost.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/libnethost.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/libnethost.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/singlefilehost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/librt.so.1' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/singlefilehost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/packs/Microsoft.NETCore.App.Host.linux-x64/10.0.14/runtimes/linux-x64/native/singlefilehost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/AppHostTemplate/apphost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/sdk/10.0.403/AppHostTemplate/apphost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/sdk/10.0.403/AppHostTemplate/apphost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib64/ld-linux-x86-64.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/AppHostTemplate/apphost')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/MSBuild')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/sdk/10.0.403/MSBuild')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/sdk/10.0.403/MSBuild')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib64/ld-linux-x86-64.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/MSBuild')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/VBCSCompiler')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/VBCSCompiler')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/VBCSCompiler')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib64/ld-linux-x86-64.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/VBCSCompiler')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/csc')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/csc')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/csc')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib64/ld-linux-x86-64.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/csc')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/vbc')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/vbc')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/vbc')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib64/ld-linux-x86-64.so.2' by file ('opt/cbodotnet/10.0/sdk/10.0.403/Roslyn/bincore/vbc')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/createdump')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/createdump')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libSystem.Globalization.Native.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/librt.so.1' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libSystem.Native.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libSystem.Net.Security.Native.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libSystem.Security.Cryptography.Native.OpenSsl.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libSystem.Security.Cryptography.Native.OpenSsl.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libclrgc.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libclrjit.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/librt.so.1' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libclrjit.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libclrjit.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libcoreclr.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/librt.so.1' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libcoreclr.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libcoreclr.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libstdc++.so.6' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libcoreclrtraceptprovider.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libcoreclrtraceptprovider.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libgcc_s.so.1' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libcoreclrtraceptprovider.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libhostpolicy.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libhostpolicy.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libpthread.so.0' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libmscordaccore.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/librt.so.1' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libmscordaccore.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libdl.so.2' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libmscordaccore.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libmscordaccore.so')\ncbodotnet-sdk-10.0-bin W: Unused shared library '/usr/lib/libm.so.6' by file ('opt/cbodotnet/10.0/shared/Microsoft.NETCore.App/10.0.14/libmscordbi.so')\ncbodotnet-sdk-10.0-bin W: Dependency included, but may not be needed ('zlib')\ncbodotnet-sdk-10.0-bin W: Dependency included, but may not be needed ('krb5')\ncbodotnet-sdk-10.0-bin W: Dependency included, but may not be needed ('ca-certificates')\ncbodotnet-sdk-10.0-bin W: Dependency included, but may not be needed ('icu')\ncbodotnet-sdk-10.0-bin W: Dependency included, but may not be needed ('openssl')\ncbodotnet-sdk-10.0-bin W: Dependency included, but may not be needed ('cbodotnet-host')\n"
+        ],
+        "namcapReviewedFindings": [
+          {
+            "diagnostic": "cbodotnet-sdk-10.0-bin E: ELF files outside of a valid path ('opt/').",
+            "reason": "The reviewed contract isolates the complete unmodified SDK under /opt/cbodotnet/<series>; native installation independently verifies all qualified payload bytes, modes and links.",
+            "rule": "elfpaths"
+          }
+        ],
+        "package": "cbodotnet-sdk-10.0-bin-10.0.403-2-x86_64.pkg.tar.zst",
+        "pkgbase": "cbodotnet-sdk-10.0-bin",
+        "revision": "sdk-upgrade",
+        "sha256": "87311e92c595eaf9ed91ffdeb8944b56c8bc835bfaae92b75774223fe2913c42",
+        "sourceVerification": "passed",
+        "srcinfoSha256": "fbfc406f9b2f3eb0a3dfb3bb3dc3e799616ce5f16539911a1643b224f9632c93"
+      }
+    ],
+    "packageManagerPolicy": "full-package-extraction",
+    "phase": "prepublication",
+    "producer": {
+      "artifactId": "13083076281",
+      "originalSdkName": "cbodotnet-sdk-10.0.403-linux-x64-build.41301145771.tar.gz",
+      "originalSourceName": "cbodotnet-sources-10.0.403-linux-x64-build.41301145771.tar.gz",
+      "projectCommit": "29e878271353d95c8d6db4bb358976bd7ee6e988",
+      "runAttempt": "1",
+      "runId": "41301145771",
+      "targetRid": "linux-x64",
+      "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41301145771"
+    },
+    "publicationStatus": "not-published",
+    "recipeSources": [
+      {
+        "path": "cbodotnet-host/.SRCINFO",
+        "sha256": "e9f131e8407f9dca711cd5dc6b8cb2a276db7966362cac4c5bead9adb80b5c87"
+      },
+      {
+        "path": "cbodotnet-host/LICENSE",
+        "sha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b"
+      },
+      {
+        "path": "cbodotnet-host/PKGBUILD",
+        "sha256": "2deac802d7536974d9201f884c98241b68a892c0502a4c16e3ac06f4e74e92f2"
+      },
+      {
+        "path": "cbodotnet-host/cbodotnet",
+        "sha256": "22d23c82d1c279367d8456bf319faaaa36065d15b2c1c80bf548f06fac2ed805"
+      },
+      {
+        "path": "cbodotnet-sdk-10.0-bin/.SRCINFO",
+        "sha256": "7bd63db03a94f90bf0260028a3a12abe9195c99e3d252831f14ae43fff337ca7"
+      },
+      {
+        "path": "cbodotnet-sdk-10.0-bin/PKGBUILD",
+        "sha256": "63aa9de2eb588dbe083d6d07e501bc8a20ccbc5d5e53b09433a194e20ca86c1f"
+      },
+      {
+        "path": "cbodotnet-sdk-10.0-bin/cbodotnet-10.0",
+        "sha256": "8872ade05c29eca9c76f4f609aa1d3248988bf83e7a200d3e1757df9a7724a08"
+      },
+      {
+        "path": "cbodotnet-sdk-10.0-bin/distribution.json",
+        "sha256": "497ce67e21749505fe6e54962fa17734f4512762a095fa2e26099d13303f9c85"
+      },
+      {
+        "path": "cbodotnet-sdk-10.0-bin/verify-source.py",
+        "sha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47"
+      }
+    ],
+    "schemaVersion": 1,
+    "scope": "channel-installation",
+    "source": {
+      "evidence": {
+        "name": "evidence-x64.tar.gz",
+        "sha256": "56941c7c987707506784618cc992bab611c2f97623d4c1b56d4d4d00a1221a5e",
+        "size": 42812798,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-x64.tar.gz"
+      },
+      "licensePaths": [
+        "LICENSE.txt",
+        "ThirdPartyNotices.txt"
+      ],
+      "sdk": {
+        "name": "cbodotnet-sdk-10.0.403-linux-x64.tar.gz",
+        "sha256": "0ff27ca9775fb8d3c83fce60ad511754956f311a950878dcbc05bd6737a4bc09",
+        "size": 224606406,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-x64.tar.gz"
+      },
+      "securitySupport": "community-build-no-additional-security-maintenance",
+      "source": {
+        "name": "cbodotnet-source-10.0.403-linux-x64.tar.gz",
+        "sha256": "222a3f28450c258c8179eb5f4360e96f5886cd4af8fe36d33533f3bc6491009c",
+        "size": 783949395,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-x64.tar.gz"
+      },
+      "sourceManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json"
+    },
+    "status": "passed",
+    "target": {
+      "architecture": "x64",
+      "dependencies": {
+        "ca-certificates": "20240618-1",
+        "glibc": "2.44+r50+g1848099f063e-1",
+        "icu": "78.3-1",
+        "krb5": "1.22.2-1",
+        "libgcc": "16.2.1+r23+gd564253eb6c8-1",
+        "libstdc++": "16.2.1+r23+gd564253eb6c8-1",
+        "openssl": "3.6.5-1",
+        "zlib": "1:1.3.2-4"
+      },
+      "native": true,
+      "observedOsRelease": {
+        "ANSI_COLOR": "38;2;23;147;209",
+        "BUG_REPORT_URL": "https://gitlab.archlinux.org/groups/archlinux/-/issues",
+        "BUILD_ID": "rolling",
+        "DOCUMENTATION_URL": "https://wiki.archlinux.org/",
+        "HOME_URL": "https://archlinux.org/",
+        "ID": "arch",
+        "LOGO": "archlinux-logo",
+        "NAME": "Arch Linux",
+        "PRETTY_NAME": "Arch Linux",
+        "PRIVACY_POLICY_URL": "https://terms.archlinux.org/docs/privacy-policy/",
+        "SUPPORT_URL": "https://bbs.archlinux.org/",
+        "VERSION_ID": "20261101.0.620205"
+      },
+      "osId": "arch",
+      "startingImage": "archlinux:base-devel@sha256:3942e1ff7ee3c41bdbcb6647ed850e199caae0c56dd18a4d3fa9bb9f3d2311f1",
+      "versionId": "rolling"
+    },
+    "validationTools": {
+      "makepkg": "makepkg (pacman) 7.1.0",
+      "pacman": ""
+    }
+  },
+  "schemaVersion": 1,
+  "scope": "aur-recipe-build-and-native-validation-only",
+  "status": "passed",
+  "workflow": {
+    "commit": "95dbe62d3ca9acb3a92e31f896d4b7b321688188",
+    "conclusion": "success",
+    "createdAt": "2026-11-04T05:30:17Z",
+    "event": "workflow_dispatch",
+    "path": ".github/workflows/distribution-release.yml",
+    "repository": "dotnetdev-kr/cbodotnet",
+    "runAttempt": "1",
+    "runId": "41779636849",
+    "updatedAt": "2026-11-04T05:32:23Z",
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41779636849"
+  },
+  "workflowArtifact": {
+    "createdAt": "2026-11-04T05:32:19Z",
+    "expiresAt": "2026-11-11T05:32:16Z",
+    "id": "13298870763",
+    "name": "downstream-aur-native-x64-41779636849-1",
+    "nativeTarSha256": "34726544437763caf31cf23fc6cd98a8969f8246fc4033c62e592364834501f1",
+    "sha256": "23b0be21426aa74d439e46a7be3a3b7fd26ac12c63b75103d14cf5fb5d7122e4",
+    "size": 223320069,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41779636849/artifacts/13298870763"
+  }
+}

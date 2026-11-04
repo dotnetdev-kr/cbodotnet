@@ -275,7 +275,7 @@ def installed(args):
     result = dict(schemaVersion=1, status='passed', target=dict(osId='arch', versionId='rolling', architecture='x64', native=True,
         dependencies=dependencies, observedOsRelease={key: value.strip('"') for key, value in os_release.items()}, startingImage=ARCH_BASE),
         checks=checks, commandNames=names, packageBuilds=build_records, nativeDependencyOutput=dynamic,
-        validationTools={tool: run([tool, '--version']).splitlines()[0] for tool in ('makepkg', 'pacman')},
+        validationTools={tool: run([tool, '--version']).strip().splitlines()[0] for tool in ('makepkg', 'pacman')},
         networkForBuild='none',
         packageManagerPolicy='full-package-extraction',
         publicationStatus='not-published')

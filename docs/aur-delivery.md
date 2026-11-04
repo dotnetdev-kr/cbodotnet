@@ -124,6 +124,21 @@ rollback and removal. It retains the two recipe source trees, a recipe-only
 archive, build/lint logs and machine-readable reports as workflow artifacts.
 Those artifacts and reports are build evidence, not a publication receipt.
 
+The complete native lifecycle passed on 2026-11-04 in
+[run 41779636849, attempt 1](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41779636849),
+using source commit
+[`95dbe62`](https://github.com/dotnetdev-kr/cbodotnet/commit/95dbe62d3ca9acb3a92e31f896d4b7b321688188).
+The retained [validation evidence](aur-validation.json) includes the exact
+original report, source/run/commit identity, artifact ID and API SHA-256,
+recipe-file hashes, actual `.SRCINFO` hashes, native target/dependency versions
+and reviewed lint findings. An independent download matched the artifact API
+digest, and both recipe trees and actual `.SRCINFO` bytes matched the tracked
+sources exactly. Tested runtime dependencies included OpenSSL 3.6.5-1 and ICU
+78.3-1. The original report's pacman version display field is empty because that
+command starts its output with a blank line; the executed pacman lifecycle and
+integrity checks passed, and future capture strips leading whitespace. The
+original report and its digest remain unchanged.
+
 The complete raw `namcap` output is retained. The current official `elfpaths`
 rule classifies every ELF under `/opt` as questionable, reporting the summary
 `ELF files outside of a valid path ('opt/').` at error severity. The validator
