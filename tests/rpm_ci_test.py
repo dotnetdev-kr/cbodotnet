@@ -157,6 +157,21 @@ class RpmCiTests(unittest.TestCase):
                 self.assertNotIn('--setopt=localpkg_gpgcheck=0', command)
                 self.assertNotIn('--nogpgcheck', command)
 
+    def test_rpm4_and_rpm6_require_successful_signatures_independent_of_output_case(self):
+        for name in ('Signature', 'signature'):
+            value = 'package.rpm:\n    Header OpenPGP ' + name + ', key fingerprint: ' + 'a' * 40 + ': OK\n    Payload SHA256 digest: OK\n'
+            with self.subTest(name=name), mock.patch.object(CI, 'run', return_value=value):
+                self.assertEqual(value, CI.verify_package_signature(Path('package.rpm')))
+        for value in ('Header SHA256 digest: OK\nPayload SHA256 digest: OK\n',
+                      'Header OpenPGP signature: NOKEY\n', 'Header Signature: NOT OK\n',
+                      'Header signature: OK\nPayload digest: BAD\n', 'Header signature: NOTFOUND\n'):
+            with self.subTest(value=value), mock.patch.object(CI, 'run', return_value=value):
+                with self.assertRaisesRegex(ValueError, 'payload signature failed'):
+                    CI.verify_package_signature(Path('package.rpm'))
+        with mock.patch.object(CI, 'run', side_effect=RuntimeError('rpmkeys rejected payload')):
+            with self.assertRaises(RuntimeError):
+                CI.verify_package_signature(Path('package.rpm'))
+
     def test_modern_and_legacy_dnf_repository_scope_are_explicit(self):
         with mock.patch.object(CI.Path, 'exists', return_value=True):
             self.assertEqual(['--disable-repo=*', '--enable-repo=cbodotnet-validation'],

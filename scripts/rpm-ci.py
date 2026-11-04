@@ -118,6 +118,16 @@ def cached_packages(plan, cache=Path('/var/cache')):
     return [selected[name] for name in sorted(selected)]
 
 
+def verify_package_signature(path):
+    value = run(['rpmkeys', '--checksig', '--verbose', path])
+    # RPM4 prints "Signature" while RPM6 prints "signature". Require an
+    # explicitly successful signature line as well as rpmkeys' successful exit.
+    require(re.search(r'\bsignature\b[^\n]*:\s*OK\s*$', value, re.IGNORECASE | re.MULTILINE)
+            and not re.search(r'\b(?:NOKEY|NOT\s+OK|NOTFOUND|NOTTRUSTED|BAD|FAILED)\b', value, re.IGNORECASE),
+            'An RPM payload signature failed: ' + str(path) + '\n' + value)
+    return value
+
+
 def strict_integrity(names):
     output = run(['rpm', '-V', *names])
     require(not output.strip(), 'Installed RPM integrity verification reported changed or missing files: ' + output)
@@ -244,8 +254,7 @@ def prepare_installed(args):
              '--setopt=keepcache=True', 'install', plan['package']['name'] + '-' + plan['sdkVersion'] + '-' + release, 'cbodotnet-host'])
         cached = cached_packages(plan)
         for path in cached:
-            value = run(['rpmkeys', '--checksig', '--verbose', path])
-            require('Signature' in value and 'NOKEY' not in value and 'NOT OK' not in value, 'An RPM payload signature failed')
+            verify_package_signature(path)
         save(delivery / 'package-signatures.json', {'status': 'passed', 'signingFingerprint': expected_key,
                                                   'packages': [dict(name=path.name, sha256=SHARED.digest(path)) for path in cached]})
     else:
