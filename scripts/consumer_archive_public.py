@@ -64,6 +64,7 @@ def postverify(receipt_path,architecture,workspace,keyring,output=None):
         manifestSha256=receipt['manifestSha256'],downloadUrl=archive['url'],
         compatibility=dict(required=False) if provider is None else dict(required=True,policySha256=provider['policySha256'],
             companion=provider['companion'],manifest=provider['manifest']))
+    if build.get('archiveLayoutVersion',1)==2:result['wrapperLicense']=build['wrapperLicense']
     validate_public_report(result,manifest,architecture,receipt['manifestSha256'],expected_source=source)
     output=Path(output) if output is not None else workspace/('published-'+architecture+'.json')
     output.write_bytes(encoded(result));return result

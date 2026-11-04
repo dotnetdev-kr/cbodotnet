@@ -223,7 +223,7 @@ def source_payload(plan, delivery):
     shutil.rmtree(expected.parent)
 
 
-def native_libraries(plan, output):
+def native_libraries(plan, output, runtime_env=None):
     root = Path(plan['package']['root'])
     selected = [root / 'dotnet']
     for pattern in ('host/fxr/*/libhostfxr.so', 'shared/Microsoft.NETCore.App/*/libcoreclr.so',
@@ -234,7 +234,7 @@ def native_libraries(plan, output):
     require(len(selected) >= 7, 'The complete baseline native runtime library set is required')
     rows = []
     for path in selected:
-        value = run(['ldd', path])
+        value = run(['ldd', path], env=dict(os.environ, **(runtime_env or {})))
         require('not found' not in value, 'Unresolved baseline native library: ' + str(path))
         rows.append({'path': path.relative_to(root).as_posix(), 'ldd': value})
     save(output / 'native-libraries.json', rows)
@@ -340,7 +340,7 @@ def lifecycle(args):
     require(verification['verificationStatus'] == 'passed' and verification['abi']['glibcCeilingPassed'], 'Installed RPM native SDK ABI verification failed')
     reports = delivery / 'reports'
     shutil.copytree(report, reports)
-    native_libraries(plan, reports)
+    native_libraries(plan, reports, runtime_env=runtime_env)
     dependencies = observed_dependencies(plan)
     strict_integrity([plan['package']['name'], 'cbodotnet-host'])
     require(SHARED.inventory(root) == load(delivery / 'sdk-before.json'), 'SDK execution modified qualified RPM payload')

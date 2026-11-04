@@ -139,6 +139,24 @@ class SharedRpmReuseTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.reuse()
 
+    def test_central_signature_gate_accepts_rpm4_and_rpm6_but_rejects_digest_only_or_failed_signatures(self):
+        def verify(output):
+            def execute(command, **kwargs):
+                if command[0] == 'gpg':
+                    return '-----BEGIN PGP PUBLIC KEY BLOCK-----\nfixture-public-key\n'
+                return output if '--checksig' in command else ''
+            with mock.patch.object(PUBLISH.CORE, 'run', side_effect=execute):
+                return PUBLISH.verify_rpm_signature(self.root / 'host.rpm', self.root / 'trusted.gpg', self.signer, self.root / 'rpm-db')
+        for case in ('Signature', 'signature'):
+            output = 'Header OpenPGP ' + case + ': OK\nPayload SHA256 digest: OK\n'
+            with self.subTest(case=case):
+                self.assertEqual('passed', verify(output)['status'])
+        for output in ('Header SHA256 digest: OK\nPayload SHA256 digest: OK\n',
+                       'Header Signature: NOT OK\n', 'Header signature: NOKEY\n',
+                       'Header signature: OK\nPayload digest: BAD\n', 'Header signature: NOTTRUSTED\n'):
+            with self.subTest(output=output), self.assertRaisesRegex(ValueError, 'signature failed independently'):
+                verify(output)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -66,6 +66,8 @@ class ConsumerArchiveTests(unittest.TestCase):
         self.assertEqual({'dotnet','cbodotnet','cbodotnet-10.0'},{row['path'] for row in build['commands']})
         self.assertEqual(b'qualified-sdk-file\x00\xff',(tree/'payload/sdk/10.0.403/reference.dll').read_bytes())
         self.assertEqual(b'Original notices\n',(tree/'payload/ThirdPartyNotices.txt').read_bytes())
+        self.assertEqual(2,build['archiveLayoutVersion'])
+        self.assertEqual((ROOT/'LICENSE').read_bytes(),(tree/'LICENSE.wrapper.txt').read_bytes())
         self.assertFalse(build['publicationAllowed'])
         with mock.patch.object(CR,'intake',side_effect=lambda directory,arch,revision:CA.intake(directory,arch,revision,contract=self.contract,catalog=self.catalog)):
             CR.verify_build(self.root/'build/package-build.json',self.inputs['x64'])
@@ -89,6 +91,15 @@ class ConsumerArchiveTests(unittest.TestCase):
         build=self.build(); tree=self.root/'build'/build['directory']; (tree/'payload/dotnet').unlink()
         result=subprocess.run([str(tree/'dotnet'),'--version'],capture_output=True,text=True)
         self.assertEqual(127,result.returncode); self.assertEqual('',result.stdout)
+
+    def test_wrapper_license_bytes_modes_and_project_notice_are_independently_checked(self):
+        build=self.build();tree=self.root/'build'/build['directory'];path=tree/'LICENSE.wrapper.txt'
+        CA.verify_wrapper_license(tree,build,current=True)
+        path.chmod(0o600)
+        with self.assertRaisesRegex(ValueError,'bytes or mode'):CA.verify_wrapper_license(tree,build,current=True)
+        path.chmod(0o644);path.write_bytes(b'Another copyright notice')
+        changed=copy.deepcopy(build);changed['wrapperLicense']=dict(CA.descriptor(path),mode='0644')
+        with self.assertRaisesRegex(ValueError,'exact project LICENSE'):CA.verify_wrapper_license(tree,changed,current=True)
 
     def test_source_pin_or_corrupt_sdk_rejected_before_output_is_created(self):
         contract=copy.deepcopy(self.contract); contract['releases']['10.0.403']['manifestSha256']='f'*64
@@ -116,13 +127,21 @@ class ConsumerArchiveTests(unittest.TestCase):
         report=dict(schemaVersion=1,scope='consumer-archive-installation',status='passed',architecture='x64',
             identity=CA.identity(plan),artifact=build['artifact'],commands=build['commands'],qualifiedPayload=build['qualifiedPayload'],
             orchestration=source,networkForBuild='none',checks=dict.fromkeys(CA.REPORT_CHECKS,'passed'),
+            wrapperLicense=build['wrapperLicense'],
             userSpaces=[dict(variant=variant,status='passed',architecture='x64',native=True,networkForBuild='none',
-                checks=dict.fromkeys(CA.REPORT_CHECKS,'passed'),functionalChecks=dict.fromkeys(CA.FUNCTIONAL_CHECKS,'passed')) for variant in plan['validatedUserSpaces']])
+                checks=dict.fromkeys(CA.REPORT_CHECKS,'passed'),functionalChecks=dict.fromkeys(CA.FUNCTIONAL_CHECKS,'passed'),
+                wrapperLicense=build['wrapperLicense']) for variant in plan['validatedUserSpaces']])
         CR.validate_native_report(report,build,source)
         for mutate in (lambda value:value['userSpaces'].pop(),lambda value:value['checks'].update({'relocation':'failed'}),
                        lambda value:value.update(architecture='aarch64'),lambda value:value['artifact'].update(sha256='f'*64)):
             changed=copy.deepcopy(report); mutate(changed)
             with self.assertRaises(ValueError):CR.validate_native_report(changed,build,source)
+        changed=copy.deepcopy(report);changed['userSpaces'][0].pop('wrapperLicense')
+        with self.assertRaisesRegex(ValueError,'wrapper license'):CR.validate_native_report(changed,build,source)
+        historical=copy.deepcopy(build);historical.pop('archiveLayoutVersion');historical.pop('wrapperLicense')
+        old_report=copy.deepcopy(report);old_report.pop('wrapperLicense')
+        for space in old_report['userSpaces']:space.pop('wrapperLicense')
+        CR.validate_native_report(old_report,historical,source)
 
 
 if __name__=='__main__':unittest.main()

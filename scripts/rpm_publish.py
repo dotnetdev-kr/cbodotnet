@@ -114,7 +114,8 @@ def verify_rpm_signature(package, keyring, fingerprint, database):
     armored_key.write_text(public)
     CORE.run(['rpmkeys', '--dbpath', database, '--import', armored_key])
     status = CORE.run(['rpmkeys', '--dbpath', database, '--checksig', '--verbose', package])
-    require('Signature' in status and 'NOKEY' not in status and 'NOT OK' not in status,
+    require(re.search(r'\bsignature\b[^\n]*:\s*OK\s*$', status, re.IGNORECASE | re.MULTILINE)
+            and not re.search(r'\b(?:NOKEY|NOT\s+OK|NOTFOUND|NOTTRUSTED|BAD|FAILED)\b', status, re.IGNORECASE),
             'RPM package signature failed independently')
     # This private database contains only the repository-owned reviewed key.
     return {'signingFingerprint': fingerprint, 'status': 'passed', 'verification': status.strip()}

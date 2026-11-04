@@ -212,7 +212,8 @@ class CatalogTests(unittest.TestCase):
             empty_status = {"schemaVersion": 1, "repository": REPOSITORY, "status": "fixture",
                             "channels": {name: {"status": "not-published", "publications": []}
                                          for name in ("deb", "oci", "rpm", "aur")}}
-            with mock.patch("distribution_site.prepare_site", return_value=empty_status):
+            with mock.patch("distribution_site.prepare_site", return_value=empty_status), \
+                 mock.patch("consumer_archive_site.archive_rows", return_value=[]):
                 CATALOG.write_site(catalog, template, output)
             self.assertEqual(image, (output / "assets/social-card.jpg").read_bytes())
             self.assertEqual(catalog, json.loads((output / "releases.json").read_text(encoding="utf-8")))

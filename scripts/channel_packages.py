@@ -222,6 +222,11 @@ def build_oci_context(plan, archive, output, base_image, compatibility_build=Non
     require(plan['variant'] == 'debian-13', 'OCI runtime template is qualified only for the Debian 13 candidate')
     prepared = compatibility_input(plan, compatibility_build, 'oci')
     output, rootfs, commands, payload = stage_payload(plan, archive, output, mode='oci')
+    wrapper_license_path = '/usr/share/licenses/cbodotnet-host/LICENSE'
+    wrapper_license = rootfs / wrapper_license_path.lstrip('/')
+    wrapper_license.parent.mkdir(parents=True)
+    shutil.copyfile(ROOT / 'LICENSE', wrapper_license)
+    wrapper_license.chmod(0o644)
     if prepared is not None:
         parent, provider = prepared
         provider_root = rootfs / provider['providerRoot'].lstrip('/')
@@ -232,6 +237,7 @@ def build_oci_context(plan, archive, output, base_image, compatibility_build=Non
     result = {'schemaVersion': 1, 'channel': 'oci', 'plan': plan, 'baseImage': base_image,
               'context': '.', 'containerfile': 'Containerfile', 'labels': labels,
               'buildArgs': {'BASE_IMAGE': base_image, 'SDK_SERIES': '.'.join(plan['sdkVersion'].split('.')[:2])},
+              'wrapperLicense': {'path': wrapper_license_path, 'sha256': sha256_file(wrapper_license)},
               'commandInventory': commands, 'payloadPreserved': True, 'publicationQualified': False}
     if prepared is not None:
         result['compatibility'] = {'required': True, 'providerRoot': provider['providerRoot'],

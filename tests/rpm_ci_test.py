@@ -18,6 +18,25 @@ SPEC.loader.exec_module(CI)
 
 
 class RpmCiTests(unittest.TestCase):
+    def test_native_library_observation_uses_the_same_scoped_provider_without_mutating_parent_environment(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            sdk = root / 'sdk'
+            paths = ['dotnet', 'host/fxr/3.1.32/libhostfxr.so',
+                *['shared/Microsoft.NETCore.App/3.1.32/' + name for name in ('libcoreclr.so', 'libhostpolicy.so',
+                   'libSystem.Native.so', 'libSystem.Globalization.Native.so', 'libSystem.Security.Cryptography.Native.OpenSsl.so')]]
+            for name in paths:
+                path = sdk / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b'fixture-elf')
+            scoped = {'LD_LIBRARY_PATH': '/usr/lib/cbodotnet/compat/rocky9/lib', 'CLR_OPENSSL_VERSION_OVERRIDE': '1.1'}
+            original = dict(CI.os.environ)
+            with mock.patch.object(CI, 'run', return_value='all native dependencies resolved\n') as inspect:
+                CI.native_libraries(dict(package=dict(root=str(sdk))), root, runtime_env=scoped)
+            self.assertEqual(7, inspect.call_count)
+            self.assertTrue(all(call.kwargs['env']['LD_LIBRARY_PATH'] == scoped['LD_LIBRARY_PATH'] for call in inspect.call_args_list))
+            self.assertEqual(original, dict(CI.os.environ))
+
     def test_signed_reinstall_retains_independent_verified_bytes_before_dnf_cache_cleanup(self):
         with tempfile.TemporaryDirectory() as temporary:
             delivery = Path(temporary)

@@ -114,6 +114,12 @@ class ChannelPackagesTests(unittest.TestCase):
         self.assertTrue({'/usr/local/bin/cbodotnet', '/usr/local/bin/cbodotnet-10.0', '/usr/local/bin/dotnet'} <= paths)
         self.assertEqual('debian:13@sha256:' + 'b' * 64, result['buildArgs']['BASE_IMAGE'])
         self.assertFalse(result['publicationQualified'])
+        project_license = self.directory / 'oci/rootfs/usr/share/licenses/cbodotnet-host/LICENSE'
+        self.assertEqual((ROOT / 'LICENSE').read_bytes(), project_license.read_bytes())
+        self.assertEqual(0o644, project_license.stat().st_mode & 0o7777)
+        self.assertEqual({'path': '/usr/share/licenses/cbodotnet-host/LICENSE',
+                          'sha256': hashlib.sha256(project_license.read_bytes()).hexdigest()}, result['wrapperLicense'])
+        self.assertEqual(b'Original license bytes\n', (self.directory / 'oci/rootfs/opt/cbodotnet/10.0/LICENSE.txt').read_bytes())
         labels = result['labels']
         self.assertEqual('MIT AND LicenseRef-Dotnet-ThirdPartyNotices', labels['org.opencontainers.image.licenses'])
         self.assertEqual('/opt/cbodotnet/10.0/LICENSE.txt', labels['kr.dotnetdev.cbodotnet.license.path'])

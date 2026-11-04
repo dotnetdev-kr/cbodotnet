@@ -66,8 +66,10 @@ class ConsumerArchiveReleaseTests(unittest.TestCase):
             report=dict(schemaVersion=1,scope='consumer-archive-installation',status='passed',architecture=arch,
                 identity=CA.identity(plan),artifact=build['artifact'],commands=build['commands'],qualifiedPayload=build['qualifiedPayload'],
                 orchestration=source,networkForBuild='none',checks=dict.fromkeys(CA.REPORT_CHECKS,'passed'),
+                wrapperLicense=build['wrapperLicense'],
                 compatibility=dict(required=False),userSpaces=[dict(variant=variant,status='passed',architecture=arch,native=True,
-                    networkForBuild='none',checks=dict.fromkeys(CA.REPORT_CHECKS,'passed'),functionalChecks=dict.fromkeys(CA.FUNCTIONAL_CHECKS,'passed')) for variant in plan['validatedUserSpaces']])
+                    networkForBuild='none',checks=dict.fromkeys(CA.REPORT_CHECKS,'passed'),functionalChecks=dict.fromkeys(CA.FUNCTIONAL_CHECKS,'passed'),
+                    wrapperLicense=build['wrapperLicense']) for variant in plan['validatedUserSpaces']])
             report_file=root/('report-'+arch+'.json');report_file.write_bytes(CA.encoded(report))
             builds.append(root/('build-'+arch)/'package-build.json');reports.append(report_file);inputs.append(fixture.inputs[arch])
         with mock.patch.object(CA,'load_contract',return_value=fixture.contract),mock.patch.object(CR,'load_contract',return_value=fixture.contract):

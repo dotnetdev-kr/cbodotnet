@@ -53,3 +53,15 @@ the encrypted revocation certificate through repository-owner administration.
 Publish the certificate, affected artifact/digest list and successor trust
 bootstrap through the established project channels. Keep immutable artifacts
 and their history; do not hide a revocation by replacing their bytes.
+
+When resuming native evidence from an older commit, GitHub can reject creation
+of a release tag with `Resource not accessible by integration` if that commit
+changes workflows and is no longer a branch head or referenced tag. The
+[GitHub workflow-scope policy](https://github.blog/changelog/2023-11-02-github-actions-enforcing-workflow-scope-when-creating-a-release/)
+describes this restriction. An owner may create a source anchor named
+`downstream-source-<full-native-commit>` pointing at the already reviewed native
+commit. This is a provenance tag, not an SDK release or qualification record.
+The publisher keeps its existing `contents: write` permission and exact signed
+target commit. Resume the uploaded frozen promotion artifact without importing
+the private key again or regenerating any signatures. Never retarget an existing
+release or source anchor to work around this restriction.

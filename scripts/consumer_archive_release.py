@@ -10,7 +10,7 @@ from pathlib import Path
 
 from consumer_archive import (ARCHITECTURES, BRANDING, FUNCTIONAL_CHECKS, MANIFEST, PUBLIC_KEY, REPORT_CHECKS, REPOSITORY,
     ROOT, SIGNATURE, WORKFLOW, archive_name, compatibility_policy, descriptor, encoded, identity, intake, launcher_text,
-    load_contract, load_status, ordinary_file, payload_summary, require, sdk_tools, verify_report_signature)
+    load_contract, load_status, ordinary_file, payload_summary, require, sdk_tools, verify_report_signature,verify_wrapper_license)
 from downstream_publish import GitHubReleases, verify_remote_assets
 
 
@@ -45,8 +45,9 @@ def verify_build(build_file, inputs):
         tools.extract_sdk(archive,temporary / 'consumer')
         tree=temporary / 'consumer' / build['directory']
         require(set(path.name for path in (temporary / 'consumer').iterdir()) == {build['directory']},'Unexpected consumer archive roots')
-        expected_names={'dotnet','cbodotnet','cbodotnet-'+'.'.join(plan['sdkVersion'].split('.')[:2]),'payload','README.txt','distribution.json'}
+        expected_names={'dotnet','cbodotnet','cbodotnet-'+'.'.join(plan['sdkVersion'].split('.')[:2]),'payload','README.txt','distribution.json','LICENSE.wrapper.txt'}
         require(set(path.name for path in tree.iterdir()) == expected_names,'Unexpected consumer archive entrypoints')
+        verify_wrapper_license(tree,build,current=True)
         require(build['qualifiedPayload'] == payload_summary(original),'Archive source payload inventory changed')
         observed=tools.snapshot(tree / 'payload')
         added=build['additionalDirectories']
@@ -84,6 +85,10 @@ def validate_native_report(report, build, source):
             and space.get('native') is True and space.get('architecture') == plan['architecture']
             and space.get('checks') == dict.fromkeys(REPORT_CHECKS,'passed')
             and space.get('functionalChecks') == dict.fromkeys(FUNCTIONAL_CHECKS,'passed'),'A native archive user-space gate failed')
+    if build.get('archiveLayoutVersion',1)==2:
+        require(report.get('wrapperLicense')==build['wrapperLicense'] and all(space.get('wrapperLicense')==build['wrapperLicense'] for space in spaces),
+            'Native consumer reports omit exact wrapper license verification')
+    else:require(build.get('archiveLayoutVersion',1)==1,'Unsupported consumer archive layout version')
     return report
 
 

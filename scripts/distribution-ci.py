@@ -25,6 +25,7 @@ from distribution_contract import load_contract, validate_qualified_producers
 from downstream_release import encoded, local_intake, package_record, receive_release, PREPUBLICATION_CHECKS
 from downstream_release import stage_records
 from sdk_runtime import runtime_policy, series as sdk_series, smoke_script, validate_host_rid, validate_smoke_output
+from downstream_release import oci_wrapper_license
 
 ROOT = Path(__file__).resolve().parents[1]
 DEBIAN_BASE = 'debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4'
@@ -73,7 +74,7 @@ def validate_image_config(image, architecture, sdk_root, labels=None):
                 labels=labels or {})
 
 
-def inspect_consumer_files(reference, sdk_root):
+def inspect_consumer_files(reference, sdk_root, *, wrapper_license=None):
     versioned = '/usr/bin/cbodotnet-' + Path(sdk_root).name
     ownership = run(['docker', 'run', '--rm', '--user', '0', reference, 'stat', '-c', '%u:%g:%a',
                      sdk_root, sdk_root + '/dotnet', versioned, '/usr/bin/cbodotnet'])
@@ -81,7 +82,16 @@ def inspect_consumer_files(reference, sdk_root):
     run(['docker', 'run', '--rm', reference, 'sh', '-ec',
          'for tool in gcc g++ clang make cmake git; do if command -v "$tool" >/dev/null 2>&1; then '
          'echo "Unexpected source-build toolchain program: $tool" >&2; exit 1; fi; done'])
-    return dict(ownership='root:root:0755', sourceBuildToolchain='absent', credentialEnvironment='absent')
+    result = dict(ownership='root:root:0755', sourceBuildToolchain='absent', credentialEnvironment='absent')
+    if wrapper_license is not None:
+        require(wrapper_license == oci_wrapper_license(), 'OCI wrapper license descriptor differs from the project LICENSE')
+        path = wrapper_license['path']
+        value = run(['docker', 'run', '--rm', '--network', 'none', reference, 'sh', '-ec',
+            'test -f ' + path + ' && test ! -L ' + path + ' && stat -c "%u:%g:%a" ' + path + ' && sha256sum ' + path])
+        require(value.splitlines() == ['0:0:644', wrapper_license['sha256'] + '  ' + path],
+                'OCI wrapper MIT license bytes, ownership or permissions differ')
+        result['wrapperLicense'] = dict(wrapper_license, ownership='0:0:644', status='passed')
+    return result
 
 
 def qualified_oci_labels(index, architecture, manifest_bytes=None, contract=None, catalog=None):
@@ -132,6 +142,10 @@ def validate_published_metadata(index, expected):
     if int(revision[2]) >= 2 or revision[1] != '10.0.403':
         require(expected.get('metadataPolicyVersion') == 2 and labels and expected.get('sdkRoot') == '/opt/cbodotnet/' + sdk_series(revision[1]),
                 'New OCI revisions require the complete metadata policy; legacy fallback is allowed only for r1')
+    if revision[1] != '10.0.403' or int(revision[2]) >= 3:
+        require(expected.get('wrapperLicense') == oci_wrapper_license(), 'New OCI descriptor lacks the exact project wrapper license')
+    elif 'wrapperLicense' in expected:
+        require(expected['wrapperLicense'] == oci_wrapper_license(), 'Published OCI wrapper license descriptor differs')
     if expected.get('metadataPolicyVersion') == 2:
         qualified = qualified_oci_labels(index, expected['architecture'])
         base_label = labels.get('org.opencontainers.image.base.name', '')
@@ -632,7 +646,8 @@ def native(args):
     expected_arch = 'amd64' if args.arch == 'x64' else 'arm64'
     labels = dict(metadata['labels'], **{'org.opencontainers.image.base.name': args.debian_base})
     config_evidence = validate_image_config(image, expected_arch, metadata['plan']['package']['root'], labels)
-    file_evidence = inspect_consumer_files(tag, metadata['plan']['package']['root'])
+    require(metadata.get('wrapperLicense') == oci_wrapper_license(), 'New OCI context lacks the project wrapper MIT license')
+    file_evidence = inspect_consumer_files(tag, metadata['plan']['package']['root'], wrapper_license=metadata['wrapperLicense'])
     functional_evidence = run_public_functional_smoke(tag, args.tag[4:], metadata['plan']['package']['root'])
     require(run(['docker', 'run', '--rm', tag, 'id', '-u']).strip() == '1654', 'Consumer image does not execute as its non-root user')
     progress('execute native OCI aliases, payload, non-root, HTTP, cryptography and globalization checks')
@@ -643,6 +658,7 @@ def native(args):
     result['functionalChecks'] = functional_evidence
     result['imageFunctionalNetwork'] = 'none'
     result['checks'].update({'image-labels': 'passed', 'image-ownership': 'passed', 'image-no-build-secrets': 'passed', 'image-no-source-build-toolchain': 'passed'})
+    result['checks']['image-wrapper-license'] = 'passed'
     # Upgrade through a separately built packaging revision, then roll back by
     # selecting the original immutable image without rewriting either image.
     upgrade_build = delivery / 'upgrade-build'
@@ -656,7 +672,9 @@ def native(args):
     upgraded_image = json.loads(run(['docker', 'image', 'inspect', upgrade_tag]))[0]
     validate_image_config(upgraded_image, expected_arch, upgrade_metadata['plan']['package']['root'],
                           dict(upgrade_metadata['labels'], **{'org.opencontainers.image.base.name': args.debian_base}))
-    inspect_consumer_files(upgrade_tag, upgrade_metadata['plan']['package']['root'])
+    require(upgrade_metadata.get('wrapperLicense') == oci_wrapper_license(), 'Upgrade OCI context lacks the project wrapper MIT license')
+    result['imageUpgradeFiles'] = inspect_consumer_files(upgrade_tag, upgrade_metadata['plan']['package']['root'],
+                                                       wrapper_license=upgrade_metadata['wrapperLicense'])
     for name in ('cbodotnet-' + sdk_series(args.tag[4:]), 'cbodotnet', 'dotnet'):
         validate_sdk_listing(run(['docker', 'run', '--rm', upgrade_tag, name, '--list-sdks']), args.tag[4:], upgrade_metadata['plan']['package']['root'])
     upgraded = json.loads(run(['docker', 'run', '--rm', '--entrypoint', 'cbodotnet', upgrade_tag, '--cbodotnet-info']))
@@ -673,7 +691,8 @@ def native(args):
     run(['docker', 'save', '--output', artifact, tag])
     progress('export the verified native image for protected promotion')
     (delivery / 'image.json').write_bytes(encoded(dict(tag=tag, id=image['Id'], architecture=expected_arch,
-        base=args.debian_base, sdkVersion=args.tag[4:], sdkRoot=metadata['plan']['package']['root'], labels=labels)))
+        base=args.debian_base, sdkVersion=args.tag[4:], sdkRoot=metadata['plan']['package']['root'], labels=labels,
+        wrapperLicense=metadata['wrapperLicense'])))
     items.append(record(delivery, artifact, result, delivery / 'commands', inputs))
     shutil.rmtree(build)
     shutil.rmtree(upgrade_build)
@@ -722,6 +741,8 @@ def push_images(items, output):
         platform_row = dict(os='linux', architecture=image['architecture'], digest=current[0]['digest'], configDigest=image['id'])
         if image.get('labels'):
             platform_row.update(labels=image['labels'], sdkRoot=image['sdkRoot'], metadataPolicyVersion=2)
+        require(image.get('wrapperLicense') == oci_wrapper_license(), 'New registry promotion lacks the project wrapper license')
+        platform_row['wrapperLicense'] = image['wrapperLicense']
         platforms.append(platform_row)
     platforms.sort(key=lambda row: row['architecture'])
     index_reference = repository + ':' + tag
@@ -1018,7 +1039,7 @@ def postverify(args):
     sdk_root = '/opt/cbodotnet/' + sdk_series(version)
     source_pin = load_contract()['releases'][version]['manifestSha256']
     config_evidence = validate_image_config(actual, expected_arch, sdk_root, labels)
-    file_evidence = inspect_consumer_files(reference, sdk_root)
+    file_evidence = inspect_consumer_files(reference, sdk_root, wrapper_license=expected.get('wrapperLicense'))
     require(run(['docker', 'run', '--rm', reference, 'id', '-u']).strip() != '0', 'Published image defaults to root')
     for name in ('cbodotnet-' + sdk_series(version), 'cbodotnet', 'dotnet'):
         result = subprocess.run(['docker', 'run', '--rm', '--network', 'none', reference, name, '--version'], text=True, capture_output=True)
@@ -1040,6 +1061,8 @@ def postverify(args):
               'console-apphost', 'http-crypto-globalization', 'sdk-info-root-rid']
     if labels:
         checks.append('image-labels')
+    if expected.get('wrapperLicense'):
+        checks.append('image-wrapper-license')
     args.output.write_bytes(encoded(dict(schemaVersion=1, status='passed', architecture=args.arch, aptTargets=apt_results,
         repository=index['repository'], digest=index['digest'], imageConfig=config_evidence, imageFiles=file_evidence,
         functionalChecks=functional_evidence, networkForBuild='none', checks=checks)))

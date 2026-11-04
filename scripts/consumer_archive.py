@@ -118,6 +118,17 @@ def payload_summary(rows):
         files=sum(row[0]=='file' for row in rows.values()),links=sum(row[0]=='link' for row in rows.values()))
 
 
+def verify_wrapper_license(tree,build,*,current=False):
+    expected=build.get('wrapperLicense')
+    require(build.get('archiveLayoutVersion')==2 and isinstance(expected,dict)
+        and expected.get('name')=='LICENSE.wrapper.txt' and expected.get('mode')=='0644','Consumer archive wrapper license is absent')
+    path=ordinary_file(Path(tree)/'LICENSE.wrapper.txt')
+    require(dict(descriptor(path),mode=format(stat.S_IMODE(path.stat().st_mode),'04o'))==expected,
+        'Consumer wrapper license bytes or mode changed')
+    if current:require(path.read_bytes()==ordinary_file(ROOT/'LICENSE').read_bytes(),'Consumer wrapper license differs from exact project LICENSE')
+    return expected
+
+
 def build_archive(inputs, architecture, revision, output, *, contract=None, catalog=None):
     plan = intake(inputs,architecture,revision,contract=contract,catalog=catalog)
     output = fresh_directory(output)
@@ -142,12 +153,15 @@ def build_archive(inputs, architecture, revision, output, *, contract=None, cata
     for name in ('dotnet','cbodotnet','cbodotnet-' + '.'.join(plan['sdkVersion'].split('.')[:2])):
         path = tree / name; path.write_bytes(wrapper); path.chmod(0o755)
         commands.append(dict(path=name,mode='0755',size=len(wrapper),sha256=hashlib.sha256(wrapper).hexdigest()))
+    wrapper_license=tree/'LICENSE.wrapper.txt'
+    wrapper_license.write_bytes(ordinary_file(ROOT/'LICENSE').read_bytes());wrapper_license.chmod(0o644)
     (tree / 'distribution.json').write_bytes(encoded(dict(**plan,payloadDirectory='payload',additionalDirectories=added)))
     (tree / 'README.txt').write_text('Community Build of .NET (built by .NET Dev)\n\n'
         + 'Run ./cbodotnet, ./cbodotnet-' + '.'.join(plan['sdkVersion'].split('.')[:2]) + ' or ./dotnet.\n'
         + 'Add this extracted directory to PATH explicitly if desired. The unchanged SDK is under payload/.\n'
         + 'For direct apphost execution set DOTNET_ROOT to the absolute payload/ directory.\n'
         + 'Original licensing: payload/LICENSE.txt and payload/ThirdPartyNotices.txt.\n'
+        + 'Additional consumer wrappers: LICENSE.wrapper.txt (exact cbodotnet project MIT notice).\n'
         + 'Source and qualification: ' + plan['sourceManifestUrl'] + '\n',encoding='utf-8',newline='\n')
     current = tools.snapshot(payload)
     require({key:value for key,value in current.items() if key not in added} == original,'Qualified payload bytes, modes or links changed')
@@ -161,9 +175,11 @@ def build_archive(inputs, architecture, revision, output, *, contract=None, cata
                 if info.isfile():
                     with path.open('rb') as content: tar.addfile(info,content)
                 else: tar.addfile(info)
-    result = dict(schemaVersion=1,kind='consumer-archive-build',status='built-unpublished',publicationAllowed=False,
+    result = dict(schemaVersion=1,kind='consumer-archive-build',status='built-unpublished',publicationAllowed=False,archiveLayoutVersion=2,
         plan=plan,artifact=descriptor(archive),directory=tree.name,commands=commands,
+        wrapperLicense=dict(descriptor(wrapper_license),mode='0644'),
         qualifiedPayload=payload_summary(original),additionalDirectories=added)
+    verify_wrapper_license(tree,result,current=True)
     (output / 'package-build.json').write_bytes(encoded(result))
     return result
 

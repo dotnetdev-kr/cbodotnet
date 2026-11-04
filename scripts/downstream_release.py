@@ -220,6 +220,21 @@ def validate_legacy_evidence(report, plan):
                 'Legacy runtime provider source, policy or native architecture differs')
 
 
+def oci_wrapper_license():
+    return dict(path='/usr/share/licenses/cbodotnet-host/LICENSE', sha256=sha256_file(ROOT / 'LICENSE'))
+
+
+def validate_oci_wrapper_license(report, plan):
+    """New OCI promotions must prove the added launchers' project MIT notice."""
+    if plan['channel'] != 'oci':
+        return
+    expected = dict(oci_wrapper_license(), ownership='0:0:644', status='passed')
+    require(report.get('checks', {}).get('image-wrapper-license') == 'passed'
+            and report.get('imageFiles', {}).get('wrapperLicense') == expected
+            and report.get('imageUpgradeFiles', {}).get('wrapperLicense') == expected,
+            'New OCI promotion lacks the unchanged project wrapper license in both tested images')
+
+
 def verify_report_signature(report_path, signature_path, keyring_path, policy, workflow, gpgv='gpgv', *, historical=False):
     """Authenticate exact bytes; historical reads never authorize new promotion."""
     report, signature, keyring = map(ordinary_file, (report_path, signature_path, keyring_path))
@@ -343,6 +358,7 @@ def validate_record(packaged, artifact_path, report_path, signature_path, keyrin
             'Report has unavailable or unrecorded native libraries')
     channel = policy['channels'].get(identity['channel'], {})
     validate_legacy_evidence(report, canonical_plan)
+    validate_oci_wrapper_license(report, canonical_plan)
     checks = PREPUBLICATION_CHECKS | set(channel.get('requiredChecks', []))
     require(checks and all(report.get('checks', {}).get(name) == 'passed' for name in checks),
             'Required prepublication matrix check failed or is missing')

@@ -12,7 +12,7 @@ import urllib.request
 
 from consumer_archive import (ARCHITECTURES, BRANDING, REPORT_CHECKS, REPOSITORY, ROOT, WORKFLOW, archive_stem,
     build_archive, descriptor, encoded, fresh_directory, identity, intake, load_contract, ordinary_file,
-    payload_summary, require, sdk_tools)
+    payload_summary, require, sdk_tools,verify_wrapper_license)
 from release_catalog import get_bytes, validate_release
 from distribution_contract import validate_qualified_producers
 from sdk_runtime import smoke_script, validate_host_rid, validate_smoke_output
@@ -113,6 +113,7 @@ def installed(args):
     guard(args.variant,plan['architecture'])
     require({item.name for item in Path('/sys/class/net').iterdir()}=={'lo'},'Actual Docker --network none is mandatory')
     root=INSTALL/'original'/build['directory']
+    if build.get('archiveLayoutVersion',1)==2:verify_wrapper_license(root,build)
     from legacy_compat import assert_unchanged,environment
     runtime_env=environment(dict(plan,variant=args.variant))
     provider_before=assert_unchanged(state['provider'])
@@ -147,6 +148,7 @@ def installed(args):
     functional=validate_smoke_output(output)
     require(tools.snapshot(payload)==observed,'Non-root runtime execution changed the SDK payload')
     provider_after=assert_unchanged(state['provider']);require(provider_before==provider_after,'SDK modified the separate compatibility provider')
+    wrapper_license=verify_wrapper_license(relocated,build) if build.get('archiveLayoutVersion',1)==2 else None
     source=tools.snapshot(payload)
     require(all(source.get(name)==observed.get(name) and source[name][0]=='file'
         for name in plan['licensePaths']),'Original license/notice changed')
@@ -154,6 +156,7 @@ def installed(args):
         checks=dict.fromkeys(REPORT_CHECKS,'passed'),functionalChecks=functional,commands=command_results,
         compatibility=provider_after,dependencies={name:run(['dpkg-query','-W','-f=${Version}',name]).strip()
             for name in load_contract()['operatingSystems'][args.variant]['dependencies']})
+    if wrapper_license:report['wrapperLicense']=wrapper_license
     (args.workspace/(args.variant+'-report.json')).write_bytes(encoded(report))
 
 
@@ -186,6 +189,7 @@ def native(args):
         orchestration=source,networkForBuild='none',checks=dict.fromkeys(REPORT_CHECKS,'passed'),userSpaces=spaces,
         compatibility=dict(required=False) if companion is None else dict(required=True,policySha256=companion['policySha256'],
             companion=companion['companion'],manifest=companion['manifest']))
+    if build.get('archiveLayoutVersion',1)==2:result['wrapperLicense']=build['wrapperLicense']
     (workspace/'report.json').write_bytes(encoded(result))
     # Transport only source inputs, the compressed consumer archive and exact reports.
     shutil.rmtree(workspace/'build'/build['directory'])

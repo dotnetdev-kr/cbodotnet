@@ -179,6 +179,15 @@ def prepare_site(policy, output, public_key=None):
                             status['channels'].setdefault(channel, {}).setdefault('repositories', []).append(dict(
                                 variant=variant, sdkVersion=identity['sdkVersion'], packageRevision=identity['packageRevision'],
                                 repositoryUrl=flat_base, delivery='github-release-flat'))
+                            # Retain the original SDK10 APT URL for installed clients,
+                            # serving only its latest revision within the Pages budget.
+                            if identity['sdkVersion'].startswith('10.0.') and variant not in hosted_variants:
+                                archive = temporary / name
+                                download(base + name, archive, 2**31 - 1, assets[name])
+                                parent = output / 'packages/deb'
+                                parent.mkdir(parents=True, exist_ok=True)
+                                extract_repository(archive, parent / variant)
+                                hosted_variants.add(variant)
                             continue
                         if variant in hosted_variants:
                             continue

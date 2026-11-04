@@ -174,3 +174,26 @@ source/workflow identities, dependency versions and authenticated DEB bindings.
 Native reports retain `repository-metadata: pending-signing-stage` and disabled
 publication flags: those local build fixtures were not newly signed or published.
 The original signed revision 1 and its publication evidence remain unchanged.
+
+## Additional SDK repository layout
+
+New multi-SDK publications use one immutable flat APT repository per SDK,
+packaging revision and operating-system variant. Its canonical URI is
+`https://github.com/dotnetdev-kr/cbodotnet/releases/download/repository-deb-<variant>-sdk-<version>-r<revision>/`.
+The signed `InRelease` authenticates `Packages`; package filenames are direct
+Release asset basenames. Native public verification installs through the real
+HTTPS APT repository, including GitHub's redirects. Separate Ubuntu and Debian
+repositories retain their exact native dependency declarations.
+
+The download site lists all verified repository URIs in a deb822 source. Each
+SDK series has a separate package name, so the selected versions can coexist.
+The original Pages APT URLs continue to serve the latest verified SDK10 revision
+for existing clients. Only that SDK's pool is hosted on Pages; other SDK pools
+remain Release assets to keep the static site within its size limit. Historical
+release assets and signed receipts are preserved. Retain authenticated DEBs
+before upgrading when rollback to a superseded repository revision is required.
+
+SDK5 and Core3 packages declare an exact dependency on the separately owned
+compatibility package described in [the provider policy](legacy-compatibility-provider.md).
+Source admission and generated repositories are candidates until the signed
+complete matrix and native public installation reports activate availability.

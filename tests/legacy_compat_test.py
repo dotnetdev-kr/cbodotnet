@@ -34,6 +34,31 @@ def cpio_entry(name, content=b'', mode=stat.S_IFREG | 0o644):
 
 
 class LegacyCompatTests(unittest.TestCase):
+    def test_actual_rpm4_and_rpm6_statuses_require_exact_approved_signature_and_sha256(self):
+        old = ('example.rpm:\n    Header V4 RSA/SHA256 Signature, key ID 350d275d: OK\n'
+               '    Header SHA256 digest: OK\n    Payload SHA256 digest: OK\n    MD5 digest: OK\n')
+        current = ('example.rpm:\n    Header OpenPGP V4 RSA/SHA256 signature, key fingerprint: '
+                   '21cb256ae16fc54c6e652949702d426d350d275d: OK\n'
+                   '    Header SHA256 digest: OK\n    Payload SHA256 digest: OK\n')
+        for output in [old, current]:
+            COMPAT.verify_rpm_signature_status(output)
+        for output in [old.replace('350d275d', '01234567'), current.replace('21cb256a', '01234567'),
+                       current.replace('signature,', 'digest,'), current.replace('Payload SHA256 digest: OK', ''),
+                       current.replace('Header SHA256 digest: OK', ''), current + 'Payload SHA256 digest: BAD\n',
+                       current.replace(': OK', ': NOKEY', 1), 'example.rpm: digests OK\n', old + old]:
+            with self.subTest(output=output), self.assertRaisesRegex(ValueError, 'approved valid signature'):
+                COMPAT.verify_rpm_signature_status(output)
+
+    def test_arch_image_build_stamp_is_not_treated_as_fixed_os_release(self):
+        COMPAT.validate_operating_system({'ID': 'arch', 'BUILD_ID': 'rolling', 'VERSION_ID': '20261101.0.620205'}, 'arch-rolling')
+        COMPAT.validate_operating_system({'ID': 'arch', 'BUILD_ID': 'rolling'}, 'arch-rolling')
+        COMPAT.validate_operating_system({'ID': 'debian', 'VERSION_ID': '13'}, 'debian-13')
+        for values, variant in [({'ID': 'arch', 'BUILD_ID': 'stable'}, 'arch-rolling'),
+                                ({'ID': 'ubuntu', 'BUILD_ID': 'rolling'}, 'arch-rolling'),
+                                ({'ID': 'debian', 'VERSION_ID': '12'}, 'debian-13')]:
+            with self.subTest(values=values), self.assertRaises(ValueError):
+                COMPAT.validate_operating_system(values, variant)
+
     def test_policy_binds_both_native_binary_and_matching_source_packages(self):
         policy = COMPAT.load_policy()
         self.assertEqual(COMPAT.FINGERPRINT, policy['signingFingerprint'])

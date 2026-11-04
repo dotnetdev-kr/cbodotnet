@@ -16,16 +16,17 @@ verified consumer download choices.
 
 ## Layout and commands
 
-For example, the 10.0.403 x64 revision 1 archive is named
-`cbodotnet-sdk-10.0.403-linux-x64-branded-r1.tar.gz`. Extracting it creates:
+For example, the corrected 10.0.403 x64 revision 2 archive is named
+`cbodotnet-sdk-10.0.403-linux-x64-branded-r2.tar.gz`. Extracting it creates:
 
 ```text
-cbodotnet-10.0.403-linux-x64-r1/
+cbodotnet-10.0.403-linux-x64-r2/
   cbodotnet
   cbodotnet-10.0
   dotnet
   distribution.json
   README.txt
+  LICENSE.wrapper.txt
   payload/
     dotnet
     host/
@@ -56,7 +57,11 @@ root itself contains wrappers and is not the runtime root.
 Original file bytes, modes and links are compared with the qualified SDK during
 protected promotion. Only an explicitly admitted empty metadata directory may
 be added when the source SDK lacks it. Original notices remain under `payload/`;
-the wrapper license does not replace the licenses of SDK components.
+the wrapper license does not replace the licenses of SDK components. Archive
+layout 2 separately includes `LICENSE.wrapper.txt`, the exact project's MIT
+copyright and permission notice, checked before and after native execution.
+The already published 10.0.403 revision 1 remains immutable historical output;
+revision 2 supersedes it only after its own complete native/public validation.
 
 ## Separate legacy compatibility companion
 

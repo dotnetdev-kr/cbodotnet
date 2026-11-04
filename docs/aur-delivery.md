@@ -1,7 +1,11 @@
 # Arch Linux recipe build and validation
 
-The tracked recipes prepare the qualified .NET SDK 10.0.403 for Arch Linux
-`x86_64`. They have **not been submitted to AUR** and do not make an AUR package
+The tracked recipes prepare SDKs **10.0.403, 9.0.123, 8.0.133, 7.0.120,
+6.0.136, 5.0.214, 3.1.426 and 3.0.103** for Arch Linux `x86_64` from their
+independently qualified source archives. Native Arch validation of the seven
+additional SDKs remains pending until their new workflow runs pass; the
+historical SDK 10 evidence is recorded below.
+The recipes have **not been submitted to AUR** and do not make an AUR package
 available. Issue [#6](https://github.com/dotnetdev-kr/cbodotnet/issues/6) covers
 recipe development and native build/install validation. Actual account ownership,
 maintainer identity, SSH authorization, repository submission and public install
@@ -9,16 +13,25 @@ verification are deferred to issue
 [#10](https://github.com/dotnetdev-kr/cbodotnet/issues/10), at the user's request.
 `releases/downstream-status.json` must continue to report AUR as `not-published`.
 
-There are two independent package bases:
+Each SDK has its own package base and shares one independent selector. Legacy
+SDKs also depend on a separate compatibility package:
 
 | Package base | Version | Ownership |
 | --- | --- | --- |
 | [`cbodotnet-host`](../packaging/aur/cbodotnet-host/PKGBUILD) | 1.0.0-1 | `/usr/bin/cbodotnet`, the shared SDK selector |
 | [`cbodotnet-sdk-10.0-bin`](../packaging/aur/cbodotnet-sdk-10.0-bin/PKGBUILD) | 10.0.403-1 | `/opt/cbodotnet/10.0`, `/usr/bin/cbodotnet-10.0`, source provenance and original notices |
+| [`cbodotnet-sdk-9.0-bin`](../packaging/aur/cbodotnet-sdk-9.0-bin/PKGBUILD) | 9.0.123-1 | `/opt/cbodotnet/9.0`, `/usr/bin/cbodotnet-9.0` and retained notices |
+| [`cbodotnet-sdk-8.0-bin`](../packaging/aur/cbodotnet-sdk-8.0-bin/PKGBUILD) | 8.0.133-1 | `/opt/cbodotnet/8.0`, `/usr/bin/cbodotnet-8.0` and retained notices |
+| [`cbodotnet-sdk-7.0-bin`](../packaging/aur/cbodotnet-sdk-7.0-bin/PKGBUILD) | 7.0.120-1 | `/opt/cbodotnet/7.0`, `/usr/bin/cbodotnet-7.0` and retained notices |
+| [`cbodotnet-sdk-6.0-bin`](../packaging/aur/cbodotnet-sdk-6.0-bin/PKGBUILD) | 6.0.136-1 | `/opt/cbodotnet/6.0`, `/usr/bin/cbodotnet-6.0` and retained notices |
+| [`cbodotnet-sdk-5.0-bin`](../packaging/aur/cbodotnet-sdk-5.0-bin/PKGBUILD) | 5.0.214-1 | `/opt/cbodotnet/5.0`, `/usr/bin/cbodotnet-5.0` and retained notices |
+| [`cbodotnet-sdk-3.1-bin`](../packaging/aur/cbodotnet-sdk-3.1-bin/PKGBUILD) | 3.1.426-1 | `/opt/cbodotnet/3.1`, `/usr/bin/cbodotnet-3.1` and retained notices |
+| [`cbodotnet-sdk-3.0-bin`](../packaging/aur/cbodotnet-sdk-3.0-bin/PKGBUILD) | 3.0.103-1 | `/opt/cbodotnet/3.0`, `/usr/bin/cbodotnet-3.0` and retained notices |
+| [`cbodotnet-compat-rocky9`](../packaging/aur/cbodotnet-compat-rocky9/PKGBUILD) | 2026.11.4-1 | Separate OpenSSL 1.1/ICU 67 provider under `/usr/lib/cbodotnet/compat/rocky9`; no SDK payload |
 
 Separating the shared host package base allows future SDK series to depend on
 the same selector without tying its version or ownership to one SDK release.
-Neither package owns `/usr/bin/dotnet` or changes an existing official .NET root.
+These packages do not own `/usr/bin/dotnet` or change an existing official .NET root.
 The common `cbodotnet` command selects the highest installed Community Build SDK
 series; `cbodotnet-10.0` selects this series explicitly.
 
@@ -31,7 +44,7 @@ Arch requires a complete system upgrade rather than a partial upgrade.
 
 ```bash
 sudo pacman -Syu --needed base-devel python namcap curl ca-certificates \
-  glibc libgcc libstdc++ zlib krb5 icu openssl
+  glibc libgcc libstdc++ zlib krb5 icu openssl rpm-tools gnupg binutils
 
 cd packaging/aur/cbodotnet-host
 makepkg --verifysource
@@ -58,6 +71,19 @@ configuration changes it. `--version` keeps the numeric SDK version on stdout
 and emits `Community Build of .NET (built by .NET Dev)` on stderr. Information
 commands include the branding and exact qualified source identity.
 
+The example selects SDK 10; use the corresponding package base and launcher
+from the table for another admitted series. Before building SDK 5.0 or Core
+3.0/3.1, build and install `packaging/aur/cbodotnet-compat-rocky9` using the same
+`makepkg --verifysource`, `makepkg --cleanbuild` and `pacman -U` sequence.
+Those SDK recipes require exactly `cbodotnet-compat-rocky9=2026.11.4-1`.
+Its pinned signed Rocky binary/source RPMs, licenses, scoped TLS configuration,
+and maintenance limits are recorded in the
+[separate provider policy](legacy-compatibility-provider.md).
+The provider requires **x86-64-v2** CPU features; its shared launcher preflight
+rejects unsupported or unknown CPUs before loading the libraries. It does not
+restore upstream .NET/OpenSSL support or promise additional security fixes.
+The qualified SDK binaries retain their original CPU baseline and bytes.
+
 Keep earlier locally built package files before changing `pkgrel`. Upgrade with
 `sudo pacman -U ./<new-package-file>` and roll back with
 `sudo pacman -U ./<retained-old-package-file>`. The automated test builds real
@@ -65,6 +91,10 @@ revisions 1 and 2 and performs both operations. Remove the SDK with
 `sudo pacman -R cbodotnet-sdk-10.0-bin`; the shared selector remains installed and
 reports that no Community Build SDK is available. Remove it separately with
 `sudo pacman -R cbodotnet-host` when no other Community Build SDK depends on it.
+Remove the independently installed compatibility package only after all legacy
+SDKs depending on it are removed. Changing its reviewed version requires a new
+matching legacy SDK package revision and native verification; keep both package
+files when retaining a rollback pair.
 
 ## Source integrity and updates
 
@@ -85,6 +115,9 @@ documentation and static libraries. Original `LICENSE.txt` and
 Arch metadata identifies the original SDK MIT license as `MIT` and the retained
 aggregate third-party notice as `LicenseRef-Dotnet-ThirdPartyNotices`, using
 current SPDX-compatible identifiers.
+Original SDK `metadata` contents and modes are preserved. Additional directories
+are created only when explicitly admitted for that release; the seven additional
+SDKs do not receive a metadata overlay.
 
 For a packaging-only change, increment the SDK package revision and regenerate
 its wrapper, policy, checksums and actual `.SRCINFO` together. Do not change the
@@ -108,7 +141,8 @@ native runtime linkage. The current image pin was resolved from official Docker
 registry metadata for Arch image `20261101.0.620205`.
 The minimal container image's `NoExtract` exclusions are disabled so the test
 uses normal full-package extraction, including source provenance and notices;
-`pacman -Qkk` must verify every file owned by these two packages.
+`pacman -Qkk` must report zero altered files for every selected SDK, selector and
+required compatibility package.
 After provisioning dependencies, the driver snapshots that disposable container
 and runs the entire build and installed lifecycle with Docker `--network none`.
 Only loopback is present, which still permits the local ASP.NET HTTP probe.
@@ -118,13 +152,17 @@ records `networkForBuild: none`.
 Validation performs actual non-root `makepkg --verifysource`, `.SRCINFO`
 generation and package builds; `namcap`; `pacman` ownership/integrity checks;
 byte/mode/link comparison against the qualified SDK; branded aliases; a non-root
-offline console build/run; ASP.NET loopback HTTP; RSA cryptography and ICU
-globalization; independent official .NET SDK coexistence; real revision upgrade,
-rollback and removal. It retains the two recipe source trees, a recipe-only
+offline DLL and direct apphost build/run using the selected SDK's actual target
+framework; ASP.NET loopback HTTP; TLS 1.2; RSA cryptography and enabled ICU
+globalization; independent official SDK 10.0.100 coexistence; real revision
+upgrade, rollback, reinstall and removal. Legacy preparation authenticates and
+installs the separate provider first; offline validation rebuilds its recipe and
+checks that its installed bytes, modes, links and root ownership remain unchanged
+through SDK lifecycle transitions. It retains the two or three recipe source trees, a recipe-only
 archive, build/lint logs and machine-readable reports as workflow artifacts.
 Those artifacts and reports are build evidence, not a publication receipt.
 
-The complete native lifecycle passed on 2026-11-04 in
+The historical SDK 10.0.403 native lifecycle passed on 2026-11-04 in
 [run 41779636849, attempt 1](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41779636849),
 using source commit
 [`95dbe62`](https://github.com/dotnetdev-kr/cbodotnet/commit/95dbe62d3ca9acb3a92e31f896d4b7b321688188).

@@ -249,12 +249,36 @@ def verify_sources(policy, architecture, cache, work):
         path = fetch(item, cache)
         verification = subprocess.check_output(['rpmkeys', '--dbpath', str(database), '--checksig', '--verbose', str(path)],
                                                 stderr=subprocess.STDOUT, text=True)
-        require('RSA/SHA256 Signature, key ID 350d275d: OK' in verification
-                and 'Payload SHA256 digest: OK' in verification
-                and not any(value in verification for value in ('NOKEY', 'NOT OK', 'BAD', 'NOTTRUSTED')),
-                'Compatibility RPM lacks the approved valid signature and payload digest')
+        verify_rpm_signature_status(verification)
         paths[item['name']] = path
     return paths
+
+
+def verify_rpm_signature_status(output):
+    """Admit actual RPM4 short-key and RPM6 full-fingerprint status formats."""
+    signatures = []
+    lines = [line.strip() for line in output.splitlines()]
+    for line in lines:
+        match = re.fullmatch(r'Header (?:OpenPGP )?V4 RSA/SHA256 signature, key '
+                             r'(?:ID ([a-f0-9]{8,16})|fingerprint: ([a-f0-9]{40})): OK', line, re.I)
+        if match:
+            identity = (match[1] or match[2]).upper()
+            signatures.append(identity == FINGERPRINT if match[2] else identity in {FINGERPRINT[-8:], FINGERPRINT[-16:]})
+    require(signatures == [True] and 'Header SHA256 digest: OK' in lines and 'Payload SHA256 digest: OK' in lines
+            and not re.search(r'\b(?:NOKEY|BAD|NOTTRUSTED)\b|NOT OK', output, re.I),
+            'Compatibility RPM lacks the approved valid signature and payload digest:\n' + output)
+
+
+def validate_operating_system(values, variant):
+    values = {key: value.strip('"') for key, value in values.items()}
+    if variant == 'arch-rolling':
+        # Official Arch container VERSION_ID is its image build stamp, not a
+        # distribution release. BUILD_ID binds the rolling distribution model.
+        require(values.get('ID') == 'arch' and values.get('BUILD_ID') == 'rolling',
+                'Compatibility installation requires the native Arch rolling target')
+    else:
+        require(values.get('ID', '') + '-' + values.get('VERSION_ID', '') == variant,
+                'Compatibility installation operating system differs')
 
 
 def cpio_members(data):
@@ -707,8 +731,7 @@ def provision(plan, delivery, user=None):
     cpu = cpu_preflight(architecture)
     variant = plan['variant']
     values = dict(line.split('=', 1) for line in Path('/etc/os-release').read_text().splitlines() if '=' in line)
-    identity = values['ID'].strip('"') + '-' + values.get('VERSION_ID', 'rolling').strip('"')
-    require(identity == variant, 'Compatibility installation operating system differs')
+    validate_operating_system(values, variant)
     delivery = Path(delivery)
     delivery.mkdir(parents=True, exist_ok=True)
     managed = Path(PROVIDER_ROOT)
