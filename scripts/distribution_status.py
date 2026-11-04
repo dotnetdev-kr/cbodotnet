@@ -6,12 +6,14 @@ import json
 from pathlib import Path
 import re
 import tempfile
+import time
 
 from distribution_site import prepare_site
 from downstream_publish import GitHubReleases, REPOSITORY, release_tag
 from downstream_release import PREPUBLICATION_CHECKS, encoded, require
 
 STATUS_PATH = 'releases/downstream-status.json'
+CONSISTENCY_DELAYS = (2, 4, 8, 16, 20, 20, 20)
 POST_CHECKS = {'anonymous-pull', 'native-config', 'non-root', 'command-aliases', 'cli-branding', 'offline-build-run'}
 POST_CHECKS_V2 = POST_CHECKS | {'sdk-list-paths', 'image-labels', 'image-ownership',
                               'image-no-build-secrets', 'image-no-source-build-toolchain',
@@ -166,15 +168,10 @@ def activate_status(policy, receipts, reports, index=None, proof=None, public_ke
     return merged
 
 
-def validate_workflow_run(api, run_id, attempt, channels=('deb', 'oci')):
+def validate_workflow_run(api, run_id, attempt, channels=('deb', 'oci'), *,
+                          retry_delays=CONSISTENCY_DELAYS, sleep=None):
     require(re.fullmatch(r'[1-9][0-9]*', str(run_id)) and re.fullmatch(r'[1-9][0-9]*', str(attempt)),
             'Exact successful publication run and attempt are required')
-    run = api.api(f'repos/{REPOSITORY}/actions/runs/{run_id}')
-    require(run and run.get('repository', {}).get('full_name') == REPOSITORY
-            and run.get('head_repository', {}).get('full_name') == REPOSITORY
-            and run.get('head_branch') == 'main' and run.get('event') == 'workflow_dispatch'
-            and run.get('path') == '.github/workflows/distribution-release.yml', 'Status updates require the trusted main publication workflow')
-    jobs = api.api(f'repos/{REPOSITORY}/actions/runs/{run_id}/attempts/{attempt}/jobs?per_page=100')['jobs']
     required_jobs = (('Sign and publish RPM distributions',
                       'Verify public RPM repositories on native x64',
                       'Verify public RPM repositories on native aarch64') if set(channels) == {'rpm'} else
@@ -182,12 +179,47 @@ def validate_workflow_run(api, run_id, attempt, channels=('deb', 'oci')):
                       'Anonymous digest pull and non-root smoke on x64',
                       'Anonymous digest pull and non-root smoke on aarch64'))
     require(set(channels) <= {'deb', 'oci'} or set(channels) == {'rpm'}, 'Unsupported publication job matrix')
-    for name in required_jobs:
-        matched = [row for row in jobs if row.get('name') == name]
-        require(len(matched) == 1 and matched[0].get('conclusion') == 'success',
-                'Publication or native post-verification job did not pass: ' + name)
-    return {'runId': str(run_id), 'runAttempt': str(attempt), 'commit': run['head_sha'],
-            'url': f'https://github.com/{REPOSITORY}/actions/runs/{run_id}/attempts/{attempt}'}
+    delays = tuple(retry_delays)
+    require(all(type(delay) in {int, float} and 0 <= delay <= 60 for delay in delays) and sum(delays) <= 90,
+            'Workflow consistency retry must remain bounded to 90 seconds')
+    sleep = sleep or time.sleep
+    expected_head = None
+    for poll in range(len(delays) + 1):
+        run = api.api(f'repos/{REPOSITORY}/actions/runs/{run_id}')
+        require(isinstance(run, dict) and run.get('repository', {}).get('full_name') == REPOSITORY
+                and run.get('head_repository', {}).get('full_name') == REPOSITORY
+                and run.get('head_branch') == 'main' and run.get('event') == 'workflow_dispatch'
+                and run.get('path') == '.github/workflows/distribution-release.yml'
+                and isinstance(run.get('head_sha'), str)
+                and re.fullmatch(r'[a-f0-9]{40}', run.get('head_sha', '')),
+                'Status updates require the trusted main publication workflow')
+        expected_head = expected_head or run['head_sha']
+        require(run['head_sha'] == expected_head, 'Publication run source commit changed while waiting for job metadata')
+        response = api.api(f'repos/{REPOSITORY}/actions/runs/{run_id}/attempts/{attempt}/jobs?per_page=100')
+        require(isinstance(response, dict) and isinstance(response.get('jobs'), list)
+                and all(isinstance(row, dict) for row in response['jobs']), 'Malformed publication job API response')
+        pending = []
+        for name in required_jobs:
+            matched = [row for row in response['jobs'] if row.get('name') == name]
+            require(len(matched) <= 1, 'Duplicate publication or native post-verification job: ' + name)
+            if not matched:
+                pending.append(name)
+                continue
+            job = matched[0]
+            require(('run_id' not in job or job['run_id'] == int(run_id))
+                    and ('run_attempt' not in job or job['run_attempt'] == int(attempt))
+                    and ('head_sha' not in job or job['head_sha'] == expected_head),
+                    'Publication job belongs to another exact run, attempt or source commit')
+            state, conclusion = job.get('status'), job.get('conclusion')
+            require(conclusion in {None, 'success'} and state in {'queued', 'in_progress', 'waiting', 'pending', 'requested', 'completed'},
+                    'Publication or native post-verification job did not pass: ' + name)
+            if state != 'completed' or conclusion != 'success':
+                pending.append(name)
+        if not pending:
+            return {'runId': str(run_id), 'runAttempt': str(attempt), 'commit': expected_head,
+                    'url': f'https://github.com/{REPOSITORY}/actions/runs/{run_id}/attempts/{attempt}'}
+        require(poll < len(delays), 'Publication jobs did not reach actual terminal success within the bounded consistency window: ' + ', '.join(pending))
+        sleep(delays[poll])
 
 
 def update_repository_status(receipts, reports, index, run_id, attempt, gh='gh', api=None, verifier=None, public_key=None):

@@ -11,6 +11,7 @@ import re
 import stat
 import subprocess
 import tempfile
+import time
 import zipfile
 
 from consumer_archive import ARCHITECTURES,REPOSITORY,WORKFLOW,encoded,require
@@ -19,20 +20,44 @@ from consumer_archive_site import authenticate_receipt,archive_rows,load_archive
 from downstream_publish import GitHubReleases
 
 STATUS_PATH='releases/archive-status.json'
+CONSISTENCY_DELAYS=(2,4,8,16,20,20,20)
+PENDING_JOB_STATUSES={'queued','waiting','pending','requested','in_progress'}
 
 
-def validate_run(api,run_id,attempt):
+def validate_run(api,run_id,attempt,*,retry_delays=CONSISTENCY_DELAYS,sleep=None):
     require(re.fullmatch(r'[1-9][0-9]*',str(run_id)) and re.fullmatch(r'[1-9][0-9]*',str(attempt)),
         'Exact consumer publication run and attempt required')
-    run=api.api(f'repos/{REPOSITORY}/actions/runs/{run_id}')
-    require(run and run.get('repository',{}).get('full_name')==run.get('head_repository',{}).get('full_name')==REPOSITORY
-        and run.get('head_branch')=='main' and run.get('event')=='workflow_dispatch' and run.get('path')==WORKFLOW,
-        'Consumer status requires the trusted main publication workflow')
-    jobs=api.api(f'repos/{REPOSITORY}/actions/runs/{run_id}/attempts/{attempt}/jobs?per_page=100')['jobs']
-    for name in ['Sign and publish branded consumer archives',*['Verify public branded consumer archive on native '+arch for arch in ARCHITECTURES]]:
-        selected=[item for item in jobs if item.get('name')==name]
-        require(len(selected)==1 and selected[0].get('conclusion')=='success','Consumer publication or native public verification did not pass: '+name)
-    return workflow_identity(dict(repository=REPOSITORY,workflow=WORKFLOW,commit=run['head_sha'],runId=str(run_id),runAttempt=str(attempt)))
+    sleep=sleep or time.sleep;source=None
+    for delay in (*retry_delays,None):
+        run=api.api(f'repos/{REPOSITORY}/actions/runs/{run_id}')
+        require(run and run.get('repository',{}).get('full_name')==run.get('head_repository',{}).get('full_name')==REPOSITORY
+            and run.get('head_branch')=='main' and run.get('event')=='workflow_dispatch' and run.get('path')==WORKFLOW
+            and str(run.get('id'))==str(run_id) and str(run.get('run_attempt'))==str(attempt)
+            and re.fullmatch(r'[a-f0-9]{40}',run.get('head_sha','')),
+            'Consumer status requires the trusted main publication workflow and exact attempt')
+        require(run.get('conclusion') in {None,'success'},'Consumer publication workflow has a definitive unsuccessful conclusion')
+        observed=workflow_identity(dict(repository=REPOSITORY,workflow=WORKFLOW,commit=run['head_sha'],runId=str(run_id),runAttempt=str(attempt)))
+        require(source is None or observed==source,'Consumer publication workflow identity changed during API propagation')
+        source=observed
+        listing=api.api(f'repos/{REPOSITORY}/actions/runs/{run_id}/attempts/{attempt}/jobs?per_page=100')
+        require(isinstance(listing.get('jobs'),list) and listing.get('total_count',len(listing['jobs']))<=100,
+            'Consumer publication job listing is malformed or paginated')
+        pending=[]
+        for name in ['Sign and publish branded consumer archives',*['Verify public branded consumer archive on native '+arch for arch in ARCHITECTURES]]:
+            selected=[item for item in listing['jobs'] if item.get('name')==name]
+            require(len(selected)<=1,'Consumer publication or native public verification job is ambiguous: '+name)
+            if not selected:
+                pending.append(name);continue
+            job=selected[0]
+            require(str(job.get('run_id'))==str(run_id) and str(job.get('run_attempt'))==str(attempt)
+                and job.get('head_sha')==source['commit'],'Consumer public verification job belongs to another source run')
+            if job.get('status')=='completed' and job.get('conclusion')=='success':continue
+            require(job.get('conclusion') is None and job.get('status') in PENDING_JOB_STATUSES,
+                'Consumer publication or native public verification did not pass: '+name)
+            pending.append(name)
+        if not pending:return source
+        require(delay is not None,'Consumer publication or native public verification did not pass before the API consistency deadline: '+', '.join(pending))
+        sleep(delay)
 
 
 def download_artifact(artifact,gh='gh'):
@@ -47,17 +72,39 @@ def download_artifact(artifact,gh='gh'):
     return data
 
 
-def verify_artifacts(api,source,reports,*,fetch_artifact=None,gh='gh'):
-    artifacts=api.api(f'repos/{REPOSITORY}/actions/runs/{source["runId"]}/artifacts?per_page=100')['artifacts']
+def verify_artifacts(api,source,reports,*,fetch_artifact=None,gh='gh',retry_delays=CONSISTENCY_DELAYS,sleep=None):
     fetch_artifact=fetch_artifact or (lambda artifact:download_artifact(artifact,gh))
     require(len(reports)==2 and {item['architecture'] for item in reports}==set(ARCHITECTURES),'Both native public consumer reports required')
+    sleep=sleep or time.sleep
+    for delay in (*retry_delays,None):
+        listing=api.api(f'repos/{REPOSITORY}/actions/runs/{source["runId"]}/artifacts?per_page=100')
+        require(isinstance(listing.get('artifacts'),list) and listing.get('total_count',len(listing['artifacts']))<=100,
+            'Consumer public artifact listing is malformed or paginated')
+        selected_artifacts={};pending=[]
+        for arch in ARCHITECTURES:
+            name=f'downstream-archive-postverify-{arch}-{source["runId"]}-{source["runAttempt"]}'
+            selected=[item for item in listing['artifacts'] if item.get('name')==name]
+            require(len(selected)<=1,'Exact public consumer artifact is ambiguous')
+            if not selected:
+                pending.append(name);continue
+            artifact=selected[0]
+            require(artifact.get('workflow_run',{}).get('head_sha')==source['commit']
+                and str(artifact['workflow_run'].get('id'))==source['runId'],'Consumer report artifact belongs to another source run')
+            require(type(artifact.get('id')) is int and artifact['id']>0 and not artifact.get('expired')
+                and type(artifact.get('size_in_bytes')) is int and 0<artifact['size_in_bytes']<4*1024**2,
+                'Consumer public report artifact is absent or unbounded')
+            if artifact.get('digest') in {None,''}:
+                pending.append(name);continue
+            require(isinstance(artifact['digest'],str) and re.fullmatch(r'sha256:[a-f0-9]{64}',artifact['digest']),
+                'Consumer public report artifact has an invalid API ZIP digest')
+            selected_artifacts[arch]=artifact
+        if not pending:break
+        require(delay is not None,'Exact public consumer artifact is missing or its API digest is pending after the consistency deadline')
+        sleep(delay)
     proof=[]
     for record in reports:
         arch=record['architecture'];name=f'downstream-archive-postverify-{arch}-{source["runId"]}-{source["runAttempt"]}'
-        selected=[item for item in artifacts if item.get('name')==name]
-        require(len(selected)==1,'Exact public consumer artifact is missing or ambiguous');artifact=selected[0]
-        require(artifact.get('workflow_run',{}).get('head_sha')==source['commit']
-            and str(artifact['workflow_run'].get('id'))==source['runId'],'Consumer report artifact belongs to another source run')
+        artifact=selected_artifacts[arch]
         data=fetch_artifact(artifact)
         require(len(data)==artifact['size_in_bytes'] and 'sha256:'+hashlib.sha256(data).hexdigest()==artifact['digest'],
             'Public consumer report ZIP digest changed')

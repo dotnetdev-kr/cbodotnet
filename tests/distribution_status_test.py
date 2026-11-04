@@ -179,7 +179,7 @@ class DistributionStatusTests(unittest.TestCase):
                 if '/jobs?' in endpoint:
                     names = ['Sign, promote and post-verify immutable distributions',
                              'Anonymous digest pull and non-root smoke on x64', 'Anonymous digest pull and non-root smoke on aarch64']
-                    return {'jobs': [dict(name=name, conclusion='failure' if bad_job and 'x64' in name else 'success') for name in names]}
+                    return {'jobs': [dict(name=name, status='completed', conclusion='failure' if bad_job and 'x64' in name else 'success') for name in names]}
                 if method == 'GET':
                     return dict(type='file', path=STATUS.STATUS_PATH, encoding='base64', sha='2' * 40,
                                 content=base64.b64encode(encoded(self.policy)).decode())
@@ -206,6 +206,80 @@ class DistributionStatusTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 STATUS.update_repository_status(self.receipts, self.reports, self.index, '123', '1', api=api, verifier=self.verify)
             self.assertFalse(any('/pages.yml/dispatches' in row[0] for row in api.calls))
+
+
+class WorkflowConsistencyTests(unittest.TestCase):
+    def setUp(self):
+        self.metadata = dict(repository=dict(full_name=STATUS.REPOSITORY), head_repository=dict(full_name=STATUS.REPOSITORY),
+            head_branch='main', event='workflow_dispatch', path='.github/workflows/distribution-release.yml', head_sha='1' * 40)
+        self.names = ['Sign, promote and post-verify immutable distributions',
+            'Anonymous digest pull and non-root smoke on x64', 'Anonymous digest pull and non-root smoke on aarch64']
+        self.jobs = [dict(name=name, status='completed', conclusion='success', run_id=123, run_attempt=1, head_sha='1' * 40)
+                     for name in self.names]
+
+    def api(self, snapshots, metadata=None):
+        api = mock.Mock()
+        responses = []
+        for index, jobs in enumerate(snapshots):
+            responses.extend([(metadata or [self.metadata] * len(snapshots))[index], {'jobs': jobs}])
+        api.api.side_effect = responses
+        return api
+
+    def test_missing_or_in_progress_exact_jobs_are_repolled_until_actual_terminal_success(self):
+        pending = copy.deepcopy(self.jobs)
+        pending[1].update(status='in_progress', conclusion=None)
+        pending[1]['steps'] = [{'name': 'Complete job', 'conclusion': 'success', 'status': 'completed'}]
+        for first in (self.jobs[:1], pending):
+            api = self.api([first, self.jobs])
+            sleep = mock.Mock()
+            proof = STATUS.validate_workflow_run(api, '123', '1', retry_delays=(2,), sleep=sleep)
+            self.assertEqual('1' * 40, proof['commit'])
+            self.assertEqual(4, api.api.call_count)
+            sleep.assert_called_once_with(2)
+
+    def test_success_conclusion_with_nonterminal_state_still_requires_completed_state(self):
+        pending = copy.deepcopy(self.jobs)
+        pending[2]['status'] = 'in_progress'
+        with self.assertRaisesRegex(ValueError, 'actual terminal success'):
+            STATUS.validate_workflow_run(self.api([pending]), '123', '1', retry_delays=())
+
+    def test_default_window_is_exactly_bounded_and_pending_never_becomes_acceptance(self):
+        pending = copy.deepcopy(self.jobs)
+        pending[0].update(status='in_progress', conclusion=None)
+        api = self.api([pending] * (len(STATUS.CONSISTENCY_DELAYS) + 1))
+        sleep = mock.Mock()
+        with self.assertRaisesRegex(ValueError, 'bounded consistency window'):
+            STATUS.validate_workflow_run(api, '123', '1', sleep=sleep)
+        self.assertEqual(list(STATUS.CONSISTENCY_DELAYS), [call.args[0] for call in sleep.call_args_list])
+        self.assertEqual(90, sum(call.args[0] for call in sleep.call_args_list))
+        self.assertTrue(all(call.args[0] <= 60 for call in sleep.call_args_list))
+
+    def test_failure_cancel_skip_duplicate_or_foreign_job_provenance_never_waits(self):
+        invalid = []
+        for conclusion in ('failure', 'cancelled', 'skipped', 'timed_out', 'neutral', 'action_required'):
+            jobs = copy.deepcopy(self.jobs)
+            jobs[1]['conclusion'] = conclusion
+            invalid.append(jobs)
+        invalid.append(self.jobs + self.jobs[:1])
+        for key, value in [('run_id', 124), ('run_attempt', 2), ('head_sha', '2' * 40), ('status', 'unknown')]:
+            jobs = copy.deepcopy(self.jobs)
+            jobs[1][key] = value
+            invalid.append(jobs)
+        for jobs in invalid:
+            sleep = mock.Mock()
+            with self.subTest(jobs=jobs), self.assertRaises(ValueError):
+                STATUS.validate_workflow_run(self.api([jobs]), '123', '1', sleep=sleep)
+            sleep.assert_not_called()
+
+    def test_source_identity_is_revalidated_on_every_poll_and_changes_fail_immediately(self):
+        for change in (dict(head_sha='2' * 40), dict(head_branch='topic'), dict(event='pull_request'),
+                       dict(path='.github/workflows/untrusted.yml'), dict(head_repository={'full_name': 'fork/project'})):
+            sleep = mock.Mock()
+            api = self.api([[], self.jobs], metadata=[self.metadata, dict(self.metadata, **change)])
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                STATUS.validate_workflow_run(api, '123', '1', retry_delays=(2,), sleep=sleep)
+            sleep.assert_called_once_with(2)
+            self.assertEqual(3, api.api.call_count)
 
 
 class RpmStatusTests(unittest.TestCase):
@@ -263,12 +337,12 @@ class RpmStatusTests(unittest.TestCase):
         names = ['Sign and publish RPM distributions', 'Verify public RPM repositories on native x64',
                  'Verify public RPM repositories on native aarch64']
         api = mock.Mock()
-        api.api.side_effect = [metadata, {'jobs': [dict(name=name, conclusion='success') for name in names]}]
+        api.api.side_effect = [metadata, {'jobs': [dict(name=name, status='completed', conclusion='success') for name in names]}]
         self.assertEqual('123', STATUS.validate_workflow_run(api, '123', '1', ['rpm'])['runId'])
-        for jobs in ([], [dict(name=name, conclusion='failure' if 'x64' in name else 'success') for name in names]):
+        for jobs in ([], [dict(name=name, status='completed', conclusion='failure' if 'x64' in name else 'success') for name in names]):
             api.api.side_effect = [metadata, {'jobs': jobs}]
             with self.assertRaises(ValueError):
-                STATUS.validate_workflow_run(api, '123', '1', ['rpm'])
+                STATUS.validate_workflow_run(api, '123', '1', ['rpm'], retry_delays=())
 
 
 if __name__ == '__main__':
