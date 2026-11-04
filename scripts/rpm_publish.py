@@ -13,7 +13,7 @@ import xml.etree.ElementTree as ET
 from channel_packages import build_repositories, HOST_VERSION, rpm_release
 from distribution_contract import load_contract, sha256_file
 from downstream_release import (descriptor, encoded, load_status, local_intake, package_record, require, PREPUBLICATION_CHECKS,
-                                verify_report_signature)
+                                verify_report_signature, validate_native_curl_evidence, validate_native_ca_evidence)
 from downstream_publish import create_bundle, publish_bundle, validate_bundle, release_tag
 from rpm_repository import asset_base, verify_repository
 
@@ -160,6 +160,8 @@ def preflight(item, received, identity, policy, contract):
             'Required native RPM check is missing or failed before signing')
     from downstream_release import validate_legacy_evidence
     validate_legacy_evidence(report, plan)
+    validate_native_curl_evidence(report, plan)
+    validate_native_ca_evidence(report, plan)
     build_path = Path(item['artifactPath']).parent / 'package-build.json'
     build = json.loads(build_path.read_bytes())
     require(build.get('schemaVersion') == 1 and build.get('channel') == 'rpm'
@@ -247,6 +249,37 @@ def retained_shared_rpm(row, plan, policy, keyring, signer, output):
     return retained
 
 
+def companion_assets(build_paths, output):
+    """Retain each target's exact native companion bytes under a unique name."""
+    assets = []
+    for build_path in build_paths:
+        build = json.loads(build_path.read_bytes())
+        plan = build['plan']
+        for key in ('compatibilityAsset', 'nativeHttpCompatibilityAsset'):
+            item = build.get(key)
+            if item is None:
+                continue
+            require(plan['sdkVersion'].startswith(('3.', '5.'))
+                    and (key != 'nativeHttpCompatibilityAsset' or plan['sdkVersion'].startswith('3.')),
+                    'Unexpected native companion for this SDK')
+            variant, arch = plan['variant'], plan['architecture']['public']
+            require(variant in {'fedora-45', 'rocky-9.8'} and arch in {'x64', 'aarch64'}
+                    and isinstance(item.get('path'), str)
+                    and re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._+-]*\.tar\.gz', item['path']),
+                    'Unsafe native RPM companion identity')
+            source = build_path.parent / item['path']
+            require(source.is_file() and not source.is_symlink(), 'An ordinary native RPM companion is required')
+            expected = dict(name=item['path'], size=item.get('size'), sha256=item.get('sha256'))
+            require(descriptor(source) == expected, 'Native RPM companion bytes differ from their exact build descriptor')
+            name = 'rpm-' + variant + '-' + arch + '--' + item['path']
+            destination = output / name
+            require(not destination.exists() and not destination.is_symlink(), 'Duplicate native RPM companion target')
+            shutil.copyfile(source, destination)
+            require(descriptor(destination) == dict(expected, name=name), 'Native RPM companion copy changed bytes')
+            assets.append(dict(path=str(destination)))
+    return assets
+
+
 def stage(received, output, signing_key, keyring, source_run, source_attempt):
     protected()
     require(re.fullmatch(r'[A-F0-9]{40,64}', signing_key), 'Full reviewed signing fingerprint required')
@@ -269,6 +302,7 @@ def stage(received, output, signing_key, keyring, source_run, source_attempt):
         require(key not in shared or shared[key] == host['sha256'], 'Common RPM differs across native architectures')
         shared[key] = host['sha256']
     output.mkdir()
+    companions = companion_assets([build_path for _, _, build_path, _ in admitted], output)
     cache = output / 'signed-common'
     cache.mkdir()
     common = {}
@@ -334,11 +368,7 @@ def stage(received, output, signing_key, keyring, source_run, source_attempt):
             destination = output / row['assetName']
             shutil.copyfile(row['sourcePath'], destination)
             extra.append({'path': str(destination)})
-    for build_path in builds:
-        build=json.loads(build_path.read_bytes())
-        for key in ('compatibilityAsset','nativeHttpCompatibilityAsset'):
-            companion=build.get(key)
-            if companion:extra.append(dict(path=str(build_path.parent / companion['path'])))
+    extra.extend(companions)
     manifest = create_bundle(items, output / 'bundle-rpm', identity['commit'], signing_key, keyring, extra_assets=extra)
     (output / 'promotion.json').write_bytes(encoded(dict(schemaVersion=1, status='signed-and-frozen',
         sourceOrchestration=identity, publisherCommit=os.environ['GITHUB_SHA'], channels={'rpm': manifest['tag']})))

@@ -108,6 +108,9 @@ class RpmPublishTests(unittest.TestCase):
             item['package']['identity']['sdkVersion']='3.0.103';item['package']['artifact']=PUBLISH.descriptor(new)
             Path(item['packagePath']).write_text(json.dumps(item['package']))
             report=json.loads(Path(item['reportPath']).read_bytes());report.update(identity=item['package']['identity'],artifact=item['package']['artifact'])
+            from native_curl_fixture import evidence, ca_evidence
+            report.update(evidence('3.0.103', public, 'rpm'))
+            report.update(ca_evidence())
             Path(item['reportPath']).write_text(json.dumps(report))
 
     def test_core3_requires_exact_fourth_package_before_any_signer_use(self):
@@ -136,7 +139,7 @@ class RpmPublishTests(unittest.TestCase):
         def bundle(items,output,commit,signer,keyring,**kwargs):
             names=[Path(row['path']).name for row in kwargs['extra_assets']]
             self.assertEqual(2,sum('cbodotnet-compat-curl-rocky8-' in name for name in names))
-            self.assertTrue({'x64-curl.tar.gz','aarch64-curl.tar.gz'}<=set(names))
+            self.assertTrue({'rpm-fedora-45-x64--x64-curl.tar.gz','rpm-fedora-45-aarch64--aarch64-curl.tar.gz'}<=set(names))
             for item in items:
                 report=json.loads(Path(item['reportPath']).read_bytes())
                 self.assertEqual({'sdk','host','compatibility','native-http-compatibility'},set(report['rpmSignatures']))
@@ -150,6 +153,41 @@ class RpmPublishTests(unittest.TestCase):
                 mock.patch.object(PUBLISH.CORE,'sign_report',side_effect=report_signature),mock.patch.object(PUBLISH,'create_bundle',side_effect=bundle):
             self.assertEqual('signed-and-frozen',PUBLISH.stage(self.received,self.root/'promotion','A'*40,self.root/'key.gpg','123','2')['status'])
         self.assertEqual(2,seen.count('native-http-compatibility'))
+
+    def test_companion_assets_preserve_different_same_named_bytes_from_both_distro_targets(self):
+        builds = []
+        for variant in ('fedora-45', 'rocky-9.8'):
+            directory = self.root / variant; directory.mkdir()
+            build = dict(plan=dict(sdkVersion='3.0.103', variant=variant, architecture=dict(public='x64')))
+            for key, name in (('compatibilityAsset', 'cbodotnet-compat-rocky9.tar.gz'),
+                              ('nativeHttpCompatibilityAsset', 'cbodotnet-compat-curl-rocky8.tar.gz')):
+                source = directory / name; source.write_bytes((variant + key).encode())
+                build[key] = dict(path=name, size=source.stat().st_size, sha256=PUBLISH.sha256_file(source))
+            path = directory / 'package-build.json'; path.write_text(json.dumps(build)); builds.append(path)
+        output = self.root / 'companions'; output.mkdir()
+        assets = PUBLISH.companion_assets(builds, output)
+        self.assertEqual(4, len(assets))
+        for path in builds:
+            build = json.loads(path.read_bytes())
+            for key in ('compatibilityAsset', 'nativeHttpCompatibilityAsset'):
+                name = 'rpm-' + build['plan']['variant'] + '-x64--' + build[key]['path']
+                self.assertEqual((path.parent / build[key]['path']).read_bytes(), (output / name).read_bytes())
+        bad = json.loads(builds[0].read_bytes()); bad['compatibilityAsset']['sha256'] = '0' * 64
+        builds[0].write_text(json.dumps(bad))
+        fresh = self.root / 'bad-companions'; fresh.mkdir()
+        with self.assertRaisesRegex(ValueError, 'exact build descriptor'):
+            PUBLISH.companion_assets(builds, fresh)
+
+    def test_core3_native_handler_and_fedora_ca_are_required_before_rpm_signing(self):
+        self.core3()
+        item = self.items[0]; path = Path(item['reportPath']); original = path.read_bytes()
+        for field in ('nativeCurlHandler', 'nativeCaBundle'):
+            report = json.loads(original); report.pop(field); path.write_text(json.dumps(report))
+            with self.subTest(field=field), self.patches(), mock.patch('downstream_release.validate_legacy_evidence'), \
+                    mock.patch.object(PUBLISH.CORE, 'run', side_effect=self.execute) as commands:
+                with self.assertRaises(ValueError):
+                    PUBLISH.preflight(item, self.received, self.identity, self.policy, self.contract)
+                self.assertFalse(any(call.args[0][0] == 'rpmsign' for call in commands.call_args_list))
 
     def test_signer_permission_guard_rejects_other_repository_branch_event_and_workflow(self):
         for key, value in [('GITHUB_REF', 'refs/heads/topic'), ('GITHUB_REPOSITORY', 'fork/cbodotnet'),
