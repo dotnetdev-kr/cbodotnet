@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # This updates and installs packages only in the disposable native Arch container.
 set -euo pipefail
-[[ $(id -u) == 0 && $(uname -m) == x86_64 ]] || { echo 'A disposable native x86_64 root container is required.' >&2; exit 2; }
+[[ $(id -u) == 0 && $(uname -m) == x86_64 && -f /.dockerenv ]] || { echo 'A disposable native x86_64 root container is required.' >&2; exit 2; }
 . /etc/os-release
 [[ $ID == arch ]] || { echo 'Arch Linux is required.' >&2; exit 2; }
 repo=$1
@@ -17,6 +17,10 @@ trap 'chown -R --no-dereference -- "$AUR_OUTPUT_UID:$AUR_OUTPUT_GID" "$delivery"
 # the report, while pinning the starting official image by immutable digest.
 case "$phase" in
   prepare)
+    # Official minimal images omit documentation via NoExtract. Validate normal
+    # full-package Arch installation, including provenance and license notices,
+    # so pacman -Qkk verifies every file owned by these packages.
+    sed -i -E 's/^([[:space:]]*NoExtract[[:space:]]*=)/# complete-package validation: \1/' /etc/pacman.conf
     pacman -Syu --noconfirm --needed python namcap curl ca-certificates \
       glibc libgcc libstdc++ icu krb5 openssl zlib
     ;;

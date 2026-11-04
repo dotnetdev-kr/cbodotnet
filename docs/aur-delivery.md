@@ -106,6 +106,9 @@ performs `pacman -Syu`. The report records the immutable starting image, actual
 Arch OS metadata, resolved dependency versions, makepkg/pacman versions and
 native runtime linkage. The current image pin was resolved from official Docker
 registry metadata for Arch image `20261101.0.620205`.
+The minimal container image's `NoExtract` exclusions are disabled so the test
+uses normal full-package extraction, including source provenance and notices;
+`pacman -Qkk` must verify every file owned by these two packages.
 After provisioning dependencies, the driver snapshots that disposable container
 and runs the entire build and installed lifecycle with Docker `--network none`.
 Only loopback is present, which still permits the local ASP.NET HTTP probe.
@@ -143,3 +146,5 @@ Primary references: [makepkg](https://man.archlinux.org/man/makepkg.8.en),
 [PKGBUILD](https://man.archlinux.org/man/PKGBUILD.5.en),
 [SRCINFO](https://wiki.archlinux.org/title/.SRCINFO), and
 [AUR submission guidelines](https://wiki.archlinux.org/title/AUR_submission_guidelines).
+The [Arch container guide](https://wiki.archlinux.org/title/Install_Arch_Linux_via_Docker)
+also describes the minimal image's `NoExtract` policy.

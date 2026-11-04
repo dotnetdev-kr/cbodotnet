@@ -116,7 +116,8 @@ def native(args):
 
 
 def installed(args):
-    require(os.geteuid() == 0 and platform.machine() == 'x86_64', 'A disposable native x86_64 root container is required')
+    require(os.geteuid() == 0 and platform.machine() == 'x86_64' and Path('/.dockerenv').is_file(),
+            'A disposable native x86_64 root container is required')
     require({path.name for path in Path('/sys/class/net').iterdir()} == {'lo'}, 'Arch build and lifecycle validation require Docker --network none')
     delivery = args.delivery.resolve()
     plan = json.loads((delivery / 'plan.json').read_bytes())
@@ -276,6 +277,7 @@ def installed(args):
         checks=checks, commandNames=names, packageBuilds=build_records, nativeDependencyOutput=dynamic,
         validationTools={tool: run([tool, '--version']).splitlines()[0] for tool in ('makepkg', 'pacman')},
         networkForBuild='none',
+        packageManagerPolicy='full-package-extraction',
         publicationStatus='not-published')
     (delivery / 'installation-result.json').write_bytes(encoded(result))
 

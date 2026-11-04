@@ -312,3 +312,57 @@ an immutable object. Test downgrade and interruption recovery per channel.
 If only one channel publishes successfully, record that channel's outcome and
 retain the others' failure state. This sequence does not complete the entire
 epic until every required channel and its publication tests are implemented.
+
+## RPM signing, promotion and hosted client verification
+
+The RPM channel uses the same protected workflow and signing identity, with its
+own native target matrix, frozen artifact namespace and public verification
+jobs. [RPM delivery](rpm-delivery.md) records distro dependencies, package
+identity and signature policy. Start with a native verification-only run:
+
+```bash
+gh workflow run distribution-release.yml --repo dotnetdev-kr/cbodotnet --ref main \
+  -f channel=rpm -f tag=sdk-10.0.403 -f revision=1 -f publish=false
+```
+
+After both native jobs pass both reviewed distro targets, dispatch `channel=rpm`
+with `publish=true`, `source_run_id` and `source_run_attempt` pointing at that
+successful main run. Before signing anything, the publisher rechecks the entire
+source, command, package-header, dependency and native evidence matrix. It signs
+the noarch common host once per distro and reuses the exact signed bytes across
+architectures. Signing changes RPM envelopes, so package descriptors and reports
+are rebound before their own signatures are generated.
+
+Repository metadata contains exact immutable GitHub Release package URLs,
+SHA-256 values and sizes. Pages hosts only the authenticated metadata; package
+blobs remain Release assets. This keeps website size bounded without weakening
+either `gpgcheck=1` or `repo_gpgcheck=1`. The public verification jobs install
+through DNF with both signature checks enabled on both native architectures.
+
+The exact signed bundle is retained as
+`downstream-rpm-frozen-<run>-<attempt>` before any Release is exposed. For a
+later failure, dispatch `channel=rpm`, `publish=true`, `promotion_run_id` and
+`promotion_run_attempt` for that frozen upload. Its original trusted job and
+artifact SHA-256 are required; recovery never rebuilds or re-signs those bytes.
+
+After the RPM finalizer activates availability and Pages succeeds, verify the
+actual hosted URLs using the receipt from that exact publication run:
+
+```bash
+gh workflow run rpm-site-check.yml --repo dotnetdev-kr/cbodotnet --ref main \
+  -f publication_run_id=RUN_ID -f publication_run_attempt=1
+```
+
+Require both native jobs and all four distro/architecture reports before
+announcing the hosted path complete. Each target checks public metadata and RPM
+signatures, exact package identity, official SDK coexistence, non-root use,
+network-disabled SDK/HTTP/crypto/globalization execution and removal.
+
+## Arch build-only handoff
+
+[Arch recipe delivery](aur-delivery.md) documents the reviewed recipes and the
+read-only weekly rolling compatibility check. Per the owner's scope decision,
+#6 finishes at native recipe build/installation validation; authenticated AUR
+submission and actual public AUR URLs remain in
+[issue #10](https://github.com/dotnetdev-kr/cbodotnet/issues/10). Do not enable AUR
+availability or provision publishing credentials as part of the build-only work.

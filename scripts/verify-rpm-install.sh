@@ -7,8 +7,12 @@ repo=$1; delivery=$2; variant=$3; phase=$4
 case "$ID:$VERSION_ID:$variant" in fedora:45:fedora-45|rocky:9.8:rocky-9.8) ;; *) echo 'Unexpected RPM verification OS.' >&2; exit 2 ;; esac
 export PATH=/usr/local/bin:/usr/bin:/usr/sbin:/bin:/sbin
 if [[ $phase == build || $phase == prepare || $phase == prepare-published ]]; then
+  curl_package=curl
+  # Rocky's base image already owns /usr/bin/curl through curl-minimal.
+  # Its HTTP support covers the offline smoke probe without replacing it.
+  if [[ $ID == rocky ]]; then curl_package=curl-minimal; fi
   dnf -y --setopt=install_weak_deps=False --setopt=tsflags= install \
-    python3 rpm-build rpm-sign cpio tar gzip xz shadow-utils util-linux curl ca-certificates binutils findutils gnupg2
+    python3 rpm-build rpm-sign cpio tar gzip xz shadow-utils util-linux "$curl_package" ca-certificates binutils findutils gnupg2
   if [[ $ID == rocky ]]; then
     dnf -y --setopt=install_weak_deps=False --setopt=tsflags= install python3.12
     install -d /usr/local/bin
