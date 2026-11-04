@@ -124,7 +124,7 @@ def inspect_core3_image_http(reference, sdk_root):
         linked = '\n'.join(lines[2:])
         provider = re.search(r'^\s*libcurl\.so\.4\s+=>\s+(/\S+)\s+\(', linked, re.MULTILINE)
         require(checksum is not None and 'not found' not in linked and provider is not None,
-                'Production Core3 image lacks a resolved stock libcurl.so.4')
+                'Production Core3 image lacks a resolved stock libcurl.so.4: ' + path + '\n' + linked)
         libraries.append(dict(path=path.removeprefix(sdk_root + '/'), sha256=checksum[1], ldd=linked,
                               libcurlProviderPath=provider[1]))
     return dict(status='passed', user='1654', network='none', libraries=libraries)

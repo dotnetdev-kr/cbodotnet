@@ -49,7 +49,7 @@ def audit_core3_http_libraries(version, sdk_root, runtime_env=None, runner=None)
             value = runner(['ldd', path], env=environment)
         provider = re.search(r'^\s*libcurl\.so\.4\s+=>\s+(/\S+)\s+\(', value, re.MULTILINE)
         require('not found' not in value and provider is not None,
-                'Core3 native HTTP requires resolved stock libcurl.so.4: ' + str(path))
+                'Core3 native HTTP requires resolved stock libcurl.so.4: ' + str(path) + '\n' + value)
         rows.append(dict(path=path.relative_to(root).as_posix(), sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
             ldd=value, libcurlProviderPath=provider[1]))
     return rows

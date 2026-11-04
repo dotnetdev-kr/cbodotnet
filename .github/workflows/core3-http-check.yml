@@ -1,0 +1,35 @@
+name: Inspect original Core3 HTTP loader requirements
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/core3-http-check.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Inspect exact source HTTP ELFs in native pinned Arch without building or running SDKs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          python3 scripts/core3-http-diagnostic.py native --workspace "$RUNNER_TEMP/core3-http-inspection"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: core3-http-loader-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/core3-http-inspection/http-loader-diagnostic.json
+            ${{ runner.temp }}/core3-http-inspection/sources.json
+            ${{ runner.temp }}/core3-http-inspection/components/
+          retention-days: 14
+          if-no-files-found: warn
