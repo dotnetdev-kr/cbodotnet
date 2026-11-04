@@ -146,9 +146,45 @@ def attach_compatibility(result, output, prepared):
                                'policySha256': record['policySha256'], 'architecture': record['architecture']}
 
 
-def build_deb(plan, archive, output, compatibility_build=None):
+def native_http_input(plan, prepared, channel):
+    if plan['sdkVersion'].startswith(('3.0.', '3.1.')):
+        import legacy_curl
+        require(prepared is not None, 'Core3 packaging requires an explicit authenticated native HTTP build')
+        return legacy_curl.verified_build(prepared, plan, channel)
+    require(prepared is None, 'Only Core3 packaging accepts the native HTTP provider')
+    return None
+
+
+def attach_native_http(result, output, prepared):
+    if prepared is None:
+        return
+    parent, record = prepared
+    for item in [*(record['packages'] if 'packages' in result else []), record['companion']]:
+        destination = output / item['path']
+        require(not destination.exists(), 'Native HTTP artifact would overwrite another output')
+        shutil.copyfile(parent / item['path'], destination)
+    if 'packages' in result:
+        require(len(record['packages']) == 1, 'A standalone native HTTP package is required')
+        result['packages'].append(record['packages'][0])
+    result['nativeHttpCompatibilityAsset'] = record['companion']
+    result['nativeHttpCompatibility'] = {'required': True, 'providerRoot': record['providerRoot'],
+        'policySha256': record['policySha256'], 'architecture': record['architecture']}
+
+
+def sdk_dependencies(plan, channel):
+    from legacy_compat import PACKAGE_NAME, package_requirement
+    result = list(plan.get({'rpm': 'rpmDependencies', 'aur': 'aurDependencies'}.get(channel, 'dependencies'), []))
+    result = [package_requirement(channel, plan.get('variant')) if item == PACKAGE_NAME else item for item in result]
+    if plan['sdkVersion'].startswith(('3.0.', '3.1.')):
+        import legacy_curl
+        result = [legacy_curl.package_requirement(channel, plan.get('variant')) if item == legacy_curl.PACKAGE_NAME else item for item in result]
+    return result
+
+
+def build_deb(plan, archive, output, compatibility_build=None, native_http_build=None):
     require(plan['channel'] == 'deb', 'Debian builder requires an admitted Debian plan')
     prepared = compatibility_input(plan, compatibility_build, 'deb')
+    native_http = native_http_input(plan, native_http_build, 'deb')
     output, rootfs, commands, payload = stage_payload(plan, archive, output)
     sdk_stage = output / 'sdk-package'
     copy_tree(rootfs, sdk_stage)
@@ -162,8 +198,7 @@ def build_deb(plan, archive, output, compatibility_build=None):
     shutil.copyfile(ROOT / 'LICENSE', host_doc / 'copyright')
     common = {'Section': 'devel', 'Priority': 'optional', 'Maintainer': '.NET Dev contributors',
               'Homepage': 'https://dotnetdev.kr/cbodotnet/'}
-    from legacy_compat import PACKAGE_NAME, package_requirement
-    dependencies = [package_requirement('deb') if item == PACKAGE_NAME else item for item in plan['dependencies']]
+    dependencies = sdk_dependencies(plan, 'deb')
     control(host_stage, {'Package': 'cbodotnet-host', 'Version': HOST_VERSION, 'Architecture': 'all', **common,
                          'Description': 'Shared command selector for Community Build of .NET'})
     control(sdk_stage, {'Package': plan['package']['name'], 'Version': plan['package']['version'],
@@ -187,6 +222,7 @@ def build_deb(plan, archive, output, compatibility_build=None):
     result = {'schemaVersion': 1, 'channel': 'deb', 'plan': plan, 'packages': packages,
               'commandInventory': commands, 'payloadPreserved': True, 'publicationQualified': False}
     attach_compatibility(result, output, prepared)
+    attach_native_http(result, output, native_http)
     write_json(output / 'package-build.json', result)
     return result
 
@@ -215,12 +251,13 @@ def oci_labels(plan):
             'kr.dotnetdev.cbodotnet.package.revision': str(plan['packageRevision'])}
 
 
-def build_oci_context(plan, archive, output, base_image, compatibility_build=None):
+def build_oci_context(plan, archive, output, base_image, compatibility_build=None, native_http_build=None):
     require(plan['channel'] == 'oci', 'OCI builder requires an admitted OCI plan')
     require(isinstance(base_image, str) and re.fullmatch(r'[a-z0-9][a-z0-9./:_-]*@sha256:[a-f0-9]{64}', base_image),
             'OCI base must be pinned by SHA-256 digest')
     require(plan['variant'] == 'debian-13', 'OCI runtime template is qualified only for the Debian 13 candidate')
     prepared = compatibility_input(plan, compatibility_build, 'oci')
+    native_http = native_http_input(plan, native_http_build, 'oci')
     output, rootfs, commands, payload = stage_payload(plan, archive, output, mode='oci')
     wrapper_license_path = '/usr/share/licenses/cbodotnet-host/LICENSE'
     wrapper_license = rootfs / wrapper_license_path.lstrip('/')
@@ -232,6 +269,11 @@ def build_oci_context(plan, archive, output, base_image, compatibility_build=Non
         provider_root = rootfs / provider['providerRoot'].lstrip('/')
         provider_root.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(parent / 'rootfs' / provider['providerRoot'].lstrip('/'), provider_root, symlinks=True)
+    if native_http is not None:
+        native_parent, native_provider = native_http
+        native_root = rootfs / native_provider['providerRoot'].lstrip('/')
+        native_root.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(native_parent / 'rootfs' / native_provider['providerRoot'].lstrip('/'), native_root, symlinks=True)
     shutil.copyfile(ROOT / 'containers/sdk-runtime.Containerfile', output / 'Containerfile')
     labels = oci_labels(plan)
     result = {'schemaVersion': 1, 'channel': 'oci', 'plan': plan, 'baseImage': base_image,
@@ -244,6 +286,7 @@ def build_oci_context(plan, archive, output, base_image, compatibility_build=Non
                                    'policySha256': provider['policySha256'], 'architecture': provider['architecture']}
         result['compatibilityAsset'] = provider['companion']
         shutil.copyfile(parent / provider['companion']['path'], output / provider['companion']['path'])
+    attach_native_http(result, output, native_http)
     write_json(output / 'package-build.json', result)
     return result
 
@@ -261,8 +304,7 @@ def render_rpm_spec(plan, source_name='payload.tar.gz'):
     dependencies = plan.get('rpmDependencies')
     require(isinstance(dependencies, list) and dependencies and all(re.fullmatch(r'[A-Za-z0-9_().+<>= -]+', item) for item in dependencies),
             'Reviewed RPM-specific dependencies are required')
-    from legacy_compat import PACKAGE_NAME, package_requirement
-    dependencies = [package_requirement('rpm', plan['variant']) if item == PACKAGE_NAME else item for item in dependencies]
+    dependencies = sdk_dependencies(plan, 'rpm')
     return rpm_build_macros() + f'''
 Name: {name}
 Version: {version}
@@ -366,8 +408,7 @@ def render_aur(plan):
     version, revision = plan['sdkVersion'], plan['packageRevision']
     require(plan.get('aurDependencies'), 'Reviewed Arch-specific dependencies are required')
     require(all(re.fullmatch(r'[A-Za-z0-9@._+-]+', item) for item in plan['aurDependencies']), 'Unsafe AUR dependency')
-    from legacy_compat import PACKAGE_NAME, package_requirement
-    dependencies = [package_requirement('aur') if item == PACKAGE_NAME else item for item in plan['aurDependencies']]
+    dependencies = sdk_dependencies(plan, 'aur')
     depends = ' '.join("'" + item + "'" for item in dependencies)
     source = plan['sdk']['url']
     require(source.startswith('https://github.com/dotnetdev-kr/cbodotnet/releases/download/'), 'Unexpected AUR SDK URL')
@@ -494,10 +535,11 @@ def build_common_rpm(variant, output):
     return result
 
 
-def build_rpm(plan, archive, output, compatibility_build=None):
+def build_rpm(plan, archive, output, compatibility_build=None, native_http_build=None):
     """Build real RPM payloads only after a target-specific plan is admitted."""
     require(plan['channel'] == 'rpm', 'RPM builder requires an admitted RPM plan')
     prepared = compatibility_input(plan, compatibility_build, 'rpm')
+    native_http = native_http_input(plan, native_http_build, 'rpm')
     require(re.fullmatch(r'[A-Za-z0-9_./-]+', str(Path(output).absolute())), 'RPM build directory must use a shell-safe path')
     spec = render_rpm_spec(plan)
     output, rootfs, commands, payload = stage_payload(plan, archive, output)
@@ -542,6 +584,7 @@ def build_rpm(plan, archive, output, compatibility_build=None):
     result = {'schemaVersion': 1, 'channel': 'rpm', 'plan': plan, 'packages': packages,
               'commandInventory': commands, 'payloadPreserved': True, 'publicationQualified': False}
     attach_compatibility(result, output, prepared)
+    attach_native_http(result, output, native_http)
     write_json(output / 'package-build.json', result)
     return result
 
@@ -598,8 +641,12 @@ def validate_package_builds(paths, channel):
         packages = build.get('packages', [])
         kinds = {item.get('kind') for item in packages}
         require((len(packages) == 2 and kinds == {'host', 'sdk'})
-                or (len(packages) == 3 and kinds == {'host', 'sdk', 'compatibility'}),
+                or (len(packages) == 3 and kinds == {'host', 'sdk', 'compatibility'})
+                or (len(packages) == 4 and kinds == {'host', 'sdk', 'compatibility', 'native-http-compatibility'}),
                 'SDK/shared host and optional separate compatibility packages are required')
+        native_http_required = build['plan']['sdkVersion'].startswith(('3.0.', '3.1.'))
+        require(('native-http-compatibility' in kinds) == native_http_required,
+                'Core3 requires its separately owned native HTTP compatibility package')
         if 'compatibility' in kinds:
             from legacy_compat import required, PACKAGE_NAME, VERSION, PROVIDER_ROOT, POLICY
             require(required(build['plan']) and build.get('compatibility', {}).get('required') is True
@@ -616,6 +663,23 @@ def validate_package_builds(paths, channel):
             require(re.fullmatch(r'[A-Za-z0-9._+-]+', companion.get('path', ''))
                     and descriptor(path.parent / companion['path']) == {key: companion[key] for key in ('path', 'size', 'sha256')},
                     'Compatibility companion bytes differ')
+        if native_http_required:
+            import legacy_curl
+            policy = legacy_curl.plan_policy(build['plan'])
+            attachment = build.get('nativeHttpCompatibility', {})
+            require(attachment.get('required') is True and attachment.get('providerRoot') == policy['root']
+                    and attachment.get('policySha256') == policy['policySha256'], 'Native HTTP provider attachment differs')
+            item = next(row for row in packages if row['kind'] == legacy_curl.KIND)
+            require(item.get('name') == legacy_curl.PACKAGE_NAME
+                    and item.get('architecture') == build['plan']['architecture'][channel]
+                    and item.get('version') == (legacy_curl.VERSION + '-1' if channel == 'deb' else legacy_curl.VERSION),
+                    'Native HTTP package identity differs')
+            if channel == 'rpm':
+                require(item.get('release') == '1.cbot.' + build['plan']['variant'].replace('-', ''), 'Native HTTP RPM variant differs')
+            companion = build.get('nativeHttpCompatibilityAsset', {})
+            require(companion.get('path') == policy['companionName']
+                    and descriptor(path.parent / companion['path']) == {key: companion[key] for key in ('path', 'size', 'sha256')},
+                    'Native HTTP companion bytes differ')
         for item in build['packages']:
             require(re.fullmatch(r'[A-Za-z0-9._+-]+', item['path']), 'Unsafe package filename')
             package = path.parent / item['path']

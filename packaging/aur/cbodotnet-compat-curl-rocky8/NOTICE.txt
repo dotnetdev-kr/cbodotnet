@@ -1,0 +1,5 @@
+Community Build of .NET separately managed Core3 native HTTP compatibility provider.
+Original libcurl binary bytes and COPYRIGHT AND PERMISSION NOTICE originate in the pinned signed Rocky Linux 8 RPMs.
+The original curl notice is retained in LICENSE.curl.txt; exact source RPMs are recorded in provider-manifest.json.
+This is a project repackaging, not a Rocky-supported cross-distribution product.
+Exact project repackaging of maintained Rocky Linux 8.10 libcurl bytes for the optional Core3 native CurlHandler. This does not restore upstream .NET support or promise additional security maintenance. Source updates require review and native HTTP, HTTPS, trust and lifecycle qualification.

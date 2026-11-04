@@ -35,7 +35,8 @@ def validate_metadata(directory, assets, base):
             and manifest.get('architectures') == ['x64', 'aarch64'], 'Invalid RPM repository matrix identity')
     packages = manifest.get('packages', {})
     legacy = compatibility_required({'sdkVersion': version})
-    require(isinstance(packages, dict) and len(packages) == (5 if legacy else 3),
+    native_http = version.startswith(('3.0.', '3.1.'))
+    require(isinstance(packages, dict) and len(packages) == (7 if native_http else 5 if legacy else 3),
             'Both RPM architectures, one common host and required separate provider architectures are required')
     series = '.'.join(version.split('.')[:2])
     release = str(revision) + '.cbot.' + variant.replace('-', '')
@@ -47,6 +48,10 @@ def validate_metadata(directory, assets, base):
             compat_release = '1.cbot.' + variant.replace('-', '')
             name = f'rpm-{variant}-{public_arch}--{COMPAT_NAME}-{COMPAT_VERSION}-{compat_release}.{rpm_arch}.rpm'
             identities[name] = (COMPAT_NAME, rpm_arch, COMPAT_VERSION, compat_release)
+        if native_http:
+            import legacy_curl
+            name = f'rpm-{variant}-{public_arch}--{legacy_curl.PACKAGE_NAME}-{legacy_curl.VERSION}-{compat_release}.{rpm_arch}.rpm'
+            identities[name] = (legacy_curl.PACKAGE_NAME, rpm_arch, legacy_curl.VERSION, compat_release)
     common = [name for name in packages if re.fullmatch(
         r'rpm-' + re.escape(variant) + r'--cbodotnet-host-([1-9][0-9]*(?:\.[0-9]+)*)-([1-9][0-9]*\.cbot\.'
         + re.escape(variant.replace('-', '')) + r')\.noarch\.rpm', name)]

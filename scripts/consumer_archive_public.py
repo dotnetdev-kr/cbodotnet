@@ -41,6 +41,12 @@ def postverify(receipt_path,architecture,workspace,keyring,output=None):
         (workspace/'compat').mkdir();provider=compatibility['record']
         download(assets[compatibility['asset']],workspace/'compat'/provider['companion']['path'])
         (workspace/'compat/provider-build.json').write_bytes(encoded(provider))
+    native_http=next((item for item in manifest.get('nativeHttpCompatibility',[]) if item['architecture']==architecture),None)
+    native_http_provider=None
+    if native_http:
+        (workspace/'native-http-compat').mkdir();native_http_provider=native_http['record']
+        download(assets[native_http['asset']],workspace/'native-http-compat'/native_http_provider['companion']['path'])
+        (workspace/'native-http-compat/provider-build.json').write_bytes(encoded(native_http_provider))
     spaces=[]
     for variant in plan['validatedUserSpaces']:
         require(variant in CI.BASES,'Published archive user space is not admitted for native execution')
@@ -65,6 +71,9 @@ def postverify(receipt_path,architecture,workspace,keyring,output=None):
         compatibility=dict(required=False) if provider is None else dict(required=True,policySha256=provider['policySha256'],
             companion=provider['companion'],manifest=provider['manifest']))
     if build.get('archiveLayoutVersion',1)==2:result['wrapperLicense']=build['wrapperLicense']
+    if native_http_provider is not None:
+        result['nativeHttpCompatibility']=dict(required=True,policySha256=native_http_provider['policySha256'],
+            companion=native_http_provider['companion'],manifest=native_http_provider['manifest'])
     validate_public_report(result,manifest,architecture,receipt['manifestSha256'],expected_source=source)
     output=Path(output) if output is not None else workspace/('published-'+architecture+'.json')
     output.write_bytes(encoded(result));return result

@@ -45,7 +45,7 @@ def stage(args):
     require({item.name for item in received.iterdir()}==expected,'Exact two native archive transports required')
     output=fresh_directory(args.output)
     with tempfile.TemporaryDirectory(prefix='cbodotnet-archive-native-') as temporary:
-        builds=[];reports=[];inputs=[];providers=[]
+        builds=[];reports=[];inputs=[];providers=[];native_http_providers=[]
         for arch in ('x64','aarch64'):
             transport=ordinary_file(received/('native-archive-'+arch+'.tar.gz'))
             destination=Path(temporary)/arch;sdk_tools().extract_sdk(transport,destination)
@@ -58,8 +58,9 @@ def stage(args):
                 'Native consumer transport differs from the requested SDK/architecture/revision')
             builds.append(build);reports.append(ordinary_file(workspace/'report.json'));inputs.append(workspace/'inputs')
             if plan['compatibility']['required']:providers.append(ordinary_file(workspace/'compat/provider-build.json'))
+            if 'nativeHttpCompatibility' in plan:native_http_providers.append(ordinary_file(workspace/'native-http-compat/provider-build.json'))
         manifest=create_bundle(builds,reports,inputs,output/'bundle-archive',args.signing_key,args.keyring,source,
-            gnupg_home=args.gnupg_home,compatibility_files=providers)
+            gnupg_home=args.gnupg_home,compatibility_files=providers,native_http_compatibility_files=native_http_providers)
     metadata=dict(schemaVersion=1,status='signed-and-frozen',channel='archive',tag=manifest['tag'],
         sourceOrchestration=source,publisherCommit=os.environ['GITHUB_SHA'])
     (output/'promotion.json').write_bytes(encoded(metadata))

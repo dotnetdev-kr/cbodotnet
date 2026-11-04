@@ -106,6 +106,7 @@ SDK archives and corresponding source bundles retain their upstream copyrights, 
 - [Signed RPM repositories and qualification](docs/rpm-delivery.md)
 - [Validated Arch recipes and deferred AUR publication](docs/aur-delivery.md)
 - [Additional SDK sources, dependency gates and preparation plans](docs/additional-sdk-preparation.md)
+- [Core 3 native HTTP and its separate libcurl dependency](docs/legacy-curl-provider.md)
 - [Downstream verification and promotion runbook](docs/downstream-release-runbook.md)
 - [AArch64 CI, source delivery and verification](docs/ci-matrix.md)
 - [x64 CI, source delivery and verification](docs/ci-x64.md)

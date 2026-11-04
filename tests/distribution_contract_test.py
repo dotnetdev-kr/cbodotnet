@@ -111,6 +111,9 @@ class DistributionContractTests(unittest.TestCase):
         providers = {'ubuntu-22.04': 'libcurl4', 'ubuntu-24.04': 'libcurl4t64',
                      'debian-13': 'libcurl4t64', 'fedora-45': 'libcurl.so.4()(64bit)',
                      'rocky-9.8': 'libcurl.so.4()(64bit)', 'arch-rolling': 'curl'}
+        http2 = {'ubuntu-22.04': 'libnghttp2-14', 'ubuntu-24.04': 'libnghttp2-14',
+                 'debian-13': 'libnghttp2-14', 'fedora-45': 'libnghttp2.so.14()(64bit)',
+                 'rocky-9.8': 'libnghttp2.so.14()(64bit)', 'arch-rolling': 'libnghttp2'}
         for version in ('3.0.103', '3.1.426', '5.0.214', '10.0.403'):
             release, manifest, raw, checksums = fixture(version)
             contract = copy.deepcopy(CONTRACT.load_contract())
@@ -123,11 +126,12 @@ class DistributionContractTests(unittest.TestCase):
             sdk = self.directory / manifest['architectures']['x64']['sdk']['name']
             sdk.write_bytes(b'sdkx64')
             legacy = version.startswith(('3.0.', '3.1.'))
-            expected = {variant: [name] for variant, name in providers.items()} if legacy else {}
+            expected = {variant: [name, http2[variant]] for variant, name in providers.items()} if legacy else {}
             self.assertEqual(expected, contract['releases'][version].get('additionalNativeDependencies', {}))
             for variant, provider in providers.items():
                 dependencies = CONTRACT.native_dependencies(contract, version, variant)
                 self.assertEqual(legacy, provider in dependencies)
+                self.assertEqual(legacy, http2[variant] in dependencies)
                 self.assertEqual(len(dependencies), len(set(dependencies)))
             for channel, variant in (('aur', 'arch-rolling'), ('deb', 'debian-13'), ('deb', 'ubuntu-24.04'),
                                      ('oci', 'debian-13'), ('rpm', 'fedora-45'), ('rpm', 'rocky-9.8')):
@@ -135,10 +139,31 @@ class DistributionContractTests(unittest.TestCase):
                     plan = CONTRACT.verified_plan(release, raw, checksums, sdk, channel, variant,
                                                   'x64', contract=contract, catalog=catalog)
                     self.assertEqual(legacy, providers[variant] in plan['dependencies'])
+                    self.assertEqual(legacy, 'cbodotnet-compat-curl-rocky8' in plan['dependencies'])
+                    self.assertEqual(legacy, 'nativeHttpCompatibility' in plan)
+                    if legacy:
+                        self.assertEqual('rocky8-curl-20261104', plan['nativeHttpCompatibility']['providerId'])
                     if channel == 'aur':
                         self.assertEqual(legacy, providers[variant] in plan['aurDependencies'])
                     if channel == 'rpm':
                         self.assertEqual(legacy, providers[variant] in plan['rpmDependencies'])
+
+    def test_only_reviewed_core3_sources_may_request_the_native_curl_provider(self):
+        candidate = copy.deepcopy(self.contract)
+        candidate['releases']['5.0.214']['nativeHttpCompatibilityProvider'] = 'rocky8-curl-20261104'
+        with self.assertRaisesRegex(ValueError, 'native HTTP compatibility provider'):
+            CONTRACT.validate_contract(candidate)
+        for value in (None, 'stock-libcurl', 'rocky9-curl-20261104'):
+            candidate = copy.deepcopy(self.contract)
+            if value is None:
+                del candidate['releases']['3.1.426']['nativeHttpCompatibilityProvider']
+            else:
+                candidate['releases']['3.1.426']['nativeHttpCompatibilityProvider'] = value
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, 'native HTTP compatibility provider'):
+                if value is None:
+                    CONTRACT.candidate_target(candidate, '3.1.426', 'deb', 'debian-13', 'x64')
+                else:
+                    CONTRACT.validate_contract(candidate)
 
     def test_per_source_native_dependency_mapping_rejects_unknown_targets_and_unsafe_fields(self):
         for value in ({'unknown-os': ['libcurl4']}, {'debian-13': []},

@@ -1,0 +1,39 @@
+# Separate current Rocky8 curl provider; no SDK binaries are included or rebuilt.
+pkgname=cbodotnet-compat-curl-rocky8
+pkgver=2026.11.4
+pkgrel=1
+pkgdesc='Separately managed Rocky-origin curl for Core3 native HTTP'
+arch=('x86_64')
+url='https://dotnetdev.kr/cbodotnet/'
+license=('curl')
+depends=(cbodotnet-compat-rocky9=2026.11.4-1 glibc libnghttp2 krb5 e2fsprogs zlib ca-certificates)
+makedepends=('rpm-tools' 'gnupg')
+options=('!strip' '!debug' '!lto')
+source=(
+  https://dl.rockylinux.org/pub/rocky/8/BaseOS/x86_64/os/Packages/l/libcurl-minimal-7.61.1-34.el8_10.18.x86_64.rpm
+  https://dl.rockylinux.org/pub/rocky/8/BaseOS/source/tree/Packages/c/curl-7.61.1-34.el8_10.18.src.rpm
+  https://dl.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
+  'NOTICE.txt' 'provider-manifest.json')
+sha256sums=(3eba14942a2cc3ea2f60d025a76f3a579e3c1c008e820fdea24ea9f12f1bbd21 b8aa7ccd55663ac2777696288a19474c2e06096b4a411e32466d10c1800feabc ef1ca99bba38bb2869a06fbf46860fcdaeece796be98f8dfb0160b84bdbc69ab '23b2dd419ba857a55652d35e951ca2a98a3cfc11054250932977565192e121ad' 'bbdee2b4969c3b708dab32121dd40468e923462e3a0c3fb8652755e3c6cb2ff3')
+noextract=(libcurl-minimal-7.61.1-34.el8_10.18.x86_64.rpm curl-7.61.1-34.el8_10.18.src.rpm RPM-GPG-KEY-Rocky-8)
+prepare() {
+  local fpr
+  fpr=$(gpg --batch --with-colons --show-keys RPM-GPG-KEY-Rocky-8 | awk -F: '$1=="pub"{primary=1;next} primary&&$1=="fpr"{print $10;primary=0}')
+  [[ "$fpr" == '7051C470A929F454CEBE37B715AF5DAC6D745A60' ]]
+  mkdir -p "$srcdir/rpmdb"
+  rpmdb --dbpath "$srcdir/rpmdb" --initdb
+  rpmkeys --dbpath "$srcdir/rpmdb" --import RPM-GPG-KEY-Rocky-8
+  local rpm
+  for rpm in *.rpm; do rpmkeys --dbpath "$srcdir/rpmdb" --checksig "$rpm"; done
+  mkdir -p libcurl-minimal
+  bsdtar -xf libcurl-minimal-7.61.1-34.el8_10.18.x86_64.rpm -C libcurl-minimal
+}
+package() {
+  local dest="$pkgdir/usr/lib/cbodotnet/compat/curl-rocky8"
+  install -Dm755 "$srcdir/libcurl-minimal/usr/lib64/libcurl.so.4.5.0" "$dest/lib/libcurl.so.4.5.0"
+  ln -s libcurl.so.4.5.0 "$dest/lib/libcurl.so.4"
+  install -Dm644 "$srcdir/libcurl-minimal/usr/share/licenses/libcurl-minimal/COPYING" "$dest/LICENSE.curl.txt"
+  install -Dm644 "$srcdir/libcurl-minimal/usr/share/licenses/libcurl-minimal/COPYING" "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+  install -Dm644 "$srcdir/NOTICE.txt" "$dest/NOTICE.txt"
+  install -Dm644 "$srcdir/provider-manifest.json" "$dest/provider-manifest.json"
+}

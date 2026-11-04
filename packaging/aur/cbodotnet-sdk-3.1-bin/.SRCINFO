@@ -16,7 +16,9 @@ pkgbase = cbodotnet-sdk-3.1-bin
 	depends = icu
 	depends = openssl
 	depends = curl
+	depends = libnghttp2
 	depends = cbodotnet-compat-rocky9=2026.11.4-1
+	depends = cbodotnet-compat-curl-rocky8=2026.11.4-1
 	depends = cbodotnet-host>=1.0.0
 	noextract = cbodotnet-sdk-3.1.426-linux-x64.tar.gz
 	options = !strip
@@ -33,8 +35,8 @@ pkgbase = cbodotnet-sdk-3.1-bin
 	source = verify-source.py
 	source = release-manifest.json::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.1.426/release-manifest.json
 	source = SHA256SUMS::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.1.426/SHA256SUMS
-	sha256sums = 302e508f63ae6217b21453293f303ed3ad5dbfc9760dc4cff28e8cc90f10f280
-	sha256sums = 8ee706216de273e5340559d2fddfdbf6286041085755641c094efab16a0697bf
+	sha256sums = 2926db594d3945c4192f7c6766f4b20c0009bc019449f0305a6d46313f266fcb
+	sha256sums = 4d63b7690181da9263639383c8db2eff3e3b6558232b9c8b620173f200e8aba8
 	sha256sums = ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47
 	sha256sums = 70049972a8781c309fae40e5f68d74847d0a9a590d36de4f25ecc2ad50578b09
 	sha256sums = 9be0812b27d96321f531a8b1a0694969ca898974b88c2582582c22f0e00f3c7e

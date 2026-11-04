@@ -66,6 +66,9 @@ def selected_receipts(policy, contract):
                     and identity['packageRevision'] > 0 and identity.get('sourceReleaseTag') == 'sdk-' + version
                     and identity.get('sourceManifestSha256') == contract['releases'][version]['manifestSha256'],
                     'Current receipt is not a qualified, admitted public package')
+            if version == '10.0.403':
+                require(identity['packageRevision'] >= (3 if channel == 'deb' else 2),
+                        'All-eight coexistence requires SDK10 packages with legacy child-environment restoration')
             tag = release_tag(channel, version, identity['packageRevision'])
             base = f'https://github.com/{REPOSITORY}/releases/download/{tag}/'
             require(receipt.get('tag') == tag and receipt.get('manifestUrl') == base + MANIFEST
@@ -308,6 +311,9 @@ def prepare_rpm(rows, variant, arch, state, keyring):
         if series(version) in {'3.0', '3.1', '5.0'}:
             from legacy_compat import PACKAGE_NAME, VERSION
             expected[PACKAGE_NAME] = (VERSION, '1' + suffix, ARCHITECTURES[arch]['rpm'])
+        if series(version) in {'3.0', '3.1'}:
+            from legacy_curl import PACKAGE_NAME, VERSION
+            expected[PACKAGE_NAME] = (VERSION, '1' + suffix, ARCHITECTURES[arch]['rpm'])
         for filename in metadata['packages']:
             item = assets[filename]
             allowed.setdefault((item['size'], item['sha256']), []).append(base + filename)
@@ -379,14 +385,19 @@ def install(args):
     print('published-sdk-coexistence: install all eight authenticated public SDKs on ' + args.variant, flush=True)
     packages = (prepare_apt if TARGETS[args.variant] == 'deb' else prepare_rpm)(rows, args.variant, args.arch, state, keyring)
     integrity(packages, TARGETS[args.variant])
+    from downstream_release import require_published_provider_roots
+    require_published_provider_roots(dict(sdkVersion='3.0.103'))
     from legacy_compat import provision
     compatibility = provision(dict(sdkVersion='3.0.103', variant=args.variant, architecture=dict(public=args.arch)), state, user=USER)
+    import legacy_curl
+    native_http = legacy_curl.provision(dict(sdkVersion='3.0.103', variant=args.variant,
+        architecture=dict(public=args.arch)), state, user=USER)
     roots = {row['sdkVersion']: APT.inventory(Path('/opt/cbodotnet') / series(row['sdkVersion'])) for row in rows}
     identities = [installed_identity(row, args.variant, args.arch) for row in rows]
     installed_identity(rows[0], args.variant, args.arch, default=True)
     save(state / 'installed.json', dict(packages=packages, inventories=roots, identities=identities,
         officialBaseline=official, officialStages=[dict(stage='all-eight-installed', result=assert_unchanged(state / 'official-state.json'))],
-        compatibilityState=compatibility))
+        compatibilityState=compatibility, nativeHttpState=native_http))
 
 
 def nested_environment_script():
@@ -442,23 +453,37 @@ def smoke(args):
     else:
         from rpm_official import assert_unchanged
     from legacy_compat import assert_unchanged as provider_unchanged, runtime_environment
-    observations = []; provider_stages = []
+    import legacy_curl
+    observations = []; provider_stages = []; native_http_stages = []
 
     def baseline(stage):
         state['officialStages'].append(dict(stage=stage, result=assert_unchanged(args.workspace / 'official-state.json')))
         provider_stages.append(dict(stage=stage, result=provider_unchanged(state['compatibilityState'])))
+        native_http_stages.append(dict(stage=stage, result=legacy_curl.assert_unchanged(state['nativeHttpState'])))
 
     for row in rows:
         version = row['sdkVersion']; root = '/opt/cbodotnet/' + series(version)
         print('published-sdk-coexistence: offline runtime ' + version, flush=True)
         environment = runtime_environment(dict(sdkVersion=version, variant=args.variant, architecture=dict(public=args.arch)),
             state['compatibilityState']) if series(version) in {'3.0', '3.1', '5.0'} else {}
+        native_curl = None
+        if series(version) in {'3.0', '3.1'}:
+            native_plan = dict(sdkVersion=version, variant=args.variant, channel=TARGETS[args.variant],
+                architecture=dict(public=args.arch))
+            environment = legacy_curl.runtime_environment(native_plan, state['nativeHttpState'], base_environment=environment)
+            from sdk_runtime import forced_curl_script, validate_forced_curl_output
+            output = user_run(['sh', '-ec', forced_curl_script(version, root, USER, cli='cbodotnet-' + series(version),
+                workdir='/home/' + USER + '/curl-' + series(version), runtime_env=environment,
+                curl_root=legacy_curl.PROVIDER_ROOT, user_id=10001)])
+            native_curl = validate_forced_curl_output(output, version, root, legacy_curl.PROVIDER_ROOT, 10001, args.arch)
         output = user_run(['sh', '-ec', smoke_script(version, root, USER, cli='cbodotnet-' + series(version),
             workdir='/home/' + USER + '/smoke-' + series(version), runtime_env=environment)])
         checks = validate_smoke_output(output)
         require(APT.inventory(Path(root)) == state['inventories'][version], 'Offline execution changed a public SDK payload')
         observations.append(dict(sdkVersion=version, identity=installed_identity(row, args.variant, args.arch), functionalChecks=checks,
             inventory=state['inventories'][version]))
+        if native_curl:
+            observations[-1]['nativeCurlHandler'] = native_curl
     installed_identity(rows[0], args.variant, args.arch, default=True)
     nested = user_run(['sh', '-ec', nested_environment_script()])
     require('legacy-to-modern-child-environment-tls-passed' in nested, 'Genuine legacy-to-modern child transition did not pass')
@@ -491,17 +516,21 @@ def smoke(args):
         removed_packages = {'cbodotnet-sdk-' + series(row['sdkVersion']) for row in rows if row not in remaining}
         integrity([item for item in state['packages'] if item['package'] not in removed_packages], TARGETS[args.variant])
     if TARGETS[args.variant] == 'deb':
-        run(['apt-get', 'purge', '-y', *['cbodotnet-sdk-' + series(version) for version in VERSIONS], 'cbodotnet-host', 'cbodotnet-compat-rocky9'])
+        run(['apt-get', 'purge', '-y', *['cbodotnet-sdk-' + series(version) for version in VERSIONS],
+             'cbodotnet-host', 'cbodotnet-compat-rocky9', legacy_curl.PACKAGE_NAME])
     else:
-        run(['dnf', '-y', *RPM.repository_options(), '--setopt=clean_requirements_on_remove=False', 'remove', 'cbodotnet-host', 'cbodotnet-compat-rocky9'])
-    require(not Path('/usr/bin/cbodotnet').exists() and not Path('/usr/lib/cbodotnet/compat/rocky9').exists(), 'Community shared package purge left managed runtime files')
+        run(['dnf', '-y', *RPM.repository_options(), '--setopt=clean_requirements_on_remove=False',
+             'remove', 'cbodotnet-host', 'cbodotnet-compat-rocky9', legacy_curl.PACKAGE_NAME])
+    require(not Path('/usr/bin/cbodotnet').exists() and not Path('/usr/lib/cbodotnet/compat/rocky9').exists()
+            and not Path(legacy_curl.PROVIDER_ROOT).exists(), 'Community shared package purge left managed runtime files')
     state['officialStages'].append(dict(stage='all-community-packages-purged', result=assert_unchanged(args.workspace / 'official-state.json')))
     result = dict(schemaVersion=1, status='passed', scope='published-eight-sdk-coexistence-observation', publicationAllowed=False,
         variant=args.variant, architecture=args.arch, channel=TARGETS[args.variant], networkForBuild='none', versions=list(VERSIONS),
         sources=[{key: row[key] for key in ('sdkVersion', 'packageRevision', 'manifestSha256', 'sourceManifestSha256', 'signingFingerprint')} for row in rows],
         authenticatedPackages=state['packages'], sdkObservations=observations, selectorFallback=fallback,
         legacyToModernChildEnvironmentAndTls='passed', officialBaseline=state['officialBaseline'], officialStages=state['officialStages'],
-        compatibilityProvider=provider_stages, checks=['all-eight-public-package-installation', 'signed-source-and-producer-pins',
+        compatibilityProvider=provider_stages, nativeHttpCompatibilityProvider=native_http_stages,
+        checks=['all-eight-public-package-installation', 'signed-source-and-producer-pins',
             'sdk10-default-selection', 'all-versioned-alias-roots', 'non-root-offline-tfm-crypto-icu-http-tls',
             'legacy-to-modern-child-environment-restoration', 'descending-removal-selector-fallback', 'official-package-baseline-unchanged',
             'unchanged-public-sdk-payloads', 'strict-package-integrity', 'shared-host-and-provider-purge'])

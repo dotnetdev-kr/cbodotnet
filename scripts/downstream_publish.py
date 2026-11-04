@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Publish signed, complete downstream channel matrices without replacing bytes."""
 import hashlib
+import base64
+import binascii
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import shutil
 import subprocess
@@ -11,6 +13,7 @@ import tempfile
 import time
 import urllib.error
 import urllib.request
+import urllib.parse
 
 from downstream_release import (REPOSITORY, descriptor, encoded, load_status, ordinary_file,
                                 require, stage_records, verify_report_signature)
@@ -19,6 +22,47 @@ from distribution_contract import load_contract
 MANIFEST = 'distribution-manifest.json'
 SIGNATURE = MANIFEST + '.asc'
 PUBLIC_KEY = 'distribution-signing-key.gpg'
+MAX_LEASED_JSON_BYTES = 16 * 1024**2
+
+
+def read_leased_json(api, path, *, ref='main', maximum=MAX_LEASED_JSON_BYTES):
+    """Read a bounded exact Git blob while retaining the observed Contents lease."""
+    require(isinstance(path,str) and re.fullmatch(r'[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*\.json',path)
+            and not PurePosixPath(path).is_absolute() and '..' not in PurePosixPath(path).parts,
+            'A repository-relative JSON file path is required')
+    require(isinstance(ref,str) and 0<len(ref)<=200 and type(maximum) is int and 0<maximum<=MAX_LEASED_JSON_BYTES,
+            'A bounded JSON read and exact repository ref are required')
+    content=api.api(f'repos/{REPOSITORY}/contents/{path}?ref='+urllib.parse.quote(ref,safe=''))
+    require(isinstance(content,dict) and content.get('type')=='file' and content.get('path')==path
+            and isinstance(content.get('sha'),str) and re.fullmatch(r'[a-f0-9]{40}',content['sha'])
+            and type(content.get('size')) is int and 0<content['size']<=maximum,
+            'Invalid current JSON Contents metadata or size bound')
+    blob=content
+    if content.get('encoding')=='none':
+        require(content.get('content')=='','Large JSON Contents metadata must not contain substituted inline bytes')
+        blob=api.api(f'repos/{REPOSITORY}/git/blobs/'+content['sha'])
+        require(isinstance(blob,dict) and blob.get('sha')==content['sha']
+                and type(blob.get('size')) is int and blob['size']==content['size'],
+                'JSON blob differs from the observed Contents SHA or size')
+    require(blob.get('encoding')=='base64' and isinstance(blob.get('content'),str)
+            and len(blob['content'])<=2*maximum+1024,'JSON Git blob must contain bounded base64 bytes')
+    normalized=blob['content'].replace('\r','').replace('\n','')
+    require(len(normalized)==4*((content['size']+2)//3),'JSON blob base64 length differs from its declared size')
+    try:
+        raw=base64.b64decode(normalized,validate=True)
+    except (ValueError,binascii.Error) as error:
+        raise ValueError('JSON blob contains invalid base64 bytes') from error
+    require(len(raw)==content['size'] and base64.b64encode(raw).decode('ascii')==normalized,
+            'JSON blob base64 bytes or decoded size differ')
+    git_blob=b'blob '+str(len(raw)).encode('ascii')+b'\0'+raw
+    require(hashlib.sha1(git_blob,usedforsecurity=False).hexdigest()==content['sha'],
+            'JSON Git blob SHA differs from the observed Contents lease')
+    try:
+        document=json.loads(raw)
+    except (ValueError,UnicodeError) as error:
+        raise ValueError('Leased repository bytes are not a valid JSON document') from error
+    require(isinstance(document,dict),'Leased JSON document must be an object')
+    return document,content
 
 
 def load_catalog():
@@ -201,6 +245,8 @@ class GitHubReleases:
 
     def api(self, endpoint, method='GET', body=None):
         command = [self.gh, 'api', endpoint, '--method', method]
+        if method=='GET' and endpoint.startswith(f'repos/{REPOSITORY}/contents/'):
+            command+=['-H','Accept: application/vnd.github.object+json']
         with tempfile.TemporaryDirectory(prefix='cbodotnet-gh-request-') as temporary:
             if body is not None:
                 path = Path(temporary) / 'request.json'

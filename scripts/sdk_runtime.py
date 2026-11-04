@@ -31,6 +31,29 @@ def target_framework(version):
 framework = target_framework
 
 
+def forced_curl_script(version,sdk_root,expected_user,*,cli='cbodotnet',workdir='/work/native-curl',runtime_env=None,curl_root=None,user_id=10001):
+    from native_curl_runtime import script
+    return script(version,sdk_root,expected_user,cli=cli,workdir=workdir,runtime_env=runtime_env,curl_root=curl_root,user_id=user_id)
+
+
+def validate_forced_curl_output(output,version,sdk_root,curl_root,user_id,architecture):
+    from native_curl_runtime import validate
+    return validate(output,version,sdk_root,curl_root,user_id,architecture)
+
+
+def require_installed_provider_roots(plan):
+    """Public installation verification must never repair a missing provider."""
+    if series(plan['sdkVersion']) not in {'3.0', '3.1', '5.0'}:
+        return
+    import legacy_compat
+    import legacy_curl
+    roots = [legacy_compat.PROVIDER_ROOT]
+    if legacy_curl.required(plan):
+        roots.append(legacy_curl.PROVIDER_ROOT)
+    require(all(Path(root).is_dir() and not Path(root).is_symlink() for root in roots),
+            'Published packages did not install all ordinary managed provider roots; local repair is forbidden')
+
+
 def audit_core3_http_libraries(version, sdk_root, runtime_env=None, runner=None):
     """Core3's optional native HTTP handler must resolve its stock libcurl ABI."""
     if series(version) not in {'3.0', '3.1'}:

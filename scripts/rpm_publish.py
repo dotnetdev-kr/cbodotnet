@@ -159,17 +159,24 @@ def preflight(item, received, identity, policy, contract):
             'RPM package build differs from its canonical plan')
     legacy = plan['sdkVersion'].startswith(('3.', '5.'))
     kinds = {'sdk', 'host', 'compatibility'} if legacy else {'sdk', 'host'}
+    native_http = plan['sdkVersion'].startswith('3.')
+    if native_http:kinds.add('native-http-compatibility')
     require(len(build['packages']) == len(kinds) and {row['kind'] for row in build['packages']} == kinds,
-            'Both RPM package ownership components are required')
+            'Required RPM package ownership components are missing or duplicated')
     for row in build['packages']:
         host = row['kind'] == 'host'
         compatibility = row['kind'] == 'compatibility'
-        name = 'cbodotnet-compat-rocky9' if compatibility else ('cbodotnet-host' if host else plan['package']['name'])
-        version = '2026.11.4' if compatibility else (HOST_VERSION.rsplit('-', 1)[0] if host else plan['sdkVersion'])
-        release = '1.cbot.' + plan['variant'].replace('-', '') if compatibility else rpm_release(plan, shared=host)
+        curl = row['kind'] == 'native-http-compatibility'
+        if curl:
+            from legacy_curl import PACKAGE_NAME,VERSION
+            name,version=PACKAGE_NAME,VERSION
+        else:
+            name = 'cbodotnet-compat-rocky9' if compatibility else ('cbodotnet-host' if host else plan['package']['name'])
+            version = '2026.11.4' if compatibility else (HOST_VERSION.rsplit('-', 1)[0] if host else plan['sdkVersion'])
+        release = '1.cbot.' + plan['variant'].replace('-', '') if compatibility or curl else rpm_release(plan, shared=host)
         architecture = 'noarch' if host else plan['architecture']['rpm']
         require(row['path'] == f'{name}-{version}-{release}.{architecture}.rpm'
-                and (host or compatibility or Path(item['artifactPath']).name == row['path']), 'Noncanonical native RPM package identity')
+                and (host or compatibility or curl or Path(item['artifactPath']).name == row['path']), 'Noncanonical native RPM package identity')
         path = build_path.parent / row['path']
         require(descriptor(path) == {'name': row['path'], 'size': row['size'], 'sha256': row['sha256']},
                 'Unsigned RPM bytes differ from the native installation record')
@@ -274,7 +281,7 @@ def stage(received, output, signing_key, keyring, source_run, source_attempt):
                 shutil.copyfile(signed_path, path)
             else:
                 retained = (retained_shared_rpm(row, plan, policy, keyring, signing_key, cache)
-                            if row['kind'] in {'host', 'compatibility'} else None)
+                            if row['kind'] in {'host', 'compatibility', 'native-http-compatibility'} else None)
                 if retained is not None:
                     shutil.copyfile(retained, path)
                 else:
@@ -315,14 +322,15 @@ def stage(received, output, signing_key, keyring, source_run, source_attempt):
     extra = [dict(path=str(repository / row['path']), kind='rpm-repository', variants=[row['variant']])
              for row in repositories['archives']]
     for row in repositories['packageAssets']:
-        if row['kind'] in {'host', 'compatibility'}:
+        if row['kind'] in {'host', 'compatibility', 'native-http-compatibility'}:
             destination = output / row['assetName']
             shutil.copyfile(row['sourcePath'], destination)
             extra.append({'path': str(destination)})
     for build_path in builds:
-        companion = json.loads(build_path.read_bytes()).get('compatibilityAsset')
-        if companion:
-            extra.append(dict(path=str(build_path.parent / companion['path'])))
+        build=json.loads(build_path.read_bytes())
+        for key in ('compatibilityAsset','nativeHttpCompatibilityAsset'):
+            companion=build.get(key)
+            if companion:extra.append(dict(path=str(build_path.parent / companion['path'])))
     manifest = create_bundle(items, output / 'bundle-rpm', identity['commit'], signing_key, keyring, extra_assets=extra)
     (output / 'promotion.json').write_bytes(encoded(dict(schemaVersion=1, status='signed-and-frozen',
         sourceOrchestration=identity, publisherCommit=os.environ['GITHUB_SHA'], channels={'rpm': manifest['tag']})))

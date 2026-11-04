@@ -255,7 +255,7 @@ class PublishedRepositoryLocationTests(unittest.TestCase):
         self.assertEqual(['docker', 'run', '--rm', '--network', 'none', 'actual-pulled-image@sha256:fixed'], invocation[:6])
         self.assertNotIn('--user', invocation)
         self.assertIn('test "$(id -u)" = 1654', invocation[-1])
-        self.assertIn('LD_LIBRARY_PATH=/usr/lib/cbodotnet/compat/rocky9/lib', invocation[-1])
+        self.assertIn('LD_LIBRARY_PATH=/usr/lib/cbodotnet/compat/curl-rocky8/lib:/usr/lib/cbodotnet/compat/rocky9/lib', invocation[-1])
         self.assertNotIn('apt-get', invocation[-1])
 
     def test_production_core3_missing_unresolved_or_substituted_native_http_proof_fails(self):

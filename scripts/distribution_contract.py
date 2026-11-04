@@ -66,6 +66,11 @@ def validate_contract(contract):
                 'Invalid pinned release identity')
         require(release.get('additionalDirectories', INSTALLATION['additionalDirectories'])
                 in ([], INSTALLATION['additionalDirectories']), 'Unreviewed SDK payload directory addition')
+        native_http = release.get('nativeHttpCompatibilityProvider')
+        if native_http is not None:
+            require(version in {'3.0.103', '3.1.426'} and native_http == 'rocky8-curl-20261104'
+                    and release.get('compatibilityProvider') == 'rocky9-20261104',
+                    'Unreviewed Core3 native HTTP compatibility provider')
         extra_dependencies = release.get('additionalNativeDependencies', {})
         require(isinstance(extra_dependencies, dict)
                 and set(extra_dependencies) <= set(contract.get('operatingSystems', {})),
@@ -115,6 +120,12 @@ def candidate_target(contract, version, channel, variant, arch):
     if version.startswith(('3.', '5.')):
         require(admitted.get('compatibilityProvider') == 'rocky9-20261104',
                 'Legacy SDK requires a separately recorded compatibility provider')
+    if version.startswith('3.'):
+        require(admitted.get('nativeHttpCompatibilityProvider') == 'rocky8-curl-20261104',
+                'Core3 requires its separately reviewed native HTTP compatibility provider')
+        from legacy_curl import load_policy as native_http_policy
+        require(native_http_policy()['providerId'] == admitted['nativeHttpCompatibilityProvider'],
+                'Core3 native HTTP provider policy is not available for candidate qualification')
     return admitted
 
 
@@ -159,6 +170,9 @@ def launcher_text(root, arch, contract=None, plan=None):
     }
     from legacy_compat import launcher_environment
     replacements['@COMPATIBILITY_ENV@'] = launcher_environment(plan)
+    if plan['sdkVersion'].startswith('3.'):
+        from legacy_curl import launcher_environment as native_http_environment
+        replacements['@COMPATIBILITY_ENV@'] += native_http_environment(plan)
     template = (ROOT / 'scripts/cbodotnet-launcher.sh.in').read_text(encoding='utf-8')
     return re.sub(r'@(?:ROOT|ARCH_ROOT|BRAND|BRANDING_JSON|COMPATIBILITY_ENV)@', lambda match: replacements[match[0]], template)
 
@@ -238,6 +252,12 @@ def verified_plan(release, manifest_bytes, checksum_bytes, sdk_path, channel, va
     }
     if version.startswith(('3.', '5.')):
         result['dependencies'].append('cbodotnet-compat-rocky9')
+    if admitted.get('nativeHttpCompatibilityProvider'):
+        from legacy_curl import PACKAGE_NAME, plan_policy
+        result['nativeHttpCompatibility'] = plan_policy(result)
+        require(result['nativeHttpCompatibility'].get('providerId') == admitted['nativeHttpCompatibilityProvider'],
+                'Native HTTP compatibility source differs from admitted policy')
+        result['dependencies'].append(PACKAGE_NAME)
     if channel == 'rpm':
         result['rpmDependencies'] = list(result['dependencies'])
         result['package']['rpmRelease'] = f'{revision}.cbot.' + variant.replace('-', '')

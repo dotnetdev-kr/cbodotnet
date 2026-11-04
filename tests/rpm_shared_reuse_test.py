@@ -82,6 +82,15 @@ class SharedRpmReuseTests(unittest.TestCase):
         self.assertEqual(3, len(self.downloads))
         self.assertEqual(path, signature.call_args.args[0])
 
+    def test_native_http_addon_reuse_is_arch_scoped_and_requires_exact_unsigned_bytes(self):
+        self.row.update(kind='native-http-compatibility',path='cbodotnet-compat-curl-rocky8-2026.11.4-1.cbot.fedora45.x86_64.rpm')
+        self.name='rpm-fedora-45-x64--'+self.row['path'];self.asset.update(name=self.name,url=self.base+self.name)
+        self.document['assets']=[{key:self.asset[key] for key in ('name','size','sha256')}];self.pin_document()
+        path,signature=self.reuse()
+        self.assertEqual(self.signed,path.read_bytes());self.assertEqual(path,signature.call_args.args[0])
+        self.row['sha256']='f'*64
+        with self.assertRaisesRegex(ValueError,'contents changed under an existing NEVRA'):self.reuse()
+
     def test_new_nevra_has_no_network_or_signer_side_effect(self):
         self.row['path'] = self.row['path'].replace('1.cbot.', '2.cbot.')
         path, signature = self.reuse()

@@ -1,6 +1,7 @@
 """Require authenticated receipts and both native public verifiers before advertising channels."""
 import base64
 import copy
+import hashlib
 import json
 from pathlib import Path
 import sys
@@ -181,8 +182,10 @@ class DistributionStatusTests(unittest.TestCase):
                              'Anonymous digest pull and non-root smoke on x64', 'Anonymous digest pull and non-root smoke on aarch64']
                     return {'jobs': [dict(name=name, status='completed', conclusion='failure' if bad_job and 'x64' in name else 'success') for name in names]}
                 if method == 'GET':
-                    return dict(type='file', path=STATUS.STATUS_PATH, encoding='base64', sha='2' * 40,
-                                content=base64.b64encode(encoded(self.policy)).decode())
+                    raw=encoded(self.policy)
+                    return dict(type='file', path=STATUS.STATUS_PATH, encoding='base64',size=len(raw),
+                                sha=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest(),
+                                content=base64.b64encode(raw).decode())
                 if method == 'PUT':
                     if fail_update:
                         raise ValueError('Concurrent status change; expected SHA does not match')
@@ -195,7 +198,8 @@ class DistributionStatusTests(unittest.TestCase):
         result = STATUS.update_repository_status(self.receipts, self.reports, self.index, '123', '1', api=api, verifier=self.verify)
         puts = [row for row in api.calls if row[1] == 'PUT']
         self.assertEqual(1, len(puts))
-        self.assertEqual('2' * 40, puts[0][2]['sha'])
+        raw=encoded(self.policy)
+        self.assertEqual(hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest(), puts[0][2]['sha'])
         self.assertEqual('main', puts[0][2]['branch'])
         self.assertEqual('published', json.loads(base64.b64decode(puts[0][2]['content']))['channels']['deb']['status'])
         self.assertTrue(api.calls[-1][0].endswith('/pages.yml/dispatches'))

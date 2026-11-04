@@ -1,5 +1,6 @@
 """Reject misleading RPM target, integrity, offline and provenance evidence."""
 import argparse
+from contextlib import ExitStack
 import copy
 import importlib.util
 import json
@@ -18,6 +19,52 @@ SPEC.loader.exec_module(CI)
 
 
 class RpmCiTests(unittest.TestCase):
+    def test_published_legacy_install_verifies_signed_feed_before_local_provider_comparison(self):
+        for missing_root in (False, True):
+            with self.subTest(missing_root=missing_root), tempfile.TemporaryDirectory() as temporary:
+                import legacy_compat
+                import rpm_official
+                delivery = Path(temporary)
+                plan = dict(sdkVersion='5.0.214', architecture=dict(public='x64'), variant='rocky-9.8',
+                    package=dict(name='cbodotnet-sdk-5.0', root='/opt/cbodotnet/5.0', rpmRelease='1.cbot.rocky9.8'))
+                (delivery / 'plan.json').write_text(json.dumps(plan))
+                fingerprint = 'A' * 40
+                (delivery / 'expected-fingerprint.txt').write_text(fingerprint)
+                (delivery / 'repository-url.txt').write_text('https://dotnetdev.kr/cbodotnet/packages/rpm/rocky-9.8/sdk-5.0.214-r1')
+                events = []
+                def execute(command, **kwargs):
+                    if command[0] == 'gpg':
+                        return 'pub:::::::::\nfpr:::::::::' + fingerprint + ':\n'
+                    if command[0] == 'dnf' and 'install' in command:
+                        events.append('signed-feed-install')
+                    return ''
+                def guard(selected):
+                    self.assertEqual(['signed-feed-install'], events)
+                    events.append('all-provider-roots-present')
+                    if missing_root:
+                        raise ValueError('local repair is forbidden')
+                def compare(*args, **kwargs):
+                    self.assertEqual(['signed-feed-install', 'all-provider-roots-present'], events)
+                    events.append('compare-existing-provider')
+                    return {'status': 'passed'}
+                with ExitStack() as stack:
+                    for target, name, values in [
+                        (CI.os, 'geteuid', dict(return_value=0)), (CI.Path, 'is_file', dict(return_value=True)),
+                        (CI.Path, 'write_text', dict(return_value=None)), (CI, 'validate_target', dict(return_value={})),
+                        (CI, 'run', dict(side_effect=execute)), (CI, 'require_installed_provider_roots', dict(side_effect=guard)),
+                        (CI, 'cached_packages', dict(return_value=[])), (CI, 'package_identities', dict(return_value={})),
+                        (CI, 'source_payload', {}), (CI, 'strict_integrity', {}), (CI.SHARED, 'inventory', dict(return_value=[])),
+                        (rpm_official, 'bootstrap', dict(return_value={})), (legacy_compat, 'provision', dict(side_effect=compare))]:
+                        stack.enter_context(mock.patch.object(target, name, **values))
+                    args = argparse.Namespace(delivery=delivery, published='yes')
+                    if missing_root:
+                        with self.assertRaisesRegex(ValueError, 'local repair is forbidden'):
+                            CI.prepare_installed(args)
+                        self.assertEqual(['signed-feed-install', 'all-provider-roots-present'], events)
+                    else:
+                        CI.prepare_installed(args)
+                        self.assertEqual('compare-existing-provider', events[-1])
+
     def test_sdk5_static_globalization_requires_defined_icu_entrypoints_in_audited_coreclr(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary); sdk = root / 'sdk'

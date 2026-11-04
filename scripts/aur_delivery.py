@@ -92,7 +92,7 @@ if __name__ == '__main__':
 '''
 
 
-def write_sources(plan, output, compatibility_build=None):
+def write_sources(plan, output, compatibility_build=None, native_http_build=None):
     require(plan['channel'] == 'aur' and plan['variant'] == 'arch-rolling'
             and plan['architecture']['public'] == 'x64', 'Initial AUR delivery requires native Arch x86_64 admission')
     output = Path(output).absolute()
@@ -111,6 +111,14 @@ def write_sources(plan, output, compatibility_build=None):
         require(provider[1].get('variant') == 'arch-rolling', 'An Arch companion recipe build is required')
     else:
         require(compatibility_build is None, 'Modern AUR recipes do not use legacy compatibility libraries')
+    native_http = None
+    if version.startswith(('3.0.', '3.1.')):
+        import legacy_curl
+        require(native_http_build is not None, 'Core3 AUR recipes require an explicit authenticated native HTTP build')
+        native_http = legacy_curl.verified_build(native_http_build, plan, 'oci')
+        require(native_http[1].get('variant') == 'arch-rolling', 'An Arch native HTTP recipe build is required')
+    else:
+        require(native_http_build is None, 'Only Core3 AUR recipes use the native HTTP provider')
     host = output / 'cbodotnet-host'
     sdk = output / name
     host.mkdir(parents=True)
@@ -150,6 +158,9 @@ package() {{
     quoted_hashes = ' '.join("'" + value + "'" for value in hashes)
     declared_dependencies = [legacy_compat.package_requirement('aur') if value == legacy_compat.PACKAGE_NAME else value
                              for value in dependencies]
+    if native_http is not None:
+        declared_dependencies = [legacy_curl.package_requirement('aur') if value == legacy_curl.PACKAGE_NAME else value
+                                 for value in declared_dependencies]
     quoted_dependencies = ' '.join("'" + value + "'" for value in [*declared_dependencies, 'cbodotnet-host>=' + HOST_VERSION])
     quoted_options = ' '.join("'" + value + "'" for value in OPTIONS)
     metadata_commands = []
@@ -206,6 +217,17 @@ package() {{
             require(source.is_file() and not source.is_symlink(), 'Prepared Arch companion source must be ordinary')
             shutil.copyfile(source, companion / filename)
         result['compatibility'] = companion
+    if native_http is not None:
+        parent, record = native_http
+        companion = output / legacy_curl.PACKAGE_NAME; companion.mkdir()
+        expected = legacy_curl.arch_recipe(legacy_curl.load_policy()).replace('@NOTICE_SHA256@', sha256(parent / 'NOTICE.txt')).replace(
+            '@MANIFEST_SHA256@', sha256(parent / 'provider-manifest.json'))
+        require((parent / 'PKGBUILD').read_text() == expected, 'Prepared native HTTP recipe differs from reviewed template')
+        for filename in ('PKGBUILD', '.SRCINFO', 'NOTICE.txt', 'provider-manifest.json'):
+            source = parent / filename
+            require(source.is_file() and not source.is_symlink(), 'Prepared native HTTP source must be ordinary')
+            shutil.copyfile(source, companion / filename)
+        result['native_http'] = companion
     return result
 
 
@@ -261,11 +283,15 @@ def recipe_archive(recipe_root, destination):
     allowed = {'PKGBUILD', '.SRCINFO', 'cbodotnet', 'LICENSE', 'distribution.json', 'verify-source.py',
                'openssl.cnf', 'NOTICE.txt', 'provider-manifest.json'}
     bases = sorted(recipe_root.iterdir())
-    require(len(bases) in {2, 3} and {base.name for base in bases if base.name == 'cbodotnet-host'} == {'cbodotnet-host'}
+    require(len(bases) in {2, 3, 4} and {base.name for base in bases if base.name == 'cbodotnet-host'} == {'cbodotnet-host'}
             and sum(bool(re.fullmatch(r'cbodotnet-sdk-[1-9][0-9]*\.[0-9]+-bin', base.name)) for base in bases) == 1,
             'Both independent reviewed AUR package bases are required')
     if len(bases) == 3:
         require(any(base.name == 'cbodotnet-compat-rocky9' for base in bases), 'Unexpected third AUR package base')
+    if len(bases) == 4:
+        require({'cbodotnet-compat-rocky9', 'cbodotnet-compat-curl-rocky8'} <= {base.name for base in bases}
+                and any(base.name in {'cbodotnet-sdk-3.0-bin', 'cbodotnet-sdk-3.1-bin'} for base in bases),
+                'Only Core3 source archives contain both separate reviewed provider bases')
     for base in bases:
         require((base / 'PKGBUILD').is_file() and (base / '.SRCINFO').is_file(), 'Actual makepkg .SRCINFO is required for each package base')
     sources = []

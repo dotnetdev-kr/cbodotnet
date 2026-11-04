@@ -70,7 +70,7 @@ def authenticate_receipt(receipt,*,policy=None,keyring=None,fetch=None,historica
         require(manifest['identity']==common,'Consumer receipt identity differs from signed manifest')
         assets={item['name']:item for item in manifest['assets']}
         require(set(indexed)==set(assets)|{MANIFEST,SIGNATURE},'Consumer receipt omits or adds a signed asset')
-        large={item['artifactAsset'] for item in manifest['records']}|{item['asset'] for item in manifest.get('compatibility',[])}
+        large={item['artifactAsset'] for item in manifest['records']}|{item['asset'] for key in ('compatibility','nativeHttpCompatibility') for item in manifest.get(key,[])}
         for name,item in assets.items():
             require(name in indexed and item=={key:indexed[name][key] for key in ('name','size','sha256')},
                 'Consumer receipt does not bind exact signed asset descriptors')
@@ -136,4 +136,6 @@ def archive_rows(path=None,*,status=None,policy=None,keyring=None,fetch=None):
                 directory=record['build']['directory'],payloadDirectory='payload',userSpaces=plan['validatedUserSpaces'],
                 manifestUrl=receipt['manifestUrl'],manifestSha256=receipt['manifestSha256'],signatureUrl=receipt['signatureUrl'],
                 signingFingerprint=receipt['signingFingerprint'],compatibility=assets[companion[0]['asset']] if companion else None))
+            native_http=[item for item in manifest.get('nativeHttpCompatibility',[]) if item['architecture']==record['architecture']]
+            if native_http:rows[-1]['nativeHttpCompatibility']=assets[native_http[0]['asset']]
     return rows

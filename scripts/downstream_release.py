@@ -220,6 +220,65 @@ def validate_legacy_evidence(report, plan):
                 'Legacy runtime provider source, policy or native architecture differs')
 
 
+def require_published_provider_roots(plan):
+    """Public installation proofs must never repair missing published libraries."""
+    if not plan['sdkVersion'].startswith(('3.', '5.')):
+        return
+    from legacy_compat import PROVIDER_ROOT
+    roots = [PROVIDER_ROOT]
+    if plan['sdkVersion'].startswith('3.'):
+        from legacy_curl import PROVIDER_ROOT as curl_root
+        roots.append(curl_root)
+    for value in roots:
+        path = Path(value)
+        require(path.is_dir() and not any(item.is_symlink() for item in [path, *path.parents]),
+                'Published provider root is missing or linked; local preparation cannot repair it: ' + value)
+
+
+def validate_native_curl_evidence(report, plan, *, sdk_root=None, provider_root=None):
+    """Core3 promotion requires its real selectable native HTTP and HTTPS path."""
+    if not plan['sdkVersion'].startswith('3.'):
+        return
+    import legacy_curl as provider
+    arch = plan['architecture'] if isinstance(plan['architecture'], str) else plan['architecture']['public']
+    policy = provider.load_policy()
+    expected_policy = hashlib.sha256(provider.POLICY.read_text().replace('\r\n', '\n').encode()).hexdigest()
+    root = provider_root or provider.PROVIDER_ROOT
+    proofs = report.get('nativeHttpCompatibilityProvider')
+    require(isinstance(proofs, list) and proofs and all(isinstance(stage, dict) for stage in proofs),
+            'Core3 report lacks native HTTP compatibility provider evidence')
+    for stage in proofs:
+        proof = stage.get('result', stage)
+        require(isinstance(proof, dict) and proof.get('status') == 'passed' and proof.get('required') is True
+                and proof.get('providerRoot') == root and proof.get('architecture') == arch
+                and proof.get('policySha256') == expected_policy
+                and proof.get('signingFingerprint') == provider.FINGERPRINT
+                and proof.get('sourcePackages') == policy['architectures'][arch]['packages']
+                and proof.get('sourceRpmPackages') == policy['sources']
+                and re.fullmatch(r'[a-f0-9]{64}', proof.get('treeSha256', '')),
+                'Core3 native HTTP provider source, policy, inventory or native architecture differs')
+    result = report.get('nativeCurlHandler', {})
+    expected_user = 1654 if plan.get('channel') == 'oci' else 10001
+    require(isinstance(result, dict) and result.get('status') == 'passed' and result.get('handler') == 'CurlHandler'
+            and all(result.get(name) == 'passed' for name in ('http', 'https', 'httpsDefaultTrust', 'tls12'))
+            and type(result.get('callbackCount')) is int and result['callbackCount'] >= 1
+            and result.get('network') == 'none' and result.get('userId') == expected_user,
+            'Core3 requires actual non-root offline forced-Curl HTTP, callback HTTPS and standard-trust TLS1.2')
+    pins = provider.runtime_pins(plan)
+    sdk_root = sdk_root or plan.get('package', {}).get('root') or '/opt/cbodotnet/' + '.'.join(plan['sdkVersion'].split('.')[:2])
+    expected_http = dict(pins['nativeHttp'], path=sdk_root.rstrip('/') + '/' + pins['nativeHttp']['path'])
+    expected_curl = dict(pins['curl'], path=root.rstrip('/') + '/' + pins['curl']['path'])
+    require(result.get('nativeHttp') == expected_http and result.get('curl') == expected_curl,
+            'Core3 native HTTP or libcurl bytes/path differ from the reviewed source pins')
+    mappings = result.get('nativeMappings')
+    require(isinstance(mappings, list) and mappings and all(isinstance(row, str) for row in mappings),
+            'Core3 native HTTP execution lacks actual loaded-library mappings')
+    loaded = {re.sub(r'\\([0-7]{3})', lambda match: chr(int(match[1], 8)), row.split(None, 5)[5])
+              for row in mappings if len(row.split(None, 5)) == 6}
+    require({expected_http['path'], expected_curl['path']} <= loaded,
+            'Core3 forced handler did not load the reviewed native HTTP and private libcurl libraries')
+
+
 def oci_wrapper_license():
     return dict(path='/usr/share/licenses/cbodotnet-host/LICENSE', sha256=sha256_file(ROOT / 'LICENSE'))
 
@@ -354,10 +413,11 @@ def validate_record(packaged, artifact_path, report_path, signature_path, keyrin
             and identity['targetRid'] == contract['architectures'][packaged['architecture']]['rid'],
             'Report executed on the wrong OS/version or native architecture')
     dependencies = target.get('dependencies', {})
-    require(all(isinstance(dependencies.get(name), str) and dependencies[name] for name in os_record['dependencies']),
+    require(all(isinstance(dependencies.get(name), str) and dependencies[name] for name in canonical_plan['dependencies']),
             'Report has unavailable or unrecorded native libraries')
     channel = policy['channels'].get(identity['channel'], {})
     validate_legacy_evidence(report, canonical_plan)
+    validate_native_curl_evidence(report, canonical_plan)
     validate_oci_wrapper_license(report, canonical_plan)
     checks = PREPUBLICATION_CHECKS | set(channel.get('requiredChecks', []))
     require(checks and all(report.get('checks', {}).get(name) == 'passed' for name in checks),

@@ -3,6 +3,7 @@ import copy
 import json
 import os
 from pathlib import Path
+import re
 import sys
 import tempfile
 import unittest
@@ -69,10 +70,8 @@ class RpmPublishTests(unittest.TestCase):
     def execute(self, command, **kwargs):
         if command[0] == 'rpm' and '--queryformat' in command:
             path = Path(command[-1])
-            host = path.name.startswith('cbodotnet-host-')
-            arch = 'noarch' if host else self.plans[path.parent.name]['architecture']['rpm']
-            return '\n'.join(['cbodotnet-host' if host else 'cbodotnet-sdk-10.0',
-                              '1.0.0' if host else '10.0.403', '1.cbot.fedora45', arch]) + '\n'
+            header=re.fullmatch(r'(.+)-([^-]+)-([^-]+)\.([^.]+)\.rpm',path.name)
+            return '\n'.join(header.groups())+'\n'
         if command[0] == 'rpmsign':
             path = Path(command[-1])
             path.write_bytes(path.read_bytes() + b'-signed-once')
@@ -89,6 +88,67 @@ class RpmPublishTests(unittest.TestCase):
         stack.enter_context(mock.patch.object(PUBLISH, 'local_intake', side_effect=lambda directory, channel, variant, arch, revision: self.plans[arch]))
         stack.enter_context(mock.patch.object(PUBLISH, 'package_record', side_effect=self.canonical))
         return stack
+
+    def core3(self):
+        for item in self.items:
+            public=item['package']['architecture'];plan=self.plans[public];directory=Path(item['artifactPath']).parent
+            plan.update(sdkVersion='3.0.103',package=dict(name='cbodotnet-sdk-3.0',rpmRelease='1.cbot.fedora45'))
+            path=directory/'package-build.json';build=json.loads(path.read_bytes());build['plan']=plan
+            sdk=build['packages'][0];old=directory/sdk['path'];new=directory/old.name.replace('10.0-10.0.403','3.0-3.0.103')
+            old.rename(new);sdk['path']=new.name;item['artifactPath']=str(new)
+            for kind,name in [('compatibility','cbodotnet-compat-rocky9'),('native-http-compatibility','cbodotnet-compat-curl-rocky8')]:
+                package=directory/f'{name}-2026.11.4-1.cbot.fedora45.{plan["architecture"]["rpm"]}.rpm'
+                package.write_bytes((kind+'-'+public).encode());row=dict(PUBLISH.descriptor(package),path=package.name,kind=kind);row.pop('name')
+                build['packages'].append(row)
+            for key,name in [('compatibilityAsset','base'),('nativeHttpCompatibilityAsset','curl')]:
+                companion=directory/(public+'-'+name+'.tar.gz');companion.write_bytes((name+'-companion').encode())
+                build[key]=dict(path=companion.name,size=companion.stat().st_size,sha256=PUBLISH.sha256_file(companion))
+            path.write_text(json.dumps(build))
+            item['package']['identity']['sdkVersion']='3.0.103';item['package']['artifact']=PUBLISH.descriptor(new)
+            Path(item['packagePath']).write_text(json.dumps(item['package']))
+            report=json.loads(Path(item['reportPath']).read_bytes());report.update(identity=item['package']['identity'],artifact=item['package']['artifact'])
+            Path(item['reportPath']).write_text(json.dumps(report))
+
+    def test_core3_requires_exact_fourth_package_before_any_signer_use(self):
+        self.core3();item=self.items[0];path=Path(item['artifactPath']).parent/'package-build.json'
+        with self.patches(),mock.patch('downstream_release.validate_legacy_evidence'),mock.patch.object(PUBLISH.CORE,'run',side_effect=self.execute) as commands:
+            self.assertEqual(4,len(PUBLISH.preflight(item,self.received,self.identity,self.policy,self.contract)[3]['packages']))
+            build=json.loads(path.read_bytes());build['packages'].pop();path.write_text(json.dumps(build))
+            with self.assertRaisesRegex(ValueError,'ownership components'):
+                PUBLISH.preflight(item,self.received,self.identity,self.policy,self.contract)
+            self.assertFalse(any(call.args[0][0]=='rpmsign' for call in commands.call_args_list))
+
+    def test_core3_signs_and_retains_native_http_kind_and_binds_second_companion(self):
+        self.core3();seen=[]
+        def repositories(builds,channel,output,signer,**kwargs):
+            output.mkdir();assets=[];names=set()
+            for path in builds:
+                build=json.loads(path.read_bytes())
+                for row in build['packages']:
+                    if row['kind']=='sdk':continue
+                    prefix='rpm-fedora-45--' if row['kind']=='host' else 'rpm-fedora-45-'+build['plan']['architecture']['public']+'--'
+                    name=prefix+row['path']
+                    if name in names:continue
+                    names.add(name);assets.append(dict(assetName=name,kind=row['kind'],sourcePath=str(path.parent/row['path']),size=row['size'],sha256=row['sha256']))
+            archive=output/'rpm-fedora-45.tar.gz';archive.write_bytes(b'repository')
+            return dict(packageAssets=assets,archives=[dict(path=archive.name,variant='fedora-45')])
+        def bundle(items,output,commit,signer,keyring,**kwargs):
+            names=[Path(row['path']).name for row in kwargs['extra_assets']]
+            self.assertEqual(2,sum('cbodotnet-compat-curl-rocky8-' in name for name in names))
+            self.assertTrue({'x64-curl.tar.gz','aarch64-curl.tar.gz'}<=set(names))
+            for item in items:
+                report=json.loads(Path(item['reportPath']).read_bytes())
+                self.assertEqual({'sdk','host','compatibility','native-http-compatibility'},set(report['rpmSignatures']))
+            return dict(tag='distribution-rpm-sdk-3.0.103-r1')
+        def report_signature(path,signer):
+            signature=Path(str(path)+'.asc');signature.write_bytes(b'signature');return signature
+        def retained(row,*args):seen.append(row['kind']);return None
+        with self.patches(),mock.patch('downstream_release.validate_legacy_evidence'),mock.patch.object(PUBLISH.CORE,'run',side_effect=self.execute), \
+                mock.patch.object(PUBLISH,'retained_shared_rpm',side_effect=retained),mock.patch.object(PUBLISH,'verify_rpm_signature',return_value=dict(status='passed')), \
+                mock.patch.object(PUBLISH,'build_repositories',side_effect=repositories),mock.patch.object(PUBLISH,'verify_repository'), \
+                mock.patch.object(PUBLISH.CORE,'sign_report',side_effect=report_signature),mock.patch.object(PUBLISH,'create_bundle',side_effect=bundle):
+            self.assertEqual('signed-and-frozen',PUBLISH.stage(self.received,self.root/'promotion','A'*40,self.root/'key.gpg','123','2')['status'])
+        self.assertEqual(2,seen.count('native-http-compatibility'))
 
     def test_signer_permission_guard_rejects_other_repository_branch_event_and_workflow(self):
         for key, value in [('GITHUB_REF', 'refs/heads/topic'), ('GITHUB_REPOSITORY', 'fork/cbodotnet'),

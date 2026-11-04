@@ -71,6 +71,8 @@ def intake(directory, architecture, revision=1, *, contract=None, catalog=None):
         producer=entry['provenance'],branding=copy.deepcopy(BRANDING),licensePaths=admitted['licensePaths'],
         securitySupport=admitted['securitySupport'],validatedUserSpaces=list(admitted['archiveUserSpaces']))
     result['compatibility']=compatibility_policy(result)
+    native_http=native_http_compatibility_policy(result,admitted=admitted)
+    if native_http is not None:result['nativeHttpCompatibility']=native_http
     return result
 
 
@@ -83,6 +85,17 @@ def compatibility_policy(plan):
             policySha256=hashlib.sha256(POLICY.read_text().replace('\r\n','\n').encode()).hexdigest(),
             companionName=f'cbodotnet-compat-rocky9-{provider["version"]}-linux-{plan["architecture"]}.tar.gz',
             archiveCaBundle='/etc/ssl/certs/ca-certificates.crt')
+    return result
+
+
+def native_http_compatibility_policy(plan,*,admitted=None):
+    if '.'.join(plan['sdkVersion'].split('.')[:2]) not in {'3.0','3.1'}:return None
+    from legacy_curl import plan_policy
+    result=plan_policy(plan)
+    if admitted is not None:
+        require(admitted.get('nativeHttpCompatibilityProvider')==result['providerId']
+            and admitted.get('compatibilityProvider')==result['baseProviderId'],
+            'Core3 consumer native HTTP compatibility provider is not admitted by the source contract')
     return result
 
 
@@ -101,8 +114,15 @@ def archive_name(plan):
 def launcher_text(plan):
     versioned = '.'.join(plan['sdkVersion'].split('.')[:2])
     require(re.fullmatch(r'[1-9][0-9]*\.[0-9]+',versioned), 'Invalid SDK series')
+    def ordered_policy(value,keys):
+        return {key:value[key] for key in [*keys,*sorted(set(value)-set(keys))] if key in value}
+    compatibility=ordered_policy(plan.get('compatibility',dict(required=False)),
+        ('required','providerId','root','policySha256','companionName','archiveCaBundle'))
     information = dict(schemaVersion=1,contractVersion=plan['contractVersion'],distributionBrand=BRANDING['displayName'],
-        **identity(plan),brandingScope='distribution-wrapper',qualifiedPayloadModified=False,delivery='consumer-archive',compatibility=plan.get('compatibility',dict(required=False)))
+        **identity(plan),brandingScope='distribution-wrapper',qualifiedPayloadModified=False,delivery='consumer-archive',compatibility=compatibility)
+    if 'nativeHttpCompatibility' in plan:
+        information['nativeHttpCompatibility']=ordered_policy(plan['nativeHttpCompatibility'],
+            ('required','providerId','root','policySha256','companionName','baseProviderId'))
     # The root is resolved only at execution, so movement never rewrites payload bytes.
     prefix = json.dumps(information,separators=(',',':'))[:-1] + ',"sdkRoot":"'
     replacements = {'@ARCH_ROOT@':'DOTNET_ROOT_X64' if plan['architecture']=='x64' else 'DOTNET_ROOT_ARM64',
@@ -162,7 +182,11 @@ def build_archive(inputs, architecture, revision, output, *, contract=None, cata
         + 'For direct apphost execution set DOTNET_ROOT to the absolute payload/ directory.\n'
         + 'Original licensing: payload/LICENSE.txt and payload/ThirdPartyNotices.txt.\n'
         + 'Additional consumer wrappers: LICENSE.wrapper.txt (exact cbodotnet project MIT notice).\n'
-        + 'Source and qualification: ' + plan['sourceManifestUrl'] + '\n',encoding='utf-8',newline='\n')
+        + 'Source and qualification: ' + plan['sourceManifestUrl'] + '\n'
+        + ('Core3 additionally requires both separately managed compatibility companions.\n'
+           + 'Native HTTP provider: ' + plan['nativeHttpCompatibility']['root'] + '\n'
+           + 'Companion: ' + plan['nativeHttpCompatibility']['companionName'] + '\n'
+           if 'nativeHttpCompatibility' in plan else ''),encoding='utf-8',newline='\n')
     current = tools.snapshot(payload)
     require({key:value for key,value in current.items() if key not in added} == original,'Qualified payload bytes, modes or links changed')
     archive = output / archive_name(plan)
@@ -215,6 +239,7 @@ def main():
     bundle.add_argument('--builds',nargs='+',type=Path,required=True); bundle.add_argument('--reports',nargs='+',type=Path,required=True)
     bundle.add_argument('--inputs',nargs='+',type=Path,required=True); bundle.add_argument('--output',type=Path,required=True)
     bundle.add_argument('--compat-builds',nargs='*',type=Path,default=[])
+    bundle.add_argument('--native-http-compat-builds',nargs='*',type=Path,default=[])
     bundle.add_argument('--signing-key',required=True); bundle.add_argument('--keyring',type=Path,required=True)
     bundle.add_argument('--gnupg-home',type=Path); bundle.add_argument('--source-commit',required=True)
     bundle.add_argument('--source-run',required=True); bundle.add_argument('--source-attempt',required=True)
@@ -227,7 +252,8 @@ def main():
     elif args.command=='bundle':
         from consumer_archive_release import create_bundle
         source=dict(repository=REPOSITORY,workflow=WORKFLOW,commit=args.source_commit,runId=args.source_run,runAttempt=args.source_attempt)
-        result=create_bundle(args.builds,args.reports,args.inputs,args.output,args.signing_key,args.keyring,source,gnupg_home=args.gnupg_home,compatibility_files=args.compat_builds)
+        result=create_bundle(args.builds,args.reports,args.inputs,args.output,args.signing_key,args.keyring,source,gnupg_home=args.gnupg_home,
+            compatibility_files=args.compat_builds,native_http_compatibility_files=args.native_http_compat_builds)
     else:
         from consumer_archive_release import validate_bundle,publish_bundle
         result=publish_bundle(args.bundle,args.keyring) if args.command=='publish' else validate_bundle(args.bundle,args.keyring)

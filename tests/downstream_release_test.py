@@ -20,6 +20,47 @@ from release_catalog_test import fixture
 
 
 class DownstreamReleaseTests(unittest.TestCase):
+    def test_public_provider_comparison_must_not_repair_a_missing_signed_package_root(self):
+        with mock.patch.object(Path, 'is_dir', return_value=False) as exists:
+            RELEASE.require_published_provider_roots(dict(sdkVersion='10.0.403'))
+            exists.assert_not_called()
+            for version in ('5.0.214', '3.1.426'):
+                with self.subTest(version=version), self.assertRaisesRegex(ValueError, 'cannot repair'):
+                    RELEASE.require_published_provider_roots(dict(sdkVersion=version))
+        with mock.patch.object(Path, 'is_dir', autospec=True,
+                side_effect=lambda path: str(path) != '/usr/lib/cbodotnet/compat/curl-rocky8'):
+            with self.assertRaisesRegex(ValueError, 'cannot repair'):
+                RELEASE.require_published_provider_roots(dict(sdkVersion='3.1.426'))
+
+    def test_core3_cannot_promote_default_handler_or_wrong_native_curl_provider_evidence(self):
+        from native_curl_fixture import evidence
+        plan = dict(sdkVersion='3.1.426', channel='deb', architecture=dict(public='x64'))
+        original = evidence()
+        RELEASE.validate_native_curl_evidence(original, plan)
+        for mutation in ('missing-provider', 'wrong-key', 'wrong-source', 'wrong-source-rpm', 'wrong-arch',
+                         'wrong-policy', 'default-handler', 'no-standard-trust', 'no-callback', 'root',
+                         'online', 'foreign-native-http', 'foreign-curl', 'missing-maps'):
+            candidate = copy.deepcopy(original)
+            provider = candidate['nativeHttpCompatibilityProvider'][0]
+            handler = candidate['nativeCurlHandler']
+            if mutation == 'missing-provider': candidate.pop('nativeHttpCompatibilityProvider')
+            elif mutation == 'wrong-key': provider['signingFingerprint'] = '0' * 40
+            elif mutation == 'wrong-source': provider['sourcePackages'] = []
+            elif mutation == 'wrong-source-rpm': provider['sourceRpmPackages'] = []
+            elif mutation == 'wrong-arch': provider['architecture'] = 'aarch64'
+            elif mutation == 'wrong-policy': provider['policySha256'] = '0' * 64
+            elif mutation == 'default-handler': handler['handler'] = 'SocketsHttpHandler'
+            elif mutation == 'no-standard-trust': handler['httpsDefaultTrust'] = 'not-run'
+            elif mutation == 'no-callback': handler['callbackCount'] = 0
+            elif mutation == 'root': handler['userId'] = 0
+            elif mutation == 'online': handler['network'] = 'default'
+            elif mutation == 'foreign-native-http': handler['nativeHttp']['sha256'] = '0' * 64
+            elif mutation == 'foreign-curl': handler['curl']['path'] = '/usr/lib/libcurl.so.4'
+            else: handler['nativeMappings'] = []
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                RELEASE.validate_native_curl_evidence(candidate, plan)
+        RELEASE.validate_native_curl_evidence({}, dict(sdkVersion='5.0.214'))
+
     def test_native_intake_uses_ephemeral_token_only_for_the_github_api_request(self):
         with tempfile.TemporaryDirectory() as temporary:
             with mock.patch.dict(os.environ, GH_TOKEN='fixture-ephemeral-api-token'):

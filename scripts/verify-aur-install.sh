@@ -23,6 +23,11 @@ case "$phase" in
     sed -i -E 's/^([[:space:]]*NoExtract[[:space:]]*=)/# complete-package validation: \1/' /etc/pacman.conf
     pacman -Syu --noconfirm --needed python namcap curl ca-certificates \
       glibc libgcc libstdc++ icu krb5 openssl zlib rpm-tools gnupg binutils
+    if python - "$delivery/plan.json" <<'PY'
+import json,sys
+raise SystemExit(0 if json.load(open(sys.argv[1]))['sdkVersion'].startswith(('3.0.','3.1.')) else 1)
+PY
+    then pacman -S --noconfirm --needed libnghttp2 e2fsprogs; fi
     python "$repo/scripts/aur-ci.py" prepare --delivery "$delivery"
     ;;
   installed)

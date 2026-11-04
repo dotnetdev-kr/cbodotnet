@@ -12,9 +12,11 @@ import shutil
 import subprocess
 import tempfile
 import urllib.request
+import legacy_curl
 
 from distribution_contract import load_contract
-from sdk_runtime import audit_core3_http_libraries, runtime_policy, smoke_script, validate_host_rid, validate_smoke_output
+from sdk_runtime import (audit_core3_http_libraries, forced_curl_script, validate_forced_curl_output,
+                         require_installed_provider_roots, runtime_policy, smoke_script, validate_host_rid, validate_smoke_output)
 from downstream_release import (encoded, local_intake, package_record, receive_release,
                                 PREPUBLICATION_CHECKS, verify_report_signature, load_status)
 
@@ -72,9 +74,10 @@ def validate_target(plan, release=None, machine=None):
 
 def package_paths(delivery, directory='packages'):
     values = sorted((Path(delivery) / directory).glob('*.rpm'))
-    require(len(values) in {2, 3} and sum(path.name.startswith('cbodotnet-host-') for path in values) == 1
+    require(len(values) in {2,3,4} and sum(path.name.startswith('cbodotnet-host-') for path in values) == 1
             and sum(path.name.startswith('cbodotnet-sdk-') for path in values) == 1
-            and sum(path.name.startswith('cbodotnet-compat-rocky9-') for path in values) == len(values) - 2,
+            and sum(path.name.startswith('cbodotnet-compat-rocky9-') for path in values)==(1 if len(values)>=3 else 0)
+            and sum(path.name.startswith(legacy_curl.PACKAGE_NAME+'-') for path in values)==(1 if len(values)==4 else 0),
             'SDK, common-host and any reviewed compatibility RPMs are required')
     return values
 
@@ -96,6 +99,8 @@ def required_package_identities(plan, revision=None):
         from legacy_compat import load_policy
         provider = load_policy()
         result[provider['packageName']] = [provider['version'], '1' + match[1], plan['architecture']['rpm']]
+    if legacy_curl.required(plan):
+        result[legacy_curl.PACKAGE_NAME]=[legacy_curl.VERSION,'1'+match[1],plan['architecture']['rpm']]
     return result
 
 
@@ -274,10 +279,10 @@ def prepare_installed(args):
     progress('install the official SDK through the signed stock distribution RPM repositories')
     official_baseline = bootstrap(plan['variant'], plan['architecture']['public'], 'cbot-smoke', delivery / 'official-state.json')
     compatibility = None
-    if runtime_policy(plan['sdkVersion'], plan['architecture']['public'])['legacy']:
+    published = args.published == 'yes'
+    if runtime_policy(plan['sdkVersion'], plan['architecture']['public'])['legacy'] and not published:
         from legacy_compat import provision
         compatibility = provision(plan, delivery, user='cbot-smoke')
-    published = args.published == 'yes'
     if published:
         # Legacy RPM4 imports ASCII-armored public keys; gpgv separately uses
         # the binary keyring to authenticate repository metadata.
@@ -313,12 +318,18 @@ def prepare_installed(args):
             path = delivery / 'packages' / package['path']
             require(path.stat().st_size == package['size'] and SHARED.digest(path) == package['sha256'], 'Unsigned staging package differs from its build record')
         local_transaction(package_paths(delivery))
+    if published and runtime_policy(plan['sdkVersion'],plan['architecture']['public'])['legacy']:
+        require_installed_provider_roots(plan)
+        from legacy_compat import provision
+        compatibility=provision(plan,delivery,user='cbot-smoke')
+    native_http_state=legacy_curl.provision(plan,delivery,user='cbot-smoke') if legacy_curl.required(plan) else None
     save(delivery / 'installed-package-identities.json', package_identities(plan))
     source_payload(plan, delivery)
     strict_integrity([plan['package']['name'], 'cbodotnet-host'])
     save(delivery / 'sdk-before.json', SHARED.inventory(Path(plan['package']['root'])))
-    save(delivery / 'installed-state.json', dict(published=published, osRelease=Path('/etc/os-release').read_text(),
-                                              compatibilityState=compatibility, officialBaseline=official_baseline))
+    state=dict(published=published,osRelease=Path('/etc/os-release').read_text(),compatibilityState=compatibility,officialBaseline=official_baseline)
+    if native_http_state:state['nativeHttpCompatibilityState']=native_http_state
+    save(delivery/'installed-state.json',state)
 
 
 def lifecycle(args):
@@ -332,6 +343,7 @@ def lifecycle(args):
     official_version = state['officialBaseline']['sdkVersion']
     official_proofs = []
     compatibility_proofs = []
+    native_http_proofs=[]
 
     def official_check(phase):
         from rpm_official import assert_unchanged
@@ -342,6 +354,8 @@ def lifecycle(args):
         if state.get('compatibilityState'):
             from legacy_compat import assert_unchanged as assert_provider
             compatibility_proofs.append(dict(phase=phase, **assert_provider(state['compatibilityState'])))
+        if legacy_curl.required(plan):
+            native_http_proofs.append(dict(phase=phase,**legacy_curl.assert_unchanged(state['nativeHttpCompatibilityState'])))
 
     root = Path(plan['package']['root'])
     official_check('after-install')
@@ -354,9 +368,16 @@ def lifecycle(args):
         from legacy_compat import runtime_environment, assert_unchanged as assert_compatibility
         require(state.get('compatibilityState'), 'Prepared RPM compatibility provider state is missing')
         runtime_env = runtime_environment(plan, state['compatibilityState'])
+    if legacy_curl.required(plan):
+        runtime_env=legacy_curl.runtime_environment(plan,state['nativeHttpCompatibilityState'],base_environment=runtime_env)
     reported_rid = validate_host_rid(as_user(['cbodotnet', '--info']), plan['sdkVersion'], plan['architecture']['public'], plan['variant'])
     functional = validate_smoke_output(as_user(['sh', '-ec', smoke_script(plan['sdkVersion'], str(root), 'cbot-smoke',
                     cli='cbodotnet', workdir='/home/cbot-smoke/functional', runtime_env=runtime_env)]))
+    native_curl=None
+    if legacy_curl.required(plan):
+        native_curl=validate_forced_curl_output(as_user(['sh','-ec',forced_curl_script(plan['sdkVersion'],str(root),'cbot-smoke',
+            workdir='/home/cbot-smoke/native-curl',runtime_env=runtime_env,curl_root=legacy_curl.PROVIDER_ROOT,user_id=10001)]),
+            plan['sdkVersion'],str(root),legacy_curl.PROVIDER_ROOT,10001,plan['architecture']['public'])
     as_user(['bash', ROOT / 'scripts/verify-sdk.sh', '--sdk-dir', root, '--output-dir', report,
              '--expected-version', plan['sdkVersion'], '--expected-rid', reported_rid, '--framework', policy['framework'],
              '--max-glibc', policy['maxGlibc'], '--arch', arch, '--no-smoke'], runtime_env=runtime_env)
@@ -426,6 +447,8 @@ def lifecycle(args):
         result['staticNativeComponents'] = static_native
     if runtime_env:
         result['compatibilityProvider'] = compatibility_proofs
+    if native_curl:
+        result.update(nativeHttpCompatibilityProvider=native_http_proofs,nativeCurlHandler=native_curl)
     save(delivery / 'installation-result.json', result)
     # Only evidence ownership changes; never SDK payload modes or package bytes.
     uid, gid = (int(value) for value in os.environ.get('BUILDER_OWNER', '1001:1001').split(':'))
@@ -443,6 +466,10 @@ def build_in_container(args):
         output = delivery / 'compatibility-build'
         build_provider(plan['architecture']['public'], output, variant=plan['variant'])
         compatibility_args = ['--compatibility-build', output / 'provider-build.json']
+    if legacy_curl.required(plan):
+        output=delivery/'native-http-build'
+        legacy_curl.build_provider(plan['architecture']['public'],output,variant=plan['variant'])
+        compatibility_args+=['--native-http-build',output/'provider-build.json']
     for revision, name in [(plan['packageRevision'], 'build'), (plan['packageRevision'] + 1, 'upgrade-build')]:
         progress('build ' + plan['variant'] + ' RPM revision ' + str(revision))
         run(['python3', ROOT / 'scripts/package-sdk.py', '--inputs', '/delivery/inputs', '--channel', 'rpm',

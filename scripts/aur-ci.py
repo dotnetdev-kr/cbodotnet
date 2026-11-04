@@ -17,6 +17,7 @@ from aur_delivery import ARCH_BASE, generate_srcinfo, recipe_archive, review_nam
 from distribution_commands import stage_commands
 from downstream_release import encoded, local_intake, package_record, receive_release, PREPUBLICATION_CHECKS, require
 import legacy_compat
+import legacy_curl
 import sdk_runtime
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -91,6 +92,16 @@ def verify_provider_notices(run):
                 'Separate provider component notice or ownership differs')
 
 
+def verify_native_http_notices(run):
+    original = Path(legacy_curl.PROVIDER_ROOT) / 'LICENSE.curl.txt'
+    notice = Path(legacy_curl.PROVIDER_ROOT) / 'NOTICE.txt'
+    packaged = Path('/usr/share/licenses') / legacy_curl.PACKAGE_NAME / 'COPYING'
+    require(original.is_file() and packaged.is_file() and packaged.read_bytes() == original.read_bytes()
+            and notice.is_file() and all(run(['pacman', '-Qoq', path]).strip() == legacy_curl.PACKAGE_NAME
+                                        for path in (original, notice, packaged)),
+            'Native HTTP original notice bytes or package ownership differ')
+
+
 def compatibility_native(args):
     require(platform.system() == 'Linux' and platform.machine() == 'x86_64' and os.getuid() != 0,
             'A native non-root Linux x86_64 producer is required')
@@ -99,7 +110,9 @@ def compatibility_native(args):
     workspace.mkdir(parents=True)
     # This selects the reviewed provider policy without receiving, building or
     # executing any SDK archive. It is not an SDK qualification plan/report.
-    plan = dict(sdkVersion='5.0.214', architecture={'public': 'x64'}, channel='aur', variant='arch-rolling', providerOnly=True)
+    http_only=getattr(args,'native_http',False)
+    plan = dict(sdkVersion='3.1.426' if http_only else '5.0.214', architecture={'public': 'x64'}, channel='aur', variant='arch-rolling', providerOnly=True)
+    if http_only:plan['nativeHttpProviderOnly']=True
     (workspace / 'plan.json').write_bytes(encoded(plan))
     run = native_tools().run
     docker = ['--platform', 'linux/amd64', '-e', 'AUR_OUTPUT_UID=' + str(os.getuid()),
@@ -111,13 +124,15 @@ def compatibility_native(args):
         state = json.loads(run(['docker', 'inspect', '--format', '{{json .State}}', container]))
         require(state.get('ExitCode') == 0 and state.get('Status') == 'exited', 'Arch provider-only preparation failed')
         prepared = run(['docker', 'commit', container]).strip()
-        recipe = workspace / 'recipes' / legacy_compat.PACKAGE_NAME
+        module=legacy_curl if http_only else legacy_compat
+        prefix='native-http' if http_only else 'compatibility'
+        recipe = workspace / 'recipes' / module.PACKAGE_NAME
         recipe.mkdir(parents=True)
-        for name in ('PKGBUILD', '.SRCINFO', 'openssl.cnf', 'NOTICE.txt', 'provider-manifest.json'):
-            shutil.copy2(workspace / 'compatibility-provider' / name, recipe / name)
-        policy = legacy_compat.load_policy()
+        for name in ('PKGBUILD','.SRCINFO','NOTICE.txt','provider-manifest.json',*(() if http_only else ('openssl.cnf',))):
+            shutil.copy2(workspace/(prefix+'-provider')/name,recipe/name)
+        policy = module.load_policy()
         for item in [*policy['architectures']['x64']['packages'], *policy['sources'], policy['key']]:
-            shutil.copy2(workspace / 'compatibility-sources' / item['name'], recipe / item['name'])
+            shutil.copy2(workspace/(prefix+'-sources')/item['name'],recipe/item['name'])
         verify_tracked_sources(workspace / 'recipes', ROOT / 'packaging/aur')
         run(['docker', 'run', '--rm', '--network', 'none', *docker, prepared,
              'bash', '/repo/scripts/verify-aur-install.sh', '/repo', '/delivery', 'installed-provider'])
@@ -141,16 +156,34 @@ def compatibility_installed(args):
     logs = delivery / 'makepkg-logs'
     logs.mkdir()
     records = []
-    package = build_recipe(delivery / 'recipes' / legacy_compat.PACKAGE_NAME, 'compatibility', logs, records, tools)
+    http_only=plan.get('nativeHttpProviderOnly') is True
+    module=legacy_curl if http_only else legacy_compat
+    prefix='native-http' if http_only else 'compatibility'
+    package = build_recipe(delivery/'recipes'/module.PACKAGE_NAME,prefix,logs,records,tools)
     tools.run(['pacman', '-U', '--noconfirm', package])
-    proof = legacy_compat.assert_unchanged(delivery / 'compatibility-state.json')
-    verify_provider_notices(tools.run)
-    integrity = tools.run(['pacman', '-Qkk', legacy_compat.PACKAGE_NAME], env=dict(os.environ, LC_ALL='C'))
+    proof=module.assert_unchanged(delivery/(prefix+'-state.json'))
+    if not http_only:verify_provider_notices(tools.run)
+    if http_only:
+        verify_native_http_notices(tools.run)
+        # Reproduce the existing-managed, fresh-delivery branch without any
+        # network access, and prove it retains a real package artifact.
+        before=tools.run(['pacman','-Qi',module.PACKAGE_NAME]);tree=tools.inventory(Path(module.PROVIDER_ROOT))
+        second=delivery/'existing-managed-check';second.mkdir()
+        shutil.copytree(delivery/'native-http-sources',second/'native-http-sources')
+        restored=module.provision(plan,second,user='cbot-smoke')
+        build=json.loads((second/'native-http-provider/provider-build.json').read_bytes())
+        require(len(build['packages'])==1 and (second/'native-http-provider'/build['packages'][0]['path']).is_file()
+                and restored['treeSha256']==proof['treeSha256'] and tree==tools.inventory(Path(module.PROVIDER_ROOT))
+                and before==tools.run(['pacman','-Qi',module.PACKAGE_NAME]),'Existing-managed native HTTP preparation lost its package or reinstalled files')
+    integrity=tools.run(['pacman','-Qkk',module.PACKAGE_NAME],env=dict(os.environ,LC_ALL='C'))
     verify_package_integrity(integrity, 1)
-    result = dict(schemaVersion=1, scope='provider-package-only', status='passed', sdkQualificationPerformed=False,
+    result = dict(schemaVersion=1, scope='native-http-provider-package-only' if http_only else 'provider-package-only', status='passed', sdkQualificationPerformed=False,
                   sdkArchivesDownloaded=0, sdkBuilds=0, publicationStatus='not-published', networkForBuild='none',
                   architecture='x64', startingImage=ARCH_BASE, compatibilityProvider=[proof], packageBuilds=records,
-                  packageIdentity=tools.run(['pacman', '-Q', legacy_compat.PACKAGE_NAME]).strip(), packageIntegrity=integrity)
+                  packageIdentity=tools.run(['pacman','-Q',module.PACKAGE_NAME]).strip(),packageIntegrity=integrity)
+    if http_only:
+        result['nativeHttpCompatibilityProvider']=[proof]
+        result['compatibilityProvider']=[legacy_compat.assert_unchanged(delivery/'compatibility-state.json')]
     (delivery / 'provider-only-result.json').write_bytes(encoded(result))
 
 
@@ -181,10 +214,11 @@ def native(args):
         require(state.get('ExitCode') == 0 and state.get('Status') == 'exited', 'Arch dependency preparation failed')
         prepared = run(['docker', 'commit', container]).strip()
         provider_build = workspace / 'compatibility-provider/provider-build.json' if legacy_compat.required(plan) else None
+        http_build=workspace/'native-http-provider/provider-build.json' if legacy_curl.required(plan) else None
         for revision, name in [(args.revision, 'recipes'), (args.revision + 1, 'upgrade-recipes')]:
             recipe_plan = local_intake(inputs, 'aur', 'arch-rolling', 'x64', revision)
             recipe_plan['checksums'] = json.loads((inputs / 'release-manifest.json').read_bytes())['checksums']
-            sources = write_sources(recipe_plan, workspace / name, provider_build)
+            sources = write_sources(recipe_plan,workspace/name,provider_build,http_build)
             if revision == args.revision:
                 verify_tracked_sources(workspace / name, ROOT / 'packaging/aur')
             # makepkg rechecks every source checksum without external networking.
@@ -194,6 +228,10 @@ def native(args):
                 policy = legacy_compat.load_policy()
                 for item in [*policy['architectures']['x64']['packages'], *policy['sources'], policy['key']]:
                     shutil.copy2(workspace / 'compatibility-sources' / item['name'], sources['compatibility'] / item['name'])
+            if 'native_http' in sources:
+                policy=legacy_curl.load_policy()
+                for item in [*policy['architectures']['x64']['packages'],*policy['sources'],policy['key']]:
+                    shutil.copy2(workspace/'native-http-sources'/item['name'],sources['native_http']/item['name'])
         progress('disable external networking for actual makepkg, lint, install and complete SDK lifecycle tests')
         run(['docker', 'run', '--rm', '--network', 'none', *docker, prepared,
              'bash', '/repo/scripts/verify-aur-install.sh', '/repo', '/delivery', 'installed'])
@@ -225,7 +263,7 @@ def native(args):
                 elif child.name.endswith(('.pkg.tar.zst', '.tar.gz', '.rpm')) or child.name in {
                         'release-manifest.json', 'SHA256SUMS', 'RPM-GPG-KEY-Rocky-9'}:
                     child.unlink()
-    for name in ('compatibility-provider', 'compatibility-sources'):
+    for name in ('compatibility-provider','compatibility-sources','native-http-provider','native-http-sources'):
         if (workspace / name).is_dir():
             shutil.rmtree(workspace / name)
     (workspace / 'official-sdk.tar.gz').unlink()
@@ -241,6 +279,7 @@ def prepare(args):
     native_tools().run(['useradd', '--create-home', '--uid', '10001', 'cbot-smoke'])
     if legacy_compat.required(plan):
         legacy_compat.provision(plan, delivery, user='cbot-smoke')
+    if legacy_curl.required(plan):legacy_curl.provision(plan,delivery,user='cbot-smoke')
 
 
 def installed(args):
@@ -264,11 +303,15 @@ def installed(args):
     runtime_policy = sdk_runtime.policy(plan)
     compatibility_state = delivery / 'compatibility-state.json' if runtime_policy['legacy'] else None
     runtime_environment = legacy_compat.runtime_environment(plan, compatibility_state) if compatibility_state else {}
+    http_state=delivery/'native-http-state.json' if legacy_curl.required(plan) else None
+    if http_state:runtime_environment=legacy_curl.runtime_environment(plan,http_state,base_environment=runtime_environment)
     provider_proofs = []
+    http_proofs=[]
 
     def provider_unchanged(phase):
         if compatibility_state:
             provider_proofs.append({'phase': phase, **legacy_compat.assert_unchanged(compatibility_state)})
+        if http_state:http_proofs.append({'phase':phase,**legacy_curl.assert_unchanged(http_state)})
 
     def as_user(command, cwd=Path('/home/cbot-smoke')):
         return run(tools.user_command(command, cwd), cwd=cwd)
@@ -283,6 +326,10 @@ def installed(args):
         run(['pacman', '-U', '--noconfirm', companion])
         provider_unchanged('companion-reinstall')
         verify_provider_notices(run)
+    if http_state:
+        companion=build(delivery/'recipes'/legacy_curl.PACKAGE_NAME,'native-http')
+        run(['pacman','-U','--noconfirm',companion]);provider_unchanged('native-http-companion-reinstall')
+        verify_native_http_notices(run)
     package = build(delivery / 'recipes' / name, 'sdk')
     upgrade = build(delivery / 'upgrade-recipes' / name, 'sdk-upgrade')
     # Shared command ownership stays independent of SDK packaging revisions.
@@ -313,7 +360,7 @@ def installed(args):
         require(run(['pacman', '-Qoq', target]).strip() == owner, 'Package ownership collision: ' + target)
     for notice in ('LICENSE.txt', 'ThirdPartyNotices.txt'):
         require((sdk / notice).read_bytes() == (Path('/usr/share/licenses') / name / notice).read_bytes(), 'Original upstream notices changed')
-    integrity_packages = [name, 'cbodotnet-host', *([legacy_compat.PACKAGE_NAME] if compatibility_state else [])]
+    integrity_packages=[name,'cbodotnet-host',*([legacy_compat.PACKAGE_NAME] if compatibility_state else []),*([legacy_curl.PACKAGE_NAME] if http_state else [])]
     integrity = run(['pacman', '-Qkk', *integrity_packages], env=dict(os.environ, LC_ALL='C'))
     verify_package_integrity(integrity, len(integrity_packages))
     names = [Path(plan['package']['launcher']).name, 'cbodotnet']
@@ -335,6 +382,11 @@ def installed(args):
     output = as_user(['sh', '-ec', script], work)
     (delivery / 'offline-smoke.log').write_text(output)
     functional = sdk_runtime.validate_smoke_output(output)
+    native_curl=None
+    if http_state:
+        native_curl=sdk_runtime.validate_forced_curl_output(as_user(['sh','-ec',sdk_runtime.forced_curl_script(plan['sdkVersion'],str(sdk),'cbot-smoke',
+            workdir=str(work/'native-curl'),runtime_env=runtime_environment,curl_root=legacy_curl.PROVIDER_ROOT,user_id=10001)]),
+            plan['sdkVersion'],str(sdk),legacy_curl.PROVIDER_ROOT,10001,'x64')
     provider_unchanged('offline-dll-apphost-http-tls-crypto-icu')
     require(inventory(sdk) == sdk_before, 'SDK execution changed the qualified payload')
     require(as_user(['dotnet', '--version']).strip() == '10.0.100' and inventory(official) == official_before, 'Official dotnet coexistence failed')
@@ -367,6 +419,10 @@ def installed(args):
     require(not Path('/usr/bin/cbodotnet').exists() and as_user(['dotnet', '--version']).strip() == '10.0.100'
             and inventory(official) == official_before, 'AUR removal modified the independent official SDK')
     provider_unchanged('shared-host-remove')
+    if http_state:
+        run(['pacman','-R','--noconfirm',legacy_curl.PACKAGE_NAME])
+        require(not Path(legacy_curl.PROVIDER_ROOT).exists() and inventory(official)==official_before,
+                'Native HTTP provider removal left files or changed official SDK')
     if compatibility_state:
         run(['pacman', '-R', '--noconfirm', legacy_compat.PACKAGE_NAME])
         require(not Path(legacy_compat.PROVIDER_ROOT).exists() and inventory(official) == official_before,
@@ -386,6 +442,7 @@ def installed(args):
         networkForBuild='none',
         packageManagerPolicy='full-package-extraction',
         publicationStatus='not-published')
+    if native_curl:result.update(nativeHttpCompatibilityProvider=http_proofs,nativeCurlHandler=native_curl)
     (delivery / 'installation-result.json').write_bytes(encoded(result))
 
 
@@ -402,6 +459,7 @@ def main():
     preparation.add_argument('--delivery', type=Path, required=True)
     provider = commands.add_parser('compatibility-native')
     provider.add_argument('--workspace', type=Path, required=True)
+    provider.add_argument('--native-http',action='store_true')
     installed_provider = commands.add_parser('compatibility-installed')
     installed_provider.add_argument('--delivery', type=Path, required=True)
     args = parser.parse_args()

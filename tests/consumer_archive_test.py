@@ -81,6 +81,54 @@ class ConsumerArchiveTests(unittest.TestCase):
         self.assertEqual((self.root/'before'/before['artifact']['name']).read_bytes(),
                          (self.root/'after'/after['artifact']['name']).read_bytes())
 
+    def test_qualified_sdk5_wrapper_bytes_survive_json_roundtrip_and_new_core3_policy(self):
+        fixture=json.loads((ROOT/'tests/fixtures/consumer-archive-sdk5-wrapper.json').read_bytes())
+        plan=fixture['plan']
+        self.assertIsNone(CA.native_http_compatibility_policy(plan))
+        self.assertNotIn('nativeHttpCompatibility',plan)
+        for value in (plan,json.loads(CA.encoded(plan))):
+            wrapper=CA.launcher_text(value).encode()
+            self.assertEqual(fixture['wrapperSha256'],hashlib.sha256(wrapper).hexdigest())
+            self.assertEqual(fixture['wrapperSize'],len(wrapper))
+
+    def test_core3_native_http_companion_requires_real_forced_handler_and_bound_sources(self):
+        import legacy_curl
+        plan=dict(sdkVersion='3.0.103',architecture='x64')
+        specification=CA.native_http_compatibility_policy(plan)
+        self.assertTrue(specification['required']);plan['nativeHttpCompatibility']=specification
+        admitted=dict(nativeHttpCompatibilityProvider=specification['providerId'],compatibilityProvider=specification['baseProviderId'])
+        self.assertEqual(specification,CA.native_http_compatibility_policy(plan,admitted=admitted))
+        for change in ({'nativeHttpCompatibilityProvider':None},{'compatibilityProvider':'another-provider'}):
+            with self.assertRaisesRegex(ValueError,'not admitted'):
+                CA.native_http_compatibility_policy(plan,admitted=dict(admitted,**change))
+        policy=legacy_curl.load_policy();pins=legacy_curl.runtime_pins(plan)
+        payload='/opt/cbodotnet-consumer-validation/relocated consumer archive/payload'
+        native=dict(pins['nativeHttp'],path=payload+'/'+pins['nativeHttp']['path'])
+        curl=dict(pins['curl'],path=specification['root']+'/'+pins['curl']['path'])
+        manifest=dict(providerId=specification['providerId'],providerRoot=specification['root'],architecture='x64',
+            policySha256=specification['policySha256'],signingFingerprint=legacy_curl.FINGERPRINT,
+            packages=policy['architectures']['x64']['packages'],sourcePackages=policy['sources'],
+            files=[dict(path=pins['curl']['path'],sha256=pins['curl']['sha256'])])
+        provider=dict(status='passed',required=True,providerRoot=specification['root'],architecture='x64',
+            policySha256=specification['policySha256'],signingFingerprint=legacy_curl.FINGERPRINT,treeSha256='a'*64,
+            sourcePackages=manifest['packages'],sourceRpmPackages=manifest['sourcePackages'])
+        probe=dict(status='passed',handler='CurlHandler',http='passed',https='passed',httpsDefaultTrust='passed',tls12='passed',
+            callbackCount=1,network='none',userId=10001,nativeHttp=native,curl=curl,nativeMappings=[
+                '1000-2000 r-xp 0000 00:00 0 '+item['path'].replace(' ','\\040') for item in (native,curl)])
+        report=dict(nativeHttpCompatibility=dict(required=True,policySha256=specification['policySha256'],manifest=manifest),
+            userSpaces=[dict(variant=variant,nativeHttpCompatibilityProvider=[provider],nativeCurlHandler=probe,
+                nativeHttpLibraries=[pins['nativeHttp']]) for variant in ('ubuntu-22.04','ubuntu-24.04','debian-13')])
+        CR.validate_native_http_report(report,plan)
+        for mutate in (lambda row:row.pop('nativeHttpCompatibility'),
+                lambda row:row['userSpaces'][0]['nativeHttpCompatibilityProvider'].append(provider),
+                lambda row:row['userSpaces'][0]['nativeHttpCompatibilityProvider'][0].update(sourceRpmPackages=[]),
+                lambda row:row['userSpaces'][0]['nativeCurlHandler'].update(httpsDefaultTrust='failed'),
+                lambda row:row['userSpaces'][0]['nativeCurlHandler'].update(userId=0),
+                lambda row:row['userSpaces'][0]['nativeCurlHandler']['curl'].update(sha256='f'*64),
+                lambda row:row['userSpaces'][0]['nativeHttpLibraries'][0].update(sha256='f'*64)):
+            changed=copy.deepcopy(report);mutate(changed)
+            with self.assertRaises(ValueError):CR.validate_native_http_report(changed,plan)
+
     def test_all_entrypoints_relocate_with_spaces_quotes_and_symlinked_selection(self):
         build=self.build(); original=self.root/'build'/build['directory']; relocated=self.root/'moved "SDK" directory'
         original.rename(relocated)

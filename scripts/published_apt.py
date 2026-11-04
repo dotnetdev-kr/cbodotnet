@@ -98,6 +98,9 @@ def package_descriptors(packages, sdk, revision, architecture, flat=False):
         from legacy_compat import load_policy
         provider = load_policy()
         expected.add((provider['packageName'], provider['version'] + '-1', architecture))
+    if sdk_series(sdk) in {'3.0', '3.1'}:
+        from legacy_curl import PACKAGE_NAME, VERSION
+        expected.add((PACKAGE_NAME, VERSION + '-1', architecture))
     selected = {}
     for block in packages.decode('utf-8').split('\n\n'):
         fields = {}
@@ -247,6 +250,8 @@ def install(args):
         repositoryMetadata=dict(inReleaseSha256=digest(STATE / 'InRelease'), packagesSha256=digest(STATE / 'Packages')))
     state['compatibilityState'] = None
     if sdk_series(args.sdk) in {'3.0', '3.1', '5.0'}:
+        from downstream_release import require_published_provider_roots
+        require_published_provider_roots(dict(sdkVersion=args.sdk))
         from legacy_compat import provision
         run(['apt-get', 'install', '-y', '--no-install-recommends', 'rpm', 'rpm2cpio', 'binutils', 'gnupg'])
         state['compatibilityState'] = provision(dict(sdkVersion=args.sdk, variant=args.variant,
@@ -258,6 +263,12 @@ def install(args):
     if state['compatibilityState']:
         from legacy_compat import assert_unchanged as assert_provider
         state['compatibilityStages'].append(dict(stage='after-community-install', result=assert_provider(state['compatibilityState'])))
+    if sdk_series(args.sdk) in {'3.0', '3.1'}:
+        import legacy_curl
+        plan = dict(sdkVersion=args.sdk, variant=args.variant, architecture=dict(public=args.arch))
+        state['nativeHttpState'] = legacy_curl.provision(plan, STATE, user=USER)
+        state['nativeHttpStages'] = [dict(stage='after-community-install',
+            result=legacy_curl.assert_unchanged(state['nativeHttpState']))]
     work = Path('/home/' + USER + '/project'); work.mkdir()
     run(['chown', '-R', USER + ':' + USER, work])
     (STATE / 'state.json').write_bytes(encoded(state))
@@ -275,14 +286,28 @@ def smoke(args):
     if state.get('compatibilityState'):
         from legacy_compat import runtime_environment, assert_unchanged as assert_provider
         runtime_env = runtime_environment(dict(sdkVersion=args.sdk, variant=args.variant, architecture=dict(public=args.arch)), state['compatibilityState'])
+    native_http_proofs = state.get('nativeHttpStages', [])
+    if state.get('nativeHttpState'):
+        import legacy_curl
+        runtime_env = legacy_curl.runtime_environment(dict(sdkVersion=args.sdk, variant=args.variant,
+            architecture=dict(public=args.arch)), state['nativeHttpState'], base_environment=runtime_env)
 
     def official_check(stage):
         state['officialStages'].append(dict(stage=stage, result=assert_unchanged(official_state)))
         if runtime_env:
             compatibility_proofs.append(dict(stage=stage, result=assert_provider(state['compatibilityState'])))
+        if state.get('nativeHttpState'):
+            native_http_proofs.append(dict(stage=stage, result=legacy_curl.assert_unchanged(state['nativeHttpState'])))
 
     functional = validate_smoke_output(user_run(['sh', '-ec', smoke_script(args.sdk, root, USER,
         cli='cbodotnet', workdir=str(work), runtime_env=runtime_env)], cwd=work))
+    native_curl = None
+    if state.get('nativeHttpState'):
+        from sdk_runtime import forced_curl_script, validate_forced_curl_output
+        output = user_run(['sh', '-ec', forced_curl_script(args.sdk, root, USER, cli='cbodotnet',
+            workdir=str(work / 'native-curl'), runtime_env=runtime_env,
+            curl_root=legacy_curl.PROVIDER_ROOT, user_id=10001)], cwd=work)
+        native_curl = validate_forced_curl_output(output, args.sdk, root, legacy_curl.PROVIDER_ROOT, 10001, args.arch)
     require(inventory(Path(root)) == state['communityInventory'], 'Offline execution changed the installed Community payload')
     assert_community(args, state)
     official_check('after-offline-sdk-execution')
@@ -309,6 +334,10 @@ def smoke(args):
             'version-stdout-compatible','sdk-root-rid','non-root-offline-build-run','package-integrity','original-notices',
             'official-package-coexistence','official-root-package-inventory-unchanged','removal','shared-host-ownership',
             'authenticated-cached-reinstall','purge'])
+    if native_curl:
+        result.update(nativeHttpCompatibilityProvider=native_http_proofs, nativeCurlHandler=native_curl)
+        from downstream_release import validate_native_curl_evidence
+        validate_native_curl_evidence(result, dict(sdkVersion=args.sdk, channel='deb', architecture=dict(public=args.arch)))
     args.report.write_bytes(encoded(result))
     print(json.dumps(dict(status='passed', variant=args.variant, architecture=args.arch, officialVersion=state['officialBaseline']['sdkVersion'])))
 

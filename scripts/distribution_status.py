@@ -9,8 +9,8 @@ import tempfile
 import time
 
 from distribution_site import prepare_site
-from downstream_publish import GitHubReleases, REPOSITORY, release_tag
-from downstream_release import PREPUBLICATION_CHECKS, encoded, require
+from downstream_publish import GitHubReleases, REPOSITORY, release_tag, read_leased_json
+from downstream_release import PREPUBLICATION_CHECKS, encoded, require, validate_native_curl_evidence
 
 STATUS_PATH = 'releases/downstream-status.json'
 CONSISTENCY_MAX_SECONDS = 25 * 60
@@ -94,6 +94,8 @@ def validate_postverification(policy, receipts, reports, index=None):
                         and files.get('ownership') == 'root:root:0755'
                         and files.get('sourceBuildToolchain') == files.get('credentialEnvironment') == 'absent',
                         'OCI public metadata, SDK listing, ownership or consumer configuration proof is incomplete')
+            validate_native_curl_evidence(report, dict(sdkVersion=identity['sdkVersion'],
+                channel='oci', variant='debian-13', architecture=dict(public=arch)))
         if 'deb' in by_channel:
             targets = report.get('aptTargets', [])
             expected = {row['variant'] for row in policy['channels']['deb']['candidateMatrix'] if row['architecture'] == arch}
@@ -109,6 +111,8 @@ def validate_postverification(policy, receipts, reports, index=None):
                 require(all(target.get('checks', {}).get(name) == 'passed' for name in checks)
                         and target.get('checks', {}).get('upgrade') in {'passed', 'verified-before-publication'},
                         'APT installation, integrity, branding or lifecycle post-check failed')
+                validate_native_curl_evidence(target, dict(sdkVersion=by_channel['deb']['identity']['sdkVersion'],
+                    channel='deb', variant=target['variant'], architecture=dict(public=arch)))
         if 'rpm' in by_channel:
             targets = report.get('rpmTargets', [])
             expected = {row['variant'] for row in policy['channels']['rpm']['candidateMatrix'] if row['architecture'] == arch}
@@ -124,6 +128,8 @@ def validate_postverification(policy, receipts, reports, index=None):
                 require(all(target.get('checks', {}).get(name) == 'passed' for name in checks)
                         and target.get('checks', {}).get('upgrade') in {'passed', 'verified-before-publication'},
                         'RPM package signature, repository, integrity or installation post-check failed')
+                validate_native_curl_evidence(target, dict(sdkVersion=by_channel['rpm']['identity']['sdkVersion'],
+                    channel='rpm', variant=target['variant'], architecture=dict(public=arch)))
 
 
 def activate_status(policy, receipts, reports, index=None, proof=None, public_key=None, verifier=None):
@@ -231,10 +237,7 @@ def update_repository_status(receipts, reports, index, run_id, attempt, gh='gh',
     """Use the observed content SHA as a lease, then explicitly refresh Pages."""
     api = api if api is not None else GitHubReleases(gh)
     proof = validate_workflow_run(api, run_id, attempt, [receipt['identity']['channel'] for receipt in receipts])
-    content = api.api(f'repos/{REPOSITORY}/contents/{STATUS_PATH}?ref=main')
-    require(content and content.get('type') == 'file' and content.get('path') == STATUS_PATH
-            and content.get('encoding') == 'base64' and isinstance(content.get('sha'), str), 'Invalid current status file metadata')
-    policy = json.loads(base64.b64decode(content['content']))
+    policy, content = read_leased_json(api, STATUS_PATH)
     activated = activate_status(policy, receipts, reports, index, proof, public_key, verifier)
     changed = activated != policy
     commit = None

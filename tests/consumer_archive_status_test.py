@@ -32,7 +32,9 @@ class Api:
         if '/jobs?' in endpoint:return dict(jobs=self.job_responses.pop(0) if self.job_responses else self.jobs)
         if '/artifacts?' in endpoint:return dict(artifacts=self.artifact_responses.pop(0) if self.artifact_responses else self.artifacts)
         if '/contents/' in endpoint and method=='GET':
-            return dict(type='file',path=STATUS.STATUS_PATH,encoding='base64',sha='b'*40,content=base64.b64encode(STATUS.encoded(self.status)).decode())
+            raw=STATUS.encoded(self.status)
+            return dict(type='file',path=STATUS.STATUS_PATH,encoding='base64',size=len(raw),
+                sha=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest(),content=base64.b64encode(raw).decode())
         if '/contents/' in endpoint and method=='PUT':
             if self.fail_write:raise RuntimeError('SHA lease conflict')
             self.status=json.loads(base64.b64decode(body['content']));return dict(commit=dict(sha='c'*40))
@@ -181,7 +183,8 @@ class ConsumerArchiveStatusTests(unittest.TestCase):
             result=STATUS.update(receipt,self.reports(),'42','1',api=api)
         self.assertEqual('c'*40,result['commit'])
         writes=[body for endpoint,method,body in api.calls if method=='PUT']
-        self.assertEqual(1,len(writes));self.assertEqual('b'*40,writes[0]['sha'])
+        raw=STATUS.encoded(dict(schemaVersion=1,repository=STATUS.REPOSITORY,publications=[]))
+        self.assertEqual(1,len(writes));self.assertEqual(hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest(),writes[0]['sha'])
         self.assertTrue(api.calls[-1][0].endswith('pages.yml/dispatches'))
         api=Api();api.fail_write=True
         with mock.patch.object(STATUS,'activate',return_value=copy.deepcopy(activated)),mock.patch.object(STATUS,'verify_artifacts',return_value=[]):

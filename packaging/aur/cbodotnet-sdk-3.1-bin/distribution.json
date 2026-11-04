@@ -18,7 +18,9 @@
     "icu",
     "openssl",
     "curl",
-    "cbodotnet-compat-rocky9"
+    "libnghttp2",
+    "cbodotnet-compat-rocky9",
+    "cbodotnet-compat-curl-rocky8"
   ],
   "branding": {
     "displayName": "Community Build of .NET (built by .NET Dev)",
@@ -53,7 +55,9 @@
     "icu",
     "openssl",
     "curl",
-    "cbodotnet-compat-rocky9"
+    "libnghttp2",
+    "cbodotnet-compat-rocky9",
+    "cbodotnet-compat-curl-rocky8"
   ],
   "evidence": {
     "name": "evidence-x64.tar.gz",
@@ -65,6 +69,14 @@
     "LICENSE.txt",
     "ThirdPartyNotices.txt"
   ],
+  "nativeHttpCompatibility": {
+    "baseProviderId": "rocky9-20261104",
+    "companionName": "cbodotnet-compat-curl-rocky8-2026.11.4-linux-x64.tar.gz",
+    "policySha256": "f24a14a825101f2f1045d1a1573ff72b08903704729e5574b9e17c1f3186a02c",
+    "providerId": "rocky8-curl-20261104",
+    "required": true,
+    "root": "/usr/lib/cbodotnet/compat/curl-rocky8"
+  },
   "package": {
     "aurName": "cbodotnet-sdk-3.1-bin",
     "launcher": "/usr/bin/cbodotnet-3.1",

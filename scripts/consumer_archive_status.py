@@ -17,7 +17,7 @@ import zipfile
 from consumer_archive import ARCHITECTURES,REPOSITORY,WORKFLOW,encoded,require
 from consumer_archive_release import workflow_identity
 from consumer_archive_site import authenticate_receipt,archive_rows,load_archive_status,postverified_receipt
-from downstream_publish import GitHubReleases
+from downstream_publish import GitHubReleases,read_leased_json
 
 STATUS_PATH='releases/archive-status.json'
 CONSISTENCY_MAX_SECONDS=25*60
@@ -155,10 +155,7 @@ def update(receipt,reports,run_id,attempt,*,gh='gh',api=None,keyring=None,policy
     api=api or GitHubReleases(gh);deadline=time.monotonic()+CONSISTENCY_MAX_SECONDS
     source=validate_run(api,run_id,attempt,deadline=deadline)
     artifacts=verify_artifacts(api,source,reports,fetch_artifact=fetch_artifact,gh=gh,deadline=deadline)
-    content=api.api(f'repos/{REPOSITORY}/contents/{STATUS_PATH}?ref=main')
-    require(content and content.get('type')=='file' and content.get('path')==STATUS_PATH and content.get('encoding')=='base64'
-        and re.fullmatch(r'[a-f0-9]{40}',content.get('sha','')),'Invalid current consumer status content metadata')
-    status=json.loads(base64.b64decode(content['content']))
+    status,content=read_leased_json(api,STATUS_PATH)
     for record in reports:
         require(record['report']['orchestration']==source,'Consumer post-verification report source differs from API workflow identity')
     activated=activate(status,receipt,reports,source=source,policy=policy,keyring=keyring,fetch=fetch)

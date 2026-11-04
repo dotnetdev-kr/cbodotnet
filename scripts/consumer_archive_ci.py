@@ -100,6 +100,21 @@ def prepare(args):
         provider_state=dict(required=True,providerRoot=PROVIDER_ROOT,architecture=plan['architecture'],variant=args.variant,
             policySha256=companion['policySha256'],signingFingerprint=FINGERPRINT,files=files,treeSha256=inventory_digest(files))
     state=dict(build=build,provider=provider_state)
+    if 'nativeHttpCompatibility' in plan:
+        import legacy_curl
+        from consumer_archive_release import verify_compatibility
+        companion,path=verify_compatibility(args.workspace/'native-http-compat/provider-build.json',plan,native_http=True)
+        extracted=INSTALL/'native-http-compatibility';sdk_tools().extract_sdk(path,extracted)
+        source=extracted/'rootfs'/legacy_curl.PROVIDER_ROOT.lstrip('/')
+        destination=Path(legacy_curl.PROVIDER_ROOT);destination.parent.mkdir(parents=True,exist_ok=True)
+        require(not destination.exists(),'Native HTTP provider root must be fresh')
+        shutil.copytree(source,destination,symlinks=True)
+        files=legacy_curl.tree_inventory(destination,owners=True)
+        state['nativeHttpProvider']=dict(schemaVersion=1,required=True,providerRoot=legacy_curl.PROVIDER_ROOT,
+            architecture=plan['architecture'],variant=args.variant,policySha256=companion['policySha256'],
+            signingFingerprint=legacy_curl.FINGERPRINT,files=files,treeSha256=legacy_curl.inventory_digest(files),
+            packages=companion['manifest']['packages'],sourcePackages=companion['manifest']['packages'],
+            sourceRpmPackages=companion['manifest']['sourcePackages'])
     (args.workspace/(args.variant+'-prepared.json')).write_bytes(encoded(state))
 
 
@@ -133,6 +148,11 @@ def installed(args):
     from legacy_compat import assert_unchanged,environment
     runtime_env=environment(dict(plan,variant=args.variant))
     provider_before=assert_unchanged(state['provider'])
+    native_http_before=None
+    if 'nativeHttpCompatibility' in plan:
+        import legacy_curl
+        runtime_env=legacy_curl.environment(dict(plan,variant=args.variant),base_environment=runtime_env)
+        native_http_before=legacy_curl.assert_unchanged(state['nativeHttpProvider'])
 
     def commands(tree):
         results=[]
@@ -146,6 +166,8 @@ def installed(args):
             information=json.loads(user_run([command,'--cbodotnet-info']))
             require(all(information[key]==value for key,value in identity(plan).items()) and information['sdkRoot']==str(tree/'payload')
                 and information['qualifiedPayloadModified'] is False,'Archive alias selected another source/root')
+            if 'nativeHttpCompatibility' in plan:
+                require(information.get('nativeHttpCompatibility')==plan['nativeHttpCompatibility'],'Archive alias omitted its native HTTP companion requirement')
             require(user_run([command,'--list-sdks']).splitlines()==[plan['sdkVersion']+' ['+str(tree/'payload/sdk')+']'],
                 'Archive alias fell back to another SDK')
             info=user_run([command,'--info']);require(info.startswith(BRANDING['displayName']+'\n'),'Archive host branding absent')
@@ -163,6 +185,14 @@ def installed(args):
     work='/home/'+USER+'/offline-project'
     output=user_run(['sh','-ec',smoke_script(plan['sdkVersion'],str(payload),USER,cli=str(relocated/'cbodotnet'),workdir=work,runtime_env=runtime_env)])
     functional=validate_smoke_output(output)
+    native_curl=None
+    if 'nativeHttpCompatibility' in plan:
+        from sdk_runtime import forced_curl_script,validate_forced_curl_output
+        curl_root=plan['nativeHttpCompatibility']['root']
+        forced=user_run(['sh','-ec',forced_curl_script(plan['sdkVersion'],str(payload),USER,
+            cli=str(relocated/'cbodotnet'),workdir='/home/'+USER+'/native-curl-project',
+            runtime_env=runtime_env,curl_root=curl_root,user_id=10001)])
+        native_curl=validate_forced_curl_output(forced,plan['sdkVersion'],str(payload),curl_root,10001,plan['architecture'])
     require(tools.snapshot(payload)==observed,'Non-root runtime execution changed the SDK payload')
     provider_after=assert_unchanged(state['provider']);require(provider_before==provider_after,'SDK modified the separate compatibility provider')
     wrapper_license=verify_wrapper_license(relocated,build) if build.get('archiveLayoutVersion',1)==2 else None
@@ -175,6 +205,12 @@ def installed(args):
         compatibility=provider_after,dependencies={name:run(['dpkg-query','-W','-f=${Version}',name]).strip()
             for name in native_dependencies(load_contract(),plan['sdkVersion'],args.variant)})
     if wrapper_license:report['wrapperLicense']=wrapper_license
+    if native_http_before is not None:
+        after=legacy_curl.assert_unchanged(state['nativeHttpProvider'])
+        require(after==native_http_before,'SDK modified the separate native HTTP provider')
+        report['nativeHttpCompatibilityProvider']=[dict(after,required=True,
+            sourcePackages=state['nativeHttpProvider']['sourcePackages'],sourceRpmPackages=state['nativeHttpProvider']['sourceRpmPackages'])]
+        report['nativeCurlHandler']=native_curl
     (args.workspace/(args.variant+'-report.json')).write_bytes(encoded(report))
 
 
@@ -186,6 +222,10 @@ def native(args):
     from legacy_compat import required,build_provider
     companion=None
     if required(plan): companion=build_provider(args.arch,workspace/'compat',cache=workspace/'compat-cache')
+    native_http_companion=None
+    if 'nativeHttpCompatibility' in plan:
+        import legacy_curl
+        native_http_companion=legacy_curl.build_provider(args.arch,workspace/'native-http-compat',cache=workspace/'native-http-cache')
     spaces=[]
     for variant in plan['validatedUserSpaces']:
         require(variant in BASES,'A pinned native archive user-space image is required')
@@ -208,11 +248,16 @@ def native(args):
         compatibility=dict(required=False) if companion is None else dict(required=True,policySha256=companion['policySha256'],
             companion=companion['companion'],manifest=companion['manifest']))
     if build.get('archiveLayoutVersion',1)==2:result['wrapperLicense']=build['wrapperLicense']
+    if native_http_companion is not None:
+        result['nativeHttpCompatibility']=dict(required=True,policySha256=native_http_companion['policySha256'],
+            companion=native_http_companion['companion'],manifest=native_http_companion['manifest'])
     (workspace/'report.json').write_bytes(encoded(result))
     # Transport only source inputs, the compressed consumer archive and exact reports.
     shutil.rmtree(workspace/'build'/build['directory'])
     if companion:
         shutil.rmtree(workspace/'compat/rootfs');shutil.rmtree(workspace/'compat-cache')
+    if native_http_companion is not None:
+        shutil.rmtree(workspace/'native-http-compat/rootfs');shutil.rmtree(workspace/'native-http-cache')
     print(json.dumps(dict(status='passed',workspace=str(workspace),architecture=args.arch,sdkVersion=plan['sdkVersion'])))
 
 

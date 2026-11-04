@@ -79,6 +79,15 @@ export OPENSSL_CONF="$_cbodotnet_compat/openssl.cnf"
 export CLR_OPENSSL_VERSION_OVERRIDE=1.1
 export SSL_CERT_FILE="${SSL_CERT_FILE-/etc/ssl/cert.pem}"
 export CLR_ICU_VERSION_OVERRIDE=67
+# Core3's optional native CurlHandler requires the separate reviewed curl ABI.
+_cbodotnet_curl_root=${CBODOTNET_CURL_COMPAT_ROOT:-/usr/lib/cbodotnet/compat/curl-rocky8}
+case "$_cbodotnet_curl_root" in /*) ;; *) echo "cbodotnet: native HTTP provider root must be absolute" >&2; exit 70 ;; esac
+if [ ! -f "$_cbodotnet_curl_root/lib/libcurl.so.4.5.0" ] || [ ! -f "$_cbodotnet_curl_root/provider-manifest.json" ]; then
+  echo "cbodotnet: missing separate native HTTP provider; install cbodotnet-compat-curl-rocky8 or set CBODOTNET_CURL_COMPAT_ROOT" >&2
+  exit 70
+fi
+export LD_LIBRARY_PATH="$_cbodotnet_curl_root/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+unset _cbodotnet_curl_root
 
 unset DOTNET_ROOT_X64 DOTNET_ROOT_ARM64 DOTNET_ROOT_X86
 DOTNET_ROOT=/opt/cbodotnet/3.0

@@ -9,7 +9,7 @@ import time
 from pathlib import Path
 
 from consumer_archive import (ARCHITECTURES, BRANDING, FUNCTIONAL_CHECKS, MANIFEST, PUBLIC_KEY, REPORT_CHECKS, REPOSITORY,
-    ROOT, SIGNATURE, WORKFLOW, archive_name, compatibility_policy, descriptor, encoded, identity, intake, launcher_text,
+    ROOT, SIGNATURE, WORKFLOW, archive_name, compatibility_policy, native_http_compatibility_policy, descriptor, encoded, identity, intake, launcher_text,
     load_contract, load_status, ordinary_file, payload_summary, require, sdk_tools, verify_report_signature,verify_wrapper_license)
 from downstream_publish import GitHubReleases, verify_remote_assets
 
@@ -89,19 +89,66 @@ def validate_native_report(report, build, source):
         require(report.get('wrapperLicense')==build['wrapperLicense'] and all(space.get('wrapperLicense')==build['wrapperLicense'] for space in spaces),
             'Native consumer reports omit exact wrapper license verification')
     else:require(build.get('archiveLayoutVersion',1)==1,'Unsupported consumer archive layout version')
+    validate_native_http_report(report,plan)
     return report
 
 
-def verify_compatibility(record_file,plan):
-    import legacy_compat as compatibility
+def validate_native_http_report(report,plan):
+    specification=plan.get('nativeHttpCompatibility')
+    if specification is None:
+        require('nativeHttpCompatibility' not in report,'Unexpected consumer native HTTP companion')
+        return
+    companion=report.get('nativeHttpCompatibility',{});manifest=companion.get('manifest',{})
+    require(specification.get('required') is True and companion.get('required') is True
+        and companion.get('policySha256')==manifest.get('policySha256')==specification['policySha256']
+        and manifest.get('providerRoot')==specification['root'] and manifest.get('providerId')==specification['providerId']
+        and manifest.get('architecture')==plan['architecture'] and manifest.get('sourcePackages')
+        and re.fullmatch(r'[A-F0-9]{40,64}',manifest.get('signingFingerprint','')),
+        'Consumer native HTTP companion provenance is absent or differs')
+    curl_hashes={item.get('sha256') for item in manifest.get('files',[]) if item.get('path','').startswith('lib/libcurl.so.4')
+        and re.fullmatch(r'[a-f0-9]{64}',item.get('sha256',''))}
+    require(curl_hashes,'Consumer native HTTP companion has no pinned libcurl bytes')
+    from downstream_release import validate_native_curl_evidence
+    for space in report['userSpaces']:
+        providers=space.get('nativeHttpCompatibilityProvider',[])
+        require(len(providers)==1,'Consumer native HTTP managed provider proof is incomplete or duplicated')
+        provider=providers[0]
+        require(provider.get('status')=='passed' and provider.get('required') is True
+            and provider.get('providerRoot')==specification['root'] and provider.get('architecture')==plan['architecture']
+            and provider.get('policySha256')==specification['policySha256']
+            and provider.get('signingFingerprint')==manifest['signingFingerprint']
+            and provider.get('sourcePackages')==manifest['packages']
+            and provider.get('sourceRpmPackages')==manifest['sourcePackages']
+            and re.fullmatch(r'[a-f0-9]{64}',provider.get('treeSha256','')),
+            'Consumer native HTTP managed provider identity changed')
+        probe=space.get('nativeCurlHandler',{});native=probe.get('nativeHttp',{});curl=probe.get('curl',{})
+        payload='/opt/cbodotnet-consumer-validation/relocated consumer archive/payload/'
+        validate_native_curl_evidence(space,dict(plan,channel='archive',variant=space['variant']),
+            sdk_root=payload.rstrip('/'),provider_root=specification['root'])
+        audited=[item for item in space.get('nativeHttpLibraries',[]) if native.get('path')==payload+item.get('path','')
+            and native.get('sha256')==item.get('sha256')]
+        require(probe.get('status')=='passed' and probe.get('handler')=='CurlHandler'
+            and all(probe.get(name)=='passed' for name in ('http','https','httpsDefaultTrust','tls12'))
+            and type(probe.get('callbackCount')) is int and probe['callbackCount']>=1
+            and probe.get('network')=='none' and probe.get('userId')==10001 and len(audited)==1
+            and isinstance(curl.get('path'),str) and curl['path'].startswith(specification['root']+'/lib/libcurl.so.4')
+            and curl.get('sha256') in curl_hashes,
+            'Consumer native CurlHandler HTTP/TLS/default-trust or actual library mapping proof failed')
+
+
+def verify_compatibility(record_file,plan,*,native_http=False):
+    if native_http:import legacy_curl as compatibility
+    else:import legacy_compat as compatibility
+    specification=plan['nativeHttpCompatibility' if native_http else 'compatibility']
     path=ordinary_file(record_file); record=json.loads(path.read_bytes()); policy=compatibility.load_policy()
-    require(record.get('architecture')==plan['architecture'] and record.get('providerRoot')==plan['compatibility']['root']
-        and record.get('policySha256')==plan['compatibility']['policySha256'],'Consumer companion provider identity changed')
+    require(record.get('architecture')==plan['architecture'] and record.get('providerRoot')==specification['root']
+        and record.get('policySha256')==specification['policySha256'],'Consumer companion provider identity changed')
     manifest=record['manifest']
     require(manifest['packages']==policy['architectures'][plan['architecture']]['packages'] and manifest['sourcePackages']==policy['sources']
-        and manifest['signingFingerprint']==policy['signingFingerprint'] and manifest['opensslConfiguration']==policy['opensslConfiguration'],
+        and manifest['signingFingerprint']==policy['signingFingerprint']
+        and (native_http or manifest['opensslConfiguration']==policy['opensslConfiguration']),
         'Consumer companion source provenance differs from reviewed provider policy')
-    companion=record['companion']; require(companion['path']==plan['compatibility']['companionName'],'Consumer companion filename changed')
+    companion=record['companion']; require(companion['path']==specification['companionName'],'Consumer companion filename changed')
     archive=ordinary_file(path.parent/companion['path'])
     require(descriptor(archive)==dict(name=companion['path'],size=companion['size'],sha256=companion['sha256']),'Consumer companion bytes changed')
     with tempfile.TemporaryDirectory(prefix='cbodotnet-consumer-companion-') as temporary:
@@ -115,13 +162,22 @@ def verify_compatibility(record_file,plan):
     return record,archive
 
 
-def create_bundle(build_files, report_files, inputs, output, signing_key, keyring, source, *, gnupg_home=None, policy=None,compatibility_files=()):
+def create_bundle(build_files, report_files, inputs, output, signing_key, keyring, source, *, gnupg_home=None, policy=None,
+                  compatibility_files=(),native_http_compatibility_files=()):
     from consumer_archive import fresh_directory
     source=workflow_identity(source)
     require(len(build_files)==len(report_files)==len(inputs)==2,'Both native consumer architectures are mandatory')
     policy=policy if policy is not None else load_status()
-    records=[]; assets={}; observed=set(); first=None; companions=[]
-    compatibility_files={json.loads(ordinary_file(path).read_bytes())['architecture']:path for path in compatibility_files}
+    records=[]; assets={}; observed=set(); first=None; companions=[];native_http_companions=[]
+    def providers(paths):
+        result={}
+        for path in paths:
+            architecture=json.loads(ordinary_file(path).read_bytes())['architecture']
+            require(architecture not in result,'Duplicate consumer companion provider architecture')
+            result[architecture]=path
+        return result
+    compatibility_files=providers(compatibility_files)
+    native_http_compatibility_files=providers(native_http_compatibility_files)
     output=fresh_directory(output)
 
     def copy(path,name=None):
@@ -145,6 +201,12 @@ def create_bundle(build_files, report_files, inputs, output, signing_key, keyrin
                 and report['compatibility']['manifest']==provider['manifest'],'Native consumer proof names another compatibility companion')
             companions.append(dict(architecture=arch,record=provider,asset=copy(companion)))
         else:require(report.get('compatibility',{'required':False})=={'required':False},'Unexpected compatibility provider for modern SDK')
+        if 'nativeHttpCompatibility' in plan:
+            require(arch in native_http_compatibility_files,'Required separate native HTTP consumer companion is missing')
+            provider,companion=verify_compatibility(native_http_compatibility_files.pop(arch),plan,native_http=True)
+            require(report['nativeHttpCompatibility']['companion']==provider['companion']
+                and report['nativeHttpCompatibility']['manifest']==provider['manifest'],'Native consumer proof names another native HTTP companion')
+            native_http_companions.append(dict(architecture=arch,record=provider,asset=copy(companion)))
         artifact_asset=copy(archive)
         report_asset=copy(report_file,'archive-'+arch+'--installation-report.json')
         command=['gpg']+(['--homedir',str(gnupg_home)] if gnupg_home else [])
@@ -155,6 +217,7 @@ def create_bundle(build_files, report_files, inputs, output, signing_key, keyrin
         records.append(dict(architecture=arch,build=build,artifactAsset=artifact_asset,reportAsset=report_asset,signatureAsset=report_signature.name))
     require(observed==set(ARCHITECTURES),'Incomplete consumer archive architecture matrix')
     require(not compatibility_files,'Unexpected or duplicate compatibility provider artifacts')
+    require(not native_http_compatibility_files,'Unexpected native HTTP compatibility provider artifacts')
     copy(keyring,PUBLIC_KEY)
     # Retain the exact original manifest and checksums in the new signed release.
     for filename,public in [('release-manifest.json','source-release-manifest.json'),('SHA256SUMS','source-SHA256SUMS')]:
@@ -166,6 +229,7 @@ def create_bundle(build_files, report_files, inputs, output, signing_key, keyrin
         targetCommit=source['commit'],sourceOrchestration=source,signingFingerprint=signing_key.upper(),status='validated-complete-matrix',
         records=sorted(records,key=lambda item:item['architecture']),compatibility=sorted(companions,key=lambda item:item['architecture']),
         assets=[assets[name] for name in sorted(assets)])
+    if native_http_companions:manifest['nativeHttpCompatibility']=sorted(native_http_companions,key=lambda item:item['architecture'])
     (output/MANIFEST).write_bytes(encoded(manifest))
     command=['gpg']+(['--homedir',str(gnupg_home)] if gnupg_home else [])
     subprocess.run(command+['--batch','--yes','--armor','--local-user',signing_key,'--output',str(output/SIGNATURE),'--detach-sign',str(output/MANIFEST)],check=True)
@@ -192,7 +256,7 @@ def validate_bundle(directory,keyring,*,policy=None,historical=False,metadata_on
     assets=manifest['assets']; names=[item['name'] for item in assets]
     records=manifest['records']; require(len(records)==2 and {item['architecture'] for item in records}==set(ARCHITECTURES),
         'Consumer publication matrix is incomplete')
-    large={item['artifactAsset'] for item in records}|{item['asset'] for item in manifest.get('compatibility',[])}
+    large={item['artifactAsset'] for item in records}|{item['asset'] for key in ('compatibility','nativeHttpCompatibility') for item in manifest.get(key,[])}
     expected_names=(set(names)-large if metadata_only else set(names))|{MANIFEST,SIGNATURE}
     require(len(set(names))==len(names) and all(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*',name) for name in names)
         and set(names).isdisjoint({MANIFEST,SIGNATURE}) and {item.name for item in directory.iterdir()}==expected_names,
@@ -213,6 +277,8 @@ def validate_bundle(directory,keyring,*,policy=None,historical=False,metadata_on
             and plan['branding']==BRANDING and spaces_ok,
             'Consumer signed plan differs from current source admission')
         if not historical:require(plan['compatibility']==compatibility_policy(plan),'Consumer compatibility provider policy is no longer admitted')
+        if not historical:require(plan.get('nativeHttpCompatibility')==native_http_compatibility_policy(plan,admitted=admitted),
+            'Consumer native HTTP compatibility policy is no longer admitted')
         require(plan['sdk']==dict(canonical['architectures'][arch]['sdk'],url=f'https://github.com/{REPOSITORY}/releases/download/{common["sourceReleaseTag"]}/'+canonical['architectures'][arch]['sdk']['name'])
             and plan['producer']==canonical['architectures'][arch]['provenance'],'Consumer signed source SDK/producer changed')
         require(indexed[item['artifactAsset']]==build['artifact'],'Consumer signed archive digest binding changed')
@@ -228,8 +294,19 @@ def validate_bundle(directory,keyring,*,policy=None,historical=False,metadata_on
                     size=companion['record']['companion']['size'],sha256=companion['record']['companion']['sha256'])
                 and report['compatibility']['manifest']==companion['record']['manifest'],'Signed consumer companion binding changed')
         else:require(not companion,'Unexpected signed consumer compatibility companion')
+        native_http=[row for row in manifest.get('nativeHttpCompatibility',[]) if row['architecture']==arch]
+        if 'nativeHttpCompatibility' in plan:
+            require(len(native_http)==1,'Signed consumer native HTTP compatibility matrix is incomplete')
+            native_http=native_http[0];provider=native_http['record']
+            require(provider['policySha256']==plan['nativeHttpCompatibility']['policySha256']
+                and indexed[native_http['asset']]==dict(name=provider['companion']['path'],size=provider['companion']['size'],sha256=provider['companion']['sha256'])
+                and report['nativeHttpCompatibility']['manifest']==provider['manifest']
+                and report['nativeHttpCompatibility']['companion']==provider['companion'],'Signed consumer native HTTP companion binding changed')
+        else:require(not native_http,'Unexpected signed consumer native HTTP companion')
     require(len(manifest.get('compatibility',[]))==(2 if records[0]['build']['plan']['compatibility']['required'] else 0),
         'Unexpected signed consumer compatibility records')
+    require(len(manifest.get('nativeHttpCompatibility',[]))==(2 if 'nativeHttpCompatibility' in records[0]['build']['plan'] else 0),
+        'Unexpected signed consumer native HTTP compatibility records')
     return manifest
 
 

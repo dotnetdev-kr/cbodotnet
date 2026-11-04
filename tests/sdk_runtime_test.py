@@ -3,7 +3,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
@@ -11,6 +11,29 @@ import sdk_runtime as RUNTIME
 
 
 class RuntimePolicyTests(unittest.TestCase):
+    def test_public_verification_requires_every_provider_root_before_any_local_provisioning(self):
+        import legacy_compat
+        import legacy_curl
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            base = root / 'base'; addon = root / 'curl'
+            with patch.object(legacy_compat, 'PROVIDER_ROOT', str(base)), patch.object(legacy_curl, 'PROVIDER_ROOT', str(addon)):
+                RUNTIME.require_installed_provider_roots(dict(sdkVersion='10.0.403'))
+                with self.assertRaisesRegex(ValueError, 'local repair is forbidden'):
+                    RUNTIME.require_installed_provider_roots(dict(sdkVersion='5.0.214'))
+                base.mkdir()
+                RUNTIME.require_installed_provider_roots(dict(sdkVersion='5.0.214'))
+                with self.assertRaisesRegex(ValueError, 'local repair is forbidden'):
+                    RUNTIME.require_installed_provider_roots(dict(sdkVersion='3.1.426'))
+                addon.mkdir()
+                RUNTIME.require_installed_provider_roots(dict(sdkVersion='3.0.103'))
+                addon.rmdir(); addon.symlink_to(base, target_is_directory=True)
+                with self.assertRaisesRegex(ValueError, 'ordinary managed provider roots'):
+                    RUNTIME.require_installed_provider_roots(dict(sdkVersion='3.1.426'))
+                addon.unlink(); base.rmdir(); base.write_bytes(b'not-a-directory')
+                with self.assertRaisesRegex(ValueError, 'ordinary managed provider roots'):
+                    RUNTIME.require_installed_provider_roots(dict(sdkVersion='5.0.214'))
+
     def test_core3_native_http_component_and_libcurl_must_actually_resolve(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

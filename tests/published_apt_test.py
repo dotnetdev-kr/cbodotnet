@@ -70,10 +70,16 @@ class PublishedAptTests(unittest.TestCase):
         sdk = self.stanza('cbodotnet-sdk-3.1', '3.1.426-1', 'arm64')
         host = self.stanza('cbodotnet-host', '1.0.0-1', 'all')
         provider = self.stanza('cbodotnet-compat-rocky9', '2026.11.4-1', 'arm64')
-        self.assertEqual(3, len(APT.package_descriptors((sdk + host + provider).encode(), '3.1.426', 1, 'arm64')))
+        curl = self.stanza('cbodotnet-compat-curl-rocky8', '2026.11.4-1', 'arm64')
+        self.assertEqual(4, len(APT.package_descriptors((sdk + host + provider + curl).encode(), '3.1.426', 1, 'arm64')))
         for invalid in ('', provider.replace('2026.11.4-1', '2026.11.4-2'), provider.replace('arm64', 'amd64')):
             with self.subTest(provider=invalid), self.assertRaises(ValueError):
-                APT.package_descriptors((sdk + host + invalid).encode(), '3.1.426', 1, 'arm64')
+                APT.package_descriptors((sdk + host + invalid + curl).encode(), '3.1.426', 1, 'arm64')
+        for invalid in ('', curl.replace('2026.11.4-1', '2026.11.4-2'), curl.replace('arm64', 'amd64')):
+            with self.subTest(curl=invalid), self.assertRaises(ValueError):
+                APT.package_descriptors((sdk + host + provider + invalid).encode(), '3.1.426', 1, 'arm64')
+        sdk5 = self.stanza('cbodotnet-sdk-5.0', '5.0.214-1', 'arm64')
+        self.assertEqual(3, len(APT.package_descriptors((sdk5 + host + provider).encode(), '5.0.214', 1, 'arm64')))
 
     def test_packages_must_match_signed_release_hash_and_size(self):
         packages = self.packages()

@@ -7,11 +7,11 @@ pkgdesc='Community Build of .NET (built by .NET Dev) SDK'
 arch=('x86_64')
 url='https://dotnetdev.kr/cbodotnet/'
 license=('MIT' 'LicenseRef-Dotnet-ThirdPartyNotices')
-depends=('glibc' 'libgcc' 'libstdc++' 'zlib' 'krb5' 'ca-certificates' 'icu' 'openssl' 'curl' 'cbodotnet-compat-rocky9=2026.11.4-1' 'cbodotnet-host>=1.0.0')
+depends=('glibc' 'libgcc' 'libstdc++' 'zlib' 'krb5' 'ca-certificates' 'icu' 'openssl' 'curl' 'libnghttp2' 'cbodotnet-compat-rocky9=2026.11.4-1' 'cbodotnet-compat-curl-rocky8=2026.11.4-1' 'cbodotnet-host>=1.0.0')
 makedepends=('python')
 options=('!strip' '!debug' '!lto' '!zipman' '!purge' 'docs' 'libtool' 'staticlibs' 'emptydirs')
 source=('cbodotnet-3.0' 'distribution.json' 'verify-source.py' 'release-manifest.json::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.0.103/release-manifest.json' 'SHA256SUMS::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.0.103/SHA256SUMS')
-sha256sums=('90202515e3a8b9f6172c9ccd183c5ef1eb66640ec25a0519a307f24f280d3e08' 'a70a2130a9919b8bb424a2d392ec0dc4faa187033f150801a2512993c8e834d7' 'ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47' '3bac912a788bf38320cb45bfe6a62b3da0dbcaf50bb564a370ae7c5a09fb5e98' '09b5bd2b8c6f8d090ae0bdcda138b1b1378dc69c4d785d3a6abe3cd679430926')
+sha256sums=('71a5a72d631e802479f3eaa4864cc50a4be7dedc4cf8a93b02403d82df33c282' '34511a5fb5e68c19e5aa34bcaef23d6eeb90da200fcd18d6ced30fde9444fe59' 'ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47' '3bac912a788bf38320cb45bfe6a62b3da0dbcaf50bb564a370ae7c5a09fb5e98' '09b5bd2b8c6f8d090ae0bdcda138b1b1378dc69c4d785d3a6abe3cd679430926')
 source_x86_64=('https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.0.103/cbodotnet-sdk-3.0.103-linux-x64.tar.gz')
 sha256sums_x86_64=('d59d86967c7d65481c120ca644198ef9b4a37704ea5fb89c1614e64d2ce5e0c8')
 noextract=('cbodotnet-sdk-3.0.103-linux-x64.tar.gz')

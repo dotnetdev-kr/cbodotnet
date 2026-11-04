@@ -92,17 +92,36 @@ the original caller environment. Consumer archive validation covers the admitted
 Ubuntu 22.04, Ubuntu 24.04 and Debian 13 user spaces. The compatibility libraries'
 GLIBC requirement is independent of the original SDK's recorded minimum.
 
-Core 3.0 and 3.1 additionally ship `System.Net.Http.Native.so` in their
-`shared/Microsoft.NETCore.App/` runtime, linked to the stock `libcurl.so.4` ABI.
-Install `libcurl4` on Ubuntu 22.04, or `libcurl4t64` on Ubuntu 24.04 and
-Debian 13, using that OS's authenticated package repositories. The separate
-compatibility companion does not contain or replace libcurl. Native archive
-preparation installs and records these per-source dependencies before offline
-runtime validation; no dependency metadata is inserted into existing archives.
-The stock package names and both architectures are listed by
-[Ubuntu Jammy](https://packages.ubuntu.com/jammy/libcurl4),
-[Ubuntu Noble](https://packages.ubuntu.com/noble/libcurl4t64), and
-[Debian Trixie](https://packages.debian.org/trixie/libcurl4t64).
+Core 3.0 and 3.1 additionally contain an optional native `CurlHandler` whose
+`System.Net.Http.Native.so` requires the older Curl/OpenSSL interface. A modern
+stock `libcurl.so.4` alone does not qualify that interface. Core3 therefore
+requires a second, separate `cbodotnet-compat-curl-rocky8` companion under the
+[native HTTP provider policy](../releases/legacy-curl-provider.json), containing
+exact pinned maintained Rocky Linux 8 curl bytes and its original copyright
+and permission notice. It depends on the unchanged SSL/ICU companion; SDK5 does
+not use this addon. Candidate policy and build output remain unavailable until
+their complete native and public qualification passes.
+
+For a qualified Core3 release, authenticate both companions before extraction.
+The second archive is named
+`cbodotnet-compat-curl-rocky8-2026.11.4-linux-aarch64.tar.gz`. Select separate
+absolute roots for one command:
+
+```sh
+CBODOTNET_COMPAT_ROOT=/absolute/base/rootfs/usr/lib/cbodotnet/compat/rocky9 \
+CBODOTNET_CURL_COMPAT_ROOT=/absolute/http/rootfs/usr/lib/cbodotnet/compat/curl-rocky8 \
+  /absolute/cbodotnet-3.1.426-linux-aarch64-r1/cbodotnet --info
+```
+
+The managed default for the second package is
+`/usr/lib/cbodotnet/compat/curl-rocky8`. Neither companion enters `payload/` or
+replaces system libraries. Core3 launchers scope the private Curl root before
+the private SSL/ICU root. Native preparation installs the reviewed stock
+transitive dependencies through authenticated OS repositories before networking
+is disabled. Validation additionally forces the actual native CurlHandler and
+checks HTTP, callback HTTPS, ordinary certificate trust and TLS 1.2, with exact
+native HTTP/Curl hashes and loaded-library paths. Missing either provider or
+failed native HTTP evidence blocks qualification.
 
 ## Authentication and immutable publication
 

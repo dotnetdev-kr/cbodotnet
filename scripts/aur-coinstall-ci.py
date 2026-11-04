@@ -18,6 +18,7 @@ from distribution_contract import load_contract
 from downstream_release import encoded, local_intake, receive_release, require
 from release_catalog import get_bytes
 import legacy_compat
+import legacy_curl
 import sdk_runtime
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -92,6 +93,9 @@ def validate_report(report, version=None):
     if version is None or version.startswith(('3.', '5.')):
         from downstream_release import validate_legacy_evidence
         validate_legacy_evidence(report, {'sdkVersion': version or '5.0.214', 'architecture': {'public': 'x64'}})
+    if version is not None and version.startswith('3.'):
+        from downstream_release import validate_native_curl_evidence
+        validate_native_curl_evidence(report, {'sdkVersion': version, 'architecture': {'public': 'x64'}, 'channel': 'aur'})
 
 
 def receive_proof(run_id, attempt, directory, version=None):
@@ -154,7 +158,7 @@ def native(args):
     (workspace / 'coinstall-plans.json').write_bytes(encoded(plans))
     # The normal preparation entrypoint creates the non-root user and separately
     # authenticated provider; no SDK is installed until external networking ends.
-    (workspace / 'plan.json').write_bytes(encoded(dict(sdkVersion='5.0.214', architecture={'public': 'x64'},
+    (workspace / 'plan.json').write_bytes(encoded(dict(sdkVersion='3.1.426', architecture={'public': 'x64'},
         channel='aur', variant='arch-rolling', coinstallationOnly=True)))
     tools = aur_tools().native_tools()
     tools.official_archive(workspace, 'x64')
@@ -189,7 +193,7 @@ def installed(args):
     logs = delivery / 'makepkg-logs'
     logs.mkdir()
     (delivery / 'recipes').mkdir()
-    records, installed_roots, checkpoints, provider_proofs = [], {}, [], []
+    records, installed_roots, checkpoints, provider_proofs, http_proofs = [], {}, [], [], []
     baseline = Path('/usr/share/dotnet')
     require(not baseline.exists() and not Path('/usr/bin/dotnet').exists(), 'The independent official archive baseline must be fresh')
     baseline.parent.mkdir(exist_ok=True)
@@ -208,6 +212,7 @@ def installed(args):
                 and Path('/usr/bin/dotnet').is_symlink() and os.readlink('/usr/bin/dotnet') == original_link,
                 'Community coinstallation changed the existing verified official archive installation')
         provider_proofs.append(dict(phase=phase, **legacy_compat.assert_unchanged(delivery / 'compatibility-state.json')))
+        http_proofs.append(dict(phase=phase, **legacy_curl.assert_unchanged(delivery / 'native-http-state.json')))
     def assert_command(command, plan):
         result = as_user([command, '--version'])
         require(result.returncode == 0 and result.stdout == plan['sdkVersion'] + '\n' and result.stderr.strip() == BRAND,
@@ -220,7 +225,8 @@ def installed(args):
                 'Aggregate source plan differs from independently reverified input bytes')
         recipe_root = delivery / 'recipes' / version
         sources = write_sources(plan, recipe_root,
-            delivery / 'compatibility-provider/provider-build.json' if legacy_compat.required(plan) else None)
+            delivery / 'compatibility-provider/provider-build.json' if legacy_compat.required(plan) else None,
+            delivery / 'native-http-provider/provider-build.json' if legacy_curl.required(plan) else None)
         verify_tracked_sources(recipe_root, ROOT / 'packaging/aur')
         for name in ('release-manifest.json', 'SHA256SUMS', plan['sdk']['name']):
             os.link(inputs / name, sources['sdk'] / name)
@@ -239,11 +245,13 @@ def installed(args):
         assert_command(plan['package']['launcher'], plan)
         assert_command('cbodotnet', plans[0])
         assert_baseline('install-' + version)
-        shared.verify_package_integrity(run(['pacman', '-Qkk', plan['package']['aurName'], 'cbodotnet-host', legacy_compat.PACKAGE_NAME],
-                                           env=dict(os.environ, LC_ALL='C')), 3)
+        shared.verify_package_integrity(run(['pacman', '-Qkk', plan['package']['aurName'], 'cbodotnet-host', legacy_compat.PACKAGE_NAME,
+                                            legacy_curl.PACKAGE_NAME], env=dict(os.environ, LC_ALL='C')), 4)
         generate_srcinfo(sources['host'], ['runuser', '-u', 'cbot-smoke', '--'])
         if 'compatibility' in sources:
             generate_srcinfo(sources['compatibility'], ['runuser', '-u', 'cbot-smoke', '--'])
+        if 'native_http' in sources:
+            generate_srcinfo(sources['native_http'], ['runuser', '-u', 'cbot-smoke', '--'])
         verify_tracked_sources(recipe_root, ROOT / 'packaging/aur', srcinfo=True)
         checkpoints.append(dict(phase='install', sdkVersion=version, defaultSdk=plans[0]['sdkVersion']))
         # Only declared scratch trees/source cache files are removed. Installed
@@ -268,8 +276,9 @@ def installed(args):
             expected_default = None
         assert_baseline('remove-' + plan['sdkVersion'])
         checkpoints.append(dict(phase='remove', sdkVersion=plan['sdkVersion'], defaultSdk=expected_default))
-    run(['pacman', '-R', '--noconfirm', 'cbodotnet-host', legacy_compat.PACKAGE_NAME])
+    run(['pacman', '-R', '--noconfirm', 'cbodotnet-host', legacy_curl.PACKAGE_NAME, legacy_compat.PACKAGE_NAME])
     require(not Path('/usr/bin/cbodotnet').exists() and not Path(legacy_compat.PROVIDER_ROOT).exists()
+            and not Path(legacy_curl.PROVIDER_ROOT).exists()
             and tools.inventory(baseline) == official and as_user(['dotnet', '--version']).stdout == '10.0.100\n',
             'Final shared package removal changed the official archive baseline')
     result = dict(schemaVersion=1, scope='community-sdk-coinstallation', status='passed', architecture='x64',
@@ -277,7 +286,8 @@ def installed(args):
         highestDefaultSdk=plans[0]['sdkVersion'], descendingRemovalFallback=checkpoints,
         versionedAliases='passed', qualifiedPayloadsUnchanged=True, networkForBuild='none', sourceArchivesReceived=len(plans),
         perSdkScratchCleanup=True, sdkSourcesRebuilt=0, publicationStatus='not-published', packageBuilds=records,
-        compatibilityProvider=provider_proofs, prerequisiteProofs=json.loads((delivery / 'prerequisites.json').read_bytes()),
+        compatibilityProvider=provider_proofs, nativeHttpCompatibilityProvider=http_proofs,
+        prerequisiteProofs=json.loads((delivery / 'prerequisites.json').read_bytes()),
         sources=[dict(sdkVersion=plan['sdkVersion'], sourceManifestSha256=plan['sourceManifestSha256'],
                       sdk=plan['sdk'], qualifiedProducer=plan['producer'],
                       payloadInventorySha256=hashlib.sha256(encoded(installed_roots[plan['sdkVersion']])).hexdigest())

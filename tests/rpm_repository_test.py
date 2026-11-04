@@ -40,6 +40,10 @@ class RpmRepositoryTests(unittest.TestCase):
             for public, native in [('x64', 'x86_64'), ('aarch64', 'aarch64')]:
                 self.identities[f'rpm-fedora-45-{public}--cbodotnet-compat-rocky9-2026.11.4-1.cbot.fedora45.{native}.rpm'] = (
                     'cbodotnet-compat-rocky9', native, '2026.11.4', '1.cbot.fedora45')
+        if version in {'3.1.426', '3.0.103'}:
+            for public, native in [('x64', 'x86_64'), ('aarch64', 'aarch64')]:
+                self.identities[f'rpm-fedora-45-{public}--cbodotnet-compat-curl-rocky8-2026.11.4-1.cbot.fedora45.{native}.rpm'] = (
+                    'cbodotnet-compat-curl-rocky8', native, '2026.11.4', '1.cbot.fedora45')
         self.assets = {name: {'name': name, 'size': 123 + index, 'sha256': str(index + 1) * 64}
                        for index, name in enumerate(self.identities)}
         self.manifest = dict(schemaVersion=1, channel='rpm', sdkVersion=version, packageRevision=1,
@@ -90,18 +94,33 @@ class RpmRepositoryTests(unittest.TestCase):
                     self.validate()
 
     def test_provider_name_release_version_architecture_and_epoch_are_pinned(self):
-        for field, value in [('name', 'openssl11'), ('arch', 'noarch'), ('ver', '2026.11.5'),
-                             ('rel', '1.cbot.rocky9.8'), ('epoch', '1')]:
-            with self.subTest(field=field):
-                self.matrix('3.1.426')
-                row = next(row for row in self.primary if row.findtext(REPOSITORY.COMMON + 'name') == 'cbodotnet-compat-rocky9')
-                if field in {'name', 'arch'}:
-                    row.find(REPOSITORY.COMMON + field).text = value
-                else:
-                    row.find(REPOSITORY.COMMON + 'version').set(field, value)
-                self.save()
-                with self.assertRaisesRegex(ValueError, 'authenticated packages'):
-                    self.validate()
+        for package in ('cbodotnet-compat-rocky9', 'cbodotnet-compat-curl-rocky8'):
+            for field, value in [('name', 'openssl11'), ('arch', 'noarch'), ('ver', '2026.11.5'),
+                                 ('rel', '1.cbot.rocky9.8'), ('epoch', '1')]:
+                with self.subTest(package=package, field=field):
+                    self.matrix('3.1.426')
+                    row = next(row for row in self.primary if row.findtext(REPOSITORY.COMMON + 'name') == package)
+                    if field in {'name', 'arch'}:
+                        row.find(REPOSITORY.COMMON + field).text = value
+                    else:
+                        row.find(REPOSITORY.COMMON + 'version').set(field, value)
+                    self.save()
+                    with self.assertRaisesRegex(ValueError, 'authenticated packages'):
+                        self.validate()
+
+    def test_core3_requires_both_addon_architectures_but_sdk5_does_not_admit_them(self):
+        self.matrix('3.0.103')
+        self.assertEqual(7, len(self.validate()['packages']))
+        name = next(name for name in self.manifest['packages'] if '-aarch64--cbodotnet-compat-curl-rocky8-' in name)
+        self.manifest['packages'].pop(name); self.save()
+        with self.assertRaisesRegex(ValueError, 'provider architectures'):
+            self.validate()
+        self.matrix('5.0.214')
+        self.assertEqual(5, len(self.validate()['packages']))
+        name = 'rpm-fedora-45-x64--cbodotnet-compat-curl-rocky8-2026.11.4-1.cbot.fedora45.x86_64.rpm'
+        self.manifest['packages'][name] = dict(size=1, sha256='f' * 64, url=self.base + name); self.save()
+        with self.assertRaisesRegex(ValueError, 'provider architectures'):
+            self.validate()
 
     def test_legacy_provider_cannot_be_added_to_a_modern_repository(self):
         self.matrix('3.1.426')

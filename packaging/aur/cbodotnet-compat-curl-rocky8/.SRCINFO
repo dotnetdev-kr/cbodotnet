@@ -1,0 +1,34 @@
+pkgbase = cbodotnet-compat-curl-rocky8
+	pkgdesc = Separately managed Rocky-origin curl for Core3 native HTTP
+	pkgver = 2026.11.4
+	pkgrel = 1
+	url = https://dotnetdev.kr/cbodotnet/
+	arch = x86_64
+	license = curl
+	makedepends = rpm-tools
+	makedepends = gnupg
+	depends = cbodotnet-compat-rocky9=2026.11.4-1
+	depends = glibc
+	depends = libnghttp2
+	depends = krb5
+	depends = e2fsprogs
+	depends = zlib
+	depends = ca-certificates
+	noextract = libcurl-minimal-7.61.1-34.el8_10.18.x86_64.rpm
+	noextract = curl-7.61.1-34.el8_10.18.src.rpm
+	noextract = RPM-GPG-KEY-Rocky-8
+	options = !strip
+	options = !debug
+	options = !lto
+	source = https://dl.rockylinux.org/pub/rocky/8/BaseOS/x86_64/os/Packages/l/libcurl-minimal-7.61.1-34.el8_10.18.x86_64.rpm
+	source = https://dl.rockylinux.org/pub/rocky/8/BaseOS/source/tree/Packages/c/curl-7.61.1-34.el8_10.18.src.rpm
+	source = https://dl.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
+	source = NOTICE.txt
+	source = provider-manifest.json
+	sha256sums = 3eba14942a2cc3ea2f60d025a76f3a579e3c1c008e820fdea24ea9f12f1bbd21
+	sha256sums = b8aa7ccd55663ac2777696288a19474c2e06096b4a411e32466d10c1800feabc
+	sha256sums = ef1ca99bba38bb2869a06fbf46860fcdaeece796be98f8dfb0160b84bdbc69ab
+	sha256sums = 23b2dd419ba857a55652d35e951ca2a98a3cfc11054250932977565192e121ad
+	sha256sums = bbdee2b4969c3b708dab32121dd40468e923462e3a0c3fb8652755e3c6cb2ff3
+
+pkgname = cbodotnet-compat-curl-rocky8

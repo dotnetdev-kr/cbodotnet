@@ -219,6 +219,9 @@ def render_html(catalog, template, downstream_status=None, consumer_archives=Non
         companion = record.get('compatibility')
         if companion:
             link += '<br><a href="' + escape(companion['url'], quote=True) + '">Required separate compatibility companion</a>'
+        native_http = record.get('nativeHttpCompatibility')
+        if native_http:
+            link += '<br><a href="' + escape(native_http['url'], quote=True) + '">Required separate Core 3 libcurl companion</a>'
         consumer_rows.append('<tr><td>' + escape(record['sdkVersion']) + '</td><td>' + escape(record['architecture'])
             + '</td><td>' + link + '<br><small>SHA-256: ' + escape(record['archiveSha256']) + '</small></td>'
             + '<td><a href="' + escape(record['manifestUrl'], quote=True) + '">manifest</a> &middot; '

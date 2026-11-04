@@ -21,11 +21,13 @@ import tempfile
 import time
 import urllib.request
 import zipfile
+import legacy_curl
 
 from distribution_contract import load_contract, validate_qualified_producers
 from downstream_release import encoded, local_intake, package_record, receive_release, PREPUBLICATION_CHECKS
 from downstream_release import stage_records
-from sdk_runtime import audit_core3_http_libraries, runtime_policy, series as sdk_series, smoke_script, validate_host_rid, validate_smoke_output
+from sdk_runtime import (audit_core3_http_libraries, forced_curl_script, validate_forced_curl_output,
+                         require_installed_provider_roots, runtime_policy, series as sdk_series, smoke_script, validate_host_rid, validate_smoke_output)
 from downstream_release import oci_wrapper_license
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -102,6 +104,7 @@ def inspect_core3_image_http(reference, sdk_root):
     require(sdk_root in {'/opt/cbodotnet/3.0', '/opt/cbodotnet/3.1'}, 'Core3 production HTTP audit requires its exact isolated root')
     from legacy_compat import environment
     scoped = environment(dict(sdkVersion=Path(sdk_root).name + '.0', variant='debian-13'))
+    scoped = legacy_curl.environment(dict(sdkVersion=Path(sdk_root).name+'.0'),base_environment=scoped)
     prefix = shlex.join(['env', *[name + '=' + value for name, value in scoped.items()], 'ldd'])
     root = shlex.quote(sdk_root)
     script = ('set -eu\ntest "$(id -u)" = 1654\nfound=0\nfor file in '
@@ -279,7 +282,7 @@ def strict_dpkg_integrity(names):
     require(not run(['dpkg', '-V', *names]).strip(), 'Installed package failed full dpkg integrity verification')
 
 
-def observed_dependencies(plan, mode, compatibility=None):
+def observed_dependencies(plan, mode, compatibility=None,native_http=None):
     result = {}
     for name in plan['dependencies']:
         if mode == 'oci' and name == 'cbodotnet-compat-rocky9':
@@ -294,6 +297,12 @@ def observed_dependencies(plan, mode, compatibility=None):
             sources = [str(row.get('epoch', 0)) + ':' + row['version'] + '-' + row['release'] + '.' + row['architecture']
                        for row in compatibility['packages']]
             result[name] = provider['version'] + ' (isolated managed OCI tree; Rocky RPM sources: ' + ', '.join(sources) + ')'
+        elif mode=='oci' and name==legacy_curl.PACKAGE_NAME:
+            proof=legacy_curl.assert_unchanged(native_http)
+            require(proof['status']=='passed' and proof['architecture']==plan['architecture']['public'],
+                    'OCI native HTTP dependency lacks its authenticated managed tree')
+            package=legacy_curl.load_policy()['architectures'][plan['architecture']['public']]['packages'][0]
+            result[name]=legacy_curl.VERSION+' (isolated managed OCI tree; Rocky8 RPM source: '+package['name']+')'
         else:
             result[name] = run(['dpkg-query', '-W', '-f=${Version}', name]).strip()
             require(result[name], 'Installed native dependency has no observed package version: ' + name)
@@ -328,7 +337,8 @@ def prepare_installed(args):
         baseline = dict(officialRoot=str(official), sdkVersion=official_version, provider='official-archive')
     sdk = Path(plan['package']['root'])
     compatibility = None
-    if runtime_policy(plan['sdkVersion'], architecture)['legacy']:
+    published = args.mode=='deb' and (delivery/'repository').is_dir()
+    if runtime_policy(plan['sdkVersion'], architecture)['legacy'] and not published:
         from legacy_compat import provision
         compatibility = provision(plan, delivery, user='cbot-smoke')
     if args.mode == 'deb':
@@ -339,7 +349,8 @@ def prepare_installed(args):
         Path('/etc/dpkg/dpkg.cfg.d/zz-cbodotnet-validation').write_text(
             'path-include=/usr/share/doc/cbodotnet-*\n')
         packages = sorted((delivery / 'packages').glob('*.deb'))
-        require(len(packages) == (3 if compatibility else 2), 'SDK, shared host and any required compatibility package are required')
+        require(len(packages) == (4 if legacy_curl.required(plan) else 3 if runtime_policy(plan['sdkVersion'],architecture)['legacy'] else 2),
+                'SDK, shared host and all required separate provider packages are required')
         if (delivery / 'repository').is_dir():
             shutil.copy2(delivery / 'repository/cbodotnet-archive-keyring.gpg', '/usr/share/keyrings/cbodotnet-validation.gpg')
             repository_location = 'file://' + str(delivery / 'repository')
@@ -354,6 +365,13 @@ def prepare_installed(args):
         else:
             run(['apt-get', 'install', '-y', *map(str, packages)])
         strict_dpkg_integrity([plan['package']['name'], 'cbodotnet-host'])
+    if published and runtime_policy(plan['sdkVersion'],architecture)['legacy']:
+        require_installed_provider_roots(plan)
+        from legacy_compat import provision
+        compatibility=provision(plan,delivery,user='cbot-smoke')
+    native_http_compatibility=None
+    if legacy_curl.required(plan):
+        native_http_compatibility=legacy_curl.provision(plan,delivery,user='cbot-smoke')
     require(sdk.is_dir(), 'Installed SDK root is missing')
     expected = Path(tempfile.mkdtemp(prefix='cbot-payload-')) / 'sdk'
     extractor()(Path('/delivery/inputs') / plan['sdk']['name'], expected)
@@ -361,9 +379,11 @@ def prepare_installed(args):
         (expected / name).mkdir(mode=0o755, exist_ok=True)
     require(inventory(expected) == inventory(sdk), 'Installed SDK bytes/modes differ from qualified archive')
     shutil.rmtree(expected.parent)
-    (delivery / 'installation-state.json').write_bytes(encoded(dict(schemaVersion=1, status='prepared',
+    state=dict(schemaVersion=1, status='prepared',
         mode=args.mode, variant=args.variant, architecture=architecture, sdkBefore=inventory(sdk),
-        officialBaseline=baseline, officialBefore=official_before, compatibilityState=compatibility)))
+        officialBaseline=baseline, officialBefore=official_before, compatibilityState=compatibility)
+    if native_http_compatibility: state['nativeHttpCompatibilityState']=native_http_compatibility
+    (delivery / 'installation-state.json').write_bytes(encoded(state))
 
 
 def assert_removed_deb(plan):
@@ -376,7 +396,7 @@ def assert_removed_deb(plan):
 
 def deb_lifecycle(plan, delivery, sdk_before, as_user, official_check):
     packages = sorted((delivery / 'packages').glob('*.deb'))
-    expected = 3 if sdk_series(plan['sdkVersion']) in {'3.0', '3.1', '5.0'} else 2
+    expected = 4 if legacy_curl.required(plan) else 3 if sdk_series(plan['sdkVersion'])=='5.0' else 2
     require(len(packages) == expected, 'All original immutable packages are required for lifecycle validation')
     sdk = Path(plan['package']['root'])
     phases = ['after-install', 'after-runtime']
@@ -442,11 +462,14 @@ def installed(args):
     sdk_before = state['sdkBefore']
     official_proofs = []
     compatibility_proofs = []
+    native_http_proofs=[]
     runtime_env = {}
     if runtime_policy(plan['sdkVersion'], architecture)['legacy']:
         from legacy_compat import runtime_environment, assert_unchanged as assert_compatibility
         require(state.get('compatibilityState'), 'Prepared managed compatibility provider state is missing')
         runtime_env = runtime_environment(plan, state['compatibilityState'])
+    if legacy_curl.required(plan):
+        runtime_env=legacy_curl.runtime_environment(plan,state['nativeHttpCompatibilityState'],base_environment=runtime_env)
 
     def as_user(command, cwd=work):
         return run(user_command(command, cwd), cwd=cwd)
@@ -466,6 +489,8 @@ def installed(args):
         official_proofs.append(dict(phase=phase, **proof))
         if runtime_env:
             compatibility_proofs.append(dict(phase=phase, **assert_compatibility(state['compatibilityState'])))
+        if legacy_curl.required(plan):
+            native_http_proofs.append(dict(phase=phase,**legacy_curl.assert_unchanged(state['nativeHttpCompatibilityState'])))
 
     official_check('after-install')
     versioned = 'cbodotnet-' + '.'.join(plan['sdkVersion'].split('.')[:2])
@@ -488,6 +513,11 @@ def installed(args):
                      cli='cbodotnet', workdir=str(work / 'functional'), runtime_env=runtime_env)])
     functional_evidence = validate_smoke_output(output)
     native_http_libraries = audit_core3_http_libraries(plan['sdkVersion'], sdk, runtime_env=runtime_env, runner=run)
+    native_curl=None
+    if legacy_curl.required(plan) and args.mode!='oci':
+        native_curl=validate_forced_curl_output(as_user(['sh','-ec',forced_curl_script(plan['sdkVersion'],str(sdk),'cbot-smoke',
+            workdir=str(work/'native-curl'),runtime_env=runtime_env,curl_root=legacy_curl.PROVIDER_ROOT,user_id=10001)]),
+            plan['sdkVersion'],str(sdk),legacy_curl.PROVIDER_ROOT,10001,architecture)
     abi_directory = work / 'abi-verification'
     as_user(['env', *[name + '=' + value for name, value in runtime_env.items()], 'bash', ROOT / 'scripts/verify-sdk.sh', '--sdk-dir', sdk, '--output-dir', abi_directory,
              '--expected-version', plan['sdkVersion'], '--expected-rid', reported_rid, '--framework', policy['framework'],
@@ -501,7 +531,7 @@ def installed(args):
         strict_dpkg_integrity([plan['package']['name'], 'cbodotnet-host'])
         phases = deb_lifecycle(plan, delivery, sdk_before, as_user, official_check)
         require([row['phase'] for row in official_proofs] == phases, 'Official package proof omits a lifecycle transition')
-    dependencies = observed_dependencies(plan, args.mode, state.get('compatibilityState'))
+    dependencies = observed_dependencies(plan,args.mode,state.get('compatibilityState'),state.get('nativeHttpCompatibilityState'))
     checks = {name: 'passed' for name in PREPUBLICATION_CHECKS}
     checks['sdk-list-paths'] = 'passed'
     checks['offline-network'] = 'passed'
@@ -526,7 +556,23 @@ def installed(args):
               'compatibilityProvider': compatibility_proofs}
     if native_http_libraries:
         result['nativeHttpLibraries'] = native_http_libraries
+    if legacy_curl.required(plan):
+        result['nativeHttpCompatibilityProvider']=native_http_proofs
+        if native_curl:result['nativeCurlHandler']=native_curl
     (delivery / 'installation-result.json').write_bytes(encoded(result))
+
+
+def public_native_curl(reference,plan):
+    """Test default-user production bytes, without the installation bootstrap."""
+    from legacy_compat import environment
+    from native_curl_runtime import image_provider_proof
+    base=environment(plan)
+    runtime_env=legacy_curl.environment(plan,base_environment=base)
+    script=forced_curl_script(plan['sdkVersion'],plan['package']['root'],'app',workdir='/work/native-curl',
+        runtime_env=runtime_env,curl_root=legacy_curl.PROVIDER_ROOT,user_id=1654)
+    output=run(['docker','run','--rm','--network','none',reference,'sh','-ec',script])
+    proof=validate_forced_curl_output(output,plan['sdkVersion'],plan['package']['root'],legacy_curl.PROVIDER_ROOT,1654,plan['architecture']['public'])
+    return dict(nativeCurlHandler=proof,nativeHttpCompatibilityProvider=[image_provider_proof(reference,plan,run)])
 
 
 def orchestration():
@@ -598,9 +644,15 @@ def prepare_compatibility(workspace, delivery, base, version, architecture, vari
                'apt-get install -y --no-install-recommends python3 rpm rpm2cpio gnupg binutils ca-certificates; '
                'python3 /repo/scripts/legacy_compat.py --arch ' + architecture + ' --variant ' + variant
                + ' --output ' + output + '; chown -R ' + str(os.getuid()) + ':' + str(os.getgid()) + ' ' + output)
+    arguments=['--compatibility-build',delivery/'compatibility-build/provider-build.json']
+    if legacy_curl.required(dict(sdkVersion=version)):
+        curl_output='/delivery/'+delivery.name+'/native-http-build'
+        command+='; python3 /repo/scripts/legacy_curl.py --arch '+architecture+' --variant '+variant+' --output '+curl_output
+        command+='; chown -R '+str(os.getuid())+':'+str(os.getgid())+' '+curl_output
+        arguments+=['--native-http-build',delivery/'native-http-build/provider-build.json']
     run(['docker', 'run', '--rm', '--user', '0', '-v', f'{ROOT}:/repo:ro', '-v', f'{workspace}:/delivery',
          base, 'sh', '-ec', command])
-    return ['--compatibility-build', delivery / 'compatibility-build/provider-build.json']
+    return arguments
 
 
 def oci_build_arguments(base_image, metadata):
@@ -695,6 +747,7 @@ def native(args):
     result['imageConfig'] = config_evidence
     result['imageFiles'] = file_evidence
     result['functionalChecks'] = functional_evidence
+    if legacy_curl.required(metadata['plan']):result.update(public_native_curl(tag,metadata['plan']))
     result['imageFunctionalNetwork'] = 'none'
     result['checks'].update({'image-labels': 'passed', 'image-ownership': 'passed', 'image-no-build-secrets': 'passed', 'image-no-source-build-toolchain': 'passed'})
     result['checks']['image-wrapper-license'] = 'passed'
@@ -1094,6 +1147,10 @@ def postverify(args):
                 and branding['sdkRoot'] == sdk_root and branding['sourceManifestSha256'] == source_pin,
                 'Published alias identity differs from authenticated source/revision')
     functional_evidence = run_public_functional_smoke(reference, version, sdk_root)
+    native_http_evidence={}
+    if legacy_curl.required(dict(sdkVersion=version)):
+        native_http_evidence=public_native_curl(reference,dict(sdkVersion=version,variant='debian-13',
+            architecture=dict(public=args.arch),package=dict(root=sdk_root)))
     apt_results = postverify_apt(args) if args.deb_receipt is not None else []
     checks = ['anonymous-pull', 'native-config', 'non-root', 'command-aliases', 'cli-branding', 'offline-build-run',
               'sdk-list-paths', 'image-ownership', 'image-no-build-secrets', 'image-no-source-build-toolchain',
@@ -1104,7 +1161,7 @@ def postverify(args):
         checks.append('image-wrapper-license')
     args.output.write_bytes(encoded(dict(schemaVersion=1, status='passed', architecture=args.arch, aptTargets=apt_results,
         repository=index['repository'], digest=index['digest'], imageConfig=config_evidence, imageFiles=file_evidence,
-        functionalChecks=functional_evidence, networkForBuild='none', checks=checks)))
+        functionalChecks=functional_evidence, networkForBuild='none', checks=checks,**native_http_evidence)))
     print(json.dumps(dict(status='passed', architecture=args.arch, digest=index['digest'])))
 
 
@@ -1187,8 +1244,10 @@ def postverify_apt(args):
         container_lifecycle(workspace, delivery, base_image, variant, 'deb')
         result = json.loads((delivery / 'installation-result.json').read_bytes())
         require(result['status'] == 'passed', 'Published APT installation did not pass')
-        results.append(dict(variant=variant, architecture=args.arch, repositorySha256=artifacts[name]['sha256'],
-                            status='passed', checks=result['checks']))
+        target=dict(variant=variant,architecture=args.arch,repositorySha256=artifacts[name]['sha256'],status='passed',checks=result['checks'])
+        for field in ('nativeHttpCompatibilityProvider','nativeCurlHandler'):
+            if field in result:target[field]=result[field]
+        results.append(target)
     return results
 
 
