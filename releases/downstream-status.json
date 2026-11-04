@@ -524,6 +524,40 @@
           "variant": "debian-13",
           "verificationReportSha256": "ef242010d4d421dc985d97d20741e9768475ef48eb8d2bbcc881ca3c7bdf553c",
           "verificationReportUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r1/oci-debian-13-x64--installation-report.json"
+        },
+        {
+          "architecture": "aarch64",
+          "artifactSha256": "3ea7f2c79697e14449b71c585f532d97e0defe98339dc92f291b7a765c7b0837",
+          "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-aarch64--oci-arm64.json",
+          "channel": "oci",
+          "manifestSha256": "75282c76b18da5ba3cd9d0262c9c24594a4266a92a2aba50437b8e2c3f7eacb9",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json",
+          "packageRevision": 2,
+          "sdkVersion": "10.0.403",
+          "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json.asc",
+          "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+          "status": "published-postverified",
+          "variant": "debian-13",
+          "verificationReportSha256": "90909645f07ed0ce8457a13c32979a87a493004974775f7907009507d34cfd18",
+          "verificationReportUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-aarch64--installation-report.json"
+        },
+        {
+          "architecture": "x64",
+          "artifactSha256": "f1ae0d69156e136c0b291192203414385e5009ac929a9bbfea205786e3b4f049",
+          "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-x64--oci-amd64.json",
+          "channel": "oci",
+          "manifestSha256": "75282c76b18da5ba3cd9d0262c9c24594a4266a92a2aba50437b8e2c3f7eacb9",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json",
+          "packageRevision": 2,
+          "sdkVersion": "10.0.403",
+          "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json.asc",
+          "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+          "status": "published-postverified",
+          "variant": "debian-13",
+          "verificationReportSha256": "ca999d128aa06e4f9e66384da0a7c7e7d9e06df49077e6d152266af507ba332b",
+          "verificationReportUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-x64--installation-report.json"
         }
       ],
       "publisher": {
@@ -802,6 +836,276 @@
           "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
           "status": "published-postverified",
           "tag": "distribution-oci-sdk-10.0.403-r1"
+        },
+        {
+          "assets": [
+            {
+              "name": "distribution-signing-key.gpg",
+              "sha256": "562e4c9a893c1a0ffabf3d3bb4a6e4ae1090427250c2818df196a8174583a665",
+              "size": 273,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-signing-key.gpg"
+            },
+            {
+              "name": "oci-debian-13-aarch64--installation-report.json",
+              "sha256": "90909645f07ed0ce8457a13c32979a87a493004974775f7907009507d34cfd18",
+              "size": 8251,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-aarch64--installation-report.json"
+            },
+            {
+              "name": "oci-debian-13-aarch64--installation-report.json.asc",
+              "sha256": "f2466853d581f14216686716279bc82df816b75cfe4f8352d53712047d7d5e87",
+              "size": 119,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-aarch64--installation-report.json.asc"
+            },
+            {
+              "name": "oci-debian-13-aarch64--oci-arm64.json",
+              "sha256": "3ea7f2c79697e14449b71c585f532d97e0defe98339dc92f291b7a765c7b0837",
+              "size": 2744,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-aarch64--oci-arm64.json"
+            },
+            {
+              "name": "oci-debian-13-x64--installation-report.json",
+              "sha256": "ca999d128aa06e4f9e66384da0a7c7e7d9e06df49077e6d152266af507ba332b",
+              "size": 8203,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-x64--installation-report.json"
+            },
+            {
+              "name": "oci-debian-13-x64--installation-report.json.asc",
+              "sha256": "19458a277698904eea48e2cc3f9400e7e2356145281a9cf3116ee0476d6f852a",
+              "size": 119,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-x64--installation-report.json.asc"
+            },
+            {
+              "name": "oci-debian-13-x64--oci-amd64.json",
+              "sha256": "f1ae0d69156e136c0b291192203414385e5009ac929a9bbfea205786e3b4f049",
+              "size": 2728,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-x64--oci-amd64.json"
+            },
+            {
+              "name": "oci-index.json",
+              "sha256": "6b71c6f5d41682b026aa8c874bbe94a304ed7a9cf3dc047849614cc9de7091bb",
+              "size": 5236,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-index.json"
+            },
+            {
+              "name": "distribution-manifest.json",
+              "sha256": "75282c76b18da5ba3cd9d0262c9c24594a4266a92a2aba50437b8e2c3f7eacb9",
+              "size": 13298,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json"
+            },
+            {
+              "name": "distribution-manifest.json.asc",
+              "sha256": "298ddf2bbe2681173ff2e3be668241fab2dc6164a10ef064f13a03187cbf2ee4",
+              "size": 228,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json.asc"
+            }
+          ],
+          "identity": {
+            "channel": "oci",
+            "packageRevision": 2,
+            "sdkVersion": "10.0.403",
+            "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+            "sourceReleaseTag": "sdk-10.0.403"
+          },
+          "manifestSha256": "75282c76b18da5ba3cd9d0262c9c24594a4266a92a2aba50437b8e2c3f7eacb9",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json",
+          "postVerification": {
+            "reports": [
+              {
+                "aptTargets": [],
+                "architecture": "aarch64",
+                "checks": [
+                  "anonymous-pull",
+                  "native-config",
+                  "non-root",
+                  "command-aliases",
+                  "cli-branding",
+                  "offline-build-run",
+                  "sdk-list-paths",
+                  "image-ownership",
+                  "image-no-build-secrets",
+                  "image-no-source-build-toolchain",
+                  "console-apphost",
+                  "http-crypto-globalization",
+                  "sdk-info-root-rid",
+                  "image-labels"
+                ],
+                "digest": "sha256:c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9",
+                "functionalChecks": {
+                  "aspNetCoreLoopbackHttp": "passed",
+                  "consoleApphostExecution": "passed",
+                  "consoleDllExecution": "passed",
+                  "cryptographicRandomBytes": "passed",
+                  "frFrDecimalFormatting": "passed",
+                  "nonRootRuntimeRoot": "passed",
+                  "rsaSha256SignAndVerify": "passed"
+                },
+                "imageConfig": {
+                  "architecture": "arm64",
+                  "labels": {
+                    "kr.dotnetdev.cbodotnet.evidence.sha256": "97843567a562a42fed38f7b89bc3026496b39017f46f524f11c6073039025309",
+                    "kr.dotnetdev.cbodotnet.evidence.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-aarch64.tar.gz",
+                    "kr.dotnetdev.cbodotnet.license.path": "/opt/cbodotnet/10.0/LICENSE.txt",
+                    "kr.dotnetdev.cbodotnet.manifest.sha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+                    "kr.dotnetdev.cbodotnet.manifest.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json",
+                    "kr.dotnetdev.cbodotnet.notices.path": "/opt/cbodotnet/10.0/ThirdPartyNotices.txt",
+                    "kr.dotnetdev.cbodotnet.notices.url": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md#licenses-and-notices",
+                    "kr.dotnetdev.cbodotnet.package.revision": "2",
+                    "kr.dotnetdev.cbodotnet.sdk.sha256": "410491f0166109c2c3d115705ab64601cec56c3b1c1995267d3b16567f9c0d5b",
+                    "kr.dotnetdev.cbodotnet.sdk.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz",
+                    "kr.dotnetdev.cbodotnet.source.sha256": "c074b74287d15691ee0ce01bb0d4912db017e35b91010d9380b04f1b62c8b745",
+                    "kr.dotnetdev.cbodotnet.source.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-aarch64.tar.gz",
+                    "org.opencontainers.image.base.name": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+                    "org.opencontainers.image.documentation": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md",
+                    "org.opencontainers.image.licenses": "MIT AND LicenseRef-Dotnet-ThirdPartyNotices",
+                    "org.opencontainers.image.source": "https://github.com/dotnetdev-kr/cbodotnet",
+                    "org.opencontainers.image.title": "Community Build of .NET (built by .NET Dev)",
+                    "org.opencontainers.image.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-10.0.403",
+                    "org.opencontainers.image.version": "10.0.403"
+                  },
+                  "sdkRoot": "/opt/cbodotnet/10.0",
+                  "user": "app",
+                  "workdir": "/work"
+                },
+                "imageFiles": {
+                  "credentialEnvironment": "absent",
+                  "ownership": "root:root:0755",
+                  "sourceBuildToolchain": "absent"
+                },
+                "networkForBuild": "none",
+                "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+                "schemaVersion": 1,
+                "status": "passed"
+              },
+              {
+                "aptTargets": [],
+                "architecture": "x64",
+                "checks": [
+                  "anonymous-pull",
+                  "native-config",
+                  "non-root",
+                  "command-aliases",
+                  "cli-branding",
+                  "offline-build-run",
+                  "sdk-list-paths",
+                  "image-ownership",
+                  "image-no-build-secrets",
+                  "image-no-source-build-toolchain",
+                  "console-apphost",
+                  "http-crypto-globalization",
+                  "sdk-info-root-rid",
+                  "image-labels"
+                ],
+                "digest": "sha256:c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9",
+                "functionalChecks": {
+                  "aspNetCoreLoopbackHttp": "passed",
+                  "consoleApphostExecution": "passed",
+                  "consoleDllExecution": "passed",
+                  "cryptographicRandomBytes": "passed",
+                  "frFrDecimalFormatting": "passed",
+                  "nonRootRuntimeRoot": "passed",
+                  "rsaSha256SignAndVerify": "passed"
+                },
+                "imageConfig": {
+                  "architecture": "amd64",
+                  "labels": {
+                    "kr.dotnetdev.cbodotnet.evidence.sha256": "56941c7c987707506784618cc992bab611c2f97623d4c1b56d4d4d00a1221a5e",
+                    "kr.dotnetdev.cbodotnet.evidence.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-x64.tar.gz",
+                    "kr.dotnetdev.cbodotnet.license.path": "/opt/cbodotnet/10.0/LICENSE.txt",
+                    "kr.dotnetdev.cbodotnet.manifest.sha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+                    "kr.dotnetdev.cbodotnet.manifest.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json",
+                    "kr.dotnetdev.cbodotnet.notices.path": "/opt/cbodotnet/10.0/ThirdPartyNotices.txt",
+                    "kr.dotnetdev.cbodotnet.notices.url": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md#licenses-and-notices",
+                    "kr.dotnetdev.cbodotnet.package.revision": "2",
+                    "kr.dotnetdev.cbodotnet.sdk.sha256": "0ff27ca9775fb8d3c83fce60ad511754956f311a950878dcbc05bd6737a4bc09",
+                    "kr.dotnetdev.cbodotnet.sdk.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-x64.tar.gz",
+                    "kr.dotnetdev.cbodotnet.source.sha256": "222a3f28450c258c8179eb5f4360e96f5886cd4af8fe36d33533f3bc6491009c",
+                    "kr.dotnetdev.cbodotnet.source.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-x64.tar.gz",
+                    "org.opencontainers.image.base.name": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+                    "org.opencontainers.image.documentation": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md",
+                    "org.opencontainers.image.licenses": "MIT AND LicenseRef-Dotnet-ThirdPartyNotices",
+                    "org.opencontainers.image.source": "https://github.com/dotnetdev-kr/cbodotnet",
+                    "org.opencontainers.image.title": "Community Build of .NET (built by .NET Dev)",
+                    "org.opencontainers.image.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-10.0.403",
+                    "org.opencontainers.image.version": "10.0.403"
+                  },
+                  "sdkRoot": "/opt/cbodotnet/10.0",
+                  "user": "app",
+                  "workdir": "/work"
+                },
+                "imageFiles": {
+                  "credentialEnvironment": "absent",
+                  "ownership": "root:root:0755",
+                  "sourceBuildToolchain": "absent"
+                },
+                "networkForBuild": "none",
+                "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+                "schemaVersion": 1,
+                "status": "passed"
+              }
+            ],
+            "workflow": {
+              "commit": "23b5bb75b046cbc4ceecb962e1a618a6ba121a1a",
+              "runAttempt": "1",
+              "runId": "41831153506",
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41831153506/attempts/1"
+            }
+          },
+          "publicKeyUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-signing-key.gpg",
+          "publicationAllowed": true,
+          "publications": [
+            {
+              "architecture": "aarch64",
+              "artifactSha256": "3ea7f2c79697e14449b71c585f532d97e0defe98339dc92f291b7a765c7b0837",
+              "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-aarch64--oci-arm64.json",
+              "channel": "oci",
+              "manifestSha256": "75282c76b18da5ba3cd9d0262c9c24594a4266a92a2aba50437b8e2c3f7eacb9",
+              "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json",
+              "packageRevision": 2,
+              "sdkVersion": "10.0.403",
+              "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json.asc",
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+              "status": "published-postverified",
+              "variant": "debian-13",
+              "verificationReportSha256": "90909645f07ed0ce8457a13c32979a87a493004974775f7907009507d34cfd18",
+              "verificationReportUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-aarch64--installation-report.json"
+            },
+            {
+              "architecture": "x64",
+              "artifactSha256": "f1ae0d69156e136c0b291192203414385e5009ac929a9bbfea205786e3b4f049",
+              "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-x64--oci-amd64.json",
+              "channel": "oci",
+              "manifestSha256": "75282c76b18da5ba3cd9d0262c9c24594a4266a92a2aba50437b8e2c3f7eacb9",
+              "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json",
+              "packageRevision": 2,
+              "sdkVersion": "10.0.403",
+              "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json.asc",
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+              "status": "published-postverified",
+              "variant": "debian-13",
+              "verificationReportSha256": "ca999d128aa06e4f9e66384da0a7c7e7d9e06df49077e6d152266af507ba332b",
+              "verificationReportUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-debian-13-x64--installation-report.json"
+            }
+          ],
+          "releaseUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-oci-sdk-10.0.403-r2",
+          "repositories": [
+            {
+              "asset": "oci-index.json",
+              "kind": "oci-descriptor",
+              "variants": [
+                "debian-13"
+              ],
+              "websitePath": "packages/oci"
+            }
+          ],
+          "repository": "dotnetdev-kr/cbodotnet",
+          "schemaVersion": 1,
+          "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json.asc",
+          "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "status": "published-postverified",
+          "tag": "distribution-oci-sdk-10.0.403-r2"
         }
       ],
       "requiredChecks": [
