@@ -70,6 +70,7 @@ class DistributionStatusTests(unittest.TestCase):
             for publication in receipt['publications']:
                 publication['packageRevision'] = 2
         self.index['tag'] = '10.0.403-debian13-r2'
+        self.metadata_v2()
         second = self.activate(receipts=newer, policy=first)
         self.assertEqual([1, 2], [row['identity']['packageRevision'] for row in second['channels']['deb']['receipts']])
         self.assertEqual(8, len(second['channels']['deb']['publications']))
