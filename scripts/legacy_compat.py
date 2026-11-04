@@ -529,7 +529,10 @@ def arch_recipe(policy, architecture='x64'):
             selected += ['  install -Dm755 "' + package['packageName'] + '/' + item['path'] + '" "$dest/lib/' + PurePosixPath(item['path']).name + '"',
                          '  ln -s ' + shlex.quote(PurePosixPath(item['path']).name) + ' "$dest/lib/' + item['soname'][0] + '"']
         selected += ['  install -Dm644 "' + package['packageName'] + '/' + package['licenses'][0]['path']
-                     + '" "$dest/LICENSE.' + ('openssl' if package['packageName'] == 'compat-openssl11' else 'icu') + '.txt"']
+                     + '" "$dest/LICENSE.' + ('openssl' if package['packageName'] == 'compat-openssl11' else 'icu') + '.txt"',
+                     '  install -Dm644 "' + package['packageName'] + '/' + package['licenses'][0]['path']
+                     + '" "$pkgdir/usr/share/licenses/$pkgname/LICENSE.'
+                     + ('openssl' if package['packageName'] == 'compat-openssl11' else 'icu') + '.txt"']
     # The recipe uses the same staged, reviewed metadata/configuration files.
     return f'''# Separate provider; no SDK binaries are included or rebuilt.
 pkgname={PACKAGE_NAME}
@@ -566,6 +569,7 @@ package() {{
   mkdir -p "$dest/lib"
 {chr(10).join(selected)}
   install -m644 openssl.cnf NOTICE.txt provider-manifest.json "$dest/"
+  install -Dm644 NOTICE.txt "$pkgdir/usr/share/licenses/$pkgname/NOTICE.txt"
 }}
 '''
 

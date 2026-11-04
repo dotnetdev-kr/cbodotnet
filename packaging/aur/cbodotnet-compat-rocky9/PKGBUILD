@@ -40,6 +40,7 @@ package() {
   install -Dm755 "compat-openssl11/usr/lib64/libssl.so.1.1.1k" "$dest/lib/libssl.so.1.1.1k"
   ln -s libssl.so.1.1.1k "$dest/lib/libssl.so.1.1"
   install -Dm644 "compat-openssl11/usr/share/licenses/compat-openssl11/LICENSE" "$dest/LICENSE.openssl.txt"
+  install -Dm644 "compat-openssl11/usr/share/licenses/compat-openssl11/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE.openssl.txt"
   install -Dm755 "libicu/usr/lib64/libicudata.so.67.1" "$dest/lib/libicudata.so.67.1"
   ln -s libicudata.so.67.1 "$dest/lib/libicudata.so.67"
   install -Dm755 "libicu/usr/lib64/libicui18n.so.67.1" "$dest/lib/libicui18n.so.67.1"
@@ -47,5 +48,7 @@ package() {
   install -Dm755 "libicu/usr/lib64/libicuuc.so.67.1" "$dest/lib/libicuuc.so.67.1"
   ln -s libicuuc.so.67.1 "$dest/lib/libicuuc.so.67"
   install -Dm644 "libicu/usr/share/licenses/libicu/LICENSE" "$dest/LICENSE.icu.txt"
+  install -Dm644 "libicu/usr/share/licenses/libicu/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE.icu.txt"
   install -m644 openssl.cnf NOTICE.txt provider-manifest.json "$dest/"
+  install -Dm644 NOTICE.txt "$pkgdir/usr/share/licenses/$pkgname/NOTICE.txt"
 }

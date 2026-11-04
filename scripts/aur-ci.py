@@ -199,6 +199,11 @@ def installed(args):
         companion = build(delivery / 'recipes' / legacy_compat.PACKAGE_NAME, 'compatibility')
         run(['pacman', '-U', '--noconfirm', companion])
         provider_unchanged('companion-reinstall')
+        for filename in ('LICENSE.openssl.txt', 'LICENSE.icu.txt', 'NOTICE.txt'):
+            notice = Path('/usr/share/licenses') / legacy_compat.PACKAGE_NAME / filename
+            require(notice.is_file() and notice.read_bytes() == (Path(legacy_compat.PROVIDER_ROOT) / filename).read_bytes()
+                    and run(['pacman', '-Qoq', notice]).strip() == legacy_compat.PACKAGE_NAME,
+                    'Separate provider original license/notice ownership differs')
     package = build(delivery / 'recipes' / name, 'sdk')
     upgrade = build(delivery / 'upgrade-recipes' / name, 'sdk-upgrade')
     # Shared command ownership stays independent of SDK packaging revisions.
