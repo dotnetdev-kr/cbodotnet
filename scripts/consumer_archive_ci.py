@@ -1,5 +1,6 @@
 """Native read-only build and offline validation of branded consumer archives."""
 import argparse
+import errno
 import hashlib
 import json
 import os
@@ -108,6 +109,20 @@ def user_run(arguments,*,cwd=None,extra=None):
     return run(['runuser','-u',USER,'--',*arguments],cwd=cwd or '/home/'+USER,env=environment)
 
 
+def relocate_tree(source,destination):
+    """OverlayFS may reject renaming an otherwise ordinary committed directory."""
+    source,destination=Path(source),Path(destination)
+    require(source.is_dir() and not source.is_symlink() and not destination.exists() and not destination.is_symlink(),
+        'Relocation requires an ordinary source and fresh destination')
+    try:source.rename(destination)
+    except OSError as error:
+        if error.errno!=errno.EXDEV:raise
+        before=sdk_tools().snapshot(source)
+        shutil.copytree(source,destination,symlinks=True,copy_function=shutil.copy2)
+        require(sdk_tools().snapshot(destination)==before,'Cross-device relocation changed consumer bytes, modes or links')
+        shutil.rmtree(source)
+
+
 def installed(args):
     state=json.loads((args.workspace/(args.variant+'-prepared.json')).read_bytes()); build=state['build']; plan=build['plan']
     guard(args.variant,plan['architecture'])
@@ -137,7 +152,7 @@ def installed(args):
         return results
 
     commands(root)
-    relocated=INSTALL/'relocated consumer archive'; root.rename(relocated)
+    relocated=INSTALL/'relocated consumer archive'; relocate_tree(root,relocated)
     command_results=commands(relocated)
     payload=relocated/'payload'; tools=sdk_tools()
     observed=tools.snapshot(payload)

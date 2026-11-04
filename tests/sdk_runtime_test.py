@@ -39,6 +39,15 @@ class RuntimePolicyTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             RUNTIME.validate_host_rid(' RID: debian.13-arm64\n', '8.0.133', 'aarch64', 'debian-13')
 
+    def test_rocky_native_major_only_rid_is_admitted_for_old_sdk_without_accepting_another_os_or_cpu(self):
+        # Actual qualified SDK7 ARM --info on pinned Rocky9.8 reports rocky.9.
+        for arch, suffix in (('x64', 'x64'), ('aarch64', 'arm64')):
+            self.assertEqual('rocky.9-' + suffix, RUNTIME.validate_host_rid(' RID: rocky.9-' + suffix + '\n',
+                '7.0.120', arch, 'rocky-9.8'))
+        for rid in ('rocky.8-arm64', 'rocky.9-x64', 'rocky.10-arm64', 'rocky.9-musl-arm64'):
+            with self.subTest(rid=rid), self.assertRaisesRegex(ValueError, rid):
+                RUNTIME.validate_host_rid(' RID: ' + rid + '\n', '7.0.120', 'aarch64', 'rocky-9.8')
+
     def test_legacy_probe_uses_supported_apis_and_all_runtime_scenarios(self):
         script = RUNTIME.smoke_script('3.0.103', '/opt/cbodotnet/3.0', 'app', runtime_env={'SSL_CERT_FILE': '/etc/pki/tls/certs/ca-bundle.crt'})
         self.assertIn('<TargetFramework>netcoreapp3.0</TargetFramework>', script)

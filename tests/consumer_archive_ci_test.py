@@ -1,9 +1,11 @@
 """Archive CI may mutate only disposable native containers and trusted main runs."""
 import os
+import errno
 from pathlib import Path
 import re
 import sys
 import unittest
+import tempfile
 from unittest import mock
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -12,6 +14,17 @@ import consumer_archive_ci as CI
 
 
 class ConsumerArchiveCiTests(unittest.TestCase):
+    @unittest.skipUnless(os.name=='posix','Preserved Linux modes and symlinks required')
+    def test_overlay_lower_layer_exdev_relocation_preserves_bytes_modes_and_links(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source=Path(directory)/'source';source.mkdir();(source/'payload').mkdir()
+            (source/'payload/host').write_bytes(b'qualified-host');(source/'payload/host').chmod(0o751)
+            (source/'payload/host-link').symlink_to('host')
+            before=CI.sdk_tools().snapshot(source);destination=Path(directory)/'moved directory'
+            with mock.patch.object(Path,'rename',side_effect=OSError(errno.EXDEV,'overlay lower layer')):
+                CI.relocate_tree(source,destination)
+            self.assertFalse(source.exists());self.assertEqual(before,CI.sdk_tools().snapshot(destination))
+
     def test_host_or_wrong_os_is_rejected_before_package_manager_commands(self):
         contract=CI.load_contract()
         with mock.patch.object(CI.os,'geteuid',return_value=0),mock.patch.object(CI.Path,'is_file',return_value=False),mock.patch.object(CI,'run') as run:

@@ -63,10 +63,11 @@ def validate_host_rid(info, version, architecture, variant):
     if int(series(version).split('.')[0]) <= 7:
         prefixes = {'ubuntu-22.04': ['ubuntu.22.04'], 'ubuntu-24.04': ['ubuntu.24.04'],
                     'debian-13': ['debian.13'], 'fedora-45': ['fedora.45'],
-                    'rocky-9.8': ['rocky.9.8', 'rhel.9', 'rhel.9.8'], 'arch-rolling': ['arch']}
+                    'rocky-9.8': ['rocky.9', 'rocky.9.8', 'rhel.9', 'rhel.9.8'], 'arch-rolling': ['arch']}
         require(variant in prefixes, 'Unreviewed host RID distribution')
         allowed.update(prefix + '-' + suffix for prefix in prefixes[variant])
-    require(match is not None and match[1] in allowed, 'SDK host RID differs from its native architecture/distribution')
+    require(match is not None and match[1] in allowed, 'SDK host RID differs from its native architecture/distribution: '
+            + (match[1] if match is not None else '<missing>') + '; admitted: ' + ', '.join(sorted(allowed)))
     return match[1]
 
 
