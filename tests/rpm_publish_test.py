@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import sys
 import tempfile
 import unittest
@@ -168,8 +169,16 @@ class RpmPublishTests(unittest.TestCase):
         def query(command):
             architecture = Path(command[-1]).parent.name
             return '<rpmHeader><rpmTag name="Optflags"><string>' + architecture + '</string></rpmTag></rpmHeader>'
+        def unpack(received, *, destination):
+            self.assertEqual(self.received, received)
+            self.assertNotEqual(received, destination)
+            for arch in ('x64', 'aarch64'):
+                shutil.copytree(received / arch, destination / arch)
+            return [{key: (str(destination / Path(value).relative_to(received)) if key != 'package' else value)
+                     for key, value in item.items()} for item in self.items]
+        before = {file.relative_to(self.received): file.read_bytes() for file in self.received.rglob('*') if file.is_file()}
         output = self.root / 'inspection'
-        with mock.patch.object(PUBLISH.CORE, 'unpack_deliveries', return_value=self.items), \
+        with mock.patch.object(PUBLISH.CORE, 'unpack_deliveries', side_effect=unpack), \
              mock.patch.object(PUBLISH.CORE, 'run', side_effect=query) as commands, \
              mock.patch.object(PUBLISH.subprocess, 'check_output', return_value=b'identical-cpio-payload'):
             with self.assertRaisesRegex(ValueError, 'see common-inspection.json'):
@@ -181,6 +190,8 @@ class RpmPublishTests(unittest.TestCase):
         self.assertIn('Optflags', report['differences'][0]['headers'])
         self.assertEqual(2, len(list(output.glob('*.rpm'))))
         self.assertTrue(all(call.args[0][:4] == ['rpm', '--query', '--package', '--xml'] for call in commands.call_args_list))
+        self.assertEqual(before, {file.relative_to(self.received): file.read_bytes()
+                                 for file in self.received.rglob('*') if file.is_file()})
 
     def source_metadata(self):
         return dict(head_branch='main', event='workflow_dispatch', path='.github/workflows/distribution-release.yml',

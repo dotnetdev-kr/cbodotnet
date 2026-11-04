@@ -197,7 +197,7 @@ class DistributionCiTests(unittest.TestCase):
                 member.size = 1
                 archive.addfile(member, io.BytesIO(b'x'))
             with self.subTest(name=name), self.assertRaisesRegex(ValueError, 'Unsafe native'):
-                CI.unpack_deliveries(self.root)
+                CI.extract_native_transport(archive_path, self.root)
             archive_path.unlink()
 
     def test_sdk_listing_rejects_other_roots_versions_or_global_fallback(self):
@@ -446,7 +446,7 @@ class FrozenPromotionTests(unittest.TestCase):
                 member.type, member.linkname = kind, target
                 archive.addfile(member)
             with self.subTest(kind=kind), self.assertRaisesRegex(ValueError, 'Unsafe native'):
-                CI.unpack_deliveries(self.root)
+                CI.extract_native_transport(archive_path, self.root)
             archive_path.unlink()
 
     def test_transport_preserves_contained_provider_soname_links_and_modes(self):
@@ -467,6 +467,27 @@ class FrozenPromotionTests(unittest.TestCase):
         self.assertEqual(0o755, target.stat().st_mode & 0o777)
         with self.assertRaisesRegex(ValueError, 'fresh'):
             CI.extract_native_transport(archive_path, self.root)
+
+    def test_diagnostic_extraction_leaves_transports_fresh_for_stage_and_ignores_embedded_probe_archives(self):
+        for arch in ('x64', 'aarch64'):
+            prefix = 'delivery-rpm-' + arch
+            original = '/old/' + prefix
+            items = [dict(inputsDirectory=original + '/inputs', packagePath=original + '/rpm-test/package.json')]
+            files = {'items.json': json.dumps(items).encode(), 'rpm-test/package.json': b'{}',
+                     'native-http-probe.tar.gz': b'not a transport archive'}
+            with tarfile.open(self.root / ('native-rpm-' + arch + '.tar.gz'), 'w:gz') as archive:
+                for name, raw in files.items():
+                    member = tarfile.TarInfo(prefix + '/' + name); member.size = len(raw)
+                    archive.addfile(member, io.BytesIO(raw))
+        with tempfile.TemporaryDirectory(dir=self.root) as temporary:
+            inspected = CI.unpack_deliveries(self.root, destination=Path(temporary))
+            self.assertEqual(2, len(inspected))
+            self.assertTrue(all(Path(row['packagePath']).is_relative_to(temporary) for row in inspected))
+        self.assertFalse(list(self.root.glob('delivery-*')))
+        staged = CI.unpack_deliveries(self.root)
+        self.assertEqual(2, len(staged))
+        self.assertTrue(all(row['package'] == {} for row in staged))
+        self.assertTrue(all(Path(row['packagePath']).is_file() for row in staged))
 
     def test_transport_rejects_duplicate_link_parents_cycles_and_foreign_roots_before_activation(self):
         for mutation in ('duplicate', 'link-parent', 'cycle', 'absolute-link', 'parent-link',

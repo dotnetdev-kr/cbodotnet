@@ -27,7 +27,15 @@ def inspect_common(received, output):
     """Retain small unsigned RPMs and exact native differences for diagnosis."""
     received, output = Path(received).resolve(), Path(output).resolve()
     require(not output.exists() and output.parent.is_dir(), 'Fresh common RPM inspection output required')
-    items = CORE.unpack_deliveries(received)
+    # Diagnosis must leave the authenticated transports untouched for stage().
+    # In particular, provider output can itself contain native-*.tar.gz probes.
+    with tempfile.TemporaryDirectory(prefix='cbodotnet-rpm-inspection-', dir=output.parent) as temporary:
+        extracted = Path(temporary)
+        items = CORE.unpack_deliveries(received, destination=extracted)
+        return inspect_common_items(items, extracted, output)
+
+
+def inspect_common_items(items, received, output):
     output.mkdir()
     packages, headers, leads = [], {}, {}
     for item in items:

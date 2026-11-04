@@ -897,10 +897,15 @@ def extract_native_transport(archive_path, received):
         (staged / root).rename(destination)
 
 
-def unpack_deliveries(received):
-    for archive_path in sorted(received.rglob('native-*.tar.gz')):
-        extract_native_transport(archive_path, received)
-    deliveries = sorted(received.glob('delivery-*'))
+def unpack_deliveries(received, *, destination=None):
+    received = Path(received)
+    destination = Path(destination) if destination is not None else received
+    require(destination.is_dir() and not destination.is_symlink(), 'Ordinary native extraction directory required')
+    transports = sorted(received.glob('native-*.tar.gz'))
+    require(len(transports) == 2, 'Both native delivery transports are required')
+    for archive_path in transports:
+        extract_native_transport(archive_path, destination)
+    deliveries = sorted(destination.glob('delivery-*'))
     require(len(deliveries) == 2, 'Both native delivery artifacts are required')
     items = []
     for delivery in deliveries:
