@@ -97,6 +97,31 @@ class RpmPublishTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'protected main'):
                     PUBLISH.protected()
 
+    def test_common_inspection_retains_differences_before_failing_without_signing(self):
+        path = Path(self.items[-1]['artifactPath']).parent / 'package-build.json'
+        build = json.loads(path.read_bytes())
+        host = next(row for row in build['packages'] if row['kind'] == 'host')
+        package = path.parent / host['path']
+        package.write_bytes(package.read_bytes() + b'native-header-difference')
+        host.update(size=package.stat().st_size, sha256=PUBLISH.sha256_file(package))
+        path.write_text(json.dumps(build))
+        def query(command):
+            architecture = Path(command[-1]).parent.name
+            return '<rpmHeader><rpmTag name="Optflags"><string>' + architecture + '</string></rpmTag></rpmHeader>'
+        output = self.root / 'inspection'
+        with mock.patch.object(PUBLISH.CORE, 'unpack_deliveries', return_value=self.items), \
+             mock.patch.object(PUBLISH.CORE, 'run', side_effect=query) as commands, \
+             mock.patch.object(PUBLISH.subprocess, 'check_output', return_value=b'identical-cpio-payload'):
+            with self.assertRaisesRegex(ValueError, 'see common-inspection.json'):
+                PUBLISH.inspect_common(self.received, output)
+        report = json.loads((output / 'common-inspection.json').read_bytes())
+        self.assertEqual('failed', report['status'])
+        self.assertEqual(2, len(report['packages']))
+        self.assertTrue(report['differences'][0]['payloadIdentical'])
+        self.assertIn('Optflags', report['differences'][0]['headers'])
+        self.assertEqual(2, len(list(output.glob('*.rpm'))))
+        self.assertTrue(all(call.args[0][:4] == ['rpm', '--query', '--package', '--xml'] for call in commands.call_args_list))
+
     def source_metadata(self):
         return dict(head_branch='main', event='workflow_dispatch', path='.github/workflows/distribution-release.yml',
             repository={'full_name': 'dotnetdev-kr/cbodotnet'}, head_repository={'full_name': 'dotnetdev-kr/cbodotnet'},

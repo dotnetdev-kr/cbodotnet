@@ -1,5 +1,6 @@
 """Protected RPM signing and immutable promotion using the common release gates."""
 import importlib.util
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -7,6 +8,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import xml.etree.ElementTree as ET
 
 from channel_packages import build_repositories, HOST_VERSION, rpm_release
 from distribution_contract import load_contract, sha256_file
@@ -18,6 +20,60 @@ ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('rpm_distribution_core', ROOT / 'scripts/distribution-ci.py')
 CORE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(CORE)
+
+
+def inspect_common(received, output):
+    """Retain small unsigned RPMs and exact native differences for diagnosis."""
+    received, output = Path(received).resolve(), Path(output).resolve()
+    require(not output.exists() and output.parent.is_dir(), 'Fresh common RPM inspection output required')
+    items = CORE.unpack_deliveries(received)
+    output.mkdir()
+    packages, headers, leads = [], {}, {}
+    for item in items:
+        identity = item['package']['identity']
+        variant, architecture = identity['variant'], item['package']['architecture']
+        require(re.fullmatch(r'[a-z][a-z0-9]*-[1-9][0-9]*(?:\.[0-9]+)?', variant)
+                and architecture in {'x64', 'aarch64'}, 'Unsafe common RPM inspection identity')
+        build_path = Path(item['artifactPath']).parent / 'package-build.json'
+        require(received in build_path.absolute().parents, 'Common RPM build record escapes native transport')
+        build = json.loads(build_path.read_bytes())
+        hosts = [row for row in build['packages'] if row['kind'] == 'host']
+        require(len(hosts) == 1 and re.fullmatch(r'cbodotnet-host-[A-Za-z0-9._+-]+\.rpm', hosts[0]['path']),
+                'One ordinary common RPM is required')
+        host = hosts[0]
+        source = build_path.parent / host['path']
+        require(descriptor(source) == {'name': host['path'], 'size': host['size'], 'sha256': host['sha256']},
+                'Common RPM changed before inspection')
+        name = variant + '-' + architecture + '--' + host['path']
+        require(not (output / name).exists(), 'Duplicate common RPM inspection target')
+        shutil.copyfile(source, output / name)
+        text = CORE.run(['rpm', '--query', '--package', '--xml', source])
+        (output / (name + '.xml')).write_text(text, encoding='utf-8')
+        root = ET.fromstring('<headers>' + text + '</headers>')
+        headers[(variant, architecture)] = {row.attrib['name']: ET.tostring(row, encoding='unicode')
+            for row in root.iter() if 'name' in row.attrib}
+        leads[(variant, architecture)] = source.read_bytes()[:96]
+        payload = subprocess.check_output(['rpm2cpio', str(source)])
+        packages.append(dict(variant=variant, architecture=architecture, **descriptor(output / name),
+                             cpioSha256=hashlib.sha256(payload).hexdigest()))
+    differences = []
+    for variant in sorted({row['variant'] for row in packages}):
+        selected = [row for row in packages if row['variant'] == variant]
+        if len(selected) != 2 or {row['architecture'] for row in selected} != {'x64', 'aarch64'}:
+            differences.append(dict(variant=variant, error='Incomplete common native RPM matrix'))
+            continue
+        if len({row['sha256'] for row in selected}) != 1:
+            left, right = headers[(variant, 'x64')], headers[(variant, 'aarch64')]
+            differences.append(dict(variant=variant,
+                headers={key: dict(x64=left.get(key), aarch64=right.get(key))
+                         for key in sorted(set(left) | set(right)) if left.get(key) != right.get(key)},
+                leadDifferences=[dict(offset=index, x64=a, aarch64=b) for index, (a, b) in
+                    enumerate(zip(leads[(variant, 'x64')], leads[(variant, 'aarch64')])) if a != b],
+                payloadIdentical=len({row['cpioSha256'] for row in selected}) == 1))
+    result = dict(schemaVersion=1, status='failed' if differences else 'passed', packages=packages, differences=differences)
+    (output / 'common-inspection.json').write_bytes(encoded(result))
+    require(packages and not differences, 'Common native RPM bytes differ; see common-inspection.json')
+    return result
 
 
 def protected():
