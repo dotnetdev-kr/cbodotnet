@@ -21,12 +21,15 @@ Public names use `aarch64`. The official .NET RID remains `linux-arm64`; upstrea
 
 ## Package repositories and containers
 
-APT, RPM, AUR and consumer OCI channels are in preparation; current downloads
-remain the verified archives above. [Distribution status](releases/downstream-status.json)
-records channel readiness without advertising unpublished packages or image tags.
+SDK **10.0.403** is available through signed project-operated APT repositories
+for **Ubuntu 24.04 and Debian 13**, on `amd64` and `arm64`, and a Debian 13-based
+GHCR SDK image for `linux/amd64` and `linux/arm64`. Use the
+[verified installation commands](https://dotnetdev.kr/cbodotnet/) and
+[distribution status and receipts](releases/downstream-status.json).
+RPM and AUR remain deferred under issues #5 and #6.
 
 The package contract provides `cbodotnet-10.0` and a common `cbodotnet` command
-selecting the highest installed SDK series. OCI command preparation exposes
+selecting the highest installed SDK series. OCI images expose
 `cbodotnet-10.0`, `cbodotnet` and `dotnet` for the same SDK. Public launchers show
 **Community Build of .NET (built by .NET Dev)** in information/help; numeric
 `--version` stdout remains compatible. [CLI identity](docs/cli-branding.md)

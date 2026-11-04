@@ -1,0 +1,178 @@
+{
+  "deferredChannels": [
+    "rpm",
+    "aur"
+  ],
+  "httpsAptReports": [
+    {
+      "artifactName": "published-https-apt-aarch64-41773673150-1",
+      "report": {
+        "architecture": "aarch64",
+        "checks": [
+          "https-signed-apt-install",
+          "pinned-key",
+          "command-aliases",
+          "cli-branding",
+          "version-stdout-compatible",
+          "non-root-offline-build-run",
+          "package-integrity",
+          "removal"
+        ],
+        "networkForBuild": "none",
+        "packageRevision": 1,
+        "repository": "https://dotnetdev.kr/cbodotnet/packages/deb/debian-13",
+        "schemaVersion": 1,
+        "scope": "published-https-apt-installation",
+        "sdkVersion": "10.0.403",
+        "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+        "status": "passed",
+        "variant": "debian-13"
+      },
+      "reportSha256": "eee65bf93cb61571e8f8b7d473058668c4c569253f07e5924915a3d8fa9624f7"
+    },
+    {
+      "artifactName": "published-https-apt-aarch64-41773673150-1",
+      "report": {
+        "architecture": "aarch64",
+        "checks": [
+          "https-signed-apt-install",
+          "pinned-key",
+          "command-aliases",
+          "cli-branding",
+          "version-stdout-compatible",
+          "non-root-offline-build-run",
+          "package-integrity",
+          "removal"
+        ],
+        "networkForBuild": "none",
+        "packageRevision": 1,
+        "repository": "https://dotnetdev.kr/cbodotnet/packages/deb/ubuntu-24.04",
+        "schemaVersion": 1,
+        "scope": "published-https-apt-installation",
+        "sdkVersion": "10.0.403",
+        "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+        "status": "passed",
+        "variant": "ubuntu-24.04"
+      },
+      "reportSha256": "e8602f3c0933162c44f8578b700318abbc2ee9e600cd3ca6fde9e58d66909d32"
+    },
+    {
+      "artifactName": "published-https-apt-x64-41773673150-1",
+      "report": {
+        "architecture": "x64",
+        "checks": [
+          "https-signed-apt-install",
+          "pinned-key",
+          "command-aliases",
+          "cli-branding",
+          "version-stdout-compatible",
+          "non-root-offline-build-run",
+          "package-integrity",
+          "removal"
+        ],
+        "networkForBuild": "none",
+        "packageRevision": 1,
+        "repository": "https://dotnetdev.kr/cbodotnet/packages/deb/debian-13",
+        "schemaVersion": 1,
+        "scope": "published-https-apt-installation",
+        "sdkVersion": "10.0.403",
+        "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+        "status": "passed",
+        "variant": "debian-13"
+      },
+      "reportSha256": "5c3b872743c7e5d0ace2940edf14cfa478f713a996c7eaf5d67ffb6d9988717a"
+    },
+    {
+      "artifactName": "published-https-apt-x64-41773673150-1",
+      "report": {
+        "architecture": "x64",
+        "checks": [
+          "https-signed-apt-install",
+          "pinned-key",
+          "command-aliases",
+          "cli-branding",
+          "version-stdout-compatible",
+          "non-root-offline-build-run",
+          "package-integrity",
+          "removal"
+        ],
+        "networkForBuild": "none",
+        "packageRevision": 1,
+        "repository": "https://dotnetdev.kr/cbodotnet/packages/deb/ubuntu-24.04",
+        "schemaVersion": 1,
+        "scope": "published-https-apt-installation",
+        "sdkVersion": "10.0.403",
+        "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+        "status": "passed",
+        "variant": "ubuntu-24.04"
+      },
+      "reportSha256": "f7819c750aba23d6175b99183cf5ed15112d4e3a47d945d669065f114679087f"
+    }
+  ],
+  "oci": {
+    "checks": [
+      "anonymous-pull",
+      "native-config",
+      "non-root",
+      "command-aliases",
+      "cli-branding",
+      "offline-build-run"
+    ],
+    "digest": "sha256:11939c01e8cf35aa21a56dd1f2365832cc71012d2a3e3142f9be5e3d1aed897d",
+    "platforms": [
+      "linux/amd64",
+      "linux/arm64"
+    ],
+    "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk"
+  },
+  "packageRevision": 1,
+  "repositoryValidation": {
+    "status": "passed",
+    "unitTests": 414
+  },
+  "runs": {
+    "frozenRecoveryAndPublicVerification": {
+      "commit": "c6ef86ac679504fc19c606e7d99bc77d6a7dea8e",
+      "runAttempt": "1",
+      "runId": "41772357482",
+      "status": "passed",
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41772357482"
+    },
+    "httpsAptInstallation": {
+      "commit": "97c321f97fe6dd18a6a3238da643bb6e9f52546a",
+      "runAttempt": "1",
+      "runId": "41773673150",
+      "status": "passed",
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41773673150"
+    },
+    "nativeInstallationAndPublication": {
+      "commit": "274f5c53d6491c06cfe686af21dc3b034d1d83b9",
+      "runAttempt": "1",
+      "runId": "41765223368",
+      "status": "passed",
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41765223368"
+    },
+    "pagesDeployment": {
+      "commit": "abc591b4bf9c556b3daed0119ff55e1d01c35ff8",
+      "runAttempt": "1",
+      "runId": "41772836106",
+      "status": "passed",
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41772836106"
+    }
+  },
+  "schemaVersion": 1,
+  "scope": "published-distribution-native-and-https",
+  "sdkVersion": "10.0.403",
+  "signedPublicationReleases": {
+    "deb": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-deb-sdk-10.0.403-r1",
+    "oci": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-oci-sdk-10.0.403-r1"
+  },
+  "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+  "sourceRelease": {
+    "manifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+    "tag": "sdk-10.0.403",
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-10.0.403"
+  },
+  "status": "passed",
+  "testedOn": "2026-11-04"
+}

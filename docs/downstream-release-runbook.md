@@ -237,10 +237,14 @@ promotion recovery are mutually exclusive inputs.
 Post-publication jobs pull the public OCI index by digest on both native
 architectures with an empty Docker credential configuration, compare the image
 config against the tested native image, and repeat non-root aliases and an
-offline build/run. APT must also pass installation from its actual hosted
-signed repository before its availability is advertised. Publication receipts
-and these post-publication results are separate evidence; successful upload
-alone is insufficient.
+offline build/run. The APT jobs anonymously download the public signed
+repository archive, verify its recorded SHA-256 and signatures, then install
+from its extracted `file://` repository on all four OS/architecture targets.
+This proves public archive delivery and signed APT installation; it does not
+exercise the website's HTTPS APT URLs. Those URLs become available after the
+finalizer activates status and Pages deploys them. Publication receipts and
+post-publication execution results are separate evidence; upload alone is
+insufficient.
 
 ## Activate website availability and recover failures
 
@@ -269,12 +273,39 @@ signed SHA-256, extracts only safe ordinary members and verifies APT signatures
 before serving them under `/packages/deb/<variant>/`. Proposed links, partial
 matrices and unsigned receipt assertions cannot enable installation commands.
 
+After the Download Pages workflow succeeds, run the actual HTTPS client check:
+
+```bash
+gh workflow run distribution-site-check.yml --repo dotnetdev-kr/cbodotnet \
+  --ref main -f tag=sdk-10.0.403 -f revision=1
+```
+
+Require both native x64 and AArch64 jobs to succeed. Each job tests Ubuntu 24.04
+and Debian 13: it verifies the hosted key against the reviewed full fingerprint,
+installs the exact SDK revision through the hosted HTTPS APT source, checks both
+command names and branding, then builds/runs as a non-root user with Docker
+networking disabled and removes the packages. Retain all four JSON reports
+before announcing completion of the hosted installation path.
+
+Disposable validation containers include cbodotnet-owned documentation despite
+minimal-image exclusions, so strict `dpkg` verification also covers license and
+provenance files. Any verification output fails the check.
+
 Keep unsuccessful channels `not-published` or `deferred`, with no public
 installation claim. Before retrying, inspect the failed stage and retain the
 original immutable bundle when possible. Reuse of matching bytes is idempotent;
 a conflicting existing tag/package/revision requires investigation and a new
 packaging revision. Do not delete or silently replace the original evidence to
 make a retry appear successful.
+
+For post-publication failures, resume the frozen promotion using its original
+`promotion_run_id` and `promotion_run_attempt`; do not rebuild or re-sign the
+immutable release. A newly created GHCR package may require its one-time public
+visibility setting before anonymous pulls work. Correct that visibility and
+repeat the anonymous checks rather than adding registry credentials to them.
+For HTTPS APT failures, inspect the Pages deployment, hosted key fingerprint,
+signed index and package URL first, then rerun the site check after fixing the
+delivery problem. Preserve the frozen publication bytes throughout recovery.
 
 Rollback selects a previously verified version/revision/digest, never rewrites
 an immutable object. Test downgrade and interruption recovery per channel.

@@ -8,10 +8,12 @@ installation identity, architecture mapping, immutable input identity or trust
 requirements require a new contract version and review.
 
 The initial packaging input is the already-qualified **SDK 10.0.403** release.
-This contract prepares downstream packages and images; it does not publish them
-or establish package-install or consumer-image compatibility. All proposed
-targets remain unqualified until their complete downstream tests and promotion
-gates pass. [Issue #7](https://github.com/dotnetdev-kr/cbodotnet/issues/7) supplies
+This contract defines preparation rules; successful planning alone does not
+authorize publication. SDK 10.0.403's published APT and OCI targets are recorded
+with native and public verification evidence in
+[distribution status](../releases/downstream-status.json). Additional targets
+require their own complete downstream gates.
+[Issue #7](https://github.com/dotnetdev-kr/cbodotnet/issues/7) supplies
 those shared gates; [OCI #3](https://github.com/dotnetdev-kr/cbodotnet/issues/3),
 [APT #4](https://github.com/dotnetdev-kr/cbodotnet/issues/4),
 [RPM #5](https://github.com/dotnetdev-kr/cbodotnet/issues/5) and
@@ -187,11 +189,11 @@ architectures rather than selecting a default. AUR delivery remains deferred;
 its initial proposed test target is Arch Linux `x86_64`. The `aarch64` mapping does
 not qualify Arch Linux ARM. Never use architecture `any` for these native SDKs.
 
-| Channel | Candidate target | Initial SDK/architectures | Current status |
+| Channel | Target | Initial SDK/architectures | Current status |
 | --- | --- | --- | --- |
-| Debian package | Ubuntu 24.04 | 10.0.403, `amd64` and `arm64` | Preparation only; package installation unqualified |
-| Debian package | Debian 13 | 10.0.403, `amd64` and `arm64` | Preparation only; package installation unqualified |
-| OCI | Debian 13, variant `debian13` | 10.0.403, `linux/amd64` and `linux/arm64` | Preparation only; consumer image unqualified |
+| Debian package | Ubuntu 24.04 | 10.0.403, `amd64` and `arm64` | Published; native lifecycle and public repository checks passed |
+| Debian package | Debian 13 | 10.0.403, `amd64` and `arm64` | Published; native lifecycle and public repository checks passed |
+| OCI | Debian 13, variant `debian13` | 10.0.403, `linux/amd64` and `linux/arm64` | Published; native image and anonymous digest-pull checks passed |
 | RPM | No selected Fedora/RHEL target | None | Deferred pending dependency and installation testing |
 | AUR | Arch Linux `x86_64` proposed | None | Deferred pending Arch testing and maintainer publication |
 
@@ -301,9 +303,12 @@ plan or checksum check cannot be relabeled as a successful package installation.
 
 ## Channel trust, corrections and rollback
 
-No distribution signing key, repository endpoint, AUR maintainer identity or
-public OCI image is created by this specification. Before enabling a channel,
-publish its real verification identity and establish the following trust model:
+APT metadata and downstream manifests use the
+[approved distribution signing identity](distribution-signing.md). Published
+endpoints, immutable image digests and verification receipts are recorded in
+[distribution status](../releases/downstream-status.json). RPM/AUR require
+separate target admission before availability is declared. Every enabled
+channel follows this trust model:
 
 | Channel | Required verification and source linkage |
 | --- | --- |
@@ -384,20 +389,30 @@ The [recorded foundation run](distribution-contract-validation.json) on
 payload preservation, missing-host failure and removal preserved the official
 installation. The existing verifier also passed console DLL/apphost, HTTP,
 crypto and globalization checks. The planned Ubuntu 24.04 variant in that run
-is preparation metadata; Ubuntu 22.04.5 is the actual tested user space. Native
-x64 and Ubuntu 24.04 workflow execution remains a CI check, not a local result.
+is preparation metadata; Ubuntu 22.04.5 is the actual tested user space.
 The version 2 run additionally passed both native command names and all three
 OCI command names in separate private prefixes, including branding, exact
 numeric version stdout, JSON provenance and SDK payload preservation. This
 tests the OCI command layout with the real SDK, not a built consumer image.
-It is a foundation test; each future `.deb`, RPM, AUR recipe and consumer image
-must still exercise its own real installation, upgrade, removal and publication
-path. The standard repository tests cover contract acceptance and rejection;
-their passing status does not grant downstream compatibility.
 
-Until those channel-specific gates pass, README/site install instructions must
-continue to show only available verified downloads. Do not publish proposed
-APT/DNF/AUR commands, repository keys or image tags as working installation
-options. Add copyable channel instructions only with the published verification
-identity, actual supported matrix, source links, lifecycle limits, selection,
-uninstall and rollback procedure.
+Real package/image qualification is separate from those historical foundation
+results. Native jobs in
+[the initial delivery run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41765223368)
+passed the Ubuntu 24.04/Debian 13 APT installation lifecycle and Debian 13 OCI
+checks on x64 and AArch64. The
+[public recovery and verification run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41772357482)
+reused the exact frozen signed publication bytes, verified anonymous native OCI
+digest pulls and installed the published signed APT archives on the complete
+matrix. The status finalizer authenticated those receipts and refreshed Pages;
+[hosted HTTPS APT verification](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41773673150)
+then passed all four native OS/architecture targets, including strict installed
+file verification. The four reports are preserved in the
+[public installation record](distribution-publication-validation.json).
+Immutable source/command/artifact bindings and public archive/image results
+are retained in [distribution status](../releases/downstream-status.json).
+
+Copyable instructions expose only channels marked published after complete
+native and public verification. Each additional SDK/target, including RPM/AUR,
+requires its own installation, lifecycle, dependency and publication gates.
+Include the signing identity, source links, lifecycle limits, selection,
+uninstall and rollback procedure with every published channel.
