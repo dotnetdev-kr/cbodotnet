@@ -227,7 +227,7 @@ jobs:
   finalize:
     name: Activate verified distribution availability and refresh Pages
     needs: [publish, postverify]
-    if: needs.publish.result == 'success' && needs.postverify.result == 'success' && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    if: always() && needs.publish.result == 'success' && needs.postverify.result == 'success' && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     permissions:
@@ -259,7 +259,7 @@ jobs:
   postverify:
     name: Anonymous digest pull and non-root smoke on ${{ matrix.arch }}
     needs: publish
-    if: needs.publish.result == 'success'
+    if: always() && needs.publish.result == 'success'
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 35
     strategy:
