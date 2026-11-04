@@ -529,6 +529,8 @@ jobs:
           path: ${{ runner.temp }}/publication
       - name: Pull the published index by digest with no registry credentials
         env:
+          # REST source metadata only; public assets/pulls carry no credentials.
+          GH_TOKEN: ${{ github.token }}
           ARCH: ${{ matrix.arch }}
           CHANNEL: ${{ inputs.channel || 'deb-oci' }}
         run: |
@@ -763,6 +765,8 @@ jobs:
           path: ${{ runner.temp }}/rpm-publication
       - name: Install and execute the anonymously downloaded signed RPM repositories
         env:
+          # REST source metadata only; public RPM/repository downloads stay anonymous.
+          GH_TOKEN: ${{ github.token }}
           ARCH: ${{ matrix.arch }}
         run: |
           python3 scripts/rpm-ci.py postverify --receipt "$RUNNER_TEMP/rpm-publication/rpm-publication.json" \
