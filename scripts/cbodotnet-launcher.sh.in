@@ -1,0 +1,26 @@
+#!/bin/sh
+# Explicit, isolated SDK selection; never resolve dotnet through PATH.
+unset DOTNET_ROOT_X64 DOTNET_ROOT_ARM64 DOTNET_ROOT_X86
+DOTNET_ROOT=@ROOT@
+@ARCH_ROOT@="$DOTNET_ROOT"
+DOTNET_HOST_PATH="$DOTNET_ROOT/dotnet"
+DOTNET_MULTILEVEL_LOOKUP=0
+export DOTNET_ROOT @ARCH_ROOT@ DOTNET_HOST_PATH DOTNET_MULTILEVEL_LOOKUP
+if [ ! -d "$DOTNET_ROOT" ] || [ -L "$DOTNET_ROOT" ] \
+    || [ ! -f "$DOTNET_ROOT/dotnet" ] || [ ! -x "$DOTNET_ROOT/dotnet" ] || [ -L "$DOTNET_ROOT/dotnet" ]; then
+    printf '%s\n' 'cbodotnet: the selected SDK host is missing or cannot execute' >&2
+    exit 127
+fi
+if [ "$#" -eq 0 ]; then
+    printf '%s\n' @BRAND@
+elif [ "$#" -eq 1 ]; then
+    case "$1" in
+        --version) printf '%s\n' @BRAND@ >&2 ;;
+        --info|--help|-h|help) printf '%s\n' @BRAND@ ;;
+        --cbodotnet-info)
+            printf '%s\n' @BRANDING_JSON@
+            exit 0
+            ;;
+    esac
+fi
+exec "$DOTNET_ROOT/dotnet" "$@"

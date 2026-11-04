@@ -209,9 +209,17 @@ class CatalogTests(unittest.TestCase):
             template = source / "index.html.in"
             template.write_text((ROOT / "site/index.html.in").read_text(encoding="utf-8"), encoding="utf-8")
             output = directory / "published"
-            CATALOG.write_site(catalog, template, output)
+            empty_status = {"schemaVersion": 1, "repository": REPOSITORY, "status": "fixture",
+                            "channels": {name: {"status": "not-published", "publications": []}
+                                         for name in ("deb", "oci", "rpm", "aur")}}
+            with mock.patch("distribution_site.prepare_site", return_value=empty_status):
+                CATALOG.write_site(catalog, template, output)
             self.assertEqual(image, (output / "assets/social-card.jpg").read_bytes())
             self.assertEqual(catalog, json.loads((output / "releases.json").read_text(encoding="utf-8")))
+            availability = json.loads((output / "downstream-status.json").read_text(encoding="utf-8"))
+            self.assertEqual({"deb", "oci", "rpm", "aur"}, set(availability["channels"]))
+            self.assertTrue(all(row["publications"] == [] for row in availability["channels"].values()))
+            self.assertNotIn("evidenceSigners", availability)
             self.assertTrue((output / ".nojekyll").is_file())
             document = (output / "index.html").read_text(encoding="utf-8")
             self.assertIn('property="og:image" content="https://dotnetdev.kr/cbodotnet/assets/social-card.jpg"', document)
@@ -228,6 +236,22 @@ class CatalogTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Missing site social-card image"):
                 CATALOG.write_site(catalog, template, Path(temporary) / "published")
             self.assertFalse((Path(temporary) / "published").exists())
+
+    def test_unverified_channel_claim_prevents_website_promotion(self):
+        catalog = CATALOG.build_catalog([], lambda *_: self.fail("Unexpected fetch"), REPOSITORY)
+        policy = json.loads((ROOT / "releases/downstream-status.json").read_text())
+        for row in policy["channels"].values():
+            row.update(status="not-published", publications=[], receipts=[])
+        policy["channels"]["oci"].update(status="published", publisherConfigured=True,
+                                           publications=[{"url": "https://example.com/unverified"}])
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            (directory / "releases").mkdir()
+            (directory / "releases/downstream-status.json").write_text(json.dumps(policy))
+            with mock.patch.object(CATALOG, "ROOT", directory):
+                with self.assertRaisesRegex(ValueError, "verified publication adapters"):
+                    CATALOG.write_site(catalog, ROOT / "site/index.html.in", directory / "published")
+            self.assertFalse((directory / "published").exists())
 
     def test_metadata_fetch_never_sends_credentials_to_download_links(self):
         with mock.patch.object(CATALOG.urllib.request, "urlopen") as opener:

@@ -1,0 +1,120 @@
+name: Distribution contract coexistence
+
+on:
+  pull_request:
+    paths:
+      - 'releases/distribution-contract.json'
+      - 'releases/qualified-builds.json'
+      - 'scripts/distribution*'
+      - 'scripts/release_catalog.py'
+      - 'scripts/verify-sdk.sh'
+      - 'scripts/cbodotnet-launcher.sh.in'
+      - 'scripts/cbodotnet-default.sh.in'
+      - 'scripts/downstream*'
+      - 'releases/downstream-status.json'
+      - 'scripts/test-distribution-coexistence.py'
+      - '.github/workflows/distribution-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'releases/distribution-contract.json'
+      - 'releases/qualified-builds.json'
+      - 'scripts/distribution*'
+      - 'scripts/release_catalog.py'
+      - 'scripts/verify-sdk.sh'
+      - 'scripts/cbodotnet-launcher.sh.in'
+      - 'scripts/cbodotnet-default.sh.in'
+      - 'scripts/downstream*'
+      - 'releases/downstream-status.json'
+      - 'scripts/test-distribution-coexistence.py'
+      - '.github/workflows/distribution-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: distribution-contract-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  coexistence:
+    name: Native ${{ matrix.arch }} launcher coexistence
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: '10.0.100'
+      - name: Receive the published qualified SDK and release metadata
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          mkdir "$RUNNER_TEMP/contract-inputs"
+          base=https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403
+          curl --fail --location --retry 3 https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/tags/sdk-10.0.403 -o "$RUNNER_TEMP/contract-inputs/release.json"
+          for name in release-manifest.json SHA256SUMS "cbodotnet-sdk-10.0.403-linux-$ARCH.tar.gz"; do
+            curl --fail --location --retry 3 "$base/$name" -o "$RUNNER_TEMP/contract-inputs/$name"
+          done
+      - name: Verify non-root use, host isolation, unchanged official SDK and removal
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          python3 scripts/test-distribution-coexistence.py \
+            --release-json "$RUNNER_TEMP/contract-inputs/release.json" \
+            --manifest "$RUNNER_TEMP/contract-inputs/release-manifest.json" \
+            --checksums "$RUNNER_TEMP/contract-inputs/SHA256SUMS" \
+            --sdk-archive "$RUNNER_TEMP/contract-inputs/cbodotnet-sdk-10.0.403-linux-$ARCH.tar.gz" \
+            --official-dotnet "$(command -v dotnet)" --arch "$ARCH" \
+            --work-dir "$RUNNER_TEMP/contract-coexistence"
+      - name: Recheck archive bytes and console, HTTP, crypto and globalization
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          verify_arch=$ARCH
+          if [[ $ARCH == aarch64 ]]; then verify_arch=arm64; fi
+          bash scripts/verify-sdk.sh \
+            --archive "$RUNNER_TEMP/contract-inputs/cbodotnet-sdk-10.0.403-linux-$ARCH.tar.gz" \
+            --expected-version 10.0.403 --expected-rid "linux-$verify_arch" \
+            --arch "$verify_arch" --framework net10.0 --max-glibc 2.27 \
+            --output-dir "$RUNNER_TEMP/contract-verification"
+      - name: Verify all three container commands in a separate private prefix
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          python3 scripts/test-distribution-coexistence.py \
+            --release-json "$RUNNER_TEMP/contract-inputs/release.json" \
+            --manifest "$RUNNER_TEMP/contract-inputs/release-manifest.json" \
+            --checksums "$RUNNER_TEMP/contract-inputs/SHA256SUMS" \
+            --sdk-archive "$RUNNER_TEMP/contract-inputs/cbodotnet-sdk-10.0.403-linux-$ARCH.tar.gz" \
+            --official-dotnet "$(command -v dotnet)" --arch "$ARCH" --mode oci \
+            --work-dir "$RUNNER_TEMP/contract-oci-commands"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: distribution-contract-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/contract-coexistence/coexistence.json
+            ${{ runner.temp }}/contract-coexistence/restore.txt
+            ${{ runner.temp }}/contract-coexistence/build.txt
+            ${{ runner.temp }}/contract-coexistence/command-inventory.json
+            ${{ runner.temp }}/contract-oci-commands/coexistence.json
+            ${{ runner.temp }}/contract-oci-commands/command-inventory.json
+            ${{ runner.temp }}/contract-verification/
+          if-no-files-found: error
+          retention-days: 14

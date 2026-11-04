@@ -12,6 +12,9 @@ on:
       - site/**
       - scripts/release-catalog.py
       - scripts/release_catalog.py
+      - releases/downstream-status.json
+      - releases/downstream-signing-key.asc
+      - scripts/distribution_site.py
       - .github/workflows/pages.yml
 
 permissions:

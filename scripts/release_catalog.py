@@ -210,7 +210,8 @@ def build_catalog(releases, fetch_asset, repository, generated_at=None):
             datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"), "releases": records}
 
 
-def render_html(catalog, template):
+def render_html(catalog, template, downstream_status=None):
+    from distribution_site import render_channels
     escape = html.escape
     rows = []
     for release in catalog["releases"]:
@@ -230,6 +231,7 @@ def render_html(catalog, template):
     if not rows:
         rows.append('<tr><td colspan="4">No complete public builds are available yet.</td></tr>')
     replacements = {"{{DOWNLOAD_ROWS}}": "\n".join(rows), "{{GENERATED_AT}}": escape(catalog["generatedAt"]),
+                    "{{DOWNSTREAM_CHANNELS}}": render_channels(downstream_status or {}),
                     "{{REPOSITORY_URL}}": "https://github.com/" + escape(catalog["repository"], quote=True)}
     for key, value in replacements.items():
         require(template.count(key) >= 1, "Missing site template placeholder: " + key)
@@ -244,9 +246,13 @@ def write_site(catalog, template_path, output_dir):
     require(assets.is_dir() and (assets / "social-card.jpg").is_file(), "Missing site social-card image")
     require(not assets.is_symlink() and not any(path.is_symlink() for path in assets.rglob("*")),
             "Site assets must not contain symbolic links")
+    policy = json.loads((ROOT / "releases/downstream-status.json").read_text(encoding="utf-8"))
+    from distribution_site import prepare_site
+    public_status = prepare_site(policy, output_dir, ROOT / "releases/downstream-signing-key.asc")
     output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / "index.html").write_text(render_html(catalog, template_path.read_text(encoding="utf-8")), encoding="utf-8")
+    (output_dir / "index.html").write_text(render_html(catalog, template_path.read_text(encoding="utf-8"), public_status), encoding="utf-8")
     (output_dir / "releases.json").write_text(json.dumps(catalog, indent=2) + "\n", encoding="utf-8")
+    (output_dir / "downstream-status.json").write_text(json.dumps(public_status, indent=2) + "\n", encoding="utf-8")
     (output_dir / ".nojekyll").write_text("", encoding="utf-8")
     shutil.copytree(assets, output_dir / "assets", dirs_exist_ok=True)
 
