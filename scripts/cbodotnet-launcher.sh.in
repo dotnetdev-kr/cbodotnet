@@ -1,5 +1,6 @@
 #!/bin/sh
 # Explicit, isolated SDK selection; never resolve dotnet through PATH.
+@COMPATIBILITY_ENV@
 unset DOTNET_ROOT_X64 DOTNET_ROOT_ARM64 DOTNET_ROOT_X86
 DOTNET_ROOT=@ROOT@
 @ARCH_ROOT@="$DOTNET_ROOT"

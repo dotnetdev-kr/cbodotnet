@@ -199,6 +199,7 @@ class DownstreamPublishTests(unittest.TestCase):
     def test_rpm_backend_uses_the_same_signed_immutable_publication_protocol(self):
         # The backend is channel-independent. This synthetic admission exercises
         # RPM publication without claiming a real RPM distribution qualification.
+        self.fixture.contract['releases'] = {'10.0.403': self.fixture.contract['releases']['10.0.403']}
         self.fixture.contract['channels']['rpm'] = {'status': 'preparation-only', 'variants': ['debian-13']}
         self.policy['channels']['rpm'] = copy.deepcopy(self.policy['channels']['deb'])
         for item in self.fixture.items:

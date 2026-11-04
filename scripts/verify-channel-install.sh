@@ -16,7 +16,7 @@ esac
 if [[ $phase == prepare ]]; then
   export DEBIAN_FRONTEND=noninteractive
   apt-get update -qq
-  apt-get install -y --no-install-recommends python3 curl ca-certificates util-linux passwd binutils gnupg \
+  apt-get install -y --no-install-recommends python3 curl ca-certificates util-linux passwd binutils gnupg gpgv rpm rpm2cpio \
     libc6 libgcc-s1 libstdc++6 zlib1g libgssapi-krb5-2 "$icu" "$ssl"
 elif [[ $phase == lifecycle ]]; then
   [[ $(ls /sys/class/net) == lo ]] || { echo 'Runtime validation requires Docker --network none.' >&2; exit 2; }

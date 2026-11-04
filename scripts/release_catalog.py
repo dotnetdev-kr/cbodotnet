@@ -220,7 +220,7 @@ def render_html(catalog, template, downstream_status=None):
         for arch in ("x64", "aarch64"):
             entry = release["architectures"][arch]
             links = []
-            for kind, label in (("sdk", "tar.gz"), ("source", "source"), ("evidence", "evidence")):
+            for kind, label in (("sdk", "experimental unbranded tar.gz"), ("source", "source"), ("evidence", "evidence")):
                 asset = entry[kind]
                 links.append('<a href="' + escape(asset["url"], quote=True) + '">' + label + '</a>')
             cells.append('<td>' + ' &middot; '.join(links) + '<br><small>' +

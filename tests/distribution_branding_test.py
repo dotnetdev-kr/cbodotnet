@@ -51,6 +51,10 @@ class DistributionBrandingTests(unittest.TestCase):
             'esac\n', encoding='utf-8')
         host.chmod(0o755)
         launcher = sdk.parent / (sdk.name + '-launcher')
+        if plan is None:
+            admitted = CONTRACT.load_contract()['releases']['10.0.403']
+            plan = dict(sdkVersion='10.0.403', sourceReleaseTag='sdk-10.0.403',
+                        sourceManifestSha256=admitted['manifestSha256'], packageRevision=1)
         launcher.write_text(CONTRACT.launcher_text(str(sdk), arch, plan=plan), encoding='utf-8')
         launcher.chmod(0o755)
         return launcher

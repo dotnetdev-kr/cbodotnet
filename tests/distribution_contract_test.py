@@ -226,6 +226,21 @@ class DistributionContractTests(unittest.TestCase):
                                            'deb', 'debian-13', 'x64', contract=self.contract,
                                            catalog=self.catalog)
 
+    def test_each_reviewed_source_has_independent_candidate_targets_without_qualification(self):
+        contract = CONTRACT.load_contract()
+        self.assertEqual(8, len(contract['releases']))
+        for version in contract['releases']:
+            for channel, policy in contract['channels'].items():
+                for variant in policy['variants']:
+                    CONTRACT.candidate_target(contract, version, channel, variant, 'x64')
+        self.assertEqual([], contract['qualification']['publishedChannels'])
+        contract['releases']['8.0.133']['channelTargets']['rpm'] = []
+        with self.assertRaisesRegex(ValueError, 'candidate qualification'):
+            CONTRACT.candidate_target(contract, '8.0.133', 'rpm', 'fedora-45', 'x64')
+        del contract['releases']['3.1.426']['compatibilityProvider']
+        with self.assertRaisesRegex(ValueError, 'separately recorded'):
+            CONTRACT.candidate_target(contract, '3.1.426', 'deb', 'debian-13', 'x64')
+
 
 class DistributionExtractionTests(unittest.TestCase):
     def setUp(self):

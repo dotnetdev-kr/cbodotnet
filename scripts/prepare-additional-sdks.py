@@ -89,9 +89,9 @@ def validate_preparation(data, contract=None, catalog=None):
     require(data.get('parentEpic') == dict(issueNumber=12, issueUrl=f'https://github.com/{REPOSITORY}/issues/12'),
             'Preparation parent epic differs from the registered work')
     require(data['currentContract']['path'] == 'releases/distribution-contract.json'
-            and data['currentContract']['sha256'] == checkout_text_digest(ROOT / 'releases/distribution-contract.json')
-            and data['currentContract']['admittedSdkVersions'] == list(contract['releases']),
-            'Production contract changed; refresh preparation without admitting releases')
+            and data['currentContract']['sha256'] == '871fe583933028cb35686de69f05da695bb06803fef20be2e7d5ee8e59fd621d'
+            and data['currentContract']['admittedSdkVersions'] == ['10.0.403'],
+            'Historical preparation contract snapshot changed')
     gates = data['gateDefinitions']
     for sdk in sdks:
         version = sdk['sdkVersion']
@@ -100,8 +100,12 @@ def validate_preparation(data, contract=None, catalog=None):
         require(issue.get('issueNumber') == SDK_ISSUES[version]
                 and issue.get('issueUrl') == f'https://github.com/{REPOSITORY}/issues/{SDK_ISSUES[version]}'
                 and issue.get('registrationStatus') == 'registered', 'Preparation SDK issue differs from its registered work')
-        require(version not in contract['releases'] and sdk.get('currentContractAdmission') is False
-                and sdk.get('channelQualification') == 'not-run', 'An additional SDK is already admitted or claims execution')
+        require(sdk.get('currentContractAdmission') is False and sdk.get('channelQualification') == 'not-run',
+                'Historical preparation must not claim execution or admission')
+        if version in contract['releases']:
+            require(contract['releases'][version]['manifestSha256'] == MANIFEST_PINS[version]
+                    and contract['releases'][version]['target'] == sdk['target'],
+                    'Current contract source differs from reviewed preparation')
         manifest = sdk['publicRelease']['manifest']
         raw = (json.dumps(manifest['document'], indent=2) + '\n').encode('utf-8')
         require(manifest.get('sha256') == MANIFEST_PINS[version]

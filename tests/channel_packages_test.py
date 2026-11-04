@@ -30,25 +30,26 @@ class ChannelPackagesTests(unittest.TestCase):
         self.addCleanup(self.temporary.cleanup)
         self.directory = Path(self.temporary.name)
 
-    def fixture(self, arch='x64', channel='deb', revision=1):
-        archive = self.directory / ('cbodotnet-sdk-10.0.403-linux-' + arch + '.tar.gz')
+    def fixture(self, arch='x64', channel='deb', revision=1, version='10.0.403'):
+        series = '.'.join(version.split('.')[:2])
+        archive = self.directory / ('cbodotnet-sdk-' + version + '-linux-' + arch + '.tar.gz')
         with tarfile.open(archive, 'w:gz') as output:
-            for name, content, mode in [('dotnet', b'#!/bin/sh\nprintf "10.0.403\\n"\n', 0o755),
+            for name, content, mode in [('dotnet', ('#!/bin/sh\nprintf "' + version + '\\n"\n').encode(), 0o755),
                                          ('LICENSE.txt', b'Original license bytes\n', 0o644),
                                          ('ThirdPartyNotices.txt', b'Original notice bytes\n', 0o644),
-                                         ('sdk/10.0.403/reference.dll', b'qualified-managed-bytes', 0o644)]:
+                                         ('sdk/' + version + '/reference.dll', b'qualified-managed-bytes', 0o644)]:
                 entry = tarfile.TarInfo(name)
                 entry.size, entry.mode = len(content), mode
                 output.addfile(entry, io.BytesIO(content))
         plan = {'schemaVersion': 1, 'contractVersion': 2, 'status': 'prepared-unqualified', 'publicationAllowed': False,
-                'sdkVersion': '10.0.403', 'channel': channel, 'variant': 'debian-13', 'packageRevision': revision,
+                'sdkVersion': version, 'channel': channel, 'variant': 'debian-13', 'packageRevision': revision,
                 'architecture': copy.deepcopy(ARCHITECTURES[arch]), 'targetRid': ARCHITECTURES[arch]['rid'],
-                'package': {'name': 'cbodotnet-sdk-10.0', 'version': f'10.0.403-{revision}',
-                            'root': '/opt/cbodotnet/10.0', 'launcher': '/usr/bin/cbodotnet-10.0'},
+                'package': {'name': 'cbodotnet-sdk-' + series, 'version': f'{version}-{revision}',
+                            'root': '/opt/cbodotnet/' + series, 'launcher': '/usr/bin/cbodotnet-' + series},
                 'sdk': {'name': archive.name, 'size': archive.stat().st_size, 'sha256': hashlib.sha256(archive.read_bytes()).hexdigest(),
-                        'url': 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/' + archive.name},
-                'sourceReleaseTag': 'sdk-10.0.403', 'sourceManifestSha256': 'a' * 64,
-                'sourceManifestUrl': 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json',
+                        'url': 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-' + version + '/' + archive.name},
+                'sourceReleaseTag': 'sdk-' + version, 'sourceManifestSha256': 'a' * 64,
+                'sourceManifestUrl': 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-' + version + '/release-manifest.json',
                 'source': {'url': 'https://example.invalid/qualified-source.tar.gz', 'sha256': 'c' * 64},
                 'evidence': {'url': 'https://example.invalid/qualified-evidence.tar.gz', 'sha256': 'd' * 64},
                 'licensePaths': ['LICENSE.txt', 'ThirdPartyNotices.txt'], 'additionalDirectories': ['metadata'],
@@ -134,6 +135,37 @@ class ChannelPackagesTests(unittest.TestCase):
             result = PACKAGES.build_deb(plan, archive, output)
             digests.append(next(row['sha256'] for row in result['packages'] if row['kind'] == 'host'))
         self.assertEqual(digests[0], digests[1])
+
+    @unittest.skipUnless(shutil.which('dpkg-deb'), 'dpkg-deb is required')
+    def test_all_sdk_series_keep_separate_package_roots_and_one_shared_selector(self):
+        common_digests, roots = set(), set()
+        for version in ('10.0.403', '9.0.123', '8.0.133', '7.0.120', '6.0.136', '5.0.214', '3.1.426', '3.0.103'):
+            with self.subTest(version=version):
+                plan, archive = self.fixture(version=version)
+                output = self.directory / ('deb-' + version)
+                if version.startswith(('5.', '3.')):
+                    with self.assertRaisesRegex(ValueError, 'explicit authenticated compatibility'):
+                        PACKAGES.build_deb(plan, archive, output)
+                    self.assertFalse(output.exists())
+                    PACKAGES.stage_payload(plan, archive, output)
+                    roots.add(plan['package']['root'])
+                    actual = output / 'rootfs' / plan['package']['root'].lstrip('/')
+                    self.assertEqual(b'qualified-managed-bytes', (actual / 'sdk' / version / 'reference.dll').read_bytes())
+                    continue
+                result = PACKAGES.build_deb(plan, archive, output)
+                common_digests.add(next(row['sha256'] for row in result['packages'] if row['kind'] == 'host'))
+                sdk_row = next(row for row in result['packages'] if row['kind'] == 'sdk')
+                control = subprocess.check_output(['dpkg-deb', '--field', str(output / sdk_row['path'])], text=True)
+                self.assertIn('Package: ' + plan['package']['name'] + '\n', control)
+                self.assertIn('SDK ' + version, control)
+                roots.add(plan['package']['root'])
+                actual = output / 'deb-verified' / plan['package']['root'].lstrip('/')
+                self.assertEqual(b'qualified-managed-bytes', (actual / 'sdk' / version / 'reference.dll').read_bytes())
+                self.assertFalse((output / 'deb-verified/usr/bin/dotnet').exists())
+                self.assertTrue((output / 'deb-verified' / plan['package']['launcher'].lstrip('/')).is_file())
+                self.assertTrue(result['payloadPreserved'])
+        self.assertEqual(8, len(roots))
+        self.assertEqual(1, len(common_digests))
 
     def test_rpm_and_aur_adapters_require_reviewed_native_dependency_policies(self):
         plan, archive = self.fixture(channel='rpm')

@@ -14,6 +14,7 @@ import tempfile
 import urllib.request
 
 from distribution_contract import load_contract
+from sdk_runtime import runtime_policy, smoke_script, validate_host_rid, validate_smoke_output
 from downstream_release import (encoded, local_intake, package_record, receive_release,
                                 PREPUBLICATION_CHECKS, verify_report_signature, load_status)
 
@@ -71,8 +72,10 @@ def validate_target(plan, release=None, machine=None):
 
 def package_paths(delivery, directory='packages'):
     values = sorted((Path(delivery) / directory).glob('*.rpm'))
-    require(len(values) == 2 and sum(path.name.startswith('cbodotnet-host-') for path in values) == 1,
-            'Both SDK and common-host RPMs are required')
+    require(len(values) in {2, 3} and sum(path.name.startswith('cbodotnet-host-') for path in values) == 1
+            and sum(path.name.startswith('cbodotnet-sdk-') for path in values) == 1
+            and sum(path.name.startswith('cbodotnet-compat-rocky9-') for path in values) == len(values) - 2,
+            'SDK, common-host and any reviewed compatibility RPMs are required')
     return values
 
 
@@ -85,10 +88,15 @@ def required_package_identities(plan, revision=None):
     release = plan['package']['rpmRelease']
     match = re.fullmatch(r'[1-9][0-9]*(\.cbot\.[a-z0-9.]+)', release)
     require(match is not None, 'Reviewed RPM release format is required')
-    return {
+    result = {
         plan['package']['name']: [plan['sdkVersion'], str(revision) + match[1], plan['architecture']['rpm']],
         'cbodotnet-host': ['1.0.0', '1' + match[1], 'noarch'],
     }
+    if runtime_policy(plan['sdkVersion'], 'x64')['legacy']:
+        from legacy_compat import load_policy
+        provider = load_policy()
+        result[provider['packageName']] = [provider['version'], '1' + match[1], plan['architecture']['rpm']]
+    return result
 
 
 def package_identities(plan, revision=None):
@@ -150,12 +158,13 @@ def repository_options(enabled=None):
     return values
 
 
-def as_user(arguments, cwd=Path('/home/cbot-smoke')):
+def as_user(arguments, cwd=Path('/home/cbot-smoke'), runtime_env=None):
     return run(['runuser', '-u', 'cbot-smoke', '--', 'env', 'PATH=' + PATH,
                 'HOME=/home/cbot-smoke', 'DOTNET_CLI_HOME=/home/cbot-smoke',
                 'NUGET_PACKAGES=/home/cbot-smoke/.nuget/packages', 'DOTNET_CLI_TELEMETRY_OPTOUT=1',
                 'DOTNET_NOLOGO=1', 'DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1', 'DOTNET_CLI_UI_LANGUAGE=en',
-                'DOTNET_CLI_WORKLOAD_UPDATE_NOTIFY_DISABLE=1', *map(str, arguments)], cwd=cwd)
+                'DOTNET_CLI_WORKLOAD_UPDATE_NOTIFY_DISABLE=1',
+                *[name + '=' + value for name, value in (runtime_env or {}).items()], *map(str, arguments)], cwd=cwd)
 
 
 def observed_dependencies(plan):
@@ -181,8 +190,10 @@ def check_aliases(plan):
                 and identity['sourceManifestSha256'] == plan['sourceManifestSha256'] and identity['sdkRoot'] == root,
                 'RPM alias selected another qualified root/revision')
         info = as_user([command, '--info'])
-        require(info.startswith(BRAND + '\n') and root in info and plan['targetRid'] in info,
+        require(info.startswith(BRAND + '\n') and root in info,
                 'RPM alias host/runtime information differs from the expected root')
+        validate_host_rid(info, plan['sdkVersion'], plan['architecture']['public'], plan['variant'])
+        SHARED.validate_sdk_listing(as_user([command, '--list-sdks']), plan['sdkVersion'], root)
 
 
 def source_payload(plan, delivery):
@@ -218,6 +229,10 @@ def prepare_installed(args):
     plan = load(delivery / 'plan.json')
     validate_target(plan)
     run(['useradd', '--create-home', '--uid', '10001', 'cbot-smoke'])
+    compatibility = None
+    if runtime_policy(plan['sdkVersion'], plan['architecture']['public'])['legacy']:
+        from legacy_compat import provision
+        compatibility = provision(plan, delivery, user='cbot-smoke')
     official = Path('/usr/share/dotnet')
     require(not official.exists(), 'Comparison official SDK root must be fresh')
     official.parent.mkdir(parents=True, exist_ok=True)
@@ -267,7 +282,8 @@ def prepare_installed(args):
     source_payload(plan, delivery)
     strict_integrity([plan['package']['name'], 'cbodotnet-host'])
     save(delivery / 'sdk-before.json', SHARED.inventory(Path(plan['package']['root'])))
-    save(delivery / 'installed-state.json', dict(published=published, osRelease=Path('/etc/os-release').read_text()))
+    save(delivery / 'installed-state.json', dict(published=published, osRelease=Path('/etc/os-release').read_text(),
+                                              compatibilityState=compatibility))
 
 
 def lifecycle(args):
@@ -283,12 +299,20 @@ def lifecycle(args):
     require(as_user(['dotnet', '--version']).strip() == '10.0.100', 'RPM installation replaced official dotnet selection')
     report = Path('/home/cbot-smoke/verification')
     arch = 'x64' if plan['architecture']['public'] == 'x64' else 'arm64'
+    policy = runtime_policy(plan['sdkVersion'], plan['architecture']['public'])
+    runtime_env = {}
+    if policy['legacy']:
+        from legacy_compat import runtime_environment, assert_unchanged as assert_compatibility
+        require(state.get('compatibilityState'), 'Prepared RPM compatibility provider state is missing')
+        runtime_env = runtime_environment(plan, state['compatibilityState'])
+    reported_rid = validate_host_rid(as_user(['cbodotnet', '--info']), plan['sdkVersion'], plan['architecture']['public'], plan['variant'])
+    functional = validate_smoke_output(as_user(['sh', '-ec', smoke_script(plan['sdkVersion'], str(root), 'cbot-smoke',
+                    cli='cbodotnet', workdir='/home/cbot-smoke/functional', runtime_env=runtime_env)]))
     as_user(['bash', ROOT / 'scripts/verify-sdk.sh', '--sdk-dir', root, '--output-dir', report,
-             '--expected-version', plan['sdkVersion'], '--expected-rid', plan['targetRid'], '--framework', 'net10.0',
-             '--max-glibc', '2.27', '--arch', arch])
+             '--expected-version', plan['sdkVersion'], '--expected-rid', reported_rid, '--framework', policy['framework'],
+             '--max-glibc', policy['maxGlibc'], '--arch', arch, '--no-smoke'], runtime_env=runtime_env)
     verification = load(report / 'verification.json')
-    require(verification['verificationStatus'] == 'passed' and verification['smokeStatus'] == 'passed', 'Installed RPM native SDK smoke failed')
-    require(all(value == 'passed' for value in verification['functionalChecks'].values()), 'Installed HTTP/crypto/globalization scenario failed')
+    require(verification['verificationStatus'] == 'passed' and verification['abi']['glibcCeilingPassed'], 'Installed RPM native SDK ABI verification failed')
     reports = delivery / 'reports'
     shutil.copytree(report, reports)
     native_libraries(plan, reports)
@@ -303,7 +327,7 @@ def lifecycle(args):
         check_aliases(upgraded)
         package_identities(plan, revision=plan['packageRevision'] + 1)
         require(SHARED.inventory(root) == load(delivery / 'sdk-before.json'), 'RPM upgrade changed SDK payload')
-        original_sdk = [path for path in package_paths(delivery) if not path.name.startswith('cbodotnet-host-')]
+        original_sdk = [path for path in package_paths(delivery) if path.name.startswith('cbodotnet-sdk-')]
         local_transaction(original_sdk, action='downgrade')
         check_aliases(plan)
         package_identities(plan)
@@ -324,8 +348,10 @@ def lifecycle(args):
         checks.update(upgrade='verified-before-publication', rollback='verified-before-publication')
     result = dict(schemaVersion=1, status='passed', target=dict(osId=target['id'], versionId=target['versionId'],
         architecture=plan['architecture']['public'], native=True, dependencies=dependencies, osRelease=state['osRelease']),
-        checks=checks, functionalChecks=verification['functionalChecks'], abi=verification['abi'], networkForBuild='none')
+        checks=checks, functionalChecks=functional, runtimePolicy=policy, abi=verification['abi'], networkForBuild='none')
     result['packageIdentities'] = load(delivery / 'installed-package-identities.json')
+    if runtime_env:
+        result['compatibilityProvider'] = assert_compatibility(state['compatibilityState'])
     save(delivery / 'installation-result.json', result)
     # Only evidence ownership changes; never SDK payload modes or package bytes.
     uid, gid = (int(value) for value in os.environ.get('BUILDER_OWNER', '1001:1001').split(':'))
@@ -337,13 +363,22 @@ def build_in_container(args):
     delivery = args.delivery.resolve()
     plan = load(delivery / 'plan.json')
     validate_target(plan)
+    compatibility_args = []
+    if runtime_policy(plan['sdkVersion'], plan['architecture']['public'])['legacy']:
+        from legacy_compat import build_provider
+        output = delivery / 'compatibility-build'
+        build_provider(plan['architecture']['public'], output, variant=plan['variant'])
+        compatibility_args = ['--compatibility-build', output / 'provider-build.json']
     for revision, name in [(plan['packageRevision'], 'build'), (plan['packageRevision'] + 1, 'upgrade-build')]:
         progress('build ' + plan['variant'] + ' RPM revision ' + str(revision))
         run(['python3', ROOT / 'scripts/package-sdk.py', '--inputs', '/delivery/inputs', '--channel', 'rpm',
-             '--variant', plan['variant'], '--arch', plan['architecture']['public'], '--revision', revision, '--output', delivery / name])
+             '--variant', plan['variant'], '--arch', plan['architecture']['public'], '--revision', revision, '--output', delivery / name,
+             *compatibility_args])
         directory = delivery / ('packages' if name == 'build' else 'upgrade')
         directory.mkdir()
         for path in (delivery / name).glob('*.rpm'):
+            shutil.copy2(path, directory / path.name)
+        for path in (delivery / name).glob('cbodotnet-compat-*.tar.gz'):
             shutil.copy2(path, directory / path.name)
         shutil.copy2(delivery / name / 'package-build.json', directory / 'package-build.json')
     SHARED.copy_commands(delivery / 'build', delivery / 'commands')

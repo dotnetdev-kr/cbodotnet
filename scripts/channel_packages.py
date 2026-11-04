@@ -123,8 +123,32 @@ def control(root, fields):
     (directory / 'md5sums').write_text(''.join(sums), encoding='ascii')
 
 
-def build_deb(plan, archive, output):
+def compatibility_input(plan, prepared, channel):
+    from legacy_compat import required, verified_build
+    if required(plan):
+        require(prepared is not None, 'Legacy SDK packaging requires an explicit authenticated compatibility build')
+        return verified_build(prepared, plan, channel)
+    require(prepared is None, 'Modern SDK packaging does not accept a legacy compatibility provider')
+    return None
+
+
+def attach_compatibility(result, output, prepared):
+    if prepared is None:
+        return
+    parent, record = prepared
+    for item in [*record['packages'], record['companion']]:
+        destination = output / item['path']
+        require(not destination.exists(), 'Compatibility artifact would overwrite another package')
+        shutil.copyfile(parent / item['path'], destination)
+    result['packages'].append(record['packages'][0])
+    result['compatibilityAsset'] = record['companion']
+    result['compatibility'] = {'required': True, 'providerRoot': record['providerRoot'],
+                               'policySha256': record['policySha256'], 'architecture': record['architecture']}
+
+
+def build_deb(plan, archive, output, compatibility_build=None):
     require(plan['channel'] == 'deb', 'Debian builder requires an admitted Debian plan')
+    prepared = compatibility_input(plan, compatibility_build, 'deb')
     output, rootfs, commands, payload = stage_payload(plan, archive, output)
     sdk_stage = output / 'sdk-package'
     copy_tree(rootfs, sdk_stage)
@@ -160,6 +184,7 @@ def build_deb(plan, archive, output):
             == sdk_tools().snapshot(rootfs / plan['package']['root'].lstrip('/')), 'Debian package changed SDK bytes or modes')
     result = {'schemaVersion': 1, 'channel': 'deb', 'plan': plan, 'packages': packages,
               'commandInventory': commands, 'payloadPreserved': True, 'publicationQualified': False}
+    attach_compatibility(result, output, prepared)
     write_json(output / 'package-build.json', result)
     return result
 
@@ -188,18 +213,29 @@ def oci_labels(plan):
             'kr.dotnetdev.cbodotnet.package.revision': str(plan['packageRevision'])}
 
 
-def build_oci_context(plan, archive, output, base_image):
+def build_oci_context(plan, archive, output, base_image, compatibility_build=None):
     require(plan['channel'] == 'oci', 'OCI builder requires an admitted OCI plan')
     require(isinstance(base_image, str) and re.fullmatch(r'[a-z0-9][a-z0-9./:_-]*@sha256:[a-f0-9]{64}', base_image),
             'OCI base must be pinned by SHA-256 digest')
     require(plan['variant'] == 'debian-13', 'OCI runtime template is qualified only for the Debian 13 candidate')
+    prepared = compatibility_input(plan, compatibility_build, 'oci')
     output, rootfs, commands, payload = stage_payload(plan, archive, output, mode='oci')
+    if prepared is not None:
+        parent, provider = prepared
+        provider_root = rootfs / provider['providerRoot'].lstrip('/')
+        provider_root.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(parent / 'rootfs' / provider['providerRoot'].lstrip('/'), provider_root, symlinks=True)
     shutil.copyfile(ROOT / 'containers/sdk-runtime.Containerfile', output / 'Containerfile')
     labels = oci_labels(plan)
     result = {'schemaVersion': 1, 'channel': 'oci', 'plan': plan, 'baseImage': base_image,
               'context': '.', 'containerfile': 'Containerfile', 'labels': labels,
               'buildArgs': {'BASE_IMAGE': base_image, 'SDK_SERIES': '.'.join(plan['sdkVersion'].split('.')[:2])},
               'commandInventory': commands, 'payloadPreserved': True, 'publicationQualified': False}
+    if prepared is not None:
+        result['compatibility'] = {'required': True, 'providerRoot': provider['providerRoot'],
+                                   'policySha256': provider['policySha256'], 'architecture': provider['architecture']}
+        result['compatibilityAsset'] = provider['companion']
+        shutil.copyfile(parent / provider['companion']['path'], output / provider['companion']['path'])
     write_json(output / 'package-build.json', result)
     return result
 
@@ -439,9 +475,10 @@ def build_common_rpm(variant, output):
     return result
 
 
-def build_rpm(plan, archive, output):
+def build_rpm(plan, archive, output, compatibility_build=None):
     """Build real RPM payloads only after a target-specific plan is admitted."""
     require(plan['channel'] == 'rpm', 'RPM builder requires an admitted RPM plan')
+    prepared = compatibility_input(plan, compatibility_build, 'rpm')
     require(re.fullmatch(r'[A-Za-z0-9_./-]+', str(Path(output).absolute())), 'RPM build directory must use a shell-safe path')
     spec = render_rpm_spec(plan)
     output, rootfs, commands, payload = stage_payload(plan, archive, output)
@@ -485,6 +522,7 @@ def build_rpm(plan, archive, output):
             'RPM shared package changed selector bytes or modes')
     result = {'schemaVersion': 1, 'channel': 'rpm', 'plan': plan, 'packages': packages,
               'commandInventory': commands, 'payloadPreserved': True, 'publicationQualified': False}
+    attach_compatibility(result, output, prepared)
     write_json(output / 'package-build.json', result)
     return result
 
@@ -538,8 +576,27 @@ def validate_package_builds(paths, channel):
         build = json.loads(path.read_bytes())
         require(build.get('schemaVersion') == 1 and build.get('channel') == channel
                 and build.get('payloadPreserved') is True, 'Unverified package build record')
-        require(len(build.get('packages', [])) == 2 and {item.get('kind') for item in build['packages']} == {'host', 'sdk'},
-                'Both SDK and shared host packages are required')
+        packages = build.get('packages', [])
+        kinds = {item.get('kind') for item in packages}
+        require((len(packages) == 2 and kinds == {'host', 'sdk'})
+                or (len(packages) == 3 and kinds == {'host', 'sdk', 'compatibility'}),
+                'SDK/shared host and optional separate compatibility packages are required')
+        if 'compatibility' in kinds:
+            from legacy_compat import required, PACKAGE_NAME, VERSION, PROVIDER_ROOT, POLICY
+            require(required(build['plan']) and build.get('compatibility', {}).get('required') is True
+                    and build['compatibility'].get('providerRoot') == PROVIDER_ROOT
+                    and build['compatibility'].get('policySha256') == hashlib.sha256(POLICY.read_text().replace('\r\n', '\n').encode()).hexdigest(),
+                    'Unreviewed compatibility package attachment')
+            item = next(row for row in packages if row['kind'] == 'compatibility')
+            require(item.get('name') == PACKAGE_NAME and item.get('architecture') == build['plan']['architecture'][channel]
+                    and item.get('version') == (VERSION + '-1' if channel == 'deb' else VERSION),
+                    'Compatibility package identity differs')
+            if channel == 'rpm':
+                require(item.get('release') == '1.cbot.' + build['plan']['variant'].replace('-', ''), 'Compatibility RPM variant differs')
+            companion = build.get('compatibilityAsset', {})
+            require(re.fullmatch(r'[A-Za-z0-9._+-]+', companion.get('path', ''))
+                    and descriptor(path.parent / companion['path']) == {key: companion[key] for key in ('path', 'size', 'sha256')},
+                    'Compatibility companion bytes differ')
         for item in build['packages']:
             require(re.fullmatch(r'[A-Za-z0-9._+-]+', item['path']), 'Unsafe package filename')
             package = path.parent / item['path']

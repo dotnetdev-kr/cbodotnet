@@ -51,8 +51,8 @@ footer { margin-top: 2em; padding-top: .75em; border-top: 1px solid #bbb; }
 <a href="{{REPOSITORY_URL}}/actions/workflows/publish-releases.yml"><img src="{{REPOSITORY_URL}}/actions/workflows/publish-releases.yml/badge.svg?branch=main" alt="Release publication status"></a>
 <a href="{{REPOSITORY_URL}}/actions/workflows/pages.yml"><img src="{{REPOSITORY_URL}}/actions/workflows/pages.yml/badge.svg?branch=main" alt="Download pages deployment status"></a>
 </p>
-<h2>Downloads</h2>
-<p>Each build provides the SDK, the sources actually used, and verification evidence. Select <strong>tar.gz</strong> to download an SDK.</p>
+<h2>Original source releases (experimental)</h2>
+<p><strong>These initial unbranded test releases are not recommended for installation or direct use.</strong> They are retained as immutable inputs for branded distributions and for provenance. Use the verified branded packages and containers below. Each original release also retains the actual build sources and verification evidence.</p>
 <div class="downloads">
 <table>
 <thead><tr><th scope="col">SDK version</th><th scope="col">Linux x64</th><th scope="col">Linux aarch64</th><th scope="col">Verification</th></tr></thead>
@@ -61,12 +61,12 @@ footer { margin-top: 2em; padding-top: .75em; border-top: 1px solid #bbb; }
 </tbody>
 </table>
 </div>
-<h2>Using a build</h2>
-<p>Verify the SHA-256 checksum, extract the SDK archive, and run <code>./dotnet --info</code>. These are glibc builds; distribution libraries are still required. Native checks cover Ubuntu 22.04, Ubuntu 24.04 and Debian 13. .NET 5 and Core 3.x require the recorded OpenSSL 1.1 dependencies; Core 3.x on Debian 13 also uses ICU 66.</p>
+<h2>Choosing a distribution</h2>
+<p>Use a branded distribution with a verified signature and checksum for your exact SDK, architecture and operating system. These are glibc builds; distribution libraries are still required. Original archive checks do not imply package or container qualification. Older SDKs require separately recorded compatibility providers.</p>
 <p>These are community builds, without Microsoft support. Construction details and any reused upstream binary inputs are recorded in the release evidence.</p>
 <h2>Package repositories and containers</h2>
 {{DOWNSTREAM_CHANNELS}}
-<p>The <a href="downstream-status.json">distribution status (JSON)</a> records verified availability. Package commands include <code>cbodotnet-10.0</code> and <code>cbodotnet</code>; containers also provide <code>dotnet</code> for the same SDK. Public launchers identify themselves as <strong>Community Build of .NET (built by .NET Dev)</strong>, with the original numeric SDK version retained. See the <a href="{{REPOSITORY_URL}}/blob/main/docs/cli-branding.md">CLI identity policy</a>.</p>
+<p>The <a href="downstream-status.json">distribution status (JSON)</a> records verified availability. Package commands include a versioned command such as <code>cbodotnet-10.0</code> and <code>cbodotnet</code>; containers also provide <code>dotnet</code> for the same SDK. Public launchers identify themselves as <strong>Community Build of .NET (built by .NET Dev)</strong>, with the original numeric SDK version retained. See the <a href="{{REPOSITORY_URL}}/blob/main/docs/cli-branding.md">CLI identity policy</a>.</p>
 <h2>License</h2>
 <p>Copyright &copy; 2026 cbodotnet contributors. The build automation in this repository is available under the <a href="{{REPOSITORY_URL}}/blob/main/LICENSE">MIT License</a>. Distributed SDKs, source bundles and third-party components retain their respective upstream copyrights, licenses and notices.</p>
 <footer>

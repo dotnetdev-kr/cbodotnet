@@ -24,6 +24,7 @@ import zipfile
 from distribution_contract import load_contract, validate_qualified_producers
 from downstream_release import encoded, local_intake, package_record, receive_release, PREPUBLICATION_CHECKS
 from downstream_release import stage_records
+from sdk_runtime import runtime_policy, series as sdk_series, smoke_script, validate_host_rid, validate_smoke_output
 
 ROOT = Path(__file__).resolve().parents[1]
 DEBIAN_BASE = 'debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4'
@@ -73,8 +74,9 @@ def validate_image_config(image, architecture, sdk_root, labels=None):
 
 
 def inspect_consumer_files(reference, sdk_root):
+    versioned = '/usr/bin/cbodotnet-' + Path(sdk_root).name
     ownership = run(['docker', 'run', '--rm', '--user', '0', reference, 'stat', '-c', '%u:%g:%a',
-                     sdk_root, sdk_root + '/dotnet', '/usr/bin/cbodotnet-10.0', '/usr/bin/cbodotnet'])
+                     sdk_root, sdk_root + '/dotnet', versioned, '/usr/bin/cbodotnet'])
     require(ownership.splitlines() == ['0:0:755'] * 4, 'SDK/command ownership or permissions changed')
     run(['docker', 'run', '--rm', reference, 'sh', '-ec',
          'for tool in gcc g++ clang make cmake git; do if command -v "$tool" >/dev/null 2>&1; then '
@@ -111,61 +113,24 @@ def qualified_oci_labels(index, architecture, manifest_bytes=None, contract=None
     return oci_labels(plan)
 
 
-def public_smoke_script():
+def public_smoke_script(version='10.0.403', sdk_root=None):
     """Exercise DLL and apphost, loopback ASP.NET, RSA/random and ICU offline."""
-    return '''set -eu
-mkdir -p /work/smoke
-cd /work/smoke
-cat > NuGet.Config <<'NUGET'
-<configuration><packageSources><clear /></packageSources></configuration>
-NUGET
-cat > Smoke.csproj <<'PROJECT'
-<Project Sdk="Microsoft.NET.Sdk.Web"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><UseAppHost>true</UseAppHost></PropertyGroup></Project>
-PROJECT
-cat > Program.cs <<'PROGRAM'
-using System; using System.IO; using System.Linq; using System.Globalization;
-using System.Net.Http; using System.Security.Cryptography;
-using Microsoft.AspNetCore.Builder; using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Server; using Microsoft.AspNetCore.Hosting.Server.Features;
-using Microsoft.Extensions.DependencyInjection;
-var root=Environment.GetEnvironmentVariable("DOTNET_ROOT");
-if(root!="/opt/cbodotnet/10.0" || Environment.UserName!="app" || !typeof(object).Assembly.Location.StartsWith(root+"/shared/")) throw new Exception("Wrong host/runtime/user");
-var expected=args[0]=="dll" ? root+"/dotnet" : Path.GetFullPath("bin/Debug/net10.0/Smoke");
-if(Environment.ProcessPath!=expected) throw new Exception("Wrong DLL/apphost process");
-using var rsa=RSA.Create(); var data=RandomNumberGenerator.GetBytes(32);
-var sig=rsa.SignData(data,HashAlgorithmName.SHA256,RSASignaturePadding.Pkcs1);
-if(!rsa.VerifyData(data,sig,HashAlgorithmName.SHA256,RSASignaturePadding.Pkcs1)) throw new Exception("RSA");
-if(!1234.5m.ToString("N1",CultureInfo.GetCultureInfo("fr-FR")).Contains("234,5")) throw new Exception("ICU");
-var builder=WebApplication.CreateBuilder(Array.Empty<string>());
-builder.WebHost.UseUrls("http://127.0.0.1:0");
-await using var app=builder.Build(); app.MapGet("/",()=>"published-http-passed");
-await app.StartAsync();
-var url=app.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>().Addresses.Single();
-using var client=new HttpClient();
-if(await client.GetStringAsync(url)!="published-http-passed") throw new Exception("HTTP");
-await app.StopAsync(); Console.WriteLine("published-offline-"+args[0]+"-http-crypto-icu-passed");
-PROGRAM
-dotnet restore --configfile NuGet.Config
-dotnet build --no-restore
-dotnet bin/Debug/net10.0/Smoke.dll dll
-bin/Debug/net10.0/Smoke apphost
-'''
+    from legacy_compat import environment
+    return smoke_script(version, sdk_root or '/opt/cbodotnet/' + sdk_series(version), 'app',
+                        runtime_env=environment(dict(sdkVersion=version, variant='debian-13')))
 
 
-def run_public_functional_smoke(reference):
-    output = run(['docker', 'run', '--rm', '--network', 'none', reference, 'sh', '-ec', public_smoke_script()])
-    require(all('published-offline-' + mode + '-http-crypto-icu-passed' in output for mode in ('dll', 'apphost')),
-            'Consumer non-root offline DLL/apphost, HTTP, cryptography or ICU smoke failed')
-    return {name: 'passed' for name in ('consoleDllExecution', 'consoleApphostExecution', 'aspNetCoreLoopbackHttp',
-                                      'rsaSha256SignAndVerify', 'cryptographicRandomBytes', 'frFrDecimalFormatting', 'nonRootRuntimeRoot')}
+def run_public_functional_smoke(reference, version='10.0.403', sdk_root=None):
+    output = run(['docker', 'run', '--rm', '--network', 'none', reference, 'sh', '-ec', public_smoke_script(version, sdk_root)])
+    return dict(validate_smoke_output(output), nonRootRuntimeRoot='passed')
 
 
 def validate_published_metadata(index, expected):
     labels = expected.get('labels')
-    revision = re.fullmatch(r'10\.0\.403-debian13-r([1-9][0-9]*)', index.get('tag', ''))
+    revision = re.fullmatch(r'([1-9][0-9]*\.[0-9]+\.[0-9]+)-debian13-r([1-9][0-9]*)', index.get('tag', ''))
     require(revision is not None, 'An immutable supported SDK image tag is required')
-    if int(revision[1]) >= 2:
-        require(expected.get('metadataPolicyVersion') == 2 and labels and expected.get('sdkRoot') == '/opt/cbodotnet/10.0',
+    if int(revision[2]) >= 2 or revision[1] != '10.0.403':
+        require(expected.get('metadataPolicyVersion') == 2 and labels and expected.get('sdkRoot') == '/opt/cbodotnet/' + sdk_series(revision[1]),
                 'New OCI revisions require the complete metadata policy; legacy fallback is allowed only for r1')
     if expected.get('metadataPolicyVersion') == 2:
         qualified = qualified_oci_labels(index, expected['architecture'])
@@ -291,6 +256,10 @@ def prepare_installed(args):
         official_before = inventory(official)
         baseline = dict(officialRoot=str(official), sdkVersion=official_version, provider='official-archive')
     sdk = Path(plan['package']['root'])
+    compatibility = None
+    if runtime_policy(plan['sdkVersion'], architecture)['legacy']:
+        from legacy_compat import provision
+        compatibility = provision(plan, delivery, user='cbot-smoke')
     if args.mode == 'deb':
         progress('install native packages from ' + ('the authenticated repository' if (delivery / 'repository').is_dir() else 'the verified local package files'))
         # Minimal distro container bases intentionally omit most /usr/share/doc
@@ -299,7 +268,7 @@ def prepare_installed(args):
         Path('/etc/dpkg/dpkg.cfg.d/zz-cbodotnet-validation').write_text(
             'path-include=/usr/share/doc/cbodotnet-*\n')
         packages = sorted((delivery / 'packages').glob('*.deb'))
-        require(len(packages) == 2, 'Both SDK and shared host packages are required')
+        require(len(packages) == (3 if compatibility else 2), 'SDK, shared host and any required compatibility package are required')
         if (delivery / 'repository').is_dir():
             shutil.copy2(delivery / 'repository/cbodotnet-archive-keyring.gpg', '/usr/share/keyrings/cbodotnet-validation.gpg')
             Path('/etc/apt/sources.list.d/cbodotnet-validation.list').write_text(
@@ -318,7 +287,7 @@ def prepare_installed(args):
     shutil.rmtree(expected.parent)
     (delivery / 'installation-state.json').write_bytes(encoded(dict(schemaVersion=1, status='prepared',
         mode=args.mode, variant=args.variant, architecture=architecture, sdkBefore=inventory(sdk),
-        officialBaseline=baseline, officialBefore=official_before)))
+        officialBaseline=baseline, officialBefore=official_before, compatibilityState=compatibility)))
 
 
 def assert_removed_deb(plan):
@@ -331,7 +300,8 @@ def assert_removed_deb(plan):
 
 def deb_lifecycle(plan, delivery, sdk_before, as_user, official_check):
     packages = sorted((delivery / 'packages').glob('*.deb'))
-    require(len(packages) == 2, 'Both original immutable packages are required for lifecycle validation')
+    expected = 3 if sdk_series(plan['sdkVersion']) in {'3.0', '3.1', '5.0'} else 2
+    require(len(packages) == expected, 'All original immutable packages are required for lifecycle validation')
     sdk = Path(plan['package']['root'])
     phases = ['after-install', 'after-runtime']
 
@@ -345,7 +315,7 @@ def deb_lifecycle(plan, delivery, sdk_before, as_user, official_check):
     if not (delivery / 'post-publication').exists():
         progress('upgrade the installed SDK packaging revision')
         upgrades = sorted((delivery / 'upgrade').glob('*.deb'))
-        require(len(upgrades) == 2, 'A real next-revision upgrade is required')
+        require(len(upgrades) == expected, 'A real next-revision upgrade is required')
         # APT's --no-download handling breaks direct local-DEB pathname
         # acquisition. Docker --network none and the loopback-only guard
         # enforce the offline boundary while these exact local files install.
@@ -395,6 +365,12 @@ def installed(args):
     sdk = Path(plan['package']['root'])
     sdk_before = state['sdkBefore']
     official_proofs = []
+    compatibility_proofs = []
+    runtime_env = {}
+    if runtime_policy(plan['sdkVersion'], architecture)['legacy']:
+        from legacy_compat import runtime_environment, assert_unchanged as assert_compatibility
+        require(state.get('compatibilityState'), 'Prepared managed compatibility provider state is missing')
+        runtime_env = runtime_environment(plan, state['compatibilityState'])
 
     def as_user(command, cwd=work):
         return run(user_command(command, cwd), cwd=cwd)
@@ -412,6 +388,8 @@ def installed(args):
         require(as_user([official / 'dotnet', '--version'], Path('/home/cbot-smoke')).strip() == official_version,
                 'Official SDK version changed after a lifecycle transition')
         official_proofs.append(dict(phase=phase, **proof))
+        if runtime_env:
+            compatibility_proofs.append(dict(phase=phase, **assert_compatibility(state['compatibilityState'])))
 
     official_check('after-install')
     versioned = 'cbodotnet-' + '.'.join(plan['sdkVersion'].split('.')[:2])
@@ -421,62 +399,25 @@ def installed(args):
         require(result.returncode == 0 and result.stdout == plan['sdkVersion'] + '\n' and result.stderr.strip() == BRAND,
                 'Version stdout/branding mismatch: ' + name)
         info = as_user([name, '--info'])
-        require(info.startswith(BRAND + '\n') and str(sdk) in info and plan['targetRid'] in info, 'Alias host/RID mismatch')
+        require(info.startswith(BRAND + '\n') and str(sdk) in info, 'Alias host root mismatch')
+        validate_host_rid(info, plan['sdkVersion'], architecture, args.variant)
         identity = json.loads(as_user([name, '--cbodotnet-info']))
         require(identity['sourceManifestSha256'] == plan['sourceManifestSha256'] and identity['sdkVersion'] == plan['sdkVersion']
                 and identity['packageRevision'] == plan['packageRevision'] and identity['sdkRoot'] == str(sdk),
                 'Alias source provenance mismatch')
         validate_sdk_listing(as_user([name, '--list-sdks']), plan['sdkVersion'], str(sdk))
-    (work / 'global.json').write_text(json.dumps({'sdk': {'version': plan['sdkVersion'], 'rollForward': 'disable'}}))
-    (work / 'NuGet.Config').write_text('<configuration><packageSources><clear /></packageSources></configuration>')
-    (work / 'Smoke.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType>'
-                                     '<TargetFramework>net10.0</TargetFramework><UseAppHost>true</UseAppHost></PropertyGroup></Project>')
-    (work / 'Program.cs').write_text('using System; using System.Globalization; using System.Security.Cryptography;\n'
-                                    'Console.WriteLine(Environment.ProcessPath); Console.WriteLine(typeof(object).Assembly.Location);\n'
-                                    'using var rsa = RSA.Create(); var b = RandomNumberGenerator.GetBytes(32);\n'
-                                    'var s = rsa.SignData(b, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);\n'
-                                    'if(!rsa.VerifyData(b,s,HashAlgorithmName.SHA256,RSASignaturePadding.Pkcs1)) throw new Exception();\n'
-                                    'Console.WriteLine(1234.5m.ToString("N1",CultureInfo.GetCultureInfo("fr-FR"))); Console.WriteLine("crypto-passed");')
-    run(['chown', '-R', 'cbot-smoke:cbot-smoke', str(work)])
-    as_user(['cbodotnet', 'restore', '--configfile', 'NuGet.Config'])
-    as_user(['cbodotnet', 'build', '--no-restore'])
-    output = as_user(['cbodotnet', work / 'bin/Debug/net10.0/Smoke.dll'])
-    require(output.splitlines()[0] == str(sdk / 'dotnet') and str(sdk / 'shared') in output
-            and 'crypto-passed' in output and '234,5' in output, 'Installed non-root application smoke failed')
-    apphost = work / 'bin/Debug/net10.0/Smoke'
-    arch_root = 'DOTNET_ROOT_ARM64' if architecture == 'aarch64' else 'DOTNET_ROOT_X64'
-    output = as_user(['env', 'DOTNET_ROOT=' + str(sdk), arch_root + '=' + str(sdk), apphost])
-    require(output.splitlines()[0] == str(apphost) and str(sdk / 'shared') in output
-            and 'crypto-passed' in output and '234,5' in output, 'Installed non-root apphost selected another runtime')
-    http = work / 'http'
-    http.mkdir()
-    (http / 'Http.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk.Web"><PropertyGroup><TargetFramework>net10.0</TargetFramework>'
-                                     '</PropertyGroup></Project>')
-    (http / 'Program.cs').write_text('using Microsoft.AspNetCore.Builder; var b=WebApplication.CreateBuilder(args);'
-                                    'var a=b.Build(); a.MapGet("/",()=>"cbodotnet-http-passed"); a.Run();')
-    run(['chown', '-R', 'cbot-smoke:cbot-smoke', str(http)])
-    as_user(['cbodotnet', 'restore', '--configfile', str(work / 'NuGet.Config')], http)
-    as_user(['cbodotnet', 'build', '--no-restore'], http)
-    with socket.socket() as sock:
-        sock.bind(('127.0.0.1', 0))
-        port = sock.getsockname()[1]
-    log = (delivery / 'http.log').open('w')
-    process = subprocess.Popen(user_command(['cbodotnet', http / 'bin/Debug/net10.0/Http.dll', '--urls', f'http://127.0.0.1:{port}'], http),
-                               cwd=http, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
-    try:
-        response = ''
-        for _ in range(100):
-            try:
-                with urllib.request.urlopen(f'http://127.0.0.1:{port}', timeout=1) as incoming:
-                    response = incoming.read().decode()
-                break
-            except OSError:
-                time.sleep(.1)
-        require(response == 'cbodotnet-http-passed', 'Installed ASP.NET loopback HTTP smoke failed')
-    finally:
-        os.killpg(process.pid, signal.SIGTERM)
-        process.wait(timeout=15)
-        log.close()
+    policy = runtime_policy(plan['sdkVersion'], architecture)
+    reported_rid = validate_host_rid(info, plan['sdkVersion'], architecture, args.variant)
+    output = as_user(['sh', '-ec', smoke_script(plan['sdkVersion'], str(sdk), 'cbot-smoke',
+                     cli='cbodotnet', workdir=str(work / 'functional'), runtime_env=runtime_env)])
+    functional_evidence = validate_smoke_output(output)
+    abi_directory = work / 'abi-verification'
+    as_user(['env', *[name + '=' + value for name, value in runtime_env.items()], 'bash', ROOT / 'scripts/verify-sdk.sh', '--sdk-dir', sdk, '--output-dir', abi_directory,
+             '--expected-version', plan['sdkVersion'], '--expected-rid', reported_rid, '--framework', policy['framework'],
+             '--max-glibc', policy['maxGlibc'], '--arch', 'arm64' if architecture == 'aarch64' else 'x64', '--no-smoke'])
+    verification = json.loads((abi_directory / 'verification.json').read_bytes())
+    require(verification['verificationStatus'] == 'passed' and verification['abi']['glibcCeilingPassed'],
+            'Installed SDK native ABI verification failed')
     require(inventory(sdk) == sdk_before, 'Installed execution modified qualified SDK payload')
     official_check('after-runtime')
     if args.mode == 'deb':
@@ -504,8 +445,8 @@ def installed(args):
     result = {'schemaVersion': 1, 'status': 'passed', 'target': dict(osId=expected_os['id'], versionId=expected_os['versionId'],
                architecture=architecture, native=True, dependencies=dependencies), 'checks': checks, 'commandNames': names,
               'networkForBuild': 'none', 'officialComparison': state['officialBaseline'], 'officialCoexistence': official_proofs,
-              'functionalChecks': {name: 'passed' for name in ('consoleDllExecution', 'consoleApphostExecution',
-                 'aspNetCoreLoopbackHttp', 'rsaSha256SignAndVerify', 'cryptographicRandomBytes', 'frFrDecimalFormatting')}}
+              'functionalChecks': functional_evidence, 'runtimePolicy': policy, 'abi': verification['abi'],
+              'compatibilityProvider': compatibility_proofs}
     (delivery / 'installation-result.json').write_bytes(encoded(result))
 
 
@@ -569,6 +510,20 @@ def record(delivery, artifact, result, commands, inputs):
                 commandsRoot=str(commands), inputsDirectory=str(inputs))
 
 
+def prepare_compatibility(workspace, delivery, base, version, architecture, variant):
+    """Build the explicit reviewed companion before SDK staging, never during it."""
+    if not runtime_policy(version, architecture)['legacy']:
+        return []
+    output = '/delivery/' + delivery.name + '/compatibility-build'
+    command = ('set -eu; export DEBIAN_FRONTEND=noninteractive; apt-get update -qq; '
+               'apt-get install -y --no-install-recommends python3 rpm rpm2cpio gnupg binutils ca-certificates; '
+               'python3 /repo/scripts/legacy_compat.py --arch ' + architecture + ' --variant ' + variant
+               + ' --output ' + output + '; chown -R ' + str(os.getuid()) + ':' + str(os.getgid()) + ' ' + output)
+    run(['docker', 'run', '--rm', '--user', '0', '-v', f'{ROOT}:/repo:ro', '-v', f'{workspace}:/delivery',
+         base, 'sh', '-ec', command])
+    return ['--compatibility-build', delivery / 'compatibility-build/provider-build.json']
+
+
 def native(args):
     channels = selected_channels(args, native=True)
     require(os.getuid() != 0 and platform.machine() in ({'aarch64', 'arm64'} if args.arch == 'aarch64' else {'x86_64'}),
@@ -586,10 +541,11 @@ def native(args):
     for variant, base in ([('ubuntu-24.04', args.ubuntu_base), ('debian-13', args.debian_base)] if 'deb' in channels else []):
         delivery = workspace / ('deb-' + variant)
         delivery.mkdir()
+        compatibility_args = prepare_compatibility(workspace, delivery, base, args.tag[4:], args.arch, variant)
         for revision, name in [(args.revision, 'build'), (args.revision + 1, 'upgrade-build')]:
             progress('build ' + variant + ' ' + args.arch + ' packaging revision ' + str(revision))
             run([sys.executable, ROOT / 'scripts/package-sdk.py', '--inputs', inputs, '--channel', 'deb', '--variant', variant,
-                 '--arch', args.arch, '--revision', revision, '--output', delivery / name])
+                 '--arch', args.arch, '--revision', revision, '--output', delivery / name, *compatibility_args])
         build = delivery / 'build'
         shutil.copy2(build / 'plan.json', delivery / 'plan.json')
         copy_commands(build, delivery / 'commands')
@@ -597,6 +553,8 @@ def native(args):
             (delivery / target_name).mkdir()
             for package in (delivery / source_name).glob('*.deb'):
                 shutil.copy2(package, delivery / target_name / package.name)
+            for companion in (delivery / source_name).glob('cbodotnet-compat-*.tar.gz'):
+                shutil.copy2(companion, delivery / target_name / companion.name)
             shutil.copy2(delivery / source_name / 'package-build.json', delivery / target_name / 'package-build.json')
         progress('execute the complete installed lifecycle on native ' + variant + ' ' + args.arch)
         container_lifecycle(workspace, delivery, base, variant, 'deb')
@@ -617,10 +575,11 @@ def native(args):
         return
     delivery = workspace / 'oci-debian-13'
     delivery.mkdir()
+    compatibility_args = prepare_compatibility(workspace, delivery, args.debian_base, args.tag[4:], args.arch, 'debian-13')
     build = delivery / 'build'
     progress('prepare the pinned Debian 13 OCI image for ' + args.arch)
     run([sys.executable, ROOT / 'scripts/package-sdk.py', '--inputs', inputs, '--channel', 'oci', '--variant', 'debian-13',
-         '--arch', args.arch, '--revision', args.revision, '--output', build, '--base-image', args.debian_base])
+         '--arch', args.arch, '--revision', args.revision, '--output', build, '--base-image', args.debian_base, *compatibility_args])
     shutil.copy2(build / 'plan.json', delivery / 'plan.json')
     copy_commands(build, delivery / 'commands')
     tag = 'cbodotnet-verified:' + args.arch
@@ -637,7 +596,7 @@ def native(args):
     labels = dict(metadata['labels'], **{'org.opencontainers.image.base.name': args.debian_base})
     config_evidence = validate_image_config(image, expected_arch, metadata['plan']['package']['root'], labels)
     file_evidence = inspect_consumer_files(tag, metadata['plan']['package']['root'])
-    functional_evidence = run_public_functional_smoke(tag)
+    functional_evidence = run_public_functional_smoke(tag, args.tag[4:], metadata['plan']['package']['root'])
     require(run(['docker', 'run', '--rm', tag, 'id', '-u']).strip() == '1654', 'Consumer image does not execute as its non-root user')
     progress('execute native OCI aliases, payload, non-root, HTTP, cryptography and globalization checks')
     container_lifecycle(workspace, delivery, tag, 'debian-13', 'oci')
@@ -652,7 +611,7 @@ def native(args):
     upgrade_build = delivery / 'upgrade-build'
     progress('build the next OCI packaging revision and verify immutable rollback')
     run([sys.executable, ROOT / 'scripts/package-sdk.py', '--inputs', inputs, '--channel', 'oci', '--variant', 'debian-13',
-         '--arch', args.arch, '--revision', args.revision + 1, '--output', upgrade_build, '--base-image', args.debian_base])
+         '--arch', args.arch, '--revision', args.revision + 1, '--output', upgrade_build, '--base-image', args.debian_base, *compatibility_args])
     upgrade_tag = tag + '-upgrade'
     upgrade_metadata = json.loads((upgrade_build / 'package-build.json').read_bytes())
     upgrade_arguments = ['docker', 'build', '--build-arg', 'BASE_IMAGE=' + args.debian_base,
@@ -664,7 +623,7 @@ def native(args):
     validate_image_config(upgraded_image, expected_arch, upgrade_metadata['plan']['package']['root'],
                           dict(upgrade_metadata['labels'], **{'org.opencontainers.image.base.name': args.debian_base}))
     inspect_consumer_files(upgrade_tag, upgrade_metadata['plan']['package']['root'])
-    for name in ('cbodotnet-10.0', 'cbodotnet', 'dotnet'):
+    for name in ('cbodotnet-' + sdk_series(args.tag[4:]), 'cbodotnet', 'dotnet'):
         validate_sdk_listing(run(['docker', 'run', '--rm', upgrade_tag, name, '--list-sdks']), args.tag[4:], upgrade_metadata['plan']['package']['root'])
     upgraded = json.loads(run(['docker', 'run', '--rm', '--entrypoint', 'cbodotnet', upgrade_tag, '--cbodotnet-info']))
     require(upgraded['packageRevision'] == args.revision + 1, 'Container upgrade did not select the next packaging revision')
@@ -1010,19 +969,28 @@ def postverify(args):
     expected = next(row for row in index['platforms'] if row['architecture'] == expected_arch)
     require(actual['Architecture'] == expected_arch and actual['Id'] == expected['configDigest'], 'Pulled image differs from qualified native image')
     labels = validate_published_metadata(index, expected)
-    config_evidence = validate_image_config(actual, expected_arch, '/opt/cbodotnet/10.0', labels)
-    file_evidence = inspect_consumer_files(reference, '/opt/cbodotnet/10.0')
+    identity = re.fullmatch(r'([1-9][0-9]*\.[0-9]+\.[0-9]+)-debian13-r([1-9][0-9]*)', index['tag'])
+    require(identity is not None, 'Published OCI identity is invalid')
+    version, revision = identity[1], int(identity[2])
+    sdk_root = '/opt/cbodotnet/' + sdk_series(version)
+    source_pin = load_contract()['releases'][version]['manifestSha256']
+    config_evidence = validate_image_config(actual, expected_arch, sdk_root, labels)
+    file_evidence = inspect_consumer_files(reference, sdk_root)
     require(run(['docker', 'run', '--rm', reference, 'id', '-u']).strip() != '0', 'Published image defaults to root')
-    for name in ('cbodotnet-10.0', 'cbodotnet', 'dotnet'):
-        result = subprocess.run(['docker', 'run', '--rm', reference, name, '--version'], text=True, capture_output=True)
-        require(result.returncode == 0 and result.stdout == '10.0.403\n' and result.stderr.strip() == BRAND,
+    for name in ('cbodotnet-' + sdk_series(version), 'cbodotnet', 'dotnet'):
+        result = subprocess.run(['docker', 'run', '--rm', '--network', 'none', reference, name, '--version'], text=True, capture_output=True)
+        require(result.returncode == 0 and result.stdout == version + '\n' and result.stderr.strip() == BRAND,
                 'Published alias/branding mismatch: ' + name)
-        validate_sdk_listing(run(['docker', 'run', '--rm', reference, name, '--list-sdks']), '10.0.403', '/opt/cbodotnet/10.0')
-        info = run(['docker', 'run', '--rm', reference, name, '--info'])
-        rid = 'linux-x64' if expected_arch == 'amd64' else 'linux-arm64'
-        require(info.startswith(BRAND + '\n') and '/opt/cbodotnet/10.0' in info and rid in info,
+        validate_sdk_listing(run(['docker', 'run', '--rm', '--network', 'none', reference, name, '--list-sdks']), version, sdk_root)
+        info = run(['docker', 'run', '--rm', '--network', 'none', reference, name, '--info'])
+        require(info.startswith(BRAND + '\n') and sdk_root in info,
                 'Published alias info selected another host/root/RID')
-    functional_evidence = run_public_functional_smoke(reference)
+        validate_host_rid(info, version, args.arch, 'debian-13')
+        branding = json.loads(run(['docker', 'run', '--rm', '--network', 'none', reference, name, '--cbodotnet-info']))
+        require(branding['sdkVersion'] == version and branding['packageRevision'] == revision
+                and branding['sdkRoot'] == sdk_root and branding['sourceManifestSha256'] == source_pin,
+                'Published alias identity differs from authenticated source/revision')
+    functional_evidence = run_public_functional_smoke(reference, version, sdk_root)
     apt_results = postverify_apt(args) if args.deb_receipt is not None else []
     checks = ['anonymous-pull', 'native-config', 'non-root', 'command-aliases', 'cli-branding', 'offline-build-run',
               'sdk-list-paths', 'image-ownership', 'image-no-build-secrets', 'image-no-source-build-toolchain',

@@ -17,17 +17,18 @@ def main():
     parser.add_argument('--revision', type=int, default=1)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--base-image', help='Required immutable base@sha256:digest for OCI')
+    parser.add_argument('--compatibility-build', type=Path, help='Explicit verified separate provider-build.json for legacy SDKs')
     args = parser.parse_args()
     try:
         plan = local_intake(args.inputs, args.channel, args.variant, args.arch, args.revision)
         archive = args.inputs / plan['sdk']['name']
         if args.channel == 'deb':
-            result = build_deb(plan, archive, args.output)
+            result = build_deb(plan, archive, args.output, args.compatibility_build)
         elif args.channel == 'oci':
-            result = build_oci_context(plan, archive, args.output, args.base_image)
+            result = build_oci_context(plan, archive, args.output, args.base_image, args.compatibility_build)
         elif args.channel == 'rpm':
             plan['rpmDependencies'] = plan['dependencies']
-            result = build_rpm(plan, archive, args.output)
+            result = build_rpm(plan, archive, args.output, args.compatibility_build)
         else:
             plan['aurDependencies'] = plan['dependencies']
             result = build_aur_recipe(plan, archive, args.output)

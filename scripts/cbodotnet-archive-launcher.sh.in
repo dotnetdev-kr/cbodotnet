@@ -1,0 +1,45 @@
+#!/bin/sh
+# Relocatable consumer entrypoint. The qualified payload host keeps its name.
+script=$0
+case "$script" in */*) ;; *) script=$(command -v "$script") || exit 127 ;; esac
+links=0
+while :; do
+    directory=$(CDPATH= cd -P -- "$(dirname -- "$script")" && pwd) || exit 127
+    if [ ! -L "$script" ]; then break; fi
+    links=$((links + 1))
+    if [ "$links" -gt 40 ]; then printf '%s\n' 'cbodotnet: launcher link cycle' >&2; exit 127; fi
+    target=$(readlink -- "$script") || exit 127
+    case "$target" in /*) script=$target ;; *) script=$directory/$target ;; esac
+done
+unset DOTNET_ROOT_X64 DOTNET_ROOT_ARM64 DOTNET_ROOT_X86
+DOTNET_ROOT=$directory/payload
+@ARCH_ROOT@="$DOTNET_ROOT"
+DOTNET_HOST_PATH="$DOTNET_ROOT/dotnet"
+DOTNET_MULTILEVEL_LOOKUP=0
+export DOTNET_ROOT @ARCH_ROOT@ DOTNET_HOST_PATH DOTNET_MULTILEVEL_LOOKUP
+if [ ! -d "$DOTNET_ROOT" ] || [ -L "$DOTNET_ROOT" ] || [ ! -f "$DOTNET_ROOT/dotnet" ] \
+    || [ -L "$DOTNET_ROOT/dotnet" ] || [ ! -x "$DOTNET_ROOT/dotnet" ]; then
+    printf '%s\n' 'cbodotnet: the selected archive payload host is missing or cannot execute' >&2
+    exit 127
+fi
+if [ "$#" -eq 0 ]; then
+    printf '%s\n' @BRAND@
+elif [ "$#" -eq 1 ]; then
+    case "$1" in
+        --version) printf '%s\n' @BRAND@ >&2 ;;
+        --info|--help|-h|help) printf '%s\n' @BRAND@ ;;
+        --cbodotnet-info)
+            # JSON quote arbitrary printable installation paths without Python.
+            case "$DOTNET_ROOT" in *'
+'*) printf '%s\n' 'cbodotnet: control characters in installation path are unsupported' >&2; exit 127 ;; esac
+            if printf '%s' "$DOTNET_ROOT" | LC_ALL=C grep '[[:cntrl:]]' >/dev/null; then
+                printf '%s\n' 'cbodotnet: control characters in installation path are unsupported' >&2; exit 127
+            fi
+            escaped=$(printf '%s' "$DOTNET_ROOT" | sed 's/\\/\\\\/g; s/"/\\"/g') || exit 127
+            printf '%s%s%s\n' @IDENTITY_PREFIX@ "$escaped" @IDENTITY_SUFFIX@
+            exit 0
+            ;;
+    esac
+fi
+@COMPAT@
+exec "$DOTNET_ROOT/dotnet" "$@"

@@ -20,7 +20,8 @@ if [[ $phase == build || $phase == prepare || $phase == prepare-published ]]; th
   fi
   mapfile -t dependencies < <(python3 - "$delivery/plan.json" <<'PY'
 import json,sys
-for name in json.load(open(sys.argv[1]))['dependencies']: print(name)
+for name in json.load(open(sys.argv[1]))['dependencies']:
+    if name != 'cbodotnet-compat-rocky9': print(name)
 PY
 )
   dnf -y --setopt=install_weak_deps=False --setopt=tsflags= install "${dependencies[@]}"

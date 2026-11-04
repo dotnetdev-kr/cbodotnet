@@ -11,7 +11,7 @@ import subprocess
 import tempfile
 import urllib.request
 
-from distribution_contract import load_contract, sha256_file, validate_qualified_producers, verified_plan
+from distribution_contract import candidate_target, load_contract, sha256_file, validate_qualified_producers, verified_plan
 from release_catalog import get_bytes, MAX_CHECKSUM_BYTES, MAX_JSON_BYTES, validate_release
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -95,6 +95,7 @@ def receive_release(tag, directory, channel, variant, arch, revision=1):
     policy = contract['channels'].get(channel, {})
     require(policy.get('status') == 'preparation-only' and variant in policy.get('variants', []),
             'Unsupported or deferred channel/variant')
+    candidate_target(contract, version, channel, variant, arch)
     directory = Path(directory).absolute()
     require(not any(p.is_symlink() for p in [directory, *directory.parents]), 'Unsafe intake directory')
     directory.mkdir(parents=True, exist_ok=True)

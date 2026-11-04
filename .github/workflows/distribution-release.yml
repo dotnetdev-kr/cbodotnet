@@ -60,7 +60,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: downstream-distribution-${{ github.event_name == 'pull_request' && github.event.pull_request.number || (inputs.publish && 'release' || inputs.channel || 'verification') }}
+  group: downstream-distribution-${{ github.event_name == 'pull_request' && github.event.pull_request.number || (inputs.publish && 'release' || format('{0}-{1}-r{2}', inputs.channel || 'verification', inputs.tag || 'sdk-10.0.403', inputs.revision || '1')) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:

@@ -64,6 +64,14 @@ def validate_contract(contract):
         require(re.fullmatch(r'[1-9][0-9]*\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)', version)
                 and isinstance(release, dict) and re.fullmatch(r'[a-f0-9]{64}', release.get('manifestSha256', '')),
                 'Invalid pinned release identity')
+        targets = release.get('channelTargets')
+        if targets is not None:
+            require(isinstance(targets, dict) and set(targets) <= {'deb', 'rpm', 'oci', 'aur'},
+                    'Invalid per-SDK candidate target admission')
+            for channel, variants in targets.items():
+                require(isinstance(variants, list) and len(variants) == len(set(variants))
+                        and set(variants) <= set(contract.get('channels', {}).get(channel, {}).get('variants', [])),
+                        'Unreviewed per-SDK candidate target')
     channels = contract.get('channels', {})
     require(set(channels) == {'deb', 'oci', 'rpm', 'aur'}, 'Unknown channel mapping')
     for name, channel in channels.items():
@@ -82,6 +90,21 @@ def validate_contract(contract):
             and contract['qualification'].get('containerBases') == [],
             'Contract v2 does not authorize publication or package/container compatibility claims')
     return contract
+
+
+def candidate_target(contract, version, channel, variant, arch):
+    """Candidate admission permits native testing; signed reports permit publication."""
+    admitted = contract['releases'].get(version)
+    require(admitted is not None, 'Release is not admitted by the reviewed distribution contract')
+    policy = contract['channels'].get(channel, {})
+    require(policy.get('status') == 'preparation-only' and variant in policy.get('variants', [])
+            and arch in policy.get('architectures', ARCHITECTURES), 'Unsupported or deferred channel/variant/architecture')
+    require(variant in admitted.get('channelTargets', {channel: policy['variants']}).get(channel, []),
+            'SDK target is not admitted for candidate qualification')
+    if version.startswith(('3.', '5.')):
+        require(admitted.get('compatibilityProvider') == 'rocky9-20261104',
+                'Legacy SDK requires a separately recorded compatibility provider')
+    return admitted
 
 
 def load_contract(path=None):
@@ -114,8 +137,10 @@ def launcher_text(root, arch, contract=None, plan=None):
         '@BRAND@': shlex.quote(BRANDING['displayName']),
         '@BRANDING_JSON@': shlex.quote(json.dumps(identity, separators=(',', ':'))),
     }
+    from legacy_compat import launcher_environment
+    replacements['@COMPATIBILITY_ENV@'] = launcher_environment(plan)
     template = (ROOT / 'scripts/cbodotnet-launcher.sh.in').read_text(encoding='utf-8')
-    return re.sub(r'@(?:ROOT|ARCH_ROOT|BRAND|BRANDING_JSON)@', lambda match: replacements[match[0]], template)
+    return re.sub(r'@(?:ROOT|ARCH_ROOT|BRAND|BRANDING_JSON|COMPATIBILITY_ENV)@', lambda match: replacements[match[0]], template)
 
 
 def validate_qualified_producers(record, target, catalog=None):
@@ -155,7 +180,7 @@ def verified_plan(release, manifest_bytes, checksum_bytes, sdk_path, channel, va
     manifest_digest = hashlib.sha256(manifest_bytes).hexdigest()
     record = validate_release(release, manifest_bytes, checksum_bytes, REPOSITORY)
     version = record['sdkVersion']
-    admitted = contract['releases'].get(version)
+    admitted = candidate_target(contract, version, channel, variant, arch)
     require(admitted is not None,
             'SDK version is not admitted for downstream packaging; legacy/unknown versions require separate qualification')
     require(manifest_digest == admitted['manifestSha256'], 'Pinned release manifest digest mismatch')

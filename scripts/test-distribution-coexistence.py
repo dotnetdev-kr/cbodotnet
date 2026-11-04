@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Exercise the contract launcher with real official and qualified SDKs as a user."""
 import argparse
+import getpass
 import hashlib
 import json
 import os
@@ -15,6 +16,7 @@ import tarfile
 
 from distribution_contract import verified_plan
 from distribution_commands import stage_commands
+from sdk_runtime import policy as runtime_policy, smoke_script, validate_host_rid, validate_smoke_output
 
 
 def require(value, message):
@@ -109,6 +111,7 @@ def main():
     parser.add_argument('--work-dir', required=True, type=Path)
     parser.add_argument('--arch', required=True, choices=('x64', 'aarch64'))
     parser.add_argument('--variant', default='ubuntu-24.04')
+    parser.add_argument('--compatibility-state', type=Path)
     parser.add_argument('--mode', choices=('package', 'oci'), default='package',
                         help='Test native commands or the container command layout in a private prefix')
     args = parser.parse_args()
@@ -187,29 +190,21 @@ def main():
     require(str(sdk / 'sdk') in run([launcher, '--list-sdks']), 'SDK resolution escaped the cbodotnet root')
     info = run([launcher, '--info'])
     require(str(sdk) in info, 'Host information does not reference the isolated root')
-    rid = re.search(r'^\s*RID:\s+(\S+)\s*$', info, re.MULTILINE)
-    require(rid and rid[1] == plan['targetRid'], 'Host information reports a different target RID')
-    project = work / 'console'
-    project.mkdir()
-    (project / 'global.json').write_text(json.dumps({'sdk': {'version': expected_version, 'rollForward': 'disable'}}))
-    (project / 'NuGet.Config').write_text('<configuration><packageSources><clear /></packageSources></configuration>')
-    (project / 'Smoke.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup>'
-                                         '<OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework>'
-                                         '</PropertyGroup></Project>')
-    (project / 'Program.cs').write_text('using System; using System.Globalization; using System.Security.Cryptography;\n'
-                                      'Console.WriteLine(Environment.ProcessPath);\n'
-                                      'Console.WriteLine(typeof(object).Assembly.Location);\n'
-                                      'Console.WriteLine(1234.5m.ToString("N1", CultureInfo.GetCultureInfo("fr-FR")));\n'
-                                      'using var rsa = RSA.Create(); var b = RandomNumberGenerator.GetBytes(32);\n'
-                                      'var s = rsa.SignData(b, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);\n'
-                                      'if (!rsa.VerifyData(b,s,HashAlgorithmName.SHA256,RSASignaturePadding.Pkcs1)) throw new Exception();\n'
-                                      'Console.WriteLine("crypto-passed");\n')
-    (work / 'restore.txt').write_text(run([launcher, 'restore', '--configfile', 'NuGet.Config'], project))
-    (work / 'build.txt').write_text(run([launcher, 'build', '--no-restore'], project))
-    output = run([launcher, project / 'bin/Debug/net10.0/Smoke.dll'], project)
-    require(output.splitlines()[0] == str(sdk / 'dotnet') and str(sdk / 'shared/Microsoft.NETCore.App') in output,
-            'The application used a different host/runtime')
-    require('crypto-passed' in output and '234,5' in output, 'Crypto/globalization smoke failed')
+    observed_rid = validate_host_rid(info, expected_version, args.arch, args.variant)
+    policy = runtime_policy(plan)
+    compatibility = None
+    runtime_env = {}
+    if policy['legacy']:
+        from legacy_compat import runtime_environment, assert_unchanged
+        require(args.compatibility_state is not None, 'A verified managed compatibility provider state is required')
+        runtime_env = runtime_environment(plan, args.compatibility_state)
+        compatibility = assert_unchanged(args.compatibility_state)
+    output = run(['sh', '-ec', smoke_script(expected_version, str(sdk), getpass.getuser(),
+                 cli=str(launcher), workdir=str(work / 'functional'), runtime_env=runtime_env)])
+    functional = validate_smoke_output(output)
+    (work / 'functional.txt').write_text(output)
+    if compatibility is not None:
+        compatibility = assert_unchanged(args.compatibility_state)
     require(snapshot(sdk) == payload_before, 'SDK execution changed the qualified installed payload')
     require(run([official, '--version']).strip() == original_version, 'Installation changed official dotnet behavior')
     if args.mode == 'package':
@@ -245,7 +240,8 @@ def main():
         raise ValueError('Removed launcher unexpectedly remains executable')
     report = {'status': 'passed', 'sdkVersion': expected_version, 'architecture': args.arch,
               'officialVersion': original_version, 'officialDotnet': str(official),
-              'targetRid': plan['targetRid'], 'additionalDirectories': additional_directories,
+              'targetRid': plan['targetRid'], 'observedHostRid': observed_rid, 'runtimePolicy': policy,
+              'functionalChecks': functional, 'compatibilityProvider': compatibility, 'additionalDirectories': additional_directories,
               'preparedVariant': args.variant, 'osRelease': Path('/etc/os-release').read_text(),
               'commandMode': args.mode, 'commandNames': command_names,
               'branding': plan['branding'], 'commandInventory': command_inventory,
