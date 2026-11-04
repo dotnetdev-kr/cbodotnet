@@ -89,6 +89,21 @@ class DistributionContractTests(unittest.TestCase):
         self.assertEqual(2, result['packageRevision'])
         self.assertEqual('10.0.403', result['sdkVersion'])
 
+    def test_rpm_targets_bind_their_own_dependencies_and_distro_release_identity(self):
+        for variant, dependency in [('fedora-45', 'zlib-ng-compat'), ('rocky-9.8', 'zlib')]:
+            plan = self.plan(channel='rpm', variant=variant)
+            self.assertIn(dependency, plan['rpmDependencies'])
+            self.assertEqual(plan['dependencies'], plan['rpmDependencies'])
+            self.assertEqual('1.cbot.' + variant.replace('-', ''), plan['package']['rpmRelease'])
+            self.assertFalse(plan['publicationAllowed'])
+
+    def test_arch_recipe_admits_only_independently_selected_x64(self):
+        plan = self.plan(channel='aur', variant='arch-rolling')
+        self.assertEqual('cbodotnet-sdk-10.0-bin', plan['package']['aurName'])
+        self.assertIn('libstdc++', plan['aurDependencies'])
+        with self.assertRaisesRegex(ValueError, 'not admitted'):
+            self.plan(arch='aarch64', channel='aur', variant='arch-rolling')
+
     def test_unknown_and_non_public_architecture_aliases_are_rejected(self):
         for arch in ('arm64', 'amd64', 'x86_64', 'riscv64', 'any', '../x64', ''):
             with self.subTest(arch=arch), self.assertRaises(ValueError):

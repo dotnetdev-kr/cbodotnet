@@ -1,0 +1,33 @@
+# Maintainer: .NET Dev contributors (https://dotnetdev.kr/)
+# Qualified prebuilt SDK; distribution.json records corresponding source/evidence.
+pkgname=cbodotnet-sdk-10.0-bin
+pkgver=10.0.403
+pkgrel=1
+pkgdesc='Community Build of .NET (built by .NET Dev) SDK'
+arch=('x86_64')
+url='https://dotnetdev.kr/cbodotnet/'
+license=('custom')
+depends=('glibc' 'libgcc' 'libstdc++' 'zlib' 'krb5' 'ca-certificates' 'icu' 'openssl' 'cbodotnet-host>=1.0.0')
+makedepends=('python')
+options=('!strip' '!debug' '!lto' '!zipman' '!purge' 'docs' 'libtool' 'staticlibs' 'emptydirs')
+source=('cbodotnet-10.0' 'distribution.json' 'verify-source.py' 'release-manifest.json::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json' 'SHA256SUMS::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/SHA256SUMS')
+sha256sums=('8872ade05c29eca9c76f4f609aa1d3248988bf83e7a200d3e1757df9a7724a08' '497ce67e21749505fe6e54962fa17734f4512762a095fa2e26099d13303f9c85' 'ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47' '16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d' 'a70b1a288f49bcf20c1bb05279a3409dbf5be0649e0b9a143133de7bd950acae')
+source_x86_64=('https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-x64.tar.gz')
+sha256sums_x86_64=('0ff27ca9775fb8d3c83fce60ad511754956f311a950878dcbc05bd6737a4bc09')
+noextract=('cbodotnet-sdk-10.0.403-linux-x64.tar.gz')
+
+prepare() {
+  python "$srcdir/verify-source.py" --policy "$srcdir/distribution.json" \
+    --manifest "$srcdir/release-manifest.json" --checksums "$srcdir/SHA256SUMS" \
+    --archive "$srcdir/cbodotnet-sdk-10.0.403-linux-x64.tar.gz" --destination "$srcdir/sdk-10.0.403"
+}
+
+package() {
+  install -dm755 "$pkgdir/opt/cbodotnet/10.0"
+  cp -a --no-preserve=ownership "$srcdir/sdk-10.0.403/." "$pkgdir/opt/cbodotnet/10.0/"
+  install -dm755 "$pkgdir/opt/cbodotnet/10.0/metadata"
+  install -Dm755 "$srcdir/cbodotnet-10.0" "$pkgdir/usr/bin/cbodotnet-10.0"
+  install -Dm644 "$srcdir/distribution.json" "$pkgdir/usr/share/doc/$pkgname/distribution.json"
+  install -Dm644 "$srcdir/sdk-10.0.403/LICENSE.txt" "$pkgdir/usr/share/licenses/$pkgname/LICENSE.txt"
+  install -Dm644 "$srcdir/sdk-10.0.403/ThirdPartyNotices.txt" "$pkgdir/usr/share/licenses/$pkgname/ThirdPartyNotices.txt"
+}

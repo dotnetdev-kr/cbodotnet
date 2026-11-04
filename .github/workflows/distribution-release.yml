@@ -14,6 +14,12 @@ on:
       - '.github/workflows/distribution-release.yml'
   workflow_dispatch:
     inputs:
+      channel:
+        description: Complete downstream channel matrix
+        required: true
+        default: deb-oci
+        type: choice
+        options: [deb-oci, rpm, aur]
       tag:
         description: Exact qualified SDK release
         required: true
@@ -62,7 +68,7 @@ env:
 
 jobs:
   native:
-    if: inputs.source_run_id == '' && inputs.promotion_run_id == ''
+    if: (inputs.channel == '' || inputs.channel == 'deb-oci') && inputs.source_run_id == '' && inputs.promotion_run_id == ''
     name: Install packages and OCI on native ${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 75
@@ -104,7 +110,7 @@ jobs:
   publish:
     name: Sign, promote and post-verify immutable distributions
     needs: native
-    if: always() && inputs.publish && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main' && (needs.native.result == 'success' || (needs.native.result == 'skipped' && (inputs.source_run_id != '' || inputs.promotion_run_id != '')))
+    if: always() && (inputs.channel == '' || inputs.channel == 'deb-oci') && inputs.publish && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main' && (needs.native.result == 'success' || (needs.native.result == 'skipped' && (inputs.source_run_id != '' || inputs.promotion_run_id != '')))
     runs-on: ubuntu-24.04
     timeout-minutes: 75
     environment: downstream-release
@@ -294,4 +300,73 @@ jobs:
           name: downstream-postverify-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/published-${{ matrix.arch }}.json
           retention-days: 30
+          if-no-files-found: error
+
+  native_rpm:
+    if: inputs.channel == 'rpm' && inputs.source_run_id == '' && inputs.promotion_run_id == ''
+    name: Install RPM packages on native ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Test repository controls
+        run: |
+          python3 scripts/check-repository.py
+          python3 -m unittest discover -s tests -p '*_test.py'
+      - name: Build and install both RPM distro targets with unchanged SDK bytes
+        env:
+          ARCH: ${{ matrix.arch }}
+          TAG: ${{ inputs.tag }}
+          REVISION: ${{ inputs.revision }}
+        run: |
+          set -euo pipefail
+          python3 scripts/rpm-ci.py native --tag "$TAG" --revision "$REVISION" --arch "$ARCH" \
+            --workspace "$RUNNER_TEMP/delivery-rpm-$ARCH"
+          tar -C "$RUNNER_TEMP" -czf "$RUNNER_TEMP/native-rpm-$ARCH.tar.gz" "delivery-rpm-$ARCH"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: downstream-rpm-native-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/native-rpm-${{ matrix.arch }}.tar.gz
+          compression-level: 0
+          retention-days: 7
+          if-no-files-found: error
+
+  native_aur:
+    if: inputs.channel == 'aur' && inputs.source_run_id == '' && inputs.promotion_run_id == ''
+    name: Build and install AUR recipes on native x64
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Test repository controls
+        run: |
+          python3 scripts/check-repository.py
+          python3 -m unittest discover -s tests -p '*_test.py'
+      - name: Build and install pinned binary recipes in clean Arch Linux
+        env:
+          TAG: ${{ inputs.tag }}
+          REVISION: ${{ inputs.revision }}
+        run: |
+          set -euo pipefail
+          python3 scripts/aur-ci.py native --tag "$TAG" --revision "$REVISION" \
+            --workspace "$RUNNER_TEMP/delivery-aur-x64"
+          tar -C "$RUNNER_TEMP" -czf "$RUNNER_TEMP/native-aur-x64.tar.gz" delivery-aur-x64
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: downstream-aur-native-x64-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/native-aur-x64.tar.gz
+          compression-level: 0
+          retention-days: 7
           if-no-files-found: error

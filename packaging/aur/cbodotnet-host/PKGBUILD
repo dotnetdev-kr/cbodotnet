@@ -1,0 +1,17 @@
+# Maintainer: .NET Dev contributors (https://dotnetdev.kr/)
+pkgname=cbodotnet-host
+pkgver=1.0.0
+pkgrel=1
+pkgdesc='Shared command selector for Community Build of .NET'
+arch=('any')
+url='https://dotnetdev.kr/cbodotnet/'
+license=('MIT')
+depends=('bash')
+options=('!strip' '!debug' '!lto')
+source=('cbodotnet' 'LICENSE')
+sha256sums=('22d23c82d1c279367d8456bf319faaaa36065d15b2c1c80bf548f06fac2ed805' 'ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b')
+
+package() {
+  install -Dm755 "$srcdir/cbodotnet" "$pkgdir/usr/bin/cbodotnet"
+  install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

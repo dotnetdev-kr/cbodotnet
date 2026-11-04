@@ -191,26 +191,24 @@ def render_rpm_spec(plan, source_name='payload.tar.gz'):
     require(re.fullmatch(r'[A-Za-z0-9._-]+', source_name), 'Unsafe RPM source filename')
     arch = plan['architecture']['rpm']
     name = plan['package']['name']
-    version, revision = plan['sdkVersion'], plan['packageRevision']
+    version = plan['sdkVersion']
+    release = rpm_release(plan)
     root = plan['package']['root']
     launcher = plan['package']['launcher']
     dependencies = plan.get('rpmDependencies')
     require(isinstance(dependencies, list) and dependencies and all(re.fullmatch(r'[A-Za-z0-9_().+<>= -]+', item) for item in dependencies),
             'Reviewed RPM-specific dependencies are required')
-    return f'''%global debug_package %{{nil}}
-%global __os_install_post %{{nil}}
-%global _build_id_links none
-%global _enable_debug_packages 0
+    return rpm_build_macros() + f'''
 Name: {name}
 Version: {version}
-Release: {revision}.cbot
+Release: {release}
 Summary: Community Build of .NET SDK built by .NET Dev
 License: LicenseRef-Dotnet-SDK-ThirdParty
 URL: https://dotnetdev.kr/cbodotnet/
 Source0: {source_name}
 BuildArch: {arch}
 AutoReqProv: no
-Requires: cbodotnet-host >= 1.0.0
+Requires: cbodotnet-host >= {HOST_VERSION}
 Requires: {', '.join(dependencies)}
 
 %description
@@ -230,6 +228,68 @@ tar -xzf "%{{SOURCE0}}" -C "%{{buildroot}}"
 {root}
 {launcher}
 /usr/share/doc/{name}
+'''
+
+
+def rpm_release(plan, shared=False):
+    """Different distro dependency graphs must never share one RPM NEVRA."""
+    variant = plan.get('variant', '')
+    require(isinstance(variant, str) and re.fullmatch(r'[a-z][a-z0-9]*-[1-9][0-9]*(?:\.[0-9]+)?', variant),
+            'A reviewed RPM distribution/version variant is required')
+    revision = HOST_VERSION.rsplit('-', 1)[1] if shared else plan.get('packageRevision')
+    require((type(revision) is int and revision > 0) or (shared and re.fullmatch(r'[1-9][0-9]*', revision)),
+            'RPM packaging revision must be positive')
+    release = str(revision) + '.cbot.' + variant.replace('-', '')
+    if not shared and 'rpmRelease' in plan.get('package', {}):
+        require(plan['package']['rpmRelease'] == release, 'RPM release differs from canonical distro identity')
+    return release
+
+
+def rpm_build_macros():
+    # RPM 6 defaults to format v6. Explicit v4 remains installable on Rocky's
+    # RPM 4 and allows one protected signer to handle both admitted variants.
+    return '''%global _rpmformat 4
+%global debug_package %{nil}
+%global __spec_install_post %{nil}
+%global __os_install_post %{nil}
+%global _build_id_links none
+%global _enable_debug_packages 0
+%global _openpgp_autosign_id %{nil}
+%global _buildhost reproducible.cbodotnet.invalid
+%global use_source_date_epoch_as_buildtime 1
+%global clamp_mtime_to_source_date_epoch 1
+%global build_mtime_policy clamp_to_source_date_epoch
+%global _binary_payload w6.xzdio
+%global _binary_filedigest_algorithm 8
+'''
+
+
+def render_rpm_host_spec(plan):
+    version = HOST_VERSION.rsplit('-', 1)[0]
+    release = rpm_release(plan, shared=True)
+    return rpm_build_macros() + f'''
+Name: cbodotnet-host
+Version: {version}
+Release: {release}
+Summary: Shared command selector for Community Build of .NET
+License: MIT
+URL: https://dotnetdev.kr/cbodotnet/
+Source0: host.tar.gz
+BuildArch: noarch
+AutoReqProv: no
+Requires: /bin/sh
+%description
+Shared cbodotnet SDK selector. Does not replace system dotnet.
+%prep
+%build
+%install
+mkdir -p "%{{buildroot}}"
+tar -xzf "%{{SOURCE0}}" -C "%{{buildroot}}"
+%files
+%defattr(-,root,root,-)
+/usr/bin/cbodotnet
+%dir /usr/share/licenses/cbodotnet-host
+%license /usr/share/licenses/cbodotnet-host/LICENSE
 '''
 
 
@@ -271,14 +331,14 @@ package() {{
     return text, srcinfo
 
 
-def deterministic_tar(source, destination):
+def deterministic_tar(source, destination, excluded_suffixes=()):
     """Produce a portable root-owned archive containing one ordinary staged tree."""
     source, destination = Path(source), Path(destination)
     with destination.open('xb') as stream:
         with gzip.GzipFile(fileobj=stream, filename='', mode='wb', mtime=int(SOURCE_DATE_EPOCH)) as compressed:
             with tarfile.open(fileobj=compressed, mode='w|', format=tarfile.PAX_FORMAT) as archive:
                 for path in sorted(source.rglob('*')):
-                    if destination == path:
+                    if destination == path or path.name.endswith(excluded_suffixes):
                         continue
                     info = archive.gettarinfo(str(path), arcname=path.relative_to(source).as_posix())
                     require(info.isfile() or info.isdir() or info.issym(), 'Unexpected staged archive member')
@@ -316,51 +376,41 @@ def build_rpm(plan, archive, output):
     shutil.copyfile(ROOT / 'LICENSE', host_tree / 'usr/share/licenses/cbodotnet-host/LICENSE')
     deterministic_tar(host_tree, top / 'SOURCES/host.tar.gz')
     host_spec = top / 'SPECS/host.spec'
-    host_spec.write_text('''%global debug_package %{nil}
-%global __os_install_post %{nil}
-%global _build_id_links none
-Name: cbodotnet-host
-Version: 1.0.0
-Release: 1
-Summary: Shared command selector for Community Build of .NET
-License: MIT
-URL: https://dotnetdev.kr/cbodotnet/
-Source0: host.tar.gz
-BuildArch: noarch
-AutoReqProv: no
-Requires: /bin/sh
-%description
-Shared cbodotnet SDK selector. Does not replace system dotnet.
-%prep
-%build
-%install
-mkdir -p "%{buildroot}"
-tar -xzf "%{SOURCE0}" -C "%{buildroot}"
-%files
-%defattr(-,root,root,-)
-/usr/bin/cbodotnet
-/usr/share/licenses/cbodotnet-host
-''', encoding='utf-8')
+    host_spec.write_text(render_rpm_host_spec(plan), encoding='utf-8')
     environment = dict(os.environ, SOURCE_DATE_EPOCH=SOURCE_DATE_EPOCH, TZ='UTC', LC_ALL='C')
     for path in (host_spec, sdk_spec):
-        subprocess.run(['rpmbuild', '--define', '_topdir ' + str(top), '--target', plan['architecture']['rpm'],
+        target = 'noarch' if path == host_spec else plan['architecture']['rpm']
+        subprocess.run(['rpmbuild', '--define', '_topdir ' + str(top), '--target', target,
                         '-bb', str(path)], check=True, env=environment, stdout=subprocess.PIPE)
     packages = []
     for path in sorted((top / 'RPMS').rglob('*.rpm')):
         target = output / path.name
         shutil.copyfile(path, target)
-        packages.append({**descriptor(target), 'kind': 'host' if path.name.startswith('cbodotnet-host-') else 'sdk'})
+        values = subprocess.check_output(['rpm', '--query', '--package', '--queryformat',
+                                          '%{NAME}\n%{VERSION}\n%{RELEASE}\n%{ARCH}\n', str(target)], env=environment).decode().splitlines()
+        require(len(values) == 4, 'RPM package has an invalid identity')
+        name, version, release, architecture = values
+        kind = 'host' if name == 'cbodotnet-host' else 'sdk'
+        require(name == ('cbodotnet-host' if kind == 'host' else plan['package']['name'])
+                and release == rpm_release(plan, shared=kind == 'host')
+                and architecture == ('noarch' if kind == 'host' else plan['architecture']['rpm']),
+                'RPM package differs from the reviewed distro identity')
+        packages.append({**descriptor(target), 'kind': kind, 'name': name, 'version': version,
+                         'release': release, 'architecture': architecture})
     require(len(packages) == 2, 'RPM builder did not produce exactly the SDK and shared host packages')
-    package_path = output / next(item['path'] for item in packages if item['kind'] == 'sdk')
     verification = output / 'rpm-verified'
-    verification.mkdir()
-    with subprocess.Popen(['rpm2cpio', str(package_path)], stdout=subprocess.PIPE) as producer:
-        subprocess.run(['cpio', '--extract', '--make-directories', '--no-absolute-filenames', '--no-preserve-owner', '--quiet'],
-                       cwd=verification, stdin=producer.stdout, check=True)
-        producer.stdout.close()
-        require(producer.wait() == 0, 'RPM extraction failed')
+    for item in packages:
+        destination = verification if item['kind'] == 'sdk' else output / 'rpm-host-verified'
+        destination.mkdir()
+        with subprocess.Popen(['rpm2cpio', str(output / item['path'])], stdout=subprocess.PIPE) as producer:
+            subprocess.run(['cpio', '--extract', '--make-directories', '--no-absolute-filenames', '--no-preserve-owner', '--quiet'],
+                           cwd=destination, stdin=producer.stdout, check=True)
+            producer.stdout.close()
+            require(producer.wait() == 0, 'RPM extraction failed')
     require(sdk_tools().snapshot(verification / plan['package']['root'].lstrip('/'))
             == sdk_tools().snapshot(rootfs / plan['package']['root'].lstrip('/')), 'RPM package changed SDK bytes or modes')
+    require(sdk_tools().snapshot(output / 'rpm-host-verified') == sdk_tools().snapshot(host_tree),
+            'RPM shared package changed selector bytes or modes')
     result = {'schemaVersion': 1, 'channel': 'rpm', 'plan': plan, 'packages': packages,
               'commandInventory': commands, 'payloadPreserved': True, 'publicationQualified': False}
     write_json(output / 'package-build.json', result)
@@ -435,31 +485,54 @@ def validate_package_builds(paths, channel):
     return builds, first, variants
 
 
-def build_repositories(paths, channel, output, signing_key, gnupg_home=None):
+def build_repositories(paths, channel, output, signing_key, gnupg_home=None, rpm_asset_base_url=None):
     require(channel in {'deb', 'rpm'}, 'Unsupported signed repository channel')
     require(re.fullmatch(r'[A-Fa-f0-9]{40,64}', signing_key), 'A full independently reviewed signing fingerprint is required')
     builds, first, variants = validate_package_builds(paths, channel)
+    remote_rpm = channel == 'rpm' and rpm_asset_base_url is not None
+    require(channel == 'rpm' or rpm_asset_base_url is None, 'RPM asset URLs cannot be used for another channel')
+    if remote_rpm:
+        expected_base = ('https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-'
+                         + first['sdkVersion'] + '-r' + str(first['packageRevision']) + '/')
+        require(isinstance(rpm_asset_base_url, str) and rpm_asset_base_url.rstrip('/') + '/' == expected_base,
+                'RPM package asset base must be the canonical immutable project release URL')
+        rpm_asset_base_url = expected_base
     output = fresh_output(output)
     public_key = subprocess.check_output(gpg_command(gnupg_home, '--export', signing_key))
     require(public_key, 'Repository signing identity has no exportable public key')
-    archives = []
+    archives, package_assets = [], {}
     for variant in variants:
         require(re.fullmatch(r'[a-z]+-[0-9]+(?:\.[0-9]+)?', variant), 'Unsafe repository OS variant')
         repository = output / variant
-        pool = repository / 'pool'
+        pool = repository if remote_rpm else repository / 'pool'
         pool.mkdir(parents=True)
         packages = {}
         for parent, build in builds:
             if build['plan']['variant'] != variant:
                 continue
             for item in build['packages']:
-                destination = pool / item['path']
+                require(item['path'].endswith('.rpm' if channel == 'rpm' else '.deb'), 'Unexpected repository package format')
+                canonical = item['path']
+                public_arch = build['plan']['architecture']['public']
+                if remote_rpm:
+                    prefix = ('rpm-' + variant + '--' if item['kind'] == 'host'
+                              else 'rpm-' + variant + '-' + public_arch + '--')
+                    canonical = prefix + item['path']
+                destination = pool / canonical
                 source = parent / item['path']
                 if destination.exists():
                     require(sha256_file(destination) == item['sha256'], 'Conflicting shared package identity')
                 else:
                     shutil.copyfile(source, destination)
-                packages[item['path']] = item['sha256']
+                if remote_rpm:
+                    packages[canonical] = {'sha256': item['sha256'], 'size': item['size'],
+                                           'url': rpm_asset_base_url + canonical}
+                    package_assets[canonical] = {'sourcePath': str(destination), 'assetName': canonical,
+                                                'size': item['size'], 'sha256': item['sha256'], 'variant': variant,
+                                                'architecture': 'noarch' if item['kind'] == 'host' else public_arch,
+                                                'kind': item['kind']}
+                else:
+                    packages[item['path']] = item['sha256']
         (repository / 'cbodotnet-archive-keyring.gpg').write_bytes(public_key)
         if channel == 'deb':
             indexes = subprocess.check_output(['apt-ftparchive', 'packages', 'pool'], cwd=repository)
@@ -493,7 +566,10 @@ def build_repositories(paths, channel, output, signing_key, gnupg_home=None):
                                                  stderr=subprocess.STDOUT).decode()
                 require('Signature' in status and 'NOKEY' not in status and 'NOT OK' not in status,
                         'RPM repository requires independently verified package signatures')
-            subprocess.run(['createrepo_c', '--checksum', 'sha256', str(repository)], check=True, stdout=subprocess.PIPE)
+            command = ['createrepo_c', '--checksum', 'sha256']
+            if remote_rpm:
+                command += ['--baseurl', rpm_asset_base_url]
+            subprocess.run([*command, str(repository)], check=True, stdout=subprocess.PIPE)
             metadata = repository / 'repodata/repomd.xml'
             subprocess.run(gpg_command(gnupg_home, '--local-user', signing_key, '--digest-algo', 'SHA256',
                                        '--armor', '--detach-sign', '--output', str(metadata) + '.asc', str(metadata)), check=True)
@@ -503,9 +579,12 @@ def build_repositories(paths, channel, output, signing_key, gnupg_home=None):
         write_json(repository / 'repository-manifest.json', {'schemaVersion': 1, 'channel': channel,
                    'sdkVersion': first['sdkVersion'], 'packageRevision': first['packageRevision'],
                    'variant': variant, 'architectures': ['x64', 'aarch64'], 'signingFingerprint': signing_key.upper(),
-                   'sourceManifestSha256': first['sourceManifestSha256'], 'packages': packages})
-        archives.append({**deterministic_tar(repository, output / archive_name), 'variant': variant, 'channel': channel})
+                   'sourceManifestSha256': first['sourceManifestSha256'], 'packages': packages,
+                   **({'assetBaseUrl': rpm_asset_base_url} if remote_rpm else {})})
+        archives.append({**deterministic_tar(repository, output / archive_name, ('.rpm',) if remote_rpm else ()),
+                         'variant': variant, 'channel': channel})
     result = {'schemaVersion': 1, 'channel': channel, 'sdkVersion': first['sdkVersion'],
-              'packageRevision': first['packageRevision'], 'signingFingerprint': signing_key.upper(), 'archives': archives}
+              'packageRevision': first['packageRevision'], 'signingFingerprint': signing_key.upper(), 'archives': archives,
+              **({'packageAssets': [package_assets[name] for name in sorted(package_assets)]} if remote_rpm else {})}
     write_json(output / 'repository-build.json', result)
     return result

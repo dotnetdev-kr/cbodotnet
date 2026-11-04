@@ -1,0 +1,26 @@
+#!/bin/sh
+# Explicit, isolated SDK selection; never resolve dotnet through PATH.
+unset DOTNET_ROOT_X64 DOTNET_ROOT_ARM64 DOTNET_ROOT_X86
+DOTNET_ROOT=/opt/cbodotnet/10.0
+DOTNET_ROOT_X64="$DOTNET_ROOT"
+DOTNET_HOST_PATH="$DOTNET_ROOT/dotnet"
+DOTNET_MULTILEVEL_LOOKUP=0
+export DOTNET_ROOT DOTNET_ROOT_X64 DOTNET_HOST_PATH DOTNET_MULTILEVEL_LOOKUP
+if [ ! -d "$DOTNET_ROOT" ] || [ -L "$DOTNET_ROOT" ] \
+    || [ ! -f "$DOTNET_ROOT/dotnet" ] || [ ! -x "$DOTNET_ROOT/dotnet" ] || [ -L "$DOTNET_ROOT/dotnet" ]; then
+    printf '%s\n' 'cbodotnet: the selected SDK host is missing or cannot execute' >&2
+    exit 127
+fi
+if [ "$#" -eq 0 ]; then
+    printf '%s\n' 'Community Build of .NET (built by .NET Dev)'
+elif [ "$#" -eq 1 ]; then
+    case "$1" in
+        --version) printf '%s\n' 'Community Build of .NET (built by .NET Dev)' >&2 ;;
+        --info|--help|-h|help) printf '%s\n' 'Community Build of .NET (built by .NET Dev)' ;;
+        --cbodotnet-info)
+            printf '%s\n' '{"schemaVersion":1,"contractVersion":2,"distributionBrand":"Community Build of .NET (built by .NET Dev)","sdkVersion":"10.0.403","targetRid":"linux-x64","sdkRoot":"/opt/cbodotnet/10.0","sourceReleaseTag":"sdk-10.0.403","sourceManifestSha256":"16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d","packageRevision":1,"brandingScope":"distribution-wrapper","qualifiedPayloadModified":false}'
+            exit 0
+            ;;
+    esac
+fi
+exec "$DOTNET_ROOT/dotnet" "$@"

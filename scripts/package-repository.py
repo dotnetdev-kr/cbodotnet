@@ -13,10 +13,12 @@ def main():
     parser.add_argument('--package-builds', nargs='+', type=Path, required=True)
     parser.add_argument('--signing-key', required=True)
     parser.add_argument('--gnupg-home', type=Path)
+    parser.add_argument('--rpm-asset-base-url', help='Immutable public RPM Release asset base; serve only metadata on Pages')
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     try:
-        result = build_repositories(args.package_builds, args.channel, args.output, args.signing_key, args.gnupg_home)
+        result = build_repositories(args.package_builds, args.channel, args.output, args.signing_key,
+                                    args.gnupg_home, rpm_asset_base_url=args.rpm_asset_base_url)
     except (ValueError, OSError, KeyError, TypeError) as error:
         parser.exit(1, 'Repository preparation rejected: ' + str(error) + '\n')
     print(json.dumps(result, sort_keys=True, indent=2))

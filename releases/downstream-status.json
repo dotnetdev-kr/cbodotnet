@@ -1,11 +1,13 @@
 {
   "channels": {
     "aur": {
-      "candidateMatrix": [],
+      "candidateMatrix": [{"variant": "arch-rolling", "architecture": "x64"}],
       "publications": [],
+      "receipts": [],
       "publisherConfigured": false,
-      "requiredChecks": [],
-      "status": "deferred"
+      "publisher": {"type": "github-release"},
+      "requiredChecks": ["package-integrity", "package-manager-install", "source-verification", "recipe-metadata"],
+      "status": "not-published"
     },
     "deb": {
       "candidateMatrix": [
@@ -798,11 +800,18 @@
       "status": "published"
     },
     "rpm": {
-      "candidateMatrix": [],
+      "candidateMatrix": [
+        {"variant": "fedora-45", "architecture": "x64"},
+        {"variant": "fedora-45", "architecture": "aarch64"},
+        {"variant": "rocky-9.8", "architecture": "x64"},
+        {"variant": "rocky-9.8", "architecture": "aarch64"}
+      ],
       "publications": [],
-      "publisherConfigured": false,
-      "requiredChecks": [],
-      "status": "deferred"
+      "receipts": [],
+      "publisherConfigured": true,
+      "publisher": {"type": "github-release"},
+      "requiredChecks": ["package-integrity", "package-manager-install", "repository-metadata", "package-signatures"],
+      "status": "not-published"
     }
   },
   "evidenceSigners": {

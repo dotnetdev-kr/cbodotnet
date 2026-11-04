@@ -1,0 +1,106 @@
+{
+  "additionalDirectories": [
+    "metadata"
+  ],
+  "architecture": {
+    "aur": "x86_64",
+    "deb": "amd64",
+    "oci": "linux/amd64",
+    "public": "x64",
+    "rid": "linux-x64",
+    "rpm": "x86_64"
+  },
+  "aurDependencies": [
+    "glibc",
+    "libgcc",
+    "libstdc++",
+    "zlib",
+    "krb5",
+    "ca-certificates",
+    "icu",
+    "openssl"
+  ],
+  "branding": {
+    "displayName": "Community Build of .NET (built by .NET Dev)",
+    "implementation": "distribution-wrapper",
+    "informationCommand": "--cbodotnet-info",
+    "modifyQualifiedPayload": false,
+    "versionBrandingStream": "stderr",
+    "versionStdout": "unchanged-numeric-sdk-version"
+  },
+  "channel": "aur",
+  "checksums": {
+    "name": "SHA256SUMS",
+    "sha256": "a70b1a288f49bcf20c1bb05279a3409dbf5be0649e0b9a143133de7bd950acae",
+    "size": 614
+  },
+  "commands": {
+    "containerDirectory": "/usr/local/bin",
+    "containerDotnet": "/usr/local/bin/dotnet",
+    "default": "/usr/bin/cbodotnet",
+    "defaultOwner": "cbodotnet-host",
+    "defaultSelection": "highest-installed-major-minor",
+    "versioned": "/usr/bin/cbodotnet-10.0"
+  },
+  "contractVersion": 2,
+  "dependencies": [
+    "glibc",
+    "libgcc",
+    "libstdc++",
+    "zlib",
+    "krb5",
+    "ca-certificates",
+    "icu",
+    "openssl"
+  ],
+  "evidence": {
+    "name": "evidence-x64.tar.gz",
+    "sha256": "56941c7c987707506784618cc992bab611c2f97623d4c1b56d4d4d00a1221a5e",
+    "size": 42812798,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-x64.tar.gz"
+  },
+  "licensePaths": [
+    "LICENSE.txt",
+    "ThirdPartyNotices.txt"
+  ],
+  "package": {
+    "aurName": "cbodotnet-sdk-10.0-bin",
+    "launcher": "/usr/bin/cbodotnet-10.0",
+    "name": "cbodotnet-sdk-10.0",
+    "root": "/opt/cbodotnet/10.0",
+    "version": "10.0.403-1"
+  },
+  "packageRevision": 1,
+  "producer": {
+    "artifactId": "13083076281",
+    "originalSdkName": "cbodotnet-sdk-10.0.403-linux-x64-build.41301145771.tar.gz",
+    "originalSourceName": "cbodotnet-sources-10.0.403-linux-x64-build.41301145771.tar.gz",
+    "projectCommit": "29e878271353d95c8d6db4bb358976bd7ee6e988",
+    "runAttempt": "1",
+    "runId": "41301145771",
+    "targetRid": "linux-x64",
+    "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41301145771"
+  },
+  "publicationAllowed": false,
+  "schemaVersion": 1,
+  "sdk": {
+    "name": "cbodotnet-sdk-10.0.403-linux-x64.tar.gz",
+    "sha256": "0ff27ca9775fb8d3c83fce60ad511754956f311a950878dcbc05bd6737a4bc09",
+    "size": 224606406,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-x64.tar.gz"
+  },
+  "sdkVersion": "10.0.403",
+  "securitySupport": "community-build-no-additional-security-maintenance",
+  "source": {
+    "name": "cbodotnet-source-10.0.403-linux-x64.tar.gz",
+    "sha256": "222a3f28450c258c8179eb5f4360e96f5886cd4af8fe36d33533f3bc6491009c",
+    "size": 783949395,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-x64.tar.gz"
+  },
+  "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+  "sourceManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json",
+  "sourceReleaseTag": "sdk-10.0.403",
+  "status": "prepared-unqualified",
+  "targetRid": "linux-x64",
+  "variant": "arch-rolling"
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Preparation-only packaging contract shared by Debian and OCI consumers."""
+"""Preparation rules for independently qualified downstream channels."""
 import hashlib
 import json
 from pathlib import Path, PurePosixPath
@@ -69,6 +69,9 @@ def validate_contract(contract):
     for name, channel in channels.items():
         require(isinstance(channel, dict) and channel.get('status') in {'preparation-only', 'deferred'}
                 and isinstance(channel.get('variants'), list), 'Invalid channel policy: ' + name)
+        architectures = channel.get('architectures', list(ARCHITECTURES))
+        require(isinstance(architectures, list) and architectures and len(architectures) == len(set(architectures))
+                and set(architectures) <= set(ARCHITECTURES), 'Invalid channel architecture admission')
         for variant in channel['variants']:
             os_record = contract.get('operatingSystems', {}).get(variant, {})
             require(os_record.get('libc') == 'glibc' and os_record.get('dependencies'),
@@ -146,6 +149,7 @@ def verified_plan(release, manifest_bytes, checksum_bytes, sdk_path, channel, va
     require(isinstance(channel, str) and channel in contract['channels'], 'Unsupported channel')
     policy = contract['channels'][channel]
     require(policy['status'] == 'preparation-only', 'Channel is deferred pending independent qualification: ' + channel)
+    require(arch in policy.get('architectures', ARCHITECTURES), 'Architecture is not admitted for this channel')
     require(isinstance(variant, str) and variant in policy['variants'],
             'Unsupported distro/version combination for ' + channel + ': ' + str(variant))
     manifest_digest = hashlib.sha256(manifest_bytes).hexdigest()
@@ -169,7 +173,7 @@ def verified_plan(release, manifest_bytes, checksum_bytes, sdk_path, channel, va
     if channel == 'oci':
         package['image'] = contract['channels']['oci']['repository'] + ':' + version + '-' + variant.replace('-', '') + '-r' + str(revision)
     entry = record['architectures'][arch]
-    return {
+    result = {
         'schemaVersion': 1, 'contractVersion': contract['schemaVersion'], 'status': 'prepared-unqualified',
         'sdkVersion': version, 'targetRid': ARCHITECTURES[arch]['rid'], 'architecture': dict(ARCHITECTURES[arch]),
         'channel': channel, 'variant': variant, 'packageRevision': revision, 'package': package,
@@ -187,3 +191,10 @@ def verified_plan(release, manifest_bytes, checksum_bytes, sdk_path, channel, va
         'licensePaths': list(admitted['licensePaths']), 'securitySupport': admitted['securitySupport'],
         'publicationAllowed': False,
     }
+    if channel == 'rpm':
+        result['rpmDependencies'] = list(result['dependencies'])
+        result['package']['rpmRelease'] = f'{revision}.cbot.' + variant.replace('-', '')
+    if channel == 'aur':
+        result['aurDependencies'] = list(result['dependencies'])
+        result['package']['aurName'] = installation['aurPackageTemplate']
+    return result

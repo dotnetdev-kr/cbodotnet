@@ -1,16 +1,21 @@
 """Build real Debian fixtures and reject unsafe or unqualified package inputs."""
 import copy
+import gzip
 import hashlib
 import io
 import json
 import os
 from pathlib import Path
+import platform
 import shutil
 import subprocess
 import sys
 import tarfile
 import tempfile
 import unittest
+from unittest import mock
+import urllib.parse
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
@@ -127,6 +132,138 @@ class ChannelPackagesTests(unittest.TestCase):
         self.assertIn(plan['sdk']['sha256'], recipe)
         self.assertNotIn('SKIP', recipe)
         self.assertIn('arch = x86_64', srcinfo)
+
+    def rpm_fixture(self, arch='x64', revision=1, variant='fedora-45'):
+        plan, archive = self.fixture(arch=arch, channel='rpm', revision=revision)
+        plan['variant'] = variant
+        plan['rpmDependencies'] = ['glibc', 'libgcc', 'libstdc++', 'zlib-ng-compat' if variant == 'fedora-45' else 'zlib',
+                                   'krb5-libs', 'ca-certificates', 'libicu', 'openssl-libs']
+        return plan, archive
+
+    def test_rpm_distribution_release_and_dependency_identities_are_distinct(self):
+        fedora, _ = self.rpm_fixture()
+        rocky, _ = self.rpm_fixture(variant='rocky-9.8')
+        self.assertEqual('1.cbot.fedora45', PACKAGES.rpm_release(fedora))
+        self.assertEqual('1.cbot.rocky9.8', PACKAGES.rpm_release(rocky))
+        self.assertIn('Release: 1.cbot.fedora45', PACKAGES.render_rpm_spec(fedora))
+        self.assertIn('zlib-ng-compat', PACKAGES.render_rpm_spec(fedora))
+        self.assertIn('Requires: glibc, libgcc, libstdc++, zlib,', PACKAGES.render_rpm_spec(rocky))
+        rocky['package']['rpmRelease'] = '1.cbot.fedora45'
+        with self.assertRaisesRegex(ValueError, 'canonical distro identity'):
+            PACKAGES.render_rpm_spec(rocky)
+        for variant in ('fedora-45;touch', '../rocky-9.8', 'rocky-9.8\nRequires: malicious'):
+            fedora['variant'] = variant
+            with self.subTest(variant=variant), self.assertRaises(ValueError):
+                PACKAGES.render_rpm_spec(fedora)
+
+    def test_rpm_specs_disable_sdk_rewrites_and_fix_reproducible_common_metadata(self):
+        plan, _ = self.rpm_fixture()
+        for spec in (PACKAGES.render_rpm_spec(plan), PACKAGES.render_rpm_host_spec(plan)):
+            self.assertIn('%global _rpmformat 4', spec)
+            self.assertIn('%global __spec_install_post %{nil}', spec)
+            self.assertIn('%global _buildhost reproducible.cbodotnet.invalid', spec)
+            self.assertIn('%global use_source_date_epoch_as_buildtime 1', spec)
+            self.assertIn('%global _binary_payload w6.xzdio', spec)
+            self.assertNotIn('/usr/bin/dotnet', spec)
+        host = PACKAGES.render_rpm_host_spec(plan)
+        self.assertIn('BuildArch: noarch', host)
+        self.assertNotIn('/opt/cbodotnet', host)
+        self.assertIn('%license /usr/share/licenses/cbodotnet-host/LICENSE', host)
+
+    @unittest.skipUnless(all(shutil.which(tool) for tool in ('rpmbuild', 'rpm', 'rpm2cpio', 'cpio')),
+                         'Native RPM build/extraction tools are required')
+    def test_real_rpm_payload_identity_and_common_package_reproducibility(self):
+        shared = []
+        arch = 'aarch64' if platform.machine() in {'aarch64', 'arm64'} else 'x64'
+        for revision in (1, 2):
+            plan, archive = self.rpm_fixture(arch=arch, revision=revision)
+            output = self.directory / ('rpm-r' + str(revision))
+            result = PACKAGES.build_rpm(plan, archive, output)
+            common = next(item for item in result['packages'] if item['kind'] == 'host')
+            sdk = next(item for item in result['packages'] if item['kind'] == 'sdk')
+            shared.append(common['sha256'])
+            self.assertEqual('1.cbot.fedora45', common['release'])
+            self.assertEqual('noarch', common['architecture'])
+            self.assertEqual(str(revision) + '.cbot.fedora45', sdk['release'])
+            actual = subprocess.check_output(['rpm', '--query', '--package', '--queryformat',
+                      '%{BUILDTIME}\n%{BUILDHOST}\n%{PAYLOADCOMPRESSOR}\n%{FILEDIGESTALGO}\n',
+                      str(output / common['path'])]).decode().splitlines()
+            self.assertEqual([PACKAGES.SOURCE_DATE_EPOCH, 'reproducible.cbodotnet.invalid', 'xz', '8'], actual)
+            self.assertEqual(b'qualified-managed-bytes',
+                             (output / 'rpm-verified/opt/cbodotnet/10.0/sdk/10.0.403/reference.dll').read_bytes())
+            self.assertFalse((output / 'rpm-verified/usr/bin/cbodotnet').exists())
+            self.assertFalse((output / 'rpm-host-verified/opt').exists())
+        self.assertEqual(shared[0], shared[1])
+        # The common package uses a canonical noarch target. A native target
+        # would leak its architecture into byte 9 of RPM's legacy package lead
+        # even when all queried noarch header tags and payload bytes match.
+        cross = self.directory / 'rpm-common-cross-target'
+        for directory in ('BUILD', 'BUILDROOT', 'RPMS', 'SOURCES', 'SPECS', 'SRPMS'):
+            (cross / directory).mkdir(parents=True)
+        shutil.copyfile(output / 'rpmbuild/SOURCES/host.tar.gz', cross / 'SOURCES/host.tar.gz')
+        spec = cross / 'SPECS/host.spec'
+        other = copy.deepcopy(plan)
+        other['architecture'] = copy.deepcopy(ARCHITECTURES['x64' if arch == 'aarch64' else 'aarch64'])
+        spec.write_text(PACKAGES.render_rpm_host_spec(other))
+        subprocess.run(['rpmbuild', '--define', '_topdir ' + str(cross), '--target', 'noarch', '-bb', str(spec)],
+                       env=dict(os.environ, SOURCE_DATE_EPOCH=PACKAGES.SOURCE_DATE_EPOCH, TZ='UTC', LC_ALL='C'),
+                       check=True, stdout=subprocess.PIPE)
+        cross_package = next((cross / 'RPMS').rglob('cbodotnet-host-*.rpm'))
+        self.assertEqual(shared[0], PACKAGES.sha256_file(cross_package))
+
+    @unittest.skipUnless(all(shutil.which(tool) for tool in ('rpmbuild', 'rpm', 'rpm2cpio', 'cpio', 'rpmkeys',
+                                                          'rpmsign', 'createrepo_c', 'gpg', 'gpgv')),
+                         'RPM repository and signing tools are required')
+    def test_signed_rpm_metadata_references_immutable_assets_without_archiving_package_blobs(self):
+        arch = 'aarch64' if platform.machine() in {'aarch64', 'arm64'} else 'x64'
+        plan, archive = self.rpm_fixture(arch=arch)
+        build_dir = self.directory / 'rpm-publish-input'
+        build = PACKAGES.build_rpm(plan, archive, build_dir)
+        home = self.directory / 'rpm-signing'
+        home.mkdir(mode=0o700)
+        subprocess.run(PACKAGES.gpg_command(home, '--quick-generate-key', 'cbodotnet ephemeral rpm test <test@example.invalid>',
+                                            'rsa2048', 'sign', '0'), check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        listing = subprocess.check_output(PACKAGES.gpg_command(home, '--with-colons', '--list-keys'), stderr=subprocess.PIPE).decode()
+        fingerprint = next(line.split(':')[9] for line in listing.splitlines() if line.startswith('fpr:'))
+        for item in build['packages']:
+            path = build_dir / item['path']
+            signed = subprocess.run(['rpmsign', '--define', '_gpg_name ' + fingerprint, '--define', '_gpg_path ' + str(home),
+                                     '--define', '__gpg ' + shutil.which('gpg'), '--define', '_gpg_digest_algo sha256', '--addsign', str(path)],
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            self.assertEqual(0, signed.returncode, signed.stdout + signed.stderr)
+            item.update(PACKAGES.descriptor(path))
+        # Architecture completeness is exercised by validate_package_builds
+        # tests; this native fixture isolates signed XML routing/blob exclusion.
+        admission = ([(build_dir, build)], plan, ['fedora-45'])
+        output = self.directory / 'rpm-published-repository'
+        base = 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/'
+        with mock.patch.object(PACKAGES, 'validate_package_builds', return_value=admission):
+            result = PACKAGES.build_repositories([], 'rpm', output, fingerprint, home, rpm_asset_base_url=base)
+        assets = {row['assetName']: row for row in result['packageAssets']}
+        self.assertEqual(2, len(assets))
+        self.assertTrue(any(name.startswith('rpm-fedora-45--cbodotnet-host-') for name in assets))
+        self.assertTrue(any(name.startswith('rpm-fedora-45-' + arch + '--cbodotnet-sdk-') for name in assets))
+        repository = output / 'fedora-45'
+        repo_manifest = json.loads((repository / 'repository-manifest.json').read_bytes())
+        self.assertEqual(base, repo_manifest['assetBaseUrl'])
+        self.assertEqual(set(assets), set(repo_manifest['packages']))
+        for name, row in repo_manifest['packages'].items():
+            self.assertEqual(base + name, row['url'])
+            self.assertEqual(assets[name]['sha256'], row['sha256'])
+            self.assertEqual(assets[name]['size'], row['size'])
+        namespace = {'repo': 'http://linux.duke.edu/metadata/repo', 'common': 'http://linux.duke.edu/metadata/common'}
+        metadata = ET.parse(repository / 'repodata/repomd.xml')
+        primary = next(item for item in metadata.findall('repo:data', namespace) if item.attrib['type'] == 'primary')
+        href = primary.find('repo:location', namespace).attrib['href']
+        with gzip.open(repository / href) as stream:
+            packages = ET.parse(stream)
+        locations = packages.findall('common:package/common:location', namespace)
+        urls = {urllib.parse.urljoin(item.attrib.get('{http://www.w3.org/XML/1998/namespace}base', ''), item.attrib['href'])
+                for item in locations}
+        self.assertEqual({base + name for name in assets}, urls)
+        with tarfile.open(output / 'rpm-fedora-45.tar.gz') as bundle:
+            self.assertFalse(any(name.endswith('.rpm') for name in bundle.getnames()))
+            self.assertIn('repodata/repomd.xml.asc', bundle.getnames())
 
     def test_repository_matrix_and_package_bytes_are_checked_before_signing(self):
         plan, _ = self.fixture()
