@@ -44,6 +44,11 @@ has its own version and canonical `noarch` build target; its unsigned bytes must
 match across both native architectures of a variant. Promotion signs it once
 and reuses those exact signed bytes.
 
+RPM records native compiler `Optflags` even for a shell-only package. The host
+spec clears that irrelevant header because it performs no compilation. This
+removes native architecture differences from the shared RPM without changing
+its payload or the SDK package's compiler metadata.
+
 The selector chooses the highest installed Community Build SDK series. The
 versioned launcher selects the 10.0 series. RPM packages do not own
 `/usr/bin/dotnet`, register system alternatives or modify an official .NET root.
@@ -54,6 +59,28 @@ is installed per major/minor series, so a packaging revision replaces the earlie
 revision of that series.
 
 ## Native validation and protected promotion
+
+Before an expensive SDK rebuild, run the read-only
+[shared RPM check](../.github/workflows/rpm-common-check.yml):
+
+```bash
+gh workflow run rpm-common-check.yml --ref main
+```
+
+It builds only `cbodotnet-host` on both native architectures of both pinned distro
+images, using the same builder as the SDK packager. It downloads no SDK and has
+no signing or publishing step. Require exact whole-package SHA-256, header, lead
+and cpio payload equality within each variant.
+[Run 41783677486](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41783677486)
+passed all of these comparisons with the following unsigned package hashes:
+
+| Variant | Identical x64/AArch64 shared RPM SHA-256 |
+| --- | --- |
+| `fedora-45` | `0b6eb72b176df0f9f88402329046c415cd276935146d02ca87aedb047c030127` |
+| `rocky-9.8` | `7c0ca5e4a6cf8a67895be90b2ed0f3ab0b33ef8235331029e9fed51fd3d49af3` |
+
+This is shared-package reproducibility evidence; complete SDK installation,
+signed publication and public HTTPS qualification remain separate gates.
 
 Run the [distribution workflow](../.github/workflows/distribution-release.yml)
 from `main`. The initial read-only native matrix does not sign or publish:

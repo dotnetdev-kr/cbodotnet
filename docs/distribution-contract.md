@@ -185,21 +185,23 @@ Mutable OCI tags such as `latest`, `10.0` and unsuffixed SDK aliases are deferre
 | `aarch64` | `linux-arm64` | `arm64` | `aarch64` | `aarch64` | `linux/arm64` |
 
 These are identity conversions, not compatibility approvals. Reject unknown
-architectures rather than selecting a default. AUR delivery remains deferred;
-its initial proposed test target is Arch Linux `x86_64`. The `aarch64` mapping does
-not qualify Arch Linux ARM. Never use architecture `any` for these native SDKs.
+architectures rather than selecting a default. AUR recipes have passed native
+validation on Arch Linux `x86_64`; public AUR submission remains deferred to
+[issue #10](https://github.com/dotnetdev-kr/cbodotnet/issues/10). The `aarch64`
+mapping does not qualify Arch Linux ARM. Never use architecture `any` for these
+native SDKs.
 
 | Channel | Target | Initial SDK/architectures | Current status |
 | --- | --- | --- | --- |
 | Debian package | Ubuntu 24.04 | 10.0.403, `amd64` and `arm64` | Published; native lifecycle and public repository checks passed |
 | Debian package | Debian 13 | 10.0.403, `amd64` and `arm64` | Published; native lifecycle and public repository checks passed |
 | OCI | Debian 13, variant `debian13` | 10.0.403, `linux/amd64` and `linux/arm64` | Published; native image and anonymous digest-pull checks passed |
-| RPM | No selected Fedora/RHEL target | None | Deferred pending dependency and installation testing |
-| AUR | Arch Linux `x86_64` proposed | None | Deferred pending Arch testing and maintainer publication |
+| RPM | Fedora 45 and Rocky Linux 9.8 | 10.0.403, `x86_64` and `aarch64` | Reviewed candidate matrix; complete public verification pending |
+| AUR | Arch Linux rolling | 10.0.403, `x86_64` only | Native recipe build/lifecycle validation passed; AUR submission deferred to issue #10 |
 
 Ubuntu 22.04 has archive evidence, but is not an initial package target.
-Fedora, RHEL-compatible distributions and Arch require their own explicit matrix;
-generic glibc execution is insufficient. Musl/Alpine is excluded until a
+Every target requires its own reviewed, explicit matrix; generic glibc execution
+is insufficient. Musl/Alpine is excluded until a
 separately qualified musl SDK exists. Reject unlisted channel/OS/version/SDK
 combinations with an unsupported-target error. There is no force-publication
 option in contract v2. Adding a target requires reviewed mapping changes and its

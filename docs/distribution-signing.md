@@ -15,10 +15,11 @@ project-owner channel before trusting a downloaded key. A key and its adjacent
 fingerprint from the same unverified server are not independent authentication.
 
 The project owner approved creating this key for signed installation evidence,
-distribution publication manifests and APT repository metadata. Private key
+distribution publication manifests, APT/RPM repository metadata and RPM package
+signatures. Private key
 material and a separate emergency revocation certificate are encrypted GitHub
 Environment secrets in `downstream-release`. That environment permits only the
-`main` branch. Only the trusted distribution publishing job references the
+`main` branch. Only trusted distribution publishing jobs reference the
 signing secret; general packaging, PR tests and Pages jobs have no private key.
 
 The primary key is deliberately separate from contributor identities and SDK
@@ -33,9 +34,11 @@ Inspect a downloaded public key with:
 gpg --show-keys --with-colons distribution-signing-key.asc
 ```
 
-Compare its `fpr` value exactly with the trusted fingerprint above, then dearmor
-it into a dedicated APT `signed-by` keyring. Never disable repository signature
-checking or import it as a blanket trust key for unrelated repositories.
+Compare its primary `fpr` value exactly with the trusted fingerprint above;
+reject additional unrelated primary keys. Use a dedicated APT `signed-by`
+keyring or the RPM repository's documented `gpgkey` configuration, with both
+`gpgcheck=1` and `repo_gpgcheck=1`. Never disable signature checking or trust this
+key for unrelated repositories.
 
 For rotation, create a successor key with its own explicit owner approval,
 publish its full fingerprint and validity window through existing trust

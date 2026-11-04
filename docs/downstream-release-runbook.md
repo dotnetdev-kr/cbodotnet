@@ -14,9 +14,10 @@ promotes the complete GHCR index and runs anonymous native digest-pull checks.
 Implemented adapters do not establish availability by themselves. Treat a first
 publication as pending until its public receipts and applicable native
 post-publication tests pass. Only the checked-in status and its authenticated
-receipts may enable website installation commands. RPM/AUR adapters remain
-gated by their separate target qualification in issues #5/#6; this workflow
-does not assert that those channels or the entire epic are complete.
+receipts may enable website installation commands. Each channel's reviewed
+targets and public receipts determine availability. Arch recipe validation
+completed under issue #6; authenticated AUR submission remains deferred to #10.
+Individual channel results do not complete the entire epic.
 
 ## Receive a qualified release
 
@@ -130,9 +131,11 @@ the successor identity and preserve old records. See the
 array. Each item supplies `packagePath`, `artifactPath`, `reportPath`,
 `signaturePath`, `keyringPath`, `commandsRoot` and `inputsDirectory`. Staging reauthenticates all
 reports and output files, requires one source/channel/version/revision, and
-matches the entire reviewed `candidateMatrix`. A Debian candidate currently
-requires both architectures on Ubuntu 24.04 and Debian 13; OCI requires both on
-Debian 13. RPM/AUR have no admitted matrices yet.
+matches the entire reviewed `candidateMatrix`. Debian requires both architectures
+on Ubuntu 24.04 and Debian 13; OCI requires both on Debian 13. RPM requires both
+on Fedora 45 and Rocky Linux 9.8. The AUR build candidate is Arch Linux rolling
+`x64` only; successful recipe validation does not authorize AUR publication,
+which remains deferred to issue #10.
 
 Only the complete transaction is exposed as a local immutable ledger record.
 Matching retries reuse the record. A different artifact, report or signature
@@ -362,7 +365,7 @@ network-disabled SDK/HTTP/crypto/globalization execution and removal.
 
 [Arch recipe delivery](aur-delivery.md) documents the reviewed recipes and the
 read-only weekly rolling compatibility check. Per the owner's scope decision,
-#6 finishes at native recipe build/installation validation; authenticated AUR
+#6 completed native recipe build/installation validation; authenticated AUR
 submission and actual public AUR URLs remain in
 [issue #10](https://github.com/dotnetdev-kr/cbodotnet/issues/10). Do not enable AUR
 availability or provision publishing credentials as part of the build-only work.
