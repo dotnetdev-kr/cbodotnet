@@ -214,13 +214,21 @@ def render_channels(status):
             continue
         if channel == 'deb':
             for variant in sorted({row['variant'] for row in data['publications']}):
+                current = max((row for row in data['publications'] if row['variant'] == variant),
+                              key=lambda row: (tuple(map(int, row['sdkVersion'].split('.'))), row['packageRevision']))
+                package = 'cbodotnet-sdk-' + '.'.join(current['sdkVersion'].split('.')[:2])
+                version = current['sdkVersion'] + '-' + str(current['packageRevision'])
                 command = ('sudo apt-get update\nsudo apt-get install -y ca-certificates curl gnupg\n'
                            'curl -fsSLo /tmp/cbodotnet-archive-keyring.gpg https://dotnetdev.kr/cbodotnet/cbodotnet-archive-keyring.gpg\n'
                            'test "$(gpg --show-keys --with-colons /tmp/cbodotnet-archive-keyring.gpg | '
                            "awk -F: '$1==\"pub\" {primary=1} $1==\"fpr\" && primary {print $10; primary=0}')\" = D7D154B4B33C19A82B95B13688135410ACD9C0EA || exit 1\n"
                            'sudo install -m 0644 /tmp/cbodotnet-archive-keyring.gpg /usr/share/keyrings/cbodotnet-archive-keyring.gpg\n'
-                           "echo 'deb [signed-by=/usr/share/keyrings/cbodotnet-archive-keyring.gpg] https://dotnetdev.kr/cbodotnet/packages/deb/" + variant +
-                           " ./' | sudo tee /etc/apt/sources.list.d/cbodotnet.list\nsudo apt-get update\nsudo apt-get install cbodotnet-sdk-10.0\ncbodotnet --info")
+                           'sudo rm -f /etc/apt/sources.list.d/cbodotnet.list\n'
+                           'sudo tee /etc/apt/sources.list.d/cbodotnet.sources > /dev/null <<EOF\n'
+                           'Types: deb\nURIs: https://dotnetdev.kr/cbodotnet/packages/deb/' + variant + '/\n'
+                           'Suites: ./\nArchitectures: $(dpkg --print-architecture)\n'
+                           'Signed-By: /usr/share/keyrings/cbodotnet-archive-keyring.gpg\nEOF\n'
+                           'sudo apt-get update\nsudo apt-get install ' + package + '=' + version + '\ncbodotnet --info')
                 rows.append('<h3>' + html.escape(variant) + ' APT</h3><pre><code>' + html.escape(command) + '</code></pre>')
         if channel == 'oci' and data.get('image'):
             image = data['image']['repository'] + '@' + data['image']['digest']

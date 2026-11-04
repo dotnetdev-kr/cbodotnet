@@ -63,7 +63,7 @@ jobs:
           REVISION: ${{ inputs.revision }}
         run: |
           set -euo pipefail
-          install -d -m 0777 "$RUNNER_TEMP/site-reports"
+          install -d -m 0755 "$RUNNER_TEMP/site-reports"
           for variant in ubuntu-24.04 debian-13; do
             case "$variant" in
               ubuntu-24.04) base='ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852' ;;

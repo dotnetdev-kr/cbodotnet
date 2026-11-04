@@ -40,9 +40,12 @@ def require(value, message):
         raise ValueError(message)
 
 
-def selected_channels(args):
+def selected_channels(args, *, native=False):
     mode = getattr(args, 'channel', 'deb-oci')
-    require(mode in {'deb-oci', 'oci'}, 'Unsupported native distribution channel selection')
+    require(mode in ({'deb-oci', 'deb', 'oci'} if native else {'deb-oci', 'oci'}),
+            'Unsupported distribution channel selection')
+    if mode == 'deb':
+        return ('deb',)
     return ('oci',) if mode == 'oci' else ('deb', 'oci')
 
 
@@ -238,8 +241,8 @@ def user_command(arguments, directory):
             'DOTNET_CLI_UI_LANGUAGE=en', 'LC_ALL=C', *map(str, arguments)]
 
 
-def installed(args):
-    require(os.geteuid() == 0, 'Installation tests require a disposable root container')
+def installation_context(args):
+    require(os.geteuid() == 0 and Path('/.dockerenv').is_file(), 'Installation tests require a disposable root container')
     delivery = args.delivery.resolve()
     plan = json.loads((delivery / 'plan.json').read_bytes())
     architecture = plan['architecture']['public']
@@ -248,23 +251,45 @@ def installed(args):
     expected_os = load_contract()['operatingSystems'][args.variant]
     require(os_release['ID'].strip('"') == expected_os['id'] and os_release['VERSION_ID'].strip('"') == expected_os['versionId'],
             'Installation executed on another OS/version')
+    require(plan['variant'] == args.variant and plan['channel'] == args.mode, 'Installed channel/variant differs from its source plan')
+    return delivery, plan, architecture, expected_os
+
+
+def require_offline_runtime():
+    require({path.name for path in Path('/sys/class/net').iterdir()} == {'lo'},
+            'Installed runtime/lifecycle proof requires Docker --network none')
+
+
+def strict_dpkg_integrity(names):
+    require(not run(['dpkg', '-V', *names]).strip(), 'Installed package failed full dpkg integrity verification')
+
+
+def prepare_installed(args):
+    delivery, plan, architecture, _ = installation_context(args)
     run(['useradd', '--create-home', '--uid', '10001', 'cbot-smoke'])
-    official = Path('/usr/share/dotnet')
-    require(not official.exists(), 'Comparison official root must be fresh')
-    official.parent.mkdir(parents=True, exist_ok=True)
-    extractor()(Path('/delivery/official-sdk.tar.gz'), official)
-    (official / 'metadata').mkdir(exist_ok=True)
-    if not Path('/usr/bin/dotnet').exists():
-        Path('/usr/bin/dotnet').symlink_to(official / 'dotnet')
     work = Path('/home/cbot-smoke/project')
     work.mkdir()
     run(['chown', '-R', 'cbot-smoke:cbot-smoke', str(work)])
-
-    def as_user(command, cwd=work):
-        return run(user_command(command, cwd), cwd=cwd)
-
-    require(as_user([official / 'dotnet', '--version']).strip() == '10.0.100', 'Official comparison SDK failed')
-    official_before = inventory(official)
+    if args.mode == 'deb':
+        from apt_official import bootstrap
+        progress('install the official SDK through its signed native package repository')
+        baseline = bootstrap(args.variant, architecture, 'cbot-smoke', delivery / 'official-state.json')
+        official = Path(baseline['officialRoot'])
+        official_version = baseline['sdkVersion']
+        official_before = None
+    else:
+        official = Path('/usr/share/dotnet')
+        require(not official.exists(), 'Comparison official root must be fresh')
+        official.parent.mkdir(parents=True, exist_ok=True)
+        extractor()(Path('/delivery/official-sdk.tar.gz'), official)
+        (official / 'metadata').mkdir(exist_ok=True)
+        if not Path('/usr/bin/dotnet').exists():
+            Path('/usr/bin/dotnet').symlink_to(official / 'dotnet')
+        official_version = '10.0.100'
+        require(run(user_command([official / 'dotnet', '--version'], work), cwd=work).strip() == official_version,
+                'Official comparison SDK failed')
+        official_before = inventory(official)
+        baseline = dict(officialRoot=str(official), sdkVersion=official_version, provider='official-archive')
     sdk = Path(plan['package']['root'])
     if args.mode == 'deb':
         progress('install native packages from ' + ('the authenticated repository' if (delivery / 'repository').is_dir() else 'the verified local package files'))
@@ -283,6 +308,7 @@ def installed(args):
             run(['apt-get', 'install', '-y', plan['package']['name'] + '=' + plan['package']['version'], 'cbodotnet-host=1.0.0-1'])
         else:
             run(['apt-get', 'install', '-y', *map(str, packages)])
+        strict_dpkg_integrity([plan['package']['name'], 'cbodotnet-host'])
     require(sdk.is_dir(), 'Installed SDK root is missing')
     expected = Path(tempfile.mkdtemp(prefix='cbot-payload-')) / 'sdk'
     extractor()(Path('/delivery/inputs') / plan['sdk']['name'], expected)
@@ -290,7 +316,101 @@ def installed(args):
         (expected / name).mkdir(mode=0o755, exist_ok=True)
     require(inventory(expected) == inventory(sdk), 'Installed SDK bytes/modes differ from qualified archive')
     shutil.rmtree(expected.parent)
-    sdk_before = inventory(sdk)
+    (delivery / 'installation-state.json').write_bytes(encoded(dict(schemaVersion=1, status='prepared',
+        mode=args.mode, variant=args.variant, architecture=architecture, sdkBefore=inventory(sdk),
+        officialBaseline=baseline, officialBefore=official_before)))
+
+
+def assert_removed_deb(plan):
+    require(not Path(plan['package']['root']).exists() and Path('/usr/bin/cbodotnet').is_file()
+            and not Path(plan['package']['launcher']).exists(), 'Removal damaged shared ownership or left SDK payload')
+    result = subprocess.run(user_command(['cbodotnet', '--version'], Path('/home/cbot-smoke')), text=True, capture_output=True)
+    require(result.returncode == 127 and not result.stdout, 'Removed SDK fell back to another dotnet host')
+    strict_dpkg_integrity(['cbodotnet-host'])
+
+
+def deb_lifecycle(plan, delivery, sdk_before, as_user, official_check):
+    packages = sorted((delivery / 'packages').glob('*.deb'))
+    require(len(packages) == 2, 'Both original immutable packages are required for lifecycle validation')
+    sdk = Path(plan['package']['root'])
+    phases = ['after-install', 'after-runtime']
+
+    def installed_revision(revision):
+        identity = json.loads(as_user(['cbodotnet', '--cbodotnet-info']))
+        require(identity['packageRevision'] == revision and identity['sdkVersion'] == plan['sdkVersion']
+                and identity['sourceManifestSha256'] == plan['sourceManifestSha256'], 'Package lifecycle selected another revision/source')
+        require(inventory(sdk) == sdk_before, 'Packaging lifecycle changed qualified SDK payload')
+        strict_dpkg_integrity([plan['package']['name'], 'cbodotnet-host'])
+
+    if not (delivery / 'post-publication').exists():
+        progress('upgrade the installed SDK packaging revision')
+        upgrades = sorted((delivery / 'upgrade').glob('*.deb'))
+        require(len(upgrades) == 2, 'A real next-revision upgrade is required')
+        run(['apt-get', 'install', '-y', '--no-download', *map(str, upgrades)])
+        installed_revision(plan['packageRevision'] + 1)
+        official_check('after-upgrade')
+        phases.append('after-upgrade')
+        progress('roll back to the original immutable packaging revision')
+        run(['apt-get', 'install', '-y', '--no-download', '--allow-downgrades', *map(str, packages)])
+        installed_revision(plan['packageRevision'])
+        official_check('after-rollback')
+        phases.append('after-rollback')
+    progress('remove only the versioned SDK package and preserve the official installation')
+    run(['apt-get', 'remove', '-y', plan['package']['name']])
+    assert_removed_deb(plan)
+    official_check('after-remove')
+    phases.append('after-remove')
+    progress('reinstall the original package before exercising an installed-package purge')
+    run(['apt-get', 'install', '-y', '--no-download', *map(str, packages)])
+    require(run(['dpkg-query', '-W', '-f=${Status}', plan['package']['name']]).strip() == 'install ok installed',
+            'Purge fixture must reinstall the actual SDK package first')
+    installed_revision(plan['packageRevision'])
+    official_check('after-reinstall')
+    phases.append('after-reinstall')
+    progress('purge the installed SDK package and retain shared host ownership')
+    run(['apt-get', 'purge', '-y', plan['package']['name']])
+    assert_removed_deb(plan)
+    query = subprocess.run(['dpkg-query', '-W', '-f=${Status}', plan['package']['name']], text=True, capture_output=True)
+    require(query.returncode == 1 or query.returncode == 0 and query.stdout.strip().split()[-2:] == ['ok', 'not-installed'],
+            'SDK purge retained an installed package or configuration-only record')
+    official_check('after-purge')
+    phases.append('after-purge')
+    return phases
+
+
+def installed(args):
+    if getattr(args, 'phase', 'lifecycle') == 'prepare':
+        return prepare_installed(args)
+    require_offline_runtime()
+    delivery, plan, architecture, expected_os = installation_context(args)
+    state = json.loads((delivery / 'installation-state.json').read_bytes())
+    require(state.get('status') == 'prepared' and state['mode'] == args.mode and state['variant'] == args.variant
+            and state['architecture'] == architecture, 'Runtime fixture differs from prepared native installation')
+    work = Path('/home/cbot-smoke/project')
+    official = Path(state['officialBaseline']['officialRoot'])
+    official_version = state['officialBaseline']['sdkVersion']
+    sdk = Path(plan['package']['root'])
+    sdk_before = state['sdkBefore']
+    official_proofs = []
+
+    def as_user(command, cwd=work):
+        return run(user_command(command, cwd), cwd=cwd)
+
+    def official_check(phase):
+        if args.mode == 'deb':
+            from apt_official import assert_unchanged
+            proof = assert_unchanged(delivery / 'official-state.json')
+            require(proof.get('status') == 'passed', 'Official package-manager installation changed')
+            require(as_user(['dotnet', '--version'], Path('/home/cbot-smoke')).strip() == official_version,
+                    'Native package took over official dotnet selection')
+        else:
+            require(inventory(official) == state['officialBefore'], 'cbodotnet modified the official installation')
+            proof = dict(status='passed', provider='official-archive')
+        require(as_user([official / 'dotnet', '--version'], Path('/home/cbot-smoke')).strip() == official_version,
+                'Official SDK version changed after a lifecycle transition')
+        official_proofs.append(dict(phase=phase, **proof))
+
+    official_check('after-install')
     versioned = 'cbodotnet-' + '.'.join(plan['sdkVersion'].split('.')[:2])
     names = [versioned, 'cbodotnet'] + (['dotnet'] if args.mode == 'oci' else [])
     for name in names:
@@ -300,13 +420,14 @@ def installed(args):
         info = as_user([name, '--info'])
         require(info.startswith(BRAND + '\n') and str(sdk) in info and plan['targetRid'] in info, 'Alias host/RID mismatch')
         identity = json.loads(as_user([name, '--cbodotnet-info']))
-        require(identity['sourceManifestSha256'] == plan['sourceManifestSha256'] and identity['sdkVersion'] == plan['sdkVersion'],
+        require(identity['sourceManifestSha256'] == plan['sourceManifestSha256'] and identity['sdkVersion'] == plan['sdkVersion']
+                and identity['packageRevision'] == plan['packageRevision'] and identity['sdkRoot'] == str(sdk),
                 'Alias source provenance mismatch')
         validate_sdk_listing(as_user([name, '--list-sdks']), plan['sdkVersion'], str(sdk))
     (work / 'global.json').write_text(json.dumps({'sdk': {'version': plan['sdkVersion'], 'rollForward': 'disable'}}))
     (work / 'NuGet.Config').write_text('<configuration><packageSources><clear /></packageSources></configuration>')
     (work / 'Smoke.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType>'
-                                     '<TargetFramework>net10.0</TargetFramework></PropertyGroup></Project>')
+                                     '<TargetFramework>net10.0</TargetFramework><UseAppHost>true</UseAppHost></PropertyGroup></Project>')
     (work / 'Program.cs').write_text('using System; using System.Globalization; using System.Security.Cryptography;\n'
                                     'Console.WriteLine(Environment.ProcessPath); Console.WriteLine(typeof(object).Assembly.Location);\n'
                                     'using var rsa = RSA.Create(); var b = RandomNumberGenerator.GetBytes(32);\n'
@@ -319,6 +440,11 @@ def installed(args):
     output = as_user(['cbodotnet', work / 'bin/Debug/net10.0/Smoke.dll'])
     require(output.splitlines()[0] == str(sdk / 'dotnet') and str(sdk / 'shared') in output
             and 'crypto-passed' in output and '234,5' in output, 'Installed non-root application smoke failed')
+    apphost = work / 'bin/Debug/net10.0/Smoke'
+    arch_root = 'DOTNET_ROOT_ARM64' if architecture == 'aarch64' else 'DOTNET_ROOT_X64'
+    output = as_user(['env', 'DOTNET_ROOT=' + str(sdk), arch_root + '=' + str(sdk), apphost])
+    require(output.splitlines()[0] == str(apphost) and str(sdk / 'shared') in output
+            and 'crypto-passed' in output and '234,5' in output, 'Installed non-root apphost selected another runtime')
     http = work / 'http'
     http.mkdir()
     (http / 'Http.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk.Web"><PropertyGroup><TargetFramework>net10.0</TargetFramework>'
@@ -349,34 +475,15 @@ def installed(args):
         process.wait(timeout=15)
         log.close()
     require(inventory(sdk) == sdk_before, 'Installed execution modified qualified SDK payload')
-    require(inventory(official) == official_before, 'cbodotnet modified the official installation')
+    official_check('after-runtime')
     if args.mode == 'deb':
-        require(as_user(['dotnet', '--version'], Path('/home/cbot-smoke')).strip() == '10.0.100', 'Native package took over official dotnet')
-        require(not run(['dpkg', '-V', plan['package']['name'], 'cbodotnet-host']).strip(),
-                'Installed SDK or shared host package failed dpkg integrity verification')
-        if not (delivery / 'post-publication').exists():
-            progress('upgrade the installed SDK packaging revision')
-            upgrades = sorted((delivery / 'upgrade').glob('*.deb'))
-            require(len(upgrades) == 2, 'A real next-revision upgrade is required')
-            run(['apt-get', 'install', '-y', *map(str, upgrades)])
-            identity = json.loads(as_user(['cbodotnet', '--cbodotnet-info']))
-            require(identity['packageRevision'] == plan['packageRevision'] + 1, 'Package upgrade selected another revision')
-            require(inventory(sdk) == sdk_before, 'Packaging-only upgrade changed qualified SDK payload')
-            progress('roll back to the original immutable packaging revision')
-            run(['apt-get', 'install', '-y', '--allow-downgrades', *map(str, packages)])
-            identity = json.loads(as_user(['cbodotnet', '--cbodotnet-info']))
-            require(identity['packageRevision'] == plan['packageRevision'], 'Package rollback selected another revision')
-            require(inventory(sdk) == sdk_before, 'Package rollback changed qualified SDK payload')
-        progress('remove only the versioned SDK package and preserve the official installation')
-        run(['apt-get', 'remove', '-y', plan['package']['name']])
-        require(not sdk.exists() and Path('/usr/bin/cbodotnet').is_file(), 'Removal damaged shared-command ownership or left SDK payload')
-        result = subprocess.run(user_command(['cbodotnet', '--version'], Path('/home/cbot-smoke')), text=True, capture_output=True)
-        require(result.returncode == 127 and not result.stdout, 'Removed SDK fell back to another dotnet host')
-    require(as_user([official / 'dotnet', '--version'], Path('/home/cbot-smoke')).strip() == '10.0.100'
-            and inventory(official) == official_before, 'Official SDK changed after lifecycle tests')
+        strict_dpkg_integrity([plan['package']['name'], 'cbodotnet-host'])
+        phases = deb_lifecycle(plan, delivery, sdk_before, as_user, official_check)
+        require([row['phase'] for row in official_proofs] == phases, 'Official package proof omits a lifecycle transition')
     dependencies = {name: run(['dpkg-query', '-W', '-f=${Version}', name]).strip() for name in plan['dependencies']}
     checks = {name: 'passed' for name in PREPUBLICATION_CHECKS}
     checks['sdk-list-paths'] = 'passed'
+    checks['offline-network'] = 'passed'
     checks.update({name: 'passed' for name in (['package-integrity', 'package-manager-install', 'repository-metadata']
                                              if args.mode == 'deb' else ['image-config', 'oci-platforms', 'pinned-base-image'])})
     # OCI upgrade/removal are validated by the outer driver against whole images.
@@ -386,18 +493,52 @@ def installed(args):
     else:
         checks['repository-metadata'] = 'pending-signing-stage'
         checks['rollback'] = 'passed'
+        checks.update({'official-package-coexistence': 'passed', 'installed-package-purge': 'passed'})
         if (delivery / 'post-publication').exists():
             checks['upgrade'] = 'verified-before-publication'
             checks['rollback'] = 'verified-before-publication'
             checks['repository-metadata'] = 'passed'
     result = {'schemaVersion': 1, 'status': 'passed', 'target': dict(osId=expected_os['id'], versionId=expected_os['versionId'],
-               architecture=architecture, native=True, dependencies=dependencies), 'checks': checks, 'commandNames': names}
+               architecture=architecture, native=True, dependencies=dependencies), 'checks': checks, 'commandNames': names,
+              'networkForBuild': 'none', 'officialComparison': state['officialBaseline'], 'officialCoexistence': official_proofs,
+              'functionalChecks': {name: 'passed' for name in ('consoleDllExecution', 'consoleApphostExecution',
+                 'aspNetCoreLoopbackHttp', 'rsaSha256SignAndVerify', 'cryptographicRandomBytes', 'frFrDecimalFormatting')}}
     (delivery / 'installation-result.json').write_bytes(encoded(result))
 
 
 def orchestration():
-    return dict(repository='dotnetdev-kr/cbodotnet', workflow='.github/workflows/distribution-release.yml',
+    ref = os.environ.get('GITHUB_WORKFLOW_REF', 'dotnetdev-kr/cbodotnet/.github/workflows/distribution-release.yml@refs/heads/main')
+    prefix = 'dotnetdev-kr/cbodotnet/'
+    require(ref.startswith(prefix) and '@' in ref, 'Actual workflow provenance is required')
+    workflow = ref.removeprefix(prefix).split('@', 1)[0]
+    require(workflow in {'.github/workflows/distribution-release.yml', '.github/workflows/apt-completeness.yml'},
+            'Unsupported native evidence workflow')
+    return dict(repository='dotnetdev-kr/cbodotnet', workflow=workflow,
                 commit=os.environ['GITHUB_SHA'], runId=os.environ['GITHUB_RUN_ID'], runAttempt=os.environ['GITHUB_RUN_ATTEMPT'])
+
+
+def container_lifecycle(workspace, delivery, base, variant, mode):
+    """Provision with networking, then run all installed SDK checks offline."""
+    cid = image = None
+    try:
+        progress('provision native ' + variant + ' ' + mode + ' installation')
+        cid = run(['docker', 'create', '--user', '0', '--entrypoint', '/bin/bash',
+                   '-v', f'{ROOT}:/repo:ro', '-v', f'{workspace}:/delivery', base,
+                   '/repo/scripts/verify-channel-install.sh', '/repo', '/delivery/' + delivery.name,
+                   variant, mode, 'prepare']).strip()
+        run(['docker', 'start', '--attach', cid])
+        require(json.loads(run(['docker', 'inspect', cid]))[0]['State']['ExitCode'] == 0,
+                'Native installation provisioning failed')
+        image = run(['docker', 'commit', cid]).strip()
+        run(['docker', 'run', '--rm', '--network', 'none', '--user', '0', '--entrypoint', '/bin/bash',
+             '-v', f'{ROOT}:/repo:ro', '-v', f'{workspace}:/delivery', image,
+             '/repo/scripts/verify-channel-install.sh', '/repo', '/delivery/' + delivery.name,
+             variant, mode, 'lifecycle'])
+    finally:
+        if cid:
+            subprocess.run(['docker', 'rm', '--force', cid], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if image:
+            subprocess.run(['docker', 'image', 'rm', image], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def copy_commands(build, target):
@@ -426,15 +567,18 @@ def record(delivery, artifact, result, commands, inputs):
 
 
 def native(args):
+    channels = selected_channels(args, native=True)
+    require(os.getuid() != 0 and platform.machine() in ({'aarch64', 'arm64'} if args.arch == 'aarch64' else {'x86_64'}),
+            'A matching non-root native Linux producer is required')
     workspace = args.workspace.resolve()
     require(not workspace.exists(), 'Native delivery workspace must be fresh')
     workspace.mkdir(parents=True)
     inputs = workspace / 'inputs'
     progress('receive the exact qualified SDK source release for ' + args.arch)
-    channels = selected_channels(args)
     receive_release(args.tag, inputs, 'oci' if channels == ('oci',) else 'deb', 'debian-13', args.arch, args.revision)
-    progress('verify the independent official SDK comparison archive')
-    official_archive(workspace, args.arch)
+    if 'oci' in channels:
+        progress('verify the independent official SDK comparison archive for OCI')
+        official_archive(workspace, args.arch)
     items = []
     for variant, base in ([('ubuntu-24.04', args.ubuntu_base), ('debian-13', args.debian_base)] if 'deb' in channels else []):
         delivery = workspace / ('deb-' + variant)
@@ -452,8 +596,7 @@ def native(args):
                 shutil.copy2(package, delivery / target_name / package.name)
             shutil.copy2(delivery / source_name / 'package-build.json', delivery / target_name / 'package-build.json')
         progress('execute the complete installed lifecycle on native ' + variant + ' ' + args.arch)
-        run(['docker', 'run', '--rm', '-v', f'{ROOT}:/repo:ro', '-v', f'{workspace}:/delivery',
-             base, 'bash', '/repo/scripts/verify-channel-install.sh', '/repo', '/delivery/' + delivery.name, variant, 'deb'])
+        container_lifecycle(workspace, delivery, base, variant, 'deb')
         result = json.loads((delivery / 'installation-result.json').read_bytes())
         artifact = next(path for path in (delivery / 'packages').glob('*.deb') if path.name.startswith('cbodotnet-sdk-'))
         # The signed release bundler prefixes public names by variant/arch;
@@ -465,6 +608,10 @@ def native(args):
         for name in ('build', 'upgrade-build'):
             shutil.rmtree(delivery / name)
         shutil.rmtree(delivery / 'upgrade')
+    if 'oci' not in channels:
+        (workspace / 'items.json').write_bytes(encoded(items))
+        print(json.dumps(dict(status='passed', architecture=args.arch, channels=list(channels), items=len(items))))
+        return
     delivery = workspace / 'oci-debian-13'
     delivery.mkdir()
     build = delivery / 'build'
@@ -490,9 +637,7 @@ def native(args):
     functional_evidence = run_public_functional_smoke(tag)
     require(run(['docker', 'run', '--rm', tag, 'id', '-u']).strip() == '1654', 'Consumer image does not execute as its non-root user')
     progress('execute native OCI aliases, payload, non-root, HTTP, cryptography and globalization checks')
-    run(['docker', 'run', '--rm', '--user', '0', '--entrypoint', '/bin/bash',
-         '-v', f'{ROOT}:/repo:ro', '-v', f'{workspace}:/delivery', tag,
-         '/repo/scripts/verify-channel-install.sh', '/repo', '/delivery/' + delivery.name, 'debian-13', 'oci'])
+    container_lifecycle(workspace, delivery, tag, 'debian-13', 'oci')
     result = json.loads((delivery / 'installation-result.json').read_bytes())
     result['imageConfig'] = config_evidence
     result['imageFiles'] = file_evidence
@@ -908,7 +1053,6 @@ def postverify_apt(args):
     inputs = workspace / 'inputs'
     sdk_version = receipt['identity']['sdkVersion']
     receive_release('sdk-' + sdk_version, inputs, 'deb', 'debian-13', args.arch, receipt['identity']['packageRevision'])
-    official_archive(workspace, args.arch)
     artifacts = {row['name']: row for row in manifest['assets']}
     results = []
     for variant, base_image in [('ubuntu-24.04', UBUNTU_BASE), ('debian-13', DEBIAN_BASE)]:
@@ -938,8 +1082,7 @@ def postverify_apt(args):
         for path in (repository / 'pool').glob('*.deb'):
             if path.name.endswith('_' + expected_arch + '.deb') or path.name.endswith('_all.deb'):
                 shutil.copy2(path, delivery / 'packages' / path.name)
-        run(['docker', 'run', '--rm', '-v', f'{ROOT}:/repo:ro', '-v', f'{workspace}:/delivery',
-             base_image, 'bash', '/repo/scripts/verify-channel-install.sh', '/repo', '/delivery/' + variant, variant, 'deb'])
+        container_lifecycle(workspace, delivery, base_image, variant, 'deb')
         result = json.loads((delivery / 'installation-result.json').read_bytes())
         require(result['status'] == 'passed', 'Published APT installation did not pass')
         results.append(dict(variant=variant, architecture=args.arch, repositorySha256=artifacts[name]['sha256'],
@@ -952,7 +1095,7 @@ def main():
     commands = parser.add_subparsers(dest='command', required=True)
     command = commands.add_parser('native')
     command.add_argument('--workspace', type=Path, required=True)
-    command.add_argument('--channel', choices=('deb-oci', 'oci'), default='deb-oci')
+    command.add_argument('--channel', choices=('deb-oci', 'deb', 'oci'), default='deb-oci')
     command.add_argument('--tag', default='sdk-10.0.403')
     command.add_argument('--revision', type=int, default=1)
     command.add_argument('--arch', choices=('x64', 'aarch64'), required=True)
@@ -962,6 +1105,7 @@ def main():
     command.add_argument('--delivery', type=Path, required=True)
     command.add_argument('--variant', required=True)
     command.add_argument('--mode', choices=('deb', 'oci'), required=True)
+    command.add_argument('--phase', choices=('prepare', 'lifecycle'), default='lifecycle')
     command = commands.add_parser('promote')
     command.add_argument('--channel', choices=('deb-oci', 'oci'), default='deb-oci')
     command.add_argument('--received', type=Path, required=True)

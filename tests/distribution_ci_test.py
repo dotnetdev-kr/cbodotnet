@@ -40,6 +40,129 @@ class DistributionCiTests(unittest.TestCase):
                 package=dict(architecture=arch, identity=dict(sdkVersion='10.0.403', packageRevision=1))))
         return items
 
+    def test_deb_selection_is_available_only_to_native_read_only_validation(self):
+        args = argparse.Namespace(channel='deb')
+        self.assertEqual(('deb',), CI.selected_channels(args, native=True))
+        with self.assertRaisesRegex(ValueError, 'Unsupported distribution'):
+            CI.selected_channels(args)
+        self.assertEqual(('deb', 'oci'), CI.selected_channels(argparse.Namespace()))
+        self.assertEqual(('oci',), CI.selected_channels(argparse.Namespace(channel='oci')))
+
+    def test_deb_native_builds_both_distros_without_official_tar_or_any_oci_stage(self):
+        args = argparse.Namespace(workspace=self.root / 'delivery', channel='deb', arch='x64', tag='sdk-10.0.403',
+                                  revision=1, ubuntu_base='ubuntu:24@sha256:' + 'a' * 64, debian_base='debian:13@sha256:' + 'b' * 64)
+
+        def package(command, **kwargs):
+            self.assertEqual(CI.ROOT / 'scripts/package-sdk.py', command[1])
+            self.assertEqual('deb', command[command.index('--channel') + 1])
+            output = Path(command[command.index('--output') + 1])
+            output.mkdir()
+            (output / 'plan.json').write_text(json.dumps(dict(channel='deb', sdkVersion='10.0.403')))
+            (output / 'package-build.json').write_text('{}')
+            (output / 'cbodotnet-sdk-10.0.deb').write_bytes(b'sdk')
+            (output / 'cbodotnet-host.deb').write_bytes(b'host')
+            return ''
+
+        def commands(build, target):
+            target.mkdir()
+            (target.parent / 'commands.json').write_text('[]')
+
+        def lifecycle(workspace, delivery, base, variant, mode):
+            self.assertEqual('deb', mode)
+            (delivery / 'installation-result.json').write_text(json.dumps(dict(status='passed')))
+
+        with mock.patch.object(CI.os, 'getuid', return_value=1001), mock.patch.object(CI.platform, 'machine', return_value='x86_64'):
+            with mock.patch.object(CI, 'run', side_effect=package) as builds, mock.patch.object(CI, 'receive_release'):
+                with mock.patch.object(CI, 'copy_commands', side_effect=commands), mock.patch.object(CI, 'record', return_value={'test': 'record'}):
+                    with mock.patch.object(CI, 'container_lifecycle', side_effect=lifecycle) as installs, mock.patch.object(CI, 'official_archive') as archive:
+                        CI.native(args)
+        archive.assert_not_called()
+        self.assertEqual(4, builds.call_count)
+        self.assertEqual({'ubuntu-24.04', 'debian-13'}, {call.args[3] for call in installs.call_args_list})
+        self.assertFalse((args.workspace / 'oci-debian-13').exists())
+        self.assertEqual(2, len(json.loads((args.workspace / 'items.json').read_bytes())))
+
+    def test_installation_is_committed_before_an_explicit_network_none_lifecycle(self):
+        responses = ['container-id', '', json.dumps([dict(State=dict(ExitCode=0))]), 'sha256:prepared', '']
+        with mock.patch.object(CI, 'run', side_effect=responses) as command, mock.patch.object(CI.subprocess, 'run'):
+            CI.container_lifecycle(self.root, self.root / 'deb-ubuntu-24.04', 'ubuntu:pinned', 'ubuntu-24.04', 'deb')
+        calls = [call.args[0] for call in command.call_args_list]
+        self.assertEqual(['docker', 'create'], calls[0][:2])
+        self.assertEqual('prepare', calls[0][-1])
+        self.assertEqual(['docker', 'commit', 'container-id'], calls[3])
+        self.assertEqual(['docker', 'run', '--rm', '--network', 'none'], calls[4][:5])
+        self.assertEqual('lifecycle', calls[4][-1])
+
+    def test_external_network_is_rejected_before_any_installed_sdk_execution(self):
+        with mock.patch.object(CI.Path, 'iterdir', return_value=iter([Path('lo'), Path('eth0')])):
+            with mock.patch.object(CI, 'run') as command, mock.patch.object(CI, 'installation_context') as context:
+                with self.assertRaisesRegex(ValueError, 'network none'):
+                    CI.installed(argparse.Namespace(phase='lifecycle'))
+        command.assert_not_called()
+        context.assert_not_called()
+
+    def test_dpkg_integrity_rejects_nonempty_success_output(self):
+        with mock.patch.object(CI, 'run', return_value='??5?????? /usr/bin/cbodotnet\n'):
+            with self.assertRaisesRegex(ValueError, 'full dpkg integrity'):
+                CI.strict_dpkg_integrity(['cbodotnet-host'])
+
+    def test_actual_read_only_workflow_path_is_retained_and_unknown_paths_rejected(self):
+        environment = dict(GITHUB_SHA='a' * 40, GITHUB_RUN_ID='123', GITHUB_RUN_ATTEMPT='1',
+            GITHUB_WORKFLOW_REF='dotnetdev-kr/cbodotnet/.github/workflows/apt-completeness.yml@refs/heads/main')
+        with mock.patch.dict(os.environ, environment):
+            self.assertEqual('.github/workflows/apt-completeness.yml', CI.orchestration()['workflow'])
+            os.environ['GITHUB_WORKFLOW_REF'] = 'dotnetdev-kr/cbodotnet/.github/workflows/unreviewed.yml@refs/heads/main'
+            with self.assertRaisesRegex(ValueError, 'Unsupported native evidence'):
+                CI.orchestration()
+
+    def test_upgrade_rollback_remove_reinstall_and_installed_purge_preserve_official_proofs(self):
+        self.exercise_deb_lifecycle()
+
+    def test_purge_cannot_be_reported_for_an_already_removed_configuration_record(self):
+        with self.assertRaisesRegex(ValueError, 'actual SDK package first'):
+            self.exercise_deb_lifecycle(reinstall_status='deinstall ok config-files')
+
+    def exercise_deb_lifecycle(self, reinstall_status='install ok installed'):
+        delivery = self.root / 'deb-lifecycle'
+        delivery.mkdir()
+        for directory in ('packages', 'upgrade'):
+            (delivery / directory).mkdir()
+            for name in ('sdk', 'host'):
+                (delivery / directory / (name + '.deb')).write_bytes(b'fixture')
+        plan = dict(sdkVersion='10.0.403', packageRevision=1, sourceManifestSha256='a' * 64,
+                    package=dict(name='cbodotnet-sdk-10.0', root=str(self.root / 'sdk')))
+        revision = 1
+        commands = []
+
+        def execute(command, **kwargs):
+            nonlocal revision
+            commands.append(command)
+            if command[0] == 'dpkg-query':
+                return reinstall_status
+            if command[:2] == ['apt-get', 'install']:
+                revision = 2 if any('/upgrade/' in str(part) for part in command) else 1
+            return ''
+
+        def identity(command):
+            return json.dumps(dict(packageRevision=revision, sdkVersion=plan['sdkVersion'],
+                                   sourceManifestSha256=plan['sourceManifestSha256']))
+
+        official = mock.Mock()
+        with mock.patch.object(CI, 'run', side_effect=execute), mock.patch.object(CI, 'inventory', return_value={'fixture': 'same'}):
+            with mock.patch.object(CI, 'strict_dpkg_integrity'), mock.patch.object(CI, 'assert_removed_deb') as removed:
+                with mock.patch.object(CI.subprocess, 'run', return_value=subprocess.CompletedProcess([], 1, stdout='', stderr='')):
+                    try:
+                        phases = CI.deb_lifecycle(plan, delivery, {'fixture': 'same'}, identity, official)
+                    except ValueError:
+                        self.assertFalse(any(command[:2] == ['apt-get', 'purge'] for command in commands))
+                        raise
+        self.assertEqual(['after-install', 'after-runtime', 'after-upgrade', 'after-rollback', 'after-remove', 'after-reinstall', 'after-purge'], phases)
+        self.assertEqual(phases[2:], [call.args[0] for call in official.call_args_list])
+        self.assertEqual(2, removed.call_count)
+        purge = next(index for index, command in enumerate(commands) if command[:2] == ['apt-get', 'purge'])
+        self.assertEqual('dpkg-query', commands[purge - 1][0])
+        self.assertTrue(any('--allow-downgrades' in command for command in commands))
+
     def test_partial_native_image_matrix_cannot_login_or_push(self):
         with mock.patch.object(CI, 'run') as command:
             with self.assertRaisesRegex(ValueError, 'Both native'):

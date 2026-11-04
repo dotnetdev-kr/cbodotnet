@@ -1,6 +1,7 @@
 """Keep public availability and repository extraction bound to signed evidence."""
 import copy
 import hashlib
+import html
 import io
 import json
 from pathlib import Path
@@ -72,6 +73,24 @@ class DistributionSiteTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'Untrusted'):
                     SITE.download(url, Path('unused'), 100)
             fetch.assert_not_called()
+
+    def test_apt_uses_flat_deb822_scoped_trust_and_latest_authenticated_revision_per_distro(self):
+        rows = [dict(variant=variant, sdkVersion='10.0.403', packageRevision=revision)
+                for variant, revision in [('ubuntu-24.04', 1), ('ubuntu-24.04', 2), ('debian-13', 1)]]
+        markup = html.unescape(SITE.render_channels({'channels': {'deb': {'status': 'published', 'publications': rows}}}))
+        self.assertEqual(2, markup.count('Types: deb\n'))
+        self.assertEqual(2, markup.count('Suites: ./\n'))
+        self.assertEqual(2, markup.count('Architectures: $(dpkg --print-architecture)\n'))
+        self.assertEqual(2, markup.count('Signed-By: /usr/share/keyrings/cbodotnet-archive-keyring.gpg\n'))
+        self.assertIn('URIs: https://dotnetdev.kr/cbodotnet/packages/deb/ubuntu-24.04/\n', markup)
+        self.assertIn('URIs: https://dotnetdev.kr/cbodotnet/packages/deb/debian-13/\n', markup)
+        self.assertIn('install cbodotnet-sdk-10.0=10.0.403-2', markup)
+        self.assertIn('install cbodotnet-sdk-10.0=10.0.403-1', markup)
+        self.assertIn('sudo rm -f /etc/apt/sources.list.d/cbodotnet.list', markup)
+        self.assertIn('/etc/apt/sources.list.d/cbodotnet.sources', markup)
+        self.assertNotIn('Components:', markup)
+        self.assertNotIn('apt-key', markup)
+        self.assertNotIn('deb [signed-by=', markup)
 
     def test_rpm_commands_require_both_signature_checks_and_pinned_public_identity(self):
         status = {'channels': {'rpm': {'status': 'published', 'publications': [

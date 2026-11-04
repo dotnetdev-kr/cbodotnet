@@ -102,6 +102,7 @@ SDK archives and corresponding source bundles retain their upstream copyrights, 
 - [Downstream distribution contract and rollout](docs/distribution-contract.md)
 - [CLI branding and command aliases](docs/cli-branding.md)
 - [Consumer SDK images and provenance](docs/oci-delivery.md)
+- [Signed APT repositories, package coexistence and rollback](docs/apt-delivery.md)
 - [Signed RPM repositories and qualification](docs/rpm-delivery.md)
 - [Validated Arch recipes and deferred AUR publication](docs/aur-delivery.md)
 - [Additional SDK sources, dependency gates and preparation plans](docs/additional-sdk-preparation.md)
