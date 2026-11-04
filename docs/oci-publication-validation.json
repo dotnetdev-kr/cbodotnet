@@ -171,6 +171,33 @@
     "This independent retention audit downloads only signed descriptors, reports and registry configuration metadata. Native image transport archives and registry filesystem layers are not downloaded locally; protected native verification and public digest-pull jobs execute those images.",
     "SDK license metadata preserves the original MIT license plus aggregate third-party notices; Debian/system packages retain their own licenses."
   ],
+  "liveWebsiteVerification": {
+    "independentStatusSha256AndHomepageDigestCheck": "passed",
+    "observation": {
+      "aptRevision1Unchanged": true,
+      "homepageDigestPullAndRunPresent": true,
+      "homepageUrl": "https://dotnetdev.kr/cbodotnet/",
+      "liveStatusSha256": "1acb37509ddfecfcae1d91707e67d2484bc36ea50cc16000a5b10f273f5b3838",
+      "ociDigest": "sha256:c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9",
+      "ociPublications": {
+        "1": 2,
+        "2": 2
+      },
+      "ociReceiptRevisions": [
+        1,
+        2
+      ],
+      "ociTag": "10.0.403-debian13-r2",
+      "priorOciRevision1Unchanged": true,
+      "rpmRevision1Unchanged": true,
+      "schemaVersion": 1,
+      "scope": "live-site-versus-local-status",
+      "sourceCommit": "8bb3e4548d800a36ac7ecf9d18be1b6e1a610b52",
+      "status": "passed",
+      "statusUrl": "https://dotnetdev.kr/cbodotnet/downstream-status.json"
+    },
+    "sourceRecordSha256": "f952e4f76e4391d57f1afa24b2f89f1a9b725a424ae21b0c2e98737240ffbdbd"
+  },
   "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json",
   "nativePublicDigestReports": [
     {
