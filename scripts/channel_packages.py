@@ -164,6 +164,30 @@ def build_deb(plan, archive, output):
     return result
 
 
+def oci_labels(plan):
+    """Describe the qualified SDK and retained notices without flattening licenses."""
+    documentation = 'https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md'
+    root = plan['package']['root']
+    return {'org.opencontainers.image.title': plan['branding']['displayName'],
+            'org.opencontainers.image.source': 'https://github.com/dotnetdev-kr/cbodotnet',
+            'org.opencontainers.image.version': plan['sdkVersion'],
+            'org.opencontainers.image.url': 'https://github.com/dotnetdev-kr/cbodotnet/releases/tag/' + plan['sourceReleaseTag'],
+            'org.opencontainers.image.documentation': documentation,
+            'org.opencontainers.image.licenses': 'MIT AND LicenseRef-Dotnet-ThirdPartyNotices',
+            'kr.dotnetdev.cbodotnet.license.path': root + '/LICENSE.txt',
+            'kr.dotnetdev.cbodotnet.notices.path': root + '/ThirdPartyNotices.txt',
+            'kr.dotnetdev.cbodotnet.notices.url': documentation + '#licenses-and-notices',
+            'kr.dotnetdev.cbodotnet.source.url': plan['source']['url'],
+            'kr.dotnetdev.cbodotnet.source.sha256': plan['source']['sha256'],
+            'kr.dotnetdev.cbodotnet.evidence.url': plan['evidence']['url'],
+            'kr.dotnetdev.cbodotnet.evidence.sha256': plan['evidence']['sha256'],
+            'kr.dotnetdev.cbodotnet.sdk.url': plan['sdk']['url'],
+            'kr.dotnetdev.cbodotnet.sdk.sha256': plan['sdk']['sha256'],
+            'kr.dotnetdev.cbodotnet.manifest.url': plan['sourceManifestUrl'],
+            'kr.dotnetdev.cbodotnet.manifest.sha256': plan['sourceManifestSha256'],
+            'kr.dotnetdev.cbodotnet.package.revision': str(plan['packageRevision'])}
+
+
 def build_oci_context(plan, archive, output, base_image):
     require(plan['channel'] == 'oci', 'OCI builder requires an admitted OCI plan')
     require(isinstance(base_image, str) and re.fullmatch(r'[a-z0-9][a-z0-9./:_-]*@sha256:[a-f0-9]{64}', base_image),
@@ -171,12 +195,7 @@ def build_oci_context(plan, archive, output, base_image):
     require(plan['variant'] == 'debian-13', 'OCI runtime template is qualified only for the Debian 13 candidate')
     output, rootfs, commands, payload = stage_payload(plan, archive, output, mode='oci')
     shutil.copyfile(ROOT / 'containers/sdk-runtime.Containerfile', output / 'Containerfile')
-    labels = {'org.opencontainers.image.title': plan['branding']['displayName'],
-              'org.opencontainers.image.source': 'https://github.com/dotnetdev-kr/cbodotnet',
-              'org.opencontainers.image.version': plan['sdkVersion'],
-              'org.opencontainers.image.url': 'https://github.com/dotnetdev-kr/cbodotnet/releases/tag/' + plan['sourceReleaseTag'],
-              'kr.dotnetdev.cbodotnet.sdk.sha256': plan['sdk']['sha256'],
-              'kr.dotnetdev.cbodotnet.manifest.sha256': plan['sourceManifestSha256']}
+    labels = oci_labels(plan)
     result = {'schemaVersion': 1, 'channel': 'oci', 'plan': plan, 'baseImage': base_image,
               'context': '.', 'containerfile': 'Containerfile', 'labels': labels,
               'buildArgs': {'BASE_IMAGE': base_image, 'SDK_SERIES': '.'.join(plan['sdkVersion'].split('.')[:2])},

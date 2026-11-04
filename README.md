@@ -31,6 +31,12 @@ The [Arch x86_64 recipes](docs/aur-delivery.md) have passed native build, instal
 and lifecycle validation; authenticated AUR submission is tracked separately in
 [issue #10](https://github.com/dotnetdev-kr/cbodotnet/issues/10).
 
+The [additional SDK preparation matrix](docs/additional-sdk-preparation.md)
+tracks SDKs 9, 8, 7, 6, 5 and Core 3.1/3.0 across 77 proposed delivery targets.
+Those additional package/image targets remain unqualified. A user-level
+`cbodotnetup` installer is tracked in
+[issue #11](https://github.com/dotnetdev-kr/cbodotnet/issues/11).
+
 The package contract provides `cbodotnet-10.0` and a common `cbodotnet` command
 selecting the highest installed SDK series. OCI images expose
 `cbodotnet-10.0`, `cbodotnet` and `dotnet` for the same SDK. Public launchers show
@@ -95,8 +101,10 @@ SDK archives and corresponding source bundles retain their upstream copyrights, 
 
 - [Downstream distribution contract and rollout](docs/distribution-contract.md)
 - [CLI branding and command aliases](docs/cli-branding.md)
+- [Consumer SDK images and provenance](docs/oci-delivery.md)
 - [Signed RPM repositories and qualification](docs/rpm-delivery.md)
 - [Validated Arch recipes and deferred AUR publication](docs/aur-delivery.md)
+- [Additional SDK sources, dependency gates and preparation plans](docs/additional-sdk-preparation.md)
 - [Downstream verification and promotion runbook](docs/downstream-release-runbook.md)
 - [AArch64 CI, source delivery and verification](docs/ci-matrix.md)
 - [x64 CI, source delivery and verification](docs/ci-x64.md)

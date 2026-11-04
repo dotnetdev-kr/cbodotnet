@@ -12,6 +12,7 @@ import zipfile
 import hashlib
 import subprocess
 import argparse
+import copy
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -69,6 +70,47 @@ class DistributionCiTests(unittest.TestCase):
             with self.subTest(name=name), self.assertRaisesRegex(ValueError, 'Unsafe native'):
                 CI.unpack_deliveries(self.root)
             archive_path.unlink()
+
+    def test_sdk_listing_rejects_other_roots_versions_or_global_fallback(self):
+        CI.validate_sdk_listing('10.0.403 [/opt/cbodotnet/10.0/sdk]\n', '10.0.403', '/opt/cbodotnet/10.0')
+        for listing in ('10.0.403 [/usr/share/dotnet/sdk]\n', '10.0.404 [/opt/cbodotnet/10.0/sdk]\n',
+                        '10.0.403 [/opt/cbodotnet/10.0/sdk]\n10.0.100 [/usr/share/dotnet/sdk]\n'):
+            with self.subTest(listing=listing), self.assertRaisesRegex(ValueError, 'SDK listing'):
+                CI.validate_sdk_listing(listing, '10.0.403', '/opt/cbodotnet/10.0')
+
+    def test_consumer_config_rejects_changed_provenance_root_user_and_credentials(self):
+        labels = {'org.opencontainers.image.licenses': 'MIT AND LicenseRef-Dotnet-ThirdPartyNotices',
+                  'kr.dotnetdev.cbodotnet.sdk.sha256': 'a' * 64}
+        image = dict(Architecture='amd64', Os='linux', Config=dict(User='app', WorkingDir='/work', Cmd=['cbodotnet', '--info'],
+            Env=['PATH=/usr/local/bin:/usr/bin', 'DOTNET_ROOT=/opt/cbodotnet/10.0'], Labels=labels))
+        CI.validate_image_config(image, 'amd64', '/opt/cbodotnet/10.0', labels)
+        changed = copy.deepcopy(image)
+        changed['Config']['Labels']['kr.dotnetdev.cbodotnet.sdk.sha256'] = 'b' * 64
+        with self.assertRaisesRegex(ValueError, 'labels differ'):
+            CI.validate_image_config(changed, 'amd64', '/opt/cbodotnet/10.0', labels)
+        for field, value in [('User', '0'), ('WorkingDir', '/root'), ('Env', ['PATH=/usr/bin', 'DOTNET_ROOT=/usr/share/dotnet']),
+                             ('Env', [*image['Config']['Env'], 'GITHUB_TOKEN=not-a-real-token'])]:
+            changed = copy.deepcopy(image)
+            changed['Config'][field] = value
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                CI.validate_image_config(changed, 'amd64', '/opt/cbodotnet/10.0', labels)
+
+
+    def test_new_revision_cannot_fall_back_to_legacy_or_partial_metadata(self):
+        index = dict(tag='10.0.403-debian13-r2')
+        expected = dict(architecture='amd64')
+        with self.assertRaisesRegex(ValueError, 'complete metadata policy'):
+            CI.validate_published_metadata(index, expected)
+        self.assertIsNone(CI.validate_published_metadata(dict(tag='10.0.403-debian13-r1'), expected))
+        qualified = {'org.opencontainers.image.licenses': 'MIT AND LicenseRef-Dotnet-ThirdPartyNotices',
+                     'kr.dotnetdev.cbodotnet.sdk.sha256': 'a' * 64}
+        expected.update(metadataPolicyVersion=2, sdkRoot='/opt/cbodotnet/10.0', labels=dict(qualified,
+            **{'org.opencontainers.image.base.name': 'debian:13@sha256:' + 'b' * 64}))
+        with mock.patch.object(CI, 'qualified_oci_labels', return_value=qualified):
+            CI.validate_published_metadata(index, expected)
+            expected['labels'].pop('org.opencontainers.image.licenses')
+            with self.assertRaisesRegex(ValueError, 'complete qualified'):
+                CI.validate_published_metadata(index, expected)
 
 
 class FrozenPromotionTests(unittest.TestCase):
@@ -142,10 +184,13 @@ class FrozenPromotionTests(unittest.TestCase):
 
     def test_conflicting_signed_channels_are_rejected_before_either_publication(self):
         self.destination.mkdir()
+        for channel in ('deb', 'oci'):
+            (self.destination / ('bundle-' + channel)).mkdir()
+        (self.destination / 'promotion.json').write_text(json.dumps(dict(channels=dict(deb='deb-tag', oci='oci-tag'))))
         (self.destination / 'oci-index.json').write_text('{}')
         identity = dict(sdkVersion='10.0.403', packageRevision=1, sourceManifestSha256='a' * 64)
-        first = dict(targetCommit='b' * 40, identity=identity, assets=[])
-        second = dict(targetCommit='c' * 40, identity=identity, assets=[])
+        first = dict(targetCommit='b' * 40, identity=dict(identity, channel='deb'), assets=[])
+        second = dict(targetCommit='c' * 40, identity=dict(identity, channel='oci'), assets=[])
         args = argparse.Namespace(promotion=self.destination, keyring=self.root / 'trusted.gpg', frozen_run='', frozen_attempt='1')
         with mock.patch.dict(os.environ, GITHUB_REF='refs/heads/main', GITHUB_REPOSITORY='dotnetdev-kr/cbodotnet'):
             with mock.patch('downstream_publish.validate_bundle', side_effect=[first, second]):
@@ -154,6 +199,36 @@ class FrozenPromotionTests(unittest.TestCase):
                         CI.publish_staged(args)
                     publisher.assert_not_called()
         self.assertFalse((self.root.parent / 'escape').exists())
+
+    def test_oci_only_recovery_rejects_debian_bundle_before_publication(self):
+        self.destination.mkdir()
+        for channel in ('deb', 'oci'):
+            (self.destination / ('bundle-' + channel)).mkdir()
+        (self.destination / 'promotion.json').write_text(json.dumps(dict(channels=dict(oci='oci-tag'))))
+        args = argparse.Namespace(promotion=self.destination, keyring=self.root / 'trusted.gpg', frozen_run='', frozen_attempt='1', channel='oci')
+        with mock.patch.dict(os.environ, GITHUB_REF='refs/heads/main', GITHUB_REPOSITORY='dotnetdev-kr/cbodotnet'):
+            with mock.patch('downstream_publish.publish_bundle') as publisher:
+                with self.assertRaisesRegex(ValueError, 'unexpected channels'):
+                    CI.publish_staged(args)
+                publisher.assert_not_called()
+
+    def test_oci_only_recovery_publishes_only_exact_selected_signed_bundle(self):
+        self.destination.mkdir()
+        (self.destination / 'bundle-oci').mkdir()
+        index_bytes = json.dumps(dict(digest='sha256:' + 'c' * 64)).encode()
+        (self.destination / 'oci-index.json').write_bytes(index_bytes)
+        (self.destination / 'promotion.json').write_text(json.dumps(dict(channels=dict(oci='oci-tag'))))
+        manifest = dict(tag='oci-tag', targetCommit='b' * 40,
+            identity=dict(channel='oci', sdkVersion='10.0.403', packageRevision=2, sourceManifestSha256='a' * 64),
+            assets=[dict(name='oci-index.json', sha256=hashlib.sha256(index_bytes).hexdigest())])
+        args = argparse.Namespace(promotion=self.destination, keyring=self.root / 'trusted.gpg', frozen_run='', frozen_attempt='1', channel='oci')
+        with mock.patch.dict(os.environ, GITHUB_REF='refs/heads/main', GITHUB_REPOSITORY='dotnetdev-kr/cbodotnet'):
+            with mock.patch('downstream_publish.validate_bundle', return_value=manifest):
+                with mock.patch('downstream_publish.publish_bundle', return_value={}) as publisher:
+                    CI.publish_staged(args)
+                    publisher.assert_called_once_with(self.destination / 'bundle-oci', args.keyring, 'b' * 40)
+        self.assertTrue((self.destination / 'oci-publication.json').is_file())
+        self.assertFalse((self.destination / 'deb-publication.json').exists())
 
     def test_transport_symlink_and_escaping_hardlink_are_rejected(self):
         for kind, target in [(tarfile.SYMTYPE, 'inside'), (tarfile.LNKTYPE, '../outside')]:

@@ -19,7 +19,7 @@ on:
         required: true
         default: deb-oci
         type: choice
-        options: [deb-oci, rpm, aur]
+        options: [deb-oci, oci, rpm, aur]
       tag:
         description: Exact qualified SDK release
         required: true
@@ -68,7 +68,7 @@ env:
 
 jobs:
   native:
-    if: (inputs.channel == '' || inputs.channel == 'deb-oci') && inputs.source_run_id == '' && inputs.promotion_run_id == ''
+    if: (inputs.channel == '' || inputs.channel == 'deb-oci' || inputs.channel == 'oci') && inputs.source_run_id == '' && inputs.promotion_run_id == ''
     name: Install packages and OCI on native ${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 75
@@ -93,10 +93,11 @@ jobs:
           ARCH: ${{ matrix.arch }}
           TAG: ${{ inputs.tag || 'sdk-10.0.403' }}
           REVISION: ${{ inputs.revision || '1' }}
+          CHANNEL: ${{ inputs.channel || 'deb-oci' }}
         run: |
           set -euo pipefail
           python3 scripts/distribution-ci.py native \
-            --tag "$TAG" --revision "$REVISION" --arch "$ARCH" \
+            --tag "$TAG" --revision "$REVISION" --arch "$ARCH" --channel "$CHANNEL" \
             --workspace "$RUNNER_TEMP/delivery-$ARCH"
           tar -C "$RUNNER_TEMP" -czf "$RUNNER_TEMP/native-$ARCH.tar.gz" "delivery-$ARCH"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -110,7 +111,7 @@ jobs:
   publish:
     name: Sign, promote and post-verify immutable distributions
     needs: native
-    if: always() && (inputs.channel == '' || inputs.channel == 'deb-oci') && inputs.publish && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main' && (needs.native.result == 'success' || (needs.native.result == 'skipped' && (inputs.source_run_id != '' || inputs.promotion_run_id != '')))
+    if: always() && (inputs.channel == '' || inputs.channel == 'deb-oci' || inputs.channel == 'oci') && inputs.publish && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main' && (needs.native.result == 'success' || (needs.native.result == 'skipped' && (inputs.source_run_id != '' || inputs.promotion_run_id != '')))
     runs-on: ubuntu-24.04
     timeout-minutes: 75
     environment: downstream-release
@@ -167,20 +168,23 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           SOURCE_RUN_ID: ${{ inputs.source_run_id }}
           SOURCE_RUN_ATTEMPT: ${{ inputs.source_run_attempt || '1' }}
+          CHANNEL: ${{ inputs.channel || 'deb-oci' }}
         run: |
           set -euo pipefail
           python3 scripts/distribution-ci.py promote \
             --received "$RUNNER_TEMP/received" --output "$RUNNER_TEMP/promotion" \
             --signing-key D7D154B4B33C19A82B95B13688135410ACD9C0EA \
             --keyring "$RUNNER_TEMP/downstream-public.gpg" \
-            --source-run "$SOURCE_RUN_ID" --source-attempt "$SOURCE_RUN_ATTEMPT" --stage-only
+            --source-run "$SOURCE_RUN_ID" --source-attempt "$SOURCE_RUN_ATTEMPT" --stage-only --channel "$CHANNEL"
       - name: Check whether complete frozen bundles are ready for durable recovery
         id: freeze_ready
         if: always() && inputs.promotion_run_id == ''
+        env:
+          CHANNEL: ${{ inputs.channel || 'deb-oci' }}
         run: |
           set -euo pipefail
           if [[ -f "$RUNNER_TEMP/promotion/promotion.json" ]]; then
-            python3 -c 'from pathlib import Path; import os,sys; sys.path.insert(0,"scripts"); from downstream_publish import validate_bundle; p=Path(os.environ["RUNNER_TEMP"]); [validate_bundle(p/"promotion"/name,p/"downstream-public.gpg") for name in ("bundle-deb","bundle-oci")]'
+            python3 -c 'from pathlib import Path; import os,sys; sys.path.insert(0,"scripts"); from downstream_publish import validate_bundle; p=Path(os.environ["RUNNER_TEMP"]); channels=("oci",) if os.environ["CHANNEL"]=="oci" else ("deb","oci"); [validate_bundle(p/"promotion"/("bundle-"+name),p/"downstream-public.gpg") for name in channels]'
             printf 'ready=true\n' >> "$GITHUB_OUTPUT"
           fi
       - name: Freeze signed promotion bytes before publication
@@ -201,19 +205,21 @@ jobs:
         if: inputs.promotion_run_id == '' && steps.freeze_upload.outcome == 'success'
         env:
           GH_TOKEN: ${{ github.token }}
+          CHANNEL: ${{ inputs.channel || 'deb-oci' }}
         run: |
           python3 scripts/distribution-ci.py publish-staged \
-            --promotion "$RUNNER_TEMP/promotion" --keyring "$RUNNER_TEMP/downstream-public.gpg"
+            --promotion "$RUNNER_TEMP/promotion" --keyring "$RUNNER_TEMP/downstream-public.gpg" --channel "$CHANNEL"
       - name: Recover verified frozen promotion bytes and resume publication without re-signing
         if: inputs.promotion_run_id != ''
         env:
           GH_TOKEN: ${{ github.token }}
           PROMOTION_RUN: ${{ inputs.promotion_run_id }}
           PROMOTION_ATTEMPT: ${{ inputs.promotion_run_attempt }}
+          CHANNEL: ${{ inputs.channel || 'deb-oci' }}
         run: |
           python3 scripts/distribution-ci.py publish-staged \
             --promotion "$RUNNER_TEMP/promotion" --keyring "$RUNNER_TEMP/downstream-public.gpg" \
-            --frozen-run "$PROMOTION_RUN" --frozen-attempt "$PROMOTION_ATTEMPT"
+            --frozen-run "$PROMOTION_RUN" --frozen-attempt "$PROMOTION_ATTEMPT" --channel "$CHANNEL"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: downstream-publication-${{ github.run_id }}-${{ github.run_attempt }}
@@ -255,12 +261,15 @@ jobs:
       - name: Authenticate receipts and native results, commit availability, dispatch Pages
         env:
           GH_TOKEN: ${{ github.token }}
+          CHANNEL: ${{ inputs.channel || 'deb-oci' }}
         run: |
           set -euo pipefail
+          channels=()
+          if [[ "$CHANNEL" == oci ]]; then channels+=(--channel oci); fi
           python3 scripts/distribution-status.py \
             --publication-dir "$RUNNER_TEMP/final-publication" \
             --reports-dir "$RUNNER_TEMP/final-postverification" \
-            --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --write
+            --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --write "${channels[@]}"
 
   postverify:
     name: Anonymous digest pull and non-root smoke on ${{ matrix.arch }}
@@ -287,14 +296,14 @@ jobs:
       - name: Pull the published index by digest with no registry credentials
         env:
           ARCH: ${{ matrix.arch }}
+          CHANNEL: ${{ inputs.channel || 'deb-oci' }}
         run: |
           set -euo pipefail
           mkdir "$RUNNER_TEMP/anonymous-docker"
           export DOCKER_CONFIG="$RUNNER_TEMP/anonymous-docker"
-          python3 scripts/distribution-ci.py postverify \
-            --index "$RUNNER_TEMP/publication/oci-index.json" --arch "$ARCH" \
-            --output "$RUNNER_TEMP/published-$ARCH.json" \
-            --deb-receipt "$RUNNER_TEMP/publication/deb-publication.json"
+          arguments=(--index "$RUNNER_TEMP/publication/oci-index.json" --arch "$ARCH" --output "$RUNNER_TEMP/published-$ARCH.json")
+          if [[ "$CHANNEL" != oci ]]; then arguments+=(--deb-receipt "$RUNNER_TEMP/publication/deb-publication.json"); fi
+          python3 scripts/distribution-ci.py postverify "${arguments[@]}"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: downstream-postverify-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}

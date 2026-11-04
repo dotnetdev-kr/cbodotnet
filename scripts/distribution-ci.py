@@ -21,7 +21,7 @@ import time
 import urllib.request
 import zipfile
 
-from distribution_contract import load_contract
+from distribution_contract import load_contract, validate_qualified_producers
 from downstream_release import encoded, local_intake, package_record, receive_release, PREPUBLICATION_CHECKS
 from downstream_release import stage_records
 
@@ -38,6 +38,139 @@ def progress(message):
 def require(value, message):
     if not value:
         raise ValueError(message)
+
+
+def selected_channels(args):
+    mode = getattr(args, 'channel', 'deb-oci')
+    require(mode in {'deb-oci', 'oci'}, 'Unsupported native distribution channel selection')
+    return ('oci',) if mode == 'oci' else ('deb', 'oci')
+
+
+def validate_sdk_listing(output, version, sdk_root):
+    require(output.splitlines() == [version + ' [' + sdk_root + '/sdk]'],
+            'SDK listing includes another version/root or a global dotnet fallback')
+
+
+def validate_image_config(image, architecture, sdk_root, labels=None):
+    require(image.get('Architecture') == architecture and image.get('Os') == 'linux', 'Image architecture metadata mismatch')
+    config = image.get('Config', {})
+    require(config.get('WorkingDir') == '/work' and config.get('User') in {'app', '1654', '1654:1654'},
+            'Consumer image must select its writable work directory and non-root app user')
+    environment = dict(value.split('=', 1) for value in config.get('Env', []) if '=' in value)
+    require(environment.get('PATH', '').split(':')[0] == '/usr/local/bin' and environment.get('DOTNET_ROOT') == sdk_root,
+            'Image bypasses the branded command/root policy')
+    require(not any(re.search(r'TOKEN|SECRET|PASSWORD|PRIVATE_KEY|^GITHUB_|^GH_|^AWS_', name, re.I) for name in environment),
+            'Consumer image contains a credential environment key')
+    require(config.get('Cmd') == ['cbodotnet', '--info'], 'Consumer image default command differs from the documented SDK CLI')
+    if labels is not None:
+        require(labels and all(config.get('Labels', {}).get(key) == value for key, value in labels.items()),
+                'Consumer image labels differ from qualified source, license or notice metadata')
+    return dict(architecture=architecture, user=config['User'], workdir=config['WorkingDir'], sdkRoot=sdk_root,
+                labels=labels or {})
+
+
+def inspect_consumer_files(reference, sdk_root):
+    ownership = run(['docker', 'run', '--rm', '--user', '0', reference, 'stat', '-c', '%u:%g:%a',
+                     sdk_root, sdk_root + '/dotnet', '/usr/bin/cbodotnet-10.0', '/usr/bin/cbodotnet'])
+    require(ownership.splitlines() == ['0:0:755'] * 4, 'SDK/command ownership or permissions changed')
+    run(['docker', 'run', '--rm', reference, 'sh', '-ec',
+         'for tool in gcc g++ clang make cmake git; do if command -v "$tool" >/dev/null 2>&1; then '
+         'echo "Unexpected source-build toolchain program: $tool" >&2; exit 1; fi; done'])
+    return dict(ownership='root:root:0755', sourceBuildToolchain='absent', credentialEnvironment='absent')
+
+
+def qualified_oci_labels(index, architecture, manifest_bytes=None, contract=None, catalog=None):
+    """Reconstruct labels from the independently pinned canonical SDK manifest."""
+    from channel_packages import oci_labels
+    match = re.fullmatch(r'([1-9][0-9]*\.[0-9]+\.[0-9]+)-debian13-r([1-9][0-9]*)', index.get('tag', ''))
+    require(match is not None, 'An immutable Debian 13 SDK image tag is required')
+    version, revision = match[1], int(match[2])
+    contract = contract if contract is not None else load_contract()
+    admitted = contract['releases'].get(version)
+    require(admitted is not None, 'Published OCI SDK source is not admitted')
+    base = 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-' + version + '/'
+    if manifest_bytes is None:
+        with urllib.request.urlopen(base + 'release-manifest.json', timeout=60) as incoming:
+            manifest_bytes = incoming.read(8 * 1024**2 + 1)
+    require(len(manifest_bytes) <= 8 * 1024**2 and hashlib.sha256(manifest_bytes).hexdigest() == admitted['manifestSha256'],
+            'Published OCI source manifest differs from the independent contract pin')
+    source = json.loads(manifest_bytes)
+    require(source.get('repository') == 'dotnetdev-kr/cbodotnet' and source.get('sdkVersion') == version
+            and source.get('tag') == 'sdk-' + version, 'Published OCI source identity differs')
+    validate_qualified_producers(source, admitted['target'], catalog)
+    require(architecture in {'amd64', 'arm64'}, 'Unsupported OCI source architecture')
+    row = source['architectures']['x64' if architecture == 'amd64' else 'aarch64']
+    plan = dict(sdkVersion=version, packageRevision=revision, sourceReleaseTag=source['tag'],
+        package=dict(root='/opt/cbodotnet/' + '.'.join(version.split('.')[:2])), branding=contract['branding'],
+        sourceManifestUrl=base + 'release-manifest.json', sourceManifestSha256=admitted['manifestSha256'])
+    for kind in ('sdk', 'source', 'evidence'):
+        plan[kind] = dict(row[kind], url=base + row[kind]['name'])
+    return oci_labels(plan)
+
+
+def public_smoke_script():
+    """Exercise DLL and apphost, loopback ASP.NET, RSA/random and ICU offline."""
+    return '''set -eu
+mkdir -p /work/smoke
+cd /work/smoke
+cat > NuGet.Config <<'NUGET'
+<configuration><packageSources><clear /></packageSources></configuration>
+NUGET
+cat > Smoke.csproj <<'PROJECT'
+<Project Sdk="Microsoft.NET.Sdk.Web"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><UseAppHost>true</UseAppHost></PropertyGroup></Project>
+PROJECT
+cat > Program.cs <<'PROGRAM'
+using System; using System.IO; using System.Linq; using System.Globalization;
+using System.Net.Http; using System.Security.Cryptography;
+using Microsoft.AspNetCore.Builder; using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Server; using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.Extensions.DependencyInjection;
+var root=Environment.GetEnvironmentVariable("DOTNET_ROOT");
+if(root!="/opt/cbodotnet/10.0" || Environment.UserName!="app" || !typeof(object).Assembly.Location.StartsWith(root+"/shared/")) throw new Exception("Wrong host/runtime/user");
+var expected=args[0]=="dll" ? root+"/dotnet" : Path.GetFullPath("bin/Debug/net10.0/Smoke");
+if(Environment.ProcessPath!=expected) throw new Exception("Wrong DLL/apphost process");
+using var rsa=RSA.Create(); var data=RandomNumberGenerator.GetBytes(32);
+var sig=rsa.SignData(data,HashAlgorithmName.SHA256,RSASignaturePadding.Pkcs1);
+if(!rsa.VerifyData(data,sig,HashAlgorithmName.SHA256,RSASignaturePadding.Pkcs1)) throw new Exception("RSA");
+if(!1234.5m.ToString("N1",CultureInfo.GetCultureInfo("fr-FR")).Contains("234,5")) throw new Exception("ICU");
+var builder=WebApplication.CreateBuilder(Array.Empty<string>());
+builder.WebHost.UseUrls("http://127.0.0.1:0");
+await using var app=builder.Build(); app.MapGet("/",()=>"published-http-passed");
+await app.StartAsync();
+var url=app.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>().Addresses.Single();
+using var client=new HttpClient();
+if(await client.GetStringAsync(url)!="published-http-passed") throw new Exception("HTTP");
+await app.StopAsync(); Console.WriteLine("published-offline-"+args[0]+"-http-crypto-icu-passed");
+PROGRAM
+dotnet restore --configfile NuGet.Config
+dotnet build --no-restore
+dotnet bin/Debug/net10.0/Smoke.dll dll
+bin/Debug/net10.0/Smoke apphost
+'''
+
+
+def run_public_functional_smoke(reference):
+    output = run(['docker', 'run', '--rm', '--network', 'none', reference, 'sh', '-ec', public_smoke_script()])
+    require(all('published-offline-' + mode + '-http-crypto-icu-passed' in output for mode in ('dll', 'apphost')),
+            'Consumer non-root offline DLL/apphost, HTTP, cryptography or ICU smoke failed')
+    return {name: 'passed' for name in ('consoleDllExecution', 'consoleApphostExecution', 'aspNetCoreLoopbackHttp',
+                                      'rsaSha256SignAndVerify', 'cryptographicRandomBytes', 'frFrDecimalFormatting', 'nonRootRuntimeRoot')}
+
+
+def validate_published_metadata(index, expected):
+    labels = expected.get('labels')
+    revision = re.fullmatch(r'10\.0\.403-debian13-r([1-9][0-9]*)', index.get('tag', ''))
+    require(revision is not None, 'An immutable supported SDK image tag is required')
+    if int(revision[1]) >= 2:
+        require(expected.get('metadataPolicyVersion') == 2 and labels and expected.get('sdkRoot') == '/opt/cbodotnet/10.0',
+                'New OCI revisions require the complete metadata policy; legacy fallback is allowed only for r1')
+    if expected.get('metadataPolicyVersion') == 2:
+        qualified = qualified_oci_labels(index, expected['architecture'])
+        base_label = labels.get('org.opencontainers.image.base.name', '')
+        require(re.fullmatch(r'[a-z0-9][a-z0-9./:_-]*@sha256:[a-f0-9]{64}', base_label)
+                and labels == dict(qualified, **{'org.opencontainers.image.base.name': base_label}),
+                'Published image descriptor differs from complete qualified source/license/notice labels')
+    return labels
 
 
 def run(command, *, cwd=None, env=None, input=None):
@@ -169,6 +302,7 @@ def installed(args):
         identity = json.loads(as_user([name, '--cbodotnet-info']))
         require(identity['sourceManifestSha256'] == plan['sourceManifestSha256'] and identity['sdkVersion'] == plan['sdkVersion'],
                 'Alias source provenance mismatch')
+        validate_sdk_listing(as_user([name, '--list-sdks']), plan['sdkVersion'], str(sdk))
     (work / 'global.json').write_text(json.dumps({'sdk': {'version': plan['sdkVersion'], 'rollForward': 'disable'}}))
     (work / 'NuGet.Config').write_text('<configuration><packageSources><clear /></packageSources></configuration>')
     (work / 'Smoke.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType>'
@@ -242,6 +376,7 @@ def installed(args):
             and inventory(official) == official_before, 'Official SDK changed after lifecycle tests')
     dependencies = {name: run(['dpkg-query', '-W', '-f=${Version}', name]).strip() for name in plan['dependencies']}
     checks = {name: 'passed' for name in PREPUBLICATION_CHECKS}
+    checks['sdk-list-paths'] = 'passed'
     checks.update({name: 'passed' for name in (['package-integrity', 'package-manager-install', 'repository-metadata']
                                              if args.mode == 'deb' else ['image-config', 'oci-platforms', 'pinned-base-image'])})
     # OCI upgrade/removal are validated by the outer driver against whole images.
@@ -296,11 +431,12 @@ def native(args):
     workspace.mkdir(parents=True)
     inputs = workspace / 'inputs'
     progress('receive the exact qualified SDK source release for ' + args.arch)
-    receive_release(args.tag, inputs, 'deb', 'debian-13', args.arch, args.revision)
+    channels = selected_channels(args)
+    receive_release(args.tag, inputs, 'oci' if channels == ('oci',) else 'deb', 'debian-13', args.arch, args.revision)
     progress('verify the independent official SDK comparison archive')
     official_archive(workspace, args.arch)
     items = []
-    for variant, base in [('ubuntu-24.04', args.ubuntu_base), ('debian-13', args.debian_base)]:
+    for variant, base in ([('ubuntu-24.04', args.ubuntu_base), ('debian-13', args.debian_base)] if 'deb' in channels else []):
         delivery = workspace / ('deb-' + variant)
         delivery.mkdir()
         for revision, name in [(args.revision, 'build'), (args.revision + 1, 'upgrade-build')]:
@@ -348,18 +484,21 @@ def native(args):
     run([*build_arguments, '--tag', tag, '--file', build / 'Containerfile', build])
     image = json.loads(run(['docker', 'image', 'inspect', tag]))[0]
     expected_arch = 'amd64' if args.arch == 'x64' else 'arm64'
-    require(image['Architecture'] == expected_arch and image['Os'] == 'linux', 'Image architecture metadata mismatch')
-    require(image['Config'].get('WorkingDir') == '/work' and image['Config'].get('User') in {'app', '1654', '1654:1654'},
-            'Consumer image must select its writable work directory and non-root app user')
-    image_environment = dict(value.split('=', 1) for value in image['Config'].get('Env', []) if '=' in value)
-    require(image_environment.get('PATH', '').split(':')[0] == '/usr/local/bin'
-            and image_environment.get('DOTNET_ROOT') == '/opt/cbodotnet/10.0', 'Image bypasses the branded command/root policy')
+    labels = dict(metadata['labels'], **{'org.opencontainers.image.base.name': args.debian_base})
+    config_evidence = validate_image_config(image, expected_arch, metadata['plan']['package']['root'], labels)
+    file_evidence = inspect_consumer_files(tag, metadata['plan']['package']['root'])
+    functional_evidence = run_public_functional_smoke(tag)
     require(run(['docker', 'run', '--rm', tag, 'id', '-u']).strip() == '1654', 'Consumer image does not execute as its non-root user')
     progress('execute native OCI aliases, payload, non-root, HTTP, cryptography and globalization checks')
     run(['docker', 'run', '--rm', '--user', '0', '--entrypoint', '/bin/bash',
          '-v', f'{ROOT}:/repo:ro', '-v', f'{workspace}:/delivery', tag,
          '/repo/scripts/verify-channel-install.sh', '/repo', '/delivery/' + delivery.name, 'debian-13', 'oci'])
     result = json.loads((delivery / 'installation-result.json').read_bytes())
+    result['imageConfig'] = config_evidence
+    result['imageFiles'] = file_evidence
+    result['functionalChecks'] = functional_evidence
+    result['imageFunctionalNetwork'] = 'none'
+    result['checks'].update({'image-labels': 'passed', 'image-ownership': 'passed', 'image-no-build-secrets': 'passed', 'image-no-source-build-toolchain': 'passed'})
     # Upgrade through a separately built packaging revision, then roll back by
     # selecting the original immutable image without rewriting either image.
     upgrade_build = delivery / 'upgrade-build'
@@ -367,8 +506,18 @@ def native(args):
     run([sys.executable, ROOT / 'scripts/package-sdk.py', '--inputs', inputs, '--channel', 'oci', '--variant', 'debian-13',
          '--arch', args.arch, '--revision', args.revision + 1, '--output', upgrade_build, '--base-image', args.debian_base])
     upgrade_tag = tag + '-upgrade'
-    run(['docker', 'build', '--build-arg', 'BASE_IMAGE=' + args.debian_base, '--tag', upgrade_tag,
-         '--file', upgrade_build / 'Containerfile', upgrade_build])
+    upgrade_metadata = json.loads((upgrade_build / 'package-build.json').read_bytes())
+    upgrade_arguments = ['docker', 'build', '--build-arg', 'BASE_IMAGE=' + args.debian_base,
+                         '--label', 'org.opencontainers.image.base.name=' + args.debian_base]
+    for key, value in upgrade_metadata['labels'].items():
+        upgrade_arguments.extend(['--label', key + '=' + value])
+    run([*upgrade_arguments, '--tag', upgrade_tag, '--file', upgrade_build / 'Containerfile', upgrade_build])
+    upgraded_image = json.loads(run(['docker', 'image', 'inspect', upgrade_tag]))[0]
+    validate_image_config(upgraded_image, expected_arch, upgrade_metadata['plan']['package']['root'],
+                          dict(upgrade_metadata['labels'], **{'org.opencontainers.image.base.name': args.debian_base}))
+    inspect_consumer_files(upgrade_tag, upgrade_metadata['plan']['package']['root'])
+    for name in ('cbodotnet-10.0', 'cbodotnet', 'dotnet'):
+        validate_sdk_listing(run(['docker', 'run', '--rm', upgrade_tag, name, '--list-sdks']), args.tag[4:], upgrade_metadata['plan']['package']['root'])
     upgraded = json.loads(run(['docker', 'run', '--rm', '--entrypoint', 'cbodotnet', upgrade_tag, '--cbodotnet-info']))
     require(upgraded['packageRevision'] == args.revision + 1, 'Container upgrade did not select the next packaging revision')
     require(run(['docker', 'run', '--rm', '--entrypoint', 'cbodotnet', tag, '--version']).strip() == args.tag[4:],
@@ -383,7 +532,7 @@ def native(args):
     run(['docker', 'save', '--output', artifact, tag])
     progress('export the verified native image for protected promotion')
     (delivery / 'image.json').write_bytes(encoded(dict(tag=tag, id=image['Id'], architecture=expected_arch,
-                                                    base=args.debian_base, sdkVersion=args.tag[4:])))
+        base=args.debian_base, sdkVersion=args.tag[4:], sdkRoot=metadata['plan']['package']['root'], labels=labels)))
     items.append(record(delivery, artifact, result, delivery / 'commands', inputs))
     shutil.rmtree(build)
     shutil.rmtree(upgrade_build)
@@ -429,7 +578,10 @@ def push_images(items, output):
         current = registry_manifest(reference)
         require(current[1].get('config', {}).get('digest') == image['id'],
                 'Refusing an immutable image tag with a different verified image config')
-        platforms.append(dict(os='linux', architecture=image['architecture'], digest=current[0]['digest'], configDigest=image['id']))
+        platform_row = dict(os='linux', architecture=image['architecture'], digest=current[0]['digest'], configDigest=image['id'])
+        if image.get('labels'):
+            platform_row.update(labels=image['labels'], sdkRoot=image['sdkRoot'], metadataPolicyVersion=2)
+        platforms.append(platform_row)
     platforms.sort(key=lambda row: row['architecture'])
     index_reference = repository + ':' + tag
     existing = registry_manifest(index_reference, missing=True)
@@ -507,7 +659,10 @@ def promote(args):
     output = args.output.resolve()
     require(not output.exists(), 'Promotion output must be fresh')
     output.mkdir(parents=True)
+    channels = selected_channels(args)
     items = unpack_deliveries(args.received.resolve())
+    require({item['package']['identity']['channel'] for item in items} == set(channels),
+            'Native transport contains missing or unexpected distribution channels')
     source_identity = orchestration()
     if args.source_run:
         require(args.source_run.isdecimal() and args.source_attempt.isdecimal(), 'An exact prior run/attempt is required')
@@ -524,11 +679,12 @@ def promote(args):
         source_identity.update(commit=source['head_sha'], runId=args.source_run, runAttempt=args.source_attempt)
     require({item['package']['architecture'] for item in items} == {'x64', 'aarch64'}, 'Native architecture matrix is incomplete')
     require(all(item['package']['orchestration'] == source_identity for item in items), 'Native artifact belongs to another workflow run/commit')
-    builds = sorted(args.received.resolve().glob('delivery-*/deb-*/packages/package-build.json'))
     repository = output / 'repositories'
-    run([sys.executable, ROOT / 'scripts/package-repository.py', '--channel', 'deb', '--package-builds', *builds,
-         '--signing-key', args.signing_key, '--output', repository])
-    check_repository(repository, args.keyring)
+    if 'deb' in channels:
+        builds = sorted(args.received.resolve().glob('delivery-*/deb-*/packages/package-build.json'))
+        run([sys.executable, ROOT / 'scripts/package-repository.py', '--channel', 'deb', '--package-builds', *builds,
+             '--signing-key', args.signing_key, '--output', repository])
+        check_repository(repository, args.keyring)
     for item in items:
         report_path = Path(item['reportPath'])
         report = json.loads(report_path.read_bytes())
@@ -539,7 +695,7 @@ def promote(args):
         item['keyringPath'] = str(args.keyring.resolve())
     ledger = output / 'ledger'
     ledger.mkdir()
-    for channel in ('deb', 'oci'):
+    for channel in channels:
         stage_records([item for item in items if item['package']['identity']['channel'] == channel], ledger)
     oci_items = [item for item in items if item['package']['identity']['channel'] == 'oci']
     index = push_images(oci_items, output)
@@ -567,7 +723,7 @@ def promote(args):
         item['signaturePath'] = str(sign_report(Path(item['reportPath']), args.signing_key))
     from downstream_publish import create_bundle
     manifests = []
-    for channel in ('deb', 'oci'):
+    for channel in channels:
         selected = [item for item in items if item['package']['identity']['channel'] == channel]
         extra = ([dict(path=str(path), kind='apt-repository', variants=[path.name.removeprefix('apt-').removesuffix('.tar.gz')])
                   for path in sorted(repository.glob('apt-*.tar.gz'))] if channel == 'deb' else
@@ -581,7 +737,7 @@ def promote(args):
     if args.stage_only:
         print(json.dumps(dict(status='signed-and-frozen', targetCommit=source_identity['commit'], digest=index['digest'])))
     else:
-        publish_staged(argparse.Namespace(promotion=output, keyring=args.keyring, frozen_run='', frozen_attempt='1'))
+        publish_staged(argparse.Namespace(promotion=output, keyring=args.keyring, frozen_run='', frozen_attempt='1', channel=getattr(args, 'channel', 'deb-oci')))
 
 
 def receive_frozen(run_id, attempt, destination, *, channels=('deb', 'oci'),
@@ -654,22 +810,31 @@ def publish_staged(args):
     require(os.environ.get('GITHUB_REF') == 'refs/heads/main' and os.environ.get('GITHUB_REPOSITORY') == 'dotnetdev-kr/cbodotnet',
             'Only the protected main workflow may publish')
     promotion = args.promotion.resolve()
+    channels = selected_channels(args)
     if args.frozen_run:
-        receive_frozen(args.frozen_run, args.frozen_attempt, promotion)
+        receive_frozen(args.frozen_run, args.frozen_attempt, promotion, channels=channels)
     require(promotion.is_dir() and not any(path.is_symlink() for path in [promotion, *promotion.parents]),
             'An ordinary frozen promotion directory is required')
-    manifests = {channel: validate_bundle(promotion / ('bundle-' + channel), args.keyring)
-                 for channel in ('deb', 'oci')}
-    target_commit = manifests['deb']['targetCommit']
-    require(manifests['oci']['targetCommit'] == target_commit
-            and all(manifest['identity']['sdkVersion'] == manifests['deb']['identity']['sdkVersion']
-                    and manifest['identity']['packageRevision'] == manifests['deb']['identity']['packageRevision']
-                    and manifest['identity']['sourceManifestSha256'] == manifests['deb']['identity']['sourceManifestSha256']
+    metadata = json.loads((promotion / 'promotion.json').read_bytes())
+    require(set(metadata.get('channels', {})) == set(channels)
+            and {path.name for path in promotion.glob('bundle-*')} == {'bundle-' + channel for channel in channels},
+            'Frozen promotion contains missing or unexpected channels')
+    manifests = {channel: validate_bundle(promotion / ('bundle-' + channel), args.keyring) for channel in channels}
+    require(all(manifest['identity']['channel'] == channel for channel, manifest in manifests.items()),
+            'Frozen signed manifest belongs to another selected channel')
+    first = manifests[channels[0]]
+    target_commit = first['targetCommit']
+    require(all(manifest['targetCommit'] == target_commit
+                    and manifest['identity']['sdkVersion'] == first['identity']['sdkVersion']
+                    and manifest['identity']['packageRevision'] == first['identity']['packageRevision']
+                    and manifest['identity']['sourceManifestSha256'] == first['identity']['sourceManifestSha256']
                     for manifest in manifests.values()), 'Frozen channels contain different verified source identities')
+    require(all(metadata['channels'][channel] == manifest['tag'] for channel, manifest in manifests.items()),
+            'Frozen channel tags differ from their signed manifests')
     oci_assets = {row['name']: row for row in manifests['oci']['assets']}
     require('oci-index.json' in oci_assets and digest(promotion / 'oci-index.json') == oci_assets['oci-index.json']['sha256'],
             'Frozen index metadata differs from its signed publication manifest')
-    for channel in ('deb', 'oci'):
+    for channel in channels:
         progress('publish or resume the exact frozen ' + channel + ' release bytes')
         receipt = publish_bundle(promotion / ('bundle-' + channel), args.keyring, target_commit)
         (promotion / (channel + '-publication.json')).write_bytes(encoded(receipt))
@@ -696,21 +861,29 @@ def postverify(args):
     actual = json.loads(run(['docker', 'image', 'inspect', reference]))[0]
     expected = next(row for row in index['platforms'] if row['architecture'] == expected_arch)
     require(actual['Architecture'] == expected_arch and actual['Id'] == expected['configDigest'], 'Pulled image differs from qualified native image')
+    labels = validate_published_metadata(index, expected)
+    config_evidence = validate_image_config(actual, expected_arch, '/opt/cbodotnet/10.0', labels)
+    file_evidence = inspect_consumer_files(reference, '/opt/cbodotnet/10.0')
     require(run(['docker', 'run', '--rm', reference, 'id', '-u']).strip() != '0', 'Published image defaults to root')
     for name in ('cbodotnet-10.0', 'cbodotnet', 'dotnet'):
         result = subprocess.run(['docker', 'run', '--rm', reference, name, '--version'], text=True, capture_output=True)
         require(result.returncode == 0 and result.stdout == '10.0.403\n' and result.stderr.strip() == BRAND,
                 'Published alias/branding mismatch: ' + name)
-    smoke = ('mkdir -p /work/smoke && cd /work/smoke && '
-             'printf \'<configuration><packageSources><clear /></packageSources></configuration>\' > NuGet.Config && '
-             'printf \'<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType></PropertyGroup></Project>\' > Smoke.csproj && '
-             'printf \'System.Console.WriteLine("published-offline-passed");\' > Program.cs && '
-             'dotnet restore --configfile NuGet.Config && dotnet build --no-restore && dotnet bin/Debug/net10.0/Smoke.dll')
-    require('published-offline-passed' in run(['docker', 'run', '--rm', '--network', 'none', reference, 'sh', '-ec', smoke]),
-            'Published non-root offline build failed')
+        validate_sdk_listing(run(['docker', 'run', '--rm', reference, name, '--list-sdks']), '10.0.403', '/opt/cbodotnet/10.0')
+        info = run(['docker', 'run', '--rm', reference, name, '--info'])
+        rid = 'linux-x64' if expected_arch == 'amd64' else 'linux-arm64'
+        require(info.startswith(BRAND + '\n') and '/opt/cbodotnet/10.0' in info and rid in info,
+                'Published alias info selected another host/root/RID')
+    functional_evidence = run_public_functional_smoke(reference)
     apt_results = postverify_apt(args) if args.deb_receipt is not None else []
+    checks = ['anonymous-pull', 'native-config', 'non-root', 'command-aliases', 'cli-branding', 'offline-build-run',
+              'sdk-list-paths', 'image-ownership', 'image-no-build-secrets', 'image-no-source-build-toolchain',
+              'console-apphost', 'http-crypto-globalization', 'sdk-info-root-rid']
+    if labels:
+        checks.append('image-labels')
     args.output.write_bytes(encoded(dict(schemaVersion=1, status='passed', architecture=args.arch, aptTargets=apt_results,
-                                        repository=index['repository'], digest=index['digest'], checks=['anonymous-pull', 'native-config', 'non-root', 'command-aliases', 'cli-branding', 'offline-build-run'])))
+        repository=index['repository'], digest=index['digest'], imageConfig=config_evidence, imageFiles=file_evidence,
+        functionalChecks=functional_evidence, networkForBuild='none', checks=checks)))
     print(json.dumps(dict(status='passed', architecture=args.arch, digest=index['digest'])))
 
 
@@ -779,6 +952,7 @@ def main():
     commands = parser.add_subparsers(dest='command', required=True)
     command = commands.add_parser('native')
     command.add_argument('--workspace', type=Path, required=True)
+    command.add_argument('--channel', choices=('deb-oci', 'oci'), default='deb-oci')
     command.add_argument('--tag', default='sdk-10.0.403')
     command.add_argument('--revision', type=int, default=1)
     command.add_argument('--arch', choices=('x64', 'aarch64'), required=True)
@@ -789,6 +963,7 @@ def main():
     command.add_argument('--variant', required=True)
     command.add_argument('--mode', choices=('deb', 'oci'), required=True)
     command = commands.add_parser('promote')
+    command.add_argument('--channel', choices=('deb-oci', 'oci'), default='deb-oci')
     command.add_argument('--received', type=Path, required=True)
     command.add_argument('--output', type=Path, required=True)
     command.add_argument('--signing-key', required=True)
@@ -797,6 +972,7 @@ def main():
     command.add_argument('--source-attempt', default='1')
     command.add_argument('--stage-only', action='store_true')
     command = commands.add_parser('publish-staged')
+    command.add_argument('--channel', choices=('deb-oci', 'oci'), default='deb-oci')
     command.add_argument('--promotion', type=Path, required=True)
     command.add_argument('--keyring', type=Path, required=True)
     command.add_argument('--frozen-run', default='')

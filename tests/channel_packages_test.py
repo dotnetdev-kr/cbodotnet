@@ -48,6 +48,9 @@ class ChannelPackagesTests(unittest.TestCase):
                 'sdk': {'name': archive.name, 'size': archive.stat().st_size, 'sha256': hashlib.sha256(archive.read_bytes()).hexdigest(),
                         'url': 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/' + archive.name},
                 'sourceReleaseTag': 'sdk-10.0.403', 'sourceManifestSha256': 'a' * 64,
+                'sourceManifestUrl': 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json',
+                'source': {'url': 'https://example.invalid/qualified-source.tar.gz', 'sha256': 'c' * 64},
+                'evidence': {'url': 'https://example.invalid/qualified-evidence.tar.gz', 'sha256': 'd' * 64},
                 'licensePaths': ['LICENSE.txt', 'ThirdPartyNotices.txt'], 'additionalDirectories': ['metadata'],
                 'dependencies': ['libc6', 'libicu76', 'libssl3t64'], 'branding': copy.deepcopy(BRANDING)}
         return plan, archive
@@ -82,6 +85,26 @@ class ChannelPackagesTests(unittest.TestCase):
         self.assertTrue({'/usr/local/bin/cbodotnet', '/usr/local/bin/cbodotnet-10.0', '/usr/local/bin/dotnet'} <= paths)
         self.assertEqual('debian:13@sha256:' + 'b' * 64, result['buildArgs']['BASE_IMAGE'])
         self.assertFalse(result['publicationQualified'])
+        labels = result['labels']
+        self.assertEqual('MIT AND LicenseRef-Dotnet-ThirdPartyNotices', labels['org.opencontainers.image.licenses'])
+        self.assertEqual('/opt/cbodotnet/10.0/LICENSE.txt', labels['kr.dotnetdev.cbodotnet.license.path'])
+        self.assertEqual('/opt/cbodotnet/10.0/ThirdPartyNotices.txt', labels['kr.dotnetdev.cbodotnet.notices.path'])
+        self.assertEqual(plan['source']['url'], labels['kr.dotnetdev.cbodotnet.source.url'])
+        self.assertEqual(plan['evidence']['sha256'], labels['kr.dotnetdev.cbodotnet.evidence.sha256'])
+        self.assertEqual(plan['sourceManifestUrl'], labels['kr.dotnetdev.cbodotnet.manifest.url'])
+
+    def test_oci_packaging_upgrade_updates_its_own_labels_without_changing_sdk_payload(self):
+        plan, archive = self.fixture(channel='oci', revision=2)
+        first = PACKAGES.build_oci_context(plan, archive, self.directory / 'oci-r2', 'debian:13@sha256:' + 'b' * 64)
+        upgraded = copy.deepcopy(plan)
+        upgraded['packageRevision'] = 3
+        upgraded['package']['version'] = '10.0.403-3'
+        second = PACKAGES.build_oci_context(upgraded, archive, self.directory / 'oci-r3', 'debian:13@sha256:' + 'b' * 64)
+        self.assertEqual('2', first['labels']['kr.dotnetdev.cbodotnet.package.revision'])
+        self.assertEqual('3', second['labels']['kr.dotnetdev.cbodotnet.package.revision'])
+        self.assertEqual(first['labels']['kr.dotnetdev.cbodotnet.sdk.sha256'], second['labels']['kr.dotnetdev.cbodotnet.sdk.sha256'])
+        self.assertEqual(PACKAGES.sdk_tools().snapshot(self.directory / 'oci-r2/rootfs/opt/cbodotnet/10.0'),
+                         PACKAGES.sdk_tools().snapshot(self.directory / 'oci-r3/rootfs/opt/cbodotnet/10.0'))
 
     @unittest.skipUnless(shutil.which('dpkg-deb'), 'dpkg-deb is required')
     def test_real_debs_have_distinct_ownership_and_preserve_payload(self):

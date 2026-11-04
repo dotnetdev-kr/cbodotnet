@@ -13,6 +13,11 @@ from downstream_release import PREPUBLICATION_CHECKS, encoded, require
 
 STATUS_PATH = 'releases/downstream-status.json'
 POST_CHECKS = {'anonymous-pull', 'native-config', 'non-root', 'command-aliases', 'cli-branding', 'offline-build-run'}
+POST_CHECKS_V2 = POST_CHECKS | {'sdk-list-paths', 'image-labels', 'image-ownership',
+                              'image-no-build-secrets', 'image-no-source-build-toolchain',
+                              'console-apphost', 'http-crypto-globalization', 'sdk-info-root-rid'}
+OCI_FUNCTIONAL_CHECKS = {'consoleDllExecution', 'consoleApphostExecution', 'aspNetCoreLoopbackHttp',
+                         'rsaSha256SignAndVerify', 'cryptographicRandomBytes', 'frFrDecimalFormatting', 'nonRootRuntimeRoot'}
 
 
 def receipt_key(receipt):
@@ -63,12 +68,29 @@ def validate_postverification(policy, receipts, reports, index=None):
         require(all(re.fullmatch(r'sha256:[a-f0-9]{64}', row.get('digest', ''))
                     and re.fullmatch(r'sha256:[a-f0-9]{64}', row.get('configDigest', '')) for row in platforms),
                 'Published OCI platform/config digests are absent')
+        versions = {row.get('metadataPolicyVersion') for row in platforms}
+        require(versions == {None} or versions == {2}, 'OCI metadata policies cannot be mixed or silently downgraded')
+        require(identity['packageRevision'] == 1 or versions == {2}, 'New OCI revisions require complete metadata policy 2')
     for report in reports:
         require(report.get('schemaVersion') == 1 and report.get('status') == 'passed', 'Native post-publication verification failed')
         arch = report['architecture']
         if 'oci' in by_channel:
             require(report.get('repository') == index['repository'] and report.get('digest') == index['digest']
                     and POST_CHECKS <= set(report.get('checks', [])), 'OCI post-verifier did not test this published digest and command surface')
+            if versions == {2}:
+                platform = next(row for row in platforms if row['architecture'] == {'x64': 'amd64', 'aarch64': 'arm64'}[arch])
+                config, files = report.get('imageConfig', {}), report.get('imageFiles', {})
+                root = '/opt/cbodotnet/' + '.'.join(identity['sdkVersion'].split('.')[:2])
+                require(POST_CHECKS_V2 <= set(report.get('checks', [])) and platform.get('labels')
+                        and config.get('architecture') == platform['architecture']
+                        and config.get('labels') == platform['labels']
+                        and config.get('sdkRoot') == platform.get('sdkRoot') == root
+                        and config.get('user') in {'app', '1654', '1654:1654'} and config.get('workdir') == '/work'
+                        and report.get('networkForBuild') == 'none'
+                        and all(report.get('functionalChecks', {}).get(name) == 'passed' for name in OCI_FUNCTIONAL_CHECKS)
+                        and files.get('ownership') == 'root:root:0755'
+                        and files.get('sourceBuildToolchain') == files.get('credentialEnvironment') == 'absent',
+                        'OCI public metadata, SDK listing, ownership or consumer configuration proof is incomplete')
         if 'deb' in by_channel:
             targets = report.get('aptTargets', [])
             expected = {row['variant'] for row in policy['channels']['deb']['candidateMatrix'] if row['architecture'] == arch}

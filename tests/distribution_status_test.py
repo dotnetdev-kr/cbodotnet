@@ -121,6 +121,50 @@ class DistributionStatusTests(unittest.TestCase):
         self.assertEqual('published', result['channels']['deb']['status'])
         self.assertEqual('not-published', result['channels']['oci']['status'])
 
+    def metadata_v2(self):
+        for platform in self.index['platforms']:
+            platform.update(metadataPolicyVersion=2, sdkRoot='/opt/cbodotnet/10.0', labels={
+                'org.opencontainers.image.licenses': 'MIT AND LicenseRef-Dotnet-ThirdPartyNotices',
+                'kr.dotnetdev.cbodotnet.sdk.sha256': 'f' * 64})
+        for report in self.reports:
+            platform = next(row for row in self.index['platforms']
+                            if row['architecture'] == {'x64': 'amd64', 'aarch64': 'arm64'}[report['architecture']])
+            report.update(checks=sorted(STATUS.POST_CHECKS_V2),
+                networkForBuild='none', functionalChecks={name: 'passed' for name in STATUS.OCI_FUNCTIONAL_CHECKS},
+                imageConfig=dict(architecture=platform['architecture'], user='app', workdir='/work',
+                                 sdkRoot=platform['sdkRoot'], labels=copy.deepcopy(platform['labels'])),
+                imageFiles=dict(ownership='root:root:0755', sourceBuildToolchain='absent', credentialEnvironment='absent'))
+
+    def test_oci_only_metadata_revision_requires_complete_signed_public_proof_and_preserves_apt(self):
+        self.metadata_v2()
+        result = self.activate(receipts=self.receipts[1:])
+        self.assertEqual('published', result['channels']['oci']['status'])
+        self.assertEqual(self.policy['channels']['deb'], result['channels']['deb'])
+        for mutate in (lambda report: report['checks'].remove('sdk-list-paths'),
+                       lambda report: report['checks'].remove('http-crypto-globalization'),
+                       lambda report: report['functionalChecks'].update(rsaSha256SignAndVerify='failed'),
+                       lambda report: report.update(networkForBuild='enabled'),
+                       lambda report: report['imageConfig']['labels'].update(**{'kr.dotnetdev.cbodotnet.sdk.sha256': '0' * 64}),
+                       lambda report: report['imageConfig'].update(user='0'),
+                       lambda report: report['imageFiles'].update(sourceBuildToolchain='present')):
+            reports = copy.deepcopy(self.reports)
+            mutate(reports[0])
+            with self.subTest(mutation=mutate), self.assertRaisesRegex(ValueError, 'OCI public metadata'):
+                self.activate(receipts=self.receipts[1:], reports=reports)
+
+    def test_oci_metadata_policy_cannot_be_downgraded_on_one_platform(self):
+        self.metadata_v2()
+        del self.index['platforms'][0]['metadataPolicyVersion']
+        with self.assertRaisesRegex(ValueError, 'mixed or silently downgraded'):
+            self.activate(receipts=self.receipts[1:])
+
+    def test_new_oci_revision_cannot_downgrade_both_platforms_to_legacy_metadata(self):
+        self.receipts[1]['identity']['packageRevision'] = 2
+        self.receipts[1]['tag'] = STATUS.release_tag('oci', '10.0.403', 2)
+        self.index['tag'] = '10.0.403-debian13-r2'
+        with self.assertRaisesRegex(ValueError, 'complete metadata policy 2'):
+            self.activate(receipts=self.receipts[1:])
+
     def fake_api(self, fail_update=False, bad_job=False):
         class API:
             def __init__(inner):
