@@ -1,0 +1,60 @@
+name: Check all Community SDKs together on Arch
+
+on:
+  workflow_dispatch:
+    inputs:
+      provider_run_id:
+        description: Successful provider-only diagnostic run ID
+        required: true
+        type: string
+      provider_attempt:
+        description: Exact successful provider diagnostic attempt
+        default: '1'
+        type: string
+      qualification_runs:
+        description: JSON SDK-version to successful individual AUR run ID or runId/attempt map
+        required: true
+        type: string
+  push:
+    branches: [main]
+    paths: ['.github/workflows/aur-coinstall-check.yml']
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  coinstall:
+    # A bounded push only registers this workflow. SDK work requires an explicit
+    # dispatch and successful provider plus eight individual native proof gates.
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Authenticate prerequisites and verify all eight SDKs together
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROVIDER_RUN: ${{ inputs.provider_run_id }}
+          PROVIDER_ATTEMPT: ${{ inputs.provider_attempt }}
+          QUALIFICATION_RUNS: ${{ inputs.qualification_runs }}
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          python3 scripts/aur-coinstall-ci.py native \
+            --provider-run-id "$PROVIDER_RUN" --provider-attempt "$PROVIDER_ATTEMPT" \
+            --qualification-runs "$QUALIFICATION_RUNS" \
+            --workspace "$RUNNER_TEMP/arch-all-sdk-coinstall"
+      - name: Retain exact coinstallation evidence without publishing
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: arch-all-sdk-coinstall-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/arch-all-sdk-coinstall/coinstall-result.json
+            ${{ runner.temp }}/arch-all-sdk-coinstall/prerequisites.json
+            ${{ runner.temp }}/arch-all-sdk-coinstall/prerequisite-proofs/
+            ${{ runner.temp }}/arch-all-sdk-coinstall/makepkg-logs/
+          retention-days: 30
+          if-no-files-found: warn

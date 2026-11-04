@@ -1,0 +1,77 @@
+name: Verify all eight published SDKs together
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: published-eight-sdk-coexistence
+  cancel-in-progress: false
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  authenticate:
+    name: Require sixteen complete signed package publications
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Authenticate current receipts, source producers and signed asset descriptors
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/published-sdk-coexistence.py prepare --workspace "$RUNNER_TEMP/coexistence-inputs"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: published-eight-sdk-inputs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/coexistence-inputs
+          retention-days: 30
+          if-no-files-found: error
+
+  native:
+    name: Eight SDKs on ${{ matrix.variant }} native ${{ matrix.arch }}
+    needs: authenticate
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [ubuntu-24.04, debian-13, fedora-45, rocky-9.8]
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+        # Explicit axes produce one worker per OS/CPU target.
+        arch: [x64, aarch64]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: published-eight-sdk-inputs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/coexistence-inputs
+      - name: Install all eight public SDKs and verify offline selection and removal
+        env:
+          ARCH: ${{ matrix.arch }}
+          VARIANT: ${{ matrix.variant }}
+        run: |
+          python3 scripts/published-sdk-coexistence.py native \
+            --preflight "$RUNNER_TEMP/coexistence-inputs" --arch "$ARCH" --variant "$VARIANT" \
+            --workspace "$RUNNER_TEMP/coexistence-observation"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: published-eight-sdk-${{ matrix.variant }}-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/coexistence-observation/report.json
+            ${{ runner.temp }}/coexistence-observation/installed/installed.json
+          retention-days: 30
+          if-no-files-found: warn
