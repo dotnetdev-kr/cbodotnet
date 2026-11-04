@@ -1,0 +1,17 @@
+pkgbase = cbodotnet-host
+	pkgdesc = Shared command selector for Community Build of .NET
+	pkgver = 1.0.0
+	pkgrel = 1
+	url = https://dotnetdev.kr/cbodotnet/
+	arch = any
+	license = MIT
+	depends = bash
+	options = !strip
+	options = !debug
+	options = !lto
+	source = cbodotnet
+	source = LICENSE
+	sha256sums = 22d23c82d1c279367d8456bf319faaaa36065d15b2c1c80bf548f06fac2ed805
+	sha256sums = ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b
+
+pkgname = cbodotnet-host
