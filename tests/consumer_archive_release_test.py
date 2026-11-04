@@ -14,6 +14,7 @@ import consumer_archive_test as FIXTURES
 import consumer_archive as CA
 import consumer_archive_release as CR
 import consumer_archive_site as SITE
+import consumer_archive_status as STATUS
 
 
 class FakeGitHub:
@@ -97,6 +98,11 @@ class ConsumerArchiveReleaseTests(unittest.TestCase):
                 policy=policy,keyring=keyring,fetch=metadata_only)
             self.assertEqual({'x64','aarch64'},{row['architecture'] for row in rows})
             self.assertEqual(2,len(rows));self.assertTrue(requested)
+            activated=STATUS.activate(dict(schemaVersion=1,repository=CA.REPOSITORY,publications=[]),receipt,public_reports,
+                source=source,policy=policy,keyring=keyring,fetch=metadata_only)
+            self.assertEqual([complete],activated['publications'])
+            self.assertEqual(activated,STATUS.activate(activated,receipt,public_reports,source=source,
+                policy=policy,keyring=keyring,fetch=metadata_only))
             changed=copy.deepcopy(complete)
             next(item for item in changed['assets'] if item['name'].endswith('.tar.gz'))['sha256']='f'*64
             with self.assertRaisesRegex(ValueError,'exact signed asset'):

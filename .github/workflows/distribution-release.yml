@@ -229,6 +229,76 @@ jobs:
           gpgconf --homedir "$RUNNER_TEMP/archive-gnupg" --kill all || true
           python3 -c 'from pathlib import Path; import os,shutil; p=Path(os.environ["RUNNER_TEMP"])/"archive-gnupg"; assert p.name=="archive-gnupg" and p.parent==Path(os.environ["RUNNER_TEMP"]); shutil.rmtree(p,ignore_errors=True)'
 
+  postverify_archive:
+    name: Verify public branded consumer archive on native ${{ matrix.arch }}
+    needs: publish_archive
+    if: always() && needs.publish_archive.result == 'success'
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: downstream-archive-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/archive-publication
+      - name: Prepare the pinned public consumer identity
+        run: gpg --batch --yes --dearmor --output "$RUNNER_TEMP/archive-public.gpg" releases/downstream-signing-key.asc
+      - name: Anonymously receive the signed archive and repeat every native offline user space
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          python3 scripts/consumer-archive-public.py --receipt "$RUNNER_TEMP/archive-publication/archive-publication.json" \
+            --arch "$ARCH" --workspace "$RUNNER_TEMP/archive-public-$ARCH" --keyring "$RUNNER_TEMP/archive-public.gpg" \
+            --output "$RUNNER_TEMP/published-$ARCH.json"
+      - name: Retain actual native public consumer installation reports
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: downstream-archive-postverify-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/published-${{ matrix.arch }}.json
+          retention-days: 30
+          if-no-files-found: error
+
+  finalize_archive:
+    name: Activate verified branded archive availability and refresh Pages
+    needs: [publish_archive, postverify_archive]
+    if: always() && needs.publish_archive.result == 'success' && needs.postverify_archive.result == 'success' && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: downstream-archive-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/archive-final-publication
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: downstream-archive-postverify-*-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/archive-final-results
+          merge-multiple: true
+      - name: Authenticate signed archive metadata and API-digest-bound public reports before committing availability
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gpg --batch --yes --dearmor --output "$RUNNER_TEMP/archive-public.gpg" releases/downstream-signing-key.asc
+          python3 scripts/consumer-archive-status.py --receipt "$RUNNER_TEMP/archive-final-publication/archive-publication.json" \
+            --reports-dir "$RUNNER_TEMP/archive-final-results" --keyring "$RUNNER_TEMP/archive-public.gpg" \
+            --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --write
+
   native:
     if: (inputs.channel == '' || inputs.channel == 'deb-oci' || inputs.channel == 'oci') && inputs.source_run_id == '' && inputs.promotion_run_id == ''
     name: Install packages and OCI on native ${{ matrix.arch }}

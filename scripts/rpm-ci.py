@@ -24,8 +24,8 @@ SHARED = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(SHARED)
 BASES = {
     'fedora-45': {
-        'x64': 'quay.io/fedora/fedora:45@sha256:35af79e2cab297469cae69d5712084ee68cab4ac7bba6bc0b17ffb2efbc6b2f0',
-        'aarch64': 'quay.io/fedora/fedora:45@sha256:6dae311a7b73b4d09dcce5fbe0167e088cef75c0639230583482cd433b1dd492'},
+        'x64': 'quay.io/fedora/fedora:45@sha256:ea0998f4c945b85c2134793cda4fac35ee394f0d677a04c5b1fe769e13f959b8',
+        'aarch64': 'quay.io/fedora/fedora:45@sha256:0b22780214954d098cffee33d7c5658ca99d8de06d231b2a00ebfda501b27a30'},
     'rocky-9.8': {
         'x64': 'quay.io/rockylinux/rockylinux:9.8@sha256:ed654c694190a670bb5c33f68995b862214fc96ffbdca95e07a8935ba0a3717d',
         'aarch64': 'quay.io/rockylinux/rockylinux:9.8@sha256:67492e5a371d9db7c2ffb2708abae92147fb900900832a7ed3fb2ac4df9ec052'},
