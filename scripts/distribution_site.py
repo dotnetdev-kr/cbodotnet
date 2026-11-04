@@ -217,7 +217,7 @@ def render_channels(status):
                 command = ('sudo apt-get update\nsudo apt-get install -y ca-certificates curl gnupg\n'
                            'curl -fsSLo /tmp/cbodotnet-archive-keyring.gpg https://dotnetdev.kr/cbodotnet/cbodotnet-archive-keyring.gpg\n'
                            'test "$(gpg --show-keys --with-colons /tmp/cbodotnet-archive-keyring.gpg | '
-                           "awk -F: '$1==\"fpr\" {print $10; exit}')\" = D7D154B4B33C19A82B95B13688135410ACD9C0EA || exit 1\n"
+                           "awk -F: '$1==\"pub\" {primary=1} $1==\"fpr\" && primary {print $10; primary=0}')\" = D7D154B4B33C19A82B95B13688135410ACD9C0EA || exit 1\n"
                            'sudo install -m 0644 /tmp/cbodotnet-archive-keyring.gpg /usr/share/keyrings/cbodotnet-archive-keyring.gpg\n'
                            "echo 'deb [signed-by=/usr/share/keyrings/cbodotnet-archive-keyring.gpg] https://dotnetdev.kr/cbodotnet/packages/deb/" + variant +
                            " ./' | sudo tee /etc/apt/sources.list.d/cbodotnet.list\nsudo apt-get update\nsudo apt-get install cbodotnet-sdk-10.0\ncbodotnet --info")
@@ -231,7 +231,7 @@ def render_channels(status):
                 command = ('sudo dnf install -y ca-certificates curl gnupg2\n'
                            'curl -fsSLo /tmp/cbodotnet-signing-key.asc https://dotnetdev.kr/cbodotnet/distribution-signing-key.asc\n'
                            'test "$(gpg --show-keys --with-colons /tmp/cbodotnet-signing-key.asc | '
-                           "awk -F: '$1==\"fpr\" {print $10; exit}')\" = D7D154B4B33C19A82B95B13688135410ACD9C0EA || exit 1\n"
+                           "awk -F: '$1==\"pub\" {primary=1} $1==\"fpr\" && primary {print $10; primary=0}')\" = D7D154B4B33C19A82B95B13688135410ACD9C0EA || exit 1\n"
                            'sudo rpm --import /tmp/cbodotnet-signing-key.asc\n'
                            "cat <<'EOF' | sudo tee /etc/yum.repos.d/cbodotnet.repo\n"
                            '[cbodotnet-sdk-10.0]\nname=Community Build of .NET SDK\n'

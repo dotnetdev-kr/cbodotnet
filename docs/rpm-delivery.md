@@ -143,7 +143,7 @@ sudo dnf install -y ca-certificates curl gnupg2
 curl -fsSLo /tmp/cbodotnet-signing-key.asc \
   https://dotnetdev.kr/cbodotnet/distribution-signing-key.asc
 test "$(gpg --show-keys --with-colons /tmp/cbodotnet-signing-key.asc | \
-  awk -F: '$1=="fpr" {print $10; exit}')" = \
+  awk -F: '$1=="pub" {primary=1} $1=="fpr" && primary {print $10; primary=0}')" = \
   D7D154B4B33C19A82B95B13688135410ACD9C0EA || exit 1
 sudo rpm --import /tmp/cbodotnet-signing-key.asc
 sudo tee /etc/yum.repos.d/cbodotnet.repo > /dev/null <<EOF
