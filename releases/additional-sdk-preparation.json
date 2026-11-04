@@ -1,0 +1,3520 @@
+{
+  "schemaVersion": 1,
+  "repository": "dotnetdev-kr/cbodotnet",
+  "status": "preparation-only",
+  "observedAt": "2026-11-04",
+  "basisCommit": "8cb6a550ba8723a634ae38a801107455f9c02d0f",
+  "productionEffect": {
+    "contractModified": false,
+    "releaseAdmitted": false,
+    "sdkBuilt": false,
+    "packageQualified": false,
+    "published": false
+  },
+  "auditScope": {
+    "publicReleaseMetadataChecked": true,
+    "rawManifestsAndChecksumFilesRehashed": true,
+    "producerBindingsComparedToCatalog": true,
+    "sdkSourceEvidenceArchivesDownloaded": false,
+    "nativeExecutionsPerformed": false,
+    "qualificationEvidenceBasis": "existing checked-in native qualification records"
+  },
+  "summary": {
+    "sdks": 7,
+    "sourceProducerBindings": 14,
+    "archiveObservations": 42,
+    "channelTargets": 77,
+    "channelTargetsExecuted": 0,
+    "channelTargetsQualified": 0
+  },
+  "currentContract": {
+    "path": "releases/distribution-contract.json",
+    "sha256": "871fe583933028cb35686de69f05da695bb06803fef20be2e7d5ee8e59fd621d",
+    "admittedSdkVersions": [
+      "10.0.403"
+    ]
+  },
+  "gateDefinitions": {
+    "version-admission": "Explicitly review the exact public manifest SHA, both producer identities and source/framework origins before adding any release to the production contract.",
+    "version-aware-harness": "Remove .NET10-only framework/root/expected-version assumptions from DEB/RPM/OCI/AUR install proofs, retain independent official dotnet coexistence, and bind family-specific RID/ABI expectations.",
+    "native-channel-lifecycle": "Install through the real package manager or immutable OCI digest on the native target; verify aliases/branding, unmodified payload, dependency versions, offline console/apphost/HTTP/crypto/ICU as non-root, coexistence, upgrade/rollback/removal.",
+    "signed-publication": "Bind reports to exact source/package/OCI bytes; verify complete matrix, approved signatures, immutable publication, anonymous post-install and actual hosted HTTPS metadata before advertising availability.",
+    "new-distro-runtime": "The qualified archive has no Fedora45/Rocky9.8/Arch runtime evidence. Audit pinned OpenSSL/ICU loaders and actual target dependency providers, then run native probes before package qualification.",
+    "external-openssl11": "Select a separately recorded, signed, licensed and maintained OpenSSL1.1 provider per distro/architecture, prove source/hash/ABI/configuration and consumer search paths, and repeat TLS/RSA/HTTP. No approved provider is admitted here; do not bundle libraries into the SDK.",
+    "external-core3-icu": "Resolve the pinned Core3 loader ceiling75 against Debian ICU76 and Fedora/Arch ICU78. Review a separately recorded compatible ICU provider (historical evidence used66), keep globalization enabled and prove native use without changing SDK bytes.",
+    "aur-publication-10": "Existing issue10 separately tracks AUR publication identity/SSH authorization and trusted PKGBUILD publication. Only x64 is currently selected; no AUR ARM admission is inferred."
+  },
+  "dependencyReferenceScope": "These package names are existing NET10 reference providers, not verified dependencies for any additional SDK. Record actual per-SDK native providers and versions.",
+  "dependencyReferences": {
+    "ubuntu-24.04": {
+      "candidates": [
+        "libc6",
+        "libgcc-s1",
+        "libstdc++6",
+        "zlib1g",
+        "libgssapi-krb5-2",
+        "ca-certificates",
+        "libicu74",
+        "libssl3t64"
+      ],
+      "basis": "releases/distribution-contract.json; NET10-only reference"
+    },
+    "debian-13": {
+      "candidates": [
+        "libc6",
+        "libgcc-s1",
+        "libstdc++6",
+        "zlib1g",
+        "libgssapi-krb5-2",
+        "ca-certificates",
+        "libicu76",
+        "libssl3t64"
+      ],
+      "basis": "releases/distribution-contract.json; NET10-only reference"
+    },
+    "fedora-45": {
+      "candidates": [
+        "glibc",
+        "libgcc",
+        "libstdc++",
+        "zlib-ng-compat",
+        "krb5-libs",
+        "ca-certificates",
+        "libicu",
+        "openssl3-libs"
+      ],
+      "basis": "releases/distribution-contract.json; NET10-only reference"
+    },
+    "rocky-9.8": {
+      "candidates": [
+        "glibc",
+        "libgcc",
+        "libstdc++",
+        "zlib",
+        "krb5-libs",
+        "ca-certificates",
+        "libicu",
+        "openssl-libs"
+      ],
+      "basis": "releases/distribution-contract.json; NET10-only reference"
+    },
+    "arch-rolling": {
+      "candidates": [
+        "glibc",
+        "libgcc",
+        "libstdc++",
+        "zlib",
+        "krb5",
+        "ca-certificates",
+        "icu",
+        "openssl"
+      ],
+      "basis": "releases/distribution-contract.json; NET10-only reference"
+    }
+  },
+  "targetTemplate": [
+    {
+      "channel": "deb",
+      "variant": "ubuntu-24.04",
+      "architecture": "x64"
+    },
+    {
+      "channel": "deb",
+      "variant": "ubuntu-24.04",
+      "architecture": "aarch64"
+    },
+    {
+      "channel": "deb",
+      "variant": "debian-13",
+      "architecture": "x64"
+    },
+    {
+      "channel": "deb",
+      "variant": "debian-13",
+      "architecture": "aarch64"
+    },
+    {
+      "channel": "rpm",
+      "variant": "fedora-45",
+      "architecture": "x64"
+    },
+    {
+      "channel": "rpm",
+      "variant": "fedora-45",
+      "architecture": "aarch64"
+    },
+    {
+      "channel": "rpm",
+      "variant": "rocky-9.8",
+      "architecture": "x64"
+    },
+    {
+      "channel": "rpm",
+      "variant": "rocky-9.8",
+      "architecture": "aarch64"
+    },
+    {
+      "channel": "oci",
+      "variant": "debian-13",
+      "architecture": "x64"
+    },
+    {
+      "channel": "oci",
+      "variant": "debian-13",
+      "architecture": "aarch64"
+    },
+    {
+      "channel": "aur",
+      "variant": "arch-rolling",
+      "architecture": "x64"
+    }
+  ],
+  "sources": [
+    {
+      "path": "releases/qualified-builds.json",
+      "sha256": "1394a99cb6836f4f16712dd0a70a5df24df47dfa1e2342bd2c15e8b9bebbced1"
+    },
+    {
+      "path": "docs/ci-matrix-results.md",
+      "sha256": "a43a9e934dd23fefe427377240a44068a22b8f22ab51ede2d0b89d42f744a202"
+    },
+    {
+      "path": "docs/ci-x64-results.md",
+      "sha256": "563a619cf38eb759e051d7090590afbf7f3ba15452353142afbdbd94e16b58aa"
+    },
+    {
+      "path": "docs/aur-validation.json",
+      "sha256": "7f5bf80d7ea3088015a814dbccfcddc628e79ccea0df75d1110db9024a52f7f1"
+    },
+    {
+      "path": "docs/rpm-publication-validation.json",
+      "sha256": "20fb9cbd4fbd76682ead03a8269da0f3cc128f03b8a944212963f73eb7df0d9e"
+    }
+  ],
+  "externalReferences": [
+    {
+      "url": "https://packages.fedoraproject.org/pkgs/openssl3/openssl3-libs/fedora-45-updates.html",
+      "observation": "Fedora45 provides separately named OpenSSL3 compatibility libraries; default OpenSSL4 must not be assumed compatible."
+    },
+    {
+      "url": "https://packages.fedoraproject.org/pkgs/icu/libicu/fedora-45.html",
+      "observation": "Fedora45 ICU78.3 reference provider; individual SDK compatibility remains untested."
+    },
+    {
+      "url": "https://packages.debian.org/trixie/libicu76",
+      "observation": "Debian13 reference ICU major76."
+    },
+    {
+      "url": "https://archlinux.org/packages/core/x86_64/icu/",
+      "observation": "Archrolling observed ICU78.3; rolling versions require fresh verification."
+    },
+    {
+      "url": "https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core",
+      "observation": "Upstream NET8/9 end2026-11-10; NET7/6/5/Core3 are already out of upstream support. Community qualification does not extend this lifecycle."
+    },
+    {
+      "url": "https://openssl-library.org/post/2023-06-15-1.1.1-eol-reminder/",
+      "observation": "OpenSSL1.1.1 public support ended2023-09-11; third-party maintenance must be established separately."
+    }
+  ],
+  "sdks": [
+    {
+      "sdkVersion": "9.0.123",
+      "series": "9.0",
+      "target": "net9",
+      "wave": 1,
+      "currentContractAdmission": false,
+      "channelQualification": "not-run",
+      "sourceSelection": {
+        "repository": "https://github.com/dotnet/dotnet",
+        "tag": "v9.0.123",
+        "commit": "9f04b57d1366e21b3178648493d6edffeff2216e"
+      },
+      "upstreamLifecycle": {
+        "status": "maintenance-until-2026-11-10",
+        "source": "https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core",
+        "communityMaintenancePromise": false
+      },
+      "construction": "ordinary-vmr-local-core-runtime-upstream-aspnet",
+      "selectedRuntime": "9.0.22",
+      "publicRelease": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-9.0.123",
+        "apiUrl": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/tags/sdk-9.0.123",
+        "releaseId": 430660810,
+        "publishedAt": "2026-11-01T15:18:47Z",
+        "manifest": {
+          "id": 698685033,
+          "name": "release-manifest.json",
+          "size": 2503,
+          "sha256": "d7d68c0e8aedeb0b261f9d22dfc1aec73bc359919835caa16d7df70dc9238be9",
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-9.0.123/release-manifest.json",
+          "document": {
+            "schemaVersion": 1,
+            "repository": "dotnetdev-kr/cbodotnet",
+            "sdkVersion": "9.0.123",
+            "tag": "sdk-9.0.123",
+            "architectures": {
+              "aarch64": {
+                "sdk": {
+                  "name": "cbodotnet-sdk-9.0.123-linux-aarch64.tar.gz",
+                  "size": 189244362,
+                  "sha256": "6cea79b5a180ac1707feab45ec8c2eaf140cc368e40d05a26465de692d19301d"
+                },
+                "source": {
+                  "name": "cbodotnet-source-9.0.123-linux-aarch64.tar.gz",
+                  "size": 496789197,
+                  "sha256": "0a23e67cc8f4607a87bd9a62bac1e7b71c242ed1e08619e6e9b94f213b960190"
+                },
+                "evidence": {
+                  "name": "evidence-aarch64.tar.gz",
+                  "size": 435931450,
+                  "sha256": "c1dace52faa90f0ea78d8e9d6c1c2992a50a08555e917171ffbf1b1d199a4d5f"
+                },
+                "provenance": {
+                  "projectCommit": "48c035862eed5cea566e76287db0ab3fc36d206c",
+                  "runId": "41221988617",
+                  "runAttempt": "1",
+                  "artifactId": "13053748451",
+                  "targetRid": "linux-arm64",
+                  "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41221988617",
+                  "originalSdkName": "cbodotnet-sdk-9.0.123-linux-arm64-build.41221988617.tar.gz",
+                  "originalSourceName": "cbodotnet-sources-9.0.123-linux-arm64-build.41221988617.tar.gz"
+                }
+              },
+              "x64": {
+                "sdk": {
+                  "name": "cbodotnet-sdk-9.0.123-linux-x64.tar.gz",
+                  "size": 193667608,
+                  "sha256": "291f09014e7223a29d8ab49c99f86628900b1ad42d309d9542b019129bdd195e"
+                },
+                "source": {
+                  "name": "cbodotnet-source-9.0.123-linux-x64.tar.gz",
+                  "size": 496870756,
+                  "sha256": "2f5ffb97cecffa38cdc355199423f9acc9d28d3da37985d5e14216ed58ceacf4"
+                },
+                "evidence": {
+                  "name": "evidence-x64.tar.gz",
+                  "size": 443968045,
+                  "sha256": "a72dad5c2cc928872516a209e3f20bd29d5a280d807db4e7ea9ad91b95c81863"
+                },
+                "provenance": {
+                  "projectCommit": "14211bf22a49ca454740780c28c181e880bf7cbf",
+                  "runId": "41295430879",
+                  "runAttempt": "1",
+                  "artifactId": "13083141913",
+                  "targetRid": "linux-x64",
+                  "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295430879",
+                  "originalSdkName": "cbodotnet-sdk-9.0.123-linux-x64-build.41295430879.tar.gz",
+                  "originalSourceName": "cbodotnet-sources-9.0.123-linux-x64-build.41295430879.tar.gz"
+                }
+              }
+            },
+            "checksums": {
+              "name": "SHA256SUMS",
+              "size": 610,
+              "sha256": "63983849110f6cc7ed18c8e1a098dad36ac14140d6b5a4d8e9f7ea427a381384"
+            }
+          },
+          "encoding": "UTF-8 JSON with indent=2, preserved object order and trailing newline"
+        },
+        "checksums": {
+          "id": 698684998,
+          "name": "SHA256SUMS",
+          "size": 610,
+          "sha256": "63983849110f6cc7ed18c8e1a098dad36ac14140d6b5a4d8e9f7ea427a381384",
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-9.0.123/SHA256SUMS"
+        }
+      },
+      "sourcePolicy": "Preserve disclosed bootstrap/prebuilt inputs and original suite skips; no new Stage2, clean-bootstrap, zero-prebuilt, equal-layout or upstream-maintenance claim.",
+      "architectures": {
+        "x64": {
+          "profile": "profiles/dotnet-9.0.123-linux-x64.json",
+          "profileSha256": "f4aa8abbb59b684f74931faaa7df47326cb2e2d1c9de75f94b26f1aa6e977058",
+          "producerCatalogBinding": "matched",
+          "provenance": {
+            "projectCommit": "14211bf22a49ca454740780c28c181e880bf7cbf",
+            "runId": "41295430879",
+            "runAttempt": "1",
+            "artifactId": "13083141913",
+            "targetRid": "linux-x64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295430879",
+            "originalSdkName": "cbodotnet-sdk-9.0.123-linux-x64-build.41295430879.tar.gz",
+            "originalSourceName": "cbodotnet-sources-9.0.123-linux-x64-build.41295430879.tar.gz"
+          },
+          "sdk": {
+            "name": "cbodotnet-sdk-9.0.123-linux-x64.tar.gz",
+            "size": 193667608,
+            "sha256": "291f09014e7223a29d8ab49c99f86628900b1ad42d309d9542b019129bdd195e",
+            "assetId": 698684677,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-9.0.123/cbodotnet-sdk-9.0.123-linux-x64.tar.gz"
+          },
+          "source": {
+            "name": "cbodotnet-source-9.0.123-linux-x64.tar.gz",
+            "size": 496870756,
+            "sha256": "2f5ffb97cecffa38cdc355199423f9acc9d28d3da37985d5e14216ed58ceacf4",
+            "assetId": 698684995,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-9.0.123/cbodotnet-source-9.0.123-linux-x64.tar.gz"
+          },
+          "evidence": {
+            "name": "evidence-x64.tar.gz",
+            "size": 443968045,
+            "sha256": "a72dad5c2cc928872516a209e3f20bd29d5a280d807db4e7ea9ad91b95c81863",
+            "assetId": 698684993,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-9.0.123/evidence-x64.tar.gz"
+          },
+          "recordedElfObservation": {
+            "files": 20,
+            "maximumRequiredVersions": {
+              "GLIBC": "2.17",
+              "GLIBCXX": "3.4.21",
+              "CXXABI": "1.3.7"
+            },
+            "scope": "Recorded regular SDK ELF symbols only; not a distro/package/optional-diagnostics or external-compatibility-library qualification.",
+            "evidence": "docs/ci-x64-results.md"
+          },
+          "archiveObservations": [
+            {
+              "variant": "ubuntu-22.04",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "ubuntu-24.04",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "debian-13",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            }
+          ]
+        },
+        "aarch64": {
+          "profile": "profiles/dotnet-9.0.123-linux-aarch64.json",
+          "profileSha256": "b627c09be56446fe09565417c1656d81091220b1da695b68fff9046699b2d560",
+          "producerCatalogBinding": "matched",
+          "provenance": {
+            "projectCommit": "48c035862eed5cea566e76287db0ab3fc36d206c",
+            "runId": "41221988617",
+            "runAttempt": "1",
+            "artifactId": "13053748451",
+            "targetRid": "linux-arm64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41221988617",
+            "originalSdkName": "cbodotnet-sdk-9.0.123-linux-arm64-build.41221988617.tar.gz",
+            "originalSourceName": "cbodotnet-sources-9.0.123-linux-arm64-build.41221988617.tar.gz"
+          },
+          "sdk": {
+            "name": "cbodotnet-sdk-9.0.123-linux-aarch64.tar.gz",
+            "size": 189244362,
+            "sha256": "6cea79b5a180ac1707feab45ec8c2eaf140cc368e40d05a26465de692d19301d",
+            "assetId": 698684337,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-9.0.123/cbodotnet-sdk-9.0.123-linux-aarch64.tar.gz"
+          },
+          "source": {
+            "name": "cbodotnet-source-9.0.123-linux-aarch64.tar.gz",
+            "size": 496789197,
+            "sha256": "0a23e67cc8f4607a87bd9a62bac1e7b71c242ed1e08619e6e9b94f213b960190",
+            "assetId": 698684342,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-9.0.123/cbodotnet-source-9.0.123-linux-aarch64.tar.gz"
+          },
+          "evidence": {
+            "name": "evidence-aarch64.tar.gz",
+            "size": 435931450,
+            "sha256": "c1dace52faa90f0ea78d8e9d6c1c2992a50a08555e917171ffbf1b1d199a4d5f",
+            "assetId": 698684346,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-9.0.123/evidence-aarch64.tar.gz"
+          },
+          "recordedElfObservation": {
+            "files": 20,
+            "maximumRequiredVersions": {
+              "GLIBC": "2.17",
+              "GLIBCXX": "3.4.21",
+              "CXXABI": "1.3.7"
+            },
+            "scope": "Recorded regular SDK ELF symbols only; not a distro/package/optional-diagnostics or external-compatibility-library qualification.",
+            "evidence": "docs/ci-matrix-results.md"
+          },
+          "archiveObservations": [
+            {
+              "variant": "ubuntu-22.04",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "ubuntu-24.04",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "debian-13",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            }
+          ]
+        }
+      },
+      "targets": [
+        {
+          "channel": "deb",
+          "variant": "ubuntu-24.04",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "ubuntu-24.04",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "debian-13",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "debian-13",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "fedora-45",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "fedora-45",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "rocky-9.8",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "rocky-9.8",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime"
+          ]
+        },
+        {
+          "channel": "oci",
+          "variant": "debian-13",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "oci",
+          "variant": "debian-13",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "aur",
+          "variant": "arch-rolling",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "aur-publication-10"
+          ]
+        }
+      ],
+      "issueDraft": {
+        "key": "qualify-net9",
+        "title": "Qualify SDK 9.0.123 for the eleven selected Linux channel targets",
+        "wave": 1,
+        "dependsOn": [
+          "additional-sdk-harness"
+        ],
+        "acceptanceCriteria": [
+          "Authenticate sdk-9.0.123 manifest d7d68c0e8aedeb0b261f9d22dfc1aec73bc359919835caa16d7df70dc9238be9 and both exact qualified producer records before admission.",
+          "Audit all eleven target rows; retain an explicit blocked/deferred reason for targets lacking a reviewed native dependency provider.",
+          "For each admitted target, run the native channel lifecycle and signed anonymous hosted-endpoint/digest proof without mutating SDK payloads.",
+          "Test side-by-side installation with NET10 and official dotnet, highest-series cbodotnet selection, exact versioned launcher selection and package ownership/removal.",
+          "Keep AUR publication under issue10 and do not add ARM AUR or musl qualification by inference."
+        ],
+        "issueNumber": 16,
+        "issueUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/16",
+        "registrationStatus": "registered"
+      }
+    },
+    {
+      "sdkVersion": "8.0.133",
+      "series": "8.0",
+      "target": "net8",
+      "wave": 1,
+      "currentContractAdmission": false,
+      "channelQualification": "not-run",
+      "sourceSelection": {
+        "repository": "https://github.com/dotnet/dotnet",
+        "tag": "v8.0.133",
+        "commit": "7d1bf90885cff22e7da72b27e9848e42fd3cb1ae"
+      },
+      "upstreamLifecycle": {
+        "status": "maintenance-until-2026-11-10",
+        "source": "https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core",
+        "communityMaintenancePromise": false
+      },
+      "construction": "vmr-source-build-local-frameworks",
+      "selectedRuntime": "8.0.33",
+      "publicRelease": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-8.0.133",
+        "apiUrl": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/tags/sdk-8.0.133",
+        "releaseId": 430660558,
+        "publishedAt": "2026-11-01T15:19:50Z",
+        "manifest": {
+          "id": 698688200,
+          "name": "release-manifest.json",
+          "size": 2503,
+          "sha256": "6df02b36738250943cc4ae3ee32f6da4ec1c37a56fa6b248c08aeddff7760f6c",
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-8.0.133/release-manifest.json",
+          "document": {
+            "schemaVersion": 1,
+            "repository": "dotnetdev-kr/cbodotnet",
+            "sdkVersion": "8.0.133",
+            "tag": "sdk-8.0.133",
+            "architectures": {
+              "aarch64": {
+                "sdk": {
+                  "name": "cbodotnet-sdk-8.0.133-linux-aarch64.tar.gz",
+                  "size": 242230416,
+                  "sha256": "d65723feacc0e757dfebf98652984db6e37edba74da49d63a2b34e17692094e5"
+                },
+                "source": {
+                  "name": "cbodotnet-source-8.0.133-linux-aarch64.tar.gz",
+                  "size": 601617130,
+                  "sha256": "c37d73668f86b03fcce6648e6ec2c27e36b7f1093a32046670c9e89db8feb8bc"
+                },
+                "evidence": {
+                  "name": "evidence-aarch64.tar.gz",
+                  "size": 191231802,
+                  "sha256": "4b43efeeae232a1fd3aef0c48e51531376f98811b1e7d7b686aa0f9eb30c4b89"
+                },
+                "provenance": {
+                  "projectCommit": "cdbf454140a4b661672513a7e6dd5ba392517caa",
+                  "runId": "41215198202",
+                  "runAttempt": "1",
+                  "artifactId": "13050631116",
+                  "targetRid": "linux-arm64",
+                  "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41215198202",
+                  "originalSdkName": "cbodotnet-sdk-8.0.133-linux-arm64-build.41215198202.tar.gz",
+                  "originalSourceName": "cbodotnet-sources-8.0.133-linux-arm64-build.41215198202.tar.gz"
+                }
+              },
+              "x64": {
+                "sdk": {
+                  "name": "cbodotnet-sdk-8.0.133-linux-x64.tar.gz",
+                  "size": 247823416,
+                  "sha256": "dc86cedd8f8cf5153e21b21576f3616c01a88f85952789f483f05751304ccad3"
+                },
+                "source": {
+                  "name": "cbodotnet-source-8.0.133-linux-x64.tar.gz",
+                  "size": 601769524,
+                  "sha256": "e5e8d29f9b2272573ddc6e568ba85d925641da2f52a5512e035d7f8e3ac9554a"
+                },
+                "evidence": {
+                  "name": "evidence-x64.tar.gz",
+                  "size": 193474550,
+                  "sha256": "727f0b629074abf4065c60b9dd16881f09169e196e352ade8d0003510729c3d3"
+                },
+                "provenance": {
+                  "projectCommit": "14211bf22a49ca454740780c28c181e880bf7cbf",
+                  "runId": "41295751388",
+                  "runAttempt": "1",
+                  "artifactId": "13081274822",
+                  "targetRid": "linux-x64",
+                  "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295751388",
+                  "originalSdkName": "cbodotnet-sdk-8.0.133-linux-x64-build.41295751388.tar.gz",
+                  "originalSourceName": "cbodotnet-sources-8.0.133-linux-x64-build.41295751388.tar.gz"
+                }
+              }
+            },
+            "checksums": {
+              "name": "SHA256SUMS",
+              "size": 610,
+              "sha256": "c12679a3fe0f0220e0202de6b0964cdb66f21aa94ef99e82b63c2ae33a3ca732"
+            }
+          },
+          "encoding": "UTF-8 JSON with indent=2, preserved object order and trailing newline"
+        },
+        "checksums": {
+          "id": 698688153,
+          "name": "SHA256SUMS",
+          "size": 610,
+          "sha256": "c12679a3fe0f0220e0202de6b0964cdb66f21aa94ef99e82b63c2ae33a3ca732",
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-8.0.133/SHA256SUMS"
+        }
+      },
+      "sourcePolicy": "Preserve disclosed bootstrap/prebuilt inputs and original suite skips; no new Stage2, clean-bootstrap, zero-prebuilt, equal-layout or upstream-maintenance claim.",
+      "architectures": {
+        "x64": {
+          "profile": "profiles/dotnet-8.0.133-linux-x64.json",
+          "profileSha256": "e9a143c9f45d773c3390d227554a538ceddfe86331664010d578ee25d1b0b231",
+          "producerCatalogBinding": "matched",
+          "provenance": {
+            "projectCommit": "14211bf22a49ca454740780c28c181e880bf7cbf",
+            "runId": "41295751388",
+            "runAttempt": "1",
+            "artifactId": "13081274822",
+            "targetRid": "linux-x64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295751388",
+            "originalSdkName": "cbodotnet-sdk-8.0.133-linux-x64-build.41295751388.tar.gz",
+            "originalSourceName": "cbodotnet-sources-8.0.133-linux-x64-build.41295751388.tar.gz"
+          },
+          "sdk": {
+            "name": "cbodotnet-sdk-8.0.133-linux-x64.tar.gz",
+            "size": 247823416,
+            "sha256": "dc86cedd8f8cf5153e21b21576f3616c01a88f85952789f483f05751304ccad3",
+            "assetId": 698687318,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-8.0.133/cbodotnet-sdk-8.0.133-linux-x64.tar.gz"
+          },
+          "source": {
+            "name": "cbodotnet-source-8.0.133-linux-x64.tar.gz",
+            "size": 601769524,
+            "sha256": "e5e8d29f9b2272573ddc6e568ba85d925641da2f52a5512e035d7f8e3ac9554a",
+            "assetId": 698687500,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-8.0.133/cbodotnet-source-8.0.133-linux-x64.tar.gz"
+          },
+          "evidence": {
+            "name": "evidence-x64.tar.gz",
+            "size": 193474550,
+            "sha256": "727f0b629074abf4065c60b9dd16881f09169e196e352ade8d0003510729c3d3",
+            "assetId": 698688007,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-8.0.133/evidence-x64.tar.gz"
+          },
+          "recordedElfObservation": {
+            "files": 19,
+            "maximumRequiredVersions": {
+              "GLIBC": "2.17",
+              "GLIBCXX": "3.4.21",
+              "CXXABI": "1.3.7"
+            },
+            "scope": "Recorded regular SDK ELF symbols only; not a distro/package/optional-diagnostics or external-compatibility-library qualification.",
+            "evidence": "docs/ci-x64-results.md"
+          },
+          "archiveObservations": [
+            {
+              "variant": "ubuntu-22.04",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "ubuntu-24.04",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "debian-13",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            }
+          ]
+        },
+        "aarch64": {
+          "profile": "profiles/dotnet-8.0.133-linux-aarch64.json",
+          "profileSha256": "55bb51e272f38efbe47aedef1841df4db0233cf2d082992d2dda332edc516b5a",
+          "producerCatalogBinding": "matched",
+          "provenance": {
+            "projectCommit": "cdbf454140a4b661672513a7e6dd5ba392517caa",
+            "runId": "41215198202",
+            "runAttempt": "1",
+            "artifactId": "13050631116",
+            "targetRid": "linux-arm64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41215198202",
+            "originalSdkName": "cbodotnet-sdk-8.0.133-linux-arm64-build.41215198202.tar.gz",
+            "originalSourceName": "cbodotnet-sources-8.0.133-linux-arm64-build.41215198202.tar.gz"
+          },
+          "sdk": {
+            "name": "cbodotnet-sdk-8.0.133-linux-aarch64.tar.gz",
+            "size": 242230416,
+            "sha256": "d65723feacc0e757dfebf98652984db6e37edba74da49d63a2b34e17692094e5",
+            "assetId": 698687053,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-8.0.133/cbodotnet-sdk-8.0.133-linux-aarch64.tar.gz"
+          },
+          "source": {
+            "name": "cbodotnet-source-8.0.133-linux-aarch64.tar.gz",
+            "size": 601617130,
+            "sha256": "c37d73668f86b03fcce6648e6ec2c27e36b7f1093a32046670c9e89db8feb8bc",
+            "assetId": 698687048,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-8.0.133/cbodotnet-source-8.0.133-linux-aarch64.tar.gz"
+          },
+          "evidence": {
+            "name": "evidence-aarch64.tar.gz",
+            "size": 191231802,
+            "sha256": "4b43efeeae232a1fd3aef0c48e51531376f98811b1e7d7b686aa0f9eb30c4b89",
+            "assetId": 698687046,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-8.0.133/evidence-aarch64.tar.gz"
+          },
+          "recordedElfObservation": {
+            "files": 19,
+            "maximumRequiredVersions": {
+              "GLIBC": "2.17",
+              "GLIBCXX": "3.4.21",
+              "CXXABI": "1.3.7"
+            },
+            "scope": "Recorded regular SDK ELF symbols only; not a distro/package/optional-diagnostics or external-compatibility-library qualification.",
+            "evidence": "docs/ci-matrix-results.md"
+          },
+          "archiveObservations": [
+            {
+              "variant": "ubuntu-22.04",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "ubuntu-24.04",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "debian-13",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            }
+          ]
+        }
+      },
+      "targets": [
+        {
+          "channel": "deb",
+          "variant": "ubuntu-24.04",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "ubuntu-24.04",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "debian-13",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "debian-13",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "fedora-45",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "fedora-45",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "rocky-9.8",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "rocky-9.8",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime"
+          ]
+        },
+        {
+          "channel": "oci",
+          "variant": "debian-13",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "oci",
+          "variant": "debian-13",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "aur",
+          "variant": "arch-rolling",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "aur-publication-10"
+          ]
+        }
+      ],
+      "issueDraft": {
+        "key": "qualify-net8",
+        "title": "Qualify SDK 8.0.133 for the eleven selected Linux channel targets",
+        "wave": 1,
+        "dependsOn": [
+          "additional-sdk-harness"
+        ],
+        "acceptanceCriteria": [
+          "Authenticate sdk-8.0.133 manifest 6df02b36738250943cc4ae3ee32f6da4ec1c37a56fa6b248c08aeddff7760f6c and both exact qualified producer records before admission.",
+          "Audit all eleven target rows; retain an explicit blocked/deferred reason for targets lacking a reviewed native dependency provider.",
+          "For each admitted target, run the native channel lifecycle and signed anonymous hosted-endpoint/digest proof without mutating SDK payloads.",
+          "Test side-by-side installation with NET10 and official dotnet, highest-series cbodotnet selection, exact versioned launcher selection and package ownership/removal.",
+          "Keep AUR publication under issue10 and do not add ARM AUR or musl qualification by inference."
+        ],
+        "issueNumber": 17,
+        "issueUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/17",
+        "registrationStatus": "registered"
+      }
+    },
+    {
+      "sdkVersion": "7.0.120",
+      "series": "7.0",
+      "target": "net7",
+      "wave": 1,
+      "currentContractAdmission": false,
+      "channelQualification": "not-run",
+      "sourceSelection": {
+        "repository": "https://github.com/dotnet/installer",
+        "tag": "v7.0.120",
+        "commit": "25b977658c06fd0217ec0bc0714398bb9d0a7bb0"
+      },
+      "upstreamLifecycle": {
+        "status": "out-of-support",
+        "source": "https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core",
+        "communityMaintenancePromise": false
+      },
+      "construction": "installer-generated-source-build-local-frameworks",
+      "selectedRuntime": "7.0.20",
+      "publicRelease": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-7.0.120",
+        "apiUrl": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/tags/sdk-7.0.120",
+        "releaseId": 430661560,
+        "publishedAt": "2026-11-01T15:19:31Z",
+        "manifest": {
+          "id": 698685869,
+          "name": "release-manifest.json",
+          "size": 2503,
+          "sha256": "b82e5c10814606e50f3682f0787452362cc6d82ee01ed0f652691a98f98e2e30",
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-7.0.120/release-manifest.json",
+          "document": {
+            "schemaVersion": 1,
+            "repository": "dotnetdev-kr/cbodotnet",
+            "sdkVersion": "7.0.120",
+            "tag": "sdk-7.0.120",
+            "architectures": {
+              "aarch64": {
+                "sdk": {
+                  "name": "cbodotnet-sdk-7.0.120-linux-aarch64.tar.gz",
+                  "size": 230961694,
+                  "sha256": "2ebe5bf240b5bf0e60beef23dfb28fa71948af948df5696540c3130bca40730c"
+                },
+                "source": {
+                  "name": "cbodotnet-source-7.0.120-linux-aarch64.tar.gz",
+                  "size": 1758517178,
+                  "sha256": "0b6eb1930aac28c5aa6127645f2200f7ee67c857964c42e209dd23ac390ea5fa"
+                },
+                "evidence": {
+                  "name": "evidence-aarch64.tar.gz",
+                  "size": 53067619,
+                  "sha256": "405153da8df0fec510a084b23f20a28eab694bf81dfa8f5dea92f58af4fd90f0"
+                },
+                "provenance": {
+                  "projectCommit": "9ee4f3afd9014e9b333cf30144ce0a25bb9c397b",
+                  "runId": "41213743927",
+                  "runAttempt": "1",
+                  "artifactId": "13049856111",
+                  "targetRid": "linux-arm64",
+                  "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41213743927",
+                  "originalSdkName": "cbodotnet-sdk-7.0.120-linux-arm64-build.41213743927.tar.gz",
+                  "originalSourceName": "cbodotnet-sources-7.0.120-linux-arm64-build.41213743927.tar.gz"
+                }
+              },
+              "x64": {
+                "sdk": {
+                  "name": "cbodotnet-sdk-7.0.120-linux-x64.tar.gz",
+                  "size": 234797120,
+                  "sha256": "19c7502456666cd90ef0070f44daa1e2cd447f49ac953b77d53d941919617584"
+                },
+                "source": {
+                  "name": "cbodotnet-source-7.0.120-linux-x64.tar.gz",
+                  "size": 1709681526,
+                  "sha256": "c380fc0d1ae0596a3ee27fd8f66b373a12992fe224b56bf7330283826c3103c4"
+                },
+                "evidence": {
+                  "name": "evidence-x64.tar.gz",
+                  "size": 53542862,
+                  "sha256": "715b5007eab897341a4f32a1138f569dab904c2deca2ec27a308fec3d1c98b83"
+                },
+                "provenance": {
+                  "projectCommit": "53eb6e63312738d10c0676cd1be0d85ef1038cf0",
+                  "runId": "41299659746",
+                  "runAttempt": "1",
+                  "artifactId": "13084341220",
+                  "targetRid": "linux-x64",
+                  "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41299659746",
+                  "originalSdkName": "cbodotnet-sdk-7.0.120-linux-x64-build.41299659746.tar.gz",
+                  "originalSourceName": "cbodotnet-sources-7.0.120-linux-x64-build.41299659746.tar.gz"
+                }
+              }
+            },
+            "checksums": {
+              "name": "SHA256SUMS",
+              "size": 610,
+              "sha256": "df7af871167b6beb71f0e9c7d058f812f2248dec0cdb9fe6614ed706ed34f2b2"
+            }
+          },
+          "encoding": "UTF-8 JSON with indent=2, preserved object order and trailing newline"
+        },
+        "checksums": {
+          "id": 698685829,
+          "name": "SHA256SUMS",
+          "size": 610,
+          "sha256": "df7af871167b6beb71f0e9c7d058f812f2248dec0cdb9fe6614ed706ed34f2b2",
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-7.0.120/SHA256SUMS"
+        }
+      },
+      "sourcePolicy": "Preserve disclosed bootstrap/prebuilt inputs and original suite skips; no new Stage2, clean-bootstrap, zero-prebuilt, equal-layout or upstream-maintenance claim.",
+      "architectures": {
+        "x64": {
+          "profile": "profiles/dotnet-7.0.120-linux-x64.json",
+          "profileSha256": "9a2ffa4f563106298f07d1670b2407238d63ed1f31cce8c0b9524ec955c38a1c",
+          "producerCatalogBinding": "matched",
+          "provenance": {
+            "projectCommit": "53eb6e63312738d10c0676cd1be0d85ef1038cf0",
+            "runId": "41299659746",
+            "runAttempt": "1",
+            "artifactId": "13084341220",
+            "targetRid": "linux-x64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41299659746",
+            "originalSdkName": "cbodotnet-sdk-7.0.120-linux-x64-build.41299659746.tar.gz",
+            "originalSourceName": "cbodotnet-sources-7.0.120-linux-x64-build.41299659746.tar.gz"
+          },
+          "sdk": {
+            "name": "cbodotnet-sdk-7.0.120-linux-x64.tar.gz",
+            "size": 234797120,
+            "sha256": "19c7502456666cd90ef0070f44daa1e2cd447f49ac953b77d53d941919617584",
+            "assetId": 698685328,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-7.0.120/cbodotnet-sdk-7.0.120-linux-x64.tar.gz"
+          },
+          "source": {
+            "name": "cbodotnet-source-7.0.120-linux-x64.tar.gz",
+            "size": 1709681526,
+            "sha256": "c380fc0d1ae0596a3ee27fd8f66b373a12992fe224b56bf7330283826c3103c4",
+            "assetId": 698685583,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-7.0.120/cbodotnet-source-7.0.120-linux-x64.tar.gz"
+          },
+          "evidence": {
+            "name": "evidence-x64.tar.gz",
+            "size": 53542862,
+            "sha256": "715b5007eab897341a4f32a1138f569dab904c2deca2ec27a308fec3d1c98b83",
+            "assetId": 698685726,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-7.0.120/evidence-x64.tar.gz"
+          },
+          "recordedElfObservation": {
+            "files": 22,
+            "maximumRequiredVersions": {
+              "GLIBC": "2.17",
+              "GLIBCXX": "3.4.21",
+              "CXXABI": "1.3.7"
+            },
+            "scope": "Recorded regular SDK ELF symbols only; not a distro/package/optional-diagnostics or external-compatibility-library qualification.",
+            "evidence": "docs/ci-x64-results.md"
+          },
+          "archiveObservations": [
+            {
+              "variant": "ubuntu-22.04",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "ubuntu-24.04",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "debian-13",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            }
+          ]
+        },
+        "aarch64": {
+          "profile": "profiles/dotnet-7.0.120-linux-aarch64.json",
+          "profileSha256": "c1d272d5916e0314ca20f8a06100abd3478c18503fd7a749236b88bda59fbfd4",
+          "producerCatalogBinding": "matched",
+          "provenance": {
+            "projectCommit": "9ee4f3afd9014e9b333cf30144ce0a25bb9c397b",
+            "runId": "41213743927",
+            "runAttempt": "1",
+            "artifactId": "13049856111",
+            "targetRid": "linux-arm64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41213743927",
+            "originalSdkName": "cbodotnet-sdk-7.0.120-linux-arm64-build.41213743927.tar.gz",
+            "originalSourceName": "cbodotnet-sources-7.0.120-linux-arm64-build.41213743927.tar.gz"
+          },
+          "sdk": {
+            "name": "cbodotnet-sdk-7.0.120-linux-aarch64.tar.gz",
+            "size": 230961694,
+            "sha256": "2ebe5bf240b5bf0e60beef23dfb28fa71948af948df5696540c3130bca40730c",
+            "assetId": 698685227,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-7.0.120/cbodotnet-sdk-7.0.120-linux-aarch64.tar.gz"
+          },
+          "source": {
+            "name": "cbodotnet-source-7.0.120-linux-aarch64.tar.gz",
+            "size": 1758517178,
+            "sha256": "0b6eb1930aac28c5aa6127645f2200f7ee67c857964c42e209dd23ac390ea5fa",
+            "assetId": 698685224,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-7.0.120/cbodotnet-source-7.0.120-linux-aarch64.tar.gz"
+          },
+          "evidence": {
+            "name": "evidence-aarch64.tar.gz",
+            "size": 53067619,
+            "sha256": "405153da8df0fec510a084b23f20a28eab694bf81dfa8f5dea92f58af4fd90f0",
+            "assetId": 698685226,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-7.0.120/evidence-aarch64.tar.gz"
+          },
+          "recordedElfObservation": {
+            "files": 22,
+            "maximumRequiredVersions": {
+              "GLIBC": "2.17",
+              "GLIBCXX": "3.4.21",
+              "CXXABI": "1.3.7"
+            },
+            "scope": "Recorded regular SDK ELF symbols only; not a distro/package/optional-diagnostics or external-compatibility-library qualification.",
+            "evidence": "docs/ci-matrix-results.md"
+          },
+          "archiveObservations": [
+            {
+              "variant": "ubuntu-22.04",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "ubuntu-24.04",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "debian-13",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            }
+          ]
+        }
+      },
+      "targets": [
+        {
+          "channel": "deb",
+          "variant": "ubuntu-24.04",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "ubuntu-24.04",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "debian-13",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "debian-13",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "fedora-45",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "fedora-45",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "rocky-9.8",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "rocky-9.8",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime"
+          ]
+        },
+        {
+          "channel": "oci",
+          "variant": "debian-13",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "oci",
+          "variant": "debian-13",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "aur",
+          "variant": "arch-rolling",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "aur-publication-10"
+          ]
+        }
+      ],
+      "issueDraft": {
+        "key": "qualify-net7",
+        "title": "Qualify SDK 7.0.120 for the eleven selected Linux channel targets",
+        "wave": 1,
+        "dependsOn": [
+          "additional-sdk-harness"
+        ],
+        "acceptanceCriteria": [
+          "Authenticate sdk-7.0.120 manifest b82e5c10814606e50f3682f0787452362cc6d82ee01ed0f652691a98f98e2e30 and both exact qualified producer records before admission.",
+          "Audit all eleven target rows; retain an explicit blocked/deferred reason for targets lacking a reviewed native dependency provider.",
+          "For each admitted target, run the native channel lifecycle and signed anonymous hosted-endpoint/digest proof without mutating SDK payloads.",
+          "Test side-by-side installation with NET10 and official dotnet, highest-series cbodotnet selection, exact versioned launcher selection and package ownership/removal.",
+          "Keep AUR publication under issue10 and do not add ARM AUR or musl qualification by inference."
+        ],
+        "issueNumber": 18,
+        "issueUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/18",
+        "registrationStatus": "registered"
+      }
+    },
+    {
+      "sdkVersion": "6.0.136",
+      "series": "6.0",
+      "target": "net6",
+      "wave": 1,
+      "currentContractAdmission": false,
+      "channelQualification": "not-run",
+      "sourceSelection": {
+        "repository": "https://github.com/dotnet/installer",
+        "tag": "v6.0.136",
+        "commit": "d638663530d923adbe0442604b7a6562127321e9"
+      },
+      "upstreamLifecycle": {
+        "status": "out-of-support",
+        "source": "https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core",
+        "communityMaintenancePromise": false
+      },
+      "construction": "installer-generated-source-build-local-frameworks",
+      "selectedRuntime": "6.0.36",
+      "publicRelease": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-6.0.136",
+        "apiUrl": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/tags/sdk-6.0.136",
+        "releaseId": 430661771,
+        "publishedAt": "2026-11-01T15:20:22Z",
+        "manifest": {
+          "id": 698688595,
+          "name": "release-manifest.json",
+          "size": 2503,
+          "sha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/release-manifest.json",
+          "document": {
+            "schemaVersion": 1,
+            "repository": "dotnetdev-kr/cbodotnet",
+            "sdkVersion": "6.0.136",
+            "tag": "sdk-6.0.136",
+            "architectures": {
+              "aarch64": {
+                "sdk": {
+                  "name": "cbodotnet-sdk-6.0.136-linux-aarch64.tar.gz",
+                  "size": 219116659,
+                  "sha256": "59315baee0edc32ccbac658a8cee06dcbaa6ec73d747ba0940b99b73453f5f34"
+                },
+                "source": {
+                  "name": "cbodotnet-source-6.0.136-linux-aarch64.tar.gz",
+                  "size": 1729288548,
+                  "sha256": "616eb74ac4eb4e61155b5d869471dd8c810d86a0bbac9379c134c0b97b311e5f"
+                },
+                "evidence": {
+                  "name": "evidence-aarch64.tar.gz",
+                  "size": 50973855,
+                  "sha256": "9bb3ffc12ab39f85827e0433add905588005e323f1144e7e81d730e49d50813c"
+                },
+                "provenance": {
+                  "projectCommit": "9ee4f3afd9014e9b333cf30144ce0a25bb9c397b",
+                  "runId": "41213741868",
+                  "runAttempt": "1",
+                  "artifactId": "13049474452",
+                  "targetRid": "linux-arm64",
+                  "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41213741868",
+                  "originalSdkName": "cbodotnet-sdk-6.0.136-linux-arm64-build.41213741868.tar.gz",
+                  "originalSourceName": "cbodotnet-sources-6.0.136-linux-arm64-build.41213741868.tar.gz"
+                }
+              },
+              "x64": {
+                "sdk": {
+                  "name": "cbodotnet-sdk-6.0.136-linux-x64.tar.gz",
+                  "size": 224506406,
+                  "sha256": "34eca0b48c7f64a048ea640437db063136d982b2e0209876b1ceb9b0c555f146"
+                },
+                "source": {
+                  "name": "cbodotnet-source-6.0.136-linux-x64.tar.gz",
+                  "size": 1764000007,
+                  "sha256": "fe73f956e156c92d74cf3bbff390d00e84d825491bd782933f3a90049eeef1c0"
+                },
+                "evidence": {
+                  "name": "evidence-x64.tar.gz",
+                  "size": 51478717,
+                  "sha256": "164aa1897fbd0518d59b1fbc1cf68fa46a4e192eaacc923f97ca73b8056ef70a"
+                },
+                "provenance": {
+                  "projectCommit": "e452427e84ce3bce9cd97fe03ce849e7e4dcd0d1",
+                  "runId": "41297567596",
+                  "runAttempt": "1",
+                  "artifactId": "13082614925",
+                  "targetRid": "linux-x64",
+                  "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41297567596",
+                  "originalSdkName": "cbodotnet-sdk-6.0.136-linux-x64-build.41297567596.tar.gz",
+                  "originalSourceName": "cbodotnet-sources-6.0.136-linux-x64-build.41297567596.tar.gz"
+                }
+              }
+            },
+            "checksums": {
+              "name": "SHA256SUMS",
+              "size": 610,
+              "sha256": "1bfebe035c4c571758ec4a5123c1e3902bd0c45839b717b5c4c12bdc2f491aa5"
+            }
+          },
+          "encoding": "UTF-8 JSON with indent=2, preserved object order and trailing newline"
+        },
+        "checksums": {
+          "id": 698688554,
+          "name": "SHA256SUMS",
+          "size": 610,
+          "sha256": "1bfebe035c4c571758ec4a5123c1e3902bd0c45839b717b5c4c12bdc2f491aa5",
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/SHA256SUMS"
+        }
+      },
+      "sourcePolicy": "Preserve disclosed bootstrap/prebuilt inputs and original suite skips; no new Stage2, clean-bootstrap, zero-prebuilt, equal-layout or upstream-maintenance claim.",
+      "architectures": {
+        "x64": {
+          "profile": "profiles/dotnet-6.0.136-linux-x64.json",
+          "profileSha256": "736a39a5ab9ab6540125d215523c22675e1f19df2e64eadddf21236335cfa023",
+          "producerCatalogBinding": "matched",
+          "provenance": {
+            "projectCommit": "e452427e84ce3bce9cd97fe03ce849e7e4dcd0d1",
+            "runId": "41297567596",
+            "runAttempt": "1",
+            "artifactId": "13082614925",
+            "targetRid": "linux-x64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41297567596",
+            "originalSdkName": "cbodotnet-sdk-6.0.136-linux-x64-build.41297567596.tar.gz",
+            "originalSourceName": "cbodotnet-sources-6.0.136-linux-x64-build.41297567596.tar.gz"
+          },
+          "sdk": {
+            "name": "cbodotnet-sdk-6.0.136-linux-x64.tar.gz",
+            "size": 224506406,
+            "sha256": "34eca0b48c7f64a048ea640437db063136d982b2e0209876b1ceb9b0c555f146",
+            "assetId": 698688199,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/cbodotnet-sdk-6.0.136-linux-x64.tar.gz"
+          },
+          "source": {
+            "name": "cbodotnet-source-6.0.136-linux-x64.tar.gz",
+            "size": 1764000007,
+            "sha256": "fe73f956e156c92d74cf3bbff390d00e84d825491bd782933f3a90049eeef1c0",
+            "assetId": 698688327,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/cbodotnet-source-6.0.136-linux-x64.tar.gz"
+          },
+          "evidence": {
+            "name": "evidence-x64.tar.gz",
+            "size": 51478717,
+            "sha256": "164aa1897fbd0518d59b1fbc1cf68fa46a4e192eaacc923f97ca73b8056ef70a",
+            "assetId": 698688451,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/evidence-x64.tar.gz"
+          },
+          "recordedElfObservation": {
+            "files": 22,
+            "maximumRequiredVersions": {
+              "GLIBC": "2.16",
+              "GLIBCXX": "3.4.21",
+              "CXXABI": "1.3.7"
+            },
+            "scope": "Recorded regular SDK ELF symbols only; not a distro/package/optional-diagnostics or external-compatibility-library qualification.",
+            "evidence": "docs/ci-x64-results.md"
+          },
+          "archiveObservations": [
+            {
+              "variant": "ubuntu-22.04",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "ubuntu-24.04",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "debian-13",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            }
+          ]
+        },
+        "aarch64": {
+          "profile": "profiles/dotnet-6.0.136-linux-aarch64.json",
+          "profileSha256": "dbc67269afac5a5739506a08ae1e962e9298c0d0939d14516d7fc362a41f243c",
+          "producerCatalogBinding": "matched",
+          "provenance": {
+            "projectCommit": "9ee4f3afd9014e9b333cf30144ce0a25bb9c397b",
+            "runId": "41213741868",
+            "runAttempt": "1",
+            "artifactId": "13049474452",
+            "targetRid": "linux-arm64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41213741868",
+            "originalSdkName": "cbodotnet-sdk-6.0.136-linux-arm64-build.41213741868.tar.gz",
+            "originalSourceName": "cbodotnet-sources-6.0.136-linux-arm64-build.41213741868.tar.gz"
+          },
+          "sdk": {
+            "name": "cbodotnet-sdk-6.0.136-linux-aarch64.tar.gz",
+            "size": 219116659,
+            "sha256": "59315baee0edc32ccbac658a8cee06dcbaa6ec73d747ba0940b99b73453f5f34",
+            "assetId": 698688063,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/cbodotnet-sdk-6.0.136-linux-aarch64.tar.gz"
+          },
+          "source": {
+            "name": "cbodotnet-source-6.0.136-linux-aarch64.tar.gz",
+            "size": 1729288548,
+            "sha256": "616eb74ac4eb4e61155b5d869471dd8c810d86a0bbac9379c134c0b97b311e5f",
+            "assetId": 698688066,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/cbodotnet-source-6.0.136-linux-aarch64.tar.gz"
+          },
+          "evidence": {
+            "name": "evidence-aarch64.tar.gz",
+            "size": 50973855,
+            "sha256": "9bb3ffc12ab39f85827e0433add905588005e323f1144e7e81d730e49d50813c",
+            "assetId": 698688065,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/evidence-aarch64.tar.gz"
+          },
+          "recordedElfObservation": {
+            "files": 22,
+            "maximumRequiredVersions": {
+              "GLIBC": "2.17",
+              "GLIBCXX": "3.4.21",
+              "CXXABI": "1.3.7"
+            },
+            "scope": "Recorded regular SDK ELF symbols only; not a distro/package/optional-diagnostics or external-compatibility-library qualification.",
+            "evidence": "docs/ci-matrix-results.md"
+          },
+          "archiveObservations": [
+            {
+              "variant": "ubuntu-22.04",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "ubuntu-24.04",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "debian-13",
+              "status": "passed-stock-libraries",
+              "functionalChecks": 6,
+              "externalDependencies": [],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            }
+          ]
+        }
+      },
+      "targets": [
+        {
+          "channel": "deb",
+          "variant": "ubuntu-24.04",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "ubuntu-24.04",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "debian-13",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "debian-13",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "fedora-45",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "fedora-45",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "rocky-9.8",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "rocky-9.8",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime"
+          ]
+        },
+        {
+          "channel": "oci",
+          "variant": "debian-13",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "oci",
+          "variant": "debian-13",
+          "architecture": "aarch64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-stock-library-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication"
+          ]
+        },
+        {
+          "channel": "aur",
+          "variant": "arch-rolling",
+          "architecture": "x64",
+          "state": "pending-native-channel-qualification",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "aur-publication-10"
+          ]
+        }
+      ],
+      "issueDraft": {
+        "key": "qualify-net6",
+        "title": "Qualify SDK 6.0.136 for the eleven selected Linux channel targets",
+        "wave": 1,
+        "dependsOn": [
+          "additional-sdk-harness"
+        ],
+        "acceptanceCriteria": [
+          "Authenticate sdk-6.0.136 manifest 5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd and both exact qualified producer records before admission.",
+          "Audit all eleven target rows; retain an explicit blocked/deferred reason for targets lacking a reviewed native dependency provider.",
+          "For each admitted target, run the native channel lifecycle and signed anonymous hosted-endpoint/digest proof without mutating SDK payloads.",
+          "Test side-by-side installation with NET10 and official dotnet, highest-series cbodotnet selection, exact versioned launcher selection and package ownership/removal.",
+          "Keep AUR publication under issue10 and do not add ARM AUR or musl qualification by inference."
+        ],
+        "issueNumber": 19,
+        "issueUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/19",
+        "registrationStatus": "registered"
+      }
+    },
+    {
+      "sdkVersion": "5.0.214",
+      "series": "5.0",
+      "target": "net5",
+      "wave": 2,
+      "currentContractAdmission": false,
+      "channelQualification": "not-run",
+      "sourceSelection": {
+        "repository": "https://github.com/dotnet/source-build",
+        "tag": null,
+        "branch": "release/5.0",
+        "commit": "d414ecb2d997a9b3f38aaaeddace30ca097e546d"
+      },
+      "upstreamLifecycle": {
+        "status": "out-of-support",
+        "source": "https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core",
+        "communityMaintenancePromise": false
+      },
+      "construction": "legacy-direct-source-build-local-frameworks",
+      "selectedRuntime": "5.0.17",
+      "publicRelease": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-5.0.214",
+        "apiUrl": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/tags/sdk-5.0.214",
+        "releaseId": 430661280,
+        "publishedAt": "2026-11-01T15:21:28Z",
+        "manifest": {
+          "id": 698692425,
+          "name": "release-manifest.json",
+          "size": 2503,
+          "sha256": "2a98666b057b5e8c2c8ef149c5ebca7528c2048d7cc1aa38611d48d0d104c67f",
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-5.0.214/release-manifest.json",
+          "document": {
+            "schemaVersion": 1,
+            "repository": "dotnetdev-kr/cbodotnet",
+            "sdkVersion": "5.0.214",
+            "tag": "sdk-5.0.214",
+            "architectures": {
+              "aarch64": {
+                "sdk": {
+                  "name": "cbodotnet-sdk-5.0.214-linux-aarch64.tar.gz",
+                  "size": 227963882,
+                  "sha256": "57bef35086aa07212096e76219d3a0091422b7ac3de453a5e9860908f4ca193f"
+                },
+                "source": {
+                  "name": "cbodotnet-source-5.0.214-linux-aarch64.tar.gz",
+                  "size": 344100526,
+                  "sha256": "d335ca2d77f69e1a93f0fc9b68837bada915179c1a2c888a5c58bfc4577913db"
+                },
+                "evidence": {
+                  "name": "evidence-aarch64.tar.gz",
+                  "size": 319442526,
+                  "sha256": "ebb148fd2ff007b134e2415d9f1ba212c006968b31abc5226cefd559ff04b498"
+                },
+                "provenance": {
+                  "projectCommit": "3004f54d1a66a9b50d84f46a6ff2e84607f12ba0",
+                  "runId": "41208663523",
+                  "runAttempt": "1",
+                  "artifactId": "13047775297",
+                  "targetRid": "linux-arm64",
+                  "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41208663523",
+                  "originalSdkName": "cbodotnet-sdk-5.0.214-linux-arm64-build.41208663523.tar.gz",
+                  "originalSourceName": "cbodotnet-sources-5.0.214-linux-arm64-build.41208663523.tar.gz"
+                }
+              },
+              "x64": {
+                "sdk": {
+                  "name": "cbodotnet-sdk-5.0.214-linux-x64.tar.gz",
+                  "size": 234787943,
+                  "sha256": "d79782992d27e55d7561cd190411b9f6ad3160bb3a91a71064bc7efdc0470d8e"
+                },
+                "source": {
+                  "name": "cbodotnet-source-5.0.214-linux-x64.tar.gz",
+                  "size": 345744615,
+                  "sha256": "2edd46c20b1f7dc18f3cd9e23eefd7a9667b1a6d382887cd2406dcddbb9ce543"
+                },
+                "evidence": {
+                  "name": "evidence-x64.tar.gz",
+                  "size": 322092920,
+                  "sha256": "fcfb2d29cc02a32ea2cf6c685ef351305c81b65cfcc2ce3a665312dbe0a6e7da"
+                },
+                "provenance": {
+                  "projectCommit": "48abfb7304296c84719c97e69500592f58678a73",
+                  "runId": "41306229298",
+                  "runAttempt": "1",
+                  "artifactId": "13085986503",
+                  "targetRid": "linux-x64",
+                  "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41306229298",
+                  "originalSdkName": "cbodotnet-sdk-5.0.214-linux-x64-build.41306229298.tar.gz",
+                  "originalSourceName": "cbodotnet-sources-5.0.214-linux-x64-build.41306229298.tar.gz"
+                }
+              }
+            },
+            "checksums": {
+              "name": "SHA256SUMS",
+              "size": 610,
+              "sha256": "c979d6681d237d6114ed7d87e3e575cc82fe3c672caabf39bd13f8940a136574"
+            }
+          },
+          "encoding": "UTF-8 JSON with indent=2, preserved object order and trailing newline"
+        },
+        "checksums": {
+          "id": 698692370,
+          "name": "SHA256SUMS",
+          "size": 610,
+          "sha256": "c979d6681d237d6114ed7d87e3e575cc82fe3c672caabf39bd13f8940a136574",
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-5.0.214/SHA256SUMS"
+        }
+      },
+      "sourcePolicy": "Preserve disclosed bootstrap/prebuilt inputs and original suite skips; no new Stage2, clean-bootstrap, zero-prebuilt, equal-layout or upstream-maintenance claim.",
+      "architectures": {
+        "x64": {
+          "profile": "profiles/dotnet-5.0.214-linux-x64.json",
+          "profileSha256": "74f07f2c8da06bc9dfa8da879d46653e2792c19df6fa571534196f8f836d7108",
+          "producerCatalogBinding": "matched",
+          "provenance": {
+            "projectCommit": "48abfb7304296c84719c97e69500592f58678a73",
+            "runId": "41306229298",
+            "runAttempt": "1",
+            "artifactId": "13085986503",
+            "targetRid": "linux-x64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41306229298",
+            "originalSdkName": "cbodotnet-sdk-5.0.214-linux-x64-build.41306229298.tar.gz",
+            "originalSourceName": "cbodotnet-sources-5.0.214-linux-x64-build.41306229298.tar.gz"
+          },
+          "sdk": {
+            "name": "cbodotnet-sdk-5.0.214-linux-x64.tar.gz",
+            "size": 234787943,
+            "sha256": "d79782992d27e55d7561cd190411b9f6ad3160bb3a91a71064bc7efdc0470d8e",
+            "assetId": 698691952,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-5.0.214/cbodotnet-sdk-5.0.214-linux-x64.tar.gz"
+          },
+          "source": {
+            "name": "cbodotnet-source-5.0.214-linux-x64.tar.gz",
+            "size": 345744615,
+            "sha256": "2edd46c20b1f7dc18f3cd9e23eefd7a9667b1a6d382887cd2406dcddbb9ce543",
+            "assetId": 698692020,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-5.0.214/cbodotnet-source-5.0.214-linux-x64.tar.gz"
+          },
+          "evidence": {
+            "name": "evidence-x64.tar.gz",
+            "size": 322092920,
+            "sha256": "fcfb2d29cc02a32ea2cf6c685ef351305c81b65cfcc2ce3a665312dbe0a6e7da",
+            "assetId": 698692128,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-5.0.214/evidence-x64.tar.gz"
+          },
+          "recordedElfObservation": {
+            "files": 18,
+            "maximumRequiredVersions": {
+              "GLIBC": "2.16",
+              "GLIBCXX": "3.4.21",
+              "CXXABI": "1.3.7"
+            },
+            "scope": "Recorded regular SDK ELF symbols only; not a distro/package/optional-diagnostics or external-compatibility-library qualification.",
+            "evidence": "docs/ci-x64-results.md"
+          },
+          "archiveObservations": [
+            {
+              "variant": "ubuntu-22.04",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "ubuntu-24.04",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "debian-13",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            }
+          ]
+        },
+        "aarch64": {
+          "profile": "profiles/dotnet-5.0.214-linux-aarch64.json",
+          "profileSha256": "7b297369de3d5d361dfd88a5f572147de316b91e028aa9a2039e278ed87d2043",
+          "producerCatalogBinding": "matched",
+          "provenance": {
+            "projectCommit": "3004f54d1a66a9b50d84f46a6ff2e84607f12ba0",
+            "runId": "41208663523",
+            "runAttempt": "1",
+            "artifactId": "13047775297",
+            "targetRid": "linux-arm64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41208663523",
+            "originalSdkName": "cbodotnet-sdk-5.0.214-linux-arm64-build.41208663523.tar.gz",
+            "originalSourceName": "cbodotnet-sources-5.0.214-linux-arm64-build.41208663523.tar.gz"
+          },
+          "sdk": {
+            "name": "cbodotnet-sdk-5.0.214-linux-aarch64.tar.gz",
+            "size": 227963882,
+            "sha256": "57bef35086aa07212096e76219d3a0091422b7ac3de453a5e9860908f4ca193f",
+            "assetId": 698691477,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-5.0.214/cbodotnet-sdk-5.0.214-linux-aarch64.tar.gz"
+          },
+          "source": {
+            "name": "cbodotnet-source-5.0.214-linux-aarch64.tar.gz",
+            "size": 344100526,
+            "sha256": "d335ca2d77f69e1a93f0fc9b68837bada915179c1a2c888a5c58bfc4577913db",
+            "assetId": 698691479,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-5.0.214/cbodotnet-source-5.0.214-linux-aarch64.tar.gz"
+          },
+          "evidence": {
+            "name": "evidence-aarch64.tar.gz",
+            "size": 319442526,
+            "sha256": "ebb148fd2ff007b134e2415d9f1ba212c006968b31abc5226cefd559ff04b498",
+            "assetId": 698691476,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-5.0.214/evidence-aarch64.tar.gz"
+          },
+          "recordedElfObservation": {
+            "files": 18,
+            "maximumRequiredVersions": {
+              "GLIBC": "2.17",
+              "GLIBCXX": "3.4.21",
+              "CXXABI": "1.3.7"
+            },
+            "scope": "Recorded regular SDK ELF symbols only; not a distro/package/optional-diagnostics or external-compatibility-library qualification.",
+            "evidence": "docs/ci-matrix-results.md"
+          },
+          "archiveObservations": [
+            {
+              "variant": "ubuntu-22.04",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "ubuntu-24.04",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "debian-13",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            }
+          ]
+        }
+      },
+      "targets": [
+        {
+          "channel": "deb",
+          "variant": "ubuntu-24.04",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "ubuntu-24.04",
+          "architecture": "aarch64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "debian-13",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "debian-13",
+          "architecture": "aarch64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "fedora-45",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "fedora-45",
+          "architecture": "aarch64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "rocky-9.8",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "rocky-9.8",
+          "architecture": "aarch64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "oci",
+          "variant": "debian-13",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "oci",
+          "variant": "debian-13",
+          "architecture": "aarch64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "aur",
+          "variant": "arch-rolling",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "external-openssl11",
+            "aur-publication-10"
+          ]
+        }
+      ],
+      "issueDraft": {
+        "key": "qualify-net5",
+        "title": "Qualify SDK 5.0.214 for the eleven selected Linux channel targets",
+        "wave": 2,
+        "dependsOn": [
+          "additional-sdk-harness",
+          "legacy-openssl11-policy"
+        ],
+        "acceptanceCriteria": [
+          "Authenticate sdk-5.0.214 manifest 2a98666b057b5e8c2c8ef149c5ebca7528c2048d7cc1aa38611d48d0d104c67f and both exact qualified producer records before admission.",
+          "Audit all eleven target rows; retain an explicit blocked/deferred reason for targets lacking a reviewed native dependency provider.",
+          "For each admitted target, run the native channel lifecycle and signed anonymous hosted-endpoint/digest proof without mutating SDK payloads.",
+          "Test side-by-side installation with NET10 and official dotnet, highest-series cbodotnet selection, exact versioned launcher selection and package ownership/removal.",
+          "Keep AUR publication under issue10 and do not add ARM AUR or musl qualification by inference."
+        ],
+        "issueNumber": 20,
+        "issueUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/20",
+        "registrationStatus": "registered"
+      }
+    },
+    {
+      "sdkVersion": "3.1.426",
+      "series": "3.1",
+      "target": "core31",
+      "wave": 3,
+      "currentContractAdmission": false,
+      "channelQualification": "not-run",
+      "sourceSelection": {
+        "repository": "https://github.com/dotnet/source-build",
+        "branch": "release/3.1",
+        "commit": "ab8b115b5658237ee8916ae3586600b39fb2fd19",
+        "commitSubject": "Update to Dec 2022 3.1.426 release. (#3183)",
+        "tag": null
+      },
+      "upstreamLifecycle": {
+        "status": "out-of-support",
+        "source": "https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core",
+        "communityMaintenancePromise": false
+      },
+      "construction": "legacy-direct-source-build-local-frameworks",
+      "selectedRuntime": "3.1.32",
+      "publicRelease": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-3.1.426",
+        "apiUrl": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/tags/sdk-3.1.426",
+        "releaseId": 430661623,
+        "publishedAt": "2026-11-01T15:20:50Z",
+        "manifest": {
+          "id": 698690626,
+          "name": "release-manifest.json",
+          "size": 2503,
+          "sha256": "70049972a8781c309fae40e5f68d74847d0a9a590d36de4f25ecc2ad50578b09",
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.1.426/release-manifest.json",
+          "document": {
+            "schemaVersion": 1,
+            "repository": "dotnetdev-kr/cbodotnet",
+            "sdkVersion": "3.1.426",
+            "tag": "sdk-3.1.426",
+            "architectures": {
+              "aarch64": {
+                "sdk": {
+                  "name": "cbodotnet-sdk-3.1.426-linux-aarch64.tar.gz",
+                  "size": 164085902,
+                  "sha256": "62bf8a6c3bd3af83694f4da4608bbbaade1ad19e1851a2d53e377e12d3db63f2"
+                },
+                "source": {
+                  "name": "cbodotnet-source-3.1.426-linux-aarch64.tar.gz",
+                  "size": 292507261,
+                  "sha256": "10e235b2c3d08f844aafbcbc6abd9a163fbc13dcc80ea3cd44853f777ec024a1"
+                },
+                "evidence": {
+                  "name": "evidence-aarch64.tar.gz",
+                  "size": 355059523,
+                  "sha256": "b8148be1d1e4c6a1e463fd3fdf44012c9caa3046e82e97d6b775b7ffe34eea54"
+                },
+                "provenance": {
+                  "projectCommit": "7f2a4c61e8ee932957932b8c6659badb8e5c63eb",
+                  "runId": "41207954455",
+                  "runAttempt": "1",
+                  "artifactId": "13047185468",
+                  "targetRid": "linux-arm64",
+                  "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41207954455",
+                  "originalSdkName": "cbodotnet-sdk-3.1.426-linux-arm64-build.41207954455.tar.gz",
+                  "originalSourceName": "cbodotnet-sources-3.1.426-linux-arm64-build.41207954455.tar.gz"
+                }
+              },
+              "x64": {
+                "sdk": {
+                  "name": "cbodotnet-sdk-3.1.426-linux-x64.tar.gz",
+                  "size": 166370880,
+                  "sha256": "7d0b197181bc10ba7ecffe6f820771560db6330004f44d314e7e4d80db2e89bd"
+                },
+                "source": {
+                  "name": "cbodotnet-source-3.1.426-linux-x64.tar.gz",
+                  "size": 293071755,
+                  "sha256": "1a6636d64c0fccceac62fe1681d095b4a15d20db1d24a2003efe2ee73074472a"
+                },
+                "evidence": {
+                  "name": "evidence-x64.tar.gz",
+                  "size": 360759371,
+                  "sha256": "2c1dd6dc2c4741f0868369c873bcf107404b213bc8092ca30037a5a2f2a6fe8b"
+                },
+                "provenance": {
+                  "projectCommit": "48abfb7304296c84719c97e69500592f58678a73",
+                  "runId": "41306234685",
+                  "runAttempt": "1",
+                  "artifactId": "13086272280",
+                  "targetRid": "linux-x64",
+                  "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41306234685",
+                  "originalSdkName": "cbodotnet-sdk-3.1.426-linux-x64-build.41306234685.tar.gz",
+                  "originalSourceName": "cbodotnet-sources-3.1.426-linux-x64-build.41306234685.tar.gz"
+                }
+              }
+            },
+            "checksums": {
+              "name": "SHA256SUMS",
+              "size": 610,
+              "sha256": "9be0812b27d96321f531a8b1a0694969ca898974b88c2582582c22f0e00f3c7e"
+            }
+          },
+          "encoding": "UTF-8 JSON with indent=2, preserved object order and trailing newline"
+        },
+        "checksums": {
+          "id": 698690592,
+          "name": "SHA256SUMS",
+          "size": 610,
+          "sha256": "9be0812b27d96321f531a8b1a0694969ca898974b88c2582582c22f0e00f3c7e",
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.1.426/SHA256SUMS"
+        }
+      },
+      "sourcePolicy": "Preserve disclosed bootstrap/prebuilt inputs and original suite skips; no new Stage2, clean-bootstrap, zero-prebuilt, equal-layout or upstream-maintenance claim.",
+      "architectures": {
+        "x64": {
+          "profile": "profiles/dotnet-3.1.426-linux-x64.json",
+          "profileSha256": "cf2e02833dd9c81b032a3b87a354cfabf90f0e42d8b8d93222b925a6ce8f504d",
+          "producerCatalogBinding": "matched",
+          "provenance": {
+            "projectCommit": "48abfb7304296c84719c97e69500592f58678a73",
+            "runId": "41306234685",
+            "runAttempt": "1",
+            "artifactId": "13086272280",
+            "targetRid": "linux-x64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41306234685",
+            "originalSdkName": "cbodotnet-sdk-3.1.426-linux-x64-build.41306234685.tar.gz",
+            "originalSourceName": "cbodotnet-sources-3.1.426-linux-x64-build.41306234685.tar.gz"
+          },
+          "sdk": {
+            "name": "cbodotnet-sdk-3.1.426-linux-x64.tar.gz",
+            "size": 166370880,
+            "sha256": "7d0b197181bc10ba7ecffe6f820771560db6330004f44d314e7e4d80db2e89bd",
+            "assetId": 698690290,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.1.426/cbodotnet-sdk-3.1.426-linux-x64.tar.gz"
+          },
+          "source": {
+            "name": "cbodotnet-source-3.1.426-linux-x64.tar.gz",
+            "size": 293071755,
+            "sha256": "1a6636d64c0fccceac62fe1681d095b4a15d20db1d24a2003efe2ee73074472a",
+            "assetId": 698690428,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.1.426/cbodotnet-source-3.1.426-linux-x64.tar.gz"
+          },
+          "evidence": {
+            "name": "evidence-x64.tar.gz",
+            "size": 360759371,
+            "sha256": "2c1dd6dc2c4741f0868369c873bcf107404b213bc8092ca30037a5a2f2a6fe8b",
+            "assetId": 698690541,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.1.426/evidence-x64.tar.gz"
+          },
+          "recordedElfObservation": {
+            "files": 19,
+            "maximumRequiredVersions": {
+              "GLIBC": "2.14",
+              "GLIBCXX": "3.4.21",
+              "CXXABI": "1.3.7"
+            },
+            "scope": "Recorded regular SDK ELF symbols only; not a distro/package/optional-diagnostics or external-compatibility-library qualification.",
+            "evidence": "docs/ci-x64-results.md"
+          },
+          "archiveObservations": [
+            {
+              "variant": "ubuntu-22.04",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "ubuntu-24.04",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "debian-13",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1",
+                "icu-66"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            }
+          ]
+        },
+        "aarch64": {
+          "profile": "profiles/dotnet-3.1.426-linux-aarch64.json",
+          "profileSha256": "588327c12dbcc0eb19a3526a06da83d3d5972e4b363588d2480b95de8460a377",
+          "producerCatalogBinding": "matched",
+          "provenance": {
+            "projectCommit": "7f2a4c61e8ee932957932b8c6659badb8e5c63eb",
+            "runId": "41207954455",
+            "runAttempt": "1",
+            "artifactId": "13047185468",
+            "targetRid": "linux-arm64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41207954455",
+            "originalSdkName": "cbodotnet-sdk-3.1.426-linux-arm64-build.41207954455.tar.gz",
+            "originalSourceName": "cbodotnet-sources-3.1.426-linux-arm64-build.41207954455.tar.gz"
+          },
+          "sdk": {
+            "name": "cbodotnet-sdk-3.1.426-linux-aarch64.tar.gz",
+            "size": 164085902,
+            "sha256": "62bf8a6c3bd3af83694f4da4608bbbaade1ad19e1851a2d53e377e12d3db63f2",
+            "assetId": 698690089,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.1.426/cbodotnet-sdk-3.1.426-linux-aarch64.tar.gz"
+          },
+          "source": {
+            "name": "cbodotnet-source-3.1.426-linux-aarch64.tar.gz",
+            "size": 292507261,
+            "sha256": "10e235b2c3d08f844aafbcbc6abd9a163fbc13dcc80ea3cd44853f777ec024a1",
+            "assetId": 698690095,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.1.426/cbodotnet-source-3.1.426-linux-aarch64.tar.gz"
+          },
+          "evidence": {
+            "name": "evidence-aarch64.tar.gz",
+            "size": 355059523,
+            "sha256": "b8148be1d1e4c6a1e463fd3fdf44012c9caa3046e82e97d6b775b7ffe34eea54",
+            "assetId": 698690084,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.1.426/evidence-aarch64.tar.gz"
+          },
+          "recordedElfObservation": {
+            "files": 19,
+            "maximumRequiredVersions": {
+              "GLIBC": "2.17",
+              "GLIBCXX": "3.4.21",
+              "CXXABI": "1.3.7"
+            },
+            "scope": "Recorded regular SDK ELF symbols only; not a distro/package/optional-diagnostics or external-compatibility-library qualification.",
+            "evidence": "docs/ci-matrix-results.md"
+          },
+          "archiveObservations": [
+            {
+              "variant": "ubuntu-22.04",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "ubuntu-24.04",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "debian-13",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1",
+                "icu-66"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            }
+          ]
+        }
+      },
+      "targets": [
+        {
+          "channel": "deb",
+          "variant": "ubuntu-24.04",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "ubuntu-24.04",
+          "architecture": "aarch64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "debian-13",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11",
+            "external-core3-icu"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "debian-13",
+          "architecture": "aarch64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11",
+            "external-core3-icu"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "fedora-45",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "external-openssl11",
+            "external-core3-icu"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "fedora-45",
+          "architecture": "aarch64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "external-openssl11",
+            "external-core3-icu"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "rocky-9.8",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "rocky-9.8",
+          "architecture": "aarch64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "oci",
+          "variant": "debian-13",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11",
+            "external-core3-icu"
+          ]
+        },
+        {
+          "channel": "oci",
+          "variant": "debian-13",
+          "architecture": "aarch64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11",
+            "external-core3-icu"
+          ]
+        },
+        {
+          "channel": "aur",
+          "variant": "arch-rolling",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "external-openssl11",
+            "external-core3-icu",
+            "aur-publication-10"
+          ]
+        }
+      ],
+      "issueDraft": {
+        "key": "qualify-core31",
+        "title": "Qualify SDK 3.1.426 for the eleven selected Linux channel targets",
+        "wave": 3,
+        "dependsOn": [
+          "additional-sdk-harness",
+          "legacy-openssl11-policy",
+          "core3-icu-policy"
+        ],
+        "acceptanceCriteria": [
+          "Authenticate sdk-3.1.426 manifest 70049972a8781c309fae40e5f68d74847d0a9a590d36de4f25ecc2ad50578b09 and both exact qualified producer records before admission.",
+          "Audit all eleven target rows; retain an explicit blocked/deferred reason for targets lacking a reviewed native dependency provider.",
+          "For each admitted target, run the native channel lifecycle and signed anonymous hosted-endpoint/digest proof without mutating SDK payloads.",
+          "Test side-by-side installation with NET10 and official dotnet, highest-series cbodotnet selection, exact versioned launcher selection and package ownership/removal.",
+          "Keep AUR publication under issue10 and do not add ARM AUR or musl qualification by inference."
+        ],
+        "issueNumber": 21,
+        "issueUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/21",
+        "registrationStatus": "registered"
+      }
+    },
+    {
+      "sdkVersion": "3.0.103",
+      "series": "3.0",
+      "target": "core30",
+      "wave": 3,
+      "currentContractAdmission": false,
+      "channelQualification": "not-run",
+      "sourceSelection": {
+        "repository": "https://github.com/dotnet/source-build",
+        "tag": "v3.0.103.1-SDK",
+        "annotatedTagObject": "83c8eccc8cb7fcd2cfdc28223d7d08e74268881c",
+        "commit": "40de72d1087a1d05dfd39c87f888a0611ec6c60f"
+      },
+      "upstreamLifecycle": {
+        "status": "out-of-support",
+        "source": "https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core",
+        "communityMaintenancePromise": false
+      },
+      "construction": "legacy-direct-source-build-local-frameworks",
+      "selectedRuntime": "3.0.3",
+      "publicRelease": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-3.0.103",
+        "apiUrl": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/tags/sdk-3.0.103",
+        "releaseId": 430661640,
+        "publishedAt": "2026-11-01T15:21:29Z",
+        "manifest": {
+          "id": 698692326,
+          "name": "release-manifest.json",
+          "size": 2503,
+          "sha256": "3bac912a788bf38320cb45bfe6a62b3da0dbcaf50bb564a370ae7c5a09fb5e98",
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.0.103/release-manifest.json",
+          "document": {
+            "schemaVersion": 1,
+            "repository": "dotnetdev-kr/cbodotnet",
+            "sdkVersion": "3.0.103",
+            "tag": "sdk-3.0.103",
+            "architectures": {
+              "aarch64": {
+                "sdk": {
+                  "name": "cbodotnet-sdk-3.0.103-linux-aarch64.tar.gz",
+                  "size": 157304985,
+                  "sha256": "c0b006d88155e486b3013a62309a229ba05377158f62b1d7e6935a7e4adade04"
+                },
+                "source": {
+                  "name": "cbodotnet-source-3.0.103-linux-aarch64.tar.gz",
+                  "size": 280643417,
+                  "sha256": "c5390a7bca05312a98d7a500b69905f6b811cb3237419368fa17de620d547aa9"
+                },
+                "evidence": {
+                  "name": "evidence-aarch64.tar.gz",
+                  "size": 244655536,
+                  "sha256": "a9cc28e4008b568818953b6723ea159f2bc83e60ff9fb3fdee03921d023223d8"
+                },
+                "provenance": {
+                  "projectCommit": "94c9f319e054c8a835ea162e09139d2e01f6fe5a",
+                  "runId": "41222732123",
+                  "runAttempt": "1",
+                  "artifactId": "13052963178",
+                  "targetRid": "linux-arm64",
+                  "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41222732123",
+                  "originalSdkName": "cbodotnet-sdk-3.0.103-linux-arm64-build.41222732123.tar.gz",
+                  "originalSourceName": "cbodotnet-sources-3.0.103-linux-arm64-build.41222732123.tar.gz"
+                }
+              },
+              "x64": {
+                "sdk": {
+                  "name": "cbodotnet-sdk-3.0.103-linux-x64.tar.gz",
+                  "size": 159052246,
+                  "sha256": "d59d86967c7d65481c120ca644198ef9b4a37704ea5fb89c1614e64d2ce5e0c8"
+                },
+                "source": {
+                  "name": "cbodotnet-source-3.0.103-linux-x64.tar.gz",
+                  "size": 279980593,
+                  "sha256": "4248c9d8f58822082377a1f1e2cf3716a7a93e41565f5f199990c08d596b7856"
+                },
+                "evidence": {
+                  "name": "evidence-x64.tar.gz",
+                  "size": 250539756,
+                  "sha256": "595bf7dcb4ce3edcdb1869a25188476bfb275b6a3c4652a71bebcd72ff2b05dc"
+                },
+                "provenance": {
+                  "projectCommit": "48abfb7304296c84719c97e69500592f58678a73",
+                  "runId": "41306232092",
+                  "runAttempt": "1",
+                  "artifactId": "13084863879",
+                  "targetRid": "linux-x64",
+                  "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41306232092",
+                  "originalSdkName": "cbodotnet-sdk-3.0.103-linux-x64-build.41306232092.tar.gz",
+                  "originalSourceName": "cbodotnet-sources-3.0.103-linux-x64-build.41306232092.tar.gz"
+                }
+              }
+            },
+            "checksums": {
+              "name": "SHA256SUMS",
+              "size": 610,
+              "sha256": "09b5bd2b8c6f8d090ae0bdcda138b1b1378dc69c4d785d3a6abe3cd679430926"
+            }
+          },
+          "encoding": "UTF-8 JSON with indent=2, preserved object order and trailing newline"
+        },
+        "checksums": {
+          "id": 698692280,
+          "name": "SHA256SUMS",
+          "size": 610,
+          "sha256": "09b5bd2b8c6f8d090ae0bdcda138b1b1378dc69c4d785d3a6abe3cd679430926",
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.0.103/SHA256SUMS"
+        }
+      },
+      "sourcePolicy": "Preserve disclosed bootstrap/prebuilt inputs and original suite skips; no new Stage2, clean-bootstrap, zero-prebuilt, equal-layout or upstream-maintenance claim.",
+      "architectures": {
+        "x64": {
+          "profile": "profiles/dotnet-3.0.103-linux-x64.json",
+          "profileSha256": "b967bd88300656206fbda7599b7f512e67e1e21ff1b0787b7e84b145b9b6c621",
+          "producerCatalogBinding": "matched",
+          "provenance": {
+            "projectCommit": "48abfb7304296c84719c97e69500592f58678a73",
+            "runId": "41306232092",
+            "runAttempt": "1",
+            "artifactId": "13084863879",
+            "targetRid": "linux-x64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41306232092",
+            "originalSdkName": "cbodotnet-sdk-3.0.103-linux-x64-build.41306232092.tar.gz",
+            "originalSourceName": "cbodotnet-sources-3.0.103-linux-x64-build.41306232092.tar.gz"
+          },
+          "sdk": {
+            "name": "cbodotnet-sdk-3.0.103-linux-x64.tar.gz",
+            "size": 159052246,
+            "sha256": "d59d86967c7d65481c120ca644198ef9b4a37704ea5fb89c1614e64d2ce5e0c8",
+            "assetId": 698691939,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.0.103/cbodotnet-sdk-3.0.103-linux-x64.tar.gz"
+          },
+          "source": {
+            "name": "cbodotnet-source-3.0.103-linux-x64.tar.gz",
+            "size": 279980593,
+            "sha256": "4248c9d8f58822082377a1f1e2cf3716a7a93e41565f5f199990c08d596b7856",
+            "assetId": 698692098,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.0.103/cbodotnet-source-3.0.103-linux-x64.tar.gz"
+          },
+          "evidence": {
+            "name": "evidence-x64.tar.gz",
+            "size": 250539756,
+            "sha256": "595bf7dcb4ce3edcdb1869a25188476bfb275b6a3c4652a71bebcd72ff2b05dc",
+            "assetId": 698692263,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.0.103/evidence-x64.tar.gz"
+          },
+          "recordedElfObservation": {
+            "files": 19,
+            "maximumRequiredVersions": {
+              "GLIBC": "2.14",
+              "GLIBCXX": "3.4.21",
+              "CXXABI": "1.3.7"
+            },
+            "scope": "Recorded regular SDK ELF symbols only; not a distro/package/optional-diagnostics or external-compatibility-library qualification.",
+            "evidence": "docs/ci-x64-results.md"
+          },
+          "archiveObservations": [
+            {
+              "variant": "ubuntu-22.04",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "ubuntu-24.04",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "debian-13",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1",
+                "icu-66"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            }
+          ]
+        },
+        "aarch64": {
+          "profile": "profiles/dotnet-3.0.103-linux-aarch64.json",
+          "profileSha256": "db9f8f573206fdeb66bc8435ca295808f030b65d99a4cf1d6c6e9ff52618645e",
+          "producerCatalogBinding": "matched",
+          "provenance": {
+            "projectCommit": "94c9f319e054c8a835ea162e09139d2e01f6fe5a",
+            "runId": "41222732123",
+            "runAttempt": "1",
+            "artifactId": "13052963178",
+            "targetRid": "linux-arm64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41222732123",
+            "originalSdkName": "cbodotnet-sdk-3.0.103-linux-arm64-build.41222732123.tar.gz",
+            "originalSourceName": "cbodotnet-sources-3.0.103-linux-arm64-build.41222732123.tar.gz"
+          },
+          "sdk": {
+            "name": "cbodotnet-sdk-3.0.103-linux-aarch64.tar.gz",
+            "size": 157304985,
+            "sha256": "c0b006d88155e486b3013a62309a229ba05377158f62b1d7e6935a7e4adade04",
+            "assetId": 698691673,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.0.103/cbodotnet-sdk-3.0.103-linux-aarch64.tar.gz"
+          },
+          "source": {
+            "name": "cbodotnet-source-3.0.103-linux-aarch64.tar.gz",
+            "size": 280643417,
+            "sha256": "c5390a7bca05312a98d7a500b69905f6b811cb3237419368fa17de620d547aa9",
+            "assetId": 698691672,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.0.103/cbodotnet-source-3.0.103-linux-aarch64.tar.gz"
+          },
+          "evidence": {
+            "name": "evidence-aarch64.tar.gz",
+            "size": 244655536,
+            "sha256": "a9cc28e4008b568818953b6723ea159f2bc83e60ff9fb3fdee03921d023223d8",
+            "assetId": 698691671,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.0.103/evidence-aarch64.tar.gz"
+          },
+          "recordedElfObservation": {
+            "files": 19,
+            "maximumRequiredVersions": {
+              "GLIBC": "2.17",
+              "GLIBCXX": "3.4.21",
+              "CXXABI": "1.3.7"
+            },
+            "scope": "Recorded regular SDK ELF symbols only; not a distro/package/optional-diagnostics or external-compatibility-library qualification.",
+            "evidence": "docs/ci-matrix-results.md"
+          },
+          "archiveObservations": [
+            {
+              "variant": "ubuntu-22.04",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "ubuntu-24.04",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            },
+            {
+              "variant": "debian-13",
+              "status": "passed-with-recorded-external-dependencies",
+              "functionalChecks": 6,
+              "externalDependencies": [
+                "openssl-1.1",
+                "icu-66"
+              ],
+              "scope": "Existing raw SDK archive native verification; package/OCI/AUR installation was not exercised."
+            }
+          ]
+        }
+      },
+      "targets": [
+        {
+          "channel": "deb",
+          "variant": "ubuntu-24.04",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "ubuntu-24.04",
+          "architecture": "aarch64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "debian-13",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11",
+            "external-core3-icu"
+          ]
+        },
+        {
+          "channel": "deb",
+          "variant": "debian-13",
+          "architecture": "aarch64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11",
+            "external-core3-icu"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "fedora-45",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "external-openssl11",
+            "external-core3-icu"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "fedora-45",
+          "architecture": "aarch64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "external-openssl11",
+            "external-core3-icu"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "rocky-9.8",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "rpm",
+          "variant": "rocky-9.8",
+          "architecture": "aarch64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "external-openssl11"
+          ]
+        },
+        {
+          "channel": "oci",
+          "variant": "debian-13",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11",
+            "external-core3-icu"
+          ]
+        },
+        {
+          "channel": "oci",
+          "variant": "debian-13",
+          "architecture": "aarch64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "archive-only-external-dependency-pass",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "external-openssl11",
+            "external-core3-icu"
+          ]
+        },
+        {
+          "channel": "aur",
+          "variant": "arch-rolling",
+          "architecture": "x64",
+          "state": "blocked-external-dependency-policy",
+          "installedPackageOrContainerEvidence": "not-run",
+          "qualification": "not-qualified",
+          "published": false,
+          "existingRuntimeObservation": "unknown-no-native-archive-observation",
+          "requiredGates": [
+            "version-admission",
+            "version-aware-harness",
+            "native-channel-lifecycle",
+            "signed-publication",
+            "new-distro-runtime",
+            "external-openssl11",
+            "external-core3-icu",
+            "aur-publication-10"
+          ]
+        }
+      ],
+      "issueDraft": {
+        "key": "qualify-core30",
+        "title": "Qualify SDK 3.0.103 for the eleven selected Linux channel targets",
+        "wave": 3,
+        "dependsOn": [
+          "additional-sdk-harness",
+          "legacy-openssl11-policy",
+          "core3-icu-policy"
+        ],
+        "acceptanceCriteria": [
+          "Authenticate sdk-3.0.103 manifest 3bac912a788bf38320cb45bfe6a62b3da0dbcaf50bb564a370ae7c5a09fb5e98 and both exact qualified producer records before admission.",
+          "Audit all eleven target rows; retain an explicit blocked/deferred reason for targets lacking a reviewed native dependency provider.",
+          "For each admitted target, run the native channel lifecycle and signed anonymous hosted-endpoint/digest proof without mutating SDK payloads.",
+          "Test side-by-side installation with NET10 and official dotnet, highest-series cbodotnet selection, exact versioned launcher selection and package ownership/removal.",
+          "Keep AUR publication under issue10 and do not add ARM AUR or musl qualification by inference."
+        ],
+        "issueNumber": 22,
+        "issueUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/22",
+        "registrationStatus": "registered"
+      }
+    }
+  ],
+  "waveDrafts": [
+    {
+      "key": "additional-sdk-harness",
+      "wave": 0,
+      "title": "Prepare explicit multi-version source admission and native channel proof harnesses",
+      "acceptanceCriteria": [
+        "Use only the seven pinned metadata/producers in this preparation record; validate original SDK/source/evidence bytes before admission.",
+        "Derive framework, root, aliases, runtime/RID and ABI expectations per selected SDK; retain official dotnet comparison and original family-specific verifier behavior.",
+        "Model archive observations, external dependency inputs, channel lifecycle and signed publication as separate evidence; no aggregate pass may hide unknown targets."
+      ],
+      "issueNumber": 13,
+      "issueUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/13",
+      "registrationStatus": "registered"
+    },
+    {
+      "key": "legacy-openssl11-policy",
+      "wave": 2,
+      "title": "Review externally maintained OpenSSL1.1 providers for NET5/Core3 on every selected target",
+      "acceptanceCriteria": [
+        "Record exact provider source/license/ABI/package hash/signature/configuration/search path and maintenance scope per architecture.",
+        "Do not embed compatibility libraries inside unchanged qualified SDKs or inherit old Focal verification mounts as production package qualification.",
+        "Leave targets blocked if no reviewed distributable provider and native functional proof exist."
+      ],
+      "issueNumber": 14,
+      "issueUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/14",
+      "registrationStatus": "registered"
+    },
+    {
+      "key": "core3-icu-policy",
+      "wave": 3,
+      "title": "Review Core3 ICU compatibility for Debian13, Fedora45 and Arch rolling",
+      "acceptanceCriteria": [
+        "Bind the pinned loader ceiling75 and actual host ICU major versions; historical controlled Debian13 evidence used ICU66.",
+        "Select a separately recorded compatible provider, retain globalization, and run native ICU/crypto/HTTP tests per architecture.",
+        "Do not claim stock ICU76/78 support or treat a newer GLIBC provider as sufficient proof."
+      ],
+      "issueNumber": 15,
+      "issueUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/15",
+      "registrationStatus": "registered"
+    }
+  ],
+  "parentEpic": {
+    "issueNumber": 12,
+    "issueUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/12"
+  }
+}
