@@ -4,6 +4,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
@@ -88,6 +89,27 @@ class PublishedAptTests(unittest.TestCase):
                 package.write_bytes(corrupted)
                 with self.subTest(bytes=corrupted), self.assertRaises(ValueError):
                     APT.verify_cache_file(package, descriptor)
+
+    def test_offline_reinstall_restores_authenticated_apt_cache_and_requests_exact_versions(self):
+        records = APT.package_descriptors(self.packages(), '10.0.403', 1, 'amd64')
+        with tempfile.TemporaryDirectory() as directory:
+            state_root, apt_cache = Path(directory) / 'state', Path(directory) / 'apt-cache'
+            (state_root / 'cache').mkdir(parents=True); apt_cache.mkdir()
+            for record in records:
+                record['cacheFile'] = record['filename'].split('/')[-1]
+                (state_root / 'cache' / record['cacheFile']).write_bytes(b'package')
+            with mock.patch.object(APT, 'STATE', state_root), mock.patch.object(APT, 'APT_CACHE', apt_cache), \
+                    mock.patch.object(APT, 'run') as commands:
+                APT.reinstall_cached_packages({'authenticatedPackages': records})
+                commands.assert_called_once_with(['apt-get', 'install', '-y', '--no-download',
+                    'cbodotnet-sdk-10.0=10.0.403-1', 'cbodotnet-host=1.0.0-1'])
+                for record in records:
+                    self.assertEqual((apt_cache / record['cacheFile']).read_bytes(), b'package')
+                commands.reset_mock()
+                (state_root / 'cache' / records[0]['cacheFile']).write_bytes(b'packagE')
+                with self.assertRaises(ValueError):
+                    APT.reinstall_cached_packages({'authenticatedPackages': records})
+                commands.assert_not_called()
 
 
 if __name__ == '__main__':

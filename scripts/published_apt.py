@@ -20,6 +20,7 @@ BRAND = 'Community Build of .NET (built by .NET Dev)'
 USER = 'cbot-apt-smoke'
 STATE = Path('/var/lib/cbodotnet-apt-validation')
 KEYRING = '/usr/share/keyrings/cbodotnet-archive-keyring.gpg'
+APT_CACHE = Path('/var/cache/apt/archives')
 
 
 def run(arguments, *, cwd=None, env=None):
@@ -104,6 +105,20 @@ def verify_cache_file(path, descriptor):
     path = Path(path)
     require(path.is_file() and not path.is_symlink() and path.stat().st_size == descriptor['size']
             and digest(path) == descriptor['sha256'], 'Retained Debian package differs from authenticated repository bytes')
+
+
+def reinstall_cached_packages(state):
+    # --no-download also disables APT's local-file acquisition. Restore the
+    # authenticated archive cache instead, then select exact indexed versions.
+    for descriptor in state['authenticatedPackages']:
+        retained = STATE / 'cache' / descriptor['cacheFile']
+        verify_cache_file(retained, descriptor)
+        archive = APT_CACHE / descriptor['cacheFile']
+        require(not archive.is_symlink(), 'Unexpected linked APT package cache entry')
+        shutil.copyfile(retained, archive)
+        verify_cache_file(archive, descriptor)
+    run(['apt-get', 'install', '-y', '--no-download',
+        *[item['package'] + '=' + item['version'] for item in state['authenticatedPackages']]])
 
 
 def inventory(root):
@@ -197,7 +212,7 @@ def install(args):
     cache = STATE / 'cache'; cache.mkdir()
     for descriptor in descriptors:
         filename = descriptor['package'] + '_' + descriptor['version'] + '_' + descriptor['architecture'] + '.deb'
-        source = Path('/var/cache/apt/archives') / filename
+        source = APT_CACHE / filename
         verify_cache_file(source, descriptor)
         shutil.copyfile(source, cache / filename)
         descriptor.update(cacheFile=filename, url=repository + '/' + descriptor['filename'])
@@ -262,10 +277,7 @@ def smoke(args):
     missing = subprocess.run(['runuser', '-u', USER, '--', 'cbodotnet', '--version'], text=True, capture_output=True)
     require(missing.returncode == 127 and not missing.stdout, 'Removed Community SDK fell back to official dotnet')
     state['officialStages'].append(dict(stage='after-community-sdk-removal', result=assert_unchanged(official_state)))
-    cached = []
-    for descriptor in state['authenticatedPackages']:
-        path = STATE / 'cache' / descriptor['cacheFile']; verify_cache_file(path, descriptor); cached.append(path)
-    run(['apt-get', 'install', '-y', '--no-download', *cached])
+    reinstall_cached_packages(state)
     assert_community(args, state)
     require(inventory(Path(root)) == state['communityInventory'], 'Cached exact-version reinstall changed the Community payload')
     state['officialStages'].append(dict(stage='after-authenticated-cached-reinstall', result=assert_unchanged(official_state)))

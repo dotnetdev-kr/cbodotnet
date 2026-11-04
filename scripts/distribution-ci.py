@@ -346,12 +346,15 @@ def deb_lifecycle(plan, delivery, sdk_before, as_user, official_check):
         progress('upgrade the installed SDK packaging revision')
         upgrades = sorted((delivery / 'upgrade').glob('*.deb'))
         require(len(upgrades) == 2, 'A real next-revision upgrade is required')
-        run(['apt-get', 'install', '-y', '--no-download', *map(str, upgrades)])
+        # APT's --no-download handling breaks direct local-DEB pathname
+        # acquisition. Docker --network none and the loopback-only guard
+        # enforce the offline boundary while these exact local files install.
+        run(['apt-get', 'install', '-y', *map(str, upgrades)])
         installed_revision(plan['packageRevision'] + 1)
         official_check('after-upgrade')
         phases.append('after-upgrade')
         progress('roll back to the original immutable packaging revision')
-        run(['apt-get', 'install', '-y', '--no-download', '--allow-downgrades', *map(str, packages)])
+        run(['apt-get', 'install', '-y', '--allow-downgrades', *map(str, packages)])
         installed_revision(plan['packageRevision'])
         official_check('after-rollback')
         phases.append('after-rollback')
@@ -361,7 +364,7 @@ def deb_lifecycle(plan, delivery, sdk_before, as_user, official_check):
     official_check('after-remove')
     phases.append('after-remove')
     progress('reinstall the original package before exercising an installed-package purge')
-    run(['apt-get', 'install', '-y', '--no-download', *map(str, packages)])
+    run(['apt-get', 'install', '-y', *map(str, packages)])
     require(run(['dpkg-query', '-W', '-f=${Status}', plan['package']['name']]).strip() == 'install ok installed',
             'Purge fixture must reinstall the actual SDK package first')
     installed_revision(plan['packageRevision'])

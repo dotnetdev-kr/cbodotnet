@@ -162,6 +162,12 @@ class DistributionCiTests(unittest.TestCase):
         purge = next(index for index, command in enumerate(commands) if command[:2] == ['apt-get', 'purge'])
         self.assertEqual('dpkg-query', commands[purge - 1][0])
         self.assertTrue(any('--allow-downgrades' in command for command in commands))
+        for command in commands:
+            if command[:2] == ['apt-get', 'install']:
+                self.assertNotIn('--no-download', command)
+                local_files = [Path(str(value)) for value in command if str(value).endswith('.deb')]
+                self.assertEqual(2, len(local_files))
+                self.assertTrue(all(path.is_absolute() and path.is_file() for path in local_files))
 
     def test_partial_native_image_matrix_cannot_login_or_push(self):
         with mock.patch.object(CI, 'run') as command:
