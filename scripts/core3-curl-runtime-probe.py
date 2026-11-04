@@ -36,14 +36,28 @@ CANDIDATES = {
 SOURCE = dict(name='curl-7.76.1-40.el9_8.9.src.rpm', size=2570551,
     sha256='1435256d4a17b130a2727353610f6f3739b6e182c29e8b0c472186c8f8e15395',
     url='https://dl.rockylinux.org/pub/rocky/9/BaseOS/source/tree/Packages/c/curl-7.76.1-40.el9_8.9.src.rpm')
+CANDIDATES8 = {
+    'aarch64': dict(size=283684,sha256='8ac4e2c81ea98d6e19d0dd9638d32a777686ecb5964f38b1a7fb5150c20ed6f1',
+        elfSize=537616,elfSha256='47016d6f9f2f56285733ea8555345eaa52b1c5c3968ef60dca2fd803b3b1abbb'),
+    'x64': dict(size=301416,sha256='3eba14942a2cc3ea2f60d025a76f3a579e3c1c008e820fdea24ea9f12f1bbd21',
+        elfSize=562424,elfSha256='53eda597e148602036d5a7aec6e68551593db6716e5a658fe8485f0fe16978f5'),
+}
+SOURCE8 = dict(name='curl-7.61.1-34.el8_10.18.src.rpm',size=2659913,
+    sha256='b8aa7ccd55663ac2777696288a19474c2e06096b4a411e32466d10c1800feabc',
+    url='https://dl.rockylinux.org/pub/rocky/8/BaseOS/source/tree/Packages/c/curl-7.61.1-34.el8_10.18.src.rpm')
+KEY8 = dict(name='RPM-GPG-KEY-Rocky-8',size=1672,sha256='ef1ca99bba38bb2869a06fbf46860fcdaeece796be98f8dfb0160b84bdbc69ab',
+    url='https://dl.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8')
+FINGERPRINT8 = '7051C470A929F454CEBE37B715AF5DAC6D745A60'
 
 
-def candidate(arch):
+def candidate(arch, selection='rocky9'):
     require(arch in CANDIDATES, 'Native public architecture required')
+    require(selection in {'rocky9','rocky8'},'An exact reviewed curl candidate is required')
     rpm_arch = 'x86_64' if arch == 'x64' else arch
-    name = 'libcurl-minimal-7.76.1-40.el9_8.9.' + rpm_arch + '.rpm'
-    return dict(name=name, url='https://dl.rockylinux.org/pub/rocky/9/BaseOS/' + rpm_arch + '/os/Packages/l/' + name,
-        **{key: CANDIDATES[arch][key] for key in ('size', 'sha256')})
+    name = 'libcurl-minimal-' + ('7.76.1-40.el9_8.9.' if selection=='rocky9' else '7.61.1-34.el8_10.18.') + rpm_arch + '.rpm'
+    choices=CANDIDATES if selection=='rocky9' else CANDIDATES8
+    return dict(name=name, url='https://dl.rockylinux.org/pub/rocky/'+('9' if selection=='rocky9' else '8')+'/BaseOS/' + rpm_arch + '/os/Packages/l/' + name,
+        **{key: choices[arch][key] for key in ('size', 'sha256')})
 
 
 def command(arguments, *, check=True, env=None, cwd=None):
@@ -56,7 +70,7 @@ def save(path, value):
     Path(path).write_bytes(encoded(value))
 
 
-def program(version, sdk_root, curl_root):
+def program(version, sdk_root, curl_root, curl_file='libcurl.so.4.7.0', fixture='/delivery/state/fixture'):
     return r'''using System; using System.IO; using System.Linq; using System.Net; using System.Net.Http;
 using System.Net.Sockets; using System.Net.Security; using System.Security.Authentication;
 using System.Security.Cryptography; using System.Security.Cryptography.X509Certificates;
@@ -68,9 +82,7 @@ public static class Program {
   try {
    if(Environment.UserName!=USER || !typeof(object).Assembly.Location.StartsWith(ROOT+"/shared/")) throw new Exception("Wrong native SDK/user");
    AppContext.SetSwitch("System.Net.Http.UseSocketsHttpHandler",false);
-   using(var key=RSA.Create()) { key.KeySize=2048;
-    var request=new CertificateRequest("CN=localhost",key,HashAlgorithmName.SHA256,RSASignaturePadding.Pkcs1);
-    using(var certificate=request.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1),DateTimeOffset.UtcNow.AddDays(1)))
+   using(var certificate=new X509Certificate2(FIXTURE+"/server.pfx","cbodotnet-fixture",X509KeyStorageFlags.EphemeralKeySet)) {
     using(var handler=new HttpClientHandler()) {
      handler.UseProxy=false; handler.SslProtocols=SslProtocols.Tls12; int callbacks=0;
      handler.ServerCertificateCustomValidationCallback=(message,remote,chain,errors)=> {
@@ -83,12 +95,21 @@ public static class Program {
       if(!implementation.Any(value=>value.Contains("CurlHandler"))) throw new Exception("CurlHandler was not selected: "+string.Join(",",implementation));
       string[] maps=Maps();
       if(!maps.Any(line=>line.Contains(ROOT+"/shared/") && line.Contains("System.Net.Http.Native.so")) ||
-         !maps.Any(line=>line.Contains(CURL+"/lib/libcurl.so.4.7.0"))) throw new Exception("Wrong native HTTP/candidate curl mapping");
+         !maps.Any(line=>line.Contains(CURL+"/lib/"+CANDIDATE_FILE))) throw new Exception("Wrong native HTTP/candidate curl mapping");
       Console.WriteLine(JsonSerializer.Serialize(new {stage="forced-curl-http-passed-before-https",handler="CurlHandler",nativeMappings=maps}));
       await Exchange(client,certificate,true);
       if(callbacks==0) throw new Exception("HTTPS certificate callback was not executed");
+      using(var standardHandler=new HttpClientHandler()) {
+       standardHandler.UseProxy=false; standardHandler.SslProtocols=SslProtocols.Tls12;
+       if(standardHandler.ServerCertificateCustomValidationCallback!=null) throw new Exception("Default trust fixture has a custom callback");
+       using(var standardClient=new HttpClient(standardHandler)) { standardClient.Timeout=TimeSpan.FromSeconds(10);
+        await Exchange(standardClient,certificate,true);
+        if(!fields.Select(field=>field.GetValue(standardHandler)).Where(value=>value!=null)
+         .Any(value=>value.GetType().FullName.Contains("CurlHandler"))) throw new Exception("Default HTTPS did not select CurlHandler");
+       }
+      }
       Console.WriteLine(JsonSerializer.Serialize(new {status="passed",sdkVersion=VERSION,handler="CurlHandler",
-       http="passed",https="passed",tls12="passed",certificateCallbackCount=callbacks,nativeMappings=maps}));
+       http="passed",https="passed",httpsDefaultTrust="passed",tls12="passed",certificateCallbackCount=callbacks,nativeMappings=Maps()}));
      }
     }
    }
@@ -116,7 +137,35 @@ public static class Program {
   } finally { listener.Stop(); }
  }
 }
-'''.replace('USER', json.dumps(USER)).replace('ROOT', json.dumps(sdk_root)).replace('CURL', json.dumps(curl_root)).replace('VERSION', json.dumps(version))
+'''.replace('USER',json.dumps(USER)).replace('ROOT',json.dumps(sdk_root)).replace('CANDIDATE_FILE',json.dumps(curl_file)).replace('CURL',json.dumps(curl_root)).replace('VERSION',json.dumps(version)).replace('FIXTURE',json.dumps(fixture))
+
+
+def fixture_ca(state,variant):
+    """Ephemeral localhost-only test identity, unrelated to project signing keys."""
+    fixture=state/'fixture';fixture.mkdir()
+    ca=fixture/'ca.crt';server=fixture/'server.crt'
+    command(['openssl','req','-new','-x509','-newkey','rsa:2048','-nodes','-days','2','-sha256',
+        '-subj','/CN=cbodotnet ephemeral curl probe CA','-addext','basicConstraints=critical,CA:TRUE',
+        '-addext','keyUsage=critical,keyCertSign,cRLSign','-keyout',fixture/'ca.key','-out',ca])
+    command(['openssl','req','-new','-newkey','rsa:2048','-nodes','-subj','/CN=localhost','-keyout',fixture/'server.key','-out',fixture/'server.csr'])
+    extensions=fixture/'server.ext';extensions.write_text('basicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localhost,IP:127.0.0.1\n')
+    command(['openssl','x509','-req','-in',fixture/'server.csr','-CA',ca,'-CAkey',fixture/'ca.key','-CAcreateserial',
+        '-days','2','-sha256','-extfile',extensions,'-out',server])
+    command(['openssl','pkcs12','-export','-inkey',fixture/'server.key','-in',server,'-certfile',ca,
+        '-keypbe','PBE-SHA1-3DES','-certpbe','PBE-SHA1-3DES','-macalg','sha1','-passout','pass:cbodotnet-fixture','-out',fixture/'server.pfx'])
+    (fixture/'server.pfx').chmod(0o644)
+    if variant in {'debian-13','ubuntu-24.04'}:
+        shutil.copyfile(ca,'/usr/local/share/ca-certificates/cbodotnet-ephemeral-curl-probe.crt')
+        command(['update-ca-certificates'])
+    else:
+        shutil.copyfile(ca,'/etc/pki/ca-trust/source/anchors/cbodotnet-ephemeral-curl-probe.crt')
+        command(['update-ca-trust','extract'])
+    bundle=COMPAT.environment(dict(sdkVersion='3.1.426',variant=variant))['SSL_CERT_FILE']
+    verification=command(['openssl','verify','-CAfile',bundle,server])
+    for name in ('ca.key','server.key','server.csr','ca.srl'):
+        (fixture/name).unlink(missing_ok=True)
+    return dict(root=str(fixture),certificateAuthoritySha256=sha256_file(ca),serverCertificateSha256=sha256_file(server),
+                systemCaBundle=bundle,systemTrustVerification=verification,scope='ephemeral-disposable-localhost-fixture-only')
 
 
 def guard(args, offline=False):
@@ -139,24 +188,31 @@ def prepare(args):
     # neither candidate becomes a production policy or package in this probe.
     _,ssl_root,provider=COMPAT.stage_provider(args.arch,state/'ssl-provider')
     curl_root=state/'curl-candidate'; (curl_root/'lib').mkdir(parents=True)
-    policy=dict(key=COMPAT.load_policy()['key'],sources=[SOURCE],architectures={args.arch:dict(packages=[candidate(args.arch)])})
+    selected=candidate(args.arch,args.candidate)
+    source=SOURCE if args.candidate=='rocky9' else SOURCE8
+    fingerprint=COMPAT.FINGERPRINT if args.candidate=='rocky9' else FINGERPRINT8
+    key=COMPAT.load_policy()['key'] if args.candidate=='rocky9' else KEY8
+    policy=dict(key=key,sources=[source],architectures={args.arch:dict(packages=[selected])})
     with tempfile.TemporaryDirectory(prefix='curl-candidate-key-') as temporary:
-        paths=COMPAT.verify_sources(policy,args.arch,state/'curl-sources',Path(temporary))
-    payload=subprocess.check_output(['rpm2cpio',str(paths[candidate(args.arch)['name']])])
+        paths=COMPAT.verify_sources(policy,args.arch,state/'curl-sources',Path(temporary),trusted_fingerprint=fingerprint)
+    payload=subprocess.check_output(['rpm2cpio',str(paths[selected['name']])])
     entries={name:(mode,data) for name,mode,data in COMPAT.cpio_members(payload)}
-    mode,data=entries['usr/lib64/libcurl.so.4.7.0']
-    expected=CANDIDATES[args.arch]
+    filename='libcurl.so.4.7.0' if args.candidate=='rocky9' else 'libcurl.so.4.5.0'
+    mode,data=entries['usr/lib64/'+filename]
+    expected=(CANDIDATES if args.candidate=='rocky9' else CANDIDATES8)[args.arch]
     require(stat.S_ISREG(mode) and len(data)==expected['elfSize'], 'Candidate curl ELF size/type differs')
-    path=curl_root/'lib/libcurl.so.4.7.0';path.write_bytes(data);path.chmod(0o755)
+    path=curl_root/'lib'/filename;path.write_bytes(data);path.chmod(0o755)
     require(sha256_file(path)==expected['elfSha256'], 'Candidate curl ELF digest differs')
     mode,link=entries['usr/lib64/libcurl.so.4']
-    require(stat.S_ISLNK(mode) and link==b'libcurl.so.4.7.0','Candidate SONAME link differs')
-    (curl_root/'lib/libcurl.so.4').symlink_to('libcurl.so.4.7.0')
+    require(stat.S_ISLNK(mode) and link==filename.encode(),'Candidate SONAME link differs')
+    (curl_root/'lib/libcurl.so.4').symlink_to(filename)
     for version in VERSIONS:
         destination=state/'sdks'/version;destination.parent.mkdir(exist_ok=True)
         SHARED.extractor()(workspace/'inputs'/version/('cbodotnet-sdk-'+version+'-linux-'+args.arch+'.tar.gz'),destination)
-    save(state/'baseline.json',dict(candidate=candidate(args.arch),source=SOURCE,sslProvider=provider,
-        curlRoot=str(curl_root),sslRoot=str(ssl_root),sdkInventories={version:SHARED.inventory(state/'sdks'/version) for version in VERSIONS}))
+    fixture=fixture_ca(state,args.variant)
+    save(state/'baseline.json',dict(candidate=selected,source=source,signingFingerprint=fingerprint,sslProvider=provider,
+        curlRoot=str(curl_root),curlFile=filename,sslRoot=str(ssl_root),fixture=fixture,
+        sdkInventories={version:SHARED.inventory(state/'sdks'/version) for version in VERSIONS}))
 
 
 def runtime(args):
@@ -170,7 +226,7 @@ def runtime(args):
         (work/'NuGet.Config').write_text('<configuration><packageSources><clear /></packageSources></configuration>\n')
         framework=target_framework(version)
         (work/'Probe.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>'+framework+'</TargetFramework><OutputType>Exe</OutputType></PropertyGroup></Project>\n')
-        (work/'Program.cs').write_text(program(version,str(sdk),str(curl_root)))
+        (work/'Program.cs').write_text(program(version,str(sdk),str(curl_root),baseline['curlFile'],baseline['fixture']['root']))
         command(['chown','-R',USER+':'+USER,work])
         environment=COMPAT.environment(dict(sdkVersion=version,variant=args.variant),root=str(ssl_root))
         environment['LD_LIBRARY_PATH']=str(curl_root/'lib')+':'+environment['LD_LIBRARY_PATH']
@@ -199,8 +255,9 @@ def runtime(args):
     save(workspace/'curl-runtime-observation.json',dict(schemaVersion=1,scope='unqualified-curl-candidate-forced-native-handler-runtime-diagnostic',
         status='observed',architecture=args.arch,variant=args.variant,networkForExecution='none',sdkSourcesBuilt=0,packageBuilds=0,
         applicationProjectsBuilt=len(VERSIONS),publicationAllowed=False,productionProviderAdmitted=False,
-        candidate=baseline['candidate'],candidateElfSha256=sha256_file(Path(baseline['curlRoot'])/'lib/libcurl.so.4.7.0'),
-        candidateSigningFingerprint=COMPAT.FINGERPRINT,observations=observations,
+        candidate=baseline['candidate'],candidateElfSha256=sha256_file(Path(baseline['curlRoot'])/'lib'/baseline['curlFile']),
+        candidateSource=baseline['source'],candidateSigningFingerprint=baseline['signingFingerprint'],
+        sslAndIcuProvider=baseline['sslProvider'],fixture=baseline['fixture'],observations=observations,
         runtimeCompatibilityPassed=all(row['runtimeCompatibilityPassed'] for row in observations)))
 
 
@@ -209,15 +266,24 @@ def native(args):
     workspace=args.workspace.resolve();require(not workspace.exists(),'Fresh candidate runtime workspace required');workspace.mkdir(parents=True)
     (workspace/'inputs').mkdir()
     for version in VERSIONS:
+        if args.source_cache is not None:
+            name='cbodotnet-sdk-'+version+'-linux-'+args.arch+'.tar.gz'
+            cached=args.source_cache/version/name
+            require(cached.is_file() and not cached.is_symlink(),'Ordinary source SDK cache file required')
+            destination=workspace/'inputs'/version;destination.mkdir()
+            # receive_release below independently rechecks every source pin,
+            # producer and full cached archive byte before it can be executed.
+            shutil.copyfile(cached,destination/name)
         plan=receive_release('sdk-'+version,workspace/'inputs'/version,'oci','debian-13',args.arch,1)
         save(workspace/'inputs'/version/'source.json',{key:plan[key] for key in ('sdkVersion','sourceManifestSha256','producer','sdk')})
     mounts=['-v',f'{ROOT}:/repo:ro','-v',f'{workspace}:/delivery']
     if args.variant in {'debian-13','ubuntu-24.04'}:
         bootstrap='set -eu\nexport DEBIAN_FRONTEND=noninteractive\napt-get update -qq\napt-get install -y --no-install-recommends python3 ca-certificates curl util-linux passwd rpm rpm2cpio gnupg binutils libnghttp2-14 libgssapi-krb5-2 zlib1g\n'
     else:
-        bootstrap='set -eu\nexport PATH=/usr/local/bin:/usr/bin:/usr/sbin:/bin:/sbin\ndnf -y install python3 rpm rpm-build cpio gnupg2 binutils shadow-utils util-linux libnghttp2 krb5-libs zlib\n'
+        bootstrap='set -eu\nexport PATH=/usr/local/bin:/usr/bin:/usr/sbin:/bin:/sbin\ndnf -y install python3 rpm rpm-build cpio gnupg2 binutils shadow-utils util-linux libnghttp2 krb5-libs zlib openssl\n'
+        if args.variant=='fedora-45':bootstrap+='dnf -y install openssl3-libs\n'
         if args.variant=='rocky-9.8':bootstrap+='dnf -y install python3.12\nmkdir -p /usr/local/bin\nln -s /usr/bin/python3.12 /usr/local/bin/python3\n'
-    common=['--workspace','/delivery','--arch',args.arch,'--variant',args.variant]
+    common=['--workspace','/delivery','--arch',args.arch,'--variant',args.variant,'--candidate',args.candidate]
     cid=image=None
     try:
         cid=command([args.engine,'create',*mounts,BASES[args.variant][args.arch],'sh','-ec',bootstrap+
@@ -236,6 +302,8 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('phase',choices=('native','prepare','runtime'))
     parser.add_argument('--workspace',type=Path,required=True);parser.add_argument('--arch',choices=('x64','aarch64'),required=True)
     parser.add_argument('--variant',choices=tuple(BASES),default='debian-13');parser.add_argument('--engine',choices=('docker','podman'),default='docker')
+    parser.add_argument('--source-cache',type=Path)
+    parser.add_argument('--candidate',choices=('rocky9','rocky8'),default='rocky9')
     args=parser.parse_args();{'native':native,'prepare':prepare,'runtime':runtime}[args.phase](args)
 
 if __name__=='__main__':main()

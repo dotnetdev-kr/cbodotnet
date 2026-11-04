@@ -224,8 +224,10 @@ def fetch(item, cache):
     return destination
 
 
-def verify_sources(policy, architecture, cache, work):
+def verify_sources(policy, architecture, cache, work, *, trusted_fingerprint=FINGERPRINT):
     """Verify full key identity and RPM signatures using disposable key databases."""
+    require(isinstance(trusted_fingerprint, str) and re.fullmatch(r'[A-F0-9]{40}', trusted_fingerprint),
+            'An explicit full trusted vendor fingerprint is required')
     require(architecture in policy['architectures'], 'Unknown native provider architecture')
     key = fetch(policy['key'], cache)
     home = work / 'gnupg'
@@ -239,7 +241,7 @@ def verify_sources(policy, architecture, cache, work):
             pending = True
         elif fields[0] == 'fpr' and pending:
             primaries.append(fields[9]); pending = False
-    require(primaries == [FINGERPRINT], 'Compatibility key primary fingerprint differs')
+    require(primaries == [trusted_fingerprint], 'Compatibility key primary fingerprint differs')
     database = work / 'rpmdb'
     database.mkdir(mode=0o700)
     subprocess.run(['rpmdb', '--dbpath', str(database), '--initdb'], check=True, stdout=subprocess.PIPE)
@@ -250,13 +252,15 @@ def verify_sources(policy, architecture, cache, work):
         path = fetch(item, cache)
         verification = subprocess.check_output(['rpmkeys', '--dbpath', str(database), '--checksig', '--verbose', str(path)],
                                                 stderr=subprocess.STDOUT, text=True)
-        verify_rpm_signature_status(verification)
+        verify_rpm_signature_status(verification, trusted_fingerprint=trusted_fingerprint)
         paths[item['name']] = path
     return paths
 
 
-def verify_rpm_signature_status(output):
+def verify_rpm_signature_status(output, *, trusted_fingerprint=FINGERPRINT):
     """Admit actual RPM4 short-key and RPM6 full-fingerprint status formats."""
+    require(isinstance(trusted_fingerprint, str) and re.fullmatch(r'[A-F0-9]{40}', trusted_fingerprint),
+            'An explicit full trusted vendor fingerprint is required')
     signatures = []
     lines = [line.strip() for line in output.splitlines()]
     for line in lines:
@@ -264,7 +268,8 @@ def verify_rpm_signature_status(output):
                              r'(?:ID ([a-f0-9]{8,16})|fingerprint: ([a-f0-9]{40})): OK', line, re.I)
         if match:
             identity = (match[1] or match[2]).upper()
-            signatures.append(identity == FINGERPRINT if match[2] else identity in {FINGERPRINT[-8:], FINGERPRINT[-16:]})
+            signatures.append(identity == trusted_fingerprint if match[2]
+                              else identity in {trusted_fingerprint[-8:], trusted_fingerprint[-16:]})
     require(signatures == [True] and 'Header SHA256 digest: OK' in lines and 'Payload SHA256 digest: OK' in lines
             and not re.search(r'\b(?:NOKEY|BAD|NOTTRUSTED)\b|NOT OK', output, re.I),
             'Compatibility RPM lacks the approved valid signature and payload digest:\n' + output)

@@ -17,16 +17,24 @@ class CandidateProbeTests(unittest.TestCase):
             self.assertEqual(64,len(item['sha256']))
             self.assertEqual(64,len(PROBE.CANDIDATES[arch]['elfSha256']))
         self.assertEqual('curl-7.76.1-40.el9_8.9.src.rpm',PROBE.SOURCE['name'])
+        for arch in ('x64','aarch64'):
+            item=PROBE.candidate(arch,'rocky8')
+            self.assertIn('/rocky/8/BaseOS/',item['url'])
+            self.assertEqual(64,len(item['sha256']))
+        self.assertEqual('7051C470A929F454CEBE37B715AF5DAC6D745A60',PROBE.FINGERPRINT8)
 
     def test_actual_curl_handler_http_https_callback_tls_and_mappings_are_required(self):
         text=PROBE.program('3.1.426','/qualified/sdk','/candidate/curl')
         for expected in ('AppContext.SetSwitch("System.Net.Http.UseSocketsHttpHandler",false)',
             'SslProtocols.Tls12','ServerCertificateCustomValidationCallback','callbacks==0','"CurlHandler"',
-            '/proc/self/maps','System.Net.Http.Native.so','/lib/libcurl.so.4.7.0','await Exchange(client,certificate,false)',
+            '/proc/self/maps','System.Net.Http.Native.so','libcurl.so.4.7.0','await Exchange(client,certificate,false)',
             'await Exchange(client,certificate,true)','forced-curl-http-passed-before-https','Encoding.ASCII.GetByteCount(body)'):
             self.assertIn(expected,text)
         self.assertNotIn('return true;',text)
         self.assertIn('remote.RawData.SequenceEqual(certificate.RawData)',text)
+        self.assertIn('standardHandler.ServerCertificateCustomValidationCallback!=null',text)
+        self.assertIn('await Exchange(standardClient,certificate,true)',text)
+        self.assertIn('httpsDefaultTrust="passed"',text)
 
     def test_workflow_never_signs_publishes_or_uses_a_private_key(self):
         text=(ROOT/'.github/workflows/core3-curl-runtime-check.yml').read_text()

@@ -8,6 +8,11 @@ on:
         type: choice
         options: [debian-13, ubuntu-24.04, fedora-45, rocky-9.8]
         default: debian-13
+      candidate:
+        description: Exact signed unqualified curl candidate
+        type: choice
+        options: [rocky8, rocky9]
+        default: rocky8
   push:
     branches: [main]
     paths: [.github/workflows/core3-curl-runtime-check.yml]
@@ -38,9 +43,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           ARCH: ${{ matrix.arch }}
           VARIANT: ${{ inputs.variant }}
+          CANDIDATE: ${{ inputs.candidate }}
           PYTHONDONTWRITEBYTECODE: '1'
         run: |
-          python3 scripts/core3-curl-runtime-probe.py native --arch "$ARCH" --variant "$VARIANT" \
+          python3 scripts/core3-curl-runtime-probe.py native --arch "$ARCH" --variant "$VARIANT" --candidate "$CANDIDATE" \
             --workspace "$RUNNER_TEMP/core3-curl-runtime"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()

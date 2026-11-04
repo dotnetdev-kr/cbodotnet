@@ -49,6 +49,23 @@ class LegacyCompatTests(unittest.TestCase):
             with self.subTest(output=output), self.assertRaisesRegex(ValueError, 'approved valid signature'):
                 COMPAT.verify_rpm_signature_status(output)
 
+    def test_other_vendor_key_requires_an_explicit_exact_trust_anchor_without_changing_default(self):
+        fingerprint = '7051C470A929F454CEBE37B715AF5DAC6D745A60'
+        current = ('example.rpm:\n    Header OpenPGP V4 RSA/SHA256 signature, key fingerprint: '
+                   + fingerprint.lower() + ': OK\n    Header SHA256 digest: OK\n    Payload SHA256 digest: OK\n')
+        old = ('example.rpm:\n    Header V4 RSA/SHA256 Signature, key ID 6d745a60: OK\n'
+               '    Header SHA256 digest: OK\n    Payload SHA256 digest: OK\n')
+        self.assertEqual('21CB256AE16FC54C6E652949702D426D350D275D', COMPAT.FINGERPRINT)
+        for output in (current, old):
+            with self.assertRaisesRegex(ValueError, 'approved valid signature'):
+                COMPAT.verify_rpm_signature_status(output)
+            COMPAT.verify_rpm_signature_status(output, trusted_fingerprint=fingerprint)
+            with self.assertRaisesRegex(ValueError, 'approved valid signature'):
+                COMPAT.verify_rpm_signature_status(output, trusted_fingerprint='0' * 40)
+        for invalid in (fingerprint[-8:], fingerprint.lower(), '', None):
+            with self.subTest(invalid=invalid), self.assertRaisesRegex(ValueError, 'full trusted vendor fingerprint'):
+                COMPAT.verify_rpm_signature_status(current, trusted_fingerprint=invalid)
+
     def test_arch_image_build_stamp_is_not_treated_as_fixed_os_release(self):
         COMPAT.validate_operating_system({'ID': 'arch', 'BUILD_ID': 'rolling', 'VERSION_ID': '20261101.0.620205'}, 'arch-rolling')
         COMPAT.validate_operating_system({'ID': 'arch', 'BUILD_ID': 'rolling'}, 'arch-rolling')
