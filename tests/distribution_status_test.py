@@ -251,8 +251,22 @@ class WorkflowConsistencyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'bounded consistency window'):
             STATUS.validate_workflow_run(api, '123', '1', sleep=sleep)
         self.assertEqual(list(STATUS.CONSISTENCY_DELAYS), [call.args[0] for call in sleep.call_args_list])
-        self.assertEqual(90, sum(call.args[0] for call in sleep.call_args_list))
-        self.assertTrue(all(call.args[0] <= 60 for call in sleep.call_args_list))
+        self.assertEqual(1500, sum(call.args[0] for call in sleep.call_args_list))
+        self.assertLessEqual(max(call.args[0] for call in sleep.call_args_list),20)
+
+    def test_retry_budget_rejects_long_sleeps_or_unbounded_total_before_any_api_call(self):
+        for delays in ((21,), (20,) * 76, (-1,), (True,)):
+            api = mock.Mock(); sleep = mock.Mock()
+            with self.subTest(delays=delays), self.assertRaisesRegex(ValueError, 'bounded to 25 minutes'):
+                STATUS.validate_workflow_run(api, '123', '1', retry_delays=delays, sleep=sleep)
+            api.api.assert_not_called(); sleep.assert_not_called()
+
+    def test_elapsed_api_time_also_consumes_the_finite_consistency_budget(self):
+        api = self.api([[]]); sleep = mock.Mock()
+        with mock.patch.object(STATUS.time, 'monotonic', side_effect=(0,1499)):
+            with self.assertRaisesRegex(ValueError,'bounded consistency window'):
+                STATUS.validate_workflow_run(api,'123','1',sleep=sleep)
+        sleep.assert_not_called()
 
     def test_failure_cancel_skip_duplicate_or_foreign_job_provenance_never_waits(self):
         invalid = []

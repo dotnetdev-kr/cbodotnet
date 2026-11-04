@@ -13,7 +13,8 @@ from downstream_publish import GitHubReleases, REPOSITORY, release_tag
 from downstream_release import PREPUBLICATION_CHECKS, encoded, require
 
 STATUS_PATH = 'releases/downstream-status.json'
-CONSISTENCY_DELAYS = (2, 4, 8, 16, 20, 20, 20)
+CONSISTENCY_MAX_SECONDS = 25 * 60
+CONSISTENCY_DELAYS = (2, 4, 8, 16) + (20,) * 73 + (10,)
 POST_CHECKS = {'anonymous-pull', 'native-config', 'non-root', 'command-aliases', 'cli-branding', 'offline-build-run'}
 POST_CHECKS_V2 = POST_CHECKS | {'sdk-list-paths', 'image-labels', 'image-ownership',
                               'image-no-build-secrets', 'image-no-source-build-toolchain',
@@ -180,9 +181,11 @@ def validate_workflow_run(api, run_id, attempt, channels=('deb', 'oci'), *,
                       'Anonymous digest pull and non-root smoke on aarch64'))
     require(set(channels) <= {'deb', 'oci'} or set(channels) == {'rpm'}, 'Unsupported publication job matrix')
     delays = tuple(retry_delays)
-    require(all(type(delay) in {int, float} and 0 <= delay <= 60 for delay in delays) and sum(delays) <= 90,
-            'Workflow consistency retry must remain bounded to 90 seconds')
+    require(all(type(delay) in {int, float} and 0 <= delay <= 20 for delay in delays)
+            and sum(delays) <= CONSISTENCY_MAX_SECONDS,
+            'Workflow consistency retry must remain bounded to 25 minutes with at most 20 seconds per wait')
     sleep = sleep or time.sleep
+    deadline = time.monotonic() + CONSISTENCY_MAX_SECONDS
     expected_head = None
     for poll in range(len(delays) + 1):
         run = api.api(f'repos/{REPOSITORY}/actions/runs/{run_id}')
@@ -219,6 +222,8 @@ def validate_workflow_run(api, run_id, attempt, channels=('deb', 'oci'), *,
             return {'runId': str(run_id), 'runAttempt': str(attempt), 'commit': expected_head,
                     'url': f'https://github.com/{REPOSITORY}/actions/runs/{run_id}/attempts/{attempt}'}
         require(poll < len(delays), 'Publication jobs did not reach actual terminal success within the bounded consistency window: ' + ', '.join(pending))
+        require(time.monotonic() + delays[poll] <= deadline,
+                'Publication jobs did not reach actual terminal success within the bounded consistency window: ' + ', '.join(pending))
         sleep(delays[poll])
 
 

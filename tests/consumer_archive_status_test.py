@@ -95,6 +95,32 @@ class ConsumerArchiveStatusTests(unittest.TestCase):
         self.assertEqual([mock.call(2),mock.call(4)],sleep.call_args_list)
         self.assertFalse(any(method=='PUT' for endpoint,method,body in api.calls))
 
+    def test_default_pending_budget_is_finite_and_each_wait_is_at_most_twenty_seconds(self):
+        api=Api();api.jobs[1].update(status='in_progress',conclusion=None);sleep=mock.Mock()
+        with self.assertRaisesRegex(ValueError,'consistency deadline'):
+            STATUS.validate_run(api,'42','1',sleep=sleep)
+        self.assertEqual(1500,sum(call.args[0] for call in sleep.call_args_list))
+        self.assertLessEqual(max(call.args[0] for call in sleep.call_args_list),20)
+        for delays in ((21,), (20,)*76, (-1,), (True,)):
+            api=Api();sleep=mock.Mock()
+            with self.subTest(delays=delays),self.assertRaisesRegex(ValueError,'bounded to 25 minutes'):
+                STATUS.validate_run(api,'42','1',retry_delays=delays,sleep=sleep)
+            self.assertEqual([],api.calls);sleep.assert_not_called()
+
+    def test_job_and_artifact_waits_share_one_elapsed_budget_during_update(self):
+        api=Api();pending=copy.deepcopy(api.jobs);pending[1].update(status='in_progress',conclusion=None)
+        api.job_responses=[pending];clock=[0];original=api.api;first=[True]
+        def call(endpoint,method='GET',body=None):
+            if '/jobs?' in endpoint and first[0]:clock[0]=1490;first[0]=False
+            return original(endpoint,method,body)
+        api.api=call
+        def sleep(seconds):clock[0]+=seconds
+        with mock.patch.object(STATUS.time,'monotonic',side_effect=lambda:clock[0]),mock.patch.object(STATUS.time,'sleep',side_effect=sleep):
+            with self.assertRaisesRegex(ValueError,'artifact.*consistency deadline'):
+                STATUS.update({},self.reports(),'42','1',api=api)
+        self.assertEqual(1498,clock[0])
+        self.assertFalse(any(method=='PUT' for endpoint,method,body in api.calls))
+
     def test_terminal_job_failures_and_duplicate_jobs_never_retry(self):
         for conclusion in ('failure','cancelled','timed_out','skipped','neutral'):
             with self.subTest(conclusion=conclusion):

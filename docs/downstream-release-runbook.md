@@ -308,6 +308,29 @@ a conflicting existing tag/package/revision requires investigation and a new
 packaging revision. Do not delete or silently replace the original evidence to
 make a retry appear successful.
 
+GitHub job metadata has remained pending for more than fifteen minutes after
+successful `Complete job` steps during service recovery. Finalizers therefore
+poll only missing/pending job metadata (and missing or digest-pending archive
+report artifacts) for at most 25 minutes, with individual waits no longer than
+20 seconds. Archive job and artifact polling share that elapsed budget. Every
+poll rechecks provenance; actual terminal `completed/success` conclusions and
+complete API-digest-bound report bytes remain mandatory. Failure, cancellation,
+duplicate identities, wrong source or malformed/different digests fail
+immediately. Logs or elapsed time never substitute for those checks. The
+30-minute finalizer timeout leaves time for signature and status work after
+the finite metadata wait.
+
+If only the finalizer failed because metadata did not propagate before that
+deadline, retain the exact original publication receipt/index and both native
+public-report artifacts with their API ZIP SHA-256 values. After the required
+publisher and both native jobs actually report terminal success, the existing
+`distribution-status.py --publication-dir ... --reports-dir ... --run-id ...
+--run-attempt ... --write` command can retry status activation against that
+original run and attempt. It still authenticates signatures, byte bindings and
+native results before committing availability and dispatching Pages. Record
+this as operator status recovery; preserve the original finalizer failure.
+No signing or source SDK rebuild is required.
+
 For post-publication failures, resume the frozen promotion using its original
 `promotion_run_id` and `promotion_run_attempt`; do not rebuild or re-sign the
 immutable release. A newly created GHCR package may require its one-time public

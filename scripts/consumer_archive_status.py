@@ -20,15 +20,25 @@ from consumer_archive_site import authenticate_receipt,archive_rows,load_archive
 from downstream_publish import GitHubReleases
 
 STATUS_PATH='releases/archive-status.json'
-CONSISTENCY_DELAYS=(2,4,8,16,20,20,20)
+CONSISTENCY_MAX_SECONDS=25*60
+CONSISTENCY_DELAYS=(2,4,8,16)+(20,)*73+(10,)
 PENDING_JOB_STATUSES={'queued','waiting','pending','requested','in_progress'}
 
 
-def validate_run(api,run_id,attempt,*,retry_delays=CONSISTENCY_DELAYS,sleep=None):
+def consistency_budget(retry_delays,deadline):
+    delays=tuple(retry_delays)
+    require(all(type(delay) in {int,float} and 0<=delay<=20 for delay in delays)
+        and sum(delays)<=CONSISTENCY_MAX_SECONDS,
+        'Consumer consistency retry must remain bounded to 25 minutes with at most 20 seconds per wait')
+    return delays,time.monotonic()+CONSISTENCY_MAX_SECONDS if deadline is None else deadline
+
+
+def validate_run(api,run_id,attempt,*,retry_delays=CONSISTENCY_DELAYS,sleep=None,deadline=None):
     require(re.fullmatch(r'[1-9][0-9]*',str(run_id)) and re.fullmatch(r'[1-9][0-9]*',str(attempt)),
         'Exact consumer publication run and attempt required')
+    delays,deadline=consistency_budget(retry_delays,deadline)
     sleep=sleep or time.sleep;source=None
-    for delay in (*retry_delays,None):
+    for delay in (*delays,None):
         run=api.api(f'repos/{REPOSITORY}/actions/runs/{run_id}')
         require(run and run.get('repository',{}).get('full_name')==run.get('head_repository',{}).get('full_name')==REPOSITORY
             and run.get('head_branch')=='main' and run.get('event')=='workflow_dispatch' and run.get('path')==WORKFLOW
@@ -57,6 +67,7 @@ def validate_run(api,run_id,attempt,*,retry_delays=CONSISTENCY_DELAYS,sleep=None
             pending.append(name)
         if not pending:return source
         require(delay is not None,'Consumer publication or native public verification did not pass before the API consistency deadline: '+', '.join(pending))
+        require(time.monotonic()+delay<=deadline,'Consumer publication or native public verification did not pass before the API consistency deadline: '+', '.join(pending))
         sleep(delay)
 
 
@@ -72,11 +83,12 @@ def download_artifact(artifact,gh='gh'):
     return data
 
 
-def verify_artifacts(api,source,reports,*,fetch_artifact=None,gh='gh',retry_delays=CONSISTENCY_DELAYS,sleep=None):
+def verify_artifacts(api,source,reports,*,fetch_artifact=None,gh='gh',retry_delays=CONSISTENCY_DELAYS,sleep=None,deadline=None):
     fetch_artifact=fetch_artifact or (lambda artifact:download_artifact(artifact,gh))
     require(len(reports)==2 and {item['architecture'] for item in reports}==set(ARCHITECTURES),'Both native public consumer reports required')
+    delays,deadline=consistency_budget(retry_delays,deadline)
     sleep=sleep or time.sleep
-    for delay in (*retry_delays,None):
+    for delay in (*delays,None):
         listing=api.api(f'repos/{REPOSITORY}/actions/runs/{source["runId"]}/artifacts?per_page=100')
         require(isinstance(listing.get('artifacts'),list) and listing.get('total_count',len(listing['artifacts']))<=100,
             'Consumer public artifact listing is malformed or paginated')
@@ -100,6 +112,7 @@ def verify_artifacts(api,source,reports,*,fetch_artifact=None,gh='gh',retry_dela
             selected_artifacts[arch]=artifact
         if not pending:break
         require(delay is not None,'Exact public consumer artifact is missing or its API digest is pending after the consistency deadline')
+        require(time.monotonic()+delay<=deadline,'Exact public consumer artifact is missing or its API digest is pending after the consistency deadline')
         sleep(delay)
     proof=[]
     for record in reports:
@@ -139,8 +152,9 @@ def activate(status,receipt,reports,*,source=None,policy=None,keyring=None,fetch
 
 
 def update(receipt,reports,run_id,attempt,*,gh='gh',api=None,keyring=None,policy=None,fetch=None,fetch_artifact=None):
-    api=api or GitHubReleases(gh);source=validate_run(api,run_id,attempt)
-    artifacts=verify_artifacts(api,source,reports,fetch_artifact=fetch_artifact,gh=gh)
+    api=api or GitHubReleases(gh);deadline=time.monotonic()+CONSISTENCY_MAX_SECONDS
+    source=validate_run(api,run_id,attempt,deadline=deadline)
+    artifacts=verify_artifacts(api,source,reports,fetch_artifact=fetch_artifact,gh=gh,deadline=deadline)
     content=api.api(f'repos/{REPOSITORY}/contents/{STATUS_PATH}?ref=main')
     require(content and content.get('type')=='file' and content.get('path')==STATUS_PATH and content.get('encoding')=='base64'
         and re.fullmatch(r'[a-f0-9]{40}',content.get('sha','')),'Invalid current consumer status content metadata')
