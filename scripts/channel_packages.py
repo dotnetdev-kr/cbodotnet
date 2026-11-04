@@ -12,7 +12,7 @@ import stat
 import subprocess
 import tarfile
 
-from distribution_commands import stage_commands
+from distribution_commands import stage_commands, default_launcher_text
 from distribution_contract import sha256_file
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -267,7 +267,9 @@ def rpm_build_macros():
 def render_rpm_host_spec(plan):
     version = HOST_VERSION.rsplit('-', 1)[0]
     release = rpm_release(plan, shared=True)
-    return rpm_build_macros() + f'''
+    # RPM records native compiler flags even for a shell-only noarch package.
+    # The selector compiles nothing, so omit that irrelevant native header.
+    return rpm_build_macros() + '%global optflags %{nil}\n' + f'''
 Name: cbodotnet-host
 Version: {version}
 Release: {release}
@@ -353,35 +355,91 @@ def deterministic_tar(source, destination, excluded_suffixes=()):
     return descriptor(destination)
 
 
+def rpm_build_directories(output):
+    top = output / 'rpmbuild'
+    for name in ('BUILD', 'BUILDROOT', 'RPMS', 'SOURCES', 'SPECS', 'SRPMS'):
+        (top / name).mkdir(parents=True)
+    return top
+
+
+def stage_common_rpm(plan, output, top):
+    """The standalone check and SDK packager use exactly one selector payload."""
+    tree = output / 'rpm-host-tree'
+    (tree / 'usr/bin').mkdir(parents=True)
+    command = tree / 'usr/bin/cbodotnet'
+    command.write_text(default_launcher_text(), encoding='utf-8', newline='\n')
+    command.chmod(0o755)
+    (tree / 'usr/share/licenses/cbodotnet-host').mkdir(parents=True)
+    license = tree / 'usr/share/licenses/cbodotnet-host/LICENSE'
+    shutil.copyfile(ROOT / 'LICENSE', license)
+    license.chmod(0o644)
+    deterministic_tar(tree, top / 'SOURCES/host.tar.gz')
+    spec = top / 'SPECS/host.spec'
+    spec.write_text(render_rpm_host_spec(plan), encoding='utf-8')
+    return tree, spec
+
+
+def run_rpmbuild(spec, top, target):
+    subprocess.run(['rpmbuild', '--define', '_topdir ' + str(top), '--target', target, '-bb', str(spec)],
+                   check=True, env=dict(os.environ, SOURCE_DATE_EPOCH=SOURCE_DATE_EPOCH, TZ='UTC', LC_ALL='C'),
+                   stdout=subprocess.PIPE)
+
+
+def extract_rpm(package, destination):
+    destination.mkdir()
+    with subprocess.Popen(['rpm2cpio', str(package)], stdout=subprocess.PIPE) as producer:
+        subprocess.run(['cpio', '--extract', '--make-directories', '--no-absolute-filenames', '--no-preserve-owner', '--quiet'],
+                       cwd=destination, stdin=producer.stdout, check=True)
+        producer.stdout.close()
+        require(producer.wait() == 0, 'RPM extraction failed')
+
+
+def build_common_rpm(variant, output):
+    """Build the exact noarch selector without receiving or extracting an SDK."""
+    plan = {'channel': 'rpm', 'variant': variant}
+    release = rpm_release(plan, shared=True)
+    require(re.fullmatch(r'[A-Za-z0-9_./-]+', str(Path(output).absolute())), 'RPM build directory must use a shell-safe path')
+    output = fresh_output(output)
+    top = rpm_build_directories(output)
+    tree, spec = stage_common_rpm(plan, output, top)
+    run_rpmbuild(spec, top, 'noarch')
+    packages = list((top / 'RPMS').rglob('*.rpm'))
+    require(len(packages) == 1, 'Common builder must produce exactly one noarch RPM')
+    target = output / packages[0].name
+    shutil.copyfile(packages[0], target)
+    version = HOST_VERSION.rsplit('-', 1)[0]
+    identity = subprocess.check_output(['rpm', '--query', '--package', '--queryformat',
+        '%{NAME}\n%{VERSION}\n%{RELEASE}\n%{ARCH}\n', str(target)]).decode().splitlines()
+    require(identity == ['cbodotnet-host', version, release, 'noarch'], 'Common RPM has another package identity')
+    extract_rpm(target, output / 'rpm-host-verified')
+    require(sdk_tools().snapshot(output / 'rpm-host-verified') == sdk_tools().snapshot(tree),
+            'RPM shared package changed selector bytes or modes')
+    row = dict(descriptor(target), kind='host', name='cbodotnet-host', version=version, release=release, architecture='noarch')
+    result = dict(schemaVersion=1, channel='rpm', variant=variant, packages=[row], payloadPreserved=True, publicationQualified=False)
+    write_json(output / 'common-package-build.json', result)
+    return result
+
+
 def build_rpm(plan, archive, output):
     """Build real RPM payloads only after a target-specific plan is admitted."""
     require(plan['channel'] == 'rpm', 'RPM builder requires an admitted RPM plan')
     require(re.fullmatch(r'[A-Za-z0-9_./-]+', str(Path(output).absolute())), 'RPM build directory must use a shell-safe path')
     spec = render_rpm_spec(plan)
     output, rootfs, commands, payload = stage_payload(plan, archive, output)
-    top = output / 'rpmbuild'
-    for name in ('BUILD', 'BUILDROOT', 'RPMS', 'SOURCES', 'SPECS', 'SRPMS'):
-        (top / name).mkdir(parents=True)
+    top = rpm_build_directories(output)
     sdk_tree = output / 'rpm-sdk-tree'
     copy_tree(rootfs, sdk_tree)
     (sdk_tree / 'usr/bin/cbodotnet').unlink()
     deterministic_tar(sdk_tree, top / 'SOURCES/payload.tar.gz')
     sdk_spec = top / 'SPECS/sdk.spec'
     sdk_spec.write_text(spec, encoding='utf-8')
-    host_tree = output / 'rpm-host-tree'
-    (host_tree / 'usr/bin').mkdir(parents=True)
-    shutil.copyfile(rootfs / 'usr/bin/cbodotnet', host_tree / 'usr/bin/cbodotnet')
-    (host_tree / 'usr/bin/cbodotnet').chmod(0o755)
-    (host_tree / 'usr/share/licenses/cbodotnet-host').mkdir(parents=True)
-    shutil.copyfile(ROOT / 'LICENSE', host_tree / 'usr/share/licenses/cbodotnet-host/LICENSE')
-    deterministic_tar(host_tree, top / 'SOURCES/host.tar.gz')
-    host_spec = top / 'SPECS/host.spec'
-    host_spec.write_text(render_rpm_host_spec(plan), encoding='utf-8')
+    host_tree, host_spec = stage_common_rpm(plan, output, top)
+    require((host_tree / 'usr/bin/cbodotnet').read_bytes() == (rootfs / 'usr/bin/cbodotnet').read_bytes(),
+            'Shared RPM selector differs from the generated command inventory')
     environment = dict(os.environ, SOURCE_DATE_EPOCH=SOURCE_DATE_EPOCH, TZ='UTC', LC_ALL='C')
     for path in (host_spec, sdk_spec):
         target = 'noarch' if path == host_spec else plan['architecture']['rpm']
-        subprocess.run(['rpmbuild', '--define', '_topdir ' + str(top), '--target', target,
-                        '-bb', str(path)], check=True, env=environment, stdout=subprocess.PIPE)
+        run_rpmbuild(path, top, target)
     packages = []
     for path in sorted((top / 'RPMS').rglob('*.rpm')):
         target = output / path.name
@@ -401,12 +459,7 @@ def build_rpm(plan, archive, output):
     verification = output / 'rpm-verified'
     for item in packages:
         destination = verification if item['kind'] == 'sdk' else output / 'rpm-host-verified'
-        destination.mkdir()
-        with subprocess.Popen(['rpm2cpio', str(output / item['path'])], stdout=subprocess.PIPE) as producer:
-            subprocess.run(['cpio', '--extract', '--make-directories', '--no-absolute-filenames', '--no-preserve-owner', '--quiet'],
-                           cwd=destination, stdin=producer.stdout, check=True)
-            producer.stdout.close()
-            require(producer.wait() == 0, 'RPM extraction failed')
+        extract_rpm(output / item['path'], destination)
     require(sdk_tools().snapshot(verification / plan['package']['root'].lstrip('/'))
             == sdk_tools().snapshot(rootfs / plan['package']['root'].lstrip('/')), 'RPM package changed SDK bytes or modes')
     require(sdk_tools().snapshot(output / 'rpm-host-verified') == sdk_tools().snapshot(host_tree),

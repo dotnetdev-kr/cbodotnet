@@ -167,6 +167,8 @@ class ChannelPackagesTests(unittest.TestCase):
             self.assertNotIn('/usr/bin/dotnet', spec)
         host = PACKAGES.render_rpm_host_spec(plan)
         self.assertIn('BuildArch: noarch', host)
+        self.assertIn('%global optflags %{nil}', host)
+        self.assertNotIn('%global optflags %{nil}', PACKAGES.render_rpm_spec(plan))
         self.assertNotIn('/opt/cbodotnet', host)
         self.assertIn('%license /usr/share/licenses/cbodotnet-host/LICENSE', host)
 
@@ -210,6 +212,31 @@ class ChannelPackagesTests(unittest.TestCase):
                        check=True, stdout=subprocess.PIPE)
         cross_package = next((cross / 'RPMS').rglob('cbodotnet-host-*.rpm'))
         self.assertEqual(shared[0], PACKAGES.sha256_file(cross_package))
+
+    @unittest.skipUnless(all(shutil.which(tool) for tool in ('rpmbuild', 'rpm', 'rpm2cpio', 'cpio')),
+                         'Native RPM build/extraction tools are required')
+    def test_common_only_builder_ignores_native_compiler_flags_without_changing_its_payload(self):
+        run = subprocess.run
+        hashes = []
+        for index, flags in enumerate(('-O2 -m64 -march=x86-64-v2', '-O2 -mbranch-protection=standard')):
+            output = self.directory / ('common-native-flags-' + str(index))
+            def execute(command, **kwargs):
+                if command[0] == 'rpmbuild':
+                    command = [*command[:1], '--define', 'optflags ' + flags, *command[1:]]
+                return run(command, **kwargs)
+            with mock.patch.object(PACKAGES.subprocess, 'run', side_effect=execute), \
+                 mock.patch.object(PACKAGES, 'stage_payload', side_effect=AssertionError('Common build must not receive an SDK')):
+                result = PACKAGES.build_common_rpm('fedora-45', output)
+            row = result['packages'][0]
+            hashes.append(row['sha256'])
+            actual_flags = subprocess.check_output(['rpm', '--query', '--package', '--queryformat', '%{OPTFLAGS}',
+                                                     str(output / row['path'])]).decode()
+            self.assertNotIn('-m64', actual_flags)
+            self.assertNotIn('-mbranch-protection', actual_flags)
+            self.assertTrue(result['payloadPreserved'])
+            self.assertEqual(PACKAGES.default_launcher_text().encode(),
+                             (output / 'rpm-host-verified/usr/bin/cbodotnet').read_bytes())
+        self.assertEqual(hashes[0], hashes[1])
 
     @unittest.skipUnless(all(shutil.which(tool) for tool in ('rpmbuild', 'rpm', 'rpm2cpio', 'cpio', 'rpmkeys',
                                                           'rpmsign', 'createrepo_c', 'gpg', 'gpgv')),
