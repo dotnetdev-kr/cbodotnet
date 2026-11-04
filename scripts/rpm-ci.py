@@ -234,8 +234,8 @@ def native_libraries(plan, output, runtime_env=None):
         baseline[component] = tuple('shared/Microsoft.NETCore.App/*/' + prefix + component + '.so' for prefix in ('lib', ''))
     for component, patterns in baseline.items():
         matches = sorted({path for pattern in patterns for path in root.glob(pattern)})
-        require(len(matches) == 1 and matches[0].is_file(), 'Missing or ambiguous baseline native runtime component: ' + component)
-        selected.append(matches[0])
+        require(matches and all(path.is_file() for path in matches), 'Missing baseline native runtime component: ' + component)
+        selected.extend(matches)
     rows = []
     for path in selected:
         value = run(['ldd', path], env=dict(os.environ, **(runtime_env or {})))
