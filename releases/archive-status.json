@@ -4,6 +4,698 @@
       "assets": [
         {
           "name": "archive-aarch64--installation-report.json",
+          "sha256": "bd0ab64154700c2c14a7bab1cbb3a30d3ef5fbc8087a8e16b1525acdfe32ea9d",
+          "size": 8644,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r1/archive-aarch64--installation-report.json"
+        },
+        {
+          "name": "archive-aarch64--installation-report.json.asc",
+          "sha256": "d43e277b64b45c621d5d977c7bcab984339faf7f928a21f74116f52028e003fe",
+          "size": 228,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r1/archive-aarch64--installation-report.json.asc"
+        },
+        {
+          "name": "archive-x64--installation-report.json",
+          "sha256": "c89ab84d7f6e1d23e7d4412ebe71caf240b8c66dbe7af8096fc4b153f161d646",
+          "size": 8604,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r1/archive-x64--installation-report.json"
+        },
+        {
+          "name": "archive-x64--installation-report.json.asc",
+          "sha256": "8d3492dfd5c77fd3cb0c92a9abf3b52c4ad0b9f3f8dbe5d616110403eec99dae",
+          "size": 228,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r1/archive-x64--installation-report.json.asc"
+        },
+        {
+          "name": "cbodotnet-sdk-9.0.123-linux-aarch64-branded-r1.tar.gz",
+          "sha256": "af9b0d89bda86005156d5c1b9df1e8c3ecd8572456f0ce7eb9959014243f3274",
+          "size": 187905962,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r1/cbodotnet-sdk-9.0.123-linux-aarch64-branded-r1.tar.gz"
+        },
+        {
+          "name": "cbodotnet-sdk-9.0.123-linux-x64-branded-r1.tar.gz",
+          "sha256": "94763ad0cc1a2471ef9241556a3737cba22d35ff0ada17799e1ef5aefc92c4e8",
+          "size": 192530756,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r1/cbodotnet-sdk-9.0.123-linux-x64-branded-r1.tar.gz"
+        },
+        {
+          "name": "distribution-manifest.json",
+          "sha256": "bceee69e33545c43b6422af610f3d9984b18443ec077a6d87c6ae25359ff9d3c",
+          "size": 12122,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r1/distribution-manifest.json"
+        },
+        {
+          "name": "distribution-manifest.json.asc",
+          "sha256": "f3b21f9b6e107ec88687f69df255b9732ad4eb0d0c4ea10eaf2564bb0f89714a",
+          "size": 228,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r1/distribution-manifest.json.asc"
+        },
+        {
+          "name": "distribution-signing-key.gpg",
+          "sha256": "562e4c9a893c1a0ffabf3d3bb4a6e4ae1090427250c2818df196a8174583a665",
+          "size": 273,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r1/distribution-signing-key.gpg"
+        },
+        {
+          "name": "source-SHA256SUMS",
+          "sha256": "63983849110f6cc7ed18c8e1a098dad36ac14140d6b5a4d8e9f7ea427a381384",
+          "size": 610,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r1/source-SHA256SUMS"
+        },
+        {
+          "name": "source-release-manifest.json",
+          "sha256": "d7d68c0e8aedeb0b261f9d22dfc1aec73bc359919835caa16d7df70dc9238be9",
+          "size": 2503,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r1/source-release-manifest.json"
+        }
+      ],
+      "consumerInstallationStatus": "passed",
+      "identity": {
+        "channel": "archive",
+        "packageRevision": 1,
+        "sdkVersion": "9.0.123",
+        "sourceManifestSha256": "d7d68c0e8aedeb0b261f9d22dfc1aec73bc359919835caa16d7df70dc9238be9",
+        "sourceReleaseTag": "sdk-9.0.123"
+      },
+      "kind": "consumer-archive-publication-receipt",
+      "manifestSha256": "bceee69e33545c43b6422af610f3d9984b18443ec077a6d87c6ae25359ff9d3c",
+      "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r1/distribution-manifest.json",
+      "postVerification": {
+        "artifacts": [
+          {
+            "architecture": "x64",
+            "exactRawReportBytes": "passed",
+            "id": "13352626457",
+            "name": "downstream-archive-postverify-x64-41886594039-1",
+            "size": 2008,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41886594039/artifacts/13352626457",
+            "zipSha256": "8fb2d551d4c4ea66985613c2c38ab2c8d82b56cb97c5979ef3c7099e1fbb2764"
+          },
+          {
+            "architecture": "aarch64",
+            "exactRawReportBytes": "passed",
+            "id": "13351587763",
+            "name": "downstream-archive-postverify-aarch64-41886594039-1",
+            "size": 2023,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41886594039/artifacts/13351587763",
+            "zipSha256": "03f292768f21ba3dfdc78cb632569c12f4f88361413c169d911bff43e01e884e"
+          }
+        ],
+        "reports": [
+          {
+            "architecture": "x64",
+            "rawJsonSha256": "931b3812deb2425f194bc962be190b905171e14ef021c97298c43046666f1a1f",
+            "rawJsonSize": 8967,
+            "report": {
+              "architecture": "x64",
+              "artifact": {
+                "name": "cbodotnet-sdk-9.0.123-linux-x64-branded-r1.tar.gz",
+                "sha256": "94763ad0cc1a2471ef9241556a3737cba22d35ff0ada17799e1ef5aefc92c4e8",
+                "size": 192530756
+              },
+              "checks": {
+                "cli-branding": "passed",
+                "command-aliases": "passed",
+                "host-root": "passed",
+                "http-crypto-globalization": "passed",
+                "non-root": "passed",
+                "offline-build-run": "passed",
+                "offline-network": "passed",
+                "original-notices": "passed",
+                "payload-preservation": "passed",
+                "relocation": "passed",
+                "sdk-list-paths": "passed",
+                "source-integrity": "passed",
+                "tls12-loopback": "passed",
+                "version-stdout-compatible": "passed"
+              },
+              "commands": [
+                {
+                  "mode": "0755",
+                  "path": "dotnet",
+                  "sha256": "eeeb67a73fc8b5ec4610891982d62d99c19937265433c1aa26cc3938859839bb",
+                  "size": 4303
+                },
+                {
+                  "mode": "0755",
+                  "path": "cbodotnet",
+                  "sha256": "eeeb67a73fc8b5ec4610891982d62d99c19937265433c1aa26cc3938859839bb",
+                  "size": 4303
+                },
+                {
+                  "mode": "0755",
+                  "path": "cbodotnet-9.0",
+                  "sha256": "eeeb67a73fc8b5ec4610891982d62d99c19937265433c1aa26cc3938859839bb",
+                  "size": 4303
+                }
+              ],
+              "compatibility": {
+                "required": false
+              },
+              "downloadUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r1/cbodotnet-sdk-9.0.123-linux-x64-branded-r1.tar.gz",
+              "identity": {
+                "packageRevision": 1,
+                "sdkVersion": "9.0.123",
+                "sourceManifestSha256": "d7d68c0e8aedeb0b261f9d22dfc1aec73bc359919835caa16d7df70dc9238be9",
+                "sourceReleaseTag": "sdk-9.0.123",
+                "targetRid": "linux-x64"
+              },
+              "manifestSha256": "bceee69e33545c43b6422af610f3d9984b18443ec077a6d87c6ae25359ff9d3c",
+              "networkForBuild": "none",
+              "orchestration": {
+                "commit": "d083020e388102b16843ebb2c5e5d1bc4490b465",
+                "repository": "dotnetdev-kr/cbodotnet",
+                "runAttempt": "1",
+                "runId": "41886594039",
+                "workflow": ".github/workflows/distribution-release.yml"
+              },
+              "qualifiedPayload": {
+                "entries": 5419,
+                "files": 4624,
+                "links": 0,
+                "sha256": "682ee99204a925567cd41b5f485cd65e456076095c8fc1f7e279c5c0e814222f"
+              },
+              "schemaVersion": 1,
+              "scope": "published-consumer-archive-installation",
+              "status": "passed",
+              "userSpaces": [
+                {
+                  "architecture": "x64",
+                  "baseImage": "ubuntu:22.04@sha256:076e7bf82319619f28dd0aa9c02ab34b055ad37100395b4f49a2ffba04fb5e11",
+                  "checks": {
+                    "cli-branding": "passed",
+                    "command-aliases": "passed",
+                    "host-root": "passed",
+                    "http-crypto-globalization": "passed",
+                    "non-root": "passed",
+                    "offline-build-run": "passed",
+                    "offline-network": "passed",
+                    "original-notices": "passed",
+                    "payload-preservation": "passed",
+                    "relocation": "passed",
+                    "sdk-list-paths": "passed",
+                    "source-integrity": "passed",
+                    "tls12-loopback": "passed",
+                    "version-stdout-compatible": "passed"
+                  },
+                  "commands": [
+                    {
+                      "command": "dotnet",
+                      "observedHostRid": "linux-x64"
+                    },
+                    {
+                      "command": "cbodotnet",
+                      "observedHostRid": "linux-x64"
+                    },
+                    {
+                      "command": "cbodotnet-9.0",
+                      "observedHostRid": "linux-x64"
+                    }
+                  ],
+                  "compatibility": {
+                    "status": "not-required"
+                  },
+                  "dependencies": {
+                    "ca-certificates": "20260816ubuntu0.22.04.1",
+                    "libc6": "2.35-0ubuntu3.15",
+                    "libgcc-s1": "12.3.0-1ubuntu1~22.04.3",
+                    "libgssapi-krb5-2": "1.19.2-2ubuntu0.10",
+                    "libicu70": "70.1-2",
+                    "libssl3": "3.0.2-0ubuntu1.30",
+                    "libstdc++6": "12.3.0-1ubuntu1~22.04.3",
+                    "zlib1g": "1:1.2.11.dfsg-2ubuntu9.2"
+                  },
+                  "functionalChecks": {
+                    "aspNetCoreLoopbackHttp": "passed",
+                    "consoleApphostExecution": "passed",
+                    "consoleDllExecution": "passed",
+                    "cryptographicRandomBytes": "passed",
+                    "frFrDecimalFormatting": "passed",
+                    "rsaSha256SignAndVerify": "passed",
+                    "tls12LoopbackHandshake": "passed"
+                  },
+                  "native": true,
+                  "nativeHttpLibraries": [],
+                  "networkForBuild": "none",
+                  "status": "passed",
+                  "variant": "ubuntu-22.04",
+                  "wrapperLicense": {
+                    "mode": "0644",
+                    "name": "LICENSE.wrapper.txt",
+                    "sha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+                    "size": 1079
+                  }
+                },
+                {
+                  "architecture": "x64",
+                  "baseImage": "ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852",
+                  "checks": {
+                    "cli-branding": "passed",
+                    "command-aliases": "passed",
+                    "host-root": "passed",
+                    "http-crypto-globalization": "passed",
+                    "non-root": "passed",
+                    "offline-build-run": "passed",
+                    "offline-network": "passed",
+                    "original-notices": "passed",
+                    "payload-preservation": "passed",
+                    "relocation": "passed",
+                    "sdk-list-paths": "passed",
+                    "source-integrity": "passed",
+                    "tls12-loopback": "passed",
+                    "version-stdout-compatible": "passed"
+                  },
+                  "commands": [
+                    {
+                      "command": "dotnet",
+                      "observedHostRid": "linux-x64"
+                    },
+                    {
+                      "command": "cbodotnet",
+                      "observedHostRid": "linux-x64"
+                    },
+                    {
+                      "command": "cbodotnet-9.0",
+                      "observedHostRid": "linux-x64"
+                    }
+                  ],
+                  "compatibility": {
+                    "status": "not-required"
+                  },
+                  "dependencies": {
+                    "ca-certificates": "20260816ubuntu0.24.04.1",
+                    "libc6": "2.39-0ubuntu8.9",
+                    "libgcc-s1": "14.2.0-4ubuntu2~24.04.1",
+                    "libgssapi-krb5-2": "1.20.1-6ubuntu2.10",
+                    "libicu74": "74.2-1ubuntu3.1",
+                    "libssl3t64": "3.0.13-0ubuntu3.16",
+                    "libstdc++6": "14.2.0-4ubuntu2~24.04.1",
+                    "zlib1g": "1:1.3.dfsg-3.1ubuntu2.3"
+                  },
+                  "functionalChecks": {
+                    "aspNetCoreLoopbackHttp": "passed",
+                    "consoleApphostExecution": "passed",
+                    "consoleDllExecution": "passed",
+                    "cryptographicRandomBytes": "passed",
+                    "frFrDecimalFormatting": "passed",
+                    "rsaSha256SignAndVerify": "passed",
+                    "tls12LoopbackHandshake": "passed"
+                  },
+                  "native": true,
+                  "nativeHttpLibraries": [],
+                  "networkForBuild": "none",
+                  "status": "passed",
+                  "variant": "ubuntu-24.04",
+                  "wrapperLicense": {
+                    "mode": "0644",
+                    "name": "LICENSE.wrapper.txt",
+                    "sha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+                    "size": 1079
+                  }
+                },
+                {
+                  "architecture": "x64",
+                  "baseImage": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+                  "checks": {
+                    "cli-branding": "passed",
+                    "command-aliases": "passed",
+                    "host-root": "passed",
+                    "http-crypto-globalization": "passed",
+                    "non-root": "passed",
+                    "offline-build-run": "passed",
+                    "offline-network": "passed",
+                    "original-notices": "passed",
+                    "payload-preservation": "passed",
+                    "relocation": "passed",
+                    "sdk-list-paths": "passed",
+                    "source-integrity": "passed",
+                    "tls12-loopback": "passed",
+                    "version-stdout-compatible": "passed"
+                  },
+                  "commands": [
+                    {
+                      "command": "dotnet",
+                      "observedHostRid": "linux-x64"
+                    },
+                    {
+                      "command": "cbodotnet",
+                      "observedHostRid": "linux-x64"
+                    },
+                    {
+                      "command": "cbodotnet-9.0",
+                      "observedHostRid": "linux-x64"
+                    }
+                  ],
+                  "compatibility": {
+                    "status": "not-required"
+                  },
+                  "dependencies": {
+                    "ca-certificates": "20250419+deb13u1",
+                    "libc6": "2.41-12+deb13u4",
+                    "libgcc-s1": "14.2.0-19",
+                    "libgssapi-krb5-2": "1.21.3-5+deb13u1",
+                    "libicu76": "76.1-4",
+                    "libssl3t64": "3.5.7-1~deb13u3",
+                    "libstdc++6": "14.2.0-19",
+                    "zlib1g": "1:1.3.dfsg+really1.3.1-1+b1"
+                  },
+                  "functionalChecks": {
+                    "aspNetCoreLoopbackHttp": "passed",
+                    "consoleApphostExecution": "passed",
+                    "consoleDllExecution": "passed",
+                    "cryptographicRandomBytes": "passed",
+                    "frFrDecimalFormatting": "passed",
+                    "rsaSha256SignAndVerify": "passed",
+                    "tls12LoopbackHandshake": "passed"
+                  },
+                  "native": true,
+                  "nativeHttpLibraries": [],
+                  "networkForBuild": "none",
+                  "status": "passed",
+                  "variant": "debian-13",
+                  "wrapperLicense": {
+                    "mode": "0644",
+                    "name": "LICENSE.wrapper.txt",
+                    "sha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+                    "size": 1079
+                  }
+                }
+              ],
+              "wrapperLicense": {
+                "mode": "0644",
+                "name": "LICENSE.wrapper.txt",
+                "sha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+                "size": 1079
+              }
+            }
+          },
+          {
+            "architecture": "aarch64",
+            "rawJsonSha256": "f1aa68d18a3f99c815049924d3451505f09652e77d0d4c0a9b7971aa38290cbe",
+            "rawJsonSize": 9011,
+            "report": {
+              "architecture": "aarch64",
+              "artifact": {
+                "name": "cbodotnet-sdk-9.0.123-linux-aarch64-branded-r1.tar.gz",
+                "sha256": "af9b0d89bda86005156d5c1b9df1e8c3ecd8572456f0ce7eb9959014243f3274",
+                "size": 187905962
+              },
+              "checks": {
+                "cli-branding": "passed",
+                "command-aliases": "passed",
+                "host-root": "passed",
+                "http-crypto-globalization": "passed",
+                "non-root": "passed",
+                "offline-build-run": "passed",
+                "offline-network": "passed",
+                "original-notices": "passed",
+                "payload-preservation": "passed",
+                "relocation": "passed",
+                "sdk-list-paths": "passed",
+                "source-integrity": "passed",
+                "tls12-loopback": "passed",
+                "version-stdout-compatible": "passed"
+              },
+              "commands": [
+                {
+                  "mode": "0755",
+                  "path": "dotnet",
+                  "sha256": "f5eaeeeb8829f6287dbb2bdefad68c340df6d04a81a2068c85fb259512ada107",
+                  "size": 4309
+                },
+                {
+                  "mode": "0755",
+                  "path": "cbodotnet",
+                  "sha256": "f5eaeeeb8829f6287dbb2bdefad68c340df6d04a81a2068c85fb259512ada107",
+                  "size": 4309
+                },
+                {
+                  "mode": "0755",
+                  "path": "cbodotnet-9.0",
+                  "sha256": "f5eaeeeb8829f6287dbb2bdefad68c340df6d04a81a2068c85fb259512ada107",
+                  "size": 4309
+                }
+              ],
+              "compatibility": {
+                "required": false
+              },
+              "downloadUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r1/cbodotnet-sdk-9.0.123-linux-aarch64-branded-r1.tar.gz",
+              "identity": {
+                "packageRevision": 1,
+                "sdkVersion": "9.0.123",
+                "sourceManifestSha256": "d7d68c0e8aedeb0b261f9d22dfc1aec73bc359919835caa16d7df70dc9238be9",
+                "sourceReleaseTag": "sdk-9.0.123",
+                "targetRid": "linux-arm64"
+              },
+              "manifestSha256": "bceee69e33545c43b6422af610f3d9984b18443ec077a6d87c6ae25359ff9d3c",
+              "networkForBuild": "none",
+              "orchestration": {
+                "commit": "d083020e388102b16843ebb2c5e5d1bc4490b465",
+                "repository": "dotnetdev-kr/cbodotnet",
+                "runAttempt": "1",
+                "runId": "41886594039",
+                "workflow": ".github/workflows/distribution-release.yml"
+              },
+              "qualifiedPayload": {
+                "entries": 5419,
+                "files": 4624,
+                "links": 0,
+                "sha256": "ff2a86ca81372322eef76ccda7ec3c996950f3ba5176549d1c8d71dc909a8b0a"
+              },
+              "schemaVersion": 1,
+              "scope": "published-consumer-archive-installation",
+              "status": "passed",
+              "userSpaces": [
+                {
+                  "architecture": "aarch64",
+                  "baseImage": "ubuntu:22.04@sha256:076e7bf82319619f28dd0aa9c02ab34b055ad37100395b4f49a2ffba04fb5e11",
+                  "checks": {
+                    "cli-branding": "passed",
+                    "command-aliases": "passed",
+                    "host-root": "passed",
+                    "http-crypto-globalization": "passed",
+                    "non-root": "passed",
+                    "offline-build-run": "passed",
+                    "offline-network": "passed",
+                    "original-notices": "passed",
+                    "payload-preservation": "passed",
+                    "relocation": "passed",
+                    "sdk-list-paths": "passed",
+                    "source-integrity": "passed",
+                    "tls12-loopback": "passed",
+                    "version-stdout-compatible": "passed"
+                  },
+                  "commands": [
+                    {
+                      "command": "dotnet",
+                      "observedHostRid": "linux-arm64"
+                    },
+                    {
+                      "command": "cbodotnet",
+                      "observedHostRid": "linux-arm64"
+                    },
+                    {
+                      "command": "cbodotnet-9.0",
+                      "observedHostRid": "linux-arm64"
+                    }
+                  ],
+                  "compatibility": {
+                    "status": "not-required"
+                  },
+                  "dependencies": {
+                    "ca-certificates": "20260816ubuntu0.22.04.1",
+                    "libc6": "2.35-0ubuntu3.15",
+                    "libgcc-s1": "12.3.0-1ubuntu1~22.04.3",
+                    "libgssapi-krb5-2": "1.19.2-2ubuntu0.10",
+                    "libicu70": "70.1-2",
+                    "libssl3": "3.0.2-0ubuntu1.30",
+                    "libstdc++6": "12.3.0-1ubuntu1~22.04.3",
+                    "zlib1g": "1:1.2.11.dfsg-2ubuntu9.2"
+                  },
+                  "functionalChecks": {
+                    "aspNetCoreLoopbackHttp": "passed",
+                    "consoleApphostExecution": "passed",
+                    "consoleDllExecution": "passed",
+                    "cryptographicRandomBytes": "passed",
+                    "frFrDecimalFormatting": "passed",
+                    "rsaSha256SignAndVerify": "passed",
+                    "tls12LoopbackHandshake": "passed"
+                  },
+                  "native": true,
+                  "nativeHttpLibraries": [],
+                  "networkForBuild": "none",
+                  "status": "passed",
+                  "variant": "ubuntu-22.04",
+                  "wrapperLicense": {
+                    "mode": "0644",
+                    "name": "LICENSE.wrapper.txt",
+                    "sha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+                    "size": 1079
+                  }
+                },
+                {
+                  "architecture": "aarch64",
+                  "baseImage": "ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852",
+                  "checks": {
+                    "cli-branding": "passed",
+                    "command-aliases": "passed",
+                    "host-root": "passed",
+                    "http-crypto-globalization": "passed",
+                    "non-root": "passed",
+                    "offline-build-run": "passed",
+                    "offline-network": "passed",
+                    "original-notices": "passed",
+                    "payload-preservation": "passed",
+                    "relocation": "passed",
+                    "sdk-list-paths": "passed",
+                    "source-integrity": "passed",
+                    "tls12-loopback": "passed",
+                    "version-stdout-compatible": "passed"
+                  },
+                  "commands": [
+                    {
+                      "command": "dotnet",
+                      "observedHostRid": "linux-arm64"
+                    },
+                    {
+                      "command": "cbodotnet",
+                      "observedHostRid": "linux-arm64"
+                    },
+                    {
+                      "command": "cbodotnet-9.0",
+                      "observedHostRid": "linux-arm64"
+                    }
+                  ],
+                  "compatibility": {
+                    "status": "not-required"
+                  },
+                  "dependencies": {
+                    "ca-certificates": "20260816ubuntu0.24.04.1",
+                    "libc6": "2.39-0ubuntu8.9",
+                    "libgcc-s1": "14.2.0-4ubuntu2~24.04.1",
+                    "libgssapi-krb5-2": "1.20.1-6ubuntu2.10",
+                    "libicu74": "74.2-1ubuntu3.1",
+                    "libssl3t64": "3.0.13-0ubuntu3.16",
+                    "libstdc++6": "14.2.0-4ubuntu2~24.04.1",
+                    "zlib1g": "1:1.3.dfsg-3.1ubuntu2.3"
+                  },
+                  "functionalChecks": {
+                    "aspNetCoreLoopbackHttp": "passed",
+                    "consoleApphostExecution": "passed",
+                    "consoleDllExecution": "passed",
+                    "cryptographicRandomBytes": "passed",
+                    "frFrDecimalFormatting": "passed",
+                    "rsaSha256SignAndVerify": "passed",
+                    "tls12LoopbackHandshake": "passed"
+                  },
+                  "native": true,
+                  "nativeHttpLibraries": [],
+                  "networkForBuild": "none",
+                  "status": "passed",
+                  "variant": "ubuntu-24.04",
+                  "wrapperLicense": {
+                    "mode": "0644",
+                    "name": "LICENSE.wrapper.txt",
+                    "sha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+                    "size": 1079
+                  }
+                },
+                {
+                  "architecture": "aarch64",
+                  "baseImage": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+                  "checks": {
+                    "cli-branding": "passed",
+                    "command-aliases": "passed",
+                    "host-root": "passed",
+                    "http-crypto-globalization": "passed",
+                    "non-root": "passed",
+                    "offline-build-run": "passed",
+                    "offline-network": "passed",
+                    "original-notices": "passed",
+                    "payload-preservation": "passed",
+                    "relocation": "passed",
+                    "sdk-list-paths": "passed",
+                    "source-integrity": "passed",
+                    "tls12-loopback": "passed",
+                    "version-stdout-compatible": "passed"
+                  },
+                  "commands": [
+                    {
+                      "command": "dotnet",
+                      "observedHostRid": "linux-arm64"
+                    },
+                    {
+                      "command": "cbodotnet",
+                      "observedHostRid": "linux-arm64"
+                    },
+                    {
+                      "command": "cbodotnet-9.0",
+                      "observedHostRid": "linux-arm64"
+                    }
+                  ],
+                  "compatibility": {
+                    "status": "not-required"
+                  },
+                  "dependencies": {
+                    "ca-certificates": "20250419+deb13u1",
+                    "libc6": "2.41-12+deb13u4",
+                    "libgcc-s1": "14.2.0-19",
+                    "libgssapi-krb5-2": "1.21.3-5+deb13u1",
+                    "libicu76": "76.1-4",
+                    "libssl3t64": "3.5.7-1~deb13u3",
+                    "libstdc++6": "14.2.0-19",
+                    "zlib1g": "1:1.3.dfsg+really1.3.1-1+b1"
+                  },
+                  "functionalChecks": {
+                    "aspNetCoreLoopbackHttp": "passed",
+                    "consoleApphostExecution": "passed",
+                    "consoleDllExecution": "passed",
+                    "cryptographicRandomBytes": "passed",
+                    "frFrDecimalFormatting": "passed",
+                    "rsaSha256SignAndVerify": "passed",
+                    "tls12LoopbackHandshake": "passed"
+                  },
+                  "native": true,
+                  "nativeHttpLibraries": [],
+                  "networkForBuild": "none",
+                  "status": "passed",
+                  "variant": "debian-13",
+                  "wrapperLicense": {
+                    "mode": "0644",
+                    "name": "LICENSE.wrapper.txt",
+                    "sha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+                    "size": 1079
+                  }
+                }
+              ],
+              "wrapperLicense": {
+                "mode": "0644",
+                "name": "LICENSE.wrapper.txt",
+                "sha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+                "size": 1079
+              }
+            }
+          }
+        ],
+        "workflow": {
+          "commit": "d083020e388102b16843ebb2c5e5d1bc4490b465",
+          "repository": "dotnetdev-kr/cbodotnet",
+          "runAttempt": "1",
+          "runId": "41886594039",
+          "workflow": ".github/workflows/distribution-release.yml"
+        }
+      },
+      "releaseUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-archive-sdk-9.0.123-r1",
+      "schemaVersion": 1,
+      "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r1/distribution-manifest.json.asc",
+      "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+      "status": "published-postverified",
+      "tag": "distribution-archive-sdk-9.0.123-r1"
+    },
+    {
+      "assets": [
+        {
+          "name": "archive-aarch64--installation-report.json",
           "sha256": "e4fa6ffaf24de67b06b1af3c82b52132e9a5d014ee7813bdbcb850e2aff811a1",
           "size": 7855,
           "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-10.0.403-r1/archive-aarch64--installation-report.json"
