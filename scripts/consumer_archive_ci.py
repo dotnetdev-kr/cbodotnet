@@ -15,8 +15,8 @@ from consumer_archive import (ARCHITECTURES, BRANDING, REPORT_CHECKS, REPOSITORY
     build_archive, descriptor, encoded, fresh_directory, identity, intake, load_contract, ordinary_file,
     payload_summary, require, sdk_tools,verify_wrapper_license)
 from release_catalog import get_bytes, validate_release
-from distribution_contract import validate_qualified_producers
-from sdk_runtime import smoke_script, validate_host_rid, validate_smoke_output
+from distribution_contract import native_dependencies, validate_qualified_producers
+from sdk_runtime import audit_core3_http_libraries, smoke_script, validate_host_rid, validate_smoke_output
 
 BASES={
  'ubuntu-22.04':'ubuntu:22.04@sha256:076e7bf82319619f28dd0aa9c02ab34b055ad37100395b4f49a2ffba04fb5e11',
@@ -77,10 +77,11 @@ def guard(variant,arch):
 
 def prepare(args):
     build=json.loads(ordinary_file(args.workspace/'build/package-build.json').read_bytes()); plan=build['plan']
-    expected=guard(args.variant,plan['architecture'])
+    guard(args.variant,plan['architecture'])
     env=dict(os.environ,DEBIAN_FRONTEND='noninteractive')
     run(['apt-get','update','-qq'],env=env)
-    run(['apt-get','install','-y','--no-install-recommends','python3','util-linux','passwd',*expected['dependencies']],env=env)
+    run(['apt-get','install','-y','--no-install-recommends','python3','util-linux','passwd',
+         *native_dependencies(load_contract(),plan['sdkVersion'],args.variant)],env=env)
     run(['useradd','--create-home','--user-group','--uid','10001',USER])
     INSTALL.mkdir(); sdk_tools().extract_sdk(args.workspace/'build'/build['artifact']['name'],INSTALL/'original')
     provider_state=dict(required=False)
@@ -158,6 +159,7 @@ def installed(args):
     observed=tools.snapshot(payload)
     require(payload_summary({key:value for key,value in observed.items() if key not in build['additionalDirectories']})==build['qualifiedPayload'],
         'Relocation changed qualified SDK payload')
+    native_http=audit_core3_http_libraries(plan['sdkVersion'],payload,runtime_env,runner=run)
     work='/home/'+USER+'/offline-project'
     output=user_run(['sh','-ec',smoke_script(plan['sdkVersion'],str(payload),USER,cli=str(relocated/'cbodotnet'),workdir=work,runtime_env=runtime_env)])
     functional=validate_smoke_output(output)
@@ -169,8 +171,9 @@ def installed(args):
         for name in plan['licensePaths']),'Original license/notice changed')
     report=dict(variant=args.variant,status='passed',architecture=plan['architecture'],native=True,networkForBuild='none',
         checks=dict.fromkeys(REPORT_CHECKS,'passed'),functionalChecks=functional,commands=command_results,
+        nativeHttpLibraries=native_http,
         compatibility=provider_after,dependencies={name:run(['dpkg-query','-W','-f=${Version}',name]).strip()
-            for name in load_contract()['operatingSystems'][args.variant]['dependencies']})
+            for name in native_dependencies(load_contract(),plan['sdkVersion'],args.variant)})
     if wrapper_license:report['wrapperLicense']=wrapper_license
     (args.workspace/(args.variant+'-report.json')).write_bytes(encoded(report))
 

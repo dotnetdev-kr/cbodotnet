@@ -92,6 +92,18 @@ the original caller environment. Consumer archive validation covers the admitted
 Ubuntu 22.04, Ubuntu 24.04 and Debian 13 user spaces. The compatibility libraries'
 GLIBC requirement is independent of the original SDK's recorded minimum.
 
+Core 3.0 and 3.1 additionally ship `System.Net.Http.Native.so` in their
+`shared/Microsoft.NETCore.App/` runtime, linked to the stock `libcurl.so.4` ABI.
+Install `libcurl4` on Ubuntu 22.04, or `libcurl4t64` on Ubuntu 24.04 and
+Debian 13, using that OS's authenticated package repositories. The separate
+compatibility companion does not contain or replace libcurl. Native archive
+preparation installs and records these per-source dependencies before offline
+runtime validation; no dependency metadata is inserted into existing archives.
+The stock package names and both architectures are listed by
+[Ubuntu Jammy](https://packages.ubuntu.com/jammy/libcurl4),
+[Ubuntu Noble](https://packages.ubuntu.com/noble/libcurl4t64), and
+[Debian Trixie](https://packages.debian.org/trixie/libcurl4t64).
+
 ## Authentication and immutable publication
 
 Confirm the full project fingerprint through a trusted project-owner channel:

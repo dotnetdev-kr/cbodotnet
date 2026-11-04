@@ -15,6 +15,7 @@ pkgbase = cbodotnet-sdk-3.1-bin
 	depends = ca-certificates
 	depends = icu
 	depends = openssl
+	depends = curl
 	depends = cbodotnet-compat-rocky9=2026.11.4-1
 	depends = cbodotnet-host>=1.0.0
 	noextract = cbodotnet-sdk-3.1.426-linux-x64.tar.gz
@@ -33,7 +34,7 @@ pkgbase = cbodotnet-sdk-3.1-bin
 	source = release-manifest.json::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.1.426/release-manifest.json
 	source = SHA256SUMS::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.1.426/SHA256SUMS
 	sha256sums = 302e508f63ae6217b21453293f303ed3ad5dbfc9760dc4cff28e8cc90f10f280
-	sha256sums = fe8bb66e72f60ac6379c014469ad7ededacb9dd60df9684f38932f234afd2d58
+	sha256sums = 8ee706216de273e5340559d2fddfdbf6286041085755641c094efab16a0697bf
 	sha256sums = ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47
 	sha256sums = 70049972a8781c309fae40e5f68d74847d0a9a590d36de4f25ecc2ad50578b09
 	sha256sums = 9be0812b27d96321f531a8b1a0694969ca898974b88c2582582c22f0e00f3c7e

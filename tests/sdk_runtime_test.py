@@ -1,7 +1,9 @@
 import importlib.util
 from pathlib import Path
 import sys
+import tempfile
 import unittest
+from unittest.mock import Mock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
@@ -9,6 +11,31 @@ import sdk_runtime as RUNTIME
 
 
 class RuntimePolicyTests(unittest.TestCase):
+    def test_core3_native_http_component_and_libcurl_must_actually_resolve(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            path = root / 'shared/Microsoft.NETCore.App/3.1.32/System.Net.Http.Native.so'
+            path.parent.mkdir(parents=True)
+            path.write_bytes(b'qualified-native-http')
+            scoped = {'LD_LIBRARY_PATH': '/usr/lib/cbodotnet/compat/rocky9/lib'}
+            inspect = Mock(return_value='libcurl.so.4 => /lib64/libcurl.so.4 (0x123)\nlibc.so.6 => /lib64/libc.so.6 (0x456)\n')
+            proof = RUNTIME.audit_core3_http_libraries('3.1.426', root, runtime_env=scoped, runner=inspect)
+            self.assertEqual('/lib64/libcurl.so.4', proof[0]['libcurlProviderPath'])
+            self.assertEqual(64, len(proof[0]['sha256']))
+            self.assertEqual(scoped['LD_LIBRARY_PATH'], inspect.call_args.kwargs['env']['LD_LIBRARY_PATH'])
+            for output in ('libcurl.so.4 => not found\n', 'libc.so.6 => /lib64/libc.so.6 (0x123)\n'):
+                with self.subTest(output=output), self.assertRaisesRegex(ValueError, 'resolved stock libcurl'):
+                    RUNTIME.audit_core3_http_libraries('3.1.426', root, runner=Mock(return_value=output))
+            path.unlink()
+            with self.assertRaisesRegex(ValueError, 'Missing Core3'):
+                RUNTIME.audit_core3_http_libraries('3.0.103', root, runner=inspect)
+
+    def test_sdk5_and_modern_sdk_audits_do_not_gain_the_core3_optional_http_dependency(self):
+        inspect = Mock()
+        for version in ('5.0.214', '6.0.136', '7.0.120', '8.0.133', '9.0.123', '10.0.403'):
+            self.assertEqual([], RUNTIME.audit_core3_http_libraries(version, '/not-an-installed-sdk', runner=inspect))
+        inspect.assert_not_called()
+
     def test_all_reviewed_families_select_their_own_framework_root_and_abi(self):
         versions = ['10.0.403', '9.0.123', '8.0.133', '7.0.120', '6.0.136', '5.0.214', '3.1.426', '3.0.103']
         for version in versions:

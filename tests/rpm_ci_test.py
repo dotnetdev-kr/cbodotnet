@@ -47,14 +47,20 @@ class RpmCiTests(unittest.TestCase):
             (sdk / 'dotnet').write_bytes(b'host')
             (sdk / 'host/fxr/3.1.32/libhostfxr.so').write_bytes(b'fxr')
             for name in ('libcoreclr.so', 'libhostpolicy.so', 'System.Native.so', 'System.Globalization.Native.so',
-                         'System.Security.Cryptography.Native.OpenSsl.so'):
+                         'System.Security.Cryptography.Native.OpenSsl.so', 'System.Net.Http.Native.so'):
                 (shared / name).write_bytes(b'native-component')
-            with mock.patch.object(CI, 'run', return_value='all dependencies resolved') as inspect:
-                CI.native_libraries(dict(package=dict(root=str(sdk))), root)
-                self.assertEqual(7, inspect.call_count)
+            with mock.patch.object(CI, 'run', return_value='libcurl.so.4 => /lib64/libcurl.so.4 (0x123)\n') as inspect:
+                plan = dict(sdkVersion='3.1.426', package=dict(root=str(sdk)))
+                CI.native_libraries(plan, root)
+                self.assertEqual(8, inspect.call_count)
+                self.assertEqual('shared/Microsoft.NETCore.App/3.1.32/System.Net.Http.Native.so',
+                                 CI.load(root / 'native-libraries.json')[-1]['path'])
+                (shared / 'System.Net.Http.Native.so').unlink()
+                with self.assertRaisesRegex(ValueError, 'Missing Core3'):
+                    CI.native_libraries(plan, root)
                 (shared / 'System.Globalization.Native.so').unlink()
                 with self.assertRaisesRegex(ValueError, 'System.Globalization.Native'):
-                    CI.native_libraries(dict(package=dict(root=str(sdk))), root)
+                    CI.native_libraries(plan, root)
 
     def test_signed_reinstall_retains_independent_verified_bytes_before_dnf_cache_cleanup(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -182,6 +188,11 @@ class RpmCiTests(unittest.TestCase):
         with mock.patch.object(CI, 'run', side_effect=['glibc-2.42-1.x86_64', 'no package provides zlib-ng-compat']):
             with self.assertRaisesRegex(ValueError, 'Unavailable native'):
                 CI.observed_dependencies(plan)
+        capability = 'libcurl.so.4()(64bit)'
+        with mock.patch.object(CI, 'run', return_value='libcurl-minimal-7.76.1-40.el9.aarch64\n') as query:
+            self.assertEqual({capability: 'libcurl-minimal-7.76.1-40.el9.aarch64'}, CI.observed_dependencies({'dependencies': [capability]}))
+            self.assertEqual(['rpm', '-q', '--whatprovides', '--queryformat', '%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}\n', capability],
+                             query.call_args.args[0])
 
     def test_prefixed_dnf_cache_assets_are_selected_by_complete_rpm_header_identity(self):
         plan = {'sdkVersion': '10.0.403', 'packageRevision': 1, 'architecture': {'rpm': 'aarch64'},

@@ -349,6 +349,7 @@ def installed(args):
     dependencies = {dependency: run(['pacman', '-Q', dependency]).strip().split(' ', 1)[1] for dependency in plan['dependencies']}
     dynamic = run(['ldd', sdk / 'dotnet'], env=dict(os.environ, **runtime_environment))
     require('not found' not in dynamic, 'Missing native runtime dependency: ' + dynamic)
+    native_http = sdk_runtime.audit_core3_http_libraries(plan['sdkVersion'], sdk, runtime_environment, runner=run)
     integrity = run(['pacman', '-Qkk', *integrity_packages], env=dict(os.environ, LC_ALL='C'))
     verify_package_integrity(integrity, len(integrity_packages))
     run(['pacman', '-R', '--noconfirm', name])
@@ -380,7 +381,7 @@ def installed(args):
         compatibilityProvider=provider_proofs,
         compatibilityState=json.loads(compatibility_state.read_bytes()) if compatibility_state else None,
         compatibilityLifecycle=provider_proofs,
-        commandNames=names, packageBuilds=build_records, nativeDependencyOutput=dynamic,
+        commandNames=names, packageBuilds=build_records, nativeDependencyOutput=dynamic, nativeHttpLibraries=native_http,
         validationTools={tool: run([tool, '--version']).strip().splitlines()[0] for tool in ('makepkg', 'pacman')},
         networkForBuild='none',
         packageManagerPolicy='full-package-extraction',

@@ -107,6 +107,49 @@ class DistributionContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'not admitted'):
             self.plan(arch='aarch64', channel='aur', variant='arch-rolling')
 
+    def test_only_core3_sdk_declares_its_reviewed_stock_libcurl_runtime_providers(self):
+        providers = {'ubuntu-22.04': 'libcurl4', 'ubuntu-24.04': 'libcurl4t64',
+                     'debian-13': 'libcurl4t64', 'fedora-45': 'libcurl.so.4()(64bit)',
+                     'rocky-9.8': 'libcurl.so.4()(64bit)', 'arch-rolling': 'curl'}
+        for version in ('3.0.103', '3.1.426', '5.0.214', '10.0.403'):
+            release, manifest, raw, checksums = fixture(version)
+            contract = copy.deepcopy(CONTRACT.load_contract())
+            contract['releases'][version]['manifestSha256'] = hashlib.sha256(raw).hexdigest()
+            catalog = {'schemaVersion': 1, 'repository': 'dotnetdev-kr/cbodotnet', 'builds': [
+                {'target': contract['releases'][version]['target'], 'sdkVersion': version,
+                 'architectures': {arch: {key: row['provenance'][key]
+                     for key in ('projectCommit', 'runId', 'runAttempt', 'artifactId')}
+                     for arch, row in manifest['architectures'].items()}}]}
+            sdk = self.directory / manifest['architectures']['x64']['sdk']['name']
+            sdk.write_bytes(b'sdkx64')
+            legacy = version.startswith(('3.0.', '3.1.'))
+            expected = {variant: [name] for variant, name in providers.items()} if legacy else {}
+            self.assertEqual(expected, contract['releases'][version].get('additionalNativeDependencies', {}))
+            for variant, provider in providers.items():
+                dependencies = CONTRACT.native_dependencies(contract, version, variant)
+                self.assertEqual(legacy, provider in dependencies)
+                self.assertEqual(len(dependencies), len(set(dependencies)))
+            for channel, variant in (('aur', 'arch-rolling'), ('deb', 'debian-13'), ('deb', 'ubuntu-24.04'),
+                                     ('oci', 'debian-13'), ('rpm', 'fedora-45'), ('rpm', 'rocky-9.8')):
+                with self.subTest(version=version, channel=channel):
+                    plan = CONTRACT.verified_plan(release, raw, checksums, sdk, channel, variant,
+                                                  'x64', contract=contract, catalog=catalog)
+                    self.assertEqual(legacy, providers[variant] in plan['dependencies'])
+                    if channel == 'aur':
+                        self.assertEqual(legacy, providers[variant] in plan['aurDependencies'])
+                    if channel == 'rpm':
+                        self.assertEqual(legacy, providers[variant] in plan['rpmDependencies'])
+
+    def test_per_source_native_dependency_mapping_rejects_unknown_targets_and_unsafe_fields(self):
+        for value in ({'unknown-os': ['libcurl4']}, {'debian-13': []},
+                      {'debian-13': ['libcurl4t64', 'libcurl4t64']},
+                      {'debian-13': ['libcurl4t64; touch /tmp/injected']},
+                      {'debian-13': ['libcurl4t64\nReplaces: dotnet-host']}):
+            candidate = copy.deepcopy(self.contract)
+            candidate['releases']['3.0.103']['additionalNativeDependencies'] = value
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, 'native dependency'):
+                CONTRACT.validate_contract(candidate)
+
     def test_unknown_and_non_public_architecture_aliases_are_rejected(self):
         for arch in ('arm64', 'amd64', 'x86_64', 'riscv64', 'any', '../x64', ''):
             with self.subTest(arch=arch), self.assertRaises(ValueError):

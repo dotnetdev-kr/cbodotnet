@@ -24,7 +24,7 @@ import zipfile
 from distribution_contract import load_contract, validate_qualified_producers
 from downstream_release import encoded, local_intake, package_record, receive_release, PREPUBLICATION_CHECKS
 from downstream_release import stage_records
-from sdk_runtime import runtime_policy, series as sdk_series, smoke_script, validate_host_rid, validate_smoke_output
+from sdk_runtime import audit_core3_http_libraries, runtime_policy, series as sdk_series, smoke_script, validate_host_rid, validate_smoke_output
 from downstream_release import oci_wrapper_license
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -451,6 +451,7 @@ def installed(args):
     output = as_user(['sh', '-ec', smoke_script(plan['sdkVersion'], str(sdk), 'cbot-smoke',
                      cli='cbodotnet', workdir=str(work / 'functional'), runtime_env=runtime_env)])
     functional_evidence = validate_smoke_output(output)
+    native_http_libraries = audit_core3_http_libraries(plan['sdkVersion'], sdk, runtime_env=runtime_env, runner=run)
     abi_directory = work / 'abi-verification'
     as_user(['env', *[name + '=' + value for name, value in runtime_env.items()], 'bash', ROOT / 'scripts/verify-sdk.sh', '--sdk-dir', sdk, '--output-dir', abi_directory,
              '--expected-version', plan['sdkVersion'], '--expected-rid', reported_rid, '--framework', policy['framework'],
@@ -487,6 +488,8 @@ def installed(args):
               'networkForBuild': 'none', 'officialComparison': state['officialBaseline'], 'officialCoexistence': official_proofs,
               'functionalChecks': functional_evidence, 'runtimePolicy': policy, 'abi': verification['abi'],
               'compatibilityProvider': compatibility_proofs}
+    if native_http_libraries:
+        result['nativeHttpLibraries'] = native_http_libraries
     (delivery / 'installation-result.json').write_bytes(encoded(result))
 
 

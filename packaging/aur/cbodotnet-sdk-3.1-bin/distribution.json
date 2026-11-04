@@ -17,6 +17,7 @@
     "ca-certificates",
     "icu",
     "openssl",
+    "curl",
     "cbodotnet-compat-rocky9"
   ],
   "branding": {
@@ -51,6 +52,7 @@
     "ca-certificates",
     "icu",
     "openssl",
+    "curl",
     "cbodotnet-compat-rocky9"
   ],
   "evidence": {

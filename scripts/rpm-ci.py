@@ -14,7 +14,7 @@ import tempfile
 import urllib.request
 
 from distribution_contract import load_contract
-from sdk_runtime import runtime_policy, smoke_script, validate_host_rid, validate_smoke_output
+from sdk_runtime import audit_core3_http_libraries, runtime_policy, smoke_script, validate_host_rid, validate_smoke_output
 from downstream_release import (encoded, local_intake, package_record, receive_release,
                                 PREPUBLICATION_CHECKS, verify_report_signature, load_status)
 
@@ -241,6 +241,7 @@ def native_libraries(plan, output, runtime_env=None):
         value = run(['ldd', path], env=dict(os.environ, **(runtime_env or {})))
         require('not found' not in value, 'Unresolved baseline native library: ' + str(path))
         rows.append({'path': path.relative_to(root).as_posix(), 'ldd': value})
+    rows.extend(audit_core3_http_libraries(plan.get('sdkVersion', '10.0.403'), root, runtime_env=runtime_env, runner=run))
     save(output / 'native-libraries.json', rows)
 
 
@@ -398,6 +399,9 @@ def lifecycle(args):
         checks=checks, functionalChecks=functional, runtimePolicy=policy, abi=verification['abi'], networkForBuild='none',
         officialComparison=state['officialBaseline'], officialCoexistence=official_proofs)
     result['packageIdentities'] = load(delivery / 'installed-package-identities.json')
+    native_http_libraries = [row for row in load(reports / 'native-libraries.json') if 'libcurlProviderPath' in row]
+    if native_http_libraries:
+        result['nativeHttpLibraries'] = native_http_libraries
     if runtime_env:
         result['compatibilityProvider'] = compatibility_proofs
     save(delivery / 'installation-result.json', result)

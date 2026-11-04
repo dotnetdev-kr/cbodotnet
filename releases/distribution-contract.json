@@ -219,6 +219,14 @@
     "3.1.426": {
       "target": "core31",
       "manifestSha256": "70049972a8781c309fae40e5f68d74847d0a9a590d36de4f25ecc2ad50578b09",
+      "additionalNativeDependencies": {
+        "ubuntu-22.04": ["libcurl4"],
+        "ubuntu-24.04": ["libcurl4t64"],
+        "debian-13": ["libcurl4t64"],
+        "fedora-45": ["libcurl.so.4()(64bit)"],
+        "rocky-9.8": ["libcurl.so.4()(64bit)"],
+        "arch-rolling": ["curl"]
+      },
       "archiveUserSpaces": [
         "ubuntu-22.04",
         "ubuntu-24.04",
@@ -251,6 +259,14 @@
     "3.0.103": {
       "target": "core30",
       "manifestSha256": "3bac912a788bf38320cb45bfe6a62b3da0dbcaf50bb564a370ae7c5a09fb5e98",
+      "additionalNativeDependencies": {
+        "ubuntu-22.04": ["libcurl4"],
+        "ubuntu-24.04": ["libcurl4t64"],
+        "debian-13": ["libcurl4t64"],
+        "fedora-45": ["libcurl.so.4()(64bit)"],
+        "rocky-9.8": ["libcurl.so.4()(64bit)"],
+        "arch-rolling": ["curl"]
+      },
       "archiveUserSpaces": [
         "ubuntu-22.04",
         "ubuntu-24.04",

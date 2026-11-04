@@ -1,8 +1,11 @@
 """Version-aware runtime probes for the explicitly selected glibc SDK families."""
 import json
+import hashlib
+import os
 from pathlib import Path
 import re
 import shlex
+import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 SERIES = {'3.0', '3.1', '5.0', '6.0', '7.0', '8.0', '9.0', '10.0'}
@@ -26,6 +29,30 @@ def target_framework(version):
 
 
 framework = target_framework
+
+
+def audit_core3_http_libraries(version, sdk_root, runtime_env=None, runner=None):
+    """Core3's optional native HTTP handler must resolve its stock libcurl ABI."""
+    if series(version) not in {'3.0', '3.1'}:
+        return []
+    root = Path(sdk_root)
+    matches = sorted({path for prefix in ('', 'lib')
+        for path in root.glob('shared/Microsoft.NETCore.App/*/' + prefix + 'System.Net.Http.Native.so')})
+    require(matches and all(path.is_file() for path in matches), 'Missing Core3 System.Net.Http.Native.so component')
+    rows = []
+    for path in matches:
+        environment = dict(os.environ, **(runtime_env or {}))
+        if runner is None:
+            result = subprocess.run(['ldd', str(path)], env=environment, check=True, text=True, capture_output=True)
+            value = result.stdout + result.stderr
+        else:
+            value = runner(['ldd', path], env=environment)
+        provider = re.search(r'^\s*libcurl\.so\.4\s+=>\s+(/\S+)\s+\(', value, re.MULTILINE)
+        require('not found' not in value and provider is not None,
+                'Core3 native HTTP requires resolved stock libcurl.so.4: ' + str(path))
+        rows.append(dict(path=path.relative_to(root).as_posix(), sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+            ldd=value, libcurlProviderPath=provider[1]))
+    return rows
 
 
 def runtime_policy(version, architecture):

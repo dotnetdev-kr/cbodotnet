@@ -72,6 +72,15 @@ class ConsumerArchiveTests(unittest.TestCase):
         with mock.patch.object(CR,'intake',side_effect=lambda directory,arch,revision:CA.intake(directory,arch,revision,contract=self.contract,catalog=self.catalog)):
             CR.verify_build(self.root/'build/package-build.json',self.inputs['x64'])
 
+    def test_reviewed_native_stock_dependency_change_preserves_existing_archive_bytes(self):
+        before=self.build(name='before')
+        self.contract['releases']['10.0.403']['additionalNativeDependencies']={'debian-13':['libcurl4t64']}
+        after=self.build(name='after')
+        self.assertEqual(before['plan'],after['plan'])
+        self.assertEqual(before['artifact'],after['artifact'])
+        self.assertEqual((self.root/'before'/before['artifact']['name']).read_bytes(),
+                         (self.root/'after'/after['artifact']['name']).read_bytes())
+
     def test_all_entrypoints_relocate_with_spaces_quotes_and_symlinked_selection(self):
         build=self.build(); original=self.root/'build'/build['directory']; relocated=self.root/'moved "SDK" directory'
         original.rename(relocated)

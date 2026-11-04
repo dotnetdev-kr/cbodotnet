@@ -66,6 +66,15 @@ def validate_contract(contract):
                 'Invalid pinned release identity')
         require(release.get('additionalDirectories', INSTALLATION['additionalDirectories'])
                 in ([], INSTALLATION['additionalDirectories']), 'Unreviewed SDK payload directory addition')
+        extra_dependencies = release.get('additionalNativeDependencies', {})
+        require(isinstance(extra_dependencies, dict)
+                and set(extra_dependencies) <= set(contract.get('operatingSystems', {})),
+                'Unknown per-source native dependency target')
+        for variant, dependencies in extra_dependencies.items():
+            require(isinstance(dependencies, list) and dependencies
+                    and all(isinstance(item, str) and re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.+()-]*', item)
+                            for item in dependencies) and len(dependencies) == len(set(dependencies)),
+                    'Invalid or duplicated per-source native dependency: ' + variant)
         targets = release.get('channelTargets')
         if targets is not None:
             require(isinstance(targets, dict) and set(targets) <= {'deb', 'rpm', 'oci', 'aur'},
@@ -112,6 +121,15 @@ def candidate_target(contract, version, channel, variant, arch):
 def load_contract(path=None):
     path = Path(path) if path is not None else ROOT / 'releases/distribution-contract.json'
     return validate_contract(json.loads(path.read_text(encoding='utf-8-sig')))
+
+
+def native_dependencies(contract, version, variant):
+    """Reviewed stock OS packages/capabilities, before the separate provider."""
+    require(version in contract['releases'] and variant in contract['operatingSystems'],
+            'Unknown source SDK or native dependency target')
+    base = contract['operatingSystems'][variant]['dependencies']
+    additional = contract['releases'][version].get('additionalNativeDependencies', {}).get(variant, [])
+    return list(dict.fromkeys([*base, *additional]))
 
 
 def launcher_text(root, arch, contract=None, plan=None):
@@ -213,7 +231,7 @@ def verified_plan(release, manifest_bytes, checksum_bytes, sdk_path, channel, va
         'sourceReleaseTag': record['tag'], 'sourceManifestSha256': manifest_digest,
         'sourceManifestUrl': record['manifestUrl'], 'source': entry['source'], 'sdk': sdk,
         'evidence': entry['evidence'], 'producer': entry['provenance'],
-        'dependencies': list(contract['operatingSystems'][variant]['dependencies']),
+        'dependencies': native_dependencies(contract, version, variant),
         'additionalDirectories': list(admitted.get('additionalDirectories', INSTALLATION['additionalDirectories'])),
         'licensePaths': list(admitted['licensePaths']), 'securitySupport': admitted['securitySupport'],
         'publicationAllowed': False,

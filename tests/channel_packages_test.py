@@ -205,8 +205,9 @@ class ChannelPackagesTests(unittest.TestCase):
         plan, archive = self.fixture(channel='rpm')
         with self.assertRaisesRegex(ValueError, 'RPM-specific'):
             PACKAGES.render_rpm_spec(plan)
-        plan['rpmDependencies'] = ['glibc', 'libicu', 'openssl-libs', 'libstdc++', 'zlib']
+        plan['rpmDependencies'] = ['glibc', 'libicu', 'openssl-libs', 'libstdc++', 'zlib', 'libcurl.so.4()(64bit)']
         spec = PACKAGES.render_rpm_spec(plan)
+        self.assertIn('zlib, libcurl.so.4()(64bit)\n', spec)
         self.assertIn('%global __os_install_post %{nil}', spec)
         self.assertIn('BuildArch: x86_64', spec)
         self.assertNotIn('/usr/bin/dotnet', spec)
