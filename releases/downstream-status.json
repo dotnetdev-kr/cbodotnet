@@ -43,6 +43,74 @@
       "publications": [
         {
           "architecture": "aarch64",
+          "artifactSha256": "4e820cd4dfc07aedf51ea73807b33778d3723ec155da062a20c6e9fa5fb41eeb",
+          "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-debian-13-aarch64--cbodotnet-sdk-6.0_6.0.136-1_arm64.deb",
+          "channel": "deb",
+          "manifestSha256": "91afb4ac03221c3eb527e45ea811d4a34bb708c5c3370e9f2e526c078c2d846f",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json",
+          "packageRevision": 1,
+          "sdkVersion": "6.0.136",
+          "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json.asc",
+          "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "sourceManifestSha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+          "status": "published-postverified",
+          "variant": "debian-13",
+          "verificationReportSha256": "5d8a4911463fe4c11db84f94479cd840d40e681497d41c42d1d80783e10b0260",
+          "verificationReportUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-debian-13-aarch64--installation-report.json"
+        },
+        {
+          "architecture": "x64",
+          "artifactSha256": "e79c079e85a014a0381f8666ac40d7994953883069a9676a9c5f9fb7824c6268",
+          "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-debian-13-x64--cbodotnet-sdk-6.0_6.0.136-1_amd64.deb",
+          "channel": "deb",
+          "manifestSha256": "91afb4ac03221c3eb527e45ea811d4a34bb708c5c3370e9f2e526c078c2d846f",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json",
+          "packageRevision": 1,
+          "sdkVersion": "6.0.136",
+          "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json.asc",
+          "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "sourceManifestSha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+          "status": "published-postverified",
+          "variant": "debian-13",
+          "verificationReportSha256": "0128bb76191c6582fed5c346a024b628bf6de3910f205ad15bd2f4b6be1c9258",
+          "verificationReportUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-debian-13-x64--installation-report.json"
+        },
+        {
+          "architecture": "aarch64",
+          "artifactSha256": "abf88d0f95edb89c8cebedc2ddb101c50d1b3db75b126180c73db9cb444c879b",
+          "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-ubuntu-24.04-aarch64--cbodotnet-sdk-6.0_6.0.136-1_arm64.deb",
+          "channel": "deb",
+          "manifestSha256": "91afb4ac03221c3eb527e45ea811d4a34bb708c5c3370e9f2e526c078c2d846f",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json",
+          "packageRevision": 1,
+          "sdkVersion": "6.0.136",
+          "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json.asc",
+          "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "sourceManifestSha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+          "status": "published-postverified",
+          "variant": "ubuntu-24.04",
+          "verificationReportSha256": "da2048ccd29311791a6b1c80ed498955971cb8338f2a901e8885b132ba0df66e",
+          "verificationReportUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-ubuntu-24.04-aarch64--installation-report.json"
+        },
+        {
+          "architecture": "x64",
+          "artifactSha256": "03e47e252aede752080f055e72d5b19326f078fefda80ddb645b81980cf2f926",
+          "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-ubuntu-24.04-x64--cbodotnet-sdk-6.0_6.0.136-1_amd64.deb",
+          "channel": "deb",
+          "manifestSha256": "91afb4ac03221c3eb527e45ea811d4a34bb708c5c3370e9f2e526c078c2d846f",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json",
+          "packageRevision": 1,
+          "sdkVersion": "6.0.136",
+          "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json.asc",
+          "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "sourceManifestSha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+          "status": "published-postverified",
+          "variant": "ubuntu-24.04",
+          "verificationReportSha256": "96004d8070104566faaf8a1be8c097b309043294c81512a654ebe045dec15978",
+          "verificationReportUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-ubuntu-24.04-x64--installation-report.json"
+        },
+        {
+          "architecture": "aarch64",
           "artifactSha256": "3186528e475f227f32dc169a5f605f7e8e3c7028b1377f649425050532a81293",
           "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-7.0.120-r1/deb-debian-13-aarch64--cbodotnet-sdk-7.0_7.0.120-1_arm64.deb",
           "channel": "deb",
@@ -387,6 +455,602 @@
       },
       "publisherConfigured": true,
       "receipts": [
+        {
+          "assets": [
+            {
+              "name": "apt-debian-13.tar.gz",
+              "sha256": "7733498deb8c72da6d855acb60cf98170574f3fd2fd12e2785fd3f3a7bbb033c",
+              "size": 302686318,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/apt-debian-13.tar.gz"
+            },
+            {
+              "name": "apt-ubuntu-24.04.tar.gz",
+              "sha256": "32da5f9b7b2e6e1acd6808c8d0a4149124cc750d316e7ac251793b37331a66e0",
+              "size": 302686333,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/apt-ubuntu-24.04.tar.gz"
+            },
+            {
+              "name": "deb-debian-13-aarch64--cbodotnet-sdk-6.0_6.0.136-1_arm64.deb",
+              "sha256": "4e820cd4dfc07aedf51ea73807b33778d3723ec155da062a20c6e9fa5fb41eeb",
+              "size": 146389200,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-debian-13-aarch64--cbodotnet-sdk-6.0_6.0.136-1_arm64.deb"
+            },
+            {
+              "name": "deb-debian-13-aarch64--installation-report.json",
+              "sha256": "5d8a4911463fe4c11db84f94479cd840d40e681497d41c42d1d80783e10b0260",
+              "size": 39340,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-debian-13-aarch64--installation-report.json"
+            },
+            {
+              "name": "deb-debian-13-aarch64--installation-report.json.asc",
+              "sha256": "847fb0ec6efdcef3abd92a005050c5a78bcc39203218fdc4af511ac34e4afbc2",
+              "size": 119,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-debian-13-aarch64--installation-report.json.asc"
+            },
+            {
+              "name": "deb-debian-13-x64--cbodotnet-sdk-6.0_6.0.136-1_amd64.deb",
+              "sha256": "e79c079e85a014a0381f8666ac40d7994953883069a9676a9c5f9fb7824c6268",
+              "size": 156201324,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-debian-13-x64--cbodotnet-sdk-6.0_6.0.136-1_amd64.deb"
+            },
+            {
+              "name": "deb-debian-13-x64--installation-report.json",
+              "sha256": "0128bb76191c6582fed5c346a024b628bf6de3910f205ad15bd2f4b6be1c9258",
+              "size": 39284,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-debian-13-x64--installation-report.json"
+            },
+            {
+              "name": "deb-debian-13-x64--installation-report.json.asc",
+              "sha256": "5688285333c019b1684b80caf9a617b15afb65e47ff42aab841672a2bca05e0f",
+              "size": 119,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-debian-13-x64--installation-report.json.asc"
+            },
+            {
+              "name": "deb-ubuntu-24.04-aarch64--cbodotnet-sdk-6.0_6.0.136-1_arm64.deb",
+              "sha256": "abf88d0f95edb89c8cebedc2ddb101c50d1b3db75b126180c73db9cb444c879b",
+              "size": 146389212,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-ubuntu-24.04-aarch64--cbodotnet-sdk-6.0_6.0.136-1_arm64.deb"
+            },
+            {
+              "name": "deb-ubuntu-24.04-aarch64--installation-report.json",
+              "sha256": "da2048ccd29311791a6b1c80ed498955971cb8338f2a901e8885b132ba0df66e",
+              "size": 41698,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-ubuntu-24.04-aarch64--installation-report.json"
+            },
+            {
+              "name": "deb-ubuntu-24.04-aarch64--installation-report.json.asc",
+              "sha256": "de69cc4fafb9e1bb70e226f3928775a8d2715576e5dc43c7823386ace7a89cd5",
+              "size": 119,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-ubuntu-24.04-aarch64--installation-report.json.asc"
+            },
+            {
+              "name": "deb-ubuntu-24.04-x64--cbodotnet-sdk-6.0_6.0.136-1_amd64.deb",
+              "sha256": "03e47e252aede752080f055e72d5b19326f078fefda80ddb645b81980cf2f926",
+              "size": 156201336,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-ubuntu-24.04-x64--cbodotnet-sdk-6.0_6.0.136-1_amd64.deb"
+            },
+            {
+              "name": "deb-ubuntu-24.04-x64--installation-report.json",
+              "sha256": "96004d8070104566faaf8a1be8c097b309043294c81512a654ebe045dec15978",
+              "size": 41668,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-ubuntu-24.04-x64--installation-report.json"
+            },
+            {
+              "name": "deb-ubuntu-24.04-x64--installation-report.json.asc",
+              "sha256": "a6a635929997f268b15be5612cbd7cffddee92e10d22c527edace5c5b2c24867",
+              "size": 119,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-ubuntu-24.04-x64--installation-report.json.asc"
+            },
+            {
+              "name": "distribution-signing-key.gpg",
+              "sha256": "562e4c9a893c1a0ffabf3d3bb4a6e4ae1090427250c2818df196a8174583a665",
+              "size": 273,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-signing-key.gpg"
+            },
+            {
+              "name": "distribution-manifest.json",
+              "sha256": "91afb4ac03221c3eb527e45ea811d4a34bb708c5c3370e9f2e526c078c2d846f",
+              "size": 26794,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json"
+            },
+            {
+              "name": "distribution-manifest.json.asc",
+              "sha256": "86c738d6d1301fec69325aa92b86695af7e098ff7f9ed9b699d49c77133c2ebe",
+              "size": 228,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json.asc"
+            }
+          ],
+          "identity": {
+            "channel": "deb",
+            "packageRevision": 1,
+            "sdkVersion": "6.0.136",
+            "sourceManifestSha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+            "sourceReleaseTag": "sdk-6.0.136"
+          },
+          "manifestSha256": "91afb4ac03221c3eb527e45ea811d4a34bb708c5c3370e9f2e526c078c2d846f",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json",
+          "postVerification": {
+            "reports": [
+              {
+                "aptTargets": [
+                  {
+                    "architecture": "aarch64",
+                    "checks": {
+                      "cli-branding": "passed",
+                      "command-aliases": "passed",
+                      "host-root": "passed",
+                      "http-crypto-globalization": "passed",
+                      "installed-package-purge": "passed",
+                      "native-dependencies": "passed",
+                      "non-root": "passed",
+                      "official-dotnet-coexistence": "passed",
+                      "official-package-coexistence": "passed",
+                      "offline-build-run": "passed",
+                      "offline-network": "passed",
+                      "package-integrity": "passed",
+                      "package-manager-install": "passed",
+                      "payload-preservation": "passed",
+                      "removal": "passed",
+                      "repository-metadata": "passed",
+                      "rollback": "verified-before-publication",
+                      "sdk-list-paths": "passed",
+                      "source-integrity": "passed",
+                      "upgrade": "verified-before-publication",
+                      "version-stdout-compatible": "passed"
+                    },
+                    "repositorySha256": "32da5f9b7b2e6e1acd6808c8d0a4149124cc750d316e7ac251793b37331a66e0",
+                    "status": "passed",
+                    "variant": "ubuntu-24.04"
+                  },
+                  {
+                    "architecture": "aarch64",
+                    "checks": {
+                      "cli-branding": "passed",
+                      "command-aliases": "passed",
+                      "host-root": "passed",
+                      "http-crypto-globalization": "passed",
+                      "installed-package-purge": "passed",
+                      "native-dependencies": "passed",
+                      "non-root": "passed",
+                      "official-dotnet-coexistence": "passed",
+                      "official-package-coexistence": "passed",
+                      "offline-build-run": "passed",
+                      "offline-network": "passed",
+                      "package-integrity": "passed",
+                      "package-manager-install": "passed",
+                      "payload-preservation": "passed",
+                      "removal": "passed",
+                      "repository-metadata": "passed",
+                      "rollback": "verified-before-publication",
+                      "sdk-list-paths": "passed",
+                      "source-integrity": "passed",
+                      "upgrade": "verified-before-publication",
+                      "version-stdout-compatible": "passed"
+                    },
+                    "repositorySha256": "7733498deb8c72da6d855acb60cf98170574f3fd2fd12e2785fd3f3a7bbb033c",
+                    "status": "passed",
+                    "variant": "debian-13"
+                  }
+                ],
+                "architecture": "aarch64",
+                "checks": [
+                  "anonymous-pull",
+                  "native-config",
+                  "non-root",
+                  "command-aliases",
+                  "cli-branding",
+                  "offline-build-run",
+                  "sdk-list-paths",
+                  "image-ownership",
+                  "image-no-build-secrets",
+                  "image-no-source-build-toolchain",
+                  "console-apphost",
+                  "http-crypto-globalization",
+                  "sdk-info-root-rid",
+                  "image-labels",
+                  "image-wrapper-license"
+                ],
+                "digest": "sha256:ff06071ac6438da8ae7e5506771f117ac15082b596da8a67a4bc0c785bd50b38",
+                "functionalChecks": {
+                  "aspNetCoreLoopbackHttp": "passed",
+                  "consoleApphostExecution": "passed",
+                  "consoleDllExecution": "passed",
+                  "cryptographicRandomBytes": "passed",
+                  "frFrDecimalFormatting": "passed",
+                  "nonRootRuntimeRoot": "passed",
+                  "rsaSha256SignAndVerify": "passed",
+                  "tls12LoopbackHandshake": "passed"
+                },
+                "imageConfig": {
+                  "architecture": "arm64",
+                  "labels": {
+                    "kr.dotnetdev.cbodotnet.evidence.sha256": "9bb3ffc12ab39f85827e0433add905588005e323f1144e7e81d730e49d50813c",
+                    "kr.dotnetdev.cbodotnet.evidence.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/evidence-aarch64.tar.gz",
+                    "kr.dotnetdev.cbodotnet.license.path": "/opt/cbodotnet/6.0/LICENSE.txt",
+                    "kr.dotnetdev.cbodotnet.manifest.sha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+                    "kr.dotnetdev.cbodotnet.manifest.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/release-manifest.json",
+                    "kr.dotnetdev.cbodotnet.notices.path": "/opt/cbodotnet/6.0/ThirdPartyNotices.txt",
+                    "kr.dotnetdev.cbodotnet.notices.url": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md#licenses-and-notices",
+                    "kr.dotnetdev.cbodotnet.package.revision": "1",
+                    "kr.dotnetdev.cbodotnet.sdk.sha256": "59315baee0edc32ccbac658a8cee06dcbaa6ec73d747ba0940b99b73453f5f34",
+                    "kr.dotnetdev.cbodotnet.sdk.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/cbodotnet-sdk-6.0.136-linux-aarch64.tar.gz",
+                    "kr.dotnetdev.cbodotnet.source.sha256": "616eb74ac4eb4e61155b5d869471dd8c810d86a0bbac9379c134c0b97b311e5f",
+                    "kr.dotnetdev.cbodotnet.source.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/cbodotnet-source-6.0.136-linux-aarch64.tar.gz",
+                    "org.opencontainers.image.base.name": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+                    "org.opencontainers.image.documentation": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md",
+                    "org.opencontainers.image.licenses": "MIT AND LicenseRef-Dotnet-ThirdPartyNotices",
+                    "org.opencontainers.image.source": "https://github.com/dotnetdev-kr/cbodotnet",
+                    "org.opencontainers.image.title": "Community Build of .NET (built by .NET Dev)",
+                    "org.opencontainers.image.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-6.0.136",
+                    "org.opencontainers.image.version": "6.0.136"
+                  },
+                  "sdkRoot": "/opt/cbodotnet/6.0",
+                  "user": "app",
+                  "workdir": "/work"
+                },
+                "imageFiles": {
+                  "credentialEnvironment": "absent",
+                  "ownership": "root:root:0755",
+                  "sourceBuildToolchain": "absent",
+                  "wrapperLicense": {
+                    "ownership": "0:0:644",
+                    "path": "/usr/share/licenses/cbodotnet-host/LICENSE",
+                    "sha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+                    "status": "passed"
+                  }
+                },
+                "networkForBuild": "none",
+                "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+                "schemaVersion": 1,
+                "status": "passed"
+              },
+              {
+                "aptTargets": [
+                  {
+                    "architecture": "x64",
+                    "checks": {
+                      "cli-branding": "passed",
+                      "command-aliases": "passed",
+                      "host-root": "passed",
+                      "http-crypto-globalization": "passed",
+                      "installed-package-purge": "passed",
+                      "native-dependencies": "passed",
+                      "non-root": "passed",
+                      "official-dotnet-coexistence": "passed",
+                      "official-package-coexistence": "passed",
+                      "offline-build-run": "passed",
+                      "offline-network": "passed",
+                      "package-integrity": "passed",
+                      "package-manager-install": "passed",
+                      "payload-preservation": "passed",
+                      "removal": "passed",
+                      "repository-metadata": "passed",
+                      "rollback": "verified-before-publication",
+                      "sdk-list-paths": "passed",
+                      "source-integrity": "passed",
+                      "upgrade": "verified-before-publication",
+                      "version-stdout-compatible": "passed"
+                    },
+                    "repositorySha256": "32da5f9b7b2e6e1acd6808c8d0a4149124cc750d316e7ac251793b37331a66e0",
+                    "status": "passed",
+                    "variant": "ubuntu-24.04"
+                  },
+                  {
+                    "architecture": "x64",
+                    "checks": {
+                      "cli-branding": "passed",
+                      "command-aliases": "passed",
+                      "host-root": "passed",
+                      "http-crypto-globalization": "passed",
+                      "installed-package-purge": "passed",
+                      "native-dependencies": "passed",
+                      "non-root": "passed",
+                      "official-dotnet-coexistence": "passed",
+                      "official-package-coexistence": "passed",
+                      "offline-build-run": "passed",
+                      "offline-network": "passed",
+                      "package-integrity": "passed",
+                      "package-manager-install": "passed",
+                      "payload-preservation": "passed",
+                      "removal": "passed",
+                      "repository-metadata": "passed",
+                      "rollback": "verified-before-publication",
+                      "sdk-list-paths": "passed",
+                      "source-integrity": "passed",
+                      "upgrade": "verified-before-publication",
+                      "version-stdout-compatible": "passed"
+                    },
+                    "repositorySha256": "7733498deb8c72da6d855acb60cf98170574f3fd2fd12e2785fd3f3a7bbb033c",
+                    "status": "passed",
+                    "variant": "debian-13"
+                  }
+                ],
+                "architecture": "x64",
+                "checks": [
+                  "anonymous-pull",
+                  "native-config",
+                  "non-root",
+                  "command-aliases",
+                  "cli-branding",
+                  "offline-build-run",
+                  "sdk-list-paths",
+                  "image-ownership",
+                  "image-no-build-secrets",
+                  "image-no-source-build-toolchain",
+                  "console-apphost",
+                  "http-crypto-globalization",
+                  "sdk-info-root-rid",
+                  "image-labels",
+                  "image-wrapper-license"
+                ],
+                "digest": "sha256:ff06071ac6438da8ae7e5506771f117ac15082b596da8a67a4bc0c785bd50b38",
+                "functionalChecks": {
+                  "aspNetCoreLoopbackHttp": "passed",
+                  "consoleApphostExecution": "passed",
+                  "consoleDllExecution": "passed",
+                  "cryptographicRandomBytes": "passed",
+                  "frFrDecimalFormatting": "passed",
+                  "nonRootRuntimeRoot": "passed",
+                  "rsaSha256SignAndVerify": "passed",
+                  "tls12LoopbackHandshake": "passed"
+                },
+                "imageConfig": {
+                  "architecture": "amd64",
+                  "labels": {
+                    "kr.dotnetdev.cbodotnet.evidence.sha256": "164aa1897fbd0518d59b1fbc1cf68fa46a4e192eaacc923f97ca73b8056ef70a",
+                    "kr.dotnetdev.cbodotnet.evidence.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/evidence-x64.tar.gz",
+                    "kr.dotnetdev.cbodotnet.license.path": "/opt/cbodotnet/6.0/LICENSE.txt",
+                    "kr.dotnetdev.cbodotnet.manifest.sha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+                    "kr.dotnetdev.cbodotnet.manifest.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/release-manifest.json",
+                    "kr.dotnetdev.cbodotnet.notices.path": "/opt/cbodotnet/6.0/ThirdPartyNotices.txt",
+                    "kr.dotnetdev.cbodotnet.notices.url": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md#licenses-and-notices",
+                    "kr.dotnetdev.cbodotnet.package.revision": "1",
+                    "kr.dotnetdev.cbodotnet.sdk.sha256": "34eca0b48c7f64a048ea640437db063136d982b2e0209876b1ceb9b0c555f146",
+                    "kr.dotnetdev.cbodotnet.sdk.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/cbodotnet-sdk-6.0.136-linux-x64.tar.gz",
+                    "kr.dotnetdev.cbodotnet.source.sha256": "fe73f956e156c92d74cf3bbff390d00e84d825491bd782933f3a90049eeef1c0",
+                    "kr.dotnetdev.cbodotnet.source.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/cbodotnet-source-6.0.136-linux-x64.tar.gz",
+                    "org.opencontainers.image.base.name": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+                    "org.opencontainers.image.documentation": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md",
+                    "org.opencontainers.image.licenses": "MIT AND LicenseRef-Dotnet-ThirdPartyNotices",
+                    "org.opencontainers.image.source": "https://github.com/dotnetdev-kr/cbodotnet",
+                    "org.opencontainers.image.title": "Community Build of .NET (built by .NET Dev)",
+                    "org.opencontainers.image.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-6.0.136",
+                    "org.opencontainers.image.version": "6.0.136"
+                  },
+                  "sdkRoot": "/opt/cbodotnet/6.0",
+                  "user": "app",
+                  "workdir": "/work"
+                },
+                "imageFiles": {
+                  "credentialEnvironment": "absent",
+                  "ownership": "root:root:0755",
+                  "sourceBuildToolchain": "absent",
+                  "wrapperLicense": {
+                    "ownership": "0:0:644",
+                    "path": "/usr/share/licenses/cbodotnet-host/LICENSE",
+                    "sha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+                    "status": "passed"
+                  }
+                },
+                "networkForBuild": "none",
+                "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+                "schemaVersion": 1,
+                "status": "passed"
+              }
+            ],
+            "workflow": {
+              "commit": "49b3d7691a5ca19e562b24d106791dcd1f10d609",
+              "runAttempt": "1",
+              "runId": "41896605087",
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41896605087/attempts/1"
+            }
+          },
+          "publicKeyUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-signing-key.gpg",
+          "publicationAllowed": true,
+          "publications": [
+            {
+              "architecture": "aarch64",
+              "artifactSha256": "4e820cd4dfc07aedf51ea73807b33778d3723ec155da062a20c6e9fa5fb41eeb",
+              "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-debian-13-aarch64--cbodotnet-sdk-6.0_6.0.136-1_arm64.deb",
+              "channel": "deb",
+              "manifestSha256": "91afb4ac03221c3eb527e45ea811d4a34bb708c5c3370e9f2e526c078c2d846f",
+              "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json",
+              "packageRevision": 1,
+              "sdkVersion": "6.0.136",
+              "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json.asc",
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "sourceManifestSha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+              "status": "published-postverified",
+              "variant": "debian-13",
+              "verificationReportSha256": "5d8a4911463fe4c11db84f94479cd840d40e681497d41c42d1d80783e10b0260",
+              "verificationReportUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-debian-13-aarch64--installation-report.json"
+            },
+            {
+              "architecture": "x64",
+              "artifactSha256": "e79c079e85a014a0381f8666ac40d7994953883069a9676a9c5f9fb7824c6268",
+              "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-debian-13-x64--cbodotnet-sdk-6.0_6.0.136-1_amd64.deb",
+              "channel": "deb",
+              "manifestSha256": "91afb4ac03221c3eb527e45ea811d4a34bb708c5c3370e9f2e526c078c2d846f",
+              "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json",
+              "packageRevision": 1,
+              "sdkVersion": "6.0.136",
+              "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json.asc",
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "sourceManifestSha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+              "status": "published-postverified",
+              "variant": "debian-13",
+              "verificationReportSha256": "0128bb76191c6582fed5c346a024b628bf6de3910f205ad15bd2f4b6be1c9258",
+              "verificationReportUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-debian-13-x64--installation-report.json"
+            },
+            {
+              "architecture": "aarch64",
+              "artifactSha256": "abf88d0f95edb89c8cebedc2ddb101c50d1b3db75b126180c73db9cb444c879b",
+              "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-ubuntu-24.04-aarch64--cbodotnet-sdk-6.0_6.0.136-1_arm64.deb",
+              "channel": "deb",
+              "manifestSha256": "91afb4ac03221c3eb527e45ea811d4a34bb708c5c3370e9f2e526c078c2d846f",
+              "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json",
+              "packageRevision": 1,
+              "sdkVersion": "6.0.136",
+              "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json.asc",
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "sourceManifestSha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+              "status": "published-postverified",
+              "variant": "ubuntu-24.04",
+              "verificationReportSha256": "da2048ccd29311791a6b1c80ed498955971cb8338f2a901e8885b132ba0df66e",
+              "verificationReportUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-ubuntu-24.04-aarch64--installation-report.json"
+            },
+            {
+              "architecture": "x64",
+              "artifactSha256": "03e47e252aede752080f055e72d5b19326f078fefda80ddb645b81980cf2f926",
+              "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-ubuntu-24.04-x64--cbodotnet-sdk-6.0_6.0.136-1_amd64.deb",
+              "channel": "deb",
+              "manifestSha256": "91afb4ac03221c3eb527e45ea811d4a34bb708c5c3370e9f2e526c078c2d846f",
+              "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json",
+              "packageRevision": 1,
+              "sdkVersion": "6.0.136",
+              "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json.asc",
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "sourceManifestSha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+              "status": "published-postverified",
+              "variant": "ubuntu-24.04",
+              "verificationReportSha256": "96004d8070104566faaf8a1be8c097b309043294c81512a654ebe045dec15978",
+              "verificationReportUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/deb-ubuntu-24.04-x64--installation-report.json"
+            }
+          ],
+          "releaseUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-deb-sdk-6.0.136-r1",
+          "repositories": [
+            {
+              "asset": "apt-debian-13.tar.gz",
+              "delivery": "github-release-flat",
+              "flatAssets": [
+                {
+                  "name": "InRelease",
+                  "sha256": "bb1a85ae93434444ad23c9c5138760cffc6b9f3e57abe4cf507befc17ddee2c8",
+                  "size": 1246
+                },
+                {
+                  "name": "Packages",
+                  "sha256": "73c1ac078d223ef77b007493a4fc26888ab7e781edc85569516630507a9fe550",
+                  "size": 2071
+                },
+                {
+                  "name": "Packages.gz",
+                  "sha256": "60f31ab754754cd49d4ee87196ba675621be2a42d10985fb36b5e6a733aeea5f",
+                  "size": 942
+                },
+                {
+                  "name": "Release",
+                  "sha256": "80d99996d222936c2e5c26e4f394294b73d3fcfb31502492caa496d599ca33a9",
+                  "size": 969
+                },
+                {
+                  "name": "Release.gpg",
+                  "sha256": "7feef9ebebccb32a99e2e9e67d7124a82e433ad5ddc6b1e2ab564c1d99eef413",
+                  "size": 228
+                },
+                {
+                  "name": "cbodotnet-archive-keyring.gpg",
+                  "sha256": "562e4c9a893c1a0ffabf3d3bb4a6e4ae1090427250c2818df196a8174583a665",
+                  "size": 273
+                },
+                {
+                  "name": "cbodotnet-host_1.0.0-1_all.deb",
+                  "sha256": "fcaad1c1b597fb718034169f44fa3e7b7c2e20d9064db53fd15e37eb58dc8e2a",
+                  "size": 2176
+                },
+                {
+                  "name": "cbodotnet-sdk-6.0_6.0.136-1_amd64.deb",
+                  "sha256": "e79c079e85a014a0381f8666ac40d7994953883069a9676a9c5f9fb7824c6268",
+                  "size": 156201324
+                },
+                {
+                  "name": "cbodotnet-sdk-6.0_6.0.136-1_arm64.deb",
+                  "sha256": "4e820cd4dfc07aedf51ea73807b33778d3723ec155da062a20c6e9fa5fb41eeb",
+                  "size": 146389200
+                },
+                {
+                  "name": "repository-manifest.json",
+                  "sha256": "5a4e5e938e490b0e8818969ad305d60deed6609f8c08023dc1ce99248df998ff",
+                  "size": 906
+                }
+              ],
+              "kind": "apt-repository",
+              "releaseTag": "repository-deb-debian-13-sdk-6.0.136-r1",
+              "variants": [
+                "debian-13"
+              ],
+              "websitePath": "packages/deb"
+            },
+            {
+              "asset": "apt-ubuntu-24.04.tar.gz",
+              "delivery": "github-release-flat",
+              "flatAssets": [
+                {
+                  "name": "InRelease",
+                  "sha256": "9af1c6a8c1ecd6925950ba7529744e8fa94b185abcca49eece297888e20edc65",
+                  "size": 1246
+                },
+                {
+                  "name": "Packages",
+                  "sha256": "5eb3f121bf1709ecd74edc1d64fd542529051c6c199d07b64985e1f4ec48ecd6",
+                  "size": 2071
+                },
+                {
+                  "name": "Packages.gz",
+                  "sha256": "7503094e9dd5fa1810ae8cedf6e2cda092be1096b43b1821149dcaf0fd0854bd",
+                  "size": 937
+                },
+                {
+                  "name": "Release",
+                  "sha256": "5cce09f9299f591e639264d4b7c09f9051242e1ad063feee8b35803d602a0326",
+                  "size": 969
+                },
+                {
+                  "name": "Release.gpg",
+                  "sha256": "c551fce20bf4865a4d68b0e8744fa1aad3d84725ecd44541e9d99d134d83225a",
+                  "size": 228
+                },
+                {
+                  "name": "cbodotnet-archive-keyring.gpg",
+                  "sha256": "562e4c9a893c1a0ffabf3d3bb4a6e4ae1090427250c2818df196a8174583a665",
+                  "size": 273
+                },
+                {
+                  "name": "cbodotnet-host_1.0.0-1_all.deb",
+                  "sha256": "fcaad1c1b597fb718034169f44fa3e7b7c2e20d9064db53fd15e37eb58dc8e2a",
+                  "size": 2176
+                },
+                {
+                  "name": "cbodotnet-sdk-6.0_6.0.136-1_amd64.deb",
+                  "sha256": "03e47e252aede752080f055e72d5b19326f078fefda80ddb645b81980cf2f926",
+                  "size": 156201336
+                },
+                {
+                  "name": "cbodotnet-sdk-6.0_6.0.136-1_arm64.deb",
+                  "sha256": "abf88d0f95edb89c8cebedc2ddb101c50d1b3db75b126180c73db9cb444c879b",
+                  "size": 146389212
+                },
+                {
+                  "name": "repository-manifest.json",
+                  "sha256": "5966a34fa1a1369a06b108e3bd16b24d45fee7250e147e16cb9989556e20e6aa",
+                  "size": 915
+                }
+              ],
+              "kind": "apt-repository",
+              "releaseTag": "repository-deb-ubuntu-24.04-sdk-6.0.136-r1",
+              "variants": [
+                "ubuntu-24.04"
+              ],
+              "websitePath": "packages/deb"
+            }
+          ],
+          "repository": "dotnetdev-kr/cbodotnet",
+          "schemaVersion": 1,
+          "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-6.0.136-r1/distribution-manifest.json.asc",
+          "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "status": "published-postverified",
+          "tag": "distribution-deb-sdk-6.0.136-r1"
+        },
         {
           "assets": [
             {
@@ -3149,6 +3813,40 @@
       "publications": [
         {
           "architecture": "aarch64",
+          "artifactSha256": "f6dd5f0223914bec90775e2d17238e1eb8033c67e544bedf37dcd9bdcefe4440",
+          "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/oci-debian-13-aarch64--oci-arm64.json",
+          "channel": "oci",
+          "manifestSha256": "393569dcf48659b0b104fbd9ebca9d7f5cb6554a3fc2a1495740ce4672df5398",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/distribution-manifest.json",
+          "packageRevision": 1,
+          "sdkVersion": "6.0.136",
+          "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/distribution-manifest.json.asc",
+          "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "sourceManifestSha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+          "status": "published-postverified",
+          "variant": "debian-13",
+          "verificationReportSha256": "e0e9c71ee8d069e32c8554caa80da3df0d1028ed22a994a1f75d26962ec912b6",
+          "verificationReportUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/oci-debian-13-aarch64--installation-report.json"
+        },
+        {
+          "architecture": "x64",
+          "artifactSha256": "3c300fbec8b6fcece50bea56327c7f2fddaf1896162a551948a43def4c1b0419",
+          "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/oci-debian-13-x64--oci-amd64.json",
+          "channel": "oci",
+          "manifestSha256": "393569dcf48659b0b104fbd9ebca9d7f5cb6554a3fc2a1495740ce4672df5398",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/distribution-manifest.json",
+          "packageRevision": 1,
+          "sdkVersion": "6.0.136",
+          "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/distribution-manifest.json.asc",
+          "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "sourceManifestSha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+          "status": "published-postverified",
+          "variant": "debian-13",
+          "verificationReportSha256": "a930fcc3c1fdf4c71fe80fe9cc840354ac5a25f5a2ab0476fc0cd3cf14c35431",
+          "verificationReportUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/oci-debian-13-x64--installation-report.json"
+        },
+        {
+          "architecture": "aarch64",
           "artifactSha256": "3d87bab374a15c272b7d4d05c6826fafb396172e0450add85cd1497383b048a0",
           "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-7.0.120-r1/oci-debian-13-aarch64--oci-arm64.json",
           "channel": "oci",
@@ -3357,6 +4055,410 @@
       },
       "publisherConfigured": true,
       "receipts": [
+        {
+          "assets": [
+            {
+              "name": "distribution-signing-key.gpg",
+              "sha256": "562e4c9a893c1a0ffabf3d3bb4a6e4ae1090427250c2818df196a8174583a665",
+              "size": 273,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/distribution-signing-key.gpg"
+            },
+            {
+              "name": "oci-debian-13-aarch64--installation-report.json",
+              "sha256": "e0e9c71ee8d069e32c8554caa80da3df0d1028ed22a994a1f75d26962ec912b6",
+              "size": 10504,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/oci-debian-13-aarch64--installation-report.json"
+            },
+            {
+              "name": "oci-debian-13-aarch64--installation-report.json.asc",
+              "sha256": "f5df979c8b5c396dc076e2ae51d083a78a63c3a8a0d9680e7a8b2acf3b8cf04f",
+              "size": 119,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/oci-debian-13-aarch64--installation-report.json.asc"
+            },
+            {
+              "name": "oci-debian-13-aarch64--oci-arm64.json",
+              "sha256": "f6dd5f0223914bec90775e2d17238e1eb8033c67e544bedf37dcd9bdcefe4440",
+              "size": 2899,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/oci-debian-13-aarch64--oci-arm64.json"
+            },
+            {
+              "name": "oci-debian-13-x64--installation-report.json",
+              "sha256": "a930fcc3c1fdf4c71fe80fe9cc840354ac5a25f5a2ab0476fc0cd3cf14c35431",
+              "size": 10468,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/oci-debian-13-x64--installation-report.json"
+            },
+            {
+              "name": "oci-debian-13-x64--installation-report.json.asc",
+              "sha256": "d55902c3bd9af9148b79bf5abf504f22c239697ba8b504202017f60df4f6f0ac",
+              "size": 119,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/oci-debian-13-x64--installation-report.json.asc"
+            },
+            {
+              "name": "oci-debian-13-x64--oci-amd64.json",
+              "sha256": "3c300fbec8b6fcece50bea56327c7f2fddaf1896162a551948a43def4c1b0419",
+              "size": 2883,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/oci-debian-13-x64--oci-amd64.json"
+            },
+            {
+              "name": "oci-index.json",
+              "sha256": "12006c43c97322d3ea67d89ad22e568a8c0d57c6ed372c6be0f1d45a7f0d8e0b",
+              "size": 5577,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/oci-index.json"
+            },
+            {
+              "name": "distribution-manifest.json",
+              "sha256": "393569dcf48659b0b104fbd9ebca9d7f5cb6554a3fc2a1495740ce4672df5398",
+              "size": 13263,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/distribution-manifest.json"
+            },
+            {
+              "name": "distribution-manifest.json.asc",
+              "sha256": "2b25438ca8809503eb1ff67828cf74eb0c21d5f92cd435de01c5c43e4368a73c",
+              "size": 228,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/distribution-manifest.json.asc"
+            }
+          ],
+          "identity": {
+            "channel": "oci",
+            "packageRevision": 1,
+            "sdkVersion": "6.0.136",
+            "sourceManifestSha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+            "sourceReleaseTag": "sdk-6.0.136"
+          },
+          "manifestSha256": "393569dcf48659b0b104fbd9ebca9d7f5cb6554a3fc2a1495740ce4672df5398",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/distribution-manifest.json",
+          "postVerification": {
+            "reports": [
+              {
+                "aptTargets": [
+                  {
+                    "architecture": "aarch64",
+                    "checks": {
+                      "cli-branding": "passed",
+                      "command-aliases": "passed",
+                      "host-root": "passed",
+                      "http-crypto-globalization": "passed",
+                      "installed-package-purge": "passed",
+                      "native-dependencies": "passed",
+                      "non-root": "passed",
+                      "official-dotnet-coexistence": "passed",
+                      "official-package-coexistence": "passed",
+                      "offline-build-run": "passed",
+                      "offline-network": "passed",
+                      "package-integrity": "passed",
+                      "package-manager-install": "passed",
+                      "payload-preservation": "passed",
+                      "removal": "passed",
+                      "repository-metadata": "passed",
+                      "rollback": "verified-before-publication",
+                      "sdk-list-paths": "passed",
+                      "source-integrity": "passed",
+                      "upgrade": "verified-before-publication",
+                      "version-stdout-compatible": "passed"
+                    },
+                    "repositorySha256": "32da5f9b7b2e6e1acd6808c8d0a4149124cc750d316e7ac251793b37331a66e0",
+                    "status": "passed",
+                    "variant": "ubuntu-24.04"
+                  },
+                  {
+                    "architecture": "aarch64",
+                    "checks": {
+                      "cli-branding": "passed",
+                      "command-aliases": "passed",
+                      "host-root": "passed",
+                      "http-crypto-globalization": "passed",
+                      "installed-package-purge": "passed",
+                      "native-dependencies": "passed",
+                      "non-root": "passed",
+                      "official-dotnet-coexistence": "passed",
+                      "official-package-coexistence": "passed",
+                      "offline-build-run": "passed",
+                      "offline-network": "passed",
+                      "package-integrity": "passed",
+                      "package-manager-install": "passed",
+                      "payload-preservation": "passed",
+                      "removal": "passed",
+                      "repository-metadata": "passed",
+                      "rollback": "verified-before-publication",
+                      "sdk-list-paths": "passed",
+                      "source-integrity": "passed",
+                      "upgrade": "verified-before-publication",
+                      "version-stdout-compatible": "passed"
+                    },
+                    "repositorySha256": "7733498deb8c72da6d855acb60cf98170574f3fd2fd12e2785fd3f3a7bbb033c",
+                    "status": "passed",
+                    "variant": "debian-13"
+                  }
+                ],
+                "architecture": "aarch64",
+                "checks": [
+                  "anonymous-pull",
+                  "native-config",
+                  "non-root",
+                  "command-aliases",
+                  "cli-branding",
+                  "offline-build-run",
+                  "sdk-list-paths",
+                  "image-ownership",
+                  "image-no-build-secrets",
+                  "image-no-source-build-toolchain",
+                  "console-apphost",
+                  "http-crypto-globalization",
+                  "sdk-info-root-rid",
+                  "image-labels",
+                  "image-wrapper-license"
+                ],
+                "digest": "sha256:ff06071ac6438da8ae7e5506771f117ac15082b596da8a67a4bc0c785bd50b38",
+                "functionalChecks": {
+                  "aspNetCoreLoopbackHttp": "passed",
+                  "consoleApphostExecution": "passed",
+                  "consoleDllExecution": "passed",
+                  "cryptographicRandomBytes": "passed",
+                  "frFrDecimalFormatting": "passed",
+                  "nonRootRuntimeRoot": "passed",
+                  "rsaSha256SignAndVerify": "passed",
+                  "tls12LoopbackHandshake": "passed"
+                },
+                "imageConfig": {
+                  "architecture": "arm64",
+                  "labels": {
+                    "kr.dotnetdev.cbodotnet.evidence.sha256": "9bb3ffc12ab39f85827e0433add905588005e323f1144e7e81d730e49d50813c",
+                    "kr.dotnetdev.cbodotnet.evidence.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/evidence-aarch64.tar.gz",
+                    "kr.dotnetdev.cbodotnet.license.path": "/opt/cbodotnet/6.0/LICENSE.txt",
+                    "kr.dotnetdev.cbodotnet.manifest.sha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+                    "kr.dotnetdev.cbodotnet.manifest.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/release-manifest.json",
+                    "kr.dotnetdev.cbodotnet.notices.path": "/opt/cbodotnet/6.0/ThirdPartyNotices.txt",
+                    "kr.dotnetdev.cbodotnet.notices.url": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md#licenses-and-notices",
+                    "kr.dotnetdev.cbodotnet.package.revision": "1",
+                    "kr.dotnetdev.cbodotnet.sdk.sha256": "59315baee0edc32ccbac658a8cee06dcbaa6ec73d747ba0940b99b73453f5f34",
+                    "kr.dotnetdev.cbodotnet.sdk.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/cbodotnet-sdk-6.0.136-linux-aarch64.tar.gz",
+                    "kr.dotnetdev.cbodotnet.source.sha256": "616eb74ac4eb4e61155b5d869471dd8c810d86a0bbac9379c134c0b97b311e5f",
+                    "kr.dotnetdev.cbodotnet.source.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/cbodotnet-source-6.0.136-linux-aarch64.tar.gz",
+                    "org.opencontainers.image.base.name": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+                    "org.opencontainers.image.documentation": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md",
+                    "org.opencontainers.image.licenses": "MIT AND LicenseRef-Dotnet-ThirdPartyNotices",
+                    "org.opencontainers.image.source": "https://github.com/dotnetdev-kr/cbodotnet",
+                    "org.opencontainers.image.title": "Community Build of .NET (built by .NET Dev)",
+                    "org.opencontainers.image.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-6.0.136",
+                    "org.opencontainers.image.version": "6.0.136"
+                  },
+                  "sdkRoot": "/opt/cbodotnet/6.0",
+                  "user": "app",
+                  "workdir": "/work"
+                },
+                "imageFiles": {
+                  "credentialEnvironment": "absent",
+                  "ownership": "root:root:0755",
+                  "sourceBuildToolchain": "absent",
+                  "wrapperLicense": {
+                    "ownership": "0:0:644",
+                    "path": "/usr/share/licenses/cbodotnet-host/LICENSE",
+                    "sha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+                    "status": "passed"
+                  }
+                },
+                "networkForBuild": "none",
+                "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+                "schemaVersion": 1,
+                "status": "passed"
+              },
+              {
+                "aptTargets": [
+                  {
+                    "architecture": "x64",
+                    "checks": {
+                      "cli-branding": "passed",
+                      "command-aliases": "passed",
+                      "host-root": "passed",
+                      "http-crypto-globalization": "passed",
+                      "installed-package-purge": "passed",
+                      "native-dependencies": "passed",
+                      "non-root": "passed",
+                      "official-dotnet-coexistence": "passed",
+                      "official-package-coexistence": "passed",
+                      "offline-build-run": "passed",
+                      "offline-network": "passed",
+                      "package-integrity": "passed",
+                      "package-manager-install": "passed",
+                      "payload-preservation": "passed",
+                      "removal": "passed",
+                      "repository-metadata": "passed",
+                      "rollback": "verified-before-publication",
+                      "sdk-list-paths": "passed",
+                      "source-integrity": "passed",
+                      "upgrade": "verified-before-publication",
+                      "version-stdout-compatible": "passed"
+                    },
+                    "repositorySha256": "32da5f9b7b2e6e1acd6808c8d0a4149124cc750d316e7ac251793b37331a66e0",
+                    "status": "passed",
+                    "variant": "ubuntu-24.04"
+                  },
+                  {
+                    "architecture": "x64",
+                    "checks": {
+                      "cli-branding": "passed",
+                      "command-aliases": "passed",
+                      "host-root": "passed",
+                      "http-crypto-globalization": "passed",
+                      "installed-package-purge": "passed",
+                      "native-dependencies": "passed",
+                      "non-root": "passed",
+                      "official-dotnet-coexistence": "passed",
+                      "official-package-coexistence": "passed",
+                      "offline-build-run": "passed",
+                      "offline-network": "passed",
+                      "package-integrity": "passed",
+                      "package-manager-install": "passed",
+                      "payload-preservation": "passed",
+                      "removal": "passed",
+                      "repository-metadata": "passed",
+                      "rollback": "verified-before-publication",
+                      "sdk-list-paths": "passed",
+                      "source-integrity": "passed",
+                      "upgrade": "verified-before-publication",
+                      "version-stdout-compatible": "passed"
+                    },
+                    "repositorySha256": "7733498deb8c72da6d855acb60cf98170574f3fd2fd12e2785fd3f3a7bbb033c",
+                    "status": "passed",
+                    "variant": "debian-13"
+                  }
+                ],
+                "architecture": "x64",
+                "checks": [
+                  "anonymous-pull",
+                  "native-config",
+                  "non-root",
+                  "command-aliases",
+                  "cli-branding",
+                  "offline-build-run",
+                  "sdk-list-paths",
+                  "image-ownership",
+                  "image-no-build-secrets",
+                  "image-no-source-build-toolchain",
+                  "console-apphost",
+                  "http-crypto-globalization",
+                  "sdk-info-root-rid",
+                  "image-labels",
+                  "image-wrapper-license"
+                ],
+                "digest": "sha256:ff06071ac6438da8ae7e5506771f117ac15082b596da8a67a4bc0c785bd50b38",
+                "functionalChecks": {
+                  "aspNetCoreLoopbackHttp": "passed",
+                  "consoleApphostExecution": "passed",
+                  "consoleDllExecution": "passed",
+                  "cryptographicRandomBytes": "passed",
+                  "frFrDecimalFormatting": "passed",
+                  "nonRootRuntimeRoot": "passed",
+                  "rsaSha256SignAndVerify": "passed",
+                  "tls12LoopbackHandshake": "passed"
+                },
+                "imageConfig": {
+                  "architecture": "amd64",
+                  "labels": {
+                    "kr.dotnetdev.cbodotnet.evidence.sha256": "164aa1897fbd0518d59b1fbc1cf68fa46a4e192eaacc923f97ca73b8056ef70a",
+                    "kr.dotnetdev.cbodotnet.evidence.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/evidence-x64.tar.gz",
+                    "kr.dotnetdev.cbodotnet.license.path": "/opt/cbodotnet/6.0/LICENSE.txt",
+                    "kr.dotnetdev.cbodotnet.manifest.sha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+                    "kr.dotnetdev.cbodotnet.manifest.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/release-manifest.json",
+                    "kr.dotnetdev.cbodotnet.notices.path": "/opt/cbodotnet/6.0/ThirdPartyNotices.txt",
+                    "kr.dotnetdev.cbodotnet.notices.url": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md#licenses-and-notices",
+                    "kr.dotnetdev.cbodotnet.package.revision": "1",
+                    "kr.dotnetdev.cbodotnet.sdk.sha256": "34eca0b48c7f64a048ea640437db063136d982b2e0209876b1ceb9b0c555f146",
+                    "kr.dotnetdev.cbodotnet.sdk.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/cbodotnet-sdk-6.0.136-linux-x64.tar.gz",
+                    "kr.dotnetdev.cbodotnet.source.sha256": "fe73f956e156c92d74cf3bbff390d00e84d825491bd782933f3a90049eeef1c0",
+                    "kr.dotnetdev.cbodotnet.source.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/cbodotnet-source-6.0.136-linux-x64.tar.gz",
+                    "org.opencontainers.image.base.name": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+                    "org.opencontainers.image.documentation": "https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/oci-delivery.md",
+                    "org.opencontainers.image.licenses": "MIT AND LicenseRef-Dotnet-ThirdPartyNotices",
+                    "org.opencontainers.image.source": "https://github.com/dotnetdev-kr/cbodotnet",
+                    "org.opencontainers.image.title": "Community Build of .NET (built by .NET Dev)",
+                    "org.opencontainers.image.url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/sdk-6.0.136",
+                    "org.opencontainers.image.version": "6.0.136"
+                  },
+                  "sdkRoot": "/opt/cbodotnet/6.0",
+                  "user": "app",
+                  "workdir": "/work"
+                },
+                "imageFiles": {
+                  "credentialEnvironment": "absent",
+                  "ownership": "root:root:0755",
+                  "sourceBuildToolchain": "absent",
+                  "wrapperLicense": {
+                    "ownership": "0:0:644",
+                    "path": "/usr/share/licenses/cbodotnet-host/LICENSE",
+                    "sha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+                    "status": "passed"
+                  }
+                },
+                "networkForBuild": "none",
+                "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+                "schemaVersion": 1,
+                "status": "passed"
+              }
+            ],
+            "workflow": {
+              "commit": "49b3d7691a5ca19e562b24d106791dcd1f10d609",
+              "runAttempt": "1",
+              "runId": "41896605087",
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41896605087/attempts/1"
+            }
+          },
+          "publicKeyUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/distribution-signing-key.gpg",
+          "publicationAllowed": true,
+          "publications": [
+            {
+              "architecture": "aarch64",
+              "artifactSha256": "f6dd5f0223914bec90775e2d17238e1eb8033c67e544bedf37dcd9bdcefe4440",
+              "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/oci-debian-13-aarch64--oci-arm64.json",
+              "channel": "oci",
+              "manifestSha256": "393569dcf48659b0b104fbd9ebca9d7f5cb6554a3fc2a1495740ce4672df5398",
+              "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/distribution-manifest.json",
+              "packageRevision": 1,
+              "sdkVersion": "6.0.136",
+              "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/distribution-manifest.json.asc",
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "sourceManifestSha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+              "status": "published-postverified",
+              "variant": "debian-13",
+              "verificationReportSha256": "e0e9c71ee8d069e32c8554caa80da3df0d1028ed22a994a1f75d26962ec912b6",
+              "verificationReportUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/oci-debian-13-aarch64--installation-report.json"
+            },
+            {
+              "architecture": "x64",
+              "artifactSha256": "3c300fbec8b6fcece50bea56327c7f2fddaf1896162a551948a43def4c1b0419",
+              "artifactUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/oci-debian-13-x64--oci-amd64.json",
+              "channel": "oci",
+              "manifestSha256": "393569dcf48659b0b104fbd9ebca9d7f5cb6554a3fc2a1495740ce4672df5398",
+              "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/distribution-manifest.json",
+              "packageRevision": 1,
+              "sdkVersion": "6.0.136",
+              "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/distribution-manifest.json.asc",
+              "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+              "sourceManifestSha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+              "status": "published-postverified",
+              "variant": "debian-13",
+              "verificationReportSha256": "a930fcc3c1fdf4c71fe80fe9cc840354ac5a25f5a2ab0476fc0cd3cf14c35431",
+              "verificationReportUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/oci-debian-13-x64--installation-report.json"
+            }
+          ],
+          "releaseUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-oci-sdk-6.0.136-r1",
+          "repositories": [
+            {
+              "asset": "oci-index.json",
+              "kind": "oci-descriptor",
+              "variants": [
+                "debian-13"
+              ],
+              "websitePath": "packages/oci"
+            }
+          ],
+          "repository": "dotnetdev-kr/cbodotnet",
+          "schemaVersion": 1,
+          "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/distribution-manifest.json.asc",
+          "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "status": "published-postverified",
+          "tag": "distribution-oci-sdk-6.0.136-r1"
+        },
         {
           "assets": [
             {
