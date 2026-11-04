@@ -82,6 +82,9 @@ it. Explicit `!strip`, `!debug`, `!lto`, `!zipman`, `!purge`, `docs`, `libtool`,
 documentation and static libraries. Original `LICENSE.txt` and
 `ThirdPartyNotices.txt` remain in the SDK root and are also installed under
 `/usr/share/licenses/cbodotnet-sdk-10.0-bin/`.
+Arch metadata identifies the original SDK MIT license as `MIT` and the retained
+aggregate third-party notice as `LicenseRef-Dotnet-ThirdPartyNotices`, using
+current SPDX-compatible identifiers.
 
 For a packaging-only change, increment the SDK package revision and regenerate
 its wrapper, policy, checksums and actual `.SRCINFO` together. Do not change the

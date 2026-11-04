@@ -6,7 +6,7 @@ pkgrel=1
 pkgdesc='Community Build of .NET (built by .NET Dev) SDK'
 arch=('x86_64')
 url='https://dotnetdev.kr/cbodotnet/'
-license=('custom')
+license=('MIT' 'LicenseRef-Dotnet-ThirdPartyNotices')
 depends=('glibc' 'libgcc' 'libstdc++' 'zlib' 'krb5' 'ca-certificates' 'icu' 'openssl' 'cbodotnet-host>=1.0.0')
 makedepends=('python')
 options=('!strip' '!debug' '!lto' '!zipman' '!purge' 'docs' 'libtool' 'staticlibs' 'emptydirs')
