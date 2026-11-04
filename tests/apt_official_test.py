@@ -55,6 +55,20 @@ class AptOfficialTests(unittest.TestCase):
         self.assertNotIn('trusted.gpg', text)
         self.assertNotIn('apt-key', text)
 
+    def test_bootstrap_explicitly_installs_gpgv_even_when_apt_uses_another_verifier(self):
+        policy = dict(APT.POLICIES['debian-13'], root=str(self.root / 'not-installed'))
+        def execute(command, **kwargs):
+            if command[:2] == ['apt-get', 'install']:
+                self.assertIn('gnupg', command)
+                self.assertIn('gpgv', command)
+                raise RuntimeError('prerequisites checked without installing host packages')
+            return ''
+        with mock.patch.object(APT, 'guard', return_value=(policy, {})), \
+             mock.patch.object(APT.os.path, 'lexists', return_value=False), \
+             mock.patch.object(APT, 'run', side_effect=execute):
+            with self.assertRaisesRegex(RuntimeError, 'prerequisites checked'):
+                APT.bootstrap('debian-13', 'x64', 'cbot-smoke', self.root / 'state.json')
+
     def test_primary_fingerprints_ignore_subkeys_but_preserve_every_appended_primary(self):
         listing = 'pub:::::::::\nfpr:::::::::' + APT.MICROSOFT_FINGERPRINT + ':\nsub:::::::::\nfpr:::::::::' + 'B' * 40 + ':\n'
         self.assertEqual([APT.MICROSOFT_FINGERPRINT], APT.primary_fingerprints(listing))

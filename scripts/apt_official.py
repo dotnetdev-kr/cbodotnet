@@ -307,7 +307,7 @@ def bootstrap(variant, architecture, user, state_path):
             'Official comparison must start without an unpackaged or preexisting dotnet installation')
     print('apt-official: provision package-managed SDK for ' + variant + '/' + architecture, file=sys.stderr, flush=True)
     run(['apt-get', 'update', '-qq'])
-    run(['apt-get', 'install', '-y', '--no-install-recommends', 'ca-certificates', 'curl', 'gnupg'])
+    run(['apt-get', 'install', '-y', '--no-install-recommends', 'ca-certificates', 'curl', 'gnupg', 'gpgv'])
     if variant == 'debian-13':
         configure_microsoft(architecture)
         run(['apt-get', 'update', '-qq'])

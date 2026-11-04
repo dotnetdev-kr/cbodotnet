@@ -11,7 +11,7 @@ case "$arch:$(uname -m)" in x64:x86_64|aarch64:aarch64|aarch64:arm64) ;; *) exit
 if [[ $phase == install ]]; then
   export DEBIAN_FRONTEND=noninteractive
   apt-get update -qq
-  apt-get install -y --no-install-recommends ca-certificates curl gnupg python3 util-linux passwd
+  apt-get install -y --no-install-recommends ca-certificates curl gnupg gpgv python3 util-linux passwd
 fi
 python3 /repo/scripts/published_apt.py "$phase" --variant "$variant" --sdk "$sdk" --revision "$revision" \
   --fingerprint "$fingerprint" --arch "$arch" --report "$report"

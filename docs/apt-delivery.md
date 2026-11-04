@@ -22,7 +22,7 @@ The key is separate from Ubuntu and Microsoft package-signing identities.
 
 ```sh
 sudo apt-get update
-sudo apt-get install -y ca-certificates curl gnupg
+sudo apt-get install -y ca-certificates curl gnupg gpgv
 key=$(mktemp)
 curl --fail --location --proto '=https' --tlsv1.2 \
   https://dotnetdev.kr/cbodotnet/cbodotnet-archive-keyring.gpg -o "$key"
