@@ -95,7 +95,10 @@ def prepare_site(policy, output, public_key=None):
         require(state == 'published' and publications and configuration.get('receipts'),
                 'Published channels require verified publication adapters and receipts')
         verified_publications = []
-        for receipt in configuration['receipts']:
+        hosted_variants = set()
+        receipts = sorted(configuration['receipts'], key=lambda row: (
+            tuple(int(part) for part in row['identity']['sdkVersion'].split('.')), row['identity']['packageRevision']), reverse=True)
+        for receipt in receipts:
             require(receipt.get('status') == 'published-postverified' and receipt.get('repository') == REPOSITORY
                     and receipt['identity']['channel'] == channel, 'Invalid public distribution receipt')
             identity = receipt['identity']
@@ -119,7 +122,7 @@ def prepare_site(policy, output, public_key=None):
                         and manifest.get('status') == 'validated-complete-matrix',
                         'Distribution manifest identity mismatch')
                 signer = verify_report_signature(manifest_path, signature, keyring, policy,
-                                                   '.github/workflows/distribution-release.yml')
+                                                   '.github/workflows/distribution-release.yml', historical=True)
                 require(signer == receipt['signingFingerprint'] == manifest['signingFingerprint'], 'Distribution signer mismatch')
                 identity = manifest['identity']
                 require(contract['releases'].get(identity['sdkVersion'], {}).get('manifestSha256')
@@ -129,6 +132,15 @@ def prepare_site(policy, output, public_key=None):
                 require(len(set(actual)) == len(actual) and set(actual) == expected, 'Distribution matrix is incomplete')
                 assets = {row['name']: row for row in manifest['assets']}
                 require(len(assets) == len(manifest['assets']), 'Duplicate signed asset names')
+                expected_assets = dict(assets)
+                for name, path in [('distribution-manifest.json', manifest_path), ('distribution-manifest.json.asc', signature)]:
+                    expected_assets[name] = {'name': name, 'size': path.stat().st_size,
+                                             'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
+                observed_assets = {row['name']: {key: row[key] for key in ('name', 'size', 'sha256')}
+                                   for row in receipt['assets']}
+                require(len(observed_assets) == len(receipt['assets']) and observed_assets == expected_assets
+                        and all(row['url'] == base + row['name'] for row in receipt['assets']),
+                        'Receipt assets differ from signed publication bytes')
                 require(receipt['publications'] == publication_rows(manifest, observed, base),
                         'Receipt publications are not derived from signed records')
                 for repository in manifest.get('repositories', []):
@@ -139,6 +151,8 @@ def prepare_site(policy, output, public_key=None):
                         variant = repository['variants'][0]
                         require(variant in contract['channels']['deb']['variants']
                                 and name == 'apt-' + variant + '.tar.gz', 'Unverified APT variant')
+                        if variant in hosted_variants:
+                            continue
                         archive = temporary / name
                         download(base + name, archive, 2**31 - 1, assets[name])
                         parent = output / 'packages/deb'
@@ -149,6 +163,7 @@ def prepare_site(policy, output, public_key=None):
                                         str(destination / 'Release')], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                         subprocess.run(['gpgv', '--keyring', str(keyring), str(destination / 'InRelease')],
                                        check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        hosted_variants.add(variant)
                     elif repository['kind'] == 'oci-descriptor':
                         require(channel == 'oci', 'OCI descriptor in another channel')
                         descriptor = temporary / name
@@ -157,9 +172,11 @@ def prepare_site(policy, output, public_key=None):
                         require(image.get('repository') == 'ghcr.io/dotnetdev-kr/cbodotnet-sdk'
                                 and re.fullmatch(r'sha256:[a-f0-9]{64}', image.get('digest', '')),
                                 'Invalid pinned OCI descriptor')
-                        status['channels'].setdefault(channel, {})['image'] = image
+                        status['channels'].setdefault(channel, {}).setdefault('image', image)
                 verified_publications.extend(receipt['publications'])
-        require(verified_publications == publications, 'Status publications differ from verified receipts')
+        require(sorted(verified_publications, key=lambda row: json.dumps(row, sort_keys=True))
+                == sorted(publications, key=lambda row: json.dumps(row, sort_keys=True)),
+                'Status publications differ from verified receipts')
         status['channels'].setdefault(channel, {}).update(status='published', publications=verified_publications)
     if any(row['status'] == 'published' for row in status['channels'].values()):
         shutil.copyfile(public_key, output / 'distribution-signing-key.asc')
@@ -182,7 +199,7 @@ def render_channels(status):
                 rows.append('<h3>' + html.escape(variant) + ' APT</h3><pre><code>' + html.escape(command) + '</code></pre>')
         if channel == 'oci' and data.get('image'):
             image = data['image']['repository'] + '@' + data['image']['digest']
-            command = 'docker pull ' + image + '\ndocker run --rm ' + image + ' --info'
+            command = 'docker pull ' + image + '\ndocker run --rm ' + image + ' cbodotnet --info'
             rows.append('<h3>OCI SDK image</h3><pre><code>' + html.escape(command) + '</code></pre>')
     if not rows:
         return '<p>APT, RPM, AUR and consumer OCI channels are in preparation. Use the verified archive downloads above.</p>'

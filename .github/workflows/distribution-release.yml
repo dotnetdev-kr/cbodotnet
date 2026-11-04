@@ -39,6 +39,16 @@ on:
         required: false
         default: '1'
         type: string
+      promotion_run_id:
+        description: Optional prior run with successfully uploaded frozen signed promotion bytes
+        required: false
+        default: ''
+        type: string
+      promotion_run_attempt:
+        description: Exact attempt containing the frozen promotion artifact
+        required: false
+        default: '1'
+        type: string
 
 permissions:
   contents: read
@@ -52,7 +62,7 @@ env:
 
 jobs:
   native:
-    if: inputs.source_run_id == ''
+    if: inputs.source_run_id == '' && inputs.promotion_run_id == ''
     name: Install packages and OCI on native ${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 75
@@ -94,7 +104,7 @@ jobs:
   publish:
     name: Sign, promote and post-verify immutable distributions
     needs: native
-    if: always() && inputs.publish && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main' && (needs.native.result == 'success' || (needs.native.result == 'skipped' && inputs.source_run_id != ''))
+    if: always() && inputs.publish && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main' && (needs.native.result == 'success' || (needs.native.result == 'skipped' && (inputs.source_run_id != '' || inputs.promotion_run_id != '')))
     runs-on: ubuntu-24.04
     timeout-minutes: 75
     environment: downstream-release
@@ -106,14 +116,29 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Reject ambiguous resume modes
+        env:
+          SOURCE_RUN: ${{ inputs.source_run_id }}
+          PROMOTION_RUN: ${{ inputs.promotion_run_id }}
+        run: |
+          if [[ -n "$SOURCE_RUN" && -n "$PROMOTION_RUN" ]]; then
+            echo 'Choose native source-run recovery or frozen promotion recovery, not both.' >&2
+            exit 1
+          fi
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        if: inputs.promotion_run_id == ''
         with:
           pattern: downstream-native-*-${{ inputs.source_run_id || github.run_id }}-${{ inputs.source_run_id != '' && inputs.source_run_attempt || github.run_attempt }}
           path: ${{ runner.temp }}/received
           merge-multiple: true
           github-token: ${{ github.token }}
           run-id: ${{ inputs.source_run_id || github.run_id }}
+      - name: Install signed repository metadata tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends apt-utils gnupg
       - name: Import only the approved protected-environment signing identity
+        if: inputs.promotion_run_id == ''
         env:
           DOWNSTREAM_SIGNING_KEY: ${{ secrets.DOWNSTREAM_SIGNING_KEY }}
         run: |
@@ -124,7 +149,13 @@ jobs:
           printf '%s' "$DOWNSTREAM_SIGNING_KEY" | gpg --homedir "$RUNNER_TEMP/downstream-gnupg" --batch --import
           gpg --homedir "$RUNNER_TEMP/downstream-gnupg" --batch --import releases/downstream-signing-key.asc
           gpg --homedir "$RUNNER_TEMP/downstream-gnupg" --batch --export D7D154B4B33C19A82B95B13688135410ACD9C0EA > "$RUNNER_TEMP/downstream-public.gpg"
-      - name: Authenticate every source/output/report, sign repositories and publish without replacement
+      - name: Prepare the trusted public keyring for frozen promotion recovery
+        if: inputs.promotion_run_id != ''
+        run: |
+          gpg --batch --yes --dearmor --output "$RUNNER_TEMP/downstream-public.gpg" releases/downstream-signing-key.asc
+      - name: Authenticate every source/output/report and freeze signed channel bundles
+        id: stage
+        if: inputs.promotion_run_id == ''
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_TOKEN: ${{ github.token }}
@@ -136,7 +167,47 @@ jobs:
             --received "$RUNNER_TEMP/received" --output "$RUNNER_TEMP/promotion" \
             --signing-key D7D154B4B33C19A82B95B13688135410ACD9C0EA \
             --keyring "$RUNNER_TEMP/downstream-public.gpg" \
-            --source-run "$SOURCE_RUN_ID" --source-attempt "$SOURCE_RUN_ATTEMPT"
+            --source-run "$SOURCE_RUN_ID" --source-attempt "$SOURCE_RUN_ATTEMPT" --stage-only
+      - name: Check whether complete frozen bundles are ready for durable recovery
+        id: freeze_ready
+        if: always() && inputs.promotion_run_id == ''
+        run: |
+          set -euo pipefail
+          if [[ -f "$RUNNER_TEMP/promotion/promotion.json" ]]; then
+            python3 -c 'from pathlib import Path; import os,sys; sys.path.insert(0,"scripts"); from downstream_publish import validate_bundle; p=Path(os.environ["RUNNER_TEMP"]); [validate_bundle(p/"promotion"/name,p/"downstream-public.gpg") for name in ("bundle-deb","bundle-oci")]'
+            printf 'ready=true\n' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Freeze signed promotion bytes before publication
+        id: freeze_upload
+        if: always() && inputs.promotion_run_id == '' && steps.freeze_ready.outputs.ready == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: downstream-frozen-promotion-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/promotion/bundle-deb/
+            ${{ runner.temp }}/promotion/bundle-oci/
+            ${{ runner.temp }}/promotion/oci-index.json
+            ${{ runner.temp }}/promotion/promotion.json
+          compression-level: 0
+          retention-days: 14
+          if-no-files-found: error
+      - name: Publish and post-verify the exact frozen promotion bytes
+        if: inputs.promotion_run_id == '' && steps.freeze_upload.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/distribution-ci.py publish-staged \
+            --promotion "$RUNNER_TEMP/promotion" --keyring "$RUNNER_TEMP/downstream-public.gpg"
+      - name: Recover verified frozen promotion bytes and resume publication without re-signing
+        if: inputs.promotion_run_id != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROMOTION_RUN: ${{ inputs.promotion_run_id }}
+          PROMOTION_ATTEMPT: ${{ inputs.promotion_run_attempt }}
+        run: |
+          python3 scripts/distribution-ci.py publish-staged \
+            --promotion "$RUNNER_TEMP/promotion" --keyring "$RUNNER_TEMP/downstream-public.gpg" \
+            --frozen-run "$PROMOTION_RUN" --frozen-attempt "$PROMOTION_ATTEMPT"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: downstream-publication-${{ github.run_id }}-${{ github.run_attempt }}
@@ -147,18 +218,50 @@ jobs:
           retention-days: 30
           if-no-files-found: error
       - name: Remove the imported private signing material
-        if: always()
+        if: always() && inputs.promotion_run_id == ''
         run: |
           set -euo pipefail
           gpgconf --homedir "$RUNNER_TEMP/downstream-gnupg" --kill all || true
           python3 -c 'from pathlib import Path; import os,shutil; p=Path(os.environ["RUNNER_TEMP"])/"downstream-gnupg"; assert p.name=="downstream-gnupg" and p.parent==Path(os.environ["RUNNER_TEMP"]); shutil.rmtree(p,ignore_errors=True)'
+
+  finalize:
+    name: Activate verified distribution availability and refresh Pages
+    needs: [publish, postverify]
+    if: needs.publish.result == 'success' && needs.postverify.result == 'success' && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: downstream-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/final-publication
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: downstream-postverify-*-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/final-postverification
+          merge-multiple: true
+      - name: Authenticate receipts and native results, commit availability, dispatch Pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 scripts/distribution-status.py \
+            --publication-dir "$RUNNER_TEMP/final-publication" \
+            --reports-dir "$RUNNER_TEMP/final-postverification" \
+            --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --write
 
   postverify:
     name: Anonymous digest pull and non-root smoke on ${{ matrix.arch }}
     needs: publish
     if: needs.publish.result == 'success'
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 20
+    timeout-minutes: 35
     strategy:
       fail-fast: false
       matrix:
@@ -184,7 +287,8 @@ jobs:
           export DOCKER_CONFIG="$RUNNER_TEMP/anonymous-docker"
           python3 scripts/distribution-ci.py postverify \
             --index "$RUNNER_TEMP/publication/oci-index.json" --arch "$ARCH" \
-            --output "$RUNNER_TEMP/published-$ARCH.json"
+            --output "$RUNNER_TEMP/published-$ARCH.json" \
+            --deb-receipt "$RUNNER_TEMP/publication/deb-publication.json"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: downstream-postverify-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}

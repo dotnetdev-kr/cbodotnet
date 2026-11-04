@@ -76,6 +76,10 @@ class DownstreamPublishTests(unittest.TestCase):
         patch = mock.patch.object(PUBLISH, 'verify_report_signature', return_value=self.signer)
         patch.start()
         self.addCleanup(patch.stop)
+        for name, value in [('load_contract', self.fixture.contract), ('load_catalog', self.fixture.catalog)]:
+            trust = mock.patch.object(PUBLISH, name, return_value=value)
+            trust.start()
+            self.addCleanup(trust.stop)
         self.crypto = mock.patch.object(PUBLISH.subprocess, 'run', side_effect=self.sign)
         self.crypto.start()
         self.addCleanup(self.crypto.stop)
@@ -180,6 +184,16 @@ class DownstreamPublishTests(unittest.TestCase):
             self.publish(transport)
         self.policy['channels']['deb']['publisherConfigured'] = False
         with self.assertRaisesRegex(ValueError, 'not configured'):
+            self.publish(FakeGitHub())
+
+    def test_frozen_bundle_cannot_publish_after_source_pin_or_producer_revocation(self):
+        manifest = self.bundle()
+        self.fixture.contract['releases']['10.0.403']['manifestSha256'] = '0' * 64
+        with self.assertRaisesRegex(ValueError, 'no longer admitted'):
+            self.publish(FakeGitHub())
+        self.fixture.contract['releases']['10.0.403']['manifestSha256'] = manifest['identity']['sourceManifestSha256']
+        self.fixture.catalog['builds'][0]['architectures']['x64']['runId'] = '99999'
+        with self.assertRaisesRegex(ValueError, 'producer is no longer admitted'):
             self.publish(FakeGitHub())
 
     def test_rpm_backend_uses_the_same_signed_immutable_publication_protocol(self):

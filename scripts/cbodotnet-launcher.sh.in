@@ -6,7 +6,8 @@ DOTNET_ROOT=@ROOT@
 DOTNET_HOST_PATH="$DOTNET_ROOT/dotnet"
 DOTNET_MULTILEVEL_LOOKUP=0
 export DOTNET_ROOT @ARCH_ROOT@ DOTNET_HOST_PATH DOTNET_MULTILEVEL_LOOKUP
-if [ ! -x "$DOTNET_ROOT/dotnet" ]; then
+if [ ! -d "$DOTNET_ROOT" ] || [ -L "$DOTNET_ROOT" ] \
+    || [ ! -f "$DOTNET_ROOT/dotnet" ] || [ ! -x "$DOTNET_ROOT/dotnet" ] || [ -L "$DOTNET_ROOT/dotnet" ]; then
     printf '%s\n' 'cbodotnet: the selected SDK host is missing or cannot execute' >&2
     exit 127
 fi

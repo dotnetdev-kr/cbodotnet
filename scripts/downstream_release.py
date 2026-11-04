@@ -11,7 +11,7 @@ import subprocess
 import tempfile
 import urllib.request
 
-from distribution_contract import load_contract, sha256_file, verified_plan
+from distribution_contract import load_contract, sha256_file, validate_qualified_producers, verified_plan
 from release_catalog import get_bytes, MAX_CHECKSUM_BYTES, MAX_JSON_BYTES, validate_release
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -106,6 +106,8 @@ def receive_release(tag, directory, channel, variant, arch, revision=1):
             'Pinned source manifest digest mismatch')
     checksums = get_bytes(base + 'SHA256SUMS', MAX_CHECKSUM_BYTES)
     record = validate_release(release, manifest, checksums, REPOSITORY)
+    require(record['sdkVersion'] == version, 'Release SDK version differs from the requested tag')
+    validate_qualified_producers(record, contract['releases'][version]['target'])
     sdk = record['architectures'][arch]['sdk']
     destination = directory / sdk['name']
     if destination.exists():
@@ -200,8 +202,8 @@ def load_status(path=None):
     return value
 
 
-def verify_report_signature(report_path, signature_path, keyring_path, policy, workflow, gpgv='gpgv'):
-    """Authenticate report bytes using only an explicit keyring and active pinned signer."""
+def verify_report_signature(report_path, signature_path, keyring_path, policy, workflow, gpgv='gpgv', *, historical=False):
+    """Authenticate exact bytes; historical reads never authorize new promotion."""
     report, signature, keyring = map(ordinary_file, (report_path, signature_path, keyring_path))
     require(policy.get('evidenceSigners'), 'No trusted downstream evidence signer is configured')
     result = subprocess.run([gpgv, '--status-fd', '1', '--keyring', str(keyring), str(signature), str(report)],
@@ -210,7 +212,10 @@ def verify_report_signature(report_path, signature_path, keyring_path, policy, w
     valid = [parts for parts in lines if parts and parts[0] == 'VALIDSIG']
     require(result.returncode == 0 and len(valid) == 1 and len(valid[0]) >= 11,
             'Report signature did not independently verify')
-    require(not any(parts and parts[0] in {'BADSIG', 'ERRSIG', 'REVKEYSIG', 'EXPKEYSIG', 'EXPSIG'} for parts in lines),
+    invalid = {'BADSIG', 'ERRSIG', 'REVKEYSIG', 'KEYREVOKED'}
+    if not historical:
+        invalid |= {'EXPKEYSIG', 'EXPSIG'}
+    require(not any(parts and parts[0] in invalid for parts in lines),
             'Report signer or signature is revoked, expired or invalid')
     fields = valid[0]
     fingerprint = fields[10].upper()
@@ -222,9 +227,30 @@ def verify_report_signature(report_path, signature_path, keyring_path, policy, w
         end = datetime.fromisoformat(signer['notAfter'].replace('Z', '+00:00'))
     except (KeyError, TypeError, ValueError) as error:
         raise ValueError('Signer has no valid reviewed trust window') from error
-    require(signer.get('state') == 'active' and start <= now < end and signer.get('workflow') == workflow,
-            'Evidence signer is not active or not authorized for this workflow')
-    require(fields[8] in {'8', '9', '10', '11'} and (fields[4] == '0' or int(fields[4]) > now.timestamp()),
+    require(start.tzinfo is not None and end.tzinfo is not None and start < end,
+            'Signer has no valid reviewed trust window')
+    require(re.fullmatch(r'[0-9]+', fields[3]) and re.fullmatch(r'[0-9]+', fields[4]),
+            'Invalid independently verified signature timestamp')
+    try:
+        signed_at = datetime.fromtimestamp(int(fields[3]), timezone.utc)
+        signature_expiry = int(fields[4])
+    except (ValueError, OverflowError, OSError) as error:
+        raise ValueError('Invalid independently verified signature timestamp') from error
+    require(signed_at <= now, 'Signature creation timestamp is in the future')
+    if historical:
+        require(signer.get('state') in {'active', 'retired'} and start <= signed_at < end
+                and signer.get('workflow') == workflow,
+                'Historical signature was not authorized at its verified creation time')
+        for parts in lines:
+            if parts and parts[0] == 'KEYEXPIRED':
+                require(len(parts) == 2 and re.fullmatch(r'[0-9]+', parts[1])
+                        and int(parts[1]) > signed_at.timestamp(), 'Signing key was expired at signature creation')
+        expiry_reference = signed_at.timestamp()
+    else:
+        require(signer.get('state') == 'active' and start <= now < end and signer.get('workflow') == workflow,
+                'Evidence signer is not active or not authorized for this workflow')
+        expiry_reference = now.timestamp()
+    require(fields[8] in {'8', '9', '10', '11'} and (signature_expiry == 0 or signature_expiry > expiry_reference),
             'Report signature uses an expired signature or unsupported digest')
     return fingerprint
 

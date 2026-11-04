@@ -216,9 +216,10 @@ class DownstreamReleaseTests(unittest.TestCase):
     def test_missing_real_publisher_cannot_be_reported_as_publication_success(self):
         staged = self.stage()
         self.policy['channels']['deb']['publisherConfigured'] = False
+        previous_publications = copy.deepcopy(self.policy['channels']['deb']['publications'])
         with self.assertRaisesRegex(ValueError, 'not configured'):
             RELEASE.publish(staged, self.policy)
-        self.assertTrue(all(not row['publications'] for row in RELEASE.load_status()['channels'].values()))
+        self.assertEqual(previous_publications, self.policy['channels']['deb']['publications'])
 
 
 class ReportSignatureTests(unittest.TestCase):

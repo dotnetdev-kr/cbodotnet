@@ -20,6 +20,10 @@ The SDK package owns its complete `/opt/cbodotnet/10.0` root and explicit
 selector or another installed SDK. Neither component owns system `dotnet`.
 The architecture-independent shared package is reproducible across SDK patches,
 architectures and packaging revisions.
+Its version is independent of an SDK revision: change `HOST_VERSION` whenever
+the shared selector or its package-owned files change. A new common package may
+satisfy older SDK dependencies; never publish changed selector bytes under an
+already published common package version.
 
 No maintainer script rewrites SDK bytes or edits shell profiles. The builder
 preserves executable modes, links, templates, libraries, licenses and notices,
@@ -63,6 +67,11 @@ to bind package hashes, verifies its generated GPG metadata and emits
 `apt-<variant>.tar.gz`. The common publisher signs the bundle descriptor before
 the website may expose it. Package-manager installation from the published
 signed repository remains a separate post-publication check.
+The [native delivery driver](../scripts/distribution-ci.py) installs the two
+packages, exercises a real next-revision upgrade and removal, and tests OCI
+commands alongside an independent official SDK in disposable target containers.
+Use the protected delivery workflow for public promotion; invoking the package
+builder alone neither signs installation evidence nor updates availability.
 
 The RPM adapter disables stripping, debug splitting, build-id links and automatic
 dependency inference; it requires a reviewed RPM dependency list and compares
@@ -75,4 +84,6 @@ Fedora/RHEL compatibility evidence.
 The AUR adapter pins the SDK SHA-256 and local launcher/provenance inputs,
 disables stripping/debug transformations, and emits a PKGBUILD and `.SRCINFO`.
 Real `makepkg`, clean Arch installation and authenticated AUR submission remain
-the AUR channel's gates. No AUR submission occurs during recipe preparation.
+the AUR channel's gates. The shared `cbodotnet-host` dependency also needs its
+reviewed Arch recipe before that channel can be enabled. No AUR submission
+occurs during recipe preparation.

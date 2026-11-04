@@ -14,10 +14,15 @@ import urllib.request
 
 from downstream_release import (REPOSITORY, descriptor, encoded, load_status, ordinary_file,
                                 require, stage_records, verify_report_signature)
+from distribution_contract import load_contract
 
 MANIFEST = 'distribution-manifest.json'
 SIGNATURE = MANIFEST + '.asc'
 PUBLIC_KEY = 'distribution-signing-key.gpg'
+
+
+def load_catalog():
+    return json.loads((Path(__file__).resolve().parents[1] / 'releases/qualified-builds.json').read_bytes())
 
 
 def safe_name(value):
@@ -121,6 +126,18 @@ def validate_bundle(directory, keyring, target_commit=None, policy=None):
             and (target_commit is None or manifest['targetCommit'] == target_commit), 'Publication commit changed')
     records = manifest.get('records')
     require(isinstance(records, list) and records, 'The signed publication matrix is empty')
+    contract = load_contract()
+    admitted = contract['releases'].get(identity['sdkVersion'], {})
+    channel_policy = contract['channels'].get(identity['channel'], {})
+    require(manifest.get('contractVersion') == contract['schemaVersion']
+            and admitted.get('manifestSha256') == identity['sourceManifestSha256']
+            and identity['sourceReleaseTag'] == 'sdk-' + identity['sdkVersion']
+            and channel_policy.get('status') == 'preparation-only',
+            'Frozen publication source or contract is no longer admitted')
+    catalog = load_catalog()
+    qualified = [row for row in catalog.get('builds', []) if row.get('sdkVersion') == identity['sdkVersion']]
+    require(catalog.get('repository') == REPOSITORY and len(qualified) == 1
+            and qualified[0].get('target') == admitted['target'], 'Frozen source producer is no longer qualified')
     workflow = records[0]['record']['orchestration']['workflow']
     signature_bytes = ordinary_file(directory / SIGNATURE).read_bytes()
     require(len(signature_bytes) <= 1024**2, 'Publication signature exceeds its size limit')
@@ -151,6 +168,15 @@ def validate_bundle(directory, keyring, target_commit=None, policy=None):
                 and record['orchestration']['commit'] == manifest['targetCommit']
                 and record['orchestration']['workflow'] == workflow,
                 'Publication records have inconsistent provenance')
+        arch = record['architecture']
+        producer = qualified[0].get('architectures', {}).get(arch, {})
+        require(record['identity']['variant'] in channel_policy['variants']
+                and arch in contract['architectures']
+                and record['identity']['targetRid'] == contract['architectures'][arch]['rid']
+                and record.get('branding') == contract['branding']
+                and producer and all(str(record['producer'].get(key)) == str(producer.get(key))
+                                     for key in ('projectCommit', 'runId', 'runAttempt', 'artifactId')),
+                'Frozen source target, branding or producer is no longer admitted')
         require(all(record['identity'][key] == value for key, value in identity.items()),
                 'Publication mixes immutable channel identities')
         for field, asset_field in [('artifact', 'artifactAsset'), ('report', 'reportAsset'), ('signature', 'signatureAsset')]:

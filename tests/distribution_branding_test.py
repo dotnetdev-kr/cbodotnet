@@ -153,6 +153,33 @@ class DistributionBrandingTests(unittest.TestCase):
         self.assertEqual('', result.stdout)
         self.assertFalse(self.invocations.exists())
 
+    def assert_unusable_distribution(self):
+        for arguments in (('--cbodotnet-info',), ('--version',), ('--info',), ('build',)):
+            with self.subTest(arguments=arguments):
+                result = self.run_launcher(*arguments)
+                self.assertEqual(127, result.returncode)
+                self.assertEqual('', result.stdout)
+                self.assertIn('selected SDK host is missing', result.stderr)
+                self.assertNotIn(BRAND, result.stdout + result.stderr)
+                self.assertNotIn('official-fallback', result.stdout + result.stderr)
+        self.assertFalse(self.invocations.exists())
+
+    def test_executable_directory_cannot_advertise_distribution_identity(self):
+        (self.sdk / 'dotnet').unlink()
+        (self.sdk / 'dotnet').mkdir(mode=0o755)
+        self.assert_unusable_distribution()
+
+    def test_host_symlink_to_official_dotnet_cannot_advertise_distribution_identity(self):
+        (self.sdk / 'dotnet').unlink()
+        (self.sdk / 'dotnet').symlink_to(self.official / 'dotnet')
+        self.assert_unusable_distribution()
+
+    def test_sdk_root_symlink_cannot_advertise_distribution_identity(self):
+        retained = self.directory / 'retained-sdk'
+        self.sdk.rename(retained)
+        self.sdk.symlink_to(self.official, target_is_directory=True)
+        self.assert_unusable_distribution()
+
     def test_root_shell_metacharacters_are_literal_in_execution_and_json(self):
         for name in ('sdk with spaces', "sdk's-root", 'sdk $(touch PWNED)'):
             with self.subTest(name=name):

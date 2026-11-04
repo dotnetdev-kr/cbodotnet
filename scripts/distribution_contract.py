@@ -115,6 +115,27 @@ def launcher_text(root, arch, contract=None, plan=None):
     return re.sub(r'@(?:ROOT|ARCH_ROOT|BRAND|BRANDING_JSON)@', lambda match: replacements[match[0]], template)
 
 
+def validate_qualified_producers(record, target, catalog=None):
+    """Reject unqualified producers before any SDK payload download or use."""
+    if catalog is None:
+        catalog = json.loads((ROOT / 'releases/qualified-builds.json').read_text(encoding='utf-8-sig'))
+    require(isinstance(catalog, dict) and type(catalog.get('schemaVersion')) is int
+            and catalog['schemaVersion'] == 1 and catalog.get('repository') == REPOSITORY,
+            'Invalid qualification catalog')
+    rows = catalog.get('builds')
+    require(isinstance(rows, list) and all(isinstance(row, dict) for row in rows), 'Invalid qualification catalog builds')
+    builds = [row for row in rows if row.get('sdkVersion') == record['sdkVersion']]
+    require(len(builds) == 1 and builds[0].get('target') == target, 'Unqualified or ambiguous SDK version')
+    producers = builds[0].get('architectures', {})
+    require(isinstance(producers, dict) and set(producers) == set(ARCHITECTURES), 'Qualification requires both architectures')
+    require(set(record.get('architectures', {})) == set(ARCHITECTURES), 'Qualified release requires both architectures')
+    for public, row in record['architectures'].items():
+        expected = producers[public]
+        require(isinstance(expected, dict) and all(str(row['provenance'].get(key)) == str(expected.get(key))
+                    for key in ('projectCommit', 'runId', 'runAttempt', 'artifactId')),
+                'Release producer does not match qualified catalog: ' + public)
+
+
 def verified_plan(release, manifest_bytes, checksum_bytes, sdk_path, channel, variant, arch,
                   revision=1, contract=None, catalog=None):
     """Bind a candidate package identity to qualified release bytes; never promote it."""
@@ -134,18 +155,7 @@ def verified_plan(release, manifest_bytes, checksum_bytes, sdk_path, channel, va
     require(admitted is not None,
             'SDK version is not admitted for downstream packaging; legacy/unknown versions require separate qualification')
     require(manifest_digest == admitted['manifestSha256'], 'Pinned release manifest digest mismatch')
-    if catalog is None:
-        catalog = json.loads((ROOT / 'releases/qualified-builds.json').read_text(encoding='utf-8-sig'))
-    require(catalog.get('schemaVersion') == 1 and catalog.get('repository') == REPOSITORY, 'Invalid qualification catalog')
-    builds = [row for row in catalog.get('builds', []) if row.get('sdkVersion') == version]
-    require(len(builds) == 1 and builds[0].get('target') == admitted['target'], 'Unqualified or ambiguous SDK version')
-    producers = builds[0].get('architectures', {})
-    require(set(producers) == set(ARCHITECTURES), 'Qualification requires both architectures')
-    for public, row in record['architectures'].items():
-        expected = producers[public]
-        require(all(str(row['provenance'].get(key)) == str(expected.get(key))
-                    for key in ('projectCommit', 'runId', 'runAttempt', 'artifactId')),
-                'Release producer does not match qualified catalog: ' + public)
+    validate_qualified_producers(record, admitted['target'], catalog)
     path = Path(sdk_path).absolute()
     require(path.is_file() and not any(p.is_symlink() for p in [path, *path.parents]),
             'An ordinary SDK archive file is required')
