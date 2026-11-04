@@ -18,6 +18,32 @@ SPEC.loader.exec_module(CI)
 
 
 class RpmCiTests(unittest.TestCase):
+    def test_sdk5_static_globalization_requires_defined_icu_entrypoints_in_audited_coreclr(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); sdk = root / 'sdk'
+            paths = ['dotnet', 'host/fxr/5.0.17/libhostfxr.so',
+                *['shared/Microsoft.NETCore.App/5.0.17/' + name for name in ('libcoreclr.so', 'libhostpolicy.so',
+                   'libSystem.Native.so', 'libSystem.Security.Cryptography.Native.OpenSsl.so')]]
+            for name in paths:
+                path = sdk / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b'qualified-native-layout')
+            symbols = '\n'.join(' 123: 00000123 104 FUNC LOCAL DEFAULT 13 ' + name for name in (
+                'GlobalizationNative_LoadICU', 'GlobalizationNative_GetICUVersion', 'GlobalizationNative_InitICUFunctions'))
+            plan = dict(sdkVersion='5.0.214', package=dict(root=str(sdk)))
+            def inspect(command, **kwargs):
+                return symbols if command[0] == 'readelf' else 'all actual native dependencies resolved'
+            with mock.patch.object(CI, 'run', side_effect=inspect) as command:
+                CI.native_libraries(plan, root)
+                proof = CI.load(root / 'native-libraries.json')[-1]
+                self.assertEqual('compiled-into-coreclr', proof['implementation'])
+                self.assertEqual(3, len(proof['definedSymbols']))
+                self.assertTrue(any(call.args[0][0] == 'ldd' and str(call.args[0][1]).endswith('/libcoreclr.so') for call in command.call_args_list))
+            for bad in (symbols.replace('DEFAULT 13', 'DEFAULT UND'), symbols.replace('GlobalizationNative_LoadICU', 'NotTheIcuLoader')):
+                with self.subTest(symbols=bad), mock.patch.object(CI, 'run', side_effect=lambda command, **kwargs: bad if command[0] == 'readelf' else 'resolved'):
+                    with self.assertRaisesRegex(ValueError, 'defined static ICU'):
+                        CI.native_libraries(plan, root)
+            with mock.patch.object(CI, 'run', side_effect=inspect), self.assertRaisesRegex(ValueError, 'System.Globalization.Native'):
+                CI.native_libraries(dict(plan, sdkVersion='6.0.136'), root)
+
     def test_native_library_observation_uses_the_same_scoped_provider_without_mutating_parent_environment(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

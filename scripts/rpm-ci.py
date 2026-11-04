@@ -227,6 +227,7 @@ def native_libraries(plan, output, runtime_env=None):
     root = Path(plan['package']['root'])
     require((root / 'dotnet').is_file(), 'The baseline native dotnet host is missing')
     selected = [root / 'dotnet']
+    static_components = []
     baseline = {'hostfxr': ('host/fxr/*/libhostfxr.so',),
         'coreclr': ('shared/Microsoft.NETCore.App/*/libcoreclr.so',),
         'hostpolicy': ('shared/Microsoft.NETCore.App/*/libhostpolicy.so',)}
@@ -234,6 +235,23 @@ def native_libraries(plan, output, runtime_env=None):
         baseline[component] = tuple('shared/Microsoft.NETCore.App/*/' + prefix + component + '.so' for prefix in ('lib', ''))
     for component, patterns in baseline.items():
         matches = sorted({path for pattern in patterns for path in root.glob(pattern)})
+        if not matches and component == 'System.Globalization.Native' and plan.get('sdkVersion', '').startswith('5.0.'):
+            # The qualified source-built .NET5 runtime compiles its ICU shim
+            # into CoreCLR instead of shipping a separate globalization SO.
+            required = {'GlobalizationNative_LoadICU', 'GlobalizationNative_GetICUVersion', 'GlobalizationNative_InitICUFunctions'}
+            coreclr = sorted(root.glob('shared/Microsoft.NETCore.App/*/libcoreclr.so'))
+            require(coreclr, 'SDK5 static globalization requires its CoreCLR native object')
+            for path in coreclr:
+                symbols = run(['readelf', '--wide', '--symbols', path])
+                defined = set()
+                for line in symbols.splitlines():
+                    fields = line.split()
+                    if len(fields) >= 8 and fields[3] == 'FUNC' and fields[6].isdigit() and int(fields[6]) > 0:
+                        defined.add(fields[7])
+                require(required <= defined, 'SDK5 CoreCLR lacks its defined static ICU/globalization entrypoints')
+                static_components.append(dict(component=component, implementation='compiled-into-coreclr',
+                    path=path.relative_to(root).as_posix(), sha256=SHARED.digest(path), definedSymbols=sorted(required)))
+            continue
         require(matches and all(path.is_file() for path in matches), 'Missing baseline native runtime component: ' + component)
         selected.extend(matches)
     rows = []
@@ -242,6 +260,7 @@ def native_libraries(plan, output, runtime_env=None):
         require('not found' not in value, 'Unresolved baseline native library: ' + str(path))
         rows.append({'path': path.relative_to(root).as_posix(), 'ldd': value})
     rows.extend(audit_core3_http_libraries(plan.get('sdkVersion', '10.0.403'), root, runtime_env=runtime_env, runner=run))
+    rows.extend(static_components)
     save(output / 'native-libraries.json', rows)
 
 
@@ -402,6 +421,9 @@ def lifecycle(args):
     native_http_libraries = [row for row in load(reports / 'native-libraries.json') if 'libcurlProviderPath' in row]
     if native_http_libraries:
         result['nativeHttpLibraries'] = native_http_libraries
+    static_native = [row for row in load(reports / 'native-libraries.json') if row.get('implementation') == 'compiled-into-coreclr']
+    if static_native:
+        result['staticNativeComponents'] = static_native
     if runtime_env:
         result['compatibilityProvider'] = compatibility_proofs
     save(delivery / 'installation-result.json', result)
