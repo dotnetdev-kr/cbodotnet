@@ -72,7 +72,10 @@ images, using the same builder as the SDK packager. It downloads no SDK and has
 no signing or publishing step. Require exact whole-package SHA-256, header, lead
 and cpio payload equality within each variant.
 [Run 41783677486](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41783677486)
-passed all of these comparisons with the following unsigned package hashes:
+passed all of these comparisons. The retained
+[shared-package validation record](rpm-common-validation.json) includes the exact
+comparison report, independently verified artifact ZIP digest, source/run/commit
+identity and the prior `Optflags` diagnosis. The unsigned package hashes are:
 
 | Variant | Identical x64/AArch64 shared RPM SHA-256 |
 | --- | --- |

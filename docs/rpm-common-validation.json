@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "scope": "unsigned-shared-noarch-rpm-reproducibility-only",
+  "sdkDownloaded": false,
+  "sdkCompiled": false,
+  "sdkInstallationQualified": false,
+  "signingPerformed": false,
+  "publicationPerformed": false,
+  "workflow": {
+    "repository": "dotnetdev-kr/cbodotnet",
+    "path": ".github/workflows/rpm-common-check.yml",
+    "runId": "41783677486",
+    "runAttempt": "1",
+    "commit": "b1238f959f26f4dbbb4b9bc23d49a7ba89eb4002",
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41783677486",
+    "event": "workflow_dispatch",
+    "branch": "main",
+    "conclusion": "success"
+  },
+  "comparisonArtifact": {
+    "id": "13299749726",
+    "name": "native-common-rpm-comparison-41783677486-1",
+    "size": 1030,
+    "zipSha256": "6e4f74e57bc7d939dd8e951ca5631993612609f74adcdb352f6c750e051596b0",
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41783677486/artifacts/13299749726",
+    "createdAt": "2026-11-04T06:11:37Z",
+    "expiresAt": "2026-11-18T06:11:36Z",
+    "actualDownloadedZipSha256": "passed",
+    "exactLocalComparisonBytes": "passed",
+    "comparisonJsonSha256": "4705290a6d626d9fa3824be1ccaeefe40c13fe8ed25d441a8c21687ea1bda519"
+  },
+  "independentlyCheckedNativePairs": [
+    {
+      "variant": "fedora-45",
+      "architectures": [
+        "aarch64",
+        "x64"
+      ],
+      "rawRpmSha256": "0b6eb72b176df0f9f88402329046c415cd276935146d02ca87aedb047c030127",
+      "headerXmlSha256": "e82513c48792937e7115922ab5e41d9dd42349299e59308e7c2381276600cf41",
+      "rpmLeadSha256": "b6ab35f60d13389889425353320f1255c3214a047ce6cbc6ff9cb68f26dad0d1",
+      "cpioPayloadSha256": "5fb32d2f9d82e2e61d8ae157eb0062870e3e8a5fbc27ac9e4043893acd459e40",
+      "status": "passed"
+    },
+    {
+      "variant": "rocky-9.8",
+      "architectures": [
+        "aarch64",
+        "x64"
+      ],
+      "rawRpmSha256": "7c0ca5e4a6cf8a67895be90b2ed0f3ab0b33ef8235331029e9fed51fd3d49af3",
+      "headerXmlSha256": "f60a99986f35c740c839b5c4c09c91a3321fd5e97c86643d704fdc6752bf4d6f",
+      "rpmLeadSha256": "6d7a4d5465815c4f1451776e15f19bdca01511067086186ed8a22ea514ec2919",
+      "cpioPayloadSha256": "a53e0f8c6dc44a6d4f1a0cff1ee40b39db6cf2a5fcfbc23257f21cd19a1caccb",
+      "status": "passed"
+    }
+  ],
+  "priorDiagnosis": {
+    "runId": "41782953018",
+    "runAttempt": "1",
+    "commit": "a2e1174577e2bd7cbe5f0c915ed7984d743776d8",
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41782953018",
+    "diagnosticArtifactId": "13299418630",
+    "localInspectionSha256": "88453a1e1a692058d2b7a4f4e0889c10b6c4a68fe5c8e416f81a2bcae3c7f2b1",
+    "rawHeaderXmlDifferencesIndependentlyChecked": "passed",
+    "nativePairs": [
+      {
+        "variant": "fedora-45",
+        "identicalLead": true,
+        "identicalCpioPayload": true,
+        "cpioSha256": "a53e0f8c6dc44a6d4f1a0cff1ee40b39db6cf2a5fcfbc23257f21cd19a1caccb",
+        "onlySemanticHeaderDifference": "Optflags",
+        "derivedHeaderDifferences": [
+          "Sha1header",
+          "Sha256header",
+          "Sigmd5",
+          "Sigsize"
+        ]
+      },
+      {
+        "variant": "rocky-9.8",
+        "identicalLead": true,
+        "identicalCpioPayload": true,
+        "cpioSha256": "a53e0f8c6dc44a6d4f1a0cff1ee40b39db6cf2a5fcfbc23257f21cd19a1caccb",
+        "onlySemanticHeaderDifference": "Optflags",
+        "derivedHeaderDifferences": [
+          "Sha1header",
+          "Sha256header",
+          "Sigmd5",
+          "Sigsize"
+        ]
+      }
+    ],
+    "conclusion": "Optflags was the sole non-derived header difference between native architectures; prior lead and cpio payload bytes were identical within each distro pair."
+  },
+  "correction": {
+    "commit": "b1238f959f26f4dbbb4b9bc23d49a7ba89eb4002",
+    "scope": "render_rpm_host_spec only",
+    "macro": "%global optflags %{nil}",
+    "reason": "The shell-only noarch selector compiles nothing, so native compiler flags are irrelevant package metadata.",
+    "sdkCompilerMetadataChanged": false,
+    "sdkPayloadChanged": false
+  },
+  "limitations": [
+    "The independently downloaded artifact contains the aggregate comparison JSON. Native CI computed and compared package/header/lead/cpio digests; this retention step verifies artifact integrity, provenance, exact matrix and equality of those recorded digests.",
+    "This common-only run proves unsigned shared selector reproducibility. It does not qualify complete SDK installation, sign packages, publish a repository or establish RPM channel availability."
+  ],
+  "comparisonReport": {
+    "differences": [],
+    "packages": [
+      {
+        "architecture": "aarch64",
+        "baseImage": "quay.io/fedora/fedora:45@sha256:6dae311a7b73b4d09dcce5fbe0167e088cef75c0639230583482cd433b1dd492",
+        "cpioSha256": "5fb32d2f9d82e2e61d8ae157eb0062870e3e8a5fbc27ac9e4043893acd459e40",
+        "headerSha256": "e82513c48792937e7115922ab5e41d9dd42349299e59308e7c2381276600cf41",
+        "leadSha256": "b6ab35f60d13389889425353320f1255c3214a047ce6cbc6ff9cb68f26dad0d1",
+        "package": {
+          "name": "cbodotnet-host-1.0.0-1.cbot.fedora45.noarch.rpm",
+          "sha256": "0b6eb72b176df0f9f88402329046c415cd276935146d02ca87aedb047c030127",
+          "size": 7941
+        },
+        "packageIdentity": [
+          "cbodotnet-host",
+          "1.0.0",
+          "1.cbot.fedora45",
+          "noarch"
+        ],
+        "schemaVersion": 1,
+        "status": "passed",
+        "variant": "fedora-45"
+      },
+      {
+        "architecture": "aarch64",
+        "baseImage": "quay.io/rockylinux/rockylinux:9.8@sha256:67492e5a371d9db7c2ffb2708abae92147fb900900832a7ed3fb2ac4df9ec052",
+        "cpioSha256": "a53e0f8c6dc44a6d4f1a0cff1ee40b39db6cf2a5fcfbc23257f21cd19a1caccb",
+        "headerSha256": "f60a99986f35c740c839b5c4c09c91a3321fd5e97c86643d704fdc6752bf4d6f",
+        "leadSha256": "6d7a4d5465815c4f1451776e15f19bdca01511067086186ed8a22ea514ec2919",
+        "package": {
+          "name": "cbodotnet-host-1.0.0-1.cbot.rocky9.8.noarch.rpm",
+          "sha256": "7c0ca5e4a6cf8a67895be90b2ed0f3ab0b33ef8235331029e9fed51fd3d49af3",
+          "size": 7945
+        },
+        "packageIdentity": [
+          "cbodotnet-host",
+          "1.0.0",
+          "1.cbot.rocky9.8",
+          "noarch"
+        ],
+        "schemaVersion": 1,
+        "status": "passed",
+        "variant": "rocky-9.8"
+      },
+      {
+        "architecture": "x64",
+        "baseImage": "quay.io/fedora/fedora:45@sha256:35af79e2cab297469cae69d5712084ee68cab4ac7bba6bc0b17ffb2efbc6b2f0",
+        "cpioSha256": "5fb32d2f9d82e2e61d8ae157eb0062870e3e8a5fbc27ac9e4043893acd459e40",
+        "headerSha256": "e82513c48792937e7115922ab5e41d9dd42349299e59308e7c2381276600cf41",
+        "leadSha256": "b6ab35f60d13389889425353320f1255c3214a047ce6cbc6ff9cb68f26dad0d1",
+        "package": {
+          "name": "cbodotnet-host-1.0.0-1.cbot.fedora45.noarch.rpm",
+          "sha256": "0b6eb72b176df0f9f88402329046c415cd276935146d02ca87aedb047c030127",
+          "size": 7941
+        },
+        "packageIdentity": [
+          "cbodotnet-host",
+          "1.0.0",
+          "1.cbot.fedora45",
+          "noarch"
+        ],
+        "schemaVersion": 1,
+        "status": "passed",
+        "variant": "fedora-45"
+      },
+      {
+        "architecture": "x64",
+        "baseImage": "quay.io/rockylinux/rockylinux:9.8@sha256:ed654c694190a670bb5c33f68995b862214fc96ffbdca95e07a8935ba0a3717d",
+        "cpioSha256": "a53e0f8c6dc44a6d4f1a0cff1ee40b39db6cf2a5fcfbc23257f21cd19a1caccb",
+        "headerSha256": "f60a99986f35c740c839b5c4c09c91a3321fd5e97c86643d704fdc6752bf4d6f",
+        "leadSha256": "6d7a4d5465815c4f1451776e15f19bdca01511067086186ed8a22ea514ec2919",
+        "package": {
+          "name": "cbodotnet-host-1.0.0-1.cbot.rocky9.8.noarch.rpm",
+          "sha256": "7c0ca5e4a6cf8a67895be90b2ed0f3ab0b33ef8235331029e9fed51fd3d49af3",
+          "size": 7945
+        },
+        "packageIdentity": [
+          "cbodotnet-host",
+          "1.0.0",
+          "1.cbot.rocky9.8",
+          "noarch"
+        ],
+        "schemaVersion": 1,
+        "status": "passed",
+        "variant": "rocky-9.8"
+      }
+    ],
+    "schemaVersion": 1,
+    "sourceCommit": "b1238f959f26f4dbbb4b9bc23d49a7ba89eb4002",
+    "status": "passed"
+  }
+}

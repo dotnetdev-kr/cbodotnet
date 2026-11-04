@@ -122,6 +122,31 @@ class RpmCiTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Unavailable native'):
                 CI.observed_dependencies(plan)
 
+    def test_prefixed_dnf_cache_assets_are_selected_by_complete_rpm_header_identity(self):
+        plan = {'sdkVersion': '10.0.403', 'packageRevision': 1, 'architecture': {'rpm': 'aarch64'},
+                'package': {'name': 'cbodotnet-sdk-10.0', 'rpmRelease': '1.cbot.rocky9.8'}}
+        with tempfile.TemporaryDirectory() as temporary:
+            cache = Path(temporary)
+            sdk = cache / 'rpm-rocky-9.8-aarch64--cbodotnet-sdk-10.0-10.0.403-1.cbot.rocky9.8.aarch64.rpm'
+            host = cache / 'rpm-rocky-9.8--cbodotnet-host-1.0.0-1.cbot.rocky9.8.noarch.rpm'
+            unrelated = cache / 'unrelated-runtime.rpm'
+            for path in (sdk, host, unrelated):
+                path.write_bytes(b'fixture')
+            headers = {sdk: 'cbodotnet-sdk-10.0\t10.0.403\t1.cbot.rocky9.8\taarch64',
+                       host: 'cbodotnet-host\t1.0.0\t1.cbot.rocky9.8\tnoarch',
+                       unrelated: 'glibc\t2.34\t1.el9\taarch64'}
+            with mock.patch.object(CI, 'run', side_effect=lambda command: headers[command[-1]]):
+                self.assertEqual([host, sdk], CI.cached_packages(plan, cache))
+                headers[sdk] = 'cbodotnet-sdk-10.0\t10.0.403\t2.cbot.rocky9.8\taarch64'
+                with self.assertRaisesRegex(ValueError, 'differs from the reviewed'):
+                    CI.cached_packages(plan, cache)
+                headers[sdk] = 'cbodotnet-sdk-10.0\t10.0.403\t1.cbot.rocky9.8\taarch64'
+                duplicate = cache / 'duplicate.rpm'
+                duplicate.write_bytes(b'fixture')
+                headers[duplicate] = headers[host]
+                with self.assertRaisesRegex(ValueError, 'duplicated'):
+                    CI.cached_packages(plan, cache)
+
     def test_signed_local_transaction_never_disables_package_signature_checks(self):
         with mock.patch.object(CI, 'repository_options', return_value=['--disable-repo=*']):
             with mock.patch.object(CI, 'run', return_value='') as execute:

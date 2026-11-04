@@ -80,21 +80,42 @@ def rpm_version(name):
     return run(['rpm', '-q', '--queryformat', '%{VERSION}-%{RELEASE}', name]).strip()
 
 
-def package_identities(plan, revision=None):
+def required_package_identities(plan, revision=None):
     revision = plan['packageRevision'] if revision is None else revision
     release = plan['package']['rpmRelease']
     match = re.fullmatch(r'[1-9][0-9]*(\.cbot\.[a-z0-9.]+)', release)
     require(match is not None, 'Reviewed RPM release format is required')
-    expected = {
+    return {
         plan['package']['name']: [plan['sdkVersion'], str(revision) + match[1], plan['architecture']['rpm']],
         'cbodotnet-host': ['1.0.0', '1' + match[1], 'noarch'],
     }
+
+
+def package_identities(plan, revision=None):
     result = {}
-    for name, wanted in expected.items():
+    for name, wanted in required_package_identities(plan, revision).items():
         fields = run(['rpm', '-q', '--queryformat', '%{VERSION}\t%{RELEASE}\t%{ARCH}', name]).strip().split('\t')
         require(fields == wanted, 'Installed RPM identity differs from reviewed version/release/architecture: ' + name)
         result[name] = dict(version=fields[0], release=fields[1], architecture=fields[2])
     return result
+
+
+def cached_packages(plan, cache=Path('/var/cache')):
+    expected = required_package_identities(plan)
+    selected = {}
+    # DNF preserves the public location basename, including our release asset
+    # prefixes. Package headers, rather than filenames, identify signature proofs.
+    for path in sorted(cache.rglob('*.rpm')):
+        fields = run(['rpm', '-qp', '--queryformat', '%{NAME}\t%{VERSION}\t%{RELEASE}\t%{ARCH}', path]).strip().split('\t')
+        require(len(fields) == 4, 'A cached RPM has an invalid package identity')
+        name = fields[0]
+        if name not in expected:
+            continue
+        require(fields[1:] == expected[name] and name not in selected,
+                'Cached signed RPM identity is duplicated or differs from the reviewed version/release/architecture')
+        selected[name] = path
+    require(set(selected) == set(expected), 'Signed DNF installation must retain both package signature proofs')
+    return [selected[name] for name in sorted(selected)]
 
 
 def strict_integrity(names):
@@ -221,9 +242,7 @@ def prepare_installed(args):
         release = plan['package']['rpmRelease']
         run(['dnf', '-y', *repository_options('cbodotnet-validation'), '--setopt=tsflags=',
              '--setopt=keepcache=True', 'install', plan['package']['name'] + '-' + plan['sdkVersion'] + '-' + release, 'cbodotnet-host'])
-        cached = list(Path('/var/cache').rglob('cbodotnet-*.rpm'))
-        require(len(cached) == 2 and sum(path.name.startswith('cbodotnet-host-') for path in cached) == 1,
-                'Signed DNF installation must retain both package signature proofs')
+        cached = cached_packages(plan)
         for path in cached:
             value = run(['rpmkeys', '--checksig', '--verbose', path])
             require('Signature' in value and 'NOKEY' not in value and 'NOT OK' not in value, 'An RPM payload signature failed')
