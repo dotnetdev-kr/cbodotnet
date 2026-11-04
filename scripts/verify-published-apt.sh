@@ -54,7 +54,11 @@ elif [[ $phase == smoke ]]; then
     DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_NOLOGO=1 cbodotnet build --no-restore
   output=$(runuser -u "$user" -- cbodotnet "bin/Debug/net$series/Smoke.dll")
   [[ $output == published-https-apt-offline-passed ]]
-  dpkg -V "$package" cbodotnet-host
+  verification=$(dpkg -V "$package" cbodotnet-host)
+  if [[ -n $verification ]]; then
+    printf '%s\n' "$verification" >&2
+    echo 'Published package integrity verification failed.' >&2; exit 1
+  fi
   apt-get remove -y "$package" cbodotnet-host
   [[ ! -e /opt/cbodotnet/$series && ! -e /usr/bin/cbodotnet && ! -e /usr/bin/cbodotnet-$series ]]
   python3 - "$report" "$variant" "$sdk" "$revision" "$arch" "$fingerprint" "$repository" <<'PY'
