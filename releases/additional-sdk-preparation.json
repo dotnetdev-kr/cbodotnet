@@ -1751,7 +1751,7 @@
         },
         "aarch64": {
           "profile": "profiles/dotnet-6.0.136-linux-aarch64.json",
-          "profileSha256": "dbc67269afac5a5739506a08ae1e962e9298c0d0939d14516d7fc362a41f243c",
+          "profileSha256": "066f011ce8dab435282c417c00066e98faf4ca45474920b12178bac67db44642",
           "producerCatalogBinding": "matched",
           "provenance": {
             "projectCommit": "9ee4f3afd9014e9b333cf30144ce0a25bb9c397b",
@@ -3516,5 +3516,6 @@
   "parentEpic": {
     "issueNumber": 12,
     "issueUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/12"
-  }
+  },
+  "checkoutTextDigestPolicy": "Git LF text bytes for local profile and distribution-contract JSON only; public manifest and archive hashes remain exact original bytes."
 }

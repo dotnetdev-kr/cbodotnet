@@ -42,8 +42,14 @@ def load(path):
     return json.loads(Path(path).read_bytes())
 
 
-def digest(path):
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+def checkout_text_digest(path):
+    path = Path(path)
+    require(path.parent == ROOT / 'profiles' and path.suffix == '.json'
+            or path == ROOT / 'releases/distribution-contract.json',
+            'Checkout text hashing is limited to profile and contract JSON')
+    # Git's text checkout can use CRLF on Windows. Preserve every other byte;
+    # public manifests and SDK/source/evidence archives never use this helper.
+    return hashlib.sha256(path.read_bytes().replace(b'\r\n', b'\n')).hexdigest()
 
 
 def unqualified_flags(value):
@@ -83,7 +89,7 @@ def validate_preparation(data, contract=None, catalog=None):
     require(data.get('parentEpic') == dict(issueNumber=12, issueUrl=f'https://github.com/{REPOSITORY}/issues/12'),
             'Preparation parent epic differs from the registered work')
     require(data['currentContract']['path'] == 'releases/distribution-contract.json'
-            and data['currentContract']['sha256'] == digest(ROOT / 'releases/distribution-contract.json')
+            and data['currentContract']['sha256'] == checkout_text_digest(ROOT / 'releases/distribution-contract.json')
             and data['currentContract']['admittedSdkVersions'] == list(contract['releases']),
             'Production contract changed; refresh preparation without admitting releases')
     gates = data['gateDefinitions']
@@ -119,7 +125,7 @@ def validate_preparation(data, contract=None, catalog=None):
                 require(all(asset.get(key) == expected[kind][key] for key in ('name', 'size', 'sha256'))
                         and asset.get('url') == base + expected[kind]['name'], 'Preparation asset differs from pinned source manifest')
             profile = f'profiles/dotnet-{version}-linux-{arch}.json'
-            require(row['profile'] == profile and row['profileSha256'] == digest(ROOT / profile), 'Preparation profile changed')
+            require(row['profile'] == profile and row['profileSha256'] == checkout_text_digest(ROOT / profile), 'Preparation profile changed')
             actual = load(ROOT / profile)
             require(actual['sdkVersion'] == version and all(sdk['sourceSelection'].get(key) == actual['source'].get(key)
                     for key in ('repository', 'commit', 'tag', 'branch')), 'Preparation source selection differs from exact profile')

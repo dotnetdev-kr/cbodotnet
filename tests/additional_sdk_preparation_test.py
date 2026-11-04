@@ -4,6 +4,7 @@ import importlib.util
 from pathlib import Path
 import sys
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
@@ -117,6 +118,45 @@ class AdditionalSdkPreparationTests(unittest.TestCase):
         self.data['sdks'][-1]['targets'][0]['requiredGates'].remove('external-openssl11')
         with self.assertRaisesRegex(ValueError, 'gate was omitted'):
             PREP.prepare_plans(self.data)
+
+    def test_local_profile_and_contract_lf_or_crlf_checkouts_produce_identical_plans(self):
+        original = Path.read_bytes
+
+        def checkout(path, crlf):
+            value = original(path)
+            if path.parent == PREP.ROOT / 'profiles' or path == PREP.ROOT / 'releases/distribution-contract.json':
+                value = value.replace(b'\r\n', b'\n')
+                if crlf:
+                    value = value.replace(b'\n', b'\r\n')
+            return value
+
+        with mock.patch.object(Path, 'read_bytes', lambda path: checkout(path, False)):
+            lf = PREP.prepare_plans(self.data)
+        with mock.patch.object(Path, 'read_bytes', lambda path: checkout(path, True)):
+            crlf = PREP.prepare_plans(self.data)
+        self.assertEqual(77, lf['planCount'])
+        self.assertEqual(lf, crlf)
+
+    def test_semantic_profile_change_still_rejects_the_pinned_text_digest(self):
+        original = Path.read_bytes
+        selected = PREP.ROOT / 'profiles/dotnet-9.0.123-linux-x64.json'
+
+        def changed(path):
+            value = original(path)
+            if path == selected:
+                replacement = value.replace(b'"sdkVersion": "9.0.123"', b'"sdkVersion": "9.0.124"')
+                self.assertNotEqual(value, replacement)
+                return replacement
+            return value
+
+        with mock.patch.object(Path, 'read_bytes', changed):
+            with self.assertRaisesRegex(ValueError, 'Preparation profile changed'):
+                PREP.prepare_plans(self.data)
+
+    def test_public_manifests_and_binary_archives_cannot_use_checkout_text_hashing(self):
+        for path in (PREP.ROOT / 'releases/release-manifest.json', PREP.ROOT / 'profiles/sdk.tar.gz'):
+            with self.subTest(path=path), self.assertRaisesRegex(ValueError, 'limited to profile and contract JSON'):
+                PREP.checkout_text_digest(path)
 
 
 if __name__ == '__main__':

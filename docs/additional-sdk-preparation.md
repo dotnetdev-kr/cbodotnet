@@ -20,6 +20,9 @@ the large SDK/source/evidence archives or execute their SDKs. Runtime and ABI
 observations below come from the existing
 [AArch64 qualification records](ci-matrix-results.md) and
 [x64 qualification records](ci-x64-results.md), not a new compatibility run.
+Local profile and distribution-contract JSON hashes use Git's LF text form,
+accepting equivalent Windows CRLF checkouts. Public manifest and archive hashes
+continue to bind their exact original bytes.
 
 ## Exact inputs and preserved source origins
 
