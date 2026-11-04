@@ -1,0 +1,89 @@
+name: Verify published HTTPS APT installation
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Exact admitted published SDK release
+        type: string
+        required: true
+        default: sdk-10.0.403
+      revision:
+        description: Exact published packaging revision
+        type: string
+        required: true
+        default: '1'
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    name: HTTPS APT and offline build on native ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Validate reviewed SDK, revision and signing identity
+        id: inputs
+        env:
+          TAG: ${{ inputs.tag }}
+          REVISION: ${{ inputs.revision }}
+        run: |
+          python3 - <<'PY'
+          import json,os,re,sys
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from distribution_contract import load_contract
+          contract=load_contract(); tag=os.environ['TAG']; revision=os.environ['REVISION']
+          assert re.fullmatch(r'sdk-[1-9][0-9]*\.[0-9]+\.[0-9]+',tag) and tag[4:] in contract['releases']
+          assert re.fullmatch(r'[1-9][0-9]*',revision)
+          policy=json.loads(Path('releases/downstream-status.json').read_bytes())
+          keys=[key for key,value in policy['evidenceSigners'].items() if value['state']=='active'
+                and value['workflow']=='.github/workflows/distribution-release.yml']
+          assert len(keys)==1 and re.fullmatch(r'[A-F0-9]{40,64}',keys[0])
+          with open(os.environ['GITHUB_OUTPUT'],'a') as output:
+              output.write('sdk='+tag[4:]+'\nkey='+keys[0]+'\n')
+          PY
+      - name: Install both hosted OS repositories and build without network
+        env:
+          ARCH: ${{ matrix.arch }}
+          SDK: ${{ steps.inputs.outputs.sdk }}
+          FINGERPRINT: ${{ steps.inputs.outputs.key }}
+          REVISION: ${{ inputs.revision }}
+        run: |
+          set -euo pipefail
+          install -d -m 0777 "$RUNNER_TEMP/site-reports"
+          for variant in ubuntu-24.04 debian-13; do
+            case "$variant" in
+              ubuntu-24.04) base='ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852' ;;
+              debian-13) base='debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4' ;;
+            esac
+            report="/reports/published-apt-$variant-$ARCH.json"
+            container=$(docker create -v "$GITHUB_WORKSPACE:/repo:ro" -v "$RUNNER_TEMP/site-reports:/reports" \
+              "$base" bash /repo/scripts/verify-published-apt.sh install "$variant" "$SDK" "$REVISION" "$FINGERPRINT" "$ARCH" "$report")
+            docker start --attach "$container"
+            test "$(docker inspect --format '{{.State.ExitCode}}' "$container")" = 0
+            snapshot=$(docker commit "$container")
+            docker rm "$container"
+            docker run --rm --network none -v "$GITHUB_WORKSPACE:/repo:ro" -v "$RUNNER_TEMP/site-reports:/reports" \
+              "$snapshot" bash /repo/scripts/verify-published-apt.sh smoke "$variant" "$SDK" "$REVISION" "$FINGERPRINT" "$ARCH" "$report"
+            docker image rm "$snapshot"
+          done
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: published-https-apt-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/site-reports/*.json
+          retention-days: 30
+          if-no-files-found: error
