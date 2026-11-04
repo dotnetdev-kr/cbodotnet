@@ -556,17 +556,24 @@ def build_repositories(paths, channel, output, signing_key, gnupg_home=None, rpm
             archive_name = 'apt-' + variant + '.tar.gz'
         else:
             # Repository metadata signing never substitutes for RPM payload signatures.
+            # RPM 4 imports armored OpenPGP keys; gpgv independently uses the
+            # binary keyring above. Keep both forms available to repository clients.
+            armored_key = repository / 'cbodotnet-rpm-signing-key.asc'
+            armored_key.write_bytes(subprocess.check_output(gpg_command(gnupg_home, '--armor', '--export', signing_key)))
             database = output / ('.rpm-keyring-' + variant)
             database.mkdir(mode=0o700)
             subprocess.run(['rpm', '--dbpath', str(database), '--initdb'], check=True, stdout=subprocess.PIPE)
-            subprocess.run(['rpmkeys', '--dbpath', str(database), '--import', str(repository / 'cbodotnet-archive-keyring.gpg')],
+            subprocess.run(['rpmkeys', '--dbpath', str(database), '--import', str(armored_key)],
                            check=True, stdout=subprocess.PIPE)
             for package in pool.glob('*.rpm'):
                 status = subprocess.check_output(['rpmkeys', '--dbpath', str(database), '--checksig', '--verbose', str(package)],
                                                  stderr=subprocess.STDOUT).decode()
                 require('Signature' in status and 'NOKEY' not in status and 'NOT OK' not in status,
                         'RPM repository requires independently verified package signatures')
-            command = ['createrepo_c', '--checksum', 'sha256']
+            # Current createrepo defaults to zstd while older releases use
+            # gzip. Pin the XML format consumed by both admitted clients and
+            # our independent metadata validator.
+            command = ['createrepo_c', '--checksum', 'sha256', '--general-compress-type', 'gz', '--no-database']
             if remote_rpm:
                 command += ['--baseurl', rpm_asset_base_url]
             subprocess.run([*command, str(repository)], check=True, stdout=subprocess.PIPE)

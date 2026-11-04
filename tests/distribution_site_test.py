@@ -1,5 +1,6 @@
 """Keep public availability and repository extraction bound to signed evidence."""
 import copy
+import hashlib
 import io
 import json
 from pathlib import Path
@@ -24,6 +25,7 @@ class DistributionSiteTests(unittest.TestCase):
         markup = SITE.render_channels(status)
         self.assertNotIn('apt-get', markup)
         self.assertNotIn('docker pull', markup)
+        self.assertNotIn('dnf install', markup)
         self.assertNotIn('evidenceSigners', status)
 
     def test_published_flag_without_receipt_is_not_a_publication(self):
@@ -70,3 +72,61 @@ class DistributionSiteTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'Untrusted'):
                     SITE.download(url, Path('unused'), 100)
             fetch.assert_not_called()
+
+    def test_rpm_commands_require_both_signature_checks_and_pinned_public_identity(self):
+        status = {'channels': {'rpm': {'status': 'published', 'publications': [
+            {'variant': 'fedora-45'}, {'variant': 'rocky-9.8'}]}, 'aur': {'status': 'not-published'}}}
+        markup = SITE.render_channels(status)
+        self.assertIn('gpgcheck=1', markup)
+        self.assertIn('repo_gpgcheck=1', markup)
+        self.assertIn('D7D154B4B33C19A82B95B13688135410ACD9C0EA', markup)
+        self.assertIn('packages/rpm/fedora-45/', markup)
+        self.assertIn('packages/rpm/rocky-9.8/', markup)
+        self.assertNotIn('aur.archlinux.org', markup)
+
+    def test_rpm_archive_cannot_be_hosted_under_another_variant_or_source_identity(self):
+        identity = dict(channel='rpm', sdkVersion='10.0.403', packageRevision=1, sourceManifestSha256='a' * 64)
+        signer = 'B' * 40
+        tag = 'distribution-rpm-sdk-10.0.403-r1'
+        base = f'https://github.com/{SITE.REPOSITORY}/releases/download/{tag}/'
+        publications = [dict(variant='fedora-45', architecture=arch) for arch in ('x64', 'aarch64')]
+        archive_name = 'rpm-fedora-45.tar.gz'
+        manifest = dict(schemaVersion=1, repository=SITE.REPOSITORY, identity=identity, tag=tag, contractVersion=2,
+            status='validated-complete-matrix', signingFingerprint=signer,
+            records=[dict(record=dict(identity={'variant': 'fedora-45'}, architecture=arch)) for arch in ('x64', 'aarch64')],
+            assets=[dict(name=archive_name, size=7, sha256=hashlib.sha256(b'archive').hexdigest())],
+            repositories=[dict(asset=archive_name, kind='rpm-repository', variants=['fedora-45'])])
+        files = {'distribution-manifest.json': json.dumps(manifest).encode(),
+                 'distribution-manifest.json.asc': b'signature', archive_name: b'archive'}
+        assets = [dict(name=name, size=len(data), sha256=hashlib.sha256(data).hexdigest(), url=base + name)
+                  for name, data in files.items()]
+        receipt = dict(status='published-postverified', repository=SITE.REPOSITORY, identity=identity, tag=tag,
+            manifestUrl=base + 'distribution-manifest.json', signatureUrl=base + 'distribution-manifest.json.asc',
+            manifestSha256=hashlib.sha256(files['distribution-manifest.json']).hexdigest(),
+            signingFingerprint=signer, assets=assets, publications=publications)
+        policy = dict(schemaVersion=1, repository=SITE.REPOSITORY, status='published',
+            channels={name: dict(status='not-published', publications=[]) for name in ('deb', 'rpm', 'oci', 'aur')})
+        policy['channels']['rpm'].update(status='published', publications=publications, receipts=[receipt],
+            candidateMatrix=publications)
+        contract = dict(schemaVersion=2, releases={'10.0.403': {'manifestSha256': identity['sourceManifestSha256']}},
+                        channels={'rpm': {'variants': ['fedora-45']}})
+        def download(url, destination, limit, expected=None):
+            data = files[url.rsplit('/', 1)[1]]
+            Path(destination).write_bytes(data)
+            return hashlib.sha256(data).hexdigest()
+        for field, value in [('variant', 'rocky-9.8'), ('sourceManifestSha256', 'c' * 64), ('signingFingerprint', 'D' * 40)]:
+            with self.subTest(field=field), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                key = root / 'key.asc'
+                key.write_bytes(b'pinned-key')
+                repository_identity = dict(variant='fedora-45', sourceManifestSha256=identity['sourceManifestSha256'],
+                                           signingFingerprint=signer) | {field: value}
+                with mock.patch.object(SITE, 'load_contract', return_value=contract), \
+                     mock.patch.object(SITE, 'download', side_effect=download), \
+                     mock.patch.object(SITE.subprocess, 'run'), \
+                     mock.patch.object(SITE, 'verify_report_signature', return_value=signer), \
+                     mock.patch.object(SITE, 'publication_rows', return_value=publications), \
+                     mock.patch.object(SITE, 'extract_repository', side_effect=lambda archive, destination: destination.mkdir()), \
+                     mock.patch.object(SITE, 'verify_rpm_repository', return_value=repository_identity):
+                    with self.assertRaisesRegex(ValueError, 'RPM repository identity differs'):
+                        SITE.prepare_site(policy, root / 'site', key)

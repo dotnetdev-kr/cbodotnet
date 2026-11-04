@@ -219,28 +219,48 @@ class ChannelPackagesTests(unittest.TestCase):
         plan, archive = self.rpm_fixture(arch=arch)
         build_dir = self.directory / 'rpm-publish-input'
         build = PACKAGES.build_rpm(plan, archive, build_dir)
+        other_plan, other_archive = self.rpm_fixture(arch='x64' if arch == 'aarch64' else 'aarch64')
+        other_dir = self.directory / 'rpm-publish-other-arch'
+        # This shell-only package fixture exercises index identities for the
+        # other CPU without claiming execution there. --target still sets its
+        # header; omitting BuildArch avoids RPM's native-build compatibility gate.
+        render = PACKAGES.render_rpm_spec
+        with mock.patch.object(PACKAGES, 'render_rpm_spec', side_effect=lambda value: render(value).replace(
+                'BuildArch: ' + value['architecture']['rpm'] + '\n', '')):
+            other_build = PACKAGES.build_rpm(other_plan, other_archive, other_dir)
+        builds = [(build_dir, build), (other_dir, other_build)]
         home = self.directory / 'rpm-signing'
         home.mkdir(mode=0o700)
         subprocess.run(PACKAGES.gpg_command(home, '--quick-generate-key', 'cbodotnet ephemeral rpm test <test@example.invalid>',
                                             'rsa2048', 'sign', '0'), check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         listing = subprocess.check_output(PACKAGES.gpg_command(home, '--with-colons', '--list-keys'), stderr=subprocess.PIPE).decode()
         fingerprint = next(line.split(':')[9] for line in listing.splitlines() if line.startswith('fpr:'))
-        for item in build['packages']:
-            path = build_dir / item['path']
-            signed = subprocess.run(['rpmsign', '--define', '_gpg_name ' + fingerprint, '--define', '_gpg_path ' + str(home),
-                                     '--define', '__gpg ' + shutil.which('gpg'), '--define', '_gpg_digest_algo sha256', '--addsign', str(path)],
-                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            self.assertEqual(0, signed.returncode, signed.stdout + signed.stderr)
-            item.update(PACKAGES.descriptor(path))
-        # Architecture completeness is exercised by validate_package_builds
-        # tests; this native fixture isolates signed XML routing/blob exclusion.
-        admission = ([(build_dir, build)], plan, ['fedora-45'])
-        output = self.directory / 'rpm-published-repository'
         base = 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-rpm-sdk-10.0.403-r1/'
+        admission = (builds, plan, ['fedora-45'])
+        unsigned_output = self.directory / 'unsigned-rpm-repository'
+        with mock.patch.object(PACKAGES, 'validate_package_builds', return_value=admission):
+            with self.assertRaisesRegex(ValueError, 'verified package signatures'):
+                PACKAGES.build_repositories([], 'rpm', unsigned_output, fingerprint, home, rpm_asset_base_url=base)
+        self.assertFalse((unsigned_output / 'fedora-45/repodata/repomd.xml').exists())
+        signed_common = None
+        for parent, current_build in builds:
+            for item in current_build['packages']:
+                path = parent / item['path']
+                if item['kind'] == 'host' and signed_common is not None:
+                    shutil.copyfile(signed_common, path)
+                else:
+                    signed = subprocess.run(['rpmsign', '--define', '_gpg_name ' + fingerprint, '--define', '_gpg_path ' + str(home),
+                                             '--define', '__gpg ' + shutil.which('gpg'), '--define', '_gpg_digest_algo sha256', '--addsign', str(path)],
+                                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    self.assertEqual(0, signed.returncode, signed.stdout + signed.stderr)
+                    if item['kind'] == 'host':
+                        signed_common = path
+                item.update(PACKAGES.descriptor(path))
+        output = self.directory / 'rpm-published-repository'
         with mock.patch.object(PACKAGES, 'validate_package_builds', return_value=admission):
             result = PACKAGES.build_repositories([], 'rpm', output, fingerprint, home, rpm_asset_base_url=base)
         assets = {row['assetName']: row for row in result['packageAssets']}
-        self.assertEqual(2, len(assets))
+        self.assertEqual(3, len(assets))
         self.assertTrue(any(name.startswith('rpm-fedora-45--cbodotnet-host-') for name in assets))
         self.assertTrue(any(name.startswith('rpm-fedora-45-' + arch + '--cbodotnet-sdk-') for name in assets))
         repository = output / 'fedora-45'
@@ -261,9 +281,12 @@ class ChannelPackagesTests(unittest.TestCase):
         urls = {urllib.parse.urljoin(item.attrib.get('{http://www.w3.org/XML/1998/namespace}base', ''), item.attrib['href'])
                 for item in locations}
         self.assertEqual({base + name for name in assets}, urls)
+        import rpm_repository
+        rpm_repository.verify_repository(repository, repository / 'cbodotnet-archive-keyring.gpg', assets, base)
         with tarfile.open(output / 'rpm-fedora-45.tar.gz') as bundle:
             self.assertFalse(any(name.endswith('.rpm') for name in bundle.getnames()))
             self.assertIn('repodata/repomd.xml.asc', bundle.getnames())
+            self.assertIn('cbodotnet-rpm-signing-key.asc', bundle.getnames())
 
     def test_repository_matrix_and_package_bytes_are_checked_before_signing(self):
         plan, _ = self.fixture()

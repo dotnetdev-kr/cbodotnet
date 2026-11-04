@@ -1,0 +1,56 @@
+name: Verify published HTTPS DNF installation
+
+on:
+  workflow_dispatch:
+    inputs:
+      publication_run_id:
+        description: Successful trusted RPM publication run containing its receipt
+        required: true
+        type: string
+      publication_run_attempt:
+        description: Exact publication receipt artifact attempt
+        default: '1'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  install:
+    name: HTTPS DNF and offline SDK on native ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: downstream-rpm-publication-${{ inputs.publication_run_id }}-${{ inputs.publication_run_attempt }}
+          path: ${{ runner.temp }}/rpm-publication
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.publication_run_id }}
+      - name: Install both live signed HTTPS DNF targets
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          python3 scripts/rpm-ci.py postverify --receipt "$RUNNER_TEMP/rpm-publication/rpm-publication.json" \
+            --arch "$ARCH" --workspace "$RUNNER_TEMP/https-rpm-$ARCH" --output "$RUNNER_TEMP/published-$ARCH.json" \
+            --repository-base https://dotnetdev.kr/cbodotnet/packages/rpm
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: published-https-rpm-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/published-${{ matrix.arch }}.json
+          retention-days: 30
+          if-no-files-found: error

@@ -1,0 +1,218 @@
+"""Keep RPM signing behind native admission and retries on frozen bytes."""
+import copy
+import json
+import os
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+from unittest import mock
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'scripts'))
+import rpm_publish as PUBLISH
+
+
+class RpmPublishTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.received = self.root / 'received'
+        self.received.mkdir()
+        self.identity = dict(repository='dotnetdev-kr/cbodotnet', workflow='.github/workflows/distribution-release.yml',
+                             commit='a' * 40, runId='123', runAttempt='2')
+        self.environment = dict(GITHUB_REF='refs/heads/main', GITHUB_REPOSITORY='dotnetdev-kr/cbodotnet',
+            GITHUB_EVENT_NAME='workflow_dispatch', GITHUB_SHA='b' * 40,
+            GITHUB_WORKFLOW_REF='dotnetdev-kr/cbodotnet/.github/workflows/distribution-release.yml@refs/heads/main')
+        self.contract = {'operatingSystems': {'fedora-45': {'id': 'fedora', 'versionId': '45', 'dependencies': ['glibc']}}}
+        self.policy = {'channels': {'rpm': {'candidateMatrix': [dict(variant='fedora-45', architecture=arch)
+            for arch in ('x64', 'aarch64')], 'requiredChecks': ['dnf-install', 'package-signatures', 'repository-metadata']}}}
+        self.items, self.plans = [], {}
+        for public, architecture in [('x64', 'x86_64'), ('aarch64', 'aarch64')]:
+            directory = self.received / public
+            directory.mkdir()
+            (directory / 'commands').mkdir()
+            (directory / 'inputs').mkdir()
+            plan = dict(channel='rpm', sdkVersion='10.0.403', packageRevision=1, sourceManifestSha256='c' * 64,
+                variant='fedora-45', architecture=dict(public=public, rpm=architecture),
+                package=dict(name='cbodotnet-sdk-10.0', rpmRelease='1.cbot.fedora45'))
+            self.plans[public] = plan
+            packages = []
+            for kind, name, version, release, arch in [
+                ('sdk', 'cbodotnet-sdk-10.0', '10.0.403', '1.cbot.fedora45', architecture),
+                ('host', 'cbodotnet-host', '1.0.0', '1.cbot.fedora45', 'noarch')]:
+                path = directory / f'{name}-{version}-{release}.{arch}.rpm'
+                path.write_bytes((kind + ('-' + public if kind == 'sdk' else '')).encode())
+                row = dict(PUBLISH.descriptor(path), path=path.name, kind=kind)
+                row.pop('name')
+                packages.append(row)
+            artifact = directory / packages[0]['path']
+            packaged = dict(schemaVersion=1, contractVersion=2, identity=dict(channel='rpm', variant='fedora-45',
+                sdkVersion='10.0.403', packageRevision=1), architecture=public, artifact=PUBLISH.descriptor(artifact),
+                orchestration=self.identity, source={'qualified': True}, producer={'native': True},
+                branding={'approved': True}, commands={'default': '/usr/bin/cbodotnet'}, extraFiles=[{'sha256': 'd' * 64}])
+            report = {**copy.deepcopy(packaged), 'phase': 'prepublication', 'scope': 'channel-installation', 'status': 'passed',
+                'checks': {name: 'passed' for name in PUBLISH.PREPUBLICATION_CHECKS | {'dnf-install'}},
+                'target': dict(native=True, osId='fedora', versionId='45', architecture=public, dependencies={'glibc': 'glibc-2'})}
+            for name, content in [('package.json', packaged), ('report.json', report), ('package-build.json',
+                 dict(schemaVersion=1, channel='rpm', plan=plan, payloadPreserved=True, packages=packages))]:
+                (directory / name).write_text(json.dumps(content))
+            self.items.append(dict(package=packaged, packagePath=str(directory / 'package.json'),
+                artifactPath=str(artifact), reportPath=str(directory / 'report.json'),
+                commandsRoot=str(directory / 'commands'), inputsDirectory=str(directory / 'inputs')))
+
+    def canonical(self, plan, artifact, identity, **kwargs):
+        item = next(row for row in self.items if row['package']['architecture'] == plan['architecture']['public'])
+        return {**copy.deepcopy(item['package']), 'artifact': PUBLISH.descriptor(artifact)}
+
+    def execute(self, command, **kwargs):
+        if command[0] == 'rpm' and '--queryformat' in command:
+            path = Path(command[-1])
+            host = path.name.startswith('cbodotnet-host-')
+            arch = 'noarch' if host else self.plans[path.parent.name]['architecture']['rpm']
+            return '\n'.join(['cbodotnet-host' if host else 'cbodotnet-sdk-10.0',
+                              '1.0.0' if host else '10.0.403', '1.cbot.fedora45', arch]) + '\n'
+        if command[0] == 'rpmsign':
+            path = Path(command[-1])
+            path.write_bytes(path.read_bytes() + b'-signed-once')
+            return ''
+        raise AssertionError('Unexpected command: ' + str(command))
+
+    def patches(self):
+        stack = __import__('contextlib').ExitStack()
+        stack.enter_context(mock.patch.dict(os.environ, self.environment))
+        stack.enter_context(mock.patch.object(PUBLISH, 'source_identity', return_value=self.identity))
+        stack.enter_context(mock.patch.object(PUBLISH.CORE, 'unpack_deliveries', return_value=self.items))
+        stack.enter_context(mock.patch.object(PUBLISH, 'load_status', return_value=self.policy))
+        stack.enter_context(mock.patch.object(PUBLISH, 'load_contract', return_value=self.contract))
+        stack.enter_context(mock.patch.object(PUBLISH, 'local_intake', side_effect=lambda directory, channel, variant, arch, revision: self.plans[arch]))
+        stack.enter_context(mock.patch.object(PUBLISH, 'package_record', side_effect=self.canonical))
+        return stack
+
+    def test_signer_permission_guard_rejects_other_repository_branch_event_and_workflow(self):
+        for key, value in [('GITHUB_REF', 'refs/heads/topic'), ('GITHUB_REPOSITORY', 'fork/cbodotnet'),
+                           ('GITHUB_EVENT_NAME', 'pull_request'), ('GITHUB_WORKFLOW_REF', 'other-workflow@refs/heads/main')]:
+            with self.subTest(key=key), mock.patch.dict(os.environ, self.environment | {key: value}):
+                with self.assertRaisesRegex(ValueError, 'protected main'):
+                    PUBLISH.protected()
+
+    def source_metadata(self):
+        return dict(head_branch='main', event='workflow_dispatch', path='.github/workflows/distribution-release.yml',
+            repository={'full_name': 'dotnetdev-kr/cbodotnet'}, head_repository={'full_name': 'dotnetdev-kr/cbodotnet'},
+            head_sha=self.identity['commit'])
+
+    def jobs(self):
+        return [dict(name='Install RPM packages on native ' + arch, conclusion='success') for arch in ('x64', 'aarch64')]
+
+    def test_source_run_requires_exact_main_origin_and_successful_unique_native_jobs(self):
+        metadata, jobs = self.source_metadata(), self.jobs()
+        with mock.patch.object(PUBLISH.CORE, 'run', side_effect=[json.dumps(metadata), json.dumps({'jobs': jobs})]):
+            self.assertEqual(self.identity, PUBLISH.source_identity('123', '2'))
+        for field, value in [('head_branch', 'topic'), ('event', 'pull_request'), ('path', 'another.yml'),
+                             ('head_repository', {'full_name': 'fork/cbodotnet'}), ('head_sha', 'short')]:
+            with self.subTest(field=field), mock.patch.object(PUBLISH.CORE, 'run', return_value=json.dumps(metadata | {field: value})):
+                with self.assertRaisesRegex(ValueError, 'trusted main workflow'):
+                    PUBLISH.source_identity('123', '2')
+        for changed in (jobs[:1], jobs + [jobs[0]], [jobs[0], jobs[1] | {'conclusion': 'failure'}]):
+            with self.subTest(jobs=changed), mock.patch.object(PUBLISH.CORE, 'run', side_effect=[json.dumps(metadata), json.dumps({'jobs': changed})]):
+                with self.assertRaisesRegex(ValueError, 'matrix did not pass'):
+                    PUBLISH.source_identity('123', '2')
+
+    def test_all_native_reports_are_admitted_before_any_rpm_is_signed(self):
+        for field, value in [('scope', 'private-prefix'), ('phase', 'postpublication'),
+                             ('checks', {}), ('target', {'native': False})]:
+            with self.subTest(field=field):
+                path = Path(self.items[-1]['reportPath'])
+                original = path.read_bytes()
+                report = json.loads(original)
+                path.write_text(json.dumps(report | {field: value}))
+                with self.patches(), mock.patch.object(PUBLISH.CORE, 'run', side_effect=self.execute) as commands:
+                    with self.assertRaises(ValueError):
+                        PUBLISH.stage(self.received, self.root / 'promotion', 'A' * 40, self.root / 'key.gpg', '123', '2')
+                    self.assertFalse(any(call.args[0][0] == 'rpmsign' for call in commands.call_args_list))
+                self.assertFalse((self.root / 'promotion').exists())
+                path.write_bytes(original)
+
+    def test_substituted_canonical_source_and_header_are_rejected_before_signing(self):
+        with self.patches(), mock.patch.object(PUBLISH, 'package_record', return_value={}):
+            with self.assertRaisesRegex(ValueError, 'canonical qualified inputs'):
+                PUBLISH.preflight(self.items[0], self.received, self.identity, self.policy, self.contract)
+        with self.patches(), mock.patch.object(PUBLISH.CORE, 'run', return_value='wrong-header'):
+            with self.assertRaisesRegex(ValueError, 'RPM header differs'):
+                PUBLISH.preflight(self.items[0], self.received, self.identity, self.policy, self.contract)
+
+    def test_conflicting_common_bytes_fail_before_signer_and_output_creation(self):
+        path = Path(self.items[-1]['artifactPath']).parent / 'package-build.json'
+        build = json.loads(path.read_bytes())
+        host = next(row for row in build['packages'] if row['kind'] == 'host')
+        package = path.parent / host['path']
+        package.write_bytes(b'conflicting-common-selector')
+        host.update(size=package.stat().st_size, sha256=PUBLISH.sha256_file(package))
+        path.write_text(json.dumps(build))
+        with self.patches(), mock.patch.object(PUBLISH.CORE, 'run', side_effect=self.execute) as commands:
+            with self.assertRaisesRegex(ValueError, 'Common RPM differs'):
+                PUBLISH.stage(self.received, self.root / 'promotion', 'A' * 40, self.root / 'key.gpg', '123', '2')
+            self.assertFalse(any(call.args[0][0] == 'rpmsign' for call in commands.call_args_list))
+        self.assertFalse((self.root / 'promotion').exists())
+
+    def test_sign_common_once_rebind_every_signed_hash_and_freeze_before_publish(self):
+        def repositories(builds, channel, output, signer, **kwargs):
+            output.mkdir()
+            package_assets = []
+            for path in builds:
+                build = json.loads(path.read_bytes())
+                for row in build['packages']:
+                    package = path.parent / row['path']
+                    self.assertEqual(row['sha256'], PUBLISH.sha256_file(package))
+                    self.assertEqual(row['size'], package.stat().st_size)
+                    if row['kind'] == 'host' and not package_assets:
+                        package_assets.append(dict(assetName='rpm-fedora-45--' + row['path'], kind='host',
+                            sourcePath=str(package), size=row['size'], sha256=row['sha256']))
+            archive = output / 'rpm-fedora-45.tar.gz'
+            archive.write_bytes(b'signed-repository')
+            return dict(packageAssets=package_assets, archives=[dict(path=archive.name, variant='fedora-45')])
+        def sign_report(path, key):
+            signature = Path(str(path) + '.sig')
+            signature.write_bytes(b'signed-report')
+            return signature
+        def bundle(items, output, commit, signer, keyring, **kwargs):
+            for item in items:
+                self.assertEqual(PUBLISH.descriptor(item['artifactPath']), item['package']['artifact'])
+                report = json.loads(Path(item['reportPath']).read_bytes())
+                self.assertEqual('passed', report['checks']['package-signatures'])
+                self.assertEqual('passed', report['checks']['repository-metadata'])
+            self.assertEqual(2, len(kwargs['extra_assets']))
+            return {'tag': 'distribution-rpm-sdk-10.0.403-r1'}
+        with self.patches(), mock.patch.object(PUBLISH.CORE, 'run', side_effect=self.execute) as commands:
+            with mock.patch.object(PUBLISH, 'verify_rpm_signature', return_value={'status': 'passed'}), \
+                 mock.patch.object(PUBLISH, 'build_repositories', side_effect=repositories), \
+                 mock.patch.object(PUBLISH, 'verify_repository'), \
+                 mock.patch.object(PUBLISH.CORE, 'sign_report', side_effect=sign_report), \
+                 mock.patch.object(PUBLISH, 'create_bundle', side_effect=bundle), \
+                 mock.patch.object(PUBLISH, 'publish_bundle') as publish:
+                result = PUBLISH.stage(self.received, self.root / 'promotion', 'A' * 40, self.root / 'key.gpg', '123', '2')
+                self.assertEqual('signed-and-frozen', result['status'])
+                publish.assert_not_called()
+            signed = [call.args[0][-1] for call in commands.call_args_list if call.args[0][0] == 'rpmsign']
+            self.assertEqual(3, len(signed))
+            self.assertEqual(1, sum(Path(path).name.startswith('cbodotnet-host-') for path in signed))
+        self.assertEqual((Path(self.items[0]['artifactPath']).parent / 'cbodotnet-host-1.0.0-1.cbot.fedora45.noarch.rpm').read_bytes(),
+                         (Path(self.items[1]['artifactPath']).parent / 'cbodotnet-host-1.0.0-1.cbot.fedora45.noarch.rpm').read_bytes())
+
+    def test_frozen_resume_uses_exact_rpm_artifact_and_never_resigns(self):
+        manifest = dict(identity={'channel': 'rpm'}, targetCommit='a' * 40)
+        with mock.patch.dict(os.environ, self.environment), mock.patch.object(PUBLISH.CORE, 'receive_frozen') as receive, \
+             mock.patch.object(PUBLISH, 'validate_bundle', return_value=manifest), \
+             mock.patch.object(PUBLISH, 'publish_bundle', return_value={'status': 'published-postverified'}) as publish, \
+             mock.patch.object(PUBLISH.CORE, 'run') as command:
+            self.assertEqual('published-postverified', PUBLISH.publish(self.root, self.root / 'key.gpg', '456', '3')['status'])
+            self.assertEqual(('rpm',), receive.call_args.kwargs['channels'])
+            self.assertEqual('downstream-rpm-frozen', receive.call_args.kwargs['artifact_prefix'])
+            self.assertEqual('Freeze signed RPM publication bytes', receive.call_args.kwargs['freeze_step'])
+            self.assertEqual('a' * 40, publish.call_args.args[2])
+            command.assert_not_called()
+
+
+if __name__ == '__main__':
+    unittest.main()

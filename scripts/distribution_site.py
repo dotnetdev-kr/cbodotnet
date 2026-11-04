@@ -13,6 +13,7 @@ import urllib.request
 from distribution_contract import load_contract
 from downstream_release import verify_report_signature
 from downstream_publish import publication_rows, release_tag
+from rpm_repository import asset_base as rpm_asset_base, verify_repository as verify_rpm_repository
 
 ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY = 'dotnetdev-kr/cbodotnet'
@@ -164,6 +165,27 @@ def prepare_site(policy, output, public_key=None):
                         subprocess.run(['gpgv', '--keyring', str(keyring), str(destination / 'InRelease')],
                                        check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                         hosted_variants.add(variant)
+                    elif repository['kind'] == 'rpm-repository':
+                        require(channel == 'rpm' and len(repository['variants']) == 1, 'Ambiguous RPM repository variant')
+                        variant = repository['variants'][0]
+                        require(variant in contract['channels']['rpm']['variants'] and name == 'rpm-' + variant + '.tar.gz',
+                                'Unverified RPM variant')
+                        if variant in hosted_variants:
+                            continue
+                        archive = temporary / name
+                        download(base + name, archive, 64 * 1024**2, assets[name])
+                        parent = output / 'packages/rpm'
+                        parent.mkdir(parents=True, exist_ok=True)
+                        destination = parent / variant
+                        extract_repository(archive, destination)
+                        require(not list(destination.rglob('*.rpm')), 'RPM packages must use immutable Release asset URLs')
+                        repository_identity = verify_rpm_repository(destination, keyring, assets,
+                                              rpm_asset_base(identity['sdkVersion'], identity['packageRevision']))
+                        require(repository_identity.get('variant') == variant
+                                and repository_identity.get('sourceManifestSha256') == identity['sourceManifestSha256']
+                                and repository_identity.get('signingFingerprint') == signer,
+                                'RPM repository identity differs from its signed publication and hosted variant')
+                        hosted_variants.add(variant)
                     elif repository['kind'] == 'oci-descriptor':
                         require(channel == 'oci', 'OCI descriptor in another channel')
                         descriptor = temporary / name
@@ -204,9 +226,23 @@ def render_channels(status):
             image = data['image']['repository'] + '@' + data['image']['digest']
             command = 'docker pull ' + image + '\ndocker run --rm ' + image + ' cbodotnet --info'
             rows.append('<h3>OCI SDK image</h3><pre><code>' + html.escape(command) + '</code></pre>')
+        if channel == 'rpm':
+            for variant in sorted({row['variant'] for row in data['publications']}):
+                command = ('sudo dnf install -y ca-certificates curl gnupg2\n'
+                           'curl -fsSLo /tmp/cbodotnet-signing-key.asc https://dotnetdev.kr/cbodotnet/distribution-signing-key.asc\n'
+                           'test "$(gpg --show-keys --with-colons /tmp/cbodotnet-signing-key.asc | '
+                           "awk -F: '$1==\"fpr\" {print $10; exit}')\" = D7D154B4B33C19A82B95B13688135410ACD9C0EA || exit 1\n"
+                           'sudo rpm --import /tmp/cbodotnet-signing-key.asc\n'
+                           "cat <<'EOF' | sudo tee /etc/yum.repos.d/cbodotnet.repo\n"
+                           '[cbodotnet-sdk-10.0]\nname=Community Build of .NET SDK\n'
+                           'baseurl=https://dotnetdev.kr/cbodotnet/packages/rpm/' + variant + '/\n'
+                           'enabled=1\ngpgcheck=1\nrepo_gpgcheck=1\n'
+                           'gpgkey=https://dotnetdev.kr/cbodotnet/distribution-signing-key.asc\nEOF\n'
+                           'sudo dnf makecache --refresh\nsudo dnf install cbodotnet-sdk-10.0\ncbodotnet --info')
+                rows.append('<h3>' + html.escape(variant) + ' DNF</h3><pre><code>' + html.escape(command) + '</code></pre>')
     if not rows:
         return '<p>APT, RPM, AUR and consumer OCI channels are in preparation. Use the verified archive downloads above.</p>'
     rows.insert(0, '<p>Project-operated distribution channels. Verify the signing fingerprint using the '
                 '<a href="https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/distribution-signing.md">signing policy</a> before trusting a key. '
-                'RPM and AUR remain deferred until their own target qualification.</p>')
+                'Only the displayed target combinations have passed their complete channel verification.</p>')
     return '\n'.join(rows)

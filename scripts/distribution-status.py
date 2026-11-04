@@ -13,7 +13,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--publication-dir', type=Path, required=True)
     parser.add_argument('--reports-dir', type=Path, required=True)
-    parser.add_argument('--channel', choices=('deb', 'oci'), action='append')
+    parser.add_argument('--channel', choices=('deb', 'oci', 'rpm'), action='append')
     parser.add_argument('--policy', type=Path, default=Path(__file__).resolve().parents[1] / 'releases/downstream-status.json')
     parser.add_argument('--public-key', type=Path)
     parser.add_argument('--run-id', default=os.environ.get('GITHUB_RUN_ID'))

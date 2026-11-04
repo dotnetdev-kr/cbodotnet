@@ -189,6 +189,44 @@ def generate_srcinfo(directory, command=None):
     return result
 
 
+def verify_tracked_sources(recipes, tracked, srcinfo=False):
+    """Make the native build evidence cover the reviewed checked-in recipes."""
+    recipes, tracked = Path(recipes), Path(tracked)
+    require(tracked.is_dir(), 'Reviewed tracked AUR recipe trees are required')
+    for base in recipes.iterdir():
+        expected_base = tracked / base.name
+        require(expected_base.is_dir() and not expected_base.is_symlink(), 'Tracked AUR package base is missing')
+        for expected in expected_base.iterdir():
+            if expected.name == '.SRCINFO' and not srcinfo:
+                continue
+            require(expected.is_file() and not expected.is_symlink(), 'Tracked AUR source must be an ordinary file')
+            actual = base / expected.name
+            require(actual.is_file() and not actual.is_symlink() and actual.read_bytes() == expected.read_bytes(),
+                    'Generated or actual makepkg AUR source differs from reviewed tracked recipe: ' + base.name + '/' + expected.name)
+        if srcinfo:
+            require((expected_base / '.SRCINFO').is_file(), 'Actual makepkg metadata must match tracked .SRCINFO')
+
+
+def review_namcap(output, package_base, binary_package=False):
+    """Review only namcap's known /opt layout diagnostic for the isolated SDK.
+
+    Arch namcap 3.6 ELFPaths labels every ELF under opt/ as questionable and
+    emits this summary at E severity. The distribution contract requires that
+    exact isolated root. All dependency and other ELF diagnostics stay errors.
+    """
+    errors = [line for line in output.splitlines() if re.search(r'\bE: ', line)]
+    expected = package_base + " E: ELF files outside of a valid path ('opt/')."
+    reviewed = []
+    if binary_package and re.fullmatch(r'cbodotnet-sdk-[1-9][0-9]*\.[0-9]+-bin', package_base):
+        if errors.count(expected) == 1:
+            errors.remove(expected)
+            reviewed.append(dict(diagnostic=expected, rule='elfpaths',
+                reason='The reviewed contract isolates the complete unmodified SDK under /opt/cbodotnet/<series>; '
+                       'native installation independently verifies all qualified payload bytes, modes and links.'))
+    require(not errors, 'Unreviewed namcap error:\n' + '\n'.join(errors))
+    return reviewed
+
+
 def recipe_archive(recipe_root, destination):
     recipe_root, destination = Path(recipe_root), Path(destination)
     allowed = {'PKGBUILD', '.SRCINFO', 'cbodotnet', 'LICENSE', 'distribution.json', 'verify-source.py'}

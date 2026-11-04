@@ -6,6 +6,7 @@ set -euo pipefail
 [[ $ID == arch ]] || { echo 'Arch Linux is required.' >&2; exit 2; }
 repo=$1
 delivery=$2
+phase=$3
 [[ $delivery == /delivery && -d $delivery && ! -L $delivery && ${AUR_OUTPUT_UID:-} =~ ^[0-9]+$ && ${AUR_OUTPUT_GID:-} =~ ^[0-9]+$ ]] || {
   echo 'The mounted validation workspace and caller ownership are required.' >&2; exit 2;
 }
@@ -14,6 +15,13 @@ delivery=$2
 trap 'chown -R --no-dereference -- "$AUR_OUTPUT_UID:$AUR_OUTPUT_GID" "$delivery"' EXIT
 # Arch partial upgrades are unsupported. Record the resulting package versions in
 # the report, while pinning the starting official image by immutable digest.
-pacman -Syu --noconfirm --needed python namcap curl ca-certificates \
-  glibc libgcc libstdc++ icu krb5 openssl zlib
-python "$repo/scripts/aur-ci.py" installed --delivery "$delivery"
+case "$phase" in
+  prepare)
+    pacman -Syu --noconfirm --needed python namcap curl ca-certificates \
+      glibc libgcc libstdc++ icu krb5 openssl zlib
+    ;;
+  installed)
+    python "$repo/scripts/aur-ci.py" installed --delivery "$delivery"
+    ;;
+  *) echo 'Unknown Arch validation phase.' >&2; exit 2 ;;
+esac

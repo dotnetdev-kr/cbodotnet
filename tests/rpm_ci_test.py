@@ -1,5 +1,6 @@
 """Reject misleading RPM target, integrity, offline and provenance evidence."""
 import argparse
+import copy
 import importlib.util
 import json
 from pathlib import Path
@@ -17,6 +18,71 @@ SPEC.loader.exec_module(CI)
 
 
 class RpmCiTests(unittest.TestCase):
+    def publication_fixture(self, directory):
+        from downstream_publish import MANIFEST, SIGNATURE, PUBLIC_KEY, publication_rows
+        from downstream_release import descriptor
+        contract = CI.load_contract()
+        identity = dict(channel='rpm', sdkVersion='10.0.403', packageRevision=1,
+                        sourceReleaseTag='sdk-10.0.403',
+                        sourceManifestSha256=contract['releases']['10.0.403']['manifestSha256'])
+        tag = 'distribution-rpm-sdk-10.0.403-r1'
+        base = 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/' + tag + '/'
+        signer = 'A' * 40
+        record = dict(identity=dict(identity, variant='fedora-45'), architecture='x64',
+                      artifact={'sha256': 'b' * 64}, report={'sha256': 'c' * 64})
+        manifest = dict(schemaVersion=1, status='validated-complete-matrix', repository='dotnetdev-kr/cbodotnet',
+                        contractVersion=contract['schemaVersion'], identity=identity, tag=tag,
+                        signingFingerprint=signer, repositories=[],
+                        assets=[{'name': PUBLIC_KEY, 'size': 12, 'sha256': 'd' * 64}],
+                        records=[dict(record=record, artifactAsset='sdk.rpm', reportAsset='report.json')])
+        CI.save(directory / MANIFEST, manifest)
+        (directory / SIGNATURE).write_bytes(b'fixture-signature')
+        digest = CI.SHARED.digest(directory / MANIFEST)
+        assets = manifest['assets'] + [descriptor(directory / name) for name in (MANIFEST, SIGNATURE)]
+        receipt = dict(schemaVersion=1, status='published-postverified', publicationAllowed=True,
+                       repository=manifest['repository'], identity=identity, tag=tag,
+                       releaseUrl='https://github.com/dotnetdev-kr/cbodotnet/releases/tag/' + tag,
+                       manifestUrl=base + MANIFEST, signatureUrl=base + SIGNATURE, publicKeyUrl=base + PUBLIC_KEY,
+                       manifestSha256=digest, signingFingerprint=signer, repositories=[],
+                       publications=publication_rows(manifest, digest, base),
+                       assets=[dict(item, url=base + item['name']) for item in assets])
+        return receipt, manifest, signer
+
+    def test_public_receipt_rejects_other_projects_tags_sources_and_urls_before_download(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            receipt, _, _ = self.publication_fixture(Path(temporary))
+            self.assertTrue(CI.validate_receipt(receipt).endswith(receipt['tag'] + '/'))
+            for key, replacement in [('repository', 'someone/cbodotnet'), ('tag', 'distribution-rpm-sdk-10.0.403-r2'),
+                                     ('manifestUrl', 'https://example.com/manifest.json'), ('publicationAllowed', False)]:
+                modified = copy.deepcopy(receipt)
+                modified[key] = replacement
+                with self.subTest(key=key), self.assertRaises(ValueError):
+                    CI.validate_receipt(modified)
+            modified = copy.deepcopy(receipt)
+            modified['identity']['sourceManifestSha256'] = '0' * 64
+            with self.assertRaisesRegex(ValueError, 'no longer admitted'):
+                CI.validate_receipt(modified)
+
+    def test_signed_publication_binds_receipt_identity_assets_and_target_rows(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            receipt, manifest, signer = self.publication_fixture(directory)
+            CI.bind_signed_receipt(receipt, manifest, signer, directory)
+            for field in ('identity', 'tag', 'signingFingerprint', 'contractVersion'):
+                changed = copy.deepcopy(manifest)
+                changed[field] = {'channel': 'rpm'} if field == 'identity' else 'unexpected'
+                with self.subTest(manifest=field), self.assertRaises(ValueError):
+                    CI.bind_signed_receipt(receipt, changed, signer, directory)
+            for field in ('repositories', 'publications', 'assets'):
+                changed = copy.deepcopy(receipt)
+                changed[field] = [] if field != 'repositories' else [{'asset': 'other.tar.gz'}]
+                with self.subTest(receipt=field), self.assertRaises(ValueError):
+                    CI.bind_signed_receipt(changed, manifest, signer, directory)
+            changed = copy.deepcopy(manifest)
+            changed['records'][0]['record']['identity']['sourceManifestSha256'] = '0' * 64
+            with self.assertRaisesRegex(ValueError, 'target identity'):
+                CI.bind_signed_receipt(receipt, changed, signer, directory)
+
     def test_target_requires_exact_distribution_version_and_native_architecture(self):
         contract = {'operatingSystems': {'fedora-45': {'id': 'fedora', 'versionId': '45'},
                                         'rocky-9.8': {'id': 'rocky', 'versionId': '9.8'}}}

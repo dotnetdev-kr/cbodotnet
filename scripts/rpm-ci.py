@@ -198,7 +198,9 @@ def prepare_installed(args):
     save(delivery / 'official-before.json', SHARED.inventory(official))
     published = args.published == 'yes'
     if published:
-        key = delivery / 'repository/cbodotnet-archive-keyring.gpg'
+        # Legacy RPM4 imports ASCII-armored public keys; gpgv separately uses
+        # the binary keyring to authenticate repository metadata.
+        key = delivery / 'repository/cbodotnet-rpm-signing-key.asc'
         expected_key = (delivery / 'expected-fingerprint.txt').read_text().strip()
         require(re.fullmatch(r'[A-F0-9]{40,64}', expected_key), 'An authenticated repository fingerprint is required')
         text = run(['gpg', '--batch', '--show-keys', '--with-colons', key])
@@ -400,15 +402,62 @@ def native(args):
     print(json.dumps(dict(status='passed', architecture=args.arch, variants=variants)))
 
 
+def validate_receipt(receipt, contract=None):
+    from downstream_publish import MANIFEST, SIGNATURE, PUBLIC_KEY, REPOSITORY, release_tag
+    require(receipt.get('schemaVersion') == 1 and receipt.get('status') == 'published-postverified'
+            and receipt.get('repository') == REPOSITORY and receipt.get('publicationAllowed') is True,
+            'A published receipt for the exact RPM project is required')
+    identity = receipt['identity']
+    require(identity.get('channel') == 'rpm', 'A published RPM receipt is required')
+    tag = release_tag('rpm', identity['sdkVersion'], identity['packageRevision'])
+    require(receipt.get('tag') == tag, 'RPM receipt tag differs from immutable channel identity')
+    contract = contract if contract is not None else load_contract()
+    admitted = contract['releases'].get(identity['sdkVersion'], {})
+    require(admitted.get('manifestSha256') == identity.get('sourceManifestSha256')
+            and identity.get('sourceReleaseTag') == 'sdk-' + identity['sdkVersion'],
+            'RPM receipt source is no longer admitted')
+    base = f'https://github.com/{REPOSITORY}/releases/download/{tag}/'
+    require(receipt.get('releaseUrl') == f'https://github.com/{REPOSITORY}/releases/tag/{tag}'
+            and receipt.get('manifestUrl') == base + MANIFEST and receipt.get('signatureUrl') == base + SIGNATURE
+            and receipt.get('publicKeyUrl') == base + PUBLIC_KEY
+            and re.fullmatch(r'[a-f0-9]{64}', receipt.get('manifestSha256', '')),
+            'RPM receipt URLs or manifest digest differ from canonical publication')
+    return base
+
+
+def bind_signed_receipt(receipt, manifest, signer, directory, contract=None):
+    from downstream_publish import MANIFEST, SIGNATURE, REPOSITORY, publication_rows
+    from downstream_release import descriptor
+    contract = contract if contract is not None else load_contract()
+    base = validate_receipt(receipt, contract)
+    require(manifest.get('schemaVersion') == 1 and manifest.get('status') == 'validated-complete-matrix'
+            and manifest.get('repository') == REPOSITORY and manifest.get('contractVersion') == contract['schemaVersion']
+            and manifest.get('identity') == receipt['identity'] and manifest.get('tag') == receipt['tag']
+            and signer == manifest.get('signingFingerprint') == receipt.get('signingFingerprint'),
+            'Signed RPM manifest differs from receipt identity, contract, or signer')
+    require(all(all(row['record']['identity'].get(key) == value for key, value in manifest['identity'].items())
+                for row in manifest['records']), 'Signed RPM target identity differs from the publication source')
+    require(receipt.get('repositories') == manifest.get('repositories')
+            and receipt.get('publications') == publication_rows(manifest, receipt['manifestSha256'], base),
+            'RPM receipt targets or repositories differ from the signed manifest')
+    assets = manifest['assets'] + [descriptor(directory / name) for name in (MANIFEST, SIGNATURE)]
+    names = [item['name'] for item in assets]
+    require(len(names) == len(set(names)), 'Duplicate signed RPM publication asset')
+    expected = [dict(item, url=base + item['name']) for item in assets]
+    supplied = receipt.get('assets')
+    require(isinstance(supplied, list) and len(supplied) == len(expected)
+            and sorted(supplied, key=lambda item: item['name']) == sorted(expected, key=lambda item: item['name']),
+            'RPM receipt assets differ from authenticated publication bytes')
+
+
 def postverify(args):
     from downstream_publish import MANIFEST, SIGNATURE
     receipt = load(args.receipt)
-    require(receipt.get('status') == 'published-postverified' and receipt['identity']['channel'] == 'rpm', 'A published RPM receipt is required')
+    base_url = validate_receipt(receipt)
     require(platform.machine() in expected_native(args.arch), 'Published RPM proof requires a matching native worker')
     workspace = args.workspace.resolve()
     require(not workspace.exists(), 'RPM post-verification workspace must be fresh')
     workspace.mkdir(parents=True)
-    base_url = 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/' + receipt['tag'] + '/'
     for name in (MANIFEST, SIGNATURE):
         urllib.request.urlretrieve(base_url + name, workspace / name)
     require(SHARED.digest(workspace / MANIFEST) == receipt['manifestSha256'], 'RPM publication manifest changed')
@@ -417,7 +466,7 @@ def postverify(args):
     manifest = load(workspace / MANIFEST)
     workflow = manifest['records'][0]['record']['orchestration']['workflow']
     signer = verify_report_signature(workspace / MANIFEST, workspace / SIGNATURE, keyring, load_status(), workflow)
-    require(signer == manifest['signingFingerprint'], 'RPM publication signer differs from reviewed policy')
+    bind_signed_receipt(receipt, manifest, signer, workspace)
     candidates = {(row['variant'], row['architecture']) for row in load_status()['channels']['rpm']['candidateMatrix']}
     observed = [(row['record']['identity']['variant'], row['record']['architecture']) for row in manifest['records']]
     require(len(set(observed)) == len(observed) and set(observed) == candidates, 'Published RPM matrix differs from current reviewed targets')

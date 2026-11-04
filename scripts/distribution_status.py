@@ -33,7 +33,7 @@ def validate_receipts(receipts):
                 and receipt.get('status') == 'published-postverified', 'An actual post-verified publication receipt is required')
         identity = receipt['identity']
         channel = identity['channel']
-        require(channel in {'deb', 'oci'}, 'Channel status automation requires an enabled native post-verifier')
+        require(channel in {'deb', 'oci', 'rpm'}, 'Channel status automation requires an enabled native post-verifier')
         tag = release_tag(channel, identity['sdkVersion'], identity['packageRevision'])
         require(receipt.get('tag') == tag and identity['sourceReleaseTag'] == 'sdk-' + identity['sdkVersion'],
                 'Publication tag differs from its source/version/revision')
@@ -45,8 +45,10 @@ def validate_receipts(receipts):
 
 
 def validate_postverification(policy, receipts, reports, index=None):
-    require(isinstance(reports, list) and len(reports) == 2
-            and {report.get('architecture') for report in reports} == {'x64', 'aarch64'},
+    expected_arches = {row['architecture'] for receipt in receipts
+                       for row in policy['channels'][receipt['identity']['channel']]['candidateMatrix']}
+    require(isinstance(reports, list) and len(reports) == len(expected_arches)
+            and {report.get('architecture') for report in reports} == expected_arches,
             'Both exact native post-publication reports are required')
     by_channel = {receipt['identity']['channel']: receipt for receipt in receipts}
     if 'oci' in by_channel:
@@ -82,6 +84,21 @@ def validate_postverification(policy, receipts, reports, index=None):
                 require(all(target.get('checks', {}).get(name) == 'passed' for name in checks)
                         and target.get('checks', {}).get('upgrade') in {'passed', 'verified-before-publication'},
                         'APT installation, integrity, branding or lifecycle post-check failed')
+        if 'rpm' in by_channel:
+            targets = report.get('rpmTargets', [])
+            expected = {row['variant'] for row in policy['channels']['rpm']['candidateMatrix'] if row['architecture'] == arch}
+            require(len(targets) == len(expected) and {row.get('variant') for row in targets} == expected,
+                    'RPM post-publication target matrix is incomplete or duplicated')
+            assets = {row['name']: row for row in by_channel['rpm']['assets']}
+            checks = (PREPUBLICATION_CHECKS - {'upgrade'}) | set(policy['channels']['rpm']['requiredChecks'])
+            for target in targets:
+                asset = assets.get('rpm-' + target['variant'] + '.tar.gz', {})
+                require(target.get('architecture') == arch and target.get('status') == 'passed'
+                        and asset.get('sha256') and target.get('repositorySha256') == asset['sha256'],
+                        'RPM post-verifier tested another architecture or repository archive')
+                require(all(target.get('checks', {}).get(name) == 'passed' for name in checks)
+                        and target.get('checks', {}).get('upgrade') in {'passed', 'verified-before-publication'},
+                        'RPM package signature, repository, integrity or installation post-check failed')
 
 
 def activate_status(policy, receipts, reports, index=None, proof=None, public_key=None, verifier=None):
@@ -127,7 +144,7 @@ def activate_status(policy, receipts, reports, index=None, proof=None, public_ke
     return merged
 
 
-def validate_workflow_run(api, run_id, attempt):
+def validate_workflow_run(api, run_id, attempt, channels=('deb', 'oci')):
     require(re.fullmatch(r'[1-9][0-9]*', str(run_id)) and re.fullmatch(r'[1-9][0-9]*', str(attempt)),
             'Exact successful publication run and attempt are required')
     run = api.api(f'repos/{REPOSITORY}/actions/runs/{run_id}')
@@ -136,9 +153,14 @@ def validate_workflow_run(api, run_id, attempt):
             and run.get('head_branch') == 'main' and run.get('event') == 'workflow_dispatch'
             and run.get('path') == '.github/workflows/distribution-release.yml', 'Status updates require the trusted main publication workflow')
     jobs = api.api(f'repos/{REPOSITORY}/actions/runs/{run_id}/attempts/{attempt}/jobs?per_page=100')['jobs']
-    for name in ('Sign, promote and post-verify immutable distributions',
-                 'Anonymous digest pull and non-root smoke on x64',
-                 'Anonymous digest pull and non-root smoke on aarch64'):
+    required_jobs = (('Sign and publish RPM distributions',
+                      'Verify public RPM repositories on native x64',
+                      'Verify public RPM repositories on native aarch64') if set(channels) == {'rpm'} else
+                     ('Sign, promote and post-verify immutable distributions',
+                      'Anonymous digest pull and non-root smoke on x64',
+                      'Anonymous digest pull and non-root smoke on aarch64'))
+    require(set(channels) <= {'deb', 'oci'} or set(channels) == {'rpm'}, 'Unsupported publication job matrix')
+    for name in required_jobs:
         matched = [row for row in jobs if row.get('name') == name]
         require(len(matched) == 1 and matched[0].get('conclusion') == 'success',
                 'Publication or native post-verification job did not pass: ' + name)
@@ -149,7 +171,7 @@ def validate_workflow_run(api, run_id, attempt):
 def update_repository_status(receipts, reports, index, run_id, attempt, gh='gh', api=None, verifier=None, public_key=None):
     """Use the observed content SHA as a lease, then explicitly refresh Pages."""
     api = api if api is not None else GitHubReleases(gh)
-    proof = validate_workflow_run(api, run_id, attempt)
+    proof = validate_workflow_run(api, run_id, attempt, [receipt['identity']['channel'] for receipt in receipts])
     content = api.api(f'repos/{REPOSITORY}/contents/{STATUS_PATH}?ref=main')
     require(content and content.get('type') == 'file' and content.get('path') == STATUS_PATH
             and content.get('encoding') == 'base64' and isinstance(content.get('sha'), str), 'Invalid current status file metadata')

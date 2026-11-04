@@ -584,7 +584,10 @@ def promote(args):
         publish_staged(argparse.Namespace(promotion=output, keyring=args.keyring, frozen_run='', frozen_attempt='1'))
 
 
-def receive_frozen(run_id, attempt, destination):
+def receive_frozen(run_id, attempt, destination, *, channels=('deb', 'oci'),
+                   publisher_job='Sign, promote and post-verify immutable distributions',
+                   freeze_step='Freeze signed promotion bytes before publication',
+                   artifact_prefix='downstream-frozen-promotion'):
     """Fetch and authenticate the actual immutable artifact ZIP before extraction."""
     require(run_id.isdecimal() and attempt.isdecimal(), 'An exact frozen run/attempt is required')
     run_metadata = json.loads(run(['gh', 'api', f'repos/dotnetdev-kr/cbodotnet/actions/runs/{run_id}']))
@@ -594,12 +597,12 @@ def receive_frozen(run_id, attempt, destination):
             and run_metadata.get('head_repository', {}).get('full_name') == 'dotnetdev-kr/cbodotnet',
             'Frozen publication artifacts must originate from the trusted main workflow')
     jobs = json.loads(run(['gh', 'api', f'repos/dotnetdev-kr/cbodotnet/actions/runs/{run_id}/attempts/{attempt}/jobs?per_page=100']))['jobs']
-    publishers = [job for job in jobs if job['name'] == 'Sign, promote and post-verify immutable distributions']
-    require(len(publishers) == 1 and any(step['name'] == 'Freeze signed promotion bytes before publication'
+    publishers = [job for job in jobs if job['name'] == publisher_job]
+    require(len(publishers) == 1 and any(step['name'] == freeze_step
             and step.get('conclusion') == 'success' for step in publishers[0].get('steps', [])),
             'The selected workflow attempt did not preserve complete signed bundles')
     artifacts = json.loads(run(['gh', 'api', f'repos/dotnetdev-kr/cbodotnet/actions/runs/{run_id}/artifacts?per_page=100']))['artifacts']
-    expected_name = 'downstream-frozen-promotion-' + run_id + '-' + attempt
+    expected_name = artifact_prefix + '-' + run_id + '-' + attempt
     artifacts = [item for item in artifacts if item.get('name') == expected_name]
     require(len(artifacts) == 1 and artifacts[0].get('expired') is False, 'An exact unexpired frozen artifact is required')
     artifact = artifacts[0]
@@ -619,16 +622,19 @@ def receive_frozen(run_id, attempt, destination):
             entries = archive.infolist()
             names = set()
             require(entries and sum(entry.file_size for entry in entries) < 8 * 1024**3, 'Unexpected frozen artifact extraction size')
+            allowed_roots = {'bundle-' + channel for channel in channels} | {'promotion.json'}
+            if 'oci' in channels:
+                allowed_roots.add('oci-index.json')
             for entry in entries:
                 name = entry.filename.rstrip('/')
                 path = Path(name)
                 mode = entry.external_attr >> 16
                 require(name and not path.is_absolute() and '..' not in path.parts
                         and str(path) == name and not any(char in name for char in '\\:\0\r\n')
-                        and path.parts[0] in {'bundle-deb', 'bundle-oci', 'oci-index.json', 'promotion.json'}
+                        and path.parts[0] in allowed_roots
                         and name not in names and not mode & 0o7000
                         and stat.S_IFMT(mode) in {0, stat.S_IFDIR, stat.S_IFREG}, 'Unsafe frozen artifact member')
-                require(path.parts[0] in {'bundle-deb', 'bundle-oci'} or len(path.parts) == 1,
+                require(path.parts[0] in {'bundle-' + channel for channel in channels} or len(path.parts) == 1,
                         'Frozen artifact metadata cannot contain child paths')
                 names.add(name)
             destination.mkdir(parents=True)

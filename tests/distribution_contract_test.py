@@ -96,6 +96,9 @@ class DistributionContractTests(unittest.TestCase):
             self.assertEqual(plan['dependencies'], plan['rpmDependencies'])
             self.assertEqual('1.cbot.' + variant.replace('-', ''), plan['package']['rpmRelease'])
             self.assertFalse(plan['publicationAllowed'])
+            if variant == 'fedora-45':
+                self.assertIn('openssl3-libs', plan['rpmDependencies'])
+                self.assertNotIn('openssl-libs', plan['rpmDependencies'])
 
     def test_arch_recipe_admits_only_independently_selected_x64(self):
         plan = self.plan(channel='aur', variant='arch-rolling')

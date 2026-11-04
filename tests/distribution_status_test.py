@@ -163,5 +163,65 @@ class DistributionStatusTests(unittest.TestCase):
             self.assertFalse(any('/pages.yml/dispatches' in row[0] for row in api.calls))
 
 
+class RpmStatusTests(unittest.TestCase):
+    def setUp(self):
+        self.policy = copy.deepcopy(load_status())
+        identity = dict(channel='rpm', sdkVersion='10.0.403', packageRevision=1,
+                        sourceReleaseTag='sdk-10.0.403', sourceManifestSha256='d' * 64)
+        self.receipt = dict(schemaVersion=1, repository=STATUS.REPOSITORY, status='published-postverified',
+            identity=identity, tag=STATUS.release_tag('rpm', '10.0.403', 1), manifestSha256='e' * 64,
+            assets=[dict(name='rpm-' + variant + '.tar.gz', size=123, sha256='f' * 64)
+                    for variant in ('fedora-45', 'rocky-9.8')],
+            publications=[dict(channel='rpm', sdkVersion='10.0.403', packageRevision=1,
+                variant=row['variant'], architecture=row['architecture']) for row in self.policy['channels']['rpm']['candidateMatrix']])
+        checks = {name: 'passed' for name in PREPUBLICATION_CHECKS | set(self.policy['channels']['rpm']['requiredChecks'])}
+        checks['upgrade'] = 'verified-before-publication'
+        self.reports = [dict(schemaVersion=1, status='passed', architecture=arch,
+            rpmTargets=[dict(variant=variant, architecture=arch, status='passed', repositorySha256='f' * 64,
+                             checks=copy.deepcopy(checks)) for variant in ('fedora-45', 'rocky-9.8')]) for arch in ('x64', 'aarch64')]
+
+    def activate(self, reports=None):
+        return STATUS.activate_status(self.policy, [self.receipt], reports if reports is not None else self.reports,
+                                      verifier=mock.Mock(return_value={'channels': {'rpm': {}}}))
+
+    def test_rpm_activation_preserves_already_published_apt_oci_and_unpublished_aur(self):
+        result = self.activate()
+        self.assertEqual('published', result['channels']['rpm']['status'])
+        self.assertEqual(self.policy['channels']['deb'], result['channels']['deb'])
+        self.assertEqual(self.policy['channels']['oci'], result['channels']['oci'])
+        self.assertEqual('not-published', result['channels']['aur']['status'])
+
+    def test_every_public_rpm_distro_signature_architecture_and_digest_is_required(self):
+        mutations = [lambda report: report['rpmTargets'].pop(),
+                     lambda report: report['rpmTargets'][0].update(architecture='aarch64'),
+                     lambda report: report['rpmTargets'][0].update(repositorySha256='0' * 64),
+                     lambda report: report['rpmTargets'][0]['checks'].update(**{'package-signatures': 'failed'}),
+                     lambda report: report['rpmTargets'][0]['checks'].update(**{'repository-metadata': 'missing'}),
+                     lambda report: report['rpmTargets'][0]['checks'].update(upgrade='not-tested')]
+        for change in mutations:
+            reports = copy.deepcopy(self.reports)
+            change(reports[0])
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                self.activate(reports)
+
+    def test_missing_or_duplicate_native_rpm_worker_cannot_activate(self):
+        for reports in (self.reports[:1], [self.reports[0], self.reports[0]]):
+            with self.assertRaises(ValueError):
+                self.activate(reports)
+
+    def test_rpm_status_requires_its_own_trusted_successful_jobs(self):
+        metadata = dict(repository=dict(full_name=STATUS.REPOSITORY), head_repository=dict(full_name=STATUS.REPOSITORY),
+                        head_branch='main', event='workflow_dispatch', path='.github/workflows/distribution-release.yml', head_sha='1' * 40)
+        names = ['Sign and publish RPM distributions', 'Verify public RPM repositories on native x64',
+                 'Verify public RPM repositories on native aarch64']
+        api = mock.Mock()
+        api.api.side_effect = [metadata, {'jobs': [dict(name=name, conclusion='success') for name in names]}]
+        self.assertEqual('123', STATUS.validate_workflow_run(api, '123', '1', ['rpm'])['runId'])
+        for jobs in ([], [dict(name=name, conclusion='failure' if 'x64' in name else 'success') for name in names]):
+            api.api.side_effect = [metadata, {'jobs': jobs}]
+            with self.assertRaises(ValueError):
+                STATUS.validate_workflow_run(api, '123', '1', ['rpm'])
+
+
 if __name__ == '__main__':
     unittest.main()

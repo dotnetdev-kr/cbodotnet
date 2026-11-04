@@ -16,7 +16,7 @@ import tempfile
 import time
 import urllib.request
 
-from aur_delivery import ARCH_BASE, generate_srcinfo, recipe_archive, sdk_tools, write_sources
+from aur_delivery import ARCH_BASE, generate_srcinfo, recipe_archive, review_namcap, sdk_tools, verify_tracked_sources, write_sources
 from distribution_commands import stage_commands
 from downstream_release import encoded, local_intake, package_record, receive_release, PREPUBLICATION_CHECKS, require
 
@@ -58,6 +58,8 @@ def native(args):
         recipe_plan = local_intake(inputs, 'aur', 'arch-rolling', 'x64', revision)
         recipe_plan['checksums'] = json.loads((inputs / 'release-manifest.json').read_bytes())['checksums']
         sources = write_sources(recipe_plan, workspace / name)
+        if revision == args.revision:
+            verify_tracked_sources(workspace / name, ROOT / 'packaging/aur')
         # makepkg still verifies every pinned source checksum. Populate its URL
         # cache from the independently validated immutable intake, never bypass it.
         for source in ('release-manifest.json', 'SHA256SUMS', plan['sdk']['name']):
@@ -67,12 +69,27 @@ def native(args):
     commands.mkdir()
     rows = stage_commands(commands, plan)
     (workspace / 'commands.json').write_bytes(encoded(rows))
-    progress('run actual makepkg, namcap, pacman and non-root SDK lifecycle tests on pinned Arch')
-    native_tools().run(['docker', 'run', '--rm', '--platform', 'linux/amd64',
+    progress('fully update pinned Arch and provision native build/runtime dependencies')
+    run = native_tools().run
+    docker = ['--platform', 'linux/amd64',
         '-e', 'AUR_OUTPUT_UID=' + str(os.getuid()), '-e', 'AUR_OUTPUT_GID=' + str(os.getgid()),
-        '-v', f'{ROOT}:/repo:ro', '-v', f'{workspace}:/delivery', ARCH_BASE,
-        'bash', '/repo/scripts/verify-aur-install.sh', '/repo', '/delivery'])
+        '-v', f'{ROOT}:/repo:ro', '-v', f'{workspace}:/delivery']
+    prepared = None
+    container = run(['docker', 'create', *docker, ARCH_BASE, 'bash', '/repo/scripts/verify-aur-install.sh', '/repo', '/delivery', 'prepare']).strip()
+    try:
+        run(['docker', 'start', '--attach', container])
+        state = json.loads(run(['docker', 'inspect', '--format', '{{json .State}}', container]))
+        require(state.get('ExitCode') == 0 and state.get('Status') == 'exited', 'Arch dependency preparation failed')
+        prepared = run(['docker', 'commit', container]).strip()
+        progress('disable external networking for actual makepkg, lint, install and complete SDK lifecycle tests')
+        run(['docker', 'run', '--rm', '--network', 'none', *docker, prepared,
+             'bash', '/repo/scripts/verify-aur-install.sh', '/repo', '/delivery', 'installed'])
+    finally:
+        run(['docker', 'rm', '--force', container])
+        if prepared:
+            run(['docker', 'image', 'rm', prepared])
     result = json.loads((workspace / 'installation-result.json').read_bytes())
+    verify_tracked_sources(workspace / 'recipes', ROOT / 'packaging/aur', srcinfo=True)
     artifact = workspace / ('cbodotnet-aur-' + plan['sdkVersion'] + '-r' + str(args.revision) + '.tar.gz')
     archive = recipe_archive(workspace / 'recipes', artifact)
     result['recipeSources'] = archive['sources']
@@ -100,6 +117,7 @@ def native(args):
 
 def installed(args):
     require(os.geteuid() == 0 and platform.machine() == 'x86_64', 'A disposable native x86_64 root container is required')
+    require({path.name for path in Path('/sys/class/net').iterdir()} == {'lo'}, 'Arch build and lifecycle validation require Docker --network none')
     delivery = args.delivery.resolve()
     plan = json.loads((delivery / 'plan.json').read_bytes())
     os_release = dict(line.split('=', 1) for line in Path('/etc/os-release').read_text().splitlines() if '=' in line)
@@ -128,14 +146,18 @@ def installed(args):
         packages = list(directory.glob('*.pkg.tar.zst'))
         require(len(packages) == 1, 'Exactly one binary package must be produced per independent AUR pkgbase')
         analyses = []
+        reviewed = []
         for target in (directory / 'PKGBUILD', packages[0]):
-            output = run(['namcap', target])
-            require(not re.search(r'\bE: ', output), 'namcap found a packaging error: ' + output)
+            lint = subprocess.run(['namcap', str(target)], text=True, capture_output=True)
+            output = lint.stdout + lint.stderr
             analyses.append(output)
-        (logs / (label + '-namcap.log')).write_text('\n'.join(analyses))
+            (logs / (label + '-namcap.log')).write_text('\n'.join(analyses))
+            require(lint.returncode == 0, 'namcap invocation failed for ' + target.name + ':\n' + '\n'.join(output.splitlines()[-12:]))
+            reviewed.extend(review_namcap(output, directory.name, binary_package=target == packages[0]))
         build_records.append(dict(pkgbase=directory.name, revision=label, package=packages[0].name,
             sha256=tools.digest(packages[0]), srcinfoSha256=tools.digest(directory / '.SRCINFO'),
-            sourceVerification='passed', makepkg='passed', namcap='passed', namcapOutput=analyses))
+            sourceVerification='passed', makepkg='passed', namcap='passed-with-reviewed-findings' if reviewed else 'passed',
+            namcapReviewedFindings=reviewed, namcapOutput=analyses))
         return packages[0]
 
     host = build(delivery / 'recipes/cbodotnet-host', 'host')
@@ -247,10 +269,13 @@ def installed(args):
             and inventory(official) == official_before, 'AUR removal modified the independent official SDK')
     checks = {check: 'passed' for check in PREPUBLICATION_CHECKS}
     checks.update({check: 'passed' for check in ('package-integrity', 'package-manager-install', 'source-verification', 'recipe-metadata', 'rollback', 'namcap')})
+    if any(record['namcapReviewedFindings'] for record in build_records):
+        checks['namcap'] = 'passed-with-reviewed-findings'
     result = dict(schemaVersion=1, status='passed', target=dict(osId='arch', versionId='rolling', architecture='x64', native=True,
         dependencies=dependencies, observedOsRelease={key: value.strip('"') for key, value in os_release.items()}, startingImage=ARCH_BASE),
         checks=checks, commandNames=names, packageBuilds=build_records, nativeDependencyOutput=dynamic,
         validationTools={tool: run([tool, '--version']).splitlines()[0] for tool in ('makepkg', 'pacman')},
+        networkForBuild='none',
         publicationStatus='not-published')
     (delivery / 'installation-result.json').write_bytes(encoded(result))
 

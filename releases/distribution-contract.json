@@ -78,7 +78,7 @@
     },
     "fedora-45": {
       "id": "fedora", "versionId": "45", "libc": "glibc",
-      "dependencies": ["glibc", "libgcc", "libstdc++", "zlib-ng-compat", "krb5-libs", "ca-certificates", "libicu", "openssl-libs"]
+      "dependencies": ["glibc", "libgcc", "libstdc++", "zlib-ng-compat", "krb5-libs", "ca-certificates", "libicu", "openssl3-libs"]
     },
     "rocky-9.8": {
       "id": "rocky", "versionId": "9.8", "libc": "glibc",

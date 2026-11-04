@@ -91,6 +91,32 @@ class AurRecipeTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'actual GitHub'):
                 CI.workflow_identity()
 
+    def test_only_exact_sdk_opt_layout_lint_is_reviewed_and_never_hides_dependency_errors(self):
+        expected = "cbodotnet-sdk-10.0-bin E: ELF files outside of a valid path ('opt/')."
+        self.assertEqual('elfpaths', AUR.review_namcap(expected, 'cbodotnet-sdk-10.0-bin', True)[0]['rule'])
+        for package, binary, output in [('cbodotnet-host', True, expected), ('cbodotnet-sdk-10.0-bin', False, expected),
+                ('cbodotnet-sdk-10.0-bin', True, expected + '\ncbodotnet-sdk-10.0-bin E: Missing dependency libicu'),
+                ('cbodotnet-sdk-10.0-bin', True, expected.replace("'opt/'", "'usr/share/'"))]:
+            with self.subTest(output=output), self.assertRaisesRegex(ValueError, 'Unreviewed namcap'):
+                AUR.review_namcap(output, package, binary)
+
+    def test_native_validation_rejects_stale_tracked_recipe_or_srcinfo(self):
+        recipes, sources = self.recipes()
+        tracked = self.directory / 'tracked'
+        import shutil
+        shutil.copytree(recipes, tracked)
+        AUR.verify_tracked_sources(recipes, tracked)
+        for source in sources.values():
+            (source / '.SRCINFO').write_text('actual makepkg output')
+            (tracked / source.name / '.SRCINFO').write_text('actual makepkg output')
+        AUR.verify_tracked_sources(recipes, tracked, srcinfo=True)
+        (tracked / sources['sdk'].name / '.SRCINFO').write_text('stale metadata')
+        with self.assertRaisesRegex(ValueError, 'differs from reviewed'):
+            AUR.verify_tracked_sources(recipes, tracked, srcinfo=True)
+        (tracked / sources['sdk'].name / 'PKGBUILD').write_text('unbuilt recipe edit')
+        with self.assertRaisesRegex(ValueError, 'differs from reviewed'):
+            AUR.verify_tracked_sources(recipes, tracked)
+
 
 class SubmittedVerifierTests(unittest.TestCase):
     def setUp(self):
