@@ -1,0 +1,104 @@
+{
+  "additionalDirectories": [],
+  "architecture": {
+    "aur": "x86_64",
+    "deb": "amd64",
+    "oci": "linux/amd64",
+    "public": "x64",
+    "rid": "linux-x64",
+    "rpm": "x86_64"
+  },
+  "aurDependencies": [
+    "glibc",
+    "libgcc",
+    "libstdc++",
+    "zlib",
+    "krb5",
+    "ca-certificates",
+    "icu",
+    "openssl"
+  ],
+  "branding": {
+    "displayName": "Community Build of .NET (built by .NET Dev)",
+    "implementation": "distribution-wrapper",
+    "informationCommand": "--cbodotnet-info",
+    "modifyQualifiedPayload": false,
+    "versionBrandingStream": "stderr",
+    "versionStdout": "unchanged-numeric-sdk-version"
+  },
+  "channel": "aur",
+  "checksums": {
+    "name": "SHA256SUMS",
+    "sha256": "df7af871167b6beb71f0e9c7d058f812f2248dec0cdb9fe6614ed706ed34f2b2",
+    "size": 610
+  },
+  "commands": {
+    "containerDirectory": "/usr/local/bin",
+    "containerDotnet": "/usr/local/bin/dotnet",
+    "default": "/usr/bin/cbodotnet",
+    "defaultOwner": "cbodotnet-host",
+    "defaultSelection": "highest-installed-major-minor",
+    "versioned": "/usr/bin/cbodotnet-7.0"
+  },
+  "contractVersion": 2,
+  "dependencies": [
+    "glibc",
+    "libgcc",
+    "libstdc++",
+    "zlib",
+    "krb5",
+    "ca-certificates",
+    "icu",
+    "openssl"
+  ],
+  "evidence": {
+    "name": "evidence-x64.tar.gz",
+    "sha256": "715b5007eab897341a4f32a1138f569dab904c2deca2ec27a308fec3d1c98b83",
+    "size": 53542862,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-7.0.120/evidence-x64.tar.gz"
+  },
+  "licensePaths": [
+    "LICENSE.txt",
+    "ThirdPartyNotices.txt"
+  ],
+  "package": {
+    "aurName": "cbodotnet-sdk-7.0-bin",
+    "launcher": "/usr/bin/cbodotnet-7.0",
+    "name": "cbodotnet-sdk-7.0",
+    "root": "/opt/cbodotnet/7.0",
+    "version": "7.0.120-1"
+  },
+  "packageRevision": 1,
+  "producer": {
+    "artifactId": "13084341220",
+    "originalSdkName": "cbodotnet-sdk-7.0.120-linux-x64-build.41299659746.tar.gz",
+    "originalSourceName": "cbodotnet-sources-7.0.120-linux-x64-build.41299659746.tar.gz",
+    "projectCommit": "53eb6e63312738d10c0676cd1be0d85ef1038cf0",
+    "runAttempt": "1",
+    "runId": "41299659746",
+    "targetRid": "linux-x64",
+    "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41299659746"
+  },
+  "publicationAllowed": false,
+  "schemaVersion": 1,
+  "sdk": {
+    "name": "cbodotnet-sdk-7.0.120-linux-x64.tar.gz",
+    "sha256": "19c7502456666cd90ef0070f44daa1e2cd447f49ac953b77d53d941919617584",
+    "size": 234797120,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-7.0.120/cbodotnet-sdk-7.0.120-linux-x64.tar.gz"
+  },
+  "sdkVersion": "7.0.120",
+  "securitySupport": "community-build-no-additional-security-maintenance",
+  "source": {
+    "name": "cbodotnet-source-7.0.120-linux-x64.tar.gz",
+    "sha256": "c380fc0d1ae0596a3ee27fd8f66b373a12992fe224b56bf7330283826c3103c4",
+    "size": 1709681526,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-7.0.120/cbodotnet-source-7.0.120-linux-x64.tar.gz"
+  },
+  "sourceManifestSha256": "b82e5c10814606e50f3682f0787452362cc6d82ee01ed0f652691a98f98e2e30",
+  "sourceManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-7.0.120/release-manifest.json",
+  "sourceReleaseTag": "sdk-7.0.120",
+  "status": "prepared-unqualified",
+  "targetRid": "linux-x64",
+  "variant": "arch-rolling"
+}

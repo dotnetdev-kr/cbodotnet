@@ -22,7 +22,8 @@ case "$phase" in
     # so pacman -Qkk verifies every file owned by these packages.
     sed -i -E 's/^([[:space:]]*NoExtract[[:space:]]*=)/# complete-package validation: \1/' /etc/pacman.conf
     pacman -Syu --noconfirm --needed python namcap curl ca-certificates \
-      glibc libgcc libstdc++ icu krb5 openssl zlib
+      glibc libgcc libstdc++ icu krb5 openssl zlib rpm-tools gnupg binutils
+    python "$repo/scripts/aur-ci.py" prepare --delivery "$delivery"
     ;;
   installed)
     python "$repo/scripts/aur-ci.py" installed --delivery "$delivery"

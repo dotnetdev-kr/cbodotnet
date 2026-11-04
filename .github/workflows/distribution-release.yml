@@ -322,6 +322,7 @@ jobs:
           python3 -m unittest discover -s tests -p '*_test.py'
       - name: Build unchanged SDK packages and execute the full installation matrix
         env:
+          GH_TOKEN: ${{ github.token }}
           ARCH: ${{ matrix.arch }}
           TAG: ${{ inputs.tag || 'sdk-10.0.403' }}
           REVISION: ${{ inputs.revision || '1' }}
@@ -566,6 +567,7 @@ jobs:
           python3 -m unittest discover -s tests -p '*_test.py'
       - name: Build and install both RPM distro targets with unchanged SDK bytes
         env:
+          GH_TOKEN: ${{ github.token }}
           ARCH: ${{ matrix.arch }}
           TAG: ${{ inputs.tag }}
           REVISION: ${{ inputs.revision }}
@@ -597,6 +599,7 @@ jobs:
           python3 -m unittest discover -s tests -p '*_test.py'
       - name: Build and install pinned binary recipes in clean Arch Linux
         env:
+          GH_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag }}
           REVISION: ${{ inputs.revision }}
         run: |

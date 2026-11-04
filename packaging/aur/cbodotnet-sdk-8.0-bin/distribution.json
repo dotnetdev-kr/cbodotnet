@@ -1,0 +1,104 @@
+{
+  "additionalDirectories": [],
+  "architecture": {
+    "aur": "x86_64",
+    "deb": "amd64",
+    "oci": "linux/amd64",
+    "public": "x64",
+    "rid": "linux-x64",
+    "rpm": "x86_64"
+  },
+  "aurDependencies": [
+    "glibc",
+    "libgcc",
+    "libstdc++",
+    "zlib",
+    "krb5",
+    "ca-certificates",
+    "icu",
+    "openssl"
+  ],
+  "branding": {
+    "displayName": "Community Build of .NET (built by .NET Dev)",
+    "implementation": "distribution-wrapper",
+    "informationCommand": "--cbodotnet-info",
+    "modifyQualifiedPayload": false,
+    "versionBrandingStream": "stderr",
+    "versionStdout": "unchanged-numeric-sdk-version"
+  },
+  "channel": "aur",
+  "checksums": {
+    "name": "SHA256SUMS",
+    "sha256": "c12679a3fe0f0220e0202de6b0964cdb66f21aa94ef99e82b63c2ae33a3ca732",
+    "size": 610
+  },
+  "commands": {
+    "containerDirectory": "/usr/local/bin",
+    "containerDotnet": "/usr/local/bin/dotnet",
+    "default": "/usr/bin/cbodotnet",
+    "defaultOwner": "cbodotnet-host",
+    "defaultSelection": "highest-installed-major-minor",
+    "versioned": "/usr/bin/cbodotnet-8.0"
+  },
+  "contractVersion": 2,
+  "dependencies": [
+    "glibc",
+    "libgcc",
+    "libstdc++",
+    "zlib",
+    "krb5",
+    "ca-certificates",
+    "icu",
+    "openssl"
+  ],
+  "evidence": {
+    "name": "evidence-x64.tar.gz",
+    "sha256": "727f0b629074abf4065c60b9dd16881f09169e196e352ade8d0003510729c3d3",
+    "size": 193474550,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-8.0.133/evidence-x64.tar.gz"
+  },
+  "licensePaths": [
+    "LICENSE.txt",
+    "ThirdPartyNotices.txt"
+  ],
+  "package": {
+    "aurName": "cbodotnet-sdk-8.0-bin",
+    "launcher": "/usr/bin/cbodotnet-8.0",
+    "name": "cbodotnet-sdk-8.0",
+    "root": "/opt/cbodotnet/8.0",
+    "version": "8.0.133-1"
+  },
+  "packageRevision": 1,
+  "producer": {
+    "artifactId": "13081274822",
+    "originalSdkName": "cbodotnet-sdk-8.0.133-linux-x64-build.41295751388.tar.gz",
+    "originalSourceName": "cbodotnet-sources-8.0.133-linux-x64-build.41295751388.tar.gz",
+    "projectCommit": "14211bf22a49ca454740780c28c181e880bf7cbf",
+    "runAttempt": "1",
+    "runId": "41295751388",
+    "targetRid": "linux-x64",
+    "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295751388"
+  },
+  "publicationAllowed": false,
+  "schemaVersion": 1,
+  "sdk": {
+    "name": "cbodotnet-sdk-8.0.133-linux-x64.tar.gz",
+    "sha256": "dc86cedd8f8cf5153e21b21576f3616c01a88f85952789f483f05751304ccad3",
+    "size": 247823416,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-8.0.133/cbodotnet-sdk-8.0.133-linux-x64.tar.gz"
+  },
+  "sdkVersion": "8.0.133",
+  "securitySupport": "community-build-no-additional-security-maintenance",
+  "source": {
+    "name": "cbodotnet-source-8.0.133-linux-x64.tar.gz",
+    "sha256": "e5e8d29f9b2272573ddc6e568ba85d925641da2f52a5512e035d7f8e3ac9554a",
+    "size": 601769524,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-8.0.133/cbodotnet-source-8.0.133-linux-x64.tar.gz"
+  },
+  "sourceManifestSha256": "6df02b36738250943cc4ae3ee32f6da4ec1c37a56fa6b248c08aeddff7760f6c",
+  "sourceManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-8.0.133/release-manifest.json",
+  "sourceReleaseTag": "sdk-8.0.133",
+  "status": "prepared-unqualified",
+  "targetRid": "linux-x64",
+  "variant": "arch-rolling"
+}

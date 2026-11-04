@@ -1,0 +1,43 @@
+pkgbase = cbodotnet-sdk-3.1-bin
+	pkgdesc = Community Build of .NET (built by .NET Dev) SDK
+	pkgver = 3.1.426
+	pkgrel = 1
+	url = https://dotnetdev.kr/cbodotnet/
+	arch = x86_64
+	license = MIT
+	license = LicenseRef-Dotnet-ThirdPartyNotices
+	makedepends = python
+	depends = glibc
+	depends = libgcc
+	depends = libstdc++
+	depends = zlib
+	depends = krb5
+	depends = ca-certificates
+	depends = icu
+	depends = openssl
+	depends = cbodotnet-compat-rocky9=2026.11.4-1
+	depends = cbodotnet-host>=1.0.0
+	noextract = cbodotnet-sdk-3.1.426-linux-x64.tar.gz
+	options = !strip
+	options = !debug
+	options = !lto
+	options = !zipman
+	options = !purge
+	options = docs
+	options = libtool
+	options = staticlibs
+	options = emptydirs
+	source = cbodotnet-3.1
+	source = distribution.json
+	source = verify-source.py
+	source = release-manifest.json::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.1.426/release-manifest.json
+	source = SHA256SUMS::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.1.426/SHA256SUMS
+	sha256sums = 302e508f63ae6217b21453293f303ed3ad5dbfc9760dc4cff28e8cc90f10f280
+	sha256sums = fe8bb66e72f60ac6379c014469ad7ededacb9dd60df9684f38932f234afd2d58
+	sha256sums = ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47
+	sha256sums = 70049972a8781c309fae40e5f68d74847d0a9a590d36de4f25ecc2ad50578b09
+	sha256sums = 9be0812b27d96321f531a8b1a0694969ca898974b88c2582582c22f0e00f3c7e
+	source_x86_64 = https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.1.426/cbodotnet-sdk-3.1.426-linux-x64.tar.gz
+	sha256sums_x86_64 = 7d0b197181bc10ba7ecffe6f820771560db6330004f44d314e7e4d80db2e89bd
+
+pkgname = cbodotnet-sdk-3.1-bin

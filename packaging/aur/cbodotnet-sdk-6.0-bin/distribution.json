@@ -1,0 +1,104 @@
+{
+  "additionalDirectories": [],
+  "architecture": {
+    "aur": "x86_64",
+    "deb": "amd64",
+    "oci": "linux/amd64",
+    "public": "x64",
+    "rid": "linux-x64",
+    "rpm": "x86_64"
+  },
+  "aurDependencies": [
+    "glibc",
+    "libgcc",
+    "libstdc++",
+    "zlib",
+    "krb5",
+    "ca-certificates",
+    "icu",
+    "openssl"
+  ],
+  "branding": {
+    "displayName": "Community Build of .NET (built by .NET Dev)",
+    "implementation": "distribution-wrapper",
+    "informationCommand": "--cbodotnet-info",
+    "modifyQualifiedPayload": false,
+    "versionBrandingStream": "stderr",
+    "versionStdout": "unchanged-numeric-sdk-version"
+  },
+  "channel": "aur",
+  "checksums": {
+    "name": "SHA256SUMS",
+    "sha256": "1bfebe035c4c571758ec4a5123c1e3902bd0c45839b717b5c4c12bdc2f491aa5",
+    "size": 610
+  },
+  "commands": {
+    "containerDirectory": "/usr/local/bin",
+    "containerDotnet": "/usr/local/bin/dotnet",
+    "default": "/usr/bin/cbodotnet",
+    "defaultOwner": "cbodotnet-host",
+    "defaultSelection": "highest-installed-major-minor",
+    "versioned": "/usr/bin/cbodotnet-6.0"
+  },
+  "contractVersion": 2,
+  "dependencies": [
+    "glibc",
+    "libgcc",
+    "libstdc++",
+    "zlib",
+    "krb5",
+    "ca-certificates",
+    "icu",
+    "openssl"
+  ],
+  "evidence": {
+    "name": "evidence-x64.tar.gz",
+    "sha256": "164aa1897fbd0518d59b1fbc1cf68fa46a4e192eaacc923f97ca73b8056ef70a",
+    "size": 51478717,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/evidence-x64.tar.gz"
+  },
+  "licensePaths": [
+    "LICENSE.txt",
+    "ThirdPartyNotices.txt"
+  ],
+  "package": {
+    "aurName": "cbodotnet-sdk-6.0-bin",
+    "launcher": "/usr/bin/cbodotnet-6.0",
+    "name": "cbodotnet-sdk-6.0",
+    "root": "/opt/cbodotnet/6.0",
+    "version": "6.0.136-1"
+  },
+  "packageRevision": 1,
+  "producer": {
+    "artifactId": "13082614925",
+    "originalSdkName": "cbodotnet-sdk-6.0.136-linux-x64-build.41297567596.tar.gz",
+    "originalSourceName": "cbodotnet-sources-6.0.136-linux-x64-build.41297567596.tar.gz",
+    "projectCommit": "e452427e84ce3bce9cd97fe03ce849e7e4dcd0d1",
+    "runAttempt": "1",
+    "runId": "41297567596",
+    "targetRid": "linux-x64",
+    "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41297567596"
+  },
+  "publicationAllowed": false,
+  "schemaVersion": 1,
+  "sdk": {
+    "name": "cbodotnet-sdk-6.0.136-linux-x64.tar.gz",
+    "sha256": "34eca0b48c7f64a048ea640437db063136d982b2e0209876b1ceb9b0c555f146",
+    "size": 224506406,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/cbodotnet-sdk-6.0.136-linux-x64.tar.gz"
+  },
+  "sdkVersion": "6.0.136",
+  "securitySupport": "community-build-no-additional-security-maintenance",
+  "source": {
+    "name": "cbodotnet-source-6.0.136-linux-x64.tar.gz",
+    "sha256": "fe73f956e156c92d74cf3bbff390d00e84d825491bd782933f3a90049eeef1c0",
+    "size": 1764000007,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/cbodotnet-source-6.0.136-linux-x64.tar.gz"
+  },
+  "sourceManifestSha256": "5e9404de6bde02aed938951182da03380ae37f7b506a8fbf46a186d4bca484fd",
+  "sourceManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-6.0.136/release-manifest.json",
+  "sourceReleaseTag": "sdk-6.0.136",
+  "status": "prepared-unqualified",
+  "targetRid": "linux-x64",
+  "variant": "arch-rolling"
+}

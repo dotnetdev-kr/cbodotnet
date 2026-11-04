@@ -1,0 +1,33 @@
+# Maintainer: .NET Dev contributors (https://dotnetdev.kr/)
+# Qualified prebuilt SDK; distribution.json records corresponding source/evidence.
+pkgname=cbodotnet-sdk-9.0-bin
+pkgver=9.0.123
+pkgrel=1
+pkgdesc='Community Build of .NET (built by .NET Dev) SDK'
+arch=('x86_64')
+url='https://dotnetdev.kr/cbodotnet/'
+license=('MIT' 'LicenseRef-Dotnet-ThirdPartyNotices')
+depends=('glibc' 'libgcc' 'libstdc++' 'zlib' 'krb5' 'ca-certificates' 'icu' 'openssl' 'cbodotnet-host>=1.0.0')
+makedepends=('python')
+options=('!strip' '!debug' '!lto' '!zipman' '!purge' 'docs' 'libtool' 'staticlibs' 'emptydirs')
+source=('cbodotnet-9.0' 'distribution.json' 'verify-source.py' 'release-manifest.json::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-9.0.123/release-manifest.json' 'SHA256SUMS::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-9.0.123/SHA256SUMS')
+sha256sums=('d4311029a69b9d217357047187a0bf4b771a7de2b217b297f794df5d13e472ee' '4a64f3be5629522bfdf6586dfbd99325f6a7560ed9a858f56aa3dc4259db5a43' 'ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47' 'd7d68c0e8aedeb0b261f9d22dfc1aec73bc359919835caa16d7df70dc9238be9' '63983849110f6cc7ed18c8e1a098dad36ac14140d6b5a4d8e9f7ea427a381384')
+source_x86_64=('https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-9.0.123/cbodotnet-sdk-9.0.123-linux-x64.tar.gz')
+sha256sums_x86_64=('291f09014e7223a29d8ab49c99f86628900b1ad42d309d9542b019129bdd195e')
+noextract=('cbodotnet-sdk-9.0.123-linux-x64.tar.gz')
+
+prepare() {
+  python "$srcdir/verify-source.py" --policy "$srcdir/distribution.json" \
+    --manifest "$srcdir/release-manifest.json" --checksums "$srcdir/SHA256SUMS" \
+    --archive "$srcdir/cbodotnet-sdk-9.0.123-linux-x64.tar.gz" --destination "$srcdir/sdk-9.0.123"
+}
+
+package() {
+  install -dm755 "$pkgdir/opt/cbodotnet/9.0"
+  cp -a --no-preserve=ownership "$srcdir/sdk-9.0.123/." "$pkgdir/opt/cbodotnet/9.0/"
+  install -dm755 "$pkgdir/opt/cbodotnet/9.0/metadata"
+  install -Dm755 "$srcdir/cbodotnet-9.0" "$pkgdir/usr/bin/cbodotnet-9.0"
+  install -Dm644 "$srcdir/distribution.json" "$pkgdir/usr/share/doc/$pkgname/distribution.json"
+  install -Dm644 "$srcdir/sdk-9.0.123/LICENSE.txt" "$pkgdir/usr/share/licenses/$pkgname/LICENSE.txt"
+  install -Dm644 "$srcdir/sdk-9.0.123/ThirdPartyNotices.txt" "$pkgdir/usr/share/licenses/$pkgname/ThirdPartyNotices.txt"
+}

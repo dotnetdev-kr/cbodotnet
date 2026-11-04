@@ -1,0 +1,43 @@
+pkgbase = cbodotnet-sdk-5.0-bin
+	pkgdesc = Community Build of .NET (built by .NET Dev) SDK
+	pkgver = 5.0.214
+	pkgrel = 1
+	url = https://dotnetdev.kr/cbodotnet/
+	arch = x86_64
+	license = MIT
+	license = LicenseRef-Dotnet-ThirdPartyNotices
+	makedepends = python
+	depends = glibc
+	depends = libgcc
+	depends = libstdc++
+	depends = zlib
+	depends = krb5
+	depends = ca-certificates
+	depends = icu
+	depends = openssl
+	depends = cbodotnet-compat-rocky9=2026.11.4-1
+	depends = cbodotnet-host>=1.0.0
+	noextract = cbodotnet-sdk-5.0.214-linux-x64.tar.gz
+	options = !strip
+	options = !debug
+	options = !lto
+	options = !zipman
+	options = !purge
+	options = docs
+	options = libtool
+	options = staticlibs
+	options = emptydirs
+	source = cbodotnet-5.0
+	source = distribution.json
+	source = verify-source.py
+	source = release-manifest.json::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-5.0.214/release-manifest.json
+	source = SHA256SUMS::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-5.0.214/SHA256SUMS
+	sha256sums = 8f002df45e54d345cae2cde665b55ede9ef303b761407a1a04e7fa946e4be085
+	sha256sums = 4f2173c290ac2d040b95502b9f504d60dcdff0ed9073c5a9c827a189c6ad4997
+	sha256sums = ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47
+	sha256sums = 2a98666b057b5e8c2c8ef149c5ebca7528c2048d7cc1aa38611d48d0d104c67f
+	sha256sums = c979d6681d237d6114ed7d87e3e575cc82fe3c672caabf39bd13f8940a136574
+	source_x86_64 = https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-5.0.214/cbodotnet-sdk-5.0.214-linux-x64.tar.gz
+	sha256sums_x86_64 = d79782992d27e55d7561cd190411b9f6ad3160bb3a91a71064bc7efdc0470d8e
+
+pkgname = cbodotnet-sdk-5.0-bin

@@ -1,0 +1,33 @@
+# Maintainer: .NET Dev contributors (https://dotnetdev.kr/)
+# Qualified prebuilt SDK; distribution.json records corresponding source/evidence.
+pkgname=cbodotnet-sdk-8.0-bin
+pkgver=8.0.133
+pkgrel=1
+pkgdesc='Community Build of .NET (built by .NET Dev) SDK'
+arch=('x86_64')
+url='https://dotnetdev.kr/cbodotnet/'
+license=('MIT' 'LicenseRef-Dotnet-ThirdPartyNotices')
+depends=('glibc' 'libgcc' 'libstdc++' 'zlib' 'krb5' 'ca-certificates' 'icu' 'openssl' 'cbodotnet-host>=1.0.0')
+makedepends=('python')
+options=('!strip' '!debug' '!lto' '!zipman' '!purge' 'docs' 'libtool' 'staticlibs' 'emptydirs')
+source=('cbodotnet-8.0' 'distribution.json' 'verify-source.py' 'release-manifest.json::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-8.0.133/release-manifest.json' 'SHA256SUMS::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-8.0.133/SHA256SUMS')
+sha256sums=('670199142b29889c26874f9e5c04f0b0e9192f8cdeff37f6e178e17ece0e02e3' 'ab9bf5a64404184a1c6a86773984c336465f32f5af2523ac7395c9951d504bec' 'ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47' '6df02b36738250943cc4ae3ee32f6da4ec1c37a56fa6b248c08aeddff7760f6c' 'c12679a3fe0f0220e0202de6b0964cdb66f21aa94ef99e82b63c2ae33a3ca732')
+source_x86_64=('https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-8.0.133/cbodotnet-sdk-8.0.133-linux-x64.tar.gz')
+sha256sums_x86_64=('dc86cedd8f8cf5153e21b21576f3616c01a88f85952789f483f05751304ccad3')
+noextract=('cbodotnet-sdk-8.0.133-linux-x64.tar.gz')
+
+prepare() {
+  python "$srcdir/verify-source.py" --policy "$srcdir/distribution.json" \
+    --manifest "$srcdir/release-manifest.json" --checksums "$srcdir/SHA256SUMS" \
+    --archive "$srcdir/cbodotnet-sdk-8.0.133-linux-x64.tar.gz" --destination "$srcdir/sdk-8.0.133"
+}
+
+package() {
+  install -dm755 "$pkgdir/opt/cbodotnet/8.0"
+  cp -a --no-preserve=ownership "$srcdir/sdk-8.0.133/." "$pkgdir/opt/cbodotnet/8.0/"
+
+  install -Dm755 "$srcdir/cbodotnet-8.0" "$pkgdir/usr/bin/cbodotnet-8.0"
+  install -Dm644 "$srcdir/distribution.json" "$pkgdir/usr/share/doc/$pkgname/distribution.json"
+  install -Dm644 "$srcdir/sdk-8.0.133/LICENSE.txt" "$pkgdir/usr/share/licenses/$pkgname/LICENSE.txt"
+  install -Dm644 "$srcdir/sdk-8.0.133/ThirdPartyNotices.txt" "$pkgdir/usr/share/licenses/$pkgname/ThirdPartyNotices.txt"
+}

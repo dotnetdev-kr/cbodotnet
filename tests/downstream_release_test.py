@@ -2,6 +2,7 @@
 import copy
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -19,6 +20,15 @@ from release_catalog_test import fixture
 
 
 class DownstreamReleaseTests(unittest.TestCase):
+    def test_native_intake_uses_ephemeral_token_only_for_the_github_api_request(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            with mock.patch.dict(os.environ, GH_TOKEN='fixture-ephemeral-api-token'):
+                with mock.patch.object(RELEASE, 'get_bytes', side_effect=ValueError('stop before payload')) as fetch:
+                    with self.assertRaisesRegex(ValueError, 'stop before payload'):
+                        RELEASE.receive_release('sdk-10.0.403', Path(temporary) / 'inputs', 'deb', 'debian-13', 'x64')
+        self.assertEqual('https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/tags/sdk-10.0.403', fetch.call_args.args[0])
+        self.assertEqual(dict(token='fixture-ephemeral-api-token', api=True), fetch.call_args.kwargs)
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)

@@ -1,0 +1,106 @@
+{
+  "additionalDirectories": [],
+  "architecture": {
+    "aur": "x86_64",
+    "deb": "amd64",
+    "oci": "linux/amd64",
+    "public": "x64",
+    "rid": "linux-x64",
+    "rpm": "x86_64"
+  },
+  "aurDependencies": [
+    "glibc",
+    "libgcc",
+    "libstdc++",
+    "zlib",
+    "krb5",
+    "ca-certificates",
+    "icu",
+    "openssl",
+    "cbodotnet-compat-rocky9"
+  ],
+  "branding": {
+    "displayName": "Community Build of .NET (built by .NET Dev)",
+    "implementation": "distribution-wrapper",
+    "informationCommand": "--cbodotnet-info",
+    "modifyQualifiedPayload": false,
+    "versionBrandingStream": "stderr",
+    "versionStdout": "unchanged-numeric-sdk-version"
+  },
+  "channel": "aur",
+  "checksums": {
+    "name": "SHA256SUMS",
+    "sha256": "09b5bd2b8c6f8d090ae0bdcda138b1b1378dc69c4d785d3a6abe3cd679430926",
+    "size": 610
+  },
+  "commands": {
+    "containerDirectory": "/usr/local/bin",
+    "containerDotnet": "/usr/local/bin/dotnet",
+    "default": "/usr/bin/cbodotnet",
+    "defaultOwner": "cbodotnet-host",
+    "defaultSelection": "highest-installed-major-minor",
+    "versioned": "/usr/bin/cbodotnet-3.0"
+  },
+  "contractVersion": 2,
+  "dependencies": [
+    "glibc",
+    "libgcc",
+    "libstdc++",
+    "zlib",
+    "krb5",
+    "ca-certificates",
+    "icu",
+    "openssl",
+    "cbodotnet-compat-rocky9"
+  ],
+  "evidence": {
+    "name": "evidence-x64.tar.gz",
+    "sha256": "595bf7dcb4ce3edcdb1869a25188476bfb275b6a3c4652a71bebcd72ff2b05dc",
+    "size": 250539756,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.0.103/evidence-x64.tar.gz"
+  },
+  "licensePaths": [
+    "LICENSE.txt",
+    "ThirdPartyNotices.txt"
+  ],
+  "package": {
+    "aurName": "cbodotnet-sdk-3.0-bin",
+    "launcher": "/usr/bin/cbodotnet-3.0",
+    "name": "cbodotnet-sdk-3.0",
+    "root": "/opt/cbodotnet/3.0",
+    "version": "3.0.103-1"
+  },
+  "packageRevision": 1,
+  "producer": {
+    "artifactId": "13084863879",
+    "originalSdkName": "cbodotnet-sdk-3.0.103-linux-x64-build.41306232092.tar.gz",
+    "originalSourceName": "cbodotnet-sources-3.0.103-linux-x64-build.41306232092.tar.gz",
+    "projectCommit": "48abfb7304296c84719c97e69500592f58678a73",
+    "runAttempt": "1",
+    "runId": "41306232092",
+    "targetRid": "linux-x64",
+    "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41306232092"
+  },
+  "publicationAllowed": false,
+  "schemaVersion": 1,
+  "sdk": {
+    "name": "cbodotnet-sdk-3.0.103-linux-x64.tar.gz",
+    "sha256": "d59d86967c7d65481c120ca644198ef9b4a37704ea5fb89c1614e64d2ce5e0c8",
+    "size": 159052246,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.0.103/cbodotnet-sdk-3.0.103-linux-x64.tar.gz"
+  },
+  "sdkVersion": "3.0.103",
+  "securitySupport": "community-build-no-additional-security-maintenance",
+  "source": {
+    "name": "cbodotnet-source-3.0.103-linux-x64.tar.gz",
+    "sha256": "4248c9d8f58822082377a1f1e2cf3716a7a93e41565f5f199990c08d596b7856",
+    "size": 279980593,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.0.103/cbodotnet-source-3.0.103-linux-x64.tar.gz"
+  },
+  "sourceManifestSha256": "3bac912a788bf38320cb45bfe6a62b3da0dbcaf50bb564a370ae7c5a09fb5e98",
+  "sourceManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-3.0.103/release-manifest.json",
+  "sourceReleaseTag": "sdk-3.0.103",
+  "status": "prepared-unqualified",
+  "targetRid": "linux-x64",
+  "variant": "arch-rolling"
+}

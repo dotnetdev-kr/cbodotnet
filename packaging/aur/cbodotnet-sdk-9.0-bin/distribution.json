@@ -1,0 +1,106 @@
+{
+  "additionalDirectories": [
+    "metadata"
+  ],
+  "architecture": {
+    "aur": "x86_64",
+    "deb": "amd64",
+    "oci": "linux/amd64",
+    "public": "x64",
+    "rid": "linux-x64",
+    "rpm": "x86_64"
+  },
+  "aurDependencies": [
+    "glibc",
+    "libgcc",
+    "libstdc++",
+    "zlib",
+    "krb5",
+    "ca-certificates",
+    "icu",
+    "openssl"
+  ],
+  "branding": {
+    "displayName": "Community Build of .NET (built by .NET Dev)",
+    "implementation": "distribution-wrapper",
+    "informationCommand": "--cbodotnet-info",
+    "modifyQualifiedPayload": false,
+    "versionBrandingStream": "stderr",
+    "versionStdout": "unchanged-numeric-sdk-version"
+  },
+  "channel": "aur",
+  "checksums": {
+    "name": "SHA256SUMS",
+    "sha256": "63983849110f6cc7ed18c8e1a098dad36ac14140d6b5a4d8e9f7ea427a381384",
+    "size": 610
+  },
+  "commands": {
+    "containerDirectory": "/usr/local/bin",
+    "containerDotnet": "/usr/local/bin/dotnet",
+    "default": "/usr/bin/cbodotnet",
+    "defaultOwner": "cbodotnet-host",
+    "defaultSelection": "highest-installed-major-minor",
+    "versioned": "/usr/bin/cbodotnet-9.0"
+  },
+  "contractVersion": 2,
+  "dependencies": [
+    "glibc",
+    "libgcc",
+    "libstdc++",
+    "zlib",
+    "krb5",
+    "ca-certificates",
+    "icu",
+    "openssl"
+  ],
+  "evidence": {
+    "name": "evidence-x64.tar.gz",
+    "sha256": "a72dad5c2cc928872516a209e3f20bd29d5a280d807db4e7ea9ad91b95c81863",
+    "size": 443968045,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-9.0.123/evidence-x64.tar.gz"
+  },
+  "licensePaths": [
+    "LICENSE.txt",
+    "ThirdPartyNotices.txt"
+  ],
+  "package": {
+    "aurName": "cbodotnet-sdk-9.0-bin",
+    "launcher": "/usr/bin/cbodotnet-9.0",
+    "name": "cbodotnet-sdk-9.0",
+    "root": "/opt/cbodotnet/9.0",
+    "version": "9.0.123-1"
+  },
+  "packageRevision": 1,
+  "producer": {
+    "artifactId": "13083141913",
+    "originalSdkName": "cbodotnet-sdk-9.0.123-linux-x64-build.41295430879.tar.gz",
+    "originalSourceName": "cbodotnet-sources-9.0.123-linux-x64-build.41295430879.tar.gz",
+    "projectCommit": "14211bf22a49ca454740780c28c181e880bf7cbf",
+    "runAttempt": "1",
+    "runId": "41295430879",
+    "targetRid": "linux-x64",
+    "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41295430879"
+  },
+  "publicationAllowed": false,
+  "schemaVersion": 1,
+  "sdk": {
+    "name": "cbodotnet-sdk-9.0.123-linux-x64.tar.gz",
+    "sha256": "291f09014e7223a29d8ab49c99f86628900b1ad42d309d9542b019129bdd195e",
+    "size": 193667608,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-9.0.123/cbodotnet-sdk-9.0.123-linux-x64.tar.gz"
+  },
+  "sdkVersion": "9.0.123",
+  "securitySupport": "community-build-no-additional-security-maintenance",
+  "source": {
+    "name": "cbodotnet-source-9.0.123-linux-x64.tar.gz",
+    "sha256": "2f5ffb97cecffa38cdc355199423f9acc9d28d3da37985d5e14216ed58ceacf4",
+    "size": 496870756,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-9.0.123/cbodotnet-source-9.0.123-linux-x64.tar.gz"
+  },
+  "sourceManifestSha256": "d7d68c0e8aedeb0b261f9d22dfc1aec73bc359919835caa16d7df70dc9238be9",
+  "sourceManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-9.0.123/release-manifest.json",
+  "sourceReleaseTag": "sdk-9.0.123",
+  "status": "prepared-unqualified",
+  "targetRid": "linux-x64",
+  "variant": "arch-rolling"
+}

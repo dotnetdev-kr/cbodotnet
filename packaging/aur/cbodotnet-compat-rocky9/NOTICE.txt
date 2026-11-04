@@ -1,0 +1,6 @@
+Community Build of .NET separately managed compatibility provider.
+This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (https://www.openssl.org/).
+This product includes cryptographic software written by Eric Young (eay@cryptsoft.com).
+Original OpenSSL/SSLeay and ICU notices are retained in LICENSE.openssl.txt and LICENSE.icu.txt.
+Native binary bytes originate in the pinned signed Rocky Linux 9 RPMs; this is a project repackaging, not a Rocky-supported cross-distribution product.
+Exact project repackaging of Rocky-maintained compatibility libraries. This does not restore upstream .NET/OpenSSL support or promise additional security maintenance. Future provider revisions require reviewed upstream updates and native qualification.

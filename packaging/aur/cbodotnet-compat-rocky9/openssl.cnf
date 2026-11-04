@@ -1,0 +1,9 @@
+# Scoped Community Build legacy TLS policy; no host configuration includes.
+openssl_conf = cbodotnet_modules
+[cbodotnet_modules]
+ssl_conf = cbodotnet_ssl
+[cbodotnet_ssl]
+system_default = cbodotnet_tls
+[cbodotnet_tls]
+MinProtocol = TLSv1.2
+CipherString = DEFAULT@SECLEVEL=2

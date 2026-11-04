@@ -6,19 +6,18 @@ import json
 import os
 from pathlib import Path
 import platform
+import pwd
 import re
 import shutil
-import signal
-import socket
 import subprocess
 import sys
 import tempfile
-import time
-import urllib.request
 
 from aur_delivery import ARCH_BASE, generate_srcinfo, recipe_archive, review_namcap, sdk_tools, verify_tracked_sources, write_sources
 from distribution_commands import stage_commands
 from downstream_release import encoded, local_intake, package_record, receive_release, PREPUBLICATION_CHECKS, require
+import legacy_compat
+import sdk_runtime
 
 ROOT = Path(__file__).resolve().parents[1]
 BRAND = 'Community Build of .NET (built by .NET Dev)'
@@ -33,6 +32,12 @@ def native_tools():
 
 def progress(message):
     print('aur-ci: ' + message, flush=True)
+
+
+def verify_package_integrity(output, expected_count):
+    altered = re.findall(r'\b([0-9]+) altered files\b', output)
+    require(len(altered) == expected_count and all(int(value) == 0 for value in altered),
+            'Installed package integrity failed: ' + output)
 
 
 def workflow_identity():
@@ -54,16 +59,6 @@ def native(args):
     progress('receive and verify the exact qualified x64 SDK source release')
     plan = receive_release(args.tag, inputs, 'aur', 'arch-rolling', 'x64', args.revision)
     native_tools().official_archive(workspace, 'x64')
-    for revision, name in [(args.revision, 'recipes'), (args.revision + 1, 'upgrade-recipes')]:
-        recipe_plan = local_intake(inputs, 'aur', 'arch-rolling', 'x64', revision)
-        recipe_plan['checksums'] = json.loads((inputs / 'release-manifest.json').read_bytes())['checksums']
-        sources = write_sources(recipe_plan, workspace / name)
-        if revision == args.revision:
-            verify_tracked_sources(workspace / name, ROOT / 'packaging/aur')
-        # makepkg still verifies every pinned source checksum. Populate its URL
-        # cache from the independently validated immutable intake, never bypass it.
-        for source in ('release-manifest.json', 'SHA256SUMS', plan['sdk']['name']):
-            shutil.copy2(inputs / source, sources['sdk'] / source)
     (workspace / 'plan.json').write_bytes(encoded(plan))
     commands = workspace / 'commands'
     commands.mkdir()
@@ -81,6 +76,20 @@ def native(args):
         state = json.loads(run(['docker', 'inspect', '--format', '{{json .State}}', container]))
         require(state.get('ExitCode') == 0 and state.get('Status') == 'exited', 'Arch dependency preparation failed')
         prepared = run(['docker', 'commit', container]).strip()
+        provider_build = workspace / 'compatibility-provider/provider-build.json' if legacy_compat.required(plan) else None
+        for revision, name in [(args.revision, 'recipes'), (args.revision + 1, 'upgrade-recipes')]:
+            recipe_plan = local_intake(inputs, 'aur', 'arch-rolling', 'x64', revision)
+            recipe_plan['checksums'] = json.loads((inputs / 'release-manifest.json').read_bytes())['checksums']
+            sources = write_sources(recipe_plan, workspace / name, provider_build)
+            if revision == args.revision:
+                verify_tracked_sources(workspace / name, ROOT / 'packaging/aur')
+            # makepkg rechecks every source checksum without external networking.
+            for source in ('release-manifest.json', 'SHA256SUMS', plan['sdk']['name']):
+                shutil.copy2(inputs / source, sources['sdk'] / source)
+            if 'compatibility' in sources:
+                policy = legacy_compat.load_policy()
+                for item in [*policy['architectures']['x64']['packages'], *policy['sources'], policy['key']]:
+                    shutil.copy2(workspace / 'compatibility-sources' / item['name'], sources['compatibility'] / item['name'])
         progress('disable external networking for actual makepkg, lint, install and complete SDK lifecycle tests')
         run(['docker', 'run', '--rm', '--network', 'none', *docker, prepared,
              'bash', '/repo/scripts/verify-aur-install.sh', '/repo', '/delivery', 'installed'])
@@ -109,10 +118,25 @@ def native(args):
             for child in list(base.iterdir()):
                 if child.is_dir():
                     shutil.rmtree(child)
-                elif child.name.endswith(('.pkg.tar.zst', '.tar.gz')) or child.name in {'release-manifest.json', 'SHA256SUMS'}:
+                elif child.name.endswith(('.pkg.tar.zst', '.tar.gz', '.rpm')) or child.name in {
+                        'release-manifest.json', 'SHA256SUMS', 'RPM-GPG-KEY-Rocky-9'}:
                     child.unlink()
+    for name in ('compatibility-provider', 'compatibility-sources'):
+        if (workspace / name).is_dir():
+            shutil.rmtree(workspace / name)
     (workspace / 'official-sdk.tar.gz').unlink()
     progress('passed native Arch build, source verification, install, upgrade, rollback and removal')
+
+
+def prepare(args):
+    require(os.geteuid() == 0 and platform.machine() == 'x86_64' and Path('/.dockerenv').is_file(),
+            'A disposable native x86_64 root container is required')
+    delivery = args.delivery.resolve()
+    plan = json.loads((delivery / 'plan.json').read_bytes())
+    require(plan['variant'] == 'arch-rolling' and plan['channel'] == 'aur', 'Unexpected Arch preparation target')
+    native_tools().run(['useradd', '--create-home', '--uid', '10001', 'cbot-smoke'])
+    if legacy_compat.required(plan):
+        legacy_compat.provision(plan, delivery, user='cbot-smoke')
 
 
 def installed(args):
@@ -127,12 +151,20 @@ def installed(args):
     tools = native_tools()
     run = tools.run
     inventory = tools.inventory
-    run(['useradd', '--create-home', '--uid', '10001', 'cbot-smoke'])
+    require(pwd.getpwnam('cbot-smoke').pw_uid == 10001, 'The prepared non-root smoke user differs')
     run(['chown', '-R', 'cbot-smoke:cbot-smoke', delivery / 'recipes', delivery / 'upgrade-recipes'])
     logs = delivery / 'makepkg-logs'
     logs.mkdir()
     build_records = []
     name = plan['package']['aurName']
+    runtime_policy = sdk_runtime.policy(plan)
+    compatibility_state = delivery / 'compatibility-state.json' if runtime_policy['legacy'] else None
+    runtime_environment = legacy_compat.runtime_environment(plan, compatibility_state) if compatibility_state else {}
+    provider_proofs = []
+
+    def provider_unchanged(phase):
+        if compatibility_state:
+            provider_proofs.append({'phase': phase, **legacy_compat.assert_unchanged(compatibility_state)})
 
     def as_user(command, cwd=Path('/home/cbot-smoke')):
         return run(tools.user_command(command, cwd), cwd=cwd)
@@ -163,6 +195,10 @@ def installed(args):
 
     host = build(delivery / 'recipes/cbodotnet-host', 'host')
     run(['pacman', '-U', '--noconfirm', host])
+    if compatibility_state:
+        companion = build(delivery / 'recipes' / legacy_compat.PACKAGE_NAME, 'compatibility')
+        run(['pacman', '-U', '--noconfirm', companion])
+        provider_unchanged('companion-reinstall')
     package = build(delivery / 'recipes' / name, 'sdk')
     upgrade = build(delivery / 'upgrade-recipes' / name, 'sdk-upgrade')
     # Shared command ownership stays independent of SDK packaging revisions.
@@ -179,6 +215,7 @@ def installed(args):
     official_before = inventory(official)
     progress('install the actual AUR SDK binary package through pacman')
     run(['pacman', '-U', '--noconfirm', package])
+    provider_unchanged('sdk-install')
     sdk = Path(plan['package']['root'])
     expected = Path(tempfile.mkdtemp(prefix='cbodotnet-aur-payload-')) / 'sdk'
     sdk_tools().extract_sdk(delivery / 'inputs' / plan['sdk']['name'], expected)
@@ -192,63 +229,29 @@ def installed(args):
         require(run(['pacman', '-Qoq', target]).strip() == owner, 'Package ownership collision: ' + target)
     for notice in ('LICENSE.txt', 'ThirdPartyNotices.txt'):
         require((sdk / notice).read_bytes() == (Path('/usr/share/licenses') / name / notice).read_bytes(), 'Original upstream notices changed')
-    integrity = run(['pacman', '-Qkk', name, 'cbodotnet-host'])
-    require(not re.search(r'[^0] altered files', integrity), 'Installed package integrity failed: ' + integrity)
+    integrity_packages = [name, 'cbodotnet-host', *([legacy_compat.PACKAGE_NAME] if compatibility_state else [])]
+    integrity = run(['pacman', '-Qkk', *integrity_packages], env=dict(os.environ, LC_ALL='C'))
+    verify_package_integrity(integrity, len(integrity_packages))
     names = [Path(plan['package']['launcher']).name, 'cbodotnet']
     for command in names:
         result = subprocess.run(tools.user_command([command, '--version'], delivery), text=True, capture_output=True)
         require(result.returncode == 0 and result.stdout == plan['sdkVersion'] + '\n' and result.stderr.strip() == BRAND,
                 'AUR CLI numeric stdout or branding changed')
         info = as_user([command, '--info'])
-        require(info.startswith(BRAND + '\n') and str(sdk) in info and plan['targetRid'] in info, 'AUR host/RID mismatch')
+        require(info.startswith(BRAND + '\n') and str(sdk) in info, 'AUR host/root mismatch')
+        sdk_runtime.validate_host_rid(info, plan['sdkVersion'], 'x64', 'arch-rolling')
         identity = json.loads(as_user([command, '--cbodotnet-info']))
         require(identity['sourceManifestSha256'] == plan['sourceManifestSha256'] and identity['sdkVersion'] == plan['sdkVersion'],
                 'AUR qualified source identity changed')
     work = Path('/home/cbot-smoke/project')
     work.mkdir()
-    (work / 'global.json').write_text(json.dumps({'sdk': {'version': plan['sdkVersion'], 'rollForward': 'disable'}}))
-    (work / 'NuGet.Config').write_text('<configuration><packageSources><clear /></packageSources></configuration>')
-    (work / 'Smoke.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType>'
-        '<TargetFramework>net10.0</TargetFramework></PropertyGroup></Project>')
-    (work / 'Program.cs').write_text('using System; using System.Globalization; using System.Security.Cryptography;\n'
-        'Console.WriteLine(Environment.ProcessPath); Console.WriteLine(typeof(object).Assembly.Location);\n'
-        'using var rsa=RSA.Create(); var b=RandomNumberGenerator.GetBytes(32);\n'
-        'var s=rsa.SignData(b,HashAlgorithmName.SHA256,RSASignaturePadding.Pkcs1);\n'
-        'if(!rsa.VerifyData(b,s,HashAlgorithmName.SHA256,RSASignaturePadding.Pkcs1)) throw new Exception();\n'
-        'Console.WriteLine(1234.5m.ToString("N1",CultureInfo.GetCultureInfo("fr-FR"))); Console.WriteLine("crypto-passed");')
     run(['chown', '-R', 'cbot-smoke:cbot-smoke', work])
-    as_user(['cbodotnet', 'restore', '--configfile', 'NuGet.Config'], work)
-    as_user(['cbodotnet', 'build', '--no-restore'], work)
-    output = as_user(['cbodotnet', work / 'bin/Debug/net10.0/Smoke.dll'], work)
-    require(output.splitlines()[0] == str(sdk / 'dotnet') and str(sdk / 'shared') in output
-            and 'crypto-passed' in output and '234,5' in output, 'Native Arch offline console/crypto/ICU smoke failed')
-    http = work / 'http'
-    http.mkdir()
-    (http / 'Http.csproj').write_text('<Project Sdk="Microsoft.NET.Sdk.Web"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup></Project>')
-    (http / 'Program.cs').write_text('using Microsoft.AspNetCore.Builder; var b=WebApplication.CreateBuilder(args);'
-        'var a=b.Build(); a.MapGet("/",()=>"cbodotnet-http-passed"); a.Run();')
-    run(['chown', '-R', 'cbot-smoke:cbot-smoke', http])
-    as_user(['cbodotnet', 'restore', '--configfile', work / 'NuGet.Config'], http)
-    as_user(['cbodotnet', 'build', '--no-restore'], http)
-    with socket.socket() as sock:
-        sock.bind(('127.0.0.1', 0))
-        port = sock.getsockname()[1]
-    with (delivery / 'http.log').open('w') as log:
-        process = subprocess.Popen(tools.user_command(['cbodotnet', http / 'bin/Debug/net10.0/Http.dll', '--urls', f'http://127.0.0.1:{port}'], http),
-            cwd=http, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
-        try:
-            response = ''
-            for _ in range(100):
-                try:
-                    with urllib.request.urlopen(f'http://127.0.0.1:{port}', timeout=1) as incoming:
-                        response = incoming.read().decode()
-                    break
-                except OSError:
-                    time.sleep(.1)
-            require(response == 'cbodotnet-http-passed', 'Native Arch ASP.NET loopback HTTP smoke failed')
-        finally:
-            os.killpg(process.pid, signal.SIGTERM)
-            process.wait(timeout=15)
+    script = sdk_runtime.smoke_script(plan['sdkVersion'], str(sdk), 'cbot-smoke', cli='cbodotnet',
+                                      workdir=str(work), runtime_env=runtime_environment)
+    output = as_user(['sh', '-ec', script], work)
+    (delivery / 'offline-smoke.log').write_text(output)
+    functional = sdk_runtime.validate_smoke_output(output)
+    provider_unchanged('offline-dll-apphost-http-tls-crypto-icu')
     require(inventory(sdk) == sdk_before, 'SDK execution changed the qualified payload')
     require(as_user(['dotnet', '--version']).strip() == '10.0.100' and inventory(official) == official_before, 'Official dotnet coexistence failed')
     progress('upgrade, roll back and remove packages while preserving official dotnet and shared-host ownership')
@@ -256,25 +259,43 @@ def installed(args):
         run(['pacman', '-U', '--noconfirm', artifact])
         identity = json.loads(as_user(['cbodotnet', '--cbodotnet-info']))
         require(identity['packageRevision'] == revision and inventory(sdk) == sdk_before, 'SDK revision upgrade/rollback changed selected identity or qualified bytes')
+        provider_unchanged('upgrade' if revision > plan['packageRevision'] else 'rollback')
+        require(as_user(['dotnet', '--version']).strip() == '10.0.100' and inventory(official) == official_before,
+                'SDK revision transition modified the independent official SDK')
     dependencies = {dependency: run(['pacman', '-Q', dependency]).strip().split(' ', 1)[1] for dependency in plan['dependencies']}
-    dynamic = run(['ldd', sdk / 'dotnet'])
+    dynamic = run(['ldd', sdk / 'dotnet'], env=dict(os.environ, **runtime_environment))
     require('not found' not in dynamic, 'Missing native runtime dependency: ' + dynamic)
-    integrity = run(['pacman', '-Qkk', name, 'cbodotnet-host'])
-    require(not re.search(r'[^0] altered files', integrity), 'Lifecycle package integrity failed: ' + integrity)
+    integrity = run(['pacman', '-Qkk', *integrity_packages], env=dict(os.environ, LC_ALL='C'))
+    verify_package_integrity(integrity, len(integrity_packages))
     run(['pacman', '-R', '--noconfirm', name])
+    provider_unchanged('sdk-remove')
     require(not sdk.exists() and Path('/usr/bin/cbodotnet').is_file(), 'SDK removal damaged shared-host ownership or left SDK files')
     missing = subprocess.run(tools.user_command(['cbodotnet', '--version'], delivery), text=True, capture_output=True)
     require(missing.returncode == 127 and not missing.stdout, 'Removed SDK silently selected another dotnet host')
+    run(['pacman', '-U', '--noconfirm', package])
+    require(as_user(['cbodotnet', '--version']).strip() == plan['sdkVersion'] and inventory(sdk) == sdk_before,
+            'SDK reinstall changed source payload or selection')
+    provider_unchanged('sdk-reinstall')
+    run(['pacman', '-R', '--noconfirm', name])
+    provider_unchanged('sdk-final-remove')
     run(['pacman', '-R', '--noconfirm', 'cbodotnet-host'])
     require(not Path('/usr/bin/cbodotnet').exists() and as_user(['dotnet', '--version']).strip() == '10.0.100'
             and inventory(official) == official_before, 'AUR removal modified the independent official SDK')
+    provider_unchanged('shared-host-remove')
+    if compatibility_state:
+        run(['pacman', '-R', '--noconfirm', legacy_compat.PACKAGE_NAME])
+        require(not Path(legacy_compat.PROVIDER_ROOT).exists() and inventory(official) == official_before,
+                'Separate provider removal left files or changed official SDK')
     checks = {check: 'passed' for check in PREPUBLICATION_CHECKS}
     checks.update({check: 'passed' for check in ('package-integrity', 'package-manager-install', 'source-verification', 'recipe-metadata', 'rollback', 'namcap')})
     if any(record['namcapReviewedFindings'] for record in build_records):
         checks['namcap'] = 'passed-with-reviewed-findings'
     result = dict(schemaVersion=1, status='passed', target=dict(osId='arch', versionId='rolling', architecture='x64', native=True,
         dependencies=dependencies, observedOsRelease={key: value.strip('"') for key, value in os_release.items()}, startingImage=ARCH_BASE),
-        checks=checks, commandNames=names, packageBuilds=build_records, nativeDependencyOutput=dynamic,
+        checks=checks, functionalChecks=functional, runtimePolicy=runtime_policy,
+        compatibilityProvider=json.loads(compatibility_state.read_bytes()) if compatibility_state else None,
+        compatibilityLifecycle=provider_proofs,
+        commandNames=names, packageBuilds=build_records, nativeDependencyOutput=dynamic,
         validationTools={tool: run([tool, '--version']).strip().splitlines()[0] for tool in ('makepkg', 'pacman')},
         networkForBuild='none',
         packageManagerPolicy='full-package-extraction',
@@ -291,8 +312,10 @@ def main():
     build.add_argument('--workspace', type=Path, required=True)
     smoke = commands.add_parser('installed')
     smoke.add_argument('--delivery', type=Path, required=True)
+    preparation = commands.add_parser('prepare')
+    preparation.add_argument('--delivery', type=Path, required=True)
     args = parser.parse_args()
-    {'native': native, 'installed': installed}[args.command](args)
+    {'native': native, 'installed': installed, 'prepare': prepare}[args.command](args)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,102 @@
+#!/bin/sh
+# Explicit, isolated SDK selection; never resolve dotnet through PATH.
+# Restore the caller environment before selecting another Community Build SDK.
+if [ "${CBODOTNET_COMPAT_SCOPE-}" = rocky9 ]; then
+  if [ "${CBODOTNET_COMPAT_SAVED_LD_LIBRARY_PATH_SET-}" = 1 ]; then
+    LD_LIBRARY_PATH="${CBODOTNET_COMPAT_SAVED_LD_LIBRARY_PATH_VALUE-}"; export LD_LIBRARY_PATH
+  else unset LD_LIBRARY_PATH; fi
+  unset CBODOTNET_COMPAT_SAVED_LD_LIBRARY_PATH_SET CBODOTNET_COMPAT_SAVED_LD_LIBRARY_PATH_VALUE
+  if [ "${CBODOTNET_COMPAT_SAVED_OPENSSL_CONF_SET-}" = 1 ]; then
+    OPENSSL_CONF="${CBODOTNET_COMPAT_SAVED_OPENSSL_CONF_VALUE-}"; export OPENSSL_CONF
+  else unset OPENSSL_CONF; fi
+  unset CBODOTNET_COMPAT_SAVED_OPENSSL_CONF_SET CBODOTNET_COMPAT_SAVED_OPENSSL_CONF_VALUE
+  if [ "${CBODOTNET_COMPAT_SAVED_CLR_OPENSSL_VERSION_OVERRIDE_SET-}" = 1 ]; then
+    CLR_OPENSSL_VERSION_OVERRIDE="${CBODOTNET_COMPAT_SAVED_CLR_OPENSSL_VERSION_OVERRIDE_VALUE-}"; export CLR_OPENSSL_VERSION_OVERRIDE
+  else unset CLR_OPENSSL_VERSION_OVERRIDE; fi
+  unset CBODOTNET_COMPAT_SAVED_CLR_OPENSSL_VERSION_OVERRIDE_SET CBODOTNET_COMPAT_SAVED_CLR_OPENSSL_VERSION_OVERRIDE_VALUE
+  if [ "${CBODOTNET_COMPAT_SAVED_CLR_ICU_VERSION_OVERRIDE_SET-}" = 1 ]; then
+    CLR_ICU_VERSION_OVERRIDE="${CBODOTNET_COMPAT_SAVED_CLR_ICU_VERSION_OVERRIDE_VALUE-}"; export CLR_ICU_VERSION_OVERRIDE
+  else unset CLR_ICU_VERSION_OVERRIDE; fi
+  unset CBODOTNET_COMPAT_SAVED_CLR_ICU_VERSION_OVERRIDE_SET CBODOTNET_COMPAT_SAVED_CLR_ICU_VERSION_OVERRIDE_VALUE
+  if [ "${CBODOTNET_COMPAT_SAVED_SSL_CERT_FILE_SET-}" = 1 ]; then
+    SSL_CERT_FILE="${CBODOTNET_COMPAT_SAVED_SSL_CERT_FILE_VALUE-}"; export SSL_CERT_FILE
+  else unset SSL_CERT_FILE; fi
+  unset CBODOTNET_COMPAT_SAVED_SSL_CERT_FILE_SET CBODOTNET_COMPAT_SAVED_SSL_CERT_FILE_VALUE
+  unset CBODOTNET_COMPAT_SCOPE
+fi
+# Rocky9 x64 compatibility binaries were compiled for x86-64-v2.
+_cbodotnet_cpu_seen=0
+if [ -r /proc/cpuinfo ]; then
+  while IFS= read -r _cbodotnet_cpu_line; do
+    case "$_cbodotnet_cpu_line" in flags*:*)
+      _cbodotnet_cpu_flags=
+      for _cbodotnet_cpu_flag in ${_cbodotnet_cpu_line#*:}; do
+        _cbodotnet_cpu_flags="$_cbodotnet_cpu_flags $_cbodotnet_cpu_flag"
+      done
+      _cbodotnet_cpu_flags="$_cbodotnet_cpu_flags "
+      for _cbodotnet_cpu_required in cx16 lahf_lm popcnt ssse3 sse4_1 sse4_2; do
+        case "$_cbodotnet_cpu_flags" in *" $_cbodotnet_cpu_required "*) ;;
+          *) echo "cbodotnet: legacy compatibility provider requires an x86-64-v2 CPU" >&2; exit 70 ;;
+        esac
+      done
+      case "$_cbodotnet_cpu_flags" in *" pni "*|*" sse3 "*) ;;
+        *) echo "cbodotnet: legacy compatibility provider requires an x86-64-v2 CPU" >&2; exit 70 ;;
+      esac
+      _cbodotnet_cpu_seen=1 ;;
+    esac
+  done < /proc/cpuinfo
+fi
+[ "$_cbodotnet_cpu_seen" = 1 ] || { echo "cbodotnet: cannot establish x86-64-v2 compatibility CPU features" >&2; exit 70; }
+unset _cbodotnet_cpu_seen _cbodotnet_cpu_line _cbodotnet_cpu_flags _cbodotnet_cpu_flag _cbodotnet_cpu_required
+# Separate compatibility provider; qualified SDK bytes remain unchanged.
+_cbodotnet_compat=${CBODOTNET_COMPAT_ROOT:-/usr/lib/cbodotnet/compat/rocky9}
+case "$_cbodotnet_compat" in /*) ;; *) echo "cbodotnet: compatibility provider root must be absolute" >&2; exit 70 ;; esac
+[ -r "$_cbodotnet_compat/lib/libcrypto.so.1.1" ] || { echo "cbodotnet: install the separately distributed cbodotnet-compat-rocky9 compatibility provider" >&2; exit 70; }
+[ -r "$_cbodotnet_compat/lib/libssl.so.1.1" ] || { echo "cbodotnet: install the separately distributed cbodotnet-compat-rocky9 compatibility provider" >&2; exit 70; }
+[ -r "$_cbodotnet_compat/openssl.cnf" ] || { echo "cbodotnet: install the separately distributed cbodotnet-compat-rocky9 compatibility provider" >&2; exit 70; }
+[ -r "$_cbodotnet_compat/provider-manifest.json" ] || { echo "cbodotnet: install the separately distributed cbodotnet-compat-rocky9 compatibility provider" >&2; exit 70; }
+if [ "${LD_LIBRARY_PATH+x}" = x ]; then
+  export CBODOTNET_COMPAT_SAVED_LD_LIBRARY_PATH_SET=1 CBODOTNET_COMPAT_SAVED_LD_LIBRARY_PATH_VALUE="$LD_LIBRARY_PATH"
+else export CBODOTNET_COMPAT_SAVED_LD_LIBRARY_PATH_SET=0; unset CBODOTNET_COMPAT_SAVED_LD_LIBRARY_PATH_VALUE; fi
+if [ "${OPENSSL_CONF+x}" = x ]; then
+  export CBODOTNET_COMPAT_SAVED_OPENSSL_CONF_SET=1 CBODOTNET_COMPAT_SAVED_OPENSSL_CONF_VALUE="$OPENSSL_CONF"
+else export CBODOTNET_COMPAT_SAVED_OPENSSL_CONF_SET=0; unset CBODOTNET_COMPAT_SAVED_OPENSSL_CONF_VALUE; fi
+if [ "${CLR_OPENSSL_VERSION_OVERRIDE+x}" = x ]; then
+  export CBODOTNET_COMPAT_SAVED_CLR_OPENSSL_VERSION_OVERRIDE_SET=1 CBODOTNET_COMPAT_SAVED_CLR_OPENSSL_VERSION_OVERRIDE_VALUE="$CLR_OPENSSL_VERSION_OVERRIDE"
+else export CBODOTNET_COMPAT_SAVED_CLR_OPENSSL_VERSION_OVERRIDE_SET=0; unset CBODOTNET_COMPAT_SAVED_CLR_OPENSSL_VERSION_OVERRIDE_VALUE; fi
+if [ "${CLR_ICU_VERSION_OVERRIDE+x}" = x ]; then
+  export CBODOTNET_COMPAT_SAVED_CLR_ICU_VERSION_OVERRIDE_SET=1 CBODOTNET_COMPAT_SAVED_CLR_ICU_VERSION_OVERRIDE_VALUE="$CLR_ICU_VERSION_OVERRIDE"
+else export CBODOTNET_COMPAT_SAVED_CLR_ICU_VERSION_OVERRIDE_SET=0; unset CBODOTNET_COMPAT_SAVED_CLR_ICU_VERSION_OVERRIDE_VALUE; fi
+if [ "${SSL_CERT_FILE+x}" = x ]; then
+  export CBODOTNET_COMPAT_SAVED_SSL_CERT_FILE_SET=1 CBODOTNET_COMPAT_SAVED_SSL_CERT_FILE_VALUE="$SSL_CERT_FILE"
+else export CBODOTNET_COMPAT_SAVED_SSL_CERT_FILE_SET=0; unset CBODOTNET_COMPAT_SAVED_SSL_CERT_FILE_VALUE; fi
+export CBODOTNET_COMPAT_SCOPE=rocky9
+export LD_LIBRARY_PATH="$_cbodotnet_compat/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export OPENSSL_CONF="$_cbodotnet_compat/openssl.cnf"
+export CLR_OPENSSL_VERSION_OVERRIDE=1.1
+export SSL_CERT_FILE="${SSL_CERT_FILE-/etc/ssl/cert.pem}"
+
+unset DOTNET_ROOT_X64 DOTNET_ROOT_ARM64 DOTNET_ROOT_X86
+DOTNET_ROOT=/opt/cbodotnet/5.0
+DOTNET_ROOT_X64="$DOTNET_ROOT"
+DOTNET_HOST_PATH="$DOTNET_ROOT/dotnet"
+DOTNET_MULTILEVEL_LOOKUP=0
+export DOTNET_ROOT DOTNET_ROOT_X64 DOTNET_HOST_PATH DOTNET_MULTILEVEL_LOOKUP
+if [ ! -d "$DOTNET_ROOT" ] || [ -L "$DOTNET_ROOT" ] \
+    || [ ! -f "$DOTNET_ROOT/dotnet" ] || [ ! -x "$DOTNET_ROOT/dotnet" ] || [ -L "$DOTNET_ROOT/dotnet" ]; then
+    printf '%s\n' 'cbodotnet: the selected SDK host is missing or cannot execute' >&2
+    exit 127
+fi
+if [ "$#" -eq 0 ]; then
+    printf '%s\n' 'Community Build of .NET (built by .NET Dev)'
+elif [ "$#" -eq 1 ]; then
+    case "$1" in
+        --version) printf '%s\n' 'Community Build of .NET (built by .NET Dev)' >&2 ;;
+        --info|--help|-h|help) printf '%s\n' 'Community Build of .NET (built by .NET Dev)' ;;
+        --cbodotnet-info)
+            printf '%s\n' '{"schemaVersion":1,"contractVersion":2,"distributionBrand":"Community Build of .NET (built by .NET Dev)","sdkVersion":"5.0.214","targetRid":"linux-x64","sdkRoot":"/opt/cbodotnet/5.0","sourceReleaseTag":"sdk-5.0.214","sourceManifestSha256":"2a98666b057b5e8c2c8ef149c5ebca7528c2048d7cc1aa38611d48d0d104c67f","packageRevision":1,"brandingScope":"distribution-wrapper","qualifiedPayloadModified":false}'
+            exit 0
+            ;;
+    esac
+fi
+exec "$DOTNET_ROOT/dotnet" "$@"

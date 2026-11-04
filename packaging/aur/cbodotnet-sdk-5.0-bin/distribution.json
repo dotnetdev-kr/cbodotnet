@@ -1,0 +1,106 @@
+{
+  "additionalDirectories": [],
+  "architecture": {
+    "aur": "x86_64",
+    "deb": "amd64",
+    "oci": "linux/amd64",
+    "public": "x64",
+    "rid": "linux-x64",
+    "rpm": "x86_64"
+  },
+  "aurDependencies": [
+    "glibc",
+    "libgcc",
+    "libstdc++",
+    "zlib",
+    "krb5",
+    "ca-certificates",
+    "icu",
+    "openssl",
+    "cbodotnet-compat-rocky9"
+  ],
+  "branding": {
+    "displayName": "Community Build of .NET (built by .NET Dev)",
+    "implementation": "distribution-wrapper",
+    "informationCommand": "--cbodotnet-info",
+    "modifyQualifiedPayload": false,
+    "versionBrandingStream": "stderr",
+    "versionStdout": "unchanged-numeric-sdk-version"
+  },
+  "channel": "aur",
+  "checksums": {
+    "name": "SHA256SUMS",
+    "sha256": "c979d6681d237d6114ed7d87e3e575cc82fe3c672caabf39bd13f8940a136574",
+    "size": 610
+  },
+  "commands": {
+    "containerDirectory": "/usr/local/bin",
+    "containerDotnet": "/usr/local/bin/dotnet",
+    "default": "/usr/bin/cbodotnet",
+    "defaultOwner": "cbodotnet-host",
+    "defaultSelection": "highest-installed-major-minor",
+    "versioned": "/usr/bin/cbodotnet-5.0"
+  },
+  "contractVersion": 2,
+  "dependencies": [
+    "glibc",
+    "libgcc",
+    "libstdc++",
+    "zlib",
+    "krb5",
+    "ca-certificates",
+    "icu",
+    "openssl",
+    "cbodotnet-compat-rocky9"
+  ],
+  "evidence": {
+    "name": "evidence-x64.tar.gz",
+    "sha256": "fcfb2d29cc02a32ea2cf6c685ef351305c81b65cfcc2ce3a665312dbe0a6e7da",
+    "size": 322092920,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-5.0.214/evidence-x64.tar.gz"
+  },
+  "licensePaths": [
+    "LICENSE.txt",
+    "ThirdPartyNotices.txt"
+  ],
+  "package": {
+    "aurName": "cbodotnet-sdk-5.0-bin",
+    "launcher": "/usr/bin/cbodotnet-5.0",
+    "name": "cbodotnet-sdk-5.0",
+    "root": "/opt/cbodotnet/5.0",
+    "version": "5.0.214-1"
+  },
+  "packageRevision": 1,
+  "producer": {
+    "artifactId": "13085986503",
+    "originalSdkName": "cbodotnet-sdk-5.0.214-linux-x64-build.41306229298.tar.gz",
+    "originalSourceName": "cbodotnet-sources-5.0.214-linux-x64-build.41306229298.tar.gz",
+    "projectCommit": "48abfb7304296c84719c97e69500592f58678a73",
+    "runAttempt": "1",
+    "runId": "41306229298",
+    "targetRid": "linux-x64",
+    "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41306229298"
+  },
+  "publicationAllowed": false,
+  "schemaVersion": 1,
+  "sdk": {
+    "name": "cbodotnet-sdk-5.0.214-linux-x64.tar.gz",
+    "sha256": "d79782992d27e55d7561cd190411b9f6ad3160bb3a91a71064bc7efdc0470d8e",
+    "size": 234787943,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-5.0.214/cbodotnet-sdk-5.0.214-linux-x64.tar.gz"
+  },
+  "sdkVersion": "5.0.214",
+  "securitySupport": "community-build-no-additional-security-maintenance",
+  "source": {
+    "name": "cbodotnet-source-5.0.214-linux-x64.tar.gz",
+    "sha256": "2edd46c20b1f7dc18f3cd9e23eefd7a9667b1a6d382887cd2406dcddbb9ce543",
+    "size": 345744615,
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-5.0.214/cbodotnet-source-5.0.214-linux-x64.tar.gz"
+  },
+  "sourceManifestSha256": "2a98666b057b5e8c2c8ef149c5ebca7528c2048d7cc1aa38611d48d0d104c67f",
+  "sourceManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-5.0.214/release-manifest.json",
+  "sourceReleaseTag": "sdk-5.0.214",
+  "status": "prepared-unqualified",
+  "targetRid": "linux-x64",
+  "variant": "arch-rolling"
+}

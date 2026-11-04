@@ -62,6 +62,28 @@ class AurRecipeTests(unittest.TestCase):
         self.assertIn('ThirdPartyNotices.txt', sdk)
         self.assertNotIn('sdk-', host)
 
+    def test_additional_sdk_recipe_preserves_its_existing_metadata_directory(self):
+        self.plan['additionalDirectories'] = []
+        _, sources = self.recipes()
+        sdk = (sources['sdk'] / 'PKGBUILD').read_text()
+        self.assertNotIn('install -dm755 "$pkgdir/opt/cbodotnet/10.0/metadata"', sdk)
+        self.assertIn('cp -a --no-preserve=ownership', sdk)
+
+    def test_legacy_recipe_requires_explicit_provider(self):
+        self.plan['sdkVersion'] = '3.1.426'
+        self.plan['package'].update(name='cbodotnet-sdk-3.1', root='/opt/cbodotnet/3.1',
+                                    launcher='/usr/bin/cbodotnet-3.1', aurName='cbodotnet-sdk-3.1-bin')
+        with self.assertRaisesRegex(ValueError, 'explicit authenticated'):
+            self.recipes()
+
+    def test_package_integrity_requires_all_summaries_and_rejects_ten_altered_files(self):
+        good = 'first: 200 total files, 0 altered files\nsecond: 10 total files, 0 altered files\n'
+        CI.verify_package_integrity(good, 2)
+        for output in [good.replace('0 altered', '10 altered', 1), good.splitlines()[0], '',
+                       good.replace('0 altered', '1 altered', 1)]:
+            with self.subTest(output=output), self.assertRaisesRegex(ValueError, 'integrity'):
+                CI.verify_package_integrity(output, 2)
+
     def test_both_actual_srcinfo_files_are_required_and_sdk_cache_is_never_submitted(self):
         output, sources = self.recipes()
         with self.assertRaisesRegex(ValueError, '.SRCINFO'):

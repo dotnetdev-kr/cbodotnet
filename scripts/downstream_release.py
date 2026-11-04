@@ -99,7 +99,8 @@ def receive_release(tag, directory, channel, variant, arch, revision=1):
     directory = Path(directory).absolute()
     require(not any(p.is_symlink() for p in [directory, *directory.parents]), 'Unsafe intake directory')
     directory.mkdir(parents=True, exist_ok=True)
-    release_bytes = get_bytes(f'https://api.github.com/repos/{REPOSITORY}/releases/tags/{tag}', MAX_JSON_BYTES, api=True)
+    release_bytes = get_bytes(f'https://api.github.com/repos/{REPOSITORY}/releases/tags/{tag}', MAX_JSON_BYTES,
+                              token=os.environ.get('GH_TOKEN') or os.environ.get('GITHUB_TOKEN'), api=True)
     release = json.loads(release_bytes)
     base = f'https://github.com/{REPOSITORY}/releases/download/{tag}/'
     manifest = get_bytes(base + 'release-manifest.json', MAX_JSON_BYTES)

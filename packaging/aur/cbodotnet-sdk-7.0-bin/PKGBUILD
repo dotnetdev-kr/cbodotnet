@@ -1,0 +1,33 @@
+# Maintainer: .NET Dev contributors (https://dotnetdev.kr/)
+# Qualified prebuilt SDK; distribution.json records corresponding source/evidence.
+pkgname=cbodotnet-sdk-7.0-bin
+pkgver=7.0.120
+pkgrel=1
+pkgdesc='Community Build of .NET (built by .NET Dev) SDK'
+arch=('x86_64')
+url='https://dotnetdev.kr/cbodotnet/'
+license=('MIT' 'LicenseRef-Dotnet-ThirdPartyNotices')
+depends=('glibc' 'libgcc' 'libstdc++' 'zlib' 'krb5' 'ca-certificates' 'icu' 'openssl' 'cbodotnet-host>=1.0.0')
+makedepends=('python')
+options=('!strip' '!debug' '!lto' '!zipman' '!purge' 'docs' 'libtool' 'staticlibs' 'emptydirs')
+source=('cbodotnet-7.0' 'distribution.json' 'verify-source.py' 'release-manifest.json::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-7.0.120/release-manifest.json' 'SHA256SUMS::https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-7.0.120/SHA256SUMS')
+sha256sums=('5ae25db6080fa4486b4ec798441b455850c0d530f89ec004ebfa6b3b94a6629e' 'c56ae7af7a0859c126cba886b237c2de758f434cb386fdae764659510211c531' 'ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47' 'b82e5c10814606e50f3682f0787452362cc6d82ee01ed0f652691a98f98e2e30' 'df7af871167b6beb71f0e9c7d058f812f2248dec0cdb9fe6614ed706ed34f2b2')
+source_x86_64=('https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-7.0.120/cbodotnet-sdk-7.0.120-linux-x64.tar.gz')
+sha256sums_x86_64=('19c7502456666cd90ef0070f44daa1e2cd447f49ac953b77d53d941919617584')
+noextract=('cbodotnet-sdk-7.0.120-linux-x64.tar.gz')
+
+prepare() {
+  python "$srcdir/verify-source.py" --policy "$srcdir/distribution.json" \
+    --manifest "$srcdir/release-manifest.json" --checksums "$srcdir/SHA256SUMS" \
+    --archive "$srcdir/cbodotnet-sdk-7.0.120-linux-x64.tar.gz" --destination "$srcdir/sdk-7.0.120"
+}
+
+package() {
+  install -dm755 "$pkgdir/opt/cbodotnet/7.0"
+  cp -a --no-preserve=ownership "$srcdir/sdk-7.0.120/." "$pkgdir/opt/cbodotnet/7.0/"
+
+  install -Dm755 "$srcdir/cbodotnet-7.0" "$pkgdir/usr/bin/cbodotnet-7.0"
+  install -Dm644 "$srcdir/distribution.json" "$pkgdir/usr/share/doc/$pkgname/distribution.json"
+  install -Dm644 "$srcdir/sdk-7.0.120/LICENSE.txt" "$pkgdir/usr/share/licenses/$pkgname/LICENSE.txt"
+  install -Dm644 "$srcdir/sdk-7.0.120/ThirdPartyNotices.txt" "$pkgdir/usr/share/licenses/$pkgname/ThirdPartyNotices.txt"
+}

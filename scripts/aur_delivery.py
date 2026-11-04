@@ -92,7 +92,7 @@ if __name__ == '__main__':
 '''
 
 
-def write_sources(plan, output):
+def write_sources(plan, output, compatibility_build=None):
     require(plan['channel'] == 'aur' and plan['variant'] == 'arch-rolling'
             and plan['architecture']['public'] == 'x64', 'Initial AUR delivery requires native Arch x86_64 admission')
     output = Path(output).absolute()
@@ -103,6 +103,14 @@ def write_sources(plan, output):
     require(name == 'cbodotnet-sdk-' + series + '-bin', 'Unexpected AUR package namespace')
     dependencies = plan.get('aurDependencies', plan['dependencies'])
     require(dependencies and all(re.fullmatch(r'[A-Za-z0-9@._+-]+', value) for value in dependencies), 'Reviewed Arch dependencies required')
+    import legacy_compat
+    provider = None
+    if legacy_compat.required(plan):
+        require(compatibility_build is not None, 'Legacy AUR recipes require an explicit authenticated separate provider build')
+        provider = legacy_compat.verified_build(compatibility_build, plan, 'oci')
+        require(provider[1].get('variant') == 'arch-rolling', 'An Arch companion recipe build is required')
+    else:
+        require(compatibility_build is None, 'Modern AUR recipes do not use legacy compatibility libraries')
     host = output / 'cbodotnet-host'
     sdk = output / name
     host.mkdir(parents=True)
@@ -140,8 +148,16 @@ package() {{
     require(checksum and re.fullmatch(r'[a-f0-9]{64}', checksum['sha256']), 'Reviewed SHA256SUMS descriptor required')
     hashes = [*(sha256(sdk / value) for value in local_names), plan['sourceManifestSha256'], checksum['sha256']]
     quoted_hashes = ' '.join("'" + value + "'" for value in hashes)
-    quoted_dependencies = ' '.join("'" + value + "'" for value in [*dependencies, 'cbodotnet-host>=' + HOST_VERSION])
+    declared_dependencies = [legacy_compat.package_requirement('aur') if value == legacy_compat.PACKAGE_NAME else value
+                             for value in dependencies]
+    quoted_dependencies = ' '.join("'" + value + "'" for value in [*declared_dependencies, 'cbodotnet-host>=' + HOST_VERSION])
     quoted_options = ' '.join("'" + value + "'" for value in OPTIONS)
+    metadata_commands = []
+    for directory in plan['additionalDirectories']:
+        require(re.fullmatch(r'[A-Za-z0-9._/-]+', directory) and '..' not in Path(directory).parts
+                and not directory.startswith('/'), 'Unsafe additional SDK metadata directory')
+        metadata_commands.append('  install -dm755 "$pkgdir' + plan['package']['root'] + '/' + directory + '"')
+    metadata_commands = '\n'.join(metadata_commands)
     sdk_build = f'''# Maintainer: .NET Dev contributors (https://dotnetdev.kr/)
 # Qualified prebuilt SDK; distribution.json records corresponding source/evidence.
 pkgname={name}
@@ -169,7 +185,7 @@ prepare() {{
 package() {{
   install -dm755 "$pkgdir{plan['package']['root']}"
   cp -a --no-preserve=ownership "$srcdir/sdk-{version}/." "$pkgdir{plan['package']['root']}/"
-  install -dm755 "$pkgdir{plan['package']['root']}/metadata"
+{metadata_commands}
   install -Dm755 "$srcdir/cbodotnet-{series}" "$pkgdir/usr/bin/cbodotnet-{series}"
   install -Dm644 "$srcdir/distribution.json" "$pkgdir/usr/share/doc/$pkgname/distribution.json"
   install -Dm644 "$srcdir/sdk-{version}/LICENSE.txt" "$pkgdir/usr/share/licenses/$pkgname/LICENSE.txt"
@@ -177,7 +193,20 @@ package() {{
 }}
 '''
     (sdk / 'PKGBUILD').write_text(sdk_build, encoding='utf-8', newline='\n')
-    return {'host': host, 'sdk': sdk}
+    result = {'host': host, 'sdk': sdk}
+    if provider is not None:
+        parent, record = provider
+        companion = output / legacy_compat.PACKAGE_NAME
+        companion.mkdir()
+        expected = legacy_compat.arch_recipe(legacy_compat.load_policy())
+        expected = expected.replace('@NOTICE_SHA256@', sha256(parent / 'NOTICE.txt')).replace('@MANIFEST_SHA256@', sha256(parent / 'provider-manifest.json'))
+        require((parent / 'PKGBUILD').read_text() == expected, 'Prepared Arch companion recipe differs from reviewed template')
+        for filename in ('PKGBUILD', '.SRCINFO', 'openssl.cnf', 'NOTICE.txt', 'provider-manifest.json'):
+            source = parent / filename
+            require(source.is_file() and not source.is_symlink(), 'Prepared Arch companion source must be ordinary')
+            shutil.copyfile(source, companion / filename)
+        result['compatibility'] = companion
+    return result
 
 
 def generate_srcinfo(directory, command=None):
@@ -229,11 +258,14 @@ def review_namcap(output, package_base, binary_package=False):
 
 def recipe_archive(recipe_root, destination):
     recipe_root, destination = Path(recipe_root), Path(destination)
-    allowed = {'PKGBUILD', '.SRCINFO', 'cbodotnet', 'LICENSE', 'distribution.json', 'verify-source.py'}
+    allowed = {'PKGBUILD', '.SRCINFO', 'cbodotnet', 'LICENSE', 'distribution.json', 'verify-source.py',
+               'openssl.cnf', 'NOTICE.txt', 'provider-manifest.json'}
     bases = sorted(recipe_root.iterdir())
-    require(len(bases) == 2 and {base.name for base in bases if base.name == 'cbodotnet-host'} == {'cbodotnet-host'}
+    require(len(bases) in {2, 3} and {base.name for base in bases if base.name == 'cbodotnet-host'} == {'cbodotnet-host'}
             and sum(bool(re.fullmatch(r'cbodotnet-sdk-[1-9][0-9]*\.[0-9]+-bin', base.name)) for base in bases) == 1,
             'Both independent reviewed AUR package bases are required')
+    if len(bases) == 3:
+        require(any(base.name == 'cbodotnet-compat-rocky9' for base in bases), 'Unexpected third AUR package base')
     for base in bases:
         require((base / 'PKGBUILD').is_file() and (base / '.SRCINFO').is_file(), 'Actual makepkg .SRCINFO is required for each package base')
     sources = []
