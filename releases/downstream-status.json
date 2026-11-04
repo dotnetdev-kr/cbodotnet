@@ -1,13 +1,20 @@
 {
   "schemaVersion": 1,
   "repository": "dotnetdev-kr/cbodotnet",
-  "status": "foundation-in-progress",
-  "implementedStages": ["prepare", "package-record", "validate-signed-evidence", "stage-local-matrix"],
-  "pendingStages": ["channel-packagers", "package-signing", "remote-publish", "post-publication-verification"],
-  "evidenceSigners": {},
+  "status": "channels-in-validation",
+  "implementedStages": ["prepare", "package-record", "validate-signed-evidence", "stage-local-matrix", "signed-publication-bundle", "github-release-publish", "public-byte-postverification"],
+  "pendingStages": ["native-channel-qualification", "first-public-channel-verification"],
+  "evidenceSigners": {
+    "D7D154B4B33C19A82B95B13688135410ACD9C0EA": {
+      "state": "active",
+      "notBefore": "2026-11-04T00:00:00Z",
+      "notAfter": "2028-11-03T02:38:19Z",
+      "workflow": ".github/workflows/distribution-release.yml"
+    }
+  },
   "channels": {
     "deb": {
-      "status": "not-published", "publisherConfigured": false, "publications": [],
+      "status": "not-published", "publisherConfigured": true, "publisher": {"type": "github-release"}, "publications": [], "receipts": [],
       "requiredChecks": ["package-integrity", "package-manager-install", "repository-metadata"],
       "candidateMatrix": [
         {"variant": "ubuntu-24.04", "architecture": "x64"},
@@ -17,7 +24,7 @@
       ]
     },
     "oci": {
-      "status": "not-published", "publisherConfigured": false, "publications": [],
+      "status": "not-published", "publisherConfigured": true, "publisher": {"type": "github-release"}, "publications": [], "receipts": [],
       "requiredChecks": ["image-config", "oci-platforms", "pinned-base-image"],
       "candidateMatrix": [
         {"variant": "debian-13", "architecture": "x64"},

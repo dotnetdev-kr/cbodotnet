@@ -333,9 +333,16 @@ def stage_records(items, ledger_directory, policy=None, contract=None, catalog=N
     return staged
 
 
-def publish(staged, policy=None):
+def publish(staged, policy=None, bundle_directory=None, keyring_path=None, target_commit=None, gh='gh'):
     policy = policy if policy is not None else load_status()
     channel = staged.get('identity', {}).get('channel')
     require(staged.get('status') == 'staged-unpublished', 'A complete staged matrix is required')
     require(channel in policy.get('channels', {}), 'Unknown publisher')
-    raise ValueError('Publisher adapter is not configured: ' + channel + '; no remote publication was performed')
+    require(policy['channels'][channel].get('publisherConfigured') is True,
+            'Publisher adapter is not configured: ' + channel + '; no remote publication was performed')
+    require(bundle_directory is not None and keyring_path is not None,
+            'A complete signed publication bundle and trusted public keyring are required')
+    from downstream_publish import publish_bundle, validate_bundle
+    manifest = validate_bundle(bundle_directory, keyring_path, target_commit, policy)
+    require(manifest['identity'] == staged['identity'], 'Signed bundle differs from staged channel identity')
+    return publish_bundle(bundle_directory, keyring_path, target_commit, policy, gh)

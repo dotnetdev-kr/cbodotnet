@@ -41,6 +41,10 @@ def main():
     command.add_argument('--ledger', type=Path, required=True)
     command = commands.add_parser('publish')
     command.add_argument('--staged', type=Path, required=True)
+    command.add_argument('--bundle', type=Path, required=True)
+    command.add_argument('--keyring', type=Path, required=True)
+    command.add_argument('--target-commit', required=True)
+    command.add_argument('--gh', default='gh')
     args = parser.parse_args()
     try:
         if args.command in {'prepare', 'package'}:
@@ -62,7 +66,7 @@ def main():
                 item['package'] = read(item.pop('packagePath'))
             result = stage_records(items, args.ledger)
         else:
-            result = publish(read(args.staged), load_status())
+            result = publish(read(args.staged), load_status(), args.bundle, args.keyring, args.target_commit, args.gh)
     except (ValueError, OSError, KeyError, TypeError) as error:
         parser.exit(1, 'Downstream release rejected: ' + str(error) + '\n')
     print(encoded(result).decode(), end='')
