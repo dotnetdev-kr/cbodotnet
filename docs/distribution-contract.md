@@ -425,6 +425,19 @@ file verification. The four reports are preserved in the
 Immutable source/command/artifact bindings and public archive/image results
 are retained in [distribution status](../releases/downstream-status.json).
 
+Issue #4's [APT completion record](apt-completion-validation.json) additionally
+retains actual package-managed official SDK coexistence on Ubuntu 24.04 and
+Debian 13 for both native architectures. The
+[native lifecycle run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41839673146)
+passed install, runtime, real revision upgrade/rollback, removal, reinstall and
+installed-package purge. The
+[hosted deb822 HTTPS run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41839600617)
+passed the unchanged signed revision 1 with dedicated `Signed-By` trust,
+authenticated cached reinstallation, offline DLL/apphost/HTTP/crypto/ICU checks
+and purge. All 48 official command/owner/version/root/package comparisons
+matched their baselines. These supplement the original APT publication evidence;
+no replacement APT objects or retrospectively signed native reports were created.
+
 OCI revision 2 additionally passed the complete
 [native publication and anonymous digest-pull run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41831153506).
 Both platform images retain the original SDK and notices while adding complete

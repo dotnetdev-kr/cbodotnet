@@ -19,6 +19,13 @@ targets and public receipts determine availability. Arch recipe validation
 completed under issue #6; authenticated AUR submission remains deferred to #10.
 Individual channel results do not complete the entire epic.
 
+The [APT completion procedure and evidence](apt-delivery.md) supplement the
+original signed revision 1 with modern deb822 setup, actual official package
+ownership and complete offline lifecycle checks. Use the read-only
+[`apt-completeness.yml`](../.github/workflows/apt-completeness.yml) native matrix
+and [`distribution-site-check.yml`](../.github/workflows/distribution-site-check.yml)
+hosted matrix to repeat that validation without creating a new publication.
+
 ## Receive a qualified release
 
 Use a reviewed checkout containing the

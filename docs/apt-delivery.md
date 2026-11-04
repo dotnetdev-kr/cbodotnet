@@ -8,6 +8,9 @@ The [initial publication evidence](distribution-publication-validation.json)
 retains the original signed package and public installation checks. This work
 strengthens installation instructions and validation without replacing those
 revision 1 packages or rebuilding the SDK.
+The [completed package-ownership and lifecycle record](apt-completion-validation.json)
+adds four native and four hosted HTTPS reports from source commit `9090f1e`.
+All targets passed with actual official SDK packages installed first.
 
 ## Configure the signed repository
 
@@ -159,5 +162,15 @@ execution, SDK removal, authenticated cached reinstallation and purge.
 The detailed private comparison state stays inside the disposable container.
 These runs use pinned target user-space containers on native CPU workers and
 share the runner's kernel; they do not independently qualify distribution kernels.
-The new completeness runs must pass before issue #4 is closed; the initial
-publication evidence above remains the record of the original revision.
+The [native completeness run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41839673146)
+and [hosted HTTPS run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41839600617)
+both passed Ubuntu 24.04 and Debian 13 on x64 and AArch64. Native fixtures
+performed real revision 1 → 2 → 1 upgrade/rollback and installed-package purge;
+the hosted checks authenticated and reinstalled the unchanged public revision 1.
+All 28 native and 20 hosted official-package baseline comparisons passed.
+Observed official SDKs were Ubuntu's 10.0.114 and Microsoft's Debian 10.0.403.
+The retained record includes exact raw reports, API artifact ZIP hashes,
+source/workflow identities, dependency versions and authenticated DEB bindings.
+Native reports retain `repository-metadata: pending-signing-stage` and disabled
+publication flags: those local build fixtures were not newly signed or published.
+The original signed revision 1 and its publication evidence remain unchanged.
