@@ -192,7 +192,10 @@ def render_channels(status):
             continue
         if channel == 'deb':
             for variant in sorted({row['variant'] for row in data['publications']}):
-                command = ('curl -fsSLo /tmp/cbodotnet-archive-keyring.gpg https://dotnetdev.kr/cbodotnet/cbodotnet-archive-keyring.gpg\n'
+                command = ('sudo apt-get update\nsudo apt-get install -y ca-certificates curl gnupg\n'
+                           'curl -fsSLo /tmp/cbodotnet-archive-keyring.gpg https://dotnetdev.kr/cbodotnet/cbodotnet-archive-keyring.gpg\n'
+                           'test "$(gpg --show-keys --with-colons /tmp/cbodotnet-archive-keyring.gpg | '
+                           "awk -F: '$1==\"fpr\" {print $10; exit}')\" = D7D154B4B33C19A82B95B13688135410ACD9C0EA || exit 1\n"
                            'sudo install -m 0644 /tmp/cbodotnet-archive-keyring.gpg /usr/share/keyrings/cbodotnet-archive-keyring.gpg\n'
                            "echo 'deb [signed-by=/usr/share/keyrings/cbodotnet-archive-keyring.gpg] https://dotnetdev.kr/cbodotnet/packages/deb/" + variant +
                            " ./' | sudo tee /etc/apt/sources.list.d/cbodotnet.list\nsudo apt-get update\nsudo apt-get install cbodotnet-sdk-10.0\ncbodotnet --info")
