@@ -26,6 +26,10 @@ if [[ $phase == install ]]; then
   [[ $actual == "$fingerprint" ]] || { echo 'Published repository key differs from reviewed policy.' >&2; exit 2; }
   printf 'deb [signed-by=/usr/share/keyrings/cbodotnet-archive-keyring.gpg] %s ./\n' "$repository" \
     > /etc/apt/sources.list.d/cbodotnet.list
+  # Minimal Ubuntu images exclude package documentation by default. Retain only
+  # cbodotnet's package-owned notices/provenance so strict integrity can pass.
+  printf '%s\n' 'path-include=/usr/share/doc/cbodotnet-*' \
+    > /etc/dpkg/dpkg.cfg.d/zz-cbodotnet-validation-docs
   apt-get update
   apt-get install -y "$package=$sdk-$revision" cbodotnet-host
   [[ $(dpkg-query -W -f='${Version}' "$package") == "$sdk-$revision" ]]

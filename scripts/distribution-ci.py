@@ -135,6 +135,11 @@ def installed(args):
     sdk = Path(plan['package']['root'])
     if args.mode == 'deb':
         progress('install native packages from ' + ('the authenticated repository' if (delivery / 'repository').is_dir() else 'the verified local package files'))
+        # Minimal distro container bases intentionally omit most /usr/share/doc
+        # entries. Include this package's notices/provenance so strict dpkg
+        # verification covers every file we own instead of masking exclusions.
+        Path('/etc/dpkg/dpkg.cfg.d/zz-cbodotnet-validation').write_text(
+            'path-include=/usr/share/doc/cbodotnet-*\n')
         packages = sorted((delivery / 'packages').glob('*.deb'))
         require(len(packages) == 2, 'Both SDK and shared host packages are required')
         if (delivery / 'repository').is_dir():
@@ -213,7 +218,8 @@ def installed(args):
     require(inventory(official) == official_before, 'cbodotnet modified the official installation')
     if args.mode == 'deb':
         require(as_user(['dotnet', '--version'], Path('/home/cbot-smoke')).strip() == '10.0.100', 'Native package took over official dotnet')
-        run(['dpkg', '-V', plan['package']['name'], 'cbodotnet-host'])
+        require(not run(['dpkg', '-V', plan['package']['name'], 'cbodotnet-host']).strip(),
+                'Installed SDK or shared host package failed dpkg integrity verification')
         if not (delivery / 'post-publication').exists():
             progress('upgrade the installed SDK packaging revision')
             upgrades = sorted((delivery / 'upgrade').glob('*.deb'))
