@@ -60,6 +60,10 @@ def validate_contract(contract):
     require(contract.get('branding') == BRANDING, 'Unsupported CLI branding or version-output policy')
     require(contract.get('architectures') == ARCHITECTURES, 'Unknown architecture mapping')
     require(isinstance(contract.get('releases'), dict) and contract['releases'], 'Missing admitted releases')
+    for variant, operating_system in contract.get('operatingSystems', {}).items():
+        override = operating_system.get('nativeCaBundle')
+        require(override is None or (variant == 'fedora-45' and override == '/etc/ssl/certs/ca-certificates.crt'),
+                'Unreviewed native stock CA bundle override')
     for version, release in contract['releases'].items():
         require(re.fullmatch(r'[1-9][0-9]*\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)', version)
                 and isinstance(release, dict) and re.fullmatch(r'[a-f0-9]{64}', release.get('manifestSha256', '')),
@@ -252,6 +256,9 @@ def verified_plan(release, manifest_bytes, checksum_bytes, sdk_path, channel, va
     }
     if version.startswith(('3.', '5.')):
         result['dependencies'].append('cbodotnet-compat-rocky9')
+        ca_bundle = contract['operatingSystems'][variant].get('nativeCaBundle')
+        if ca_bundle is not None:
+            result['nativeCaBundle'] = ca_bundle
     if admitted.get('nativeHttpCompatibilityProvider'):
         from legacy_curl import PACKAGE_NAME, plan_policy
         result['nativeHttpCompatibility'] = plan_policy(result)

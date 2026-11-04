@@ -20,6 +20,33 @@ from release_catalog_test import fixture
 
 
 class DownstreamReleaseTests(unittest.TestCase):
+    def test_legacy_fedora_requires_real_stock_ca_and_default_trust_https(self):
+        from native_curl_fixture import ca_evidence
+        for version in ('5.0.214', '3.1.426', '3.0.103'):
+            plan = dict(sdkVersion=version, variant='fedora-45')
+            original = ca_evidence()
+            original['target'] = dict(dependencies={'ca-certificates': original['nativeCaBundle']['version']})
+            RELEASE.validate_native_ca_evidence(original, plan)
+            for mutation in ('missing', 'runtime-path', 'path', 'sha256', 'null-sha', 'no-trust',
+                             'online', 'root', 'owner', 'version', 'observed-version'):
+                candidate = copy.deepcopy(original)
+                proof = candidate['nativeCaBundle']
+                if mutation == 'missing': candidate.pop('nativeCaBundle')
+                elif mutation == 'runtime-path': candidate['runtimeCaBundle'] = '/tmp/ca.pem'
+                elif mutation == 'path': proof['path'] = '/tmp/ca.pem'
+                elif mutation == 'sha256': proof['sha256'] = 'invalid'
+                elif mutation == 'null-sha': proof['sha256'] = None
+                elif mutation == 'no-trust': proof['defaultTrustHttps'] = 'not-run'
+                elif mutation == 'online': proof['network'] = 'default'
+                elif mutation == 'root': proof['userId'] = 0
+                elif mutation == 'owner': proof['package'] = 'fixture'
+                elif mutation == 'version': proof['version'] = ''
+                else: candidate['target']['dependencies']['ca-certificates'] = 'other-version'
+                with self.subTest(version=version, mutation=mutation), self.assertRaises(ValueError):
+                    RELEASE.validate_native_ca_evidence(candidate, plan)
+        RELEASE.validate_native_ca_evidence({}, dict(sdkVersion='10.0.403', variant='fedora-45'))
+        RELEASE.validate_native_ca_evidence({}, dict(sdkVersion='3.1.426', variant='rocky-9.8'))
+
     def test_public_provider_comparison_must_not_repair_a_missing_signed_package_root(self):
         with mock.patch.object(Path, 'is_dir', return_value=False) as exists:
             RELEASE.require_published_provider_roots(dict(sdkVersion='10.0.403'))

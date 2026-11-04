@@ -19,6 +19,32 @@ SPEC.loader.exec_module(CI)
 
 
 class RpmCiTests(unittest.TestCase):
+    def test_native_ca_proof_binds_original_stock_bytes_to_exact_dependency_and_actual_default_trust(self):
+        plan=dict(sdkVersion='5.0.214',variant='fedora-45',nativeCaBundle='/etc/ssl/certs/ca-certificates.crt')
+        version='ca-certificates-2026.2.92_v9.0.319-2.fc45.noarch'
+        with mock.patch.object(CI.Path,'is_file',return_value=True),mock.patch.object(CI,'run',return_value=version+'\n') as query:
+            with mock.patch.object(CI.SHARED,'digest',return_value='a'*64):
+                original=CI.native_ca_snapshot(plan)
+                self.assertEqual(plan['nativeCaBundle'],query.call_args.args[0][-1])
+                https=dict(status='passed',defaultTrustHttps='passed',tls12='passed',network='none',userId=10001)
+                result=CI.native_ca_evidence(plan,original,{'ca-certificates':version},https)
+                self.assertEqual(dict(original,defaultTrustHttps='passed',network='none',userId=10001),result)
+                for field,value in [('defaultTrustHttps','not-run'),('status','failed'),('tls12','not-run'),('network','bridge'),('userId',0)]:
+                    with self.subTest(field=field),self.assertRaises(ValueError):
+                        CI.native_ca_evidence(plan,original,{'ca-certificates':version},dict(https,**{field:value}))
+                with self.assertRaisesRegex(ValueError,'native dependency'):
+                    CI.native_ca_evidence(plan,original,{'ca-certificates':'another-version'},https)
+            with mock.patch.object(CI.SHARED,'digest',return_value='b'*64),self.assertRaisesRegex(ValueError,'bundle changed'):
+                CI.native_ca_evidence(plan,original,{'ca-certificates':version},https)
+        with mock.patch.object(CI.Path,'is_file',return_value=True),mock.patch.object(CI,'run',return_value='unrelated-owner'):
+            with self.assertRaisesRegex(ValueError,'owned by ca-certificates'):
+                CI.native_ca_snapshot(plan)
+        for change in (dict(variant='rocky-9.8'),dict(sdkVersion='10.0.403'),dict(nativeCaBundle='/tmp/arbitrary-ca.pem')):
+            with self.subTest(change=change),self.assertRaisesRegex(ValueError,'exact reviewed'):
+                CI.native_ca_snapshot(dict(plan,**change))
+        self.assertIsNone(CI.native_ca_snapshot(dict(sdkVersion='10.0.403',variant='fedora-45')))
+        self.assertIsNone(CI.native_ca_evidence({},None,{},None))
+
     def test_published_legacy_install_verifies_signed_feed_before_local_provider_comparison(self):
         for missing_root in (False, True):
             with self.subTest(missing_root=missing_root), tempfile.TemporaryDirectory() as temporary:

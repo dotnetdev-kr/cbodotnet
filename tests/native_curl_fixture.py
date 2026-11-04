@@ -2,6 +2,13 @@
 import copy
 
 
+def ca_evidence():
+    path = '/etc/ssl/certs/ca-certificates.crt'
+    return dict(runtimeCaBundle=path, nativeCaBundle=dict(path=path, sha256='c' * 64,
+        defaultTrustHttps='passed', network='none', userId=10001, package='ca-certificates',
+        version='ca-certificates-1-1.noarch'))
+
+
 def evidence(version='3.1.426', arch='x64', channel='deb', sdk_root=None, provider_root=None):
     import legacy_curl as provider
     policy = provider.load_policy()

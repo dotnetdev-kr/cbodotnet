@@ -22,15 +22,19 @@ def absolute_root(value):
     return value
 
 
-def script(version,sdk_root,expected_user,*,cli='cbodotnet',workdir='/work/native-curl',runtime_env=None,curl_root=None,user_id=10001):
-    require(version in {'3.0.103','3.1.426'} and user_id in {10001,1654},'A reviewed Core3 native user/SDK is required')
+def script(version,sdk_root,expected_user,*,cli='cbodotnet',workdir='/work/native-curl',runtime_env=None,curl_root=None,user_id=10001,_native_curl=True):
+    require(version in ({'3.0.103','3.1.426'} if _native_curl else {'5.0.214'}) and user_id in {10001,1654},'A reviewed native HTTP user/SDK is required')
     for path in (sdk_root,workdir,curl_root): absolute_root(path)
     require(re.fullmatch(r'[a-z_][a-z0-9_-]*',expected_user),'An existing ordinary native Curl test user is required')
-    import legacy_curl
-    policy=legacy_curl.load_policy()
-    files={row['files'][0]['path'].rsplit('/',1)[-1] for arch in policy['architectures'].values() for row in arch['packages']}
-    require(len(files)==1,'Both reviewed architectures require the same Curl SONAME target')
-    curl_file=files.pop();fixture=workdir+'/fixture'
+    if _native_curl:
+        import legacy_curl
+        policy=legacy_curl.load_policy()
+        files={row['files'][0]['path'].rsplit('/',1)[-1] for arch in policy['architectures'].values() for row in arch['packages']}
+        require(len(files)==1,'Both reviewed architectures require the same Curl SONAME target')
+        curl_file=files.pop()
+    else:
+        curl_file='unused'
+    fixture=workdir+'/fixture'
     exports=''
     allowed={'LD_LIBRARY_PATH','OPENSSL_CONF','CLR_OPENSSL_VERSION_OVERRIDE','CLR_ICU_VERSION_OVERRIDE','SSL_CERT_FILE',
              'DOTNET_ICU_VERSION_OVERRIDE','DOTNET_SYSTEM_GLOBALIZATION_APPLOCALICU'}
@@ -38,18 +42,34 @@ def script(version,sdk_root,expected_user,*,cli='cbodotnet',workdir='/work/nativ
     for name,value in runtime_env.items():
         require(name in allowed and isinstance(value,str) and not any(char in value for char in '\0\r\n'),'Unreviewed native Curl environment')
         exports+='export '+name+'='+shlex.quote(value)+'\n'
-    framework='netcoreapp'+'.'.join(version.split('.')[:2])
+    framework=('netcoreapp' if version.startswith('3.') else 'net')+'.'.join(version.split('.')[:2])
     project='<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>'+framework+'</TargetFramework><OutputType>Exe</OutputType></PropertyGroup></Project>'
     return ('set -eu\ntest "$(id -u)" = '+str(user_id)+'\nmkdir -p '+shlex.quote(workdir)+'\ncd '+shlex.quote(workdir)+'\n'+exports
         +'export DOTNET_ROOT='+shlex.quote(sdk_root)+'\nexport DOTNET_ROOT_X64="$DOTNET_ROOT" DOTNET_ROOT_ARM64="$DOTNET_ROOT" DOTNET_MULTILEVEL_LOOKUP=0\n'
         +'cat > global.json <<\'GLOBAL\'\n'+json.dumps(dict(sdk=dict(version=version,rollForward='disable')))+'\nGLOBAL\n'
         +'cat > NuGet.Config <<\'NUGET\'\n<configuration><packageSources><clear /></packageSources></configuration>\nNUGET\n'
         +'cat > NativeCurl.csproj <<\'PROJECT\'\n'+project+'\nPROJECT\n'
-        +'cat > Program.cs <<\'PROGRAM\'\n'+program(version,sdk_root,curl_root,curl_file,fixture,expected_user,user_id)+'\nPROGRAM\n'
+        +'cat > Program.cs <<\'PROGRAM\'\n'+program(version,sdk_root,curl_root,curl_file,fixture,expected_user,user_id,_native_curl)+'\nPROGRAM\n'
         +shlex.quote(cli)+' restore --configfile NuGet.Config\n'+shlex.quote(cli)+' build --no-restore\n'
         +shlex.quote(cli)+' bin/Debug/'+framework+'/NativeCurl.dll fixture\n'
         +'export SSL_CERT_FILE='+shlex.quote(fixture+'/trusted-ca.pem')+'\n'
-        +'DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0 '+shlex.quote(cli)+' bin/Debug/'+framework+'/NativeCurl.dll\n')
+        +('DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0 ' if _native_curl else '')+shlex.quote(cli)+' bin/Debug/'+framework+'/NativeCurl.dll\n')
+
+
+def standard_trust_script(version,sdk_root,expected_user,*,cli='cbodotnet',workdir='/work/native-ca',runtime_env=None,user_id=10001):
+    """Reuse the CA fixture with SDK5's normal SocketsHttpHandler transport."""
+    return script(version,sdk_root,expected_user,cli=cli,workdir=workdir,runtime_env=runtime_env,
+                  curl_root='/unused-native-curl-provider',user_id=user_id,_native_curl=False)
+
+
+def validate_standard_trust(output,user_id=10001):
+    marker='CBODOTNET_NATIVE_CA_PROOF='
+    rows=[line[len(marker):] for line in output.splitlines() if line.startswith(marker)]
+    require(len(rows)==1,'Exactly one completed normal-handler default-trust HTTPS proof is required')
+    proof=json.loads(rows[0])
+    require(proof==dict(status='passed',handler='SocketsHttpHandler',defaultTrustHttps='passed',tls12='passed',network='none',userId=user_id),
+            'Normal-handler default-trust HTTPS, TLS, user or network proof failed')
+    return proof
 
 
 def decoded_mapping(value):
@@ -124,12 +144,13 @@ def image_provider_proof(reference,plan,runner):
             sourcePackages=policy['architectures'][arch]['packages'],sourceRpmPackages=policy['sources'],
             baseProviderId=policy['baseProvider']['providerId'])
 
-def program(version, sdk_root, curl_root, curl_file, fixture, expected_user, user_id):
+def program(version, sdk_root, curl_root, curl_file, fixture, expected_user, user_id, native_curl=True):
     return r'''using System; using System.IO; using System.Linq; using System.Net; using System.Net.Http;
 using System.Net.Sockets; using System.Net.Security; using System.Security.Authentication;
 using System.Security.Cryptography; using System.Security.Cryptography.X509Certificates;
 using System.Threading; using System.Threading.Tasks; using System.Reflection; using System.Text; using System.Text.Json;
 public static class Program {
+ const bool NativeCurl=NATIVE_PROBE;
  static string Decoded(string value) { return value.Replace("\\040"," ").Replace("\\011","\t").Replace("\\012","\n").Replace("\\134","\\"); }
  static string[] Maps() { return File.ReadAllLines("/proc/self/maps").Where(line=>line.Contains("libcurl") ||
   line.Contains("System.Net.Http.Native") || line.Contains("libssl") || line.Contains("libcrypto")).ToArray(); }
@@ -142,7 +163,7 @@ public static class Program {
    caRequest.CertificateExtensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.KeyCertSign|X509KeyUsageFlags.CrlSign,true));
    using(var ca=caRequest.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-5),DateTimeOffset.UtcNow.AddDays(1))) {
     string stock=Environment.GetEnvironmentVariable("SSL_CERT_FILE");
-    if(string.IsNullOrEmpty(stock) || !File.Exists(stock)) throw new Exception("Approved stock certificate bundle is missing");
+    if(string.IsNullOrEmpty(stock) || !File.Exists(stock)) throw new Exception("Approved stock certificate bundle is missing: "+stock);
     string trust=FIXTURE+"/trusted-ca.pem";
     File.WriteAllText(trust,File.ReadAllText(stock)+"\n-----BEGIN CERTIFICATE-----\n"+
      Convert.ToBase64String(ca.Export(X509ContentType.Cert),Base64FormattingOptions.InsertLineBreaks)+"\n-----END CERTIFICATE-----\n");
@@ -171,7 +192,7 @@ public static class Program {
     using(var certificate=Fixture()) { File.WriteAllBytes(FIXTURE+"/server.pfx",certificate.Export(X509ContentType.Pkcs12,"cbodotnet-fixture")); }
     return;
    }
-   AppContext.SetSwitch("System.Net.Http.UseSocketsHttpHandler",false);
+   if(NativeCurl) AppContext.SetSwitch("System.Net.Http.UseSocketsHttpHandler",false);
    using(var certificate=new X509Certificate2(FIXTURE+"/server.pfx","cbodotnet-fixture",X509KeyStorageFlags.EphemeralKeySet)) {
     using(var handler=new HttpClientHandler()) {
      handler.UseProxy=false; handler.SslProtocols=SslProtocols.Tls12; int callbacks=0;
@@ -182,11 +203,11 @@ public static class Program {
       var fields=typeof(HttpClientHandler).GetFields(BindingFlags.Instance|BindingFlags.NonPublic);
       string[] implementation=fields.Select(field=>field.GetValue(handler)).Where(value=>value!=null)
        .Select(value=>value.GetType().FullName).ToArray();
-      if(!implementation.Any(value=>value.Contains("CurlHandler"))) throw new Exception("CurlHandler was not selected: "+string.Join(",",implementation));
+      if(!implementation.Any(value=>value.Contains(NativeCurl?"CurlHandler":"SocketsHttpHandler"))) throw new Exception("Expected HTTP handler was not selected: "+string.Join(",",implementation));
       string[] maps=Maps();
-      if(!maps.Any(line=>Decoded(line).Contains(ROOT+"/shared/") && line.Contains("System.Net.Http.Native.so")) ||
-         !maps.Any(line=>Decoded(line).Contains(CURL+"/lib/"+CANDIDATE_FILE))) throw new Exception("Wrong native HTTP/candidate curl mapping");
-      Console.WriteLine(JsonSerializer.Serialize(new {stage="forced-curl-http-passed-before-https",handler="CurlHandler",nativeMappings=maps}));
+      if(NativeCurl && (!maps.Any(line=>Decoded(line).Contains(ROOT+"/shared/") && line.Contains("System.Net.Http.Native.so")) ||
+         !maps.Any(line=>Decoded(line).Contains(CURL+"/lib/"+CANDIDATE_FILE)))) throw new Exception("Wrong native HTTP/candidate curl mapping");
+      Console.WriteLine(JsonSerializer.Serialize(new {stage="http-passed-before-https",handler=NativeCurl?"CurlHandler":"SocketsHttpHandler",nativeMappings=maps}));
       await Exchange(client,certificate,true);
       if(callbacks==0) throw new Exception("HTTPS certificate callback was not executed");
       using(var standardHandler=new HttpClientHandler()) {
@@ -195,14 +216,19 @@ public static class Program {
        using(var standardClient=new HttpClient(standardHandler)) { standardClient.Timeout=TimeSpan.FromSeconds(10);
         await Exchange(standardClient,certificate,true);
         if(!fields.Select(field=>field.GetValue(standardHandler)).Where(value=>value!=null)
-         .Any(value=>value.GetType().FullName.Contains("CurlHandler"))) throw new Exception("Default HTTPS did not select CurlHandler");
+         .Any(value=>value.GetType().FullName.Contains(NativeCurl?"CurlHandler":"SocketsHttpHandler"))) throw new Exception("Default HTTPS did not select expected handler");
        }
       }
-      string http=Directory.GetFiles(ROOT+"/shared/Microsoft.NETCore.App","System.Net.Http.Native.so",SearchOption.AllDirectories).Single();
-      string curl=CURL+"/lib/"+CANDIDATE_FILE;
-      Console.WriteLine("NATIVE_HANDLER_MARKER="+JsonSerializer.Serialize(new {status="passed",handler="CurlHandler",
-       http="passed",https="passed",httpsDefaultTrust="passed",tls12="passed",callbackCount=callbacks,network="none",userId=uid,
-       nativeHttp=new{path=http,sha256=Hash(http)},curl=new{path=curl,sha256=Hash(curl)},nativeMappings=Maps()}));
+      if(NativeCurl) {
+       string http=Directory.GetFiles(ROOT+"/shared/Microsoft.NETCore.App","System.Net.Http.Native.so",SearchOption.AllDirectories).Single();
+       string curl=CURL+"/lib/"+CANDIDATE_FILE;
+       Console.WriteLine("NATIVE_HANDLER_MARKER="+JsonSerializer.Serialize(new {status="passed",handler="CurlHandler",
+        http="passed",https="passed",httpsDefaultTrust="passed",tls12="passed",callbackCount=callbacks,network="none",userId=uid,
+        nativeHttp=new{path=http,sha256=Hash(http)},curl=new{path=curl,sha256=Hash(curl)},nativeMappings=Maps()}));
+      } else {
+       Console.WriteLine("CBODOTNET_NATIVE_CA_PROOF="+JsonSerializer.Serialize(new {status="passed",handler="SocketsHttpHandler",
+        defaultTrustHttps="passed",tls12="passed",network="none",userId=uid}));
+      }
      }
     }
    }
@@ -230,4 +256,4 @@ public static class Program {
   } finally { listener.Stop(); }
  }
 }
-'''.replace('USER',json.dumps(expected_user)).replace('ROOT',json.dumps(sdk_root)).replace('CANDIDATE_FILE',json.dumps(curl_file)).replace('CURL',json.dumps(curl_root)).replace('VERSION',json.dumps(version)).replace('FIXTURE',json.dumps(fixture)).replace('EXPECTED_UID',str(user_id)).replace('NATIVE_HANDLER_MARKER','CBODOTNET_NATIVE_CURL_PROOF')
+'''.replace('USER',json.dumps(expected_user)).replace('ROOT',json.dumps(sdk_root)).replace('CANDIDATE_FILE',json.dumps(curl_file)).replace('CURL',json.dumps(curl_root)).replace('VERSION',json.dumps(version)).replace('FIXTURE',json.dumps(fixture)).replace('EXPECTED_UID',str(user_id)).replace('NATIVE_PROBE','true' if native_curl else 'false').replace('NATIVE_HANDLER_MARKER','CBODOTNET_NATIVE_CURL_PROOF')

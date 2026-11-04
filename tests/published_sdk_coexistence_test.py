@@ -33,6 +33,13 @@ def complete_policy():
                 for report in row['postVerification']['reports']:
                     for target in report['aptTargets' if channel == 'deb' else 'rpmTargets']:
                         target.update(evidence(version, report['architecture'], channel))
+            if channel == 'rpm' and version.startswith(('3.', '5.')):
+                from native_curl_fixture import ca_evidence
+                for report in row['postVerification']['reports']:
+                    for target in report['rpmTargets']:
+                        if target['variant'] == 'fedora-45':
+                            target.update(ca_evidence())
+                            target['nativeCaBundle']['version'] = target['target']['dependencies']['ca-certificates']
             receipts.append(row)
         policy['channels'][channel]['receipts'] = receipts
     return policy, contract
@@ -90,7 +97,7 @@ class AdmissionTests(unittest.TestCase):
 
     def test_missing_unqualified_duplicate_and_partial_native_proofs_fail_closed(self):
         for mutation in ('missing', 'unqualified-latest', 'duplicate', 'partial-architecture', 'foreign-source',
-                         'foreign-run', 'old-10-selector', 'missing-core3-native-handler'):
+                         'foreign-run', 'old-10-selector', 'missing-core3-native-handler', 'missing-fedora-ca-proof'):
             with self.subTest(mutation=mutation):
                 policy, contract = complete_policy()
                 rows = policy['channels']['deb']['receipts']
@@ -102,7 +109,13 @@ class AdmissionTests(unittest.TestCase):
                 elif mutation == 'foreign-source': rows[0]['identity']['sourceManifestSha256'] = '0' * 64
                 elif mutation == 'foreign-run': rows[0]['postVerification']['workflow']['url'] = 'https://example.invalid/actions/runs/1'
                 elif mutation == 'old-10-selector': rows[0]['identity']['packageRevision'] = 1
-                else: rows[-1]['postVerification']['reports'][0]['aptTargets'][0].pop('nativeCurlHandler')
+                elif mutation == 'missing-core3-native-handler':
+                    rows[-1]['postVerification']['reports'][0]['aptTargets'][0].pop('nativeCurlHandler')
+                else:
+                    rpm = policy['channels']['rpm']['receipts'][-1]
+                    fedora = next(target for target in rpm['postVerification']['reports'][0]['rpmTargets']
+                                  if target['variant'] == 'fedora-45')
+                    fedora.pop('nativeCaBundle')
                 with self.assertRaises(ValueError): MULTI.selected_receipts(policy, contract)
 
     def test_missing_current_publications_stop_before_download_and_container(self):

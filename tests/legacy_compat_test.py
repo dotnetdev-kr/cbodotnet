@@ -118,12 +118,31 @@ class LegacyCompatTests(unittest.TestCase):
         self.assertEqual('/etc/ssl/certs/ca-certificates.crt', values['SSL_CERT_FILE'])
         self.assertEqual('1.1', values['CLR_OPENSSL_VERSION_OVERRIDE'])
         self.assertNotIn('CLR_ICU_VERSION_OVERRIDE', COMPAT.environment(plan('5.0.214')))
-        self.assertEqual('/etc/pki/tls/certs/ca-bundle.crt', COMPAT.environment(plan(variant='fedora-45'))['SSL_CERT_FILE'])
+        self.assertEqual('/etc/ssl/certs/ca-certificates.crt', COMPAT.environment(plan(variant='fedora-45'))['SSL_CERT_FILE'])
         with self.assertRaises(ValueError):
             COMPAT.environment(plan(variant='unreviewed-42'))
         for root in ['/', 'relative', '/path/../other']:
             with self.assertRaises(ValueError):
                 COMPAT.environment(plan(), root=root)
+
+    def test_native_ca_override_requires_exact_reviewed_target_and_preserves_provider_policy(self):
+        original_policy = COMPAT.POLICY.read_bytes()
+        expected = '/etc/ssl/certs/ca-certificates.crt'
+        for version in ['3.0.103', '3.1.426', '5.0.214']:
+            selected = dict(plan(version, variant='fedora-45'), nativeCaBundle=expected)
+            self.assertEqual(expected, COMPAT.environment(selected)['SSL_CERT_FILE'])
+            self.assertIn('SSL_CERT_FILE="${SSL_CERT_FILE-' + expected + '}"', COMPAT.launcher_environment(selected))
+            for invalid in ['/etc/pki/tls/certs/ca-bundle.crt', '/tmp/injected-ca', None]:
+                with self.subTest(version=version, value=invalid), self.assertRaisesRegex(ValueError, 'reviewed target'):
+                    COMPAT.environment(dict(selected, nativeCaBundle=invalid))
+        for variant in ['ubuntu-22.04', 'ubuntu-24.04', 'debian-13', 'rocky-9.8', 'arch-rolling']:
+            selected = plan(variant=variant)
+            reviewed = COMPAT.load_policy()['environment']['systemCaBundles'][variant]
+            self.assertEqual(reviewed, COMPAT.environment(selected)['SSL_CERT_FILE'])
+            with self.subTest(variant=variant), self.assertRaisesRegex(ValueError, 'reviewed target'):
+                COMPAT.environment(dict(selected, nativeCaBundle=reviewed))
+        self.assertEqual(original_policy, COMPAT.POLICY.read_bytes())
+        self.assertEqual({}, COMPAT.environment(dict(plan('10.0.403', variant='fedora-45'), nativeCaBundle=expected)))
 
     def test_x64_provider_requires_every_v2_cpu_feature_on_every_processor(self):
         flags = 'cx16 lahf_lm popcnt pni ssse3 sse4_1 sse4_2'

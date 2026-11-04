@@ -188,13 +188,16 @@ def package_record(plan, artifact_path, orchestration, extra_files=None):
     identity = {key: plan[key] for key in IDENTITY_FIELDS}
     inventory = (verified_extra_files(extra_files['root'], extra_files['inventory'], plan['commands'], identity)
                  if extra_files is not None else [])
-    return {'schemaVersion': 1, 'contractVersion': plan['contractVersion'],
+    result = {'schemaVersion': 1, 'contractVersion': plan['contractVersion'],
             'status': 'packaged-unqualified', 'identity': identity,
             'architecture': plan['architecture']['public'], 'producer': plan['producer'],
             'branding': plan['branding'], 'commands': plan['commands'], 'extraFiles': inventory,
             'source': {key: plan[key] for key in ('sdk', 'source', 'evidence', 'sourceManifestUrl', 'licensePaths', 'securitySupport')},
             'artifact': descriptor(artifact_path), 'orchestration': orchestration_identity(orchestration),
             'publicationAllowed': False}
+    if 'nativeCaBundle' in plan:
+        result['runtimeCaBundle'] = plan['nativeCaBundle']
+    return result
 
 
 def load_status(path=None):
@@ -277,6 +280,25 @@ def validate_native_curl_evidence(report, plan, *, sdk_root=None, provider_root=
               for row in mappings if len(row.split(None, 5)) == 6}
     require({expected_http['path'], expected_curl['path']} <= loaded,
             'Core3 forced handler did not load the reviewed native HTTP and private libcurl libraries')
+
+
+def validate_native_ca_evidence(report, plan):
+    """Require the reviewed Fedora trust path and actual ordinary HTTPS trust."""
+    if not plan['sdkVersion'].startswith(('3.', '5.')) or plan.get('variant') != 'fedora-45':
+        return
+    expected = load_contract()['operatingSystems']['fedora-45']['nativeCaBundle']
+    proof = report.get('nativeCaBundle')
+    require(report.get('runtimeCaBundle') == expected and isinstance(proof, dict)
+            and proof.get('path') == expected and isinstance(proof.get('sha256'), str)
+            and re.fullmatch(r'[a-f0-9]{64}', proof['sha256'])
+            and proof.get('defaultTrustHttps') == 'passed' and proof.get('network') == 'none'
+            and proof.get('userId') == 10001 and proof.get('package') == 'ca-certificates'
+            and isinstance(proof.get('version'), str) and proof['version'].strip(),
+            'Legacy Fedora requires the reviewed stock CA bundle and actual non-root offline default-trust HTTPS')
+    dependencies = report.get('target', {}).get('dependencies', {})
+    if 'ca-certificates' in dependencies:
+        require(proof['version'] == dependencies['ca-certificates'],
+                'Fedora CA proof differs from the observed stock dependency version')
 
 
 def oci_wrapper_license():
@@ -391,6 +413,8 @@ def validate_record(packaged, artifact_path, report_path, signature_path, keyrin
             'A complete real-channel installation report is required; private-prefix checks cannot promote')
     for field in ('contractVersion', 'identity', 'artifact', 'producer', 'orchestration', 'branding', 'commands', 'extraFiles', 'source'):
         require(report.get(field) == packaged[field], 'Report does not bind the packaged ' + field)
+    if 'runtimeCaBundle' in packaged:
+        require(report.get('runtimeCaBundle') == packaged['runtimeCaBundle'], 'Report does not bind the packaged runtime CA bundle')
     identity = packaged['identity']
     require(set(identity) == set(IDENTITY_FIELDS), 'Incomplete publication identity')
     require(type(identity['packageRevision']) is int and identity['packageRevision'] > 0, 'Invalid package revision')
@@ -418,6 +442,7 @@ def validate_record(packaged, artifact_path, report_path, signature_path, keyrin
     channel = policy['channels'].get(identity['channel'], {})
     validate_legacy_evidence(report, canonical_plan)
     validate_native_curl_evidence(report, canonical_plan)
+    validate_native_ca_evidence(report, canonical_plan)
     validate_oci_wrapper_license(report, canonical_plan)
     checks = PREPUBLICATION_CHECKS | set(channel.get('requiredChecks', []))
     require(checks and all(report.get('checks', {}).get(name) == 'passed' for name in checks),

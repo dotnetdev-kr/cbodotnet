@@ -10,7 +10,7 @@ import time
 
 from distribution_site import prepare_site
 from downstream_publish import GitHubReleases, REPOSITORY, release_tag, read_leased_json
-from downstream_release import PREPUBLICATION_CHECKS, encoded, require, validate_native_curl_evidence
+from downstream_release import PREPUBLICATION_CHECKS, encoded, require, validate_native_curl_evidence, validate_native_ca_evidence
 
 STATUS_PATH = 'releases/downstream-status.json'
 CONSISTENCY_MAX_SECONDS = 25 * 60
@@ -129,6 +129,8 @@ def validate_postverification(policy, receipts, reports, index=None):
                         and target.get('checks', {}).get('upgrade') in {'passed', 'verified-before-publication'},
                         'RPM package signature, repository, integrity or installation post-check failed')
                 validate_native_curl_evidence(target, dict(sdkVersion=by_channel['rpm']['identity']['sdkVersion'],
+                    channel='rpm', variant=target['variant'], architecture=dict(public=arch)))
+                validate_native_ca_evidence(target, dict(sdkVersion=by_channel['rpm']['identity']['sdkVersion'],
                     channel='rpm', variant=target['variant'], architecture=dict(public=arch)))
 
 

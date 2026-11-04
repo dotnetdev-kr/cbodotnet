@@ -379,6 +379,7 @@
     },
     "fedora-45": {
       "id": "fedora",
+      "nativeCaBundle": "/etc/ssl/certs/ca-certificates.crt",
       "versionId": "45",
       "libc": "glibc",
       "dependencies": [

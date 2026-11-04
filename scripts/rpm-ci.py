@@ -198,6 +198,32 @@ def observed_dependencies(plan):
     return result
 
 
+def native_ca_snapshot(plan):
+    path=plan.get('nativeCaBundle')
+    if path is None:
+        return None
+    require(plan['variant']=='fedora-45' and plan['sdkVersion'] in {'5.0.214','3.1.426','3.0.103'}
+            and path=='/etc/ssl/certs/ca-certificates.crt' and Path(path).is_file(),
+            'The exact reviewed legacy Fedora stock CA bundle is required')
+    owner=run(['rpm','-qf','--queryformat','%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}\n',path]).strip()
+    require(owner.startswith('ca-certificates-') and '\n' not in owner,'Stock CA bundle must be owned by ca-certificates')
+    return dict(path=path,sha256=SHARED.digest(path),package='ca-certificates',version=owner)
+
+
+def native_ca_evidence(plan,snapshot,dependencies,https_proof):
+    if snapshot is None:
+        require('nativeCaBundle' not in plan,'A required stock CA snapshot is missing')
+        return None
+    require(snapshot['path']==plan['nativeCaBundle'] and snapshot['sha256']==SHARED.digest(snapshot['path'])
+            and snapshot['version']==dependencies.get('ca-certificates'),
+            'Stock CA bundle changed or differs from the observed native dependency')
+    require(https_proof and https_proof.get('status')=='passed' and https_proof.get('tls12')=='passed'
+            and (https_proof.get('httpsDefaultTrust')=='passed' or https_proof.get('defaultTrustHttps')=='passed')
+            and https_proof.get('network')=='none' and https_proof.get('userId')==10001,
+            'Stock CA bundle requires actual non-root offline default-trust HTTPS')
+    return dict(**snapshot,defaultTrustHttps='passed',network='none',userId=10001)
+
+
 def check_aliases(plan):
     series = '.'.join(plan['sdkVersion'].split('.')[:2])
     root = plan['package']['root']
@@ -370,6 +396,7 @@ def lifecycle(args):
         runtime_env = runtime_environment(plan, state['compatibilityState'])
     if legacy_curl.required(plan):
         runtime_env=legacy_curl.runtime_environment(plan,state['nativeHttpCompatibilityState'],base_environment=runtime_env)
+    original_ca=native_ca_snapshot(plan)
     reported_rid = validate_host_rid(as_user(['cbodotnet', '--info']), plan['sdkVersion'], plan['architecture']['public'], plan['variant'])
     functional = validate_smoke_output(as_user(['sh', '-ec', smoke_script(plan['sdkVersion'], str(root), 'cbot-smoke',
                     cli='cbodotnet', workdir='/home/cbot-smoke/functional', runtime_env=runtime_env)]))
@@ -387,6 +414,13 @@ def lifecycle(args):
     shutil.copytree(report, reports)
     native_libraries(plan, reports, runtime_env=runtime_env)
     dependencies = observed_dependencies(plan)
+    ca_https=native_curl
+    if original_ca and plan['sdkVersion']=='5.0.214':
+        from native_curl_runtime import standard_trust_script, validate_standard_trust
+        ca_https=validate_standard_trust(as_user(['sh','-ec',standard_trust_script(plan['sdkVersion'],str(root),'cbot-smoke',
+            workdir='/home/cbot-smoke/native-ca',runtime_env=runtime_env,user_id=10001)]))
+        save(reports/'native-ca-handler.json',ca_https)
+    native_ca=native_ca_evidence(plan,original_ca,dependencies,ca_https)
     strict_integrity([plan['package']['name'], 'cbodotnet-host'])
     require(SHARED.inventory(root) == load(delivery / 'sdk-before.json'), 'SDK execution modified qualified RPM payload')
     official_check('after-runtime')
@@ -449,6 +483,8 @@ def lifecycle(args):
         result['compatibilityProvider'] = compatibility_proofs
     if native_curl:
         result.update(nativeHttpCompatibilityProvider=native_http_proofs,nativeCurlHandler=native_curl)
+    if native_ca:
+        result.update(runtimeCaBundle=plan['nativeCaBundle'],nativeCaBundle=native_ca)
     save(delivery / 'installation-result.json', result)
     # Only evidence ownership changes; never SDK payload modes or package bytes.
     uid, gid = (int(value) for value in os.environ.get('BUILDER_OWNER', '1001:1001').split(':'))
@@ -500,6 +536,8 @@ def record(delivery, inputs):
     result = load(delivery / 'installation-result.json')
     report = {**result, 'phase': 'prepublication', 'scope': 'channel-installation',
               **{key: packaged[key] for key in ('contractVersion', 'identity', 'artifact', 'source', 'producer', 'orchestration', 'branding', 'commands', 'extraFiles')}}
+    if 'runtimeCaBundle' in packaged:
+        report['runtimeCaBundle']=packaged['runtimeCaBundle']
     save(delivery / 'package.json', packaged)
     save(delivery / 'report.json', report)
     return dict(packagePath=str(delivery / 'package.json'), artifactPath=str(artifact), reportPath=str(delivery / 'report.json'),

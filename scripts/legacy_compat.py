@@ -18,6 +18,7 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
 POLICY = ROOT / 'releases/legacy-compatibility-provider.json'
+NATIVE_CONTRACT = ROOT / 'releases/distribution-contract.json'
 FINGERPRINT = '21CB256AE16FC54C6E652949702D426D350D275D'
 PROVIDER_ROOT = '/usr/lib/cbodotnet/compat/rocky9'
 PACKAGE_NAME = 'cbodotnet-compat-rocky9'
@@ -93,9 +94,22 @@ def environment(plan, root=PROVIDER_ROOT):
     policy = load_policy()
     variant = plan.get('variant')
     require(variant in policy['environment']['systemCaBundles'], 'Unreviewed provider operating system')
+    # Target CA layout can change independently of the preserved provider tree.
+    # Only the explicit reviewed native target override authorizes a new path;
+    # relocatable archives and all other targets retain the original policy.
+    target = json.loads(NATIVE_CONTRACT.read_bytes())['operatingSystems'].get(variant, {})
+    reviewed_ca = target.get('nativeCaBundle')
+    if reviewed_ca is not None:
+        require(variant == 'fedora-45' and isinstance(reviewed_ca, str)
+                and re.fullmatch(r'/[A-Za-z0-9_./+-]+', reviewed_ca)
+                and '..' not in PurePosixPath(reviewed_ca).parts,
+                'Unreviewed native CA bundle override')
+    if 'nativeCaBundle' in plan:
+        require(reviewed_ca is not None and plan['nativeCaBundle'] == reviewed_ca,
+                'SDK plan native CA bundle differs from the reviewed target')
     result = {'LD_LIBRARY_PATH': root + '/lib', 'OPENSSL_CONF': root + '/openssl.cnf',
               'CLR_OPENSSL_VERSION_OVERRIDE': '1.1',
-              'SSL_CERT_FILE': policy['environment']['systemCaBundles'][variant]}
+              'SSL_CERT_FILE': reviewed_ca or policy['environment']['systemCaBundles'][variant]}
     if plan['sdkVersion'].startswith('3.'):
         result['CLR_ICU_VERSION_OVERRIDE'] = '67'
     return result

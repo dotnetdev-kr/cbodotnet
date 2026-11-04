@@ -70,6 +70,16 @@ restores that caller environment before selecting its own SDK. This avoids
 propagating the legacy provider into a modern Community Build child command.
 It does not intercept arbitrary external executables started by an application.
 
+Fedora 45 supplies its stock trust bundle at
+`/etc/ssl/certs/ca-certificates.crt`. The reviewed distribution contract selects
+that path only for the legacy Fedora SDK packages; the immutable provider
+policy and companion archives retain their historical fallback paths. Native
+RPM and public-install reports bind the selected path, the original stock
+bundle hash and its owning `ca-certificates` package version. A non-root,
+network-isolated HTTPS probe must use ordinary certificate validation and
+TLS 1.2; SDK 5 uses its normal handler, and Core 3 also exercises its forced
+native CurlHandler. The probe does not modify the system trust bundle.
+
 The separately signed companion asset is named
 `cbodotnet-compat-rocky9-2026.11.4-linux-<architecture>.tar.gz`. It contains
 `rootfs/usr/lib/cbodotnet/compat/rocky9/` and `provider-manifest.json`, without

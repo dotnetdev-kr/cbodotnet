@@ -26,6 +26,22 @@ def proof(version='3.1.426',architecture='x64',root='/opt/cbodotnet/3.1'):
 
 
 class NativeCurlRuntimeTests(unittest.TestCase):
+    def test_sdk5_uses_normal_sockets_default_trust_in_a_fresh_process_without_native_curl(self):
+        environment={'LD_LIBRARY_PATH':'/usr/lib/cbodotnet/compat/rocky9/lib','SSL_CERT_FILE':'/etc/ssl/certs/ca-certificates.crt'}
+        with patch.object(legacy_curl,'load_policy',side_effect=AssertionError('SDK5 must not load the Core3 Curl policy')):
+            script=CURL.standard_trust_script('5.0.214','/opt/cbodotnet/5.0','cbot-smoke',runtime_env=environment)
+        self.assertIn('<TargetFramework>net5.0</TargetFramework>',script)
+        self.assertIn('const bool NativeCurl=false;',script)
+        self.assertNotIn('DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0 cbodotnet',script)
+        self.assertIn('standardHandler.ServerCertificateCustomValidationCallback!=null',script)
+        self.assertLess(script.index('NativeCurl.dll fixture\n'),script.index('export SSL_CERT_FILE=/work/native-ca/fixture/trusted-ca.pem'))
+        subprocess.run(['bash','-n'],input=script,text=True,check=True)
+        proof=dict(status='passed',handler='SocketsHttpHandler',defaultTrustHttps='passed',tls12='passed',network='none',userId=10001)
+        self.assertEqual(proof,CURL.validate_standard_trust('CBODOTNET_NATIVE_CA_PROOF='+json.dumps(proof)))
+        for field,value in [('handler','CurlHandler'),('defaultTrustHttps','not-run'),('userId',0),('network','bridge')]:
+            with self.subTest(field=field),self.assertRaises(ValueError):
+                CURL.validate_standard_trust('CBODOTNET_NATIVE_CA_PROOF='+json.dumps(dict(proof,**{field:value})))
+
     def test_parser_requires_exact_sdk_provider_objects_and_complete_http_tls_trust_user_proof(self):
         original=proof()
         def parse(value):

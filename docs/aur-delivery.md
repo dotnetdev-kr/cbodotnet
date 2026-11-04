@@ -2,9 +2,11 @@
 
 The tracked recipes prepare SDKs **10.0.403, 9.0.123, 8.0.133, 7.0.120,
 6.0.136, 5.0.214, 3.1.426 and 3.0.103** for Arch Linux `x86_64` from their
-independently qualified source archives. Native Arch validation of the seven
-additional SDKs remains pending until their new workflow runs pass; the
-historical SDK 10 evidence is recorded below.
+independently qualified source archives. All eight passed their individual
+native Arch build, runtime and package lifecycle checks. A separate native check
+also passed with all eight installed together, including default version
+selection and descending removal fallback. Individual, aggregate and historical
+evidence are recorded below.
 The recipes have **not been submitted to AUR** and do not make an AUR package
 available. Issue [#6](https://github.com/dotnetdev-kr/cbodotnet/issues/6) covers
 recipe development and native build/install validation. Actual account ownership,
@@ -28,6 +30,7 @@ SDKs also depend on a separate compatibility package:
 | [`cbodotnet-sdk-3.1-bin`](../packaging/aur/cbodotnet-sdk-3.1-bin/PKGBUILD) | 3.1.426-1 | `/opt/cbodotnet/3.1`, `/usr/bin/cbodotnet-3.1` and retained notices |
 | [`cbodotnet-sdk-3.0-bin`](../packaging/aur/cbodotnet-sdk-3.0-bin/PKGBUILD) | 3.0.103-1 | `/opt/cbodotnet/3.0`, `/usr/bin/cbodotnet-3.0` and retained notices |
 | [`cbodotnet-compat-rocky9`](../packaging/aur/cbodotnet-compat-rocky9/PKGBUILD) | 2026.11.4-1 | Separate OpenSSL 1.1/ICU 67 provider under `/usr/lib/cbodotnet/compat/rocky9`; no SDK payload |
+| [`cbodotnet-compat-curl-rocky8`](../packaging/aur/cbodotnet-compat-curl-rocky8/PKGBUILD) | 2026.11.4-1 | Core 3.0/3.1-only curl provider under `/usr/lib/cbodotnet/compat/curl-rocky8`; no SDK payload |
 
 Separating the shared host package base allows future SDK series to depend on
 the same selector without tying its version or ownership to one SDK release.
@@ -44,7 +47,7 @@ Arch requires a complete system upgrade rather than a partial upgrade.
 
 ```bash
 sudo pacman -Syu --needed base-devel python namcap curl ca-certificates \
-  glibc libgcc libstdc++ zlib krb5 icu openssl rpm-tools gnupg binutils
+  glibc libgcc libstdc++ zlib krb5 icu openssl libnghttp2 e2fsprogs rpm-tools gnupg binutils
 
 cd packaging/aur/cbodotnet-host
 makepkg --verifysource
@@ -83,6 +86,18 @@ The provider requires **x86-64-v2** CPU features; its shared launcher preflight
 rejects unsupported or unknown CPUs before loading the libraries. It does not
 restore upstream .NET/OpenSSL support or promise additional security fixes.
 The qualified SDK binaries retain their original CPU baseline and bytes.
+
+Core 3.0/3.1 additionally require exactly
+`cbodotnet-compat-curl-rocky8=2026.11.4-1`. Build and install that recipe after the
+base provider, then build the selected Core 3 SDK recipe. The separate
+[curl provider policy](legacy-curl-provider.md) authenticates current Rocky 8
+binary/source RPMs with the independently pinned Rocky 8 key and preserves the
+original curl notice. This private curl uses the base provider's OpenSSL 1.1;
+stock Arch `curl` and `libnghttp2` remain declared runtime dependencies.
+The original optional `System.Net.Http.Native.so` is retained unchanged. Its
+selectable CurlHandler is exercised with the private compatible curl, including
+real HTTP, HTTPS certificate callbacks, default system trust and TLS 1.2.
+SDK 5 and modern SDKs do not load this second provider.
 
 Keep earlier locally built package files before changing `pkgrel`. Upgrade with
 `sudo pacman -U ./<new-package-file>` and roll back with
@@ -158,9 +173,59 @@ globalization; independent official SDK 10.0.100 coexistence; real revision
 upgrade, rollback, reinstall and removal. Legacy preparation authenticates and
 installs the separate provider first; offline validation rebuilds its recipe and
 checks that its installed bytes, modes, links and root ownership remain unchanged
-through SDK lifecycle transitions. It retains the two or three recipe source trees, a recipe-only
+through SDK lifecycle transitions. It retains the two, three or four recipe source trees, a recipe-only
 archive, build/lint logs and machine-readable reports as workflow artifacts.
 Those artifacts and reports are build evidence, not a publication receipt.
+
+The current individual qualifications all passed on native Arch `x86_64`:
+
+| SDK | Successful workflow run, attempt 1 |
+| --- | --- |
+| 10.0.403 | [41853894668](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41853894668) |
+| 9.0.123 | [41853906025](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41853906025) |
+| 8.0.133 | [41853919683](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41853919683) |
+| 7.0.120 | [41853930923](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41853930923) |
+| 6.0.136 | [41853945892](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41853945892) |
+| 5.0.214 | [41870678817](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41870678817) |
+| 3.1.426 | [41890026843](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41890026843) |
+| 3.0.103 | [41890068173](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41890068173) |
+
+The [all-SDK evidence](aur-all-sdk-validation.json) retains their exact original
+reports, source commits and successful run attempts, artifact identifiers and
+independently verified API ZIP hashes. Encoding each `exactReport` as documented
+in that file recovers the original report bytes and SHA-256. These are
+authenticated GitHub CI results; they are not signed publication receipts.
+The base provider-only
+[run 41865718558](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41865718558)
+and curl addon-only
+[run 41889193725](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41889193725)
+also passed real makepkg, namcap and pacman integrity/lifecycle checks without
+downloading, building or executing an SDK. Those reports are retained separately
+and do not substitute for the individual SDK qualifications.
+
+The read-only
+[all-SDK coinstallation workflow](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/aur-coinstall-check.yml)
+requires the successful base-provider run and all eight individual SDK proofs
+before downloading SDK inputs. Core 3 reports must also pass the independent
+source-pinned curl/provider and forced-handler runtime evidence gate.
+[Aggregate run 41892598873, attempt 1](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41892598873)
+passed from source commit
+[`ae58dec`](https://github.com/dotnetdev-kr/cbodotnet/commit/ae58dec180ff183f6bd9fa96970808a51324fd48).
+It installed all eight Community SDKs together, compared their qualified
+payloads, exercised every versioned alias and selected SDK 10.0.403 through
+`cbodotnet`. Removing SDKs in descending order selected 9.0.123, 8.0.133,
+7.0.120, 6.0.136, 5.0.214, 3.1.426 and 3.0.103 in turn; after the last removal
+the selector returned 127. Both providers remained unchanged through all 17
+checkpoints, followed by final shared-package removal. Each source archive was
+received once, package builds ran without external networking, and no SDK source
+was rebuilt. The aggregate reuses the independently admitted individual runtime
+proofs above rather than repeating their application tests.
+
+The existing independently verified official SDK 10.0.100 archive installation
+and its `dotnet` selection stayed unchanged throughout. This baseline does not
+claim ownership by an Arch vendor package. The aggregate's exact original report,
+prerequisite source/artifact bindings, provider policy hashes and API-verified
+ZIP hash are also retained in [the all-SDK evidence](aur-all-sdk-validation.json).
 
 The historical SDK 10.0.403 native lifecycle passed on 2026-11-04 in
 [run 41779636849, attempt 1](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41779636849),
@@ -181,7 +246,7 @@ The complete raw `namcap` output is retained. The current official `elfpaths`
 rule classifies every ELF under `/opt` as questionable, reporting the summary
 `ELF files outside of a valid path ('opt/').` at error severity. The validator
 reviews only that exact summary for the SDK binary package because the reviewed
-contract requires `/opt/cbodotnet/10.0` isolation. It records the finding and
+contract requires `/opt/cbodotnet/<major.minor>` isolation. It records the finding and
 rationale as `passed-with-reviewed-findings`, then verifies the entire installed
 SDK payload independently. All other error-level findings, including missing
 dependencies, continue to fail validation. No namcap rule is disabled.

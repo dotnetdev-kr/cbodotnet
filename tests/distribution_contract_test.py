@@ -141,12 +141,24 @@ class DistributionContractTests(unittest.TestCase):
                     self.assertEqual(legacy, providers[variant] in plan['dependencies'])
                     self.assertEqual(legacy, 'cbodotnet-compat-curl-rocky8' in plan['dependencies'])
                     self.assertEqual(legacy, 'nativeHttpCompatibility' in plan)
+                    needs_ca_override = version.startswith(('3.', '5.')) and variant == 'fedora-45'
+                    self.assertEqual(needs_ca_override, 'nativeCaBundle' in plan)
+                    if needs_ca_override:
+                        self.assertEqual('/etc/ssl/certs/ca-certificates.crt', plan['nativeCaBundle'])
                     if legacy:
                         self.assertEqual('rocky8-curl-20261104', plan['nativeHttpCompatibility']['providerId'])
                     if channel == 'aur':
                         self.assertEqual(legacy, providers[variant] in plan['aurDependencies'])
                     if channel == 'rpm':
                         self.assertEqual(legacy, providers[variant] in plan['rpmDependencies'])
+
+    def test_native_ca_override_is_limited_to_the_reviewed_fedora_stock_path(self):
+        for variant, path in (('fedora-45', '/tmp/fixture-ca.pem'),
+                              ('rocky-9.8', '/etc/ssl/certs/ca-certificates.crt')):
+            candidate = copy.deepcopy(self.contract)
+            candidate['operatingSystems'][variant]['nativeCaBundle'] = path
+            with self.subTest(variant=variant), self.assertRaisesRegex(ValueError, 'Unreviewed native stock CA'):
+                CONTRACT.validate_contract(candidate)
 
     def test_only_reviewed_core3_sources_may_request_the_native_curl_provider(self):
         candidate = copy.deepcopy(self.contract)
