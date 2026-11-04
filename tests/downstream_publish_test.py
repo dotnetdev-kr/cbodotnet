@@ -243,6 +243,19 @@ class DownstreamPublishTests(unittest.TestCase):
         self.assertEqual(321, result['id'])
         self.assertEqual('graphql', api.call_args_list[0].args[0])
 
+    def test_transport_error_identifies_method_endpoint_without_request_body_or_query(self):
+        result = subprocess.CompletedProcess([], 1, stdout='', stderr='gh: Resource not accessible by integration (HTTP 403)')
+        with mock.patch.object(PUBLISH.subprocess, 'run', return_value=result):
+            with self.assertRaises(RuntimeError) as raised:
+                PUBLISH.GitHubReleases().api('repos/example/repository/releases?private-query-value=hidden', 'POST',
+                    {'body': 'private-request-body', 'headers': {'Authorization': 'private-token'}})
+        message = str(raised.exception)
+        self.assertIn('POST repos/example/repository/releases', message)
+        self.assertIn('HTTP 403', message)
+        self.assertNotIn('private-request-body', message)
+        self.assertNotIn('private-token', message)
+        self.assertNotIn('hidden', message)
+
     @unittest.skipUnless(shutil.which('gpg') and shutil.which('gpgv'), 'GnuPG is required')
     def test_actual_detached_manifest_signature_authenticates_and_rejects_tampering(self):
         self.crypto.stop()

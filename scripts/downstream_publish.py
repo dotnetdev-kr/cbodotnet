@@ -210,7 +210,7 @@ class GitHubReleases:
         if result.returncode:
             if method == 'GET' and 'HTTP 404' in result.stderr:
                 return None
-            raise RuntimeError('GitHub release request failed: ' + result.stderr.strip())
+            raise RuntimeError('GitHub release request failed (' + method + ' ' + endpoint.partition('?')[0] + '): ' + result.stderr.strip())
         return json.loads(result.stdout) if result.stdout.strip() else None
 
     def find(self, tag):
