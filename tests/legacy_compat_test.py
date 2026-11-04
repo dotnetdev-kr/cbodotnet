@@ -67,6 +67,35 @@ class LegacyCompatTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 COMPAT.environment(plan(), root=root)
 
+    def test_x64_provider_requires_every_v2_cpu_feature_on_every_processor(self):
+        flags = 'cx16 lahf_lm popcnt pni ssse3 sse4_1 sse4_2'
+        report = COMPAT.cpu_preflight('x64', 'flags\t: ' + flags + '\nflags : ' + flags + '\n')
+        self.assertEqual(2, report['cpuFlagRowsChecked'])
+        self.assertEqual('x86-64-v2', report['baseline'])
+        self.assertEqual('passed', COMPAT.cpu_preflight('x64', 'flags : ' + flags.replace('pni', 'sse3'))['status'])
+        for feature in flags.split():
+            with self.subTest(feature=feature), self.assertRaisesRegex(ValueError, 'x86-64-v2'):
+                COMPAT.cpu_preflight('x64', 'flags : ' + flags + '\nflags : ' + ' '.join(value for value in flags.split() if value != feature))
+        with self.assertRaisesRegex(ValueError, 'Cannot establish'):
+            COMPAT.cpu_preflight('x64', 'unavailable')
+        self.assertEqual('armv8-a', COMPAT.cpu_preflight('aarch64')['baseline'])
+
+    @unittest.skipUnless(os.name == 'posix', 'POSIX CPU preflight execution required')
+    def test_shell_cpu_preflight_rejects_partial_or_unavailable_feature_rows(self):
+        flags = 'cx16 lahf_lm popcnt pni ssse3 sse4_1 sse4_2'
+        with tempfile.TemporaryDirectory() as temporary:
+            cpuinfo = Path(temporary) / 'cpuinfo'
+            script = COMPAT.cpu_launcher_preflight().replace('/proc/cpuinfo', str(cpuinfo))
+            cpuinfo.write_text('flags\t: ' + flags + '\n')
+            self.assertEqual(0, subprocess.run(['sh', '-c', script], capture_output=True).returncode)
+            for body in ['flags : ' + flags.replace('cx16', '') + '\n',
+                         'flags : ' + flags + '\nflags : ' + flags.replace('sse4_2', '') + '\n', 'no flags\n']:
+                cpuinfo.write_text(body)
+                result = subprocess.run(['sh', '-c', script], capture_output=True)
+                self.assertEqual(70, result.returncode)
+            cpuinfo.unlink()
+            self.assertEqual(70, subprocess.run(['sh', '-c', script], capture_output=True).returncode)
+
     @unittest.skipUnless(os.name == 'posix', 'POSIX wrapper execution required')
     def test_relocatable_wrapper_scopes_provider_and_fails_when_missing(self):
         with tempfile.TemporaryDirectory(prefix='provider space-') as temporary:

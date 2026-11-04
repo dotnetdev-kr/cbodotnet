@@ -35,6 +35,14 @@ pins and native verification before release.
 The inspected OpenSSL and ICU binaries require at most GLIBC 2.34. That is a
 necessary ABI check for the current Ubuntu 24.04, Debian 13, Fedora 45, Rocky
 9.8 and Arch targets, rather than proof that their runtime behavior works.
+The source RPM build flags also record **`-march=x86-64-v2`** for both x64
+packages. This provider raises the legacy x64 CPU requirement to x86-64-v2;
+the original SDK's CPU baseline remains unchanged. The launcher and disposable
+container preparation require CMPXCHG16B, LAHF/SAHF, POPCNT, SSE3, SSSE3,
+SSE4.1 and SSE4.2 on every exposed processor, and reject unknown or insufficient
+CPU capabilities before loading these libraries. This follows the
+[RHEL 9 CPU baseline](https://developers.redhat.com/blog/2021/01/05/building-red-hat-enterprise-linux-9-for-the-x86-64-v2-microarchitecture-level).
+The AArch64 provider retains the ARMv8-A baseline.
 Core 3's pinned loader searches through ICU major 75; the provider pins 67
 instead of disabling globalization. The existing Ubuntu 22.04 archive test
 surface also has GLIBC newer than 2.34. Musl and other operating systems remain

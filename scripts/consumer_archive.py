@@ -130,9 +130,13 @@ def build_archive(inputs, architecture, revision, output, *, contract=None, cata
             and os.access(payload / 'dotnet',os.X_OK),'Qualified payload lacks an executable host')
     for name in plan['licensePaths']:
         require((payload / name).is_file() and not (payload / name).is_symlink(),'Original SDK license/notice is absent')
+    admitted=(contract if contract is not None else load_contract())['releases'][plan['sdkVersion']]
+    approved=admitted.get('additionalDirectories',['metadata'])
+    require(approved in ([],['metadata']),'Unreviewed consumer payload directory addition')
     added = []
-    if not (payload / 'metadata').exists():
-        (payload / 'metadata').mkdir(mode=0o755); added.append('metadata')
+    for name in approved:
+        if not (payload/name).exists():
+            (payload/name).mkdir(mode=0o755);added.append(name)
     commands = []
     wrapper = launcher_text(plan).encode()
     for name in ('dotnet','cbodotnet','cbodotnet-' + '.'.join(plan['sdkVersion'].split('.')[:2])):

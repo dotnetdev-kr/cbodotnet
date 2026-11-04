@@ -203,6 +203,22 @@ def load_status(path=None):
     return value
 
 
+def validate_legacy_evidence(report, plan):
+    """Do not promote legacy runtime results without the reviewed external provider."""
+    if not plan['sdkVersion'].startswith(('3.', '5.')):
+        return
+    from legacy_compat import POLICY, PROVIDER_ROOT, FINGERPRINT
+    expected_policy = hashlib.sha256(POLICY.read_text().replace('\r\n', '\n').encode()).hexdigest()
+    proofs = report.get('compatibilityProvider')
+    require(isinstance(proofs, list) and proofs, 'Legacy report lacks managed compatibility provider evidence')
+    for proof in proofs:
+        require(proof.get('status') == 'passed' and proof.get('providerRoot') == PROVIDER_ROOT
+                and proof.get('architecture') == plan['architecture']['public']
+                and proof.get('policySha256') == expected_policy and proof.get('signingFingerprint') == FINGERPRINT
+                and re.fullmatch(r'[a-f0-9]{64}', proof.get('treeSha256', '')),
+                'Legacy runtime provider source, policy or native architecture differs')
+
+
 def verify_report_signature(report_path, signature_path, keyring_path, policy, workflow, gpgv='gpgv', *, historical=False):
     """Authenticate exact bytes; historical reads never authorize new promotion."""
     report, signature, keyring = map(ordinary_file, (report_path, signature_path, keyring_path))
@@ -325,6 +341,7 @@ def validate_record(packaged, artifact_path, report_path, signature_path, keyrin
     require(all(isinstance(dependencies.get(name), str) and dependencies[name] for name in os_record['dependencies']),
             'Report has unavailable or unrecorded native libraries')
     channel = policy['channels'].get(identity['channel'], {})
+    validate_legacy_evidence(report, canonical_plan)
     checks = PREPUBLICATION_CHECKS | set(channel.get('requiredChecks', []))
     require(checks and all(report.get('checks', {}).get(name) == 'passed' for name in checks),
             'Required prepublication matrix check failed or is missing')

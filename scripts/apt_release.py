@@ -64,6 +64,8 @@ def prepare_flat_repositories(root, signing_key, keyring):
                 and manifest['variant'] == variant and manifest['channel'] == 'deb',
                 'APT repository source identity differs')
         pool = directory / 'pool'
+        require(pool.is_dir() and {path.name for path in pool.iterdir()} == set(manifest['packages']),
+                'Flat APT pool must retain the complete authenticated package matrix')
         for path in pool.iterdir():
             require(path.is_file() and not path.is_symlink() and path.suffix == '.deb'
                     and manifest['packages'].get(path.name) == descriptor(path)['sha256'],

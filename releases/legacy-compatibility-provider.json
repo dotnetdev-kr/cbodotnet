@@ -43,6 +43,9 @@
   ],
   "architectures": {
     "x64": {
+      "cpuBaseline": "x86-64-v2",
+      "linuxCpuFlags": ["cx16", "lahf_lm", "popcnt", "pni", "ssse3", "sse4_1", "sse4_2"],
+      "sourceRpmBuildFlag": "-march=x86-64-v2",
       "rpmArchitecture": "x86_64",
       "elfMachine": 62,
       "glibcMaximum": "2.34",
@@ -170,6 +173,7 @@
       ]
     },
     "aarch64": {
+      "cpuBaseline": "armv8-a",
       "rpmArchitecture": "aarch64",
       "elfMachine": 183,
       "glibcMaximum": "2.34",

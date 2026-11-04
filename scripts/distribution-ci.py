@@ -529,6 +529,20 @@ def prepare_compatibility(workspace, delivery, base, version, architecture, vari
     return ['--compatibility-build', delivery / 'compatibility-build/provider-build.json']
 
 
+def oci_build_arguments(base_image, metadata):
+    version = metadata['plan']['sdkVersion']
+    expected = dict(BASE_IMAGE=base_image, SDK_SERIES=sdk_series(version))
+    require(metadata.get('buildArgs') == expected and metadata['plan']['package']['root'] == '/opt/cbodotnet/' + expected['SDK_SERIES'],
+            'OCI build arguments differ from the selected SDK series/root or pinned base')
+    arguments = ['docker', 'build']
+    for key, value in expected.items():
+        arguments.extend(['--build-arg', key + '=' + value])
+    arguments.extend(['--label', 'org.opencontainers.image.base.name=' + base_image])
+    for key, value in metadata['labels'].items():
+        arguments.extend(['--label', key + '=' + value])
+    return arguments
+
+
 def native(args):
     channels = selected_channels(args, native=True)
     require(os.getuid() != 0 and platform.machine() in ({'aarch64', 'arm64'} if args.arch == 'aarch64' else {'x86_64'}),
@@ -590,10 +604,7 @@ def native(args):
     tag = 'cbodotnet-verified:' + args.arch
     require('@sha256:' in args.debian_base, 'OCI base must be pinned by digest')
     metadata = json.loads((build / 'package-build.json').read_bytes())
-    build_arguments = ['docker', 'build', '--build-arg', 'BASE_IMAGE=' + args.debian_base,
-                       '--label', 'org.opencontainers.image.base.name=' + args.debian_base]
-    for key, value in metadata.get('labels', {}).items():
-        build_arguments.extend(['--label', key + '=' + value])
+    build_arguments = oci_build_arguments(args.debian_base, metadata)
     progress('build the exact-version OCI image from the verified payload')
     run([*build_arguments, '--tag', tag, '--file', build / 'Containerfile', build])
     image = json.loads(run(['docker', 'image', 'inspect', tag]))[0]
@@ -619,10 +630,7 @@ def native(args):
          '--arch', args.arch, '--revision', args.revision + 1, '--output', upgrade_build, '--base-image', args.debian_base, *compatibility_args])
     upgrade_tag = tag + '-upgrade'
     upgrade_metadata = json.loads((upgrade_build / 'package-build.json').read_bytes())
-    upgrade_arguments = ['docker', 'build', '--build-arg', 'BASE_IMAGE=' + args.debian_base,
-                         '--label', 'org.opencontainers.image.base.name=' + args.debian_base]
-    for key, value in upgrade_metadata['labels'].items():
-        upgrade_arguments.extend(['--label', key + '=' + value])
+    upgrade_arguments = oci_build_arguments(args.debian_base, upgrade_metadata)
     run([*upgrade_arguments, '--tag', upgrade_tag, '--file', upgrade_build / 'Containerfile', upgrade_build])
     upgraded_image = json.loads(run(['docker', 'image', 'inspect', upgrade_tag]))[0]
     validate_image_config(upgraded_image, expected_arch, upgrade_metadata['plan']['package']['root'],

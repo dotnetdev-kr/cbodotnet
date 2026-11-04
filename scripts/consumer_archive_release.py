@@ -50,7 +50,8 @@ def verify_build(build_file, inputs):
         require(build['qualifiedPayload'] == payload_summary(original),'Archive source payload inventory changed')
         observed=tools.snapshot(tree / 'payload')
         added=build['additionalDirectories']
-        require(added in ([],['metadata']) and all(name not in original and observed.get(name)==['directory',0o755] for name in added)
+        approved=load_contract()['releases'][plan['sdkVersion']].get('additionalDirectories',['metadata'])
+        require(added in ([],['metadata']) and set(added)<=set(approved) and all(name not in original and observed.get(name)==['directory',0o755] for name in added)
             and {key:value for key,value in observed.items() if key not in added} == original,'Consumer archive changed qualified payload bytes, modes or links')
         expected_wrapper=launcher_text(plan).encode()
         expected_commands=[]
@@ -167,7 +168,7 @@ def create_bundle(build_files, report_files, inputs, output, signing_key, keyrin
     return manifest
 
 
-def validate_bundle(directory,keyring,*,policy=None):
+def validate_bundle(directory,keyring,*,policy=None,historical=False,metadata_only=False):
     directory=Path(directory).absolute(); policy=policy if policy is not None else load_status()
     data=ordinary_file(directory/MANIFEST).read_bytes()
     require(len(data)<=16*1024**2,'Consumer publication manifest exceeds its bound')
@@ -181,33 +182,37 @@ def validate_bundle(directory,keyring,*,policy=None):
     contract=load_contract(); admitted=contract['releases'].get(common['sdkVersion'],{})
     require(manifest['contractVersion']==contract['schemaVersion'] and admitted.get('manifestSha256')==common['sourceManifestSha256']
         and common['sourceReleaseTag']=='sdk-'+common['sdkVersion'],'Consumer canonical source is no longer admitted')
-    signer=verify_report_signature(directory/MANIFEST,directory/SIGNATURE,keyring,policy,WORKFLOW)
+    signer=verify_report_signature(directory/MANIFEST,directory/SIGNATURE,keyring,policy,WORKFLOW,historical=historical)
     require(signer==manifest['signingFingerprint'],'Unexpected consumer manifest signer')
     assets=manifest['assets']; names=[item['name'] for item in assets]
+    records=manifest['records']; require(len(records)==2 and {item['architecture'] for item in records}==set(ARCHITECTURES),
+        'Consumer publication matrix is incomplete')
+    large={item['artifactAsset'] for item in records}|{item['asset'] for item in manifest.get('compatibility',[])}
+    expected_names=(set(names)-large if metadata_only else set(names))|{MANIFEST,SIGNATURE}
     require(len(set(names))==len(names) and all(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*',name) for name in names)
-        and set(names).isdisjoint({MANIFEST,SIGNATURE}) and {item.name for item in directory.iterdir()}==set(names)|{MANIFEST,SIGNATURE},
+        and set(names).isdisjoint({MANIFEST,SIGNATURE}) and {item.name for item in directory.iterdir()}==expected_names,
         'Consumer bundle has missing, unsafe or unexpected assets')
     indexed={item['name']:item for item in assets}
     for item in assets:
+        if metadata_only and item['name'] in large:continue
         require(descriptor(ordinary_file(directory/item['name']))==item,'Consumer frozen asset changed')
     require(hashlib.sha256(ordinary_file(directory/'source-release-manifest.json').read_bytes()).hexdigest()==common['sourceManifestSha256'],
         'Consumer source manifest byte binding changed')
-    records=manifest['records']; require(len(records)==2 and {item['architecture'] for item in records}==set(ARCHITECTURES),
-        'Consumer publication matrix is incomplete')
     from distribution_contract import validate_qualified_producers
     canonical=json.loads((directory/'source-release-manifest.json').read_bytes())
     validate_qualified_producers(canonical,admitted['target'])
     for item in records:
         build=item['build']; plan=build['plan']; arch=item['architecture']
+        spaces_ok=(set(plan['validatedUserSpaces'])<=set(admitted['archiveUserSpaces']) if historical else plan['validatedUserSpaces']==admitted['archiveUserSpaces'])
         require(plan['architecture']==arch and all(plan.get(key)==value for key,value in common.items() if key!='channel')
-            and plan['branding']==BRANDING and plan['validatedUserSpaces']==admitted['archiveUserSpaces'],
+            and plan['branding']==BRANDING and spaces_ok,
             'Consumer signed plan differs from current source admission')
-        require(plan['compatibility']==compatibility_policy(plan),'Consumer compatibility provider policy is no longer admitted')
+        if not historical:require(plan['compatibility']==compatibility_policy(plan),'Consumer compatibility provider policy is no longer admitted')
         require(plan['sdk']==dict(canonical['architectures'][arch]['sdk'],url=f'https://github.com/{REPOSITORY}/releases/download/{common["sourceReleaseTag"]}/'+canonical['architectures'][arch]['sdk']['name'])
             and plan['producer']==canonical['architectures'][arch]['provenance'],'Consumer signed source SDK/producer changed')
         require(indexed[item['artifactAsset']]==build['artifact'],'Consumer signed archive digest binding changed')
         report=json.loads((directory/item['reportAsset']).read_bytes()); validate_native_report(report,build,source)
-        require(verify_report_signature(directory/item['reportAsset'],directory/item['signatureAsset'],keyring,policy,WORKFLOW)==signer,
+        require(verify_report_signature(directory/item['reportAsset'],directory/item['signatureAsset'],keyring,policy,WORKFLOW,historical=historical)==signer,
             'Consumer native report signature differs from publication signer')
         companion=[row for row in manifest.get('compatibility',[]) if row['architecture']==arch]
         if plan['compatibility']['required']:

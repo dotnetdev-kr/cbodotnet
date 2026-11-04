@@ -17,6 +17,24 @@ import distribution_site as SITE
 
 
 class DistributionSiteTests(unittest.TestCase):
+    def test_all_sdk_repository_urls_and_commands_remain_visible(self):
+        publications = [dict(variant='debian-13', sdkVersion=version, packageRevision=1)
+                        for version in ('10.0.403', '8.0.133')]
+        repositories = [dict(row, repositoryUrl='https://github.com/dotnetdev-kr/cbodotnet/releases/download/'
+                        + 'repository-deb-debian-13-sdk-' + row['sdkVersion'] + '-r1/') for row in publications]
+        status = dict(channels=dict(deb=dict(status='published', publications=publications, repositories=repositories)))
+        markup = SITE.render_channels(status)
+        for row in repositories:
+            self.assertIn(row['repositoryUrl'], markup)
+        self.assertIn('cbodotnet-sdk-8.0', markup)
+        self.assertIn('cbodotnet-sdk-10.0', markup)
+        status['channels'] = dict(rpm=dict(status='published', publications=publications, repositories=[
+            dict(row, repositoryUrl='https://dotnetdev.kr/cbodotnet/packages/rpm/debian-13/sdk-'
+                 + row['sdkVersion'] + '-r1/') for row in publications]))
+        markup = SITE.render_channels(status)
+        self.assertIn('[cbodotnet-sdk-8.0]', markup)
+        self.assertIn('[cbodotnet-sdk-10.0]', markup)
+
     def test_configured_but_unpublished_channel_has_no_install_commands(self):
         policy = json.loads((ROOT / 'releases/downstream-status.json').read_bytes())
         for channel in policy['channels'].values():

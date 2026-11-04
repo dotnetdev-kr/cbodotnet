@@ -240,6 +240,9 @@ def prepare_site(policy, output, public_key=None):
                                 and re.fullmatch(r'sha256:[a-f0-9]{64}', image.get('digest', '')),
                                 'Invalid pinned OCI descriptor')
                         status['channels'].setdefault(channel, {}).setdefault('image', image)
+                        images = status['channels'][channel].setdefault('images', [])
+                        if not any(row['sdkVersion'] == identity['sdkVersion'] for row in images):
+                            images.append(dict(sdkVersion=identity['sdkVersion'], packageRevision=identity['packageRevision'], **image))
                 verified_publications.extend(receipt['publications'])
         require(sorted(verified_publications, key=lambda row: json.dumps(row, sort_keys=True))
                 == sorted(publications, key=lambda row: json.dumps(row, sort_keys=True)),
@@ -263,6 +266,16 @@ def render_channels(status):
                               key=lambda row: (tuple(map(int, row['sdkVersion'].split('.'))), row['packageRevision']))
                 package = 'cbodotnet-sdk-' + '.'.join(current['sdkVersion'].split('.')[:2])
                 version = current['sdkVersion'] + '-' + str(current['packageRevision'])
+                repositories = {}
+                for repository in data.get('repositories', []):
+                    if repository['variant'] != variant:
+                        continue
+                    previous = repositories.get(repository['sdkVersion'])
+                    if previous is None or previous['packageRevision'] < repository['packageRevision']:
+                        repositories[repository['sdkVersion']] = repository
+                urls = ' '.join(row['repositoryUrl'] for _, row in sorted(repositories.items(),
+                                key=lambda item: tuple(map(int, item[0].split('.'))), reverse=True))
+                urls = urls or 'https://dotnetdev.kr/cbodotnet/packages/deb/' + variant + '/'
                 command = ('sudo apt-get update\nsudo apt-get install -y ca-certificates curl gnupg\n'
                            'curl -fsSLo /tmp/cbodotnet-archive-keyring.gpg https://dotnetdev.kr/cbodotnet/cbodotnet-archive-keyring.gpg\n'
                            'test "$(gpg --show-keys --with-colons /tmp/cbodotnet-archive-keyring.gpg | '
@@ -270,17 +283,38 @@ def render_channels(status):
                            'sudo install -m 0644 /tmp/cbodotnet-archive-keyring.gpg /usr/share/keyrings/cbodotnet-archive-keyring.gpg\n'
                            'sudo rm -f /etc/apt/sources.list.d/cbodotnet.list\n'
                            'sudo tee /etc/apt/sources.list.d/cbodotnet.sources > /dev/null <<EOF\n'
-                           'Types: deb\nURIs: https://dotnetdev.kr/cbodotnet/packages/deb/' + variant + '/\n'
+                           'Types: deb\nURIs: ' + urls + '\n'
                            'Suites: ./\nArchitectures: $(dpkg --print-architecture)\n'
                            'Signed-By: /usr/share/keyrings/cbodotnet-archive-keyring.gpg\nEOF\n'
                            'sudo apt-get update\nsudo apt-get install ' + package + '=' + version + '\ncbodotnet --info')
                 rows.append('<h3>' + html.escape(variant) + ' APT</h3><pre><code>' + html.escape(command) + '</code></pre>')
+                packages = sorted({'cbodotnet-sdk-' + '.'.join(row['sdkVersion'].split('.')[:2])
+                                   for row in data['publications'] if row['variant'] == variant},
+                                  key=lambda value: tuple(map(int, value.removeprefix('cbodotnet-sdk-').split('.'))), reverse=True)
+                rows.append('<p>Available SDK packages: ' + ', '.join('<code>' + html.escape(name) + '</code>' for name in packages) + '.</p>')
         if channel == 'oci' and data.get('image'):
-            image = data['image']['repository'] + '@' + data['image']['digest']
-            command = 'docker pull ' + image + '\ndocker run --rm ' + image + ' cbodotnet --info'
-            rows.append('<h3>OCI SDK image</h3><pre><code>' + html.escape(command) + '</code></pre>')
+            for record in data.get('images', [data['image']]):
+                image = record['repository'] + '@' + record['digest']
+                command = 'docker pull ' + image + '\ndocker run --rm ' + image + ' cbodotnet --info'
+                label = 'OCI SDK image' + (' ' + record['sdkVersion'] if record.get('sdkVersion') else '')
+                rows.append('<h3>' + html.escape(label) + '</h3><pre><code>' + html.escape(command) + '</code></pre>')
         if channel == 'rpm':
             for variant in sorted({row['variant'] for row in data['publications']}):
+                repositories = {}
+                for repository in data.get('repositories', []):
+                    if repository['variant'] != variant:
+                        continue
+                    previous = repositories.get(repository['sdkVersion'])
+                    if previous is None or previous['packageRevision'] < repository['packageRevision']:
+                        repositories[repository['sdkVersion']] = repository
+                if not repositories:
+                    repositories['10.0.403'] = dict(repositoryUrl='https://dotnetdev.kr/cbodotnet/packages/rpm/' + variant + '/')
+                sections = []
+                for version, repository in sorted(repositories.items(), key=lambda item: tuple(map(int, item[0].split('.'))), reverse=True):
+                    sections.append('[cbodotnet-sdk-' + '.'.join(version.split('.')[:2]) + ']\nname=Community Build of .NET SDK\n'
+                        + 'baseurl=' + repository['repositoryUrl'] + '\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\n'
+                        + 'gpgkey=https://dotnetdev.kr/cbodotnet/distribution-signing-key.asc\n')
+                preferred = max(repositories, key=lambda value: tuple(map(int, value.split('.'))))
                 command = ('sudo dnf install -y ca-certificates gnupg2\n'
                            'command -v curl >/dev/null || sudo dnf install -y curl\n'
                            'curl -fsSLo /tmp/cbodotnet-signing-key.asc https://dotnetdev.kr/cbodotnet/distribution-signing-key.asc\n'
@@ -288,11 +322,8 @@ def render_channels(status):
                            "awk -F: '$1==\"pub\" {primary=1} $1==\"fpr\" && primary {print $10; primary=0}')\" = D7D154B4B33C19A82B95B13688135410ACD9C0EA || exit 1\n"
                            'sudo rpm --import /tmp/cbodotnet-signing-key.asc\n'
                            "cat <<'EOF' | sudo tee /etc/yum.repos.d/cbodotnet.repo\n"
-                           '[cbodotnet-sdk-10.0]\nname=Community Build of .NET SDK\n'
-                           'baseurl=https://dotnetdev.kr/cbodotnet/packages/rpm/' + variant + '/\n'
-                           'enabled=1\ngpgcheck=1\nrepo_gpgcheck=1\n'
-                           'gpgkey=https://dotnetdev.kr/cbodotnet/distribution-signing-key.asc\nEOF\n'
-                           'sudo dnf makecache --refresh\nsudo dnf install cbodotnet-sdk-10.0\ncbodotnet --info')
+                           + '\n'.join(sections) + 'EOF\n'
+                           'sudo dnf makecache --refresh\nsudo dnf install cbodotnet-sdk-' + '.'.join(preferred.split('.')[:2]) + '\ncbodotnet --info')
                 rows.append('<h3>' + html.escape(variant) + ' DNF</h3><pre><code>' + html.escape(command) + '</code></pre>')
     if not rows:
         return '<p>APT, RPM, AUR and consumer OCI channels are in preparation. Use the verified archive downloads above.</p>'

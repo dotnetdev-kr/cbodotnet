@@ -90,6 +90,51 @@ def environment(plan, root=PROVIDER_ROOT):
     return result
 
 
+def cpu_preflight(architecture, cpuinfo=None):
+    """The repackaged x64 RHEL9 libraries require more than the SDK's ISA floor."""
+    require(architecture in {'x64', 'aarch64'}, 'Unknown provider CPU architecture')
+    if architecture == 'aarch64':
+        return {'architecture': architecture, 'baseline': 'armv8-a', 'status': 'passed'}
+    text = Path('/proc/cpuinfo').read_text() if cpuinfo is None else cpuinfo
+    rows = [set(line.split(':', 1)[1].split()) for line in text.splitlines()
+            if re.match(r'^flags\s*:', line)]
+    needed = {'cx16', 'lahf_lm', 'popcnt', 'pni', 'ssse3', 'sse4_1', 'sse4_2'}
+    require(rows, 'Cannot establish the compatibility provider x86-64-v2 CPU floor')
+    for flags in rows:
+        if 'sse3' in flags:
+            flags.add('pni')
+        require(needed <= flags, 'Compatibility provider requires x86-64-v2 CPU features on every exposed processor')
+    return {'architecture': architecture, 'baseline': 'x86-64-v2', 'status': 'passed', 'cpuFlagRowsChecked': len(rows)}
+
+
+def cpu_launcher_preflight():
+    return '''# Rocky9 x64 compatibility binaries were compiled for x86-64-v2.
+_cbodotnet_cpu_seen=0
+if [ -r /proc/cpuinfo ]; then
+  while IFS= read -r _cbodotnet_cpu_line; do
+    case "$_cbodotnet_cpu_line" in flags*:*)
+      _cbodotnet_cpu_flags=
+      for _cbodotnet_cpu_flag in ${_cbodotnet_cpu_line#*:}; do
+        _cbodotnet_cpu_flags="$_cbodotnet_cpu_flags $_cbodotnet_cpu_flag"
+      done
+      _cbodotnet_cpu_flags="$_cbodotnet_cpu_flags "
+      for _cbodotnet_cpu_required in cx16 lahf_lm popcnt ssse3 sse4_1 sse4_2; do
+        case "$_cbodotnet_cpu_flags" in *" $_cbodotnet_cpu_required "*) ;;
+          *) echo "cbodotnet: legacy compatibility provider requires an x86-64-v2 CPU" >&2; exit 70 ;;
+        esac
+      done
+      case "$_cbodotnet_cpu_flags" in *" pni "*|*" sse3 "*) ;;
+        *) echo "cbodotnet: legacy compatibility provider requires an x86-64-v2 CPU" >&2; exit 70 ;;
+      esac
+      _cbodotnet_cpu_seen=1 ;;
+    esac
+  done < /proc/cpuinfo
+fi
+[ "$_cbodotnet_cpu_seen" = 1 ] || { echo "cbodotnet: cannot establish x86-64-v2 compatibility CPU features" >&2; exit 70; }
+unset _cbodotnet_cpu_seen _cbodotnet_cpu_line _cbodotnet_cpu_flags _cbodotnet_cpu_flag _cbodotnet_cpu_required
+'''
+
+
 def launcher_environment(plan):
     """Return a scoped POSIX fragment shared by package and relocatable wrappers."""
     scoped = ('LD_LIBRARY_PATH', 'OPENSSL_CONF', 'CLR_OPENSSL_VERSION_OVERRIDE', 'CLR_ICU_VERSION_OVERRIDE', 'SSL_CERT_FILE')
@@ -104,6 +149,11 @@ def launcher_environment(plan):
     lines += ['  unset CBODOTNET_COMPAT_SCOPE', 'fi']
     if not required(plan):
         return '\n'.join(lines) + '\n'
+    architecture = plan.get('architecture')
+    architecture = architecture.get('public') if isinstance(architecture, dict) else architecture
+    require(architecture in {'x64', 'aarch64'}, 'An explicit native architecture is required for the legacy launcher')
+    if architecture == 'x64':
+        lines.append(cpu_launcher_preflight().rstrip('\n'))
     values = environment(plan)
     names = ['lib/libcrypto.so.1.1', 'lib/libssl.so.1.1', 'openssl.cnf', 'provider-manifest.json']
     if plan['sdkVersion'].startswith('3.'):
@@ -619,6 +669,7 @@ def runtime_environment(plan, state):
             'Compatibility state does not match SDK plan')
     require(state.get('policySha256') == hashlib.sha256(POLICY.read_text().replace('\r\n', '\n').encode()).hexdigest(),
             'Compatibility state policy changed')
+    cpu_preflight(state['architecture'])
     return environment(plan)
 
 
@@ -629,7 +680,8 @@ def assert_unchanged(state):
     require(state.get('providerRoot') == PROVIDER_ROOT, 'Unexpected managed compatibility root')
     actual = tree_inventory(Path(PROVIDER_ROOT), owners=True)
     require(actual == state['files'] and inventory_digest(actual) == state['treeSha256'], 'Managed compatibility provider changed')
-    return {'status': 'passed', 'providerRoot': PROVIDER_ROOT, 'architecture': state['architecture'],
+    cpu = cpu_preflight(state['architecture'])
+    return {'status': 'passed', 'providerRoot': PROVIDER_ROOT, 'architecture': state['architecture'], 'cpu': cpu,
             'treeSha256': state['treeSha256'], 'policySha256': state['policySha256'],
             'signingFingerprint': state['signingFingerprint']}
 
@@ -642,6 +694,7 @@ def provision(plan, delivery, user=None):
             'Compatibility installation requires a disposable root container')
     architecture = plan['architecture']['public']
     require(platform.machine() == {'x64': 'x86_64', 'aarch64': 'aarch64'}[architecture], 'Native provider architecture required')
+    cpu = cpu_preflight(architecture)
     variant = plan['variant']
     values = dict(line.split('=', 1) for line in Path('/etc/os-release').read_text().splitlines() if '=' in line)
     identity = values['ID'].strip('"') + '-' + values.get('VERSION_ID', 'rolling').strip('"')
@@ -679,7 +732,7 @@ def provision(plan, delivery, user=None):
              'variant': variant, 'policySha256': result['policySha256'], 'signingFingerprint': FINGERPRINT,
              'packages': result['manifest']['packages'], 'sourcePackages': result['manifest']['sourcePackages'],
              'packageArtifact': result['packages'][0], 'files': inventory, 'treeSha256': inventory_digest(inventory),
-             'environment': environment(plan)}
+             'environment': environment(plan), 'cpu': cpu}
     state_path = delivery / 'compatibility-state.json'
     write_json(state_path, state); state_path.chmod(0o644)
     assert_unchanged(state)

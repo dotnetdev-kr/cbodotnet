@@ -12,8 +12,9 @@ import xml.etree.ElementTree as ET
 
 from channel_packages import build_repositories, HOST_VERSION, rpm_release
 from distribution_contract import load_contract, sha256_file
-from downstream_release import (descriptor, encoded, load_status, local_intake, package_record, require, PREPUBLICATION_CHECKS)
-from downstream_publish import create_bundle, publish_bundle, validate_bundle
+from downstream_release import (descriptor, encoded, load_status, local_intake, package_record, require, PREPUBLICATION_CHECKS,
+                                verify_report_signature)
+from downstream_publish import create_bundle, publish_bundle, validate_bundle, release_tag
 from rpm_repository import asset_base, verify_repository
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -148,26 +149,86 @@ def preflight(item, received, identity, policy, contract):
     checks -= {'package-signatures', 'repository-metadata'}
     require(all(report.get('checks', {}).get(name) == 'passed' for name in checks),
             'Required native RPM check is missing or failed before signing')
+    from downstream_release import validate_legacy_evidence
+    validate_legacy_evidence(report, plan)
     build_path = Path(item['artifactPath']).parent / 'package-build.json'
     build = json.loads(build_path.read_bytes())
     require(build.get('schemaVersion') == 1 and build.get('channel') == 'rpm'
             and build.get('plan') == plan and build.get('payloadPreserved') is True,
             'RPM package build differs from its canonical plan')
-    require(len(build['packages']) == 2 and {row['kind'] for row in build['packages']} == {'sdk', 'host'},
+    legacy = plan['sdkVersion'].startswith(('3.', '5.'))
+    kinds = {'sdk', 'host', 'compatibility'} if legacy else {'sdk', 'host'}
+    require(len(build['packages']) == len(kinds) and {row['kind'] for row in build['packages']} == kinds,
             'Both RPM package ownership components are required')
     for row in build['packages']:
         host = row['kind'] == 'host'
-        name = 'cbodotnet-host' if host else plan['package']['name']
-        version = HOST_VERSION.rsplit('-', 1)[0] if host else plan['sdkVersion']
-        release, architecture = rpm_release(plan, shared=host), 'noarch' if host else plan['architecture']['rpm']
+        compatibility = row['kind'] == 'compatibility'
+        name = 'cbodotnet-compat-rocky9' if compatibility else ('cbodotnet-host' if host else plan['package']['name'])
+        version = '2026.11.4' if compatibility else (HOST_VERSION.rsplit('-', 1)[0] if host else plan['sdkVersion'])
+        release = '1.cbot.' + plan['variant'].replace('-', '') if compatibility else rpm_release(plan, shared=host)
+        architecture = 'noarch' if host else plan['architecture']['rpm']
         require(row['path'] == f'{name}-{version}-{release}.{architecture}.rpm'
-                and (host or Path(item['artifactPath']).name == row['path']), 'Noncanonical native RPM package identity')
+                and (host or compatibility or Path(item['artifactPath']).name == row['path']), 'Noncanonical native RPM package identity')
         path = build_path.parent / row['path']
         require(descriptor(path) == {'name': row['path'], 'size': row['size'], 'sha256': row['sha256']},
                 'Unsigned RPM bytes differ from the native installation record')
         actual = CORE.run(['rpm', '--query', '--package', '--queryformat', '%{NAME}\n%{VERSION}\n%{RELEASE}\n%{ARCH}\n', path])
         require(actual.splitlines() == [name, version, release, architecture], 'RPM header differs from the canonical native identity')
     return plan, report, build_path, build
+
+
+def retained_shared_rpm(row, plan, policy, keyring, signer, output):
+    """Reuse one signed NEVRA byte-for-byte across all SDK repositories."""
+    prefix = ('rpm-' + plan['variant'] + '--' if row['kind'] == 'host'
+              else 'rpm-' + plan['variant'] + '-' + plan['architecture']['public'] + '--')
+    name = prefix + row['path']
+    candidates = []
+    for receipt in policy['channels']['rpm'].get('receipts', []):
+        for asset in receipt.get('assets', []):
+            if asset.get('name') == name:
+                candidates.append((receipt, asset))
+    if not candidates:
+        return None
+    require(len({(asset['size'], asset['sha256']) for _, asset in candidates}) == 1,
+            'Previously published shared RPM NEVRA has conflicting bytes')
+    receipt, asset = candidates[0]
+    prior_identity = receipt.get('identity', {})
+    tag = release_tag('rpm', prior_identity.get('sdkVersion'), prior_identity.get('packageRevision'))
+    base = f'https://github.com/dotnetdev-kr/cbodotnet/releases/download/{tag}/'
+    require(receipt.get('repository') == 'dotnetdev-kr/cbodotnet' and receipt.get('tag') == tag
+            and receipt.get('manifestUrl') == base + 'distribution-manifest.json'
+            and receipt.get('signatureUrl') == base + 'distribution-manifest.json.asc',
+            'Prior shared RPM receipt project, tag or signature URL differs')
+    from distribution_site import download
+    with tempfile.TemporaryDirectory(prefix='cbodotnet-shared-rpm-') as temporary:
+        directory = Path(temporary)
+        manifest, signature = directory / 'manifest.json', directory / 'manifest.asc'
+        require(receipt.get('status') == 'published-postverified' and receipt['identity']['channel'] == 'rpm',
+                'Shared RPM requires a postverified prior publication')
+        observed = download(receipt['manifestUrl'], manifest, 16 * 1024**2)
+        require(observed == receipt['manifestSha256'], 'Prior shared RPM signed manifest changed')
+        download(receipt['signatureUrl'], signature, 1024**2)
+        fingerprint = verify_report_signature(manifest, signature, keyring, policy,
+            '.github/workflows/distribution-release.yml', historical=True)
+        document = json.loads(manifest.read_bytes())
+        require(fingerprint == signer == receipt['signingFingerprint'] == document['signingFingerprint']
+                and document['identity'] == receipt['identity']
+                and document.get('repository') == receipt['repository'] and document.get('tag') == tag
+                and document['status'] == 'validated-complete-matrix', 'Prior shared RPM signature or identity differs')
+        binding = [item for item in document['assets'] if item['name'] == name]
+        require(len(binding) == 1 and all(binding[0][key] == asset[key] for key in ('name', 'size', 'sha256')),
+                'Prior manifest does not bind the retained shared RPM')
+        expected_url = f'https://github.com/dotnetdev-kr/cbodotnet/releases/download/{receipt["tag"]}/{name}'
+        require(asset['url'] == expected_url, 'Noncanonical retained shared RPM URL')
+        retained = output / name
+        download(expected_url, retained, 2**31 - 1, asset)
+        verify_rpm_signature(retained, keyring, signer, output / 'rpm-trust')
+        unsigned = directory / row['path']
+        shutil.copyfile(retained, unsigned)
+        CORE.run(['rpmsign', '--delsign', unsigned])
+        require(sha256_file(unsigned) == row['sha256'],
+                'Shared RPM contents changed under an existing NEVRA; choose a new shared package revision')
+    return retained
 
 
 def stage(received, output, signing_key, keyring, source_run, source_attempt):
@@ -211,8 +272,13 @@ def stage(received, output, signing_key, keyring, source_run, source_attempt):
                 require(original_hash == unsigned_hash, 'Common RPM differs across native architectures')
                 shutil.copyfile(signed_path, path)
             else:
-                CORE.run(['rpmsign', '--define', '_gpg_name ' + signing_key,
-                          '--define', '_gpg_digest_algo sha256', '--define', '__gpg /usr/bin/gpg', '--addsign', path])
+                retained = (retained_shared_rpm(row, plan, policy, keyring, signing_key, cache)
+                            if row['kind'] in {'host', 'compatibility'} else None)
+                if retained is not None:
+                    shutil.copyfile(retained, path)
+                else:
+                    CORE.run(['rpmsign', '--define', '_gpg_name ' + signing_key,
+                              '--define', '_gpg_digest_algo sha256', '--define', '__gpg /usr/bin/gpg', '--addsign', path])
                 if row['kind'] == 'host':
                     signed_path = cache / (plan['variant'] + '--' + row['path'])
                     shutil.copyfile(path, signed_path)
@@ -248,10 +314,14 @@ def stage(received, output, signing_key, keyring, source_run, source_attempt):
     extra = [dict(path=str(repository / row['path']), kind='rpm-repository', variants=[row['variant']])
              for row in repositories['archives']]
     for row in repositories['packageAssets']:
-        if row['kind'] == 'host':
+        if row['kind'] in {'host', 'compatibility'}:
             destination = output / row['assetName']
             shutil.copyfile(row['sourcePath'], destination)
             extra.append({'path': str(destination)})
+    for build_path in builds:
+        companion = json.loads(build_path.read_bytes()).get('compatibilityAsset')
+        if companion:
+            extra.append(dict(path=str(build_path.parent / companion['path'])))
     manifest = create_bundle(items, output / 'bundle-rpm', identity['commit'], signing_key, keyring, extra_assets=extra)
     (output / 'promotion.json').write_bytes(encoded(dict(schemaVersion=1, status='signed-and-frozen',
         sourceOrchestration=identity, publisherCommit=os.environ['GITHUB_SHA'], channels={'rpm': manifest['tag']})))

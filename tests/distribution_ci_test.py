@@ -243,6 +243,21 @@ class DistributionCiTests(unittest.TestCase):
 
 
 class PublishedRepositoryLocationTests(unittest.TestCase):
+    def test_oci_build_propagates_the_exact_sdk_series_for_initial_and_upgrade_contexts(self):
+        base = 'debian:13@sha256:' + 'a' * 64
+        for version in ('10.0.403', '9.0.123', '8.0.133', '7.0.120', '6.0.136', '5.0.214', '3.1.426', '3.0.103'):
+            family = '.'.join(version.split('.')[:2])
+            for revision in ('1', '2'):
+                metadata = dict(plan=dict(sdkVersion=version, package=dict(root='/opt/cbodotnet/' + family)),
+                    buildArgs=dict(BASE_IMAGE=base, SDK_SERIES=family), labels={'kr.dotnetdev.cbodotnet.package.revision': revision})
+                command = CI.oci_build_arguments(base, metadata)
+                self.assertIn('SDK_SERIES=' + family, command)
+                self.assertIn('kr.dotnetdev.cbodotnet.package.revision=' + revision, command)
+                if family != '10.0':
+                    metadata['buildArgs']['SDK_SERIES'] = '10.0'
+                    with self.subTest(version=version, revision=revision), self.assertRaisesRegex(ValueError, 'selected SDK series'):
+                        CI.oci_build_arguments(base, metadata)
+
     def test_only_signed_exact_flat_delivery_changes_installation_from_historical_file_pool(self):
         plan = dict(variant='debian-13', sdkVersion='9.0.123', packageRevision=2)
         metadata = dict(kind='apt-repository', variants=['debian-13'], delivery='github-release-flat',
