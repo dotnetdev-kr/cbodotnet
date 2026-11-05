@@ -166,10 +166,25 @@ def update(receipt,reports,run_id,attempt,*,gh='gh',api=None,keyring=None,policy
         entry['postVerification'].update(workflow=source,artifacts=artifacts)
     changed=activated!=status;commit=None
     if changed:
-        response=api.api(f'repos/{REPOSITORY}/contents/{STATUS_PATH}','PUT',dict(message='Publish verified branded consumer SDK archives',branch='main',
-            sha=content['sha'],content=base64.b64encode(encoded(activated)).decode()))
-        require(response and re.fullmatch(r'[a-f0-9]{40}',response.get('commit',{}).get('sha','')),'Consumer status commit was not acknowledged')
-        commit=response['commit']['sha']
+        for write_attempt in range(3):
+            if write_attempt:
+                require(time.monotonic()<=deadline,'Consumer status PUT retry exceeded the consistency deadline')
+            try:
+                response=api.api(f'repos/{REPOSITORY}/contents/{STATUS_PATH}','PUT',dict(message='Publish verified branded consumer SDK archives',branch='main',
+                    sha=content['sha'],content=base64.b64encode(encoded(activated)).decode()))
+                require(response and re.fullmatch(r'[a-f0-9]{40}',response.get('commit',{}).get('sha','')),'Consumer status commit was not acknowledged')
+                commit=response['commit']['sha'];break
+            except RuntimeError as error:
+                codes=re.findall(r'\bHTTP ([0-9]{3})\b',str(error))
+                if len(codes)!=1 or codes[0] not in {'502','503','504'}:raise
+                observed,lease=read_leased_json(api,STATUS_PATH)
+                if observed==activated:
+                    changed=False;break
+                require(observed==status,'Consumer status diverged after an ambiguous PUT; refusing to overwrite a concurrent update')
+                if write_attempt==2:raise
+                delay=(2,4)[write_attempt]
+                require(time.monotonic()+delay<=deadline,'Consumer status PUT retry exceeded the consistency deadline')
+                content=lease;time.sleep(delay)
     api.api(f'repos/{REPOSITORY}/actions/workflows/pages.yml/dispatches','POST',dict(ref='main'))
     return dict(status='availability-updated' if changed else 'availability-already-current',commit=commit,
         sdkVersion=receipt['identity']['sdkVersion'],packageRevision=receipt['identity']['packageRevision'],pagesDispatched=True)

@@ -24,6 +24,7 @@ class Api:
         self.jobs=[dict(name=name,status='completed',conclusion='success',run_id=42,run_attempt=1,head_sha='a'*40) for name in ['Sign and publish branded consumer archives',
             'Verify public branded consumer archive on native x64','Verify public branded consumer archive on native aarch64']]
         self.artifacts=[];self.run_responses=[];self.job_responses=[];self.artifact_responses=[]
+        self.write_failures=[];self.read_raw_responses=[]
 
     def api(self,endpoint,method='GET',body=None):
         self.calls.append((endpoint,method,body))
@@ -32,11 +33,16 @@ class Api:
         if '/jobs?' in endpoint:return dict(jobs=self.job_responses.pop(0) if self.job_responses else self.jobs)
         if '/artifacts?' in endpoint:return dict(artifacts=self.artifact_responses.pop(0) if self.artifact_responses else self.artifacts)
         if '/contents/' in endpoint and method=='GET':
-            raw=STATUS.encoded(self.status)
+            raw=self.read_raw_responses.pop(0) if self.read_raw_responses else STATUS.encoded(self.status)
             return dict(type='file',path=STATUS.STATUS_PATH,encoding='base64',size=len(raw),
                 sha=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest(),content=base64.b64encode(raw).decode())
         if '/contents/' in endpoint and method=='PUT':
             if self.fail_write:raise RuntimeError('SHA lease conflict')
+            if self.write_failures:
+                failure=self.write_failures.pop(0)
+                if failure.get('commit'):self.status=json.loads(base64.b64decode(body['content']))
+                if 'status' in failure:self.status=copy.deepcopy(failure['status'])
+                raise RuntimeError(failure['message'])
             self.status=json.loads(base64.b64decode(body['content']));return dict(commit=dict(sha='c'*40))
         if endpoint.endswith('pages.yml/dispatches'):return None
         raise AssertionError(endpoint)
@@ -60,6 +66,12 @@ class ConsumerArchiveStatusTests(unittest.TestCase):
                 size_in_bytes=len(data[index]),digest='sha256:'+hashlib.sha256(data[index]).hexdigest(),
                 workflow_run=dict(id=42,head_sha='a'*40)))
         return api,reports,data
+
+    def activation_fixture(self):
+        api=Api();receipt=dict(identity=dict(sdkVersion='8.0.133',packageRevision=2))
+        activated=dict(schemaVersion=1,repository=STATUS.REPOSITORY,
+            publications=[dict(identity=receipt['identity'],postVerification=dict(reports=[]))])
+        return api,receipt,activated
 
     def test_exact_both_architecture_zip_members_must_match_supplied_raw_reports(self):
         api,reports,data=self.artifact_fixture()
@@ -189,6 +201,102 @@ class ConsumerArchiveStatusTests(unittest.TestCase):
         api=Api();api.fail_write=True
         with mock.patch.object(STATUS,'activate',return_value=copy.deepcopy(activated)),mock.patch.object(STATUS,'verify_artifacts',return_value=[]):
             with self.assertRaisesRegex(RuntimeError,'lease conflict'):STATUS.update(receipt,self.reports(),'42','1',api=api)
+        self.assertFalse(any(endpoint.endswith('pages.yml/dispatches') for endpoint,method,body in api.calls))
+
+    def test_transient_put_error_reads_the_unchanged_baseline_and_retries_with_the_fresh_lease(self):
+        for code in (502,503,504):
+            with self.subTest(code=code):
+                api,receipt,activated=self.activation_fixture()
+                baseline=copy.deepcopy(api.status)
+                compact=json.dumps(baseline,separators=(',',':')).encode()
+                api.read_raw_responses=[STATUS.encoded(baseline),compact]
+                api.write_failures=[dict(message=f'GitHub release request failed: gh: Bad Gateway (HTTP {code})')]
+                with mock.patch.object(STATUS,'activate',return_value=activated),mock.patch.object(STATUS,'verify_artifacts',return_value=[]), \
+                        mock.patch.object(STATUS.time,'sleep') as sleep:
+                    result=STATUS.update(receipt,self.reports(),'42','1',api=api)
+                writes=[body for endpoint,method,body in api.calls if method=='PUT']
+                self.assertEqual(2,len(writes))
+                self.assertNotEqual(writes[0]['sha'],writes[1]['sha'])
+                self.assertEqual(hashlib.sha1(b'blob '+str(len(compact)).encode()+b'\0'+compact).hexdigest(),writes[1]['sha'])
+                self.assertEqual(writes[0]['content'],writes[1]['content'])
+                self.assertEqual('availability-updated',result['status']);self.assertEqual('c'*40,result['commit'])
+                self.assertEqual(activated,api.status);sleep.assert_called_once_with(2)
+                self.assertTrue(api.calls[-1][0].endswith('pages.yml/dispatches'))
+
+    def test_server_committed_before_transient_error_is_read_back_without_another_put(self):
+        api,receipt,activated=self.activation_fixture()
+        api.write_failures=[dict(message='Bad Gateway (HTTP 502)',commit=True)]
+        with mock.patch.object(STATUS,'activate',return_value=activated),mock.patch.object(STATUS,'verify_artifacts',return_value=[]), \
+                mock.patch.object(STATUS.time,'sleep') as sleep:
+            result=STATUS.update(receipt,self.reports(),'42','1',api=api)
+        self.assertEqual('availability-already-current',result['status']);self.assertIsNone(result['commit'])
+        self.assertEqual(1,sum(method=='PUT' for endpoint,method,body in api.calls))
+        self.assertEqual(2,sum('/contents/' in endpoint and method=='GET' for endpoint,method,body in api.calls))
+        self.assertEqual(activated,api.status);sleep.assert_not_called()
+        self.assertEqual(1,sum(endpoint.endswith('pages.yml/dispatches') for endpoint,method,body in api.calls))
+
+    def test_exhausted_transient_put_errors_stop_after_three_attempts_and_read_back_each_one(self):
+        api,receipt,activated=self.activation_fixture();baseline=copy.deepcopy(api.status)
+        api.write_failures=[dict(message='Bad Gateway (HTTP 502)') for _ in range(3)]
+        with mock.patch.object(STATUS,'activate',return_value=activated),mock.patch.object(STATUS,'verify_artifacts',return_value=[]), \
+                mock.patch.object(STATUS.time,'sleep') as sleep:
+            with self.assertRaisesRegex(RuntimeError,'HTTP 502'):
+                STATUS.update(receipt,self.reports(),'42','1',api=api)
+        self.assertEqual(3,sum(method=='PUT' for endpoint,method,body in api.calls))
+        self.assertEqual(4,sum('/contents/' in endpoint and method=='GET' for endpoint,method,body in api.calls))
+        self.assertEqual([mock.call(2),mock.call(4)],sleep.call_args_list)
+        self.assertEqual(baseline,api.status)
+        self.assertFalse(any(endpoint.endswith('pages.yml/dispatches') for endpoint,method,body in api.calls))
+
+    def test_permanent_or_ambiguous_http_status_messages_never_retry_the_put(self):
+        for message in ('HTTP 401','HTTP 403','HTTP 404','HTTP 409','HTTP 429','HTTP 500',
+                        'HTTP 5020','HTTP 502 and HTTP 503','SHA lease conflict','connection lost'):
+            with self.subTest(message=message):
+                api,receipt,activated=self.activation_fixture();api.write_failures=[dict(message=message)]
+                with mock.patch.object(STATUS,'activate',return_value=activated),mock.patch.object(STATUS,'verify_artifacts',return_value=[]), \
+                        mock.patch.object(STATUS.time,'sleep') as sleep:
+                    with self.assertRaises(RuntimeError):STATUS.update(receipt,self.reports(),'42','1',api=api)
+                self.assertEqual(1,sum(method=='PUT' for endpoint,method,body in api.calls))
+                self.assertEqual(1,sum('/contents/' in endpoint and method=='GET' for endpoint,method,body in api.calls))
+                sleep.assert_not_called()
+                self.assertFalse(any(endpoint.endswith('pages.yml/dispatches') for endpoint,method,body in api.calls))
+
+    def test_divergent_status_after_ambiguous_put_is_not_overwritten(self):
+        api,receipt,activated=self.activation_fixture()
+        divergent=dict(copy.deepcopy(api.status),concurrentChange='preserve this update')
+        api.write_failures=[dict(message='Bad Gateway (HTTP 502)',status=divergent)]
+        with mock.patch.object(STATUS,'activate',return_value=activated),mock.patch.object(STATUS,'verify_artifacts',return_value=[]), \
+                mock.patch.object(STATUS.time,'sleep') as sleep:
+            with self.assertRaisesRegex(ValueError,'diverged.*concurrent update'):
+                STATUS.update(receipt,self.reports(),'42','1',api=api)
+        self.assertEqual(divergent,api.status)
+        self.assertEqual(1,sum(method=='PUT' for endpoint,method,body in api.calls));sleep.assert_not_called()
+        self.assertFalse(any(endpoint.endswith('pages.yml/dispatches') for endpoint,method,body in api.calls))
+
+    def test_put_retry_wait_must_fit_in_the_existing_consistency_deadline(self):
+        api,receipt,activated=self.activation_fixture();clock=[0];original=api.api
+        api.write_failures=[dict(message='Bad Gateway (HTTP 502)')]
+        def call(endpoint,method='GET',body=None):
+            if method=='PUT':clock[0]=1499
+            return original(endpoint,method,body)
+        api.api=call
+        with mock.patch.object(STATUS,'activate',return_value=activated),mock.patch.object(STATUS,'verify_artifacts',return_value=[]), \
+                mock.patch.object(STATUS.time,'sleep') as sleep,mock.patch.object(STATUS.time,'monotonic',side_effect=lambda:clock[0]):
+            with self.assertRaisesRegex(ValueError,'PUT retry.*deadline'):
+                STATUS.update(receipt,self.reports(),'42','1',api=api)
+        self.assertEqual(1,sum(method=='PUT' for endpoint,method,body in api.calls));sleep.assert_not_called()
+        self.assertFalse(any(endpoint.endswith('pages.yml/dispatches') for endpoint,method,body in api.calls))
+
+    def test_put_retry_rechecks_deadline_after_the_wait_before_another_write(self):
+        api,receipt,activated=self.activation_fixture();clock=[0]
+        api.write_failures=[dict(message='Bad Gateway (HTTP 502)')]
+        def sleep(seconds):clock[0]=1501
+        with mock.patch.object(STATUS,'activate',return_value=activated),mock.patch.object(STATUS,'verify_artifacts',return_value=[]), \
+                mock.patch.object(STATUS.time,'sleep',side_effect=sleep) as waited,mock.patch.object(STATUS.time,'monotonic',side_effect=lambda:clock[0]):
+            with self.assertRaisesRegex(ValueError,'PUT retry.*deadline'):
+                STATUS.update(receipt,self.reports(),'42','1',api=api)
+        waited.assert_called_once_with(2)
+        self.assertEqual(1,sum(method=='PUT' for endpoint,method,body in api.calls))
         self.assertFalse(any(endpoint.endswith('pages.yml/dispatches') for endpoint,method,body in api.calls))
 
 
