@@ -6,9 +6,13 @@ Debian13, Fedora45 and Rocky Linux9.8. It preserves official `dotnet`, official
 `dotnetup` state and package-managed `/opt/cbodotnet` installations. NativeAOT
 bootstrap does not require an installed .NET SDK.
 
-Availability is enabled only after the signed publication and both native
-qualification matrices pass. Use the [download site](https://dotnetdev.kr/cbodotnet/)
-and the published installer status for the active catalog/revision.
+Version [0.1.0 is published](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-v0.1.0).
+Both the eight-target native candidate matrix and a second eight-target matrix
+using anonymous public binary/SDK downloads passed before
+[feed activation](../releases/cbodotnetup-status.json). Use the
+[download site](https://dotnetdev.kr/cbodotnet/) for the active signed catalog
+and bootstrap. Other SDKs already have package distributions; installer
+admission remains individually scoped and initially includes SDK10.0.403 only.
 
 ## Bootstrap
 
@@ -114,3 +118,22 @@ resolve failures before expiry. Native runtime changes require a new tool
 version. Catalog maintenance and native runtime updates remain project responsibilities;
 distribution does not create an upstream security-support promise for EOL SDKs.
 See the [implementation and trust design](cbodotnetup-design.md).
+
+## Retained validation
+
+The [independent final evidence](cbodotnetup-validation.json) authenticates the
+two public immutable releases, exact tool/source/catalog/notices, signed native
+dependency audit, actual job IDs and API artifact ZIP size/SHA256. All eight
+native candidate targets and eight anonymous public installation targets passed.
+Both native architectures also bootstrapped from the default hosted feed without
+an installed SDK. Runtime checks execute as user10001 with the network disabled;
+real interrupted downloads, retry/collection, actual official/package-managed
+Community inventories, versioned/common aliases, HTTP/crypto/globalization and
+final removal were observed.
+
+Core security/file-transaction tests passed 73 cases on each native architecture,
+including real project signatures in long paths, retained patch selection and
+own-executable update/rollback with conflicting/corrupt input rejection. The
+repository Python suite passed 708 tests (five environment-dependent skips).
+Published native build-input reuse and a fresh official NuGet vulnerability
+audit also passed, independently of expiring workflow artifact storage.

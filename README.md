@@ -36,9 +36,13 @@ and lifecycle validation; authenticated AUR submission is tracked separately in
 The [original additional SDK preparation audit](docs/additional-sdk-preparation.md)
 retains the source pins and dependency decisions for SDKs 9, 8, 7, 6, 5 and Core
 3.1/3.0. Current availability comes from the signed publication receipts and
-delivery matrix above. A user-level
-`cbodotnetup` installer is tracked in
-[issue #11](https://github.com/dotnetdev-kr/cbodotnet/issues/11).
+delivery matrix above. The [cbodotnetup per-user SDK manager](docs/cbodotnetup.md)
+provides a signed, SDK-free bootstrap for **SDK10.0.403** on the same four
+Ubuntu/Debian/Fedora/Rocky versions and both native CPUs. It installs into user
+data roots, with explicit shell aliases and authenticated updates/recovery.
+See the [tool release](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-v0.1.0)
+and [activated installer status](releases/cbodotnetup-status.json). Additional
+SDK installer admissions remain separate from their package qualification.
 
 The package contract provides `cbodotnet-X.Y` and a common `cbodotnet` command
 selecting the highest installed SDK series. OCI images expose
