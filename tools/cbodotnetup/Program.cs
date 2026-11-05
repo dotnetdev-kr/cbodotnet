@@ -24,7 +24,7 @@ internal static class Program
                     doctor                             Verify installed files and report host/trust
                     gc                                 Collect abandoned owned staging data
                     shell enable|disable               Manage opt-in aliases in the user data bin
-                    self update                        Authenticate and atomically update this tool
+                    self update|rollback               Authenticate an update or retained tool recovery
                     --catalog FILE                     Use a local project-signed catalog and .asc
                     """); return 0;
             }
@@ -35,7 +35,7 @@ internal static class Program
             if (!alias && catalogIndex >= 0 && (values.IndexOf("--") < 0 || catalogIndex < values.IndexOf("--")))
             { SafeFiles.Require(catalogIndex + 1 < values.Count, "--catalog requires a path"); catalogFile = Path.GetFullPath(values[catalogIndex + 1]); values.RemoveRange(catalogIndex, 2); }
             using var manager = new Manager();
-            var refresh = !alias && (values.Contains("--available") || values.FirstOrDefault() is "install" or "update" || values.SequenceEqual(new[] { "self", "update" }));
+            var refresh = !alias && (values.Contains("--available") || values.FirstOrDefault() is "install" or "update" || values.SequenceEqual(new[] { "self", "update" }) || values.SequenceEqual(new[] { "self", "rollback" }));
             var catalog = await manager.Catalog(catalogFile, refresh);
             if (alias) return manager.Run(catalog, invoked == "cbodotnet" ? null : invoked[10..], args, true);
             SafeFiles.Require(values.Count > 0, "A command is required");
@@ -57,11 +57,12 @@ internal static class Program
                 case "gc" when values.Count == 1: manager.Collect(); break;
                 case "shell" when values.Count == 2 && values[1] is "enable" or "disable": manager.Shell(values[1] == "enable"); break;
                 case "self" when values.SequenceEqual(new[] { "self", "update" }): await manager.SelfUpdate(catalog); break;
+                case "self" when values.SequenceEqual(new[] { "self", "rollback" }): manager.SelfRollback(catalog); break;
                 default: throw new InvalidOperationException("Unknown command or arguments; use cbodotnetup --help");
             }
             return 0;
         }
         catch (Exception exception) when (exception is not OutOfMemoryException)
-        { Console.Error.WriteLine("cbodotnetup: " + exception.Message); return 1; }
+        { Console.Error.WriteLine("cbodotnetup: " + exception.Message); return exception.Message == "No matching Community Build SDK is installed" ? 127 : 1; }
     }
 }

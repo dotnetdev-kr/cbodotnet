@@ -87,8 +87,7 @@ internal sealed class Manager : IDisposable
         var possible = catalog.Sdks.Where(s => s.Rid == host.Rid && (s.SdkVersion == version || $"{s.SdkVersion}-r{s.Revision}" == version)).OrderByDescending(s => s.Revision).ToArray();
         SafeFiles.Require(possible.Length > 0, "Exact SDK/version is not admitted in the signed catalog: " + version);
         var sdk = possible[0];
-        SafeFiles.Require(sdk.Targets.Contains(host) && !catalog.Revoked.Contains(sdk.Id), "SDK is revoked or this OS/architecture is not individually qualified");
-        SafeFiles.Require(!sdk.RequiresLegacyProvider, "This SDK needs a separately qualified legacy provider; cbodotnetup does not install native dependencies automatically");
+        Trust.Admit(catalog, sdk, host);
         return sdk;
     }
     internal async Task Install(Catalog catalog, string version, string? channel = null)
@@ -227,21 +226,48 @@ internal sealed class Manager : IDisposable
         var ownershipPath = executable + ".ownership.json";
         var ownership = SafeFiles.Read(ownershipPath, UpJson.Default.ToolOwnership);
         SafeFiles.Require(ownership.Owner == SafeFiles.Owner && ownership.Path == executable && ownership.Sha256 == SafeFiles.Hash(executable), "Tool is not owned by the verified bootstrap; reinstall it using get-cbodotnetup.py");
+        var notices = executable + ".LICENSE.txt"; SafeFiles.OrdinaryPath(notices);
+        SafeFiles.Require(ownership.NoticesSha256 == SafeFiles.Hash(notices), "Installed tool license/notice bytes changed");
         var latest = catalog.Tools.Where(t => t.Rid == host.Rid && !catalog.Revoked.Contains("tool/" + t.Version + '/' + t.Rid)).OrderByDescending(t => Version.Parse(t.Version)).FirstOrDefault();
         SafeFiles.Require(latest is not null, "No admitted tool release for this architecture");
         SafeFiles.Require(Version.Parse(latest!.Version) >= Version.Parse(ownership.Version), "Tool downgrade refused");
-        if (latest.Version == ownership.Version) { SafeFiles.Require(latest.Binary.Sha256 == ownership.Sha256, "Conflicting bytes under the existing tool identity"); Console.WriteLine("Installer is current"); return; }
+        if (latest.Version == ownership.Version) { SafeFiles.Require(latest.Binary.Sha256 == ownership.Sha256 && latest.Notices.Sha256 == ownership.NoticesSha256, "Conflicting bytes under the existing tool identity"); Console.WriteLine("Installer is current"); return; }
         var incoming = executable + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
             await Trust.DownloadAsset(latest.Binary, incoming); if (OperatingSystem.IsLinux()) File.SetUnixFileMode(incoming, (UnixFileMode)0x1ED);
+            var noticeBytes = await Trust.Download(latest.Notices.Url, latest.Notices.Size);
+            SafeFiles.Require(noticeBytes.LongLength == latest.Notices.Size && SafeFiles.Hash(noticeBytes) == latest.Notices.Sha256, "Updated runtime notices differ from the signed catalog");
             var previous = executable + ".previous";
             if (SafeFiles.Exists(previous)) SafeFiles.Require(!SafeFiles.Link(previous) && ownership.PreviousSha256 == SafeFiles.Hash(previous), "Previous recovery tool is not owned");
             File.Copy(executable, previous, true); if (OperatingSystem.IsLinux()) File.SetUnixFileMode(previous, (UnixFileMode)0x1ED);
+            var previousNotices = previous + ".LICENSE.txt"; SafeFiles.OrdinaryPath(previousNotices);
+            if (File.Exists(previousNotices)) SafeFiles.Require(catalog.Tools.Any(t => t.Version == ownership.PreviousVersion && t.Rid == host.Rid && t.Notices.Sha256 == SafeFiles.Hash(previousNotices)), "Previous tool notices are not owned");
+            File.Copy(notices, previousNotices, true);
+            SafeFiles.Atomic(notices, noticeBytes);
             File.Move(incoming, executable, true);
-            SafeFiles.Write(ownershipPath, new ToolOwnership(SafeFiles.Owner, executable, latest.Version, latest.Binary.Sha256, ownership.Version, ownership.Sha256), UpJson.Default.ToolOwnership);
+            SafeFiles.Write(ownershipPath, new ToolOwnership(SafeFiles.Owner, executable, latest.Version, latest.Binary.Sha256, latest.Notices.Sha256, ownership.Version, ownership.Sha256), UpJson.Default.ToolOwnership);
             Console.WriteLine("Updated installer to " + latest.Version + "; retained " + previous);
         }
         finally { if (File.Exists(incoming)) File.Delete(incoming); }
+    }
+
+    internal void SelfRollback(Catalog catalog)
+    {
+        Trust.Validate(catalog, DateTimeOffset.UtcNow);
+        var executable = Environment.ProcessPath!; SafeFiles.OrdinaryPath(executable);
+        var ownershipPath = executable + ".ownership.json"; var ownership = SafeFiles.Read(ownershipPath, UpJson.Default.ToolOwnership);
+        SafeFiles.Require(ownership.Owner == SafeFiles.Owner && ownership.Path == executable && ownership.Sha256 == SafeFiles.Hash(executable), "Current tool ownership differs");
+        var target = catalog.Tools.SingleOrDefault(t => t.Version == ownership.PreviousVersion && t.Rid == host.Rid);
+        SafeFiles.Require(target is not null && !catalog.Revoked.Contains("tool/" + target.Version + '/' + target.Rid), "No retained unrevoked tool revision is admitted in the current catalog");
+        var previous = executable + ".previous"; var notices = previous + ".LICENSE.txt";
+        SafeFiles.OrdinaryPath(previous); SafeFiles.OrdinaryPath(notices);
+        SafeFiles.Require(ownership.PreviousSha256 == SafeFiles.Hash(previous) && target!.Binary.Sha256 == ownership.PreviousSha256
+            && target.Notices.Sha256 == SafeFiles.Hash(notices), "Retained recovery executable/notices differ from signed admission");
+        SafeFiles.Atomic(executable + ".LICENSE.txt", File.ReadAllBytes(notices));
+        SafeFiles.Atomic(executable, File.ReadAllBytes(previous), true);
+        SafeFiles.Write(ownershipPath, new ToolOwnership(SafeFiles.Owner, executable, target.Version, target.Binary.Sha256, target.Notices.Sha256, null, null), UpJson.Default.ToolOwnership);
+        File.Delete(previous); File.Delete(notices);
+        Console.WriteLine("Restored retained installer " + target.Version);
     }
 }

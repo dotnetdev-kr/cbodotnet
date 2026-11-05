@@ -67,12 +67,21 @@ internal sealed partial class Trust
             SafeFiles.Require(Regex.IsMatch(tool.Version, @"^(0|[1-9][0-9]*)\.[0-9]+\.[0-9]+$", RegexOptions.CultureInvariant) && tool.Rid is "linux-x64" or "linux-arm64"
                 && ids.Add("tool/" + tool.Version + '/' + tool.Rid), "Duplicate or malformed tool identity");
             AssetValid(tool.Binary, 128 * 1024 * 1024);
+            AssetValid(tool.Notices, 8 * 1024 * 1024);
             SafeFiles.Require(tool.Binary.Url.EndsWith($"/cbodotnetup-v{tool.Version}/cbodotnetup-{tool.Rid}", StringComparison.Ordinal), "Tool identity does not match its immutable release URL");
+            SafeFiles.Require(tool.Notices.Url == tool.Binary.Url + ".LICENSE.txt", "Native runtime notices are not bound to the tool release");
         }
         foreach (var channel in catalog.Channels)
             SafeFiles.Require(Regex.IsMatch(channel.Key, @"^[1-9][0-9]*\.[0-9]+$", RegexOptions.CultureInvariant)
                 && catalog.Sdks.Any(s => s.Series == channel.Key && $"{s.SdkVersion}-r{s.Revision}" == channel.Value), "Channel refers to an unqualified SDK");
     }
+    internal static void Admit(Catalog catalog, SdkRelease sdk, Target host)
+    {
+        SafeFiles.Require(sdk.Rid == host.Rid && sdk.Targets.Contains(host) && !catalog.Revoked.Contains(sdk.Id), "SDK is revoked or this OS/architecture is not individually qualified");
+        SafeFiles.Require(!sdk.RequiresLegacyProvider, "This SDK needs a separately qualified legacy provider; cbodotnetup does not install native dependencies automatically");
+    }
+    internal static void Advance(long sequence, string sha, HighWater previous) => SafeFiles.Require(sequence > previous.Sequence
+        || (sequence == previous.Sequence && sha == previous.Sha256), "Catalog rollback or conflicting sequence rejected");
     internal static byte[] PublicKey()
     {
         using var input = Assembly.GetExecutingAssembly().GetManifestResourceStream("cbodotnetup.public-key.asc")!;
@@ -152,7 +161,7 @@ internal sealed partial class Trust
                 if (File.Exists(high))
                 {
                     var previous = SafeFiles.Read(high, UpJson.Default.HighWater);
-                    SafeFiles.Require(value.Sequence > previous.Sequence || (value.Sequence == previous.Sequence && sha == previous.Sha256), "Catalog rollback or conflicting sequence rejected");
+                    Advance(value.Sequence, sha, previous);
                 }
                 // A crash between these writes fails closed against high-water on the next read.
                 SafeFiles.Write(high, new HighWater(value.Sequence, sha), UpJson.Default.HighWater);

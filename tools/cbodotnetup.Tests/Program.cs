@@ -29,9 +29,19 @@ try
         new(releaseBase + "sdk-10.0.403/release-manifest.json", 1, sha), JsonDocument.Parse("{\"runId\":\"123\"}").RootElement.Clone(),
         new(releaseBase + "sdk-10.0.403/evidence-x64.tar.gz", 1, sha), ["LICENSE.txt", "ThirdPartyNotices.txt"],
         "community-build-no-additional-security-maintenance", ["libicu"], [new("rocky", "9.8", "linux-x64")], false);
-    var tool = new ToolRelease("0.1.0", "linux-x64", new(releaseBase + "cbodotnetup-v0.1.0/cbodotnetup-linux-x64", 1, sha));
+    var tool = new ToolRelease("0.1.0", "linux-x64", new(releaseBase + "cbodotnetup-v0.1.0/cbodotnetup-linux-x64", 1, sha), new(releaseBase + "cbodotnetup-v0.1.0/cbodotnetup-linux-x64.LICENSE.txt", 1, sha));
     var catalog = new Catalog(1, "cbodotnetup-installation-catalog", 1, now.AddMinutes(-1), now.AddDays(30), Trust.Fingerprint, [], [sdk], [tool], new() { ["10.0"] = "10.0.403-r2" });
     Trust.Validate(catalog, now); passed++;
+    Trust.Admit(catalog, sdk, new("rocky", "9.8", "linux-x64")); passed++;
+    Reject(() => Trust.Admit(catalog, sdk, new("rocky", "9.8", "linux-arm64")), "wrong actual CPU");
+    Reject(() => Trust.Admit(catalog, sdk, new("ubuntu", "24.04", "linux-x64")), "unqualified actual OS");
+    Reject(() => Trust.Admit(catalog with { Revoked = [sdk.Id] }, sdk, new("rocky", "9.8", "linux-x64")), "revoked SDK");
+    Reject(() => Trust.Admit(catalog, sdk with { RequiresLegacyProvider = true }, new("rocky", "9.8", "linux-x64")), "unavailable legacy provider");
+    Trust.Advance(3, sha, new(3, sha)); passed++;
+    Trust.Advance(4, sha, new(3, sha)); passed++;
+    Reject(() => Trust.Advance(2, sha, new(3, sha)), "replayed older catalog");
+    Reject(() => Trust.Advance(3, new string('b', 64), new(3, sha)), "conflicting catalog sequence");
+    Reject(() => Trust.Validate(catalog with { Tools = [tool with { Notices = tool.Notices with { Url = releaseBase + "other/notices" } }] }, now), "unbound tool notices");
     Reject(() => Trust.Validate(catalog with { ExpiresAt = now.AddSeconds(-1) }, now), "expired catalog");
     Reject(() => Trust.Validate(catalog with { IssuedAt = now.AddMinutes(6) }, now), "future catalog");
     Reject(() => Trust.Validate(catalog with { ExpiresAt = now.AddDays(32) }, now), "unbounded catalog validity");

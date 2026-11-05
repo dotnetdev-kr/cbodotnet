@@ -13,7 +13,7 @@ internal sealed record SdkRelease(string SdkVersion, int Revision, string Rid, s
     [JsonIgnore] public string Id => $"{SdkVersion}-r{Revision}/{Rid}";
     [JsonIgnore] public string Series => string.Join('.', SdkVersion.Split('.')[..2]);
 }
-internal sealed record ToolRelease(string Version, string Rid, Asset Binary);
+internal sealed record ToolRelease(string Version, string Rid, Asset Binary, Asset Notices);
 internal sealed record Catalog(int SchemaVersion, string Kind, long Sequence, DateTimeOffset IssuedAt,
     DateTimeOffset ExpiresAt, string SigningFingerprint, string[] Revoked,
     SdkRelease[] Sdks, ToolRelease[] Tools, Dictionary<string, string> Channels);
@@ -22,7 +22,7 @@ internal sealed record Receipt(int SchemaVersion, string Owner, SdkRelease Relea
 internal sealed record InventoryItem(string Path, string Kind, int Mode, long Size, string Sha256, string? Link);
 internal sealed record HighWater(long Sequence, string Sha256);
 internal sealed record ToolOwnership(string Owner, string Path, string Version, string Sha256,
-    string? PreviousVersion, string? PreviousSha256);
+    string NoticesSha256, string? PreviousVersion, string? PreviousSha256);
 internal sealed record Selection(Dictionary<string, string> Active, string[] TrackedChannels);
 
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,

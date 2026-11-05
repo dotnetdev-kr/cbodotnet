@@ -131,6 +131,9 @@ PY
     binary = output / 'cbodotnetup'; require(binary.is_file(), 'NativeAOT build produced no binary')
     binary.rename(output / ('cbodotnetup-' + rid))
     shutil.copyfile(ROOT / 'LICENSE', output / 'LICENSE')
+    notices=[('cbodotnet/LICENSE',(ROOT/'LICENSE').read_text())]
+    notices += [(p.relative_to(output).as_posix(),p.read_text(errors='strict')) for p in sorted((output/'third-party').rglob('*')) if p.is_file()]
+    (output/('cbodotnetup-'+rid+'.LICENSE.txt')).write_text('\n\n'.join('===== '+name+' =====\n'+text for name,text in notices),encoding='utf-8')
     report = dict(schemaVersion=1, kind='cbodotnetup-native-build', version=policy['version'], architecture=arch, rid=rid,
                   source=source_identity(), buildSdk=artifact, nativeRuntime=policy['nativeRuntime'],
                   container=MULTI.BASES['rocky-9.8'][arch], securityTests='passed', sourceInputs=tool_inputs(),
@@ -153,7 +156,10 @@ def catalog(output, builds, *, now=None, sequence=None):
             actual = descriptor(directory / asset['path'])
             require(all(actual[k] == asset[k] for k in ('name', 'size', 'sha256')), 'Native artifact differs from its exact build')
         item = descriptor(directory / ('cbodotnetup-' + rid))
-        tools.append(dict(version=policy['version'], rid=rid, binary=dict(url='https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v' + policy['version'] + '/' + item['name'], **{k:item[k] for k in ('size','sha256')})))
+        notice=descriptor(directory/('cbodotnetup-'+rid+'.LICENSE.txt'))
+        tools.append(dict(version=policy['version'], rid=rid,
+            binary=dict(url='https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v' + policy['version'] + '/' + item['name'], **{k:item[k] for k in ('size','sha256')}),
+            notices=dict(url='https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v' + policy['version'] + '/' + notice['name'], **{k:notice[k] for k in ('size','sha256')})))
     sdks = []; contract = load_contract()
     for version in policy['initialSdkVersions']:
         receipt, manifest = selected_archive(version)
@@ -243,7 +249,8 @@ def native_install(args):
     run(['useradd','--create-home','--uid','10001',MULTI.USER])
     home=Path('/home')/MULTI.USER;binary=home/'.local/bin/cbodotnetup'
     rid='linux-x64' if args.arch=='x64' else 'linux-arm64'
-    bootstrap=['python3',bundle/'get-cbodotnetup.py','--catalog-file',bundle/'catalog.json','--binary-file',bundle/'tools'/rid/('cbodotnetup-'+rid)]
+    bootstrap=['python3',bundle/'get-cbodotnetup.py','--catalog-file',bundle/'catalog.json']
+    if not args.public:bootstrap+=['--binary-file',bundle/'tools'/rid/('cbodotnetup-'+rid)]
     user(bootstrap);require(user([binary,'--version']).stdout.strip()==load(POLICY)['version'],'SDK-free bootstrap binary failed')
     require(not Path('/usr/bin/dotnet').exists(),'Bootstrap silently installed a system SDK')
     catalog_value=load(bundle/'catalog.json');sdk=next(s for s in catalog_value['sdks'] if s['rid']==rid)
@@ -266,12 +273,15 @@ def native_install(args):
     package_inventory=MULTI.APT.inventory(Path('/opt/cbodotnet'))
     user(['mkdir','-p',home/'.local/share/dotnetup'])
     user(['sh','-ec','printf untouched > "$HOME/.local/share/dotnetup/owner-test"'])
-    user([binary,'install','--channel','10.0']);user([binary,'install',exact]);user([binary,'update']);user([binary,'rollback',exact])
+    # Before feed activation, use the exact project-signed catalog under qualification.
+    # Public verification re-downloads these same bytes from their actual immutable release.
+    manager=[binary,'--catalog',bundle/'catalog.json']
+    user([*manager,'install','--channel','10.0']);user([*manager,'install',exact]);user([*manager,'update']);user([*manager,'rollback',exact])
     require(user([binary,'list']).stdout.strip()==exact+'/'+rid,'Installed list identity differs')
-    user([binary,'shell','enable']);user([binary,'self','update'])
+    user([binary,'shell','enable']);user([*manager,'self','update'])
     save(state/'installed.json',dict(sdk=sdk,exact=exact,rid=rid,officialBaseline=official,packages=packages,packageInventory=package_inventory,
         catalogSha256=descriptor(bundle/'catalog.json')['sha256'],freezeSha256=descriptor(bundle/'freeze.json')['sha256'],
-        bootstrapSha256=descriptor(bundle/'get-cbodotnetup.py')['sha256'],binarySha256=descriptor(binary)['sha256']))
+        bootstrapSha256=descriptor(bundle/'get-cbodotnetup.py')['sha256'],binarySha256=descriptor(binary)['sha256'],bootstrapBinarySource='public-https' if args.public else 'protected-frozen-candidate'))
 
 
 def native_smoke(args):
@@ -307,6 +317,7 @@ def native_smoke(args):
     MULTI.integrity(state['packages'],MULTI.TARGETS[args.variant]);official=assert_unchanged(args.workspace/'official.json')
     require((home/'.local/share/dotnetup/owner-test').read_text()=='untouched','Official installer state was changed')
     save(args.workspace/'report.json',dict(schemaVersion=1,scope='cbodotnetup-native-installation',status='passed',variant=args.variant,architecture=args.arch,
+        orchestration=source_identity(),bootstrapBinarySource=state['bootstrapBinarySource'],
         catalogSha256=state['catalogSha256'],freezeSha256=state['freezeSha256'],bootstrapSha256=state['bootstrapSha256'],binarySha256=state['binarySha256'],
         networkForBuild='none',userId=10001,checks=dict.fromkeys(CHECKS,'passed'),functionalChecks=functional,aliases=observations,
         officialBaseline=state['officialBaseline'],officialAfterRemoval=official,packageManagedCommunityIntegrity='unchanged',
@@ -318,7 +329,9 @@ def native(args):
     require(platform.machine() in ({'x86_64'} if args.arch=='x64' else {'aarch64','arm64'}),'Native CPU required')
     workspace=args.workspace.resolve();require(not workspace.exists(),'Fresh native workspace required');workspace.mkdir(parents=True)
     mounts=['-v',f'{ROOT}:/repo:ro','-v',f'{args.bundle.resolve()}:/bundle:ro','-v',f'{workspace}:/delivery']
+    mounts += [part for name in ('GITHUB_REPOSITORY','GITHUB_SHA','GITHUB_RUN_ID','GITHUB_RUN_ATTEMPT') for part in ('-e',name)]
     common=['--bundle','/bundle','--variant',args.variant,'--arch',args.arch,'--workspace','/delivery/installed']
+    if args.public:common+=['--public']
     command=['python3','/repo/scripts/cbodotnetup-release.py'];cid=image=None
     try:
         script=MULTI.bootstrap_script(args.variant)+'exec '+shlex.join(command+['native-install',*common])
@@ -340,6 +353,7 @@ def main():
     for name in ('native','native-install','native-smoke'):
         command=commands.add_parser(name);command.add_argument('--bundle',type=Path,required=True);command.add_argument('--workspace',type=Path,required=True)
         command.add_argument('--arch',choices=('x64','aarch64'),required=True);command.add_argument('--variant',choices=tuple(MULTI.TARGETS),required=True)
+        command.add_argument('--public',action='store_true')
     args=parser.parse_args()
     {'build':build,'stage':stage,'native':native,'native-install':native_install,'native-smoke':native_smoke}[args.command](args)
 

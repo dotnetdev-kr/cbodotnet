@@ -144,6 +144,12 @@ def main():
                 binary=ordinary(args.binary_file);require(binary.stat().st_size==asset['size'],'Offline binary has wrong size');data=binary.read_bytes()
             else:data=download(asset['url'],asset['size'])
             require(len(data)==asset['size'] and hashlib.sha256(data).hexdigest()==asset['sha256'],'Binary hash/size does not match the signed catalog')
+            notice=tool['notices']
+            require(notice['url']==asset['url']+'.LICENSE.txt' and type(notice['size']) is int and 0<notice['size']<=8*1024**2 and re.fullmatch('[a-f0-9]{64}',notice['sha256']),'Unbound native runtime notices')
+            if args.binary_file:
+                notice_file=ordinary(Path(str(args.binary_file)+'.LICENSE.txt'));require(notice_file.stat().st_size==notice['size'],'Offline notices have wrong size');notice_data=notice_file.read_bytes()
+            else:notice_data=download(notice['url'],notice['size'])
+            require(len(notice_data)==notice['size'] and hashlib.sha256(notice_data).hexdigest()==notice['sha256'],'Native runtime notices differ from signed catalog')
             ownership_path=Path(str(destination)+'.ownership.json');ordinary(ownership_path)
             if destination.exists():
                 actual=hashlib.sha256(destination.read_bytes()).hexdigest()
@@ -152,8 +158,13 @@ def main():
                 # Recover an interrupted self-update only when the actual bytes are an admitted signed tool.
                 known={t['binary']['sha256'] for t in candidates}
                 require(owned['owner']==OWNER and owned['path']==str(destination) and (actual==owned['sha256'] or actual in known),'Existing executable ownership or bytes differ')
+            notice_destination=ordinary(Path(str(destination)+'.LICENSE.txt'))
+            if notice_destination.exists():
+                require(ownership_path.exists() and (hashlib.sha256(notice_destination.read_bytes()).hexdigest()==decode(ownership_path.read_bytes())['noticesSha256']
+                    or hashlib.sha256(notice_destination.read_bytes()).hexdigest() in {t['notices']['sha256'] for t in candidates}),'Refusing to replace unrelated notices')
+            atomic(notice_destination,notice_data)
             atomic(destination,data,0o755)
-            atomic(ownership_path,json.dumps(dict(owner=OWNER,path=str(destination),version=tool['version'],sha256=asset['sha256'],previousVersion=None,previousSha256=None)).encode())
+            atomic(ownership_path,json.dumps(dict(owner=OWNER,path=str(destination),version=tool['version'],sha256=asset['sha256'],noticesSha256=notice['sha256'],previousVersion=None,previousSha256=None)).encode())
             atomic(high,json.dumps(dict(sequence=catalog['sequence'],sha256=sha)).encode())
             atomic(cache/'catalog.json',raw);atomic(cache/'catalog.json.asc',sig)
     print('Installed verified cbodotnetup '+tool['version']+' at '+str(destination))
