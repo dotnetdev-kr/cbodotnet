@@ -1,4 +1,4 @@
-# Branded consumer SDK archives
+# Consumer SDK archives
 
 Consumer archives provide the Community Build command interface around an
 unchanged, qualified SDK. Each version has its own immutable
@@ -16,11 +16,14 @@ verified consumer download choices.
 
 ## Layout and commands
 
-For example, the corrected 10.0.403 x64 revision 2 archive is named
-`cbodotnet-sdk-10.0.403-linux-x64-branded-r2.tar.gz`. Extracting it creates:
+New archive plans use `archiveNamingVersion: 2` and the filename
+`cbodotnet-sdk-V-linux-ARCH-rN.tar.gz`. For example, the 10.0.403 x64 revision 3
+release is named `cbodotnet-sdk-10.0.403-linux-x64-r3.tar.gz`. Its complete native
+and public qualification is recorded in the
+[archive and website audit](neutral-archive-validation.json). Extracting it creates:
 
 ```text
-cbodotnet-10.0.403-linux-x64-r2/
+cbodotnet-10.0.403-linux-x64-r3/
   cbodotnet
   cbodotnet-10.0
   dotnet
@@ -60,8 +63,12 @@ be added when the source SDK lacks it. Original notices remain under `payload/`;
 the wrapper license does not replace the licenses of SDK components. Archive
 layout 2 separately includes `LICENSE.wrapper.txt`, the exact project's MIT
 copyright and permission notice, checked before and after native execution.
-The already published 10.0.403 revision 1 remains immutable historical output;
-revision 2 supersedes it only after its own complete native/public validation.
+Archive naming version 2 changes the external filename, while archive layout 2
+and the SDK payload preservation rules remain in effect. Historical plans
+without `archiveNamingVersion` use naming version 1 and retain their original
+`-branded-rN.tar.gz` filenames. Their public URLs, signed manifests, native
+reports, asset identities and hashes remain unchanged. A new packaging revision
+supersedes an earlier release only after its own complete native/public validation.
 
 ## Separate legacy compatibility companion
 
@@ -81,7 +88,7 @@ command with an absolute path:
 
 ```sh
 CBODOTNET_COMPAT_ROOT=/absolute/companion/rootfs/usr/lib/cbodotnet/compat/rocky9 \
-  /absolute/cbodotnet-3.1.426-linux-aarch64-r1/cbodotnet --info
+  /absolute/cbodotnet-3.1.426-linux-aarch64-r2/cbodotnet --info
 ```
 
 Alternatively, an independently installed project compatibility package owns
@@ -110,7 +117,7 @@ absolute roots for one command:
 ```sh
 CBODOTNET_COMPAT_ROOT=/absolute/base/rootfs/usr/lib/cbodotnet/compat/rocky9 \
 CBODOTNET_CURL_COMPAT_ROOT=/absolute/http/rootfs/usr/lib/cbodotnet/compat/curl-rocky8 \
-  /absolute/cbodotnet-3.1.426-linux-aarch64-r1/cbodotnet --info
+  /absolute/cbodotnet-3.1.426-linux-aarch64-r2/cbodotnet --info
 ```
 
 The managed default for the second package is
@@ -147,13 +154,20 @@ titles and bodies identify the unbranded archives as experimental and not
 recommended for direct installation. Their tags, stable-release flags,
 manifests, source archives, evidence and SDK bytes stay unchanged.
 
+`cbodotnetup` 0.1.0 continues to admit the separately validated signed
+10.0.403 revision 2 archive. The explicit `archiveRevisions` entry in the
+[installer policy](../releases/cbodotnetup-policy.json) pins that revision for
+build inputs and catalog generation, including scheduled catalog renewal.
+New archive filenames do not automatically change installer admission or
+invalidate existing installations and their signed update path.
+
 ## Repeatable native checks
 
 The read-only entrypoint is:
 
 ```sh
 python3 scripts/consumer-archive-ci.py native \
-  --tag sdk-10.0.403 --revision 1 --arch x64 --workspace /fresh/workspace
+  --tag sdk-10.0.403 --revision 3 --arch x64 --workspace /fresh/workspace
 ```
 
 Run it as the matching native non-root GitHub Actions producer in
