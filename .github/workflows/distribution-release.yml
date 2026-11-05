@@ -96,6 +96,90 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
+  sign_installer:
+    name: Freeze project-signed cbodotnetup candidate
+    needs: build_installer
+    if: always() && inputs.channel == 'installer' && inputs.publish == true && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main' && inputs.promotion_run_id == '' && (needs.build_installer.result == 'success' || (needs.build_installer.result == 'skipped' && inputs.source_run_id != ''))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: downstream-release
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: cbodotnetup-native-*-${{ inputs.source_run_id || github.run_id }}-${{ inputs.source_run_id != '' && inputs.source_run_attempt || github.run_attempt }}
+          path: ${{ runner.temp }}/installer-received
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.source_run_id || github.run_id }}
+      - name: Import the existing protected project signer
+        env:
+          DOWNSTREAM_SIGNING_KEY: ${{ secrets.DOWNSTREAM_SIGNING_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$DOWNSTREAM_SIGNING_KEY"
+          install -d -m 0700 "$RUNNER_TEMP/installer-gnupg"
+          printf 'GNUPGHOME=%s\n' "$RUNNER_TEMP/installer-gnupg" >> "$GITHUB_ENV"
+          printf '%s' "$DOWNSTREAM_SIGNING_KEY" | gpg --homedir "$RUNNER_TEMP/installer-gnupg" --batch --import
+      - name: Authenticate native builds, SDK sources and package baselines before signing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/cbodotnetup-release.py stage --received "$RUNNER_TEMP/installer-received" --output "$RUNNER_TEMP/installer-frozen"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: cbodotnetup-frozen-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/installer-frozen
+          retention-days: 30
+          if-no-files-found: error
+      - name: Remove private signer material
+        if: always()
+        run: |
+          gpgconf --homedir "$RUNNER_TEMP/installer-gnupg" --kill all || true
+          python3 -c 'import os,shutil; from pathlib import Path; p=Path(os.environ["RUNNER_TEMP"])/"installer-gnupg"; assert p.parent==Path(os.environ["RUNNER_TEMP"]) and p.name=="installer-gnupg"; shutil.rmtree(p,ignore_errors=True)'
+
+  native_installer:
+    name: Qualify cbodotnetup on ${{ matrix.variant }} native ${{ matrix.arch }}
+    needs: sign_installer
+    if: always() && inputs.channel == 'installer' && inputs.publish == true && (needs.sign_installer.result == 'success' || (needs.sign_installer.result == 'skipped' && inputs.promotion_run_id != ''))
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [ubuntu-24.04, debian-13, fedora-45, rocky-9.8]
+        arch: [x64, aarch64]
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: cbodotnetup-frozen-${{ inputs.promotion_run_id || github.run_id }}-${{ inputs.promotion_run_id != '' && inputs.promotion_run_attempt || github.run_attempt }}
+          path: ${{ runner.temp }}/installer-frozen
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.promotion_run_id || github.run_id }}
+      - name: Bootstrap without an SDK, then verify user installation and package coexistence offline
+        env:
+          ARCH: ${{ matrix.arch }}
+          VARIANT: ${{ matrix.variant }}
+        run: python3 scripts/cbodotnetup-release.py native --bundle "$RUNNER_TEMP/installer-frozen" --arch "$ARCH" --variant "$VARIANT" --workspace "$RUNNER_TEMP/installer-observation"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: cbodotnetup-native-proof-${{ matrix.variant }}-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/installer-observation/installed/*.json
+          retention-days: 30
+          if-no-files-found: warn
+
   native_archive:
     if: inputs.channel == 'archive' && inputs.source_run_id == '' && inputs.promotion_run_id == ''
     name: Build branded consumer archive on native ${{ matrix.arch }}

@@ -20,6 +20,7 @@ internal sealed class Manager : IDisposable
         Root = Environment.GetEnvironmentVariable("CBODOTNETUP_HOME") ?? Path.Combine(xdg ?? Path.Combine(home, ".local", "share"), "cbodotnetup");
         SafeFiles.Require(Path.IsPathFullyQualified(Root) && !Root.Any(char.IsControl), "Use an absolute user-local cbodotnetup root");
         Root = Path.GetFullPath(Root).TrimEnd('/');
+        SafeFiles.Require(!Root.Split('/').Any(part => part is "dotnetup" or ".dotnet"), "The official dotnet/dotnetup state roots are reserved");
         SafeFiles.Require(!new[] { "/", "/opt", "/usr", "/etc", "/var", home, "/opt/cbodotnet", "/usr/share/dotnet" }.Contains(Root)
             && !Root.StartsWith("/opt/", StringComparison.Ordinal) && !Root.StartsWith("/usr/", StringComparison.Ordinal)
             && !Root.StartsWith("/etc/", StringComparison.Ordinal) && !Root.StartsWith("/var/", StringComparison.Ordinal), "Refusing a system or unrelated installation root");
@@ -62,10 +63,10 @@ internal sealed class Manager : IDisposable
         }
         return result.OrderByDescending(r => Version.Parse(r.Release.SdkVersion)).ThenByDescending(r => r.Release.Revision).ToArray();
     }
-    private void VerifyInstalled(Receipt receipt, Catalog catalog)
+    private void VerifyInstalled(Receipt receipt, Catalog catalog, bool allowRevoked = false)
     {
         var sdk = receipt.Release; var path = PathFor(sdk); SafeFiles.OrdinaryPath(path);
-        SafeFiles.Require(!catalog.Revoked.Contains(sdk.Id), "This SDK release was revoked; select another verified release");
+        SafeFiles.Require(allowRevoked || !catalog.Revoked.Contains(sdk.Id), "This SDK release was revoked; select another verified release");
         var retained = Path.Combine(path, "catalog.json");
         Trust.VerifySignature(retained, retained + ".asc", cache);
         var original = SafeFiles.Read(retained, UpJson.Default.Catalog); Trust.Validate(original, DateTimeOffset.UtcNow, false);
@@ -121,12 +122,14 @@ internal sealed class Manager : IDisposable
                 var p = provenance.RootElement;
                 SafeFiles.Require(p.GetProperty("sdkVersion").GetString() == sdk.SdkVersion && p.GetProperty("packageRevision").GetInt32() == sdk.Revision
                     && p.GetProperty("sourceManifestSha256").GetString() == sdk.SourceManifestSha256
-                    && p.GetProperty("targetRid").GetString() == host.Rid && !p.GetProperty("compatibility").GetProperty("required").GetBoolean(), "Archive provenance differs from signed catalog");
+                    && p.GetProperty("targetRid").GetString() == host.Rid && !p.GetProperty("compatibility").GetProperty("required").GetBoolean()
+                    && JsonElement.DeepEquals(p.GetProperty("producer"), sdk.Producer), "Archive provenance differs from signed catalog");
             }
             File.Copy(Path.Combine(cache, "catalog.json"), Path.Combine(prepared, "catalog.json")); File.Copy(Path.Combine(cache, "catalog.json.asc"), Path.Combine(prepared, "catalog.json.asc"));
             SafeFiles.Write(Path.Combine(prepared, "inventory.json"), SafeFiles.Inventory(content), UpJson.Default.InventoryItemArray);
             var receipt = new Receipt(1, SafeFiles.Owner, sdk, SafeFiles.Hash(Path.Combine(cache, "catalog.json")), catalog.Sequence, DateTimeOffset.UtcNow);
             SafeFiles.Write(Path.Combine(prepared, "receipt.json"), receipt, UpJson.Default.Receipt);
+            SafeFiles.Atomic(Path.Combine(prepared, "owner"), System.Text.Encoding.UTF8.GetBytes(SafeFiles.Owner));
             SafeFiles.PrivateDirectory(Path.GetDirectoryName(path)!);
             Directory.Move(prepared, path); // Same-filesystem activation. A crash before this rename cannot expose a partial SDK.
             Activate(sdk, channel); Console.WriteLine("Installed " + sdk.Id);
@@ -140,7 +143,7 @@ internal sealed class Manager : IDisposable
         SaveSelection(selected);
         if (File.Exists(Path.Combine(Root, "shell-enabled"))) Shell(true);
     }
-    internal Receipt Select(string? version, Catalog catalog, bool series = false)
+    internal Receipt Select(string? version, Catalog catalog, bool series = false, bool allowRevoked = false)
     {
         var installed = Installed(); var selection = Selections();
         var candidates = installed.Where(r => version is null || (series ? r.Release.Series == version : r.Release.SdkVersion == version || $"{r.Release.SdkVersion}-r{r.Release.Revision}" == version)).ToArray();
@@ -150,7 +153,7 @@ internal sealed class Manager : IDisposable
         {
             if (selection.Active.TryGetValue(chosen.Release.SdkVersion, out var id)) chosen = candidates.FirstOrDefault(r => r.Release.Id == id) ?? chosen;
         }
-        VerifyInstalled(chosen, catalog); return chosen;
+        VerifyInstalled(chosen, catalog, allowRevoked); return chosen;
     }
     internal int Run(Catalog catalog, string? version, string[] arguments, bool series = false)
     {
@@ -164,7 +167,7 @@ internal sealed class Manager : IDisposable
     }
     internal void Remove(Catalog catalog, string version)
     {
-        var receipt = Select(version, catalog); var sdk = receipt.Release; var path = PathFor(sdk);
+        var receipt = Select(version, catalog, allowRevoked: true); var sdk = receipt.Release; var path = PathFor(sdk);
         var trash = Path.Combine(staging, Guid.NewGuid().ToString("N"));
         Directory.Move(path, trash); SafeFiles.DeleteTree(trash);
         var parent = Path.GetDirectoryName(path)!; if (!Directory.EnumerateFileSystemEntries(parent).Any()) Directory.Delete(parent);

@@ -113,6 +113,7 @@ def main():
     rid={'x86_64':'linux-x64','aarch64':'linux-arm64','arm64':'linux-arm64'}.get(platform.machine());require(rid,'Unsupported architecture')
     root=Path(os.environ.get('CBODOTNETUP_HOME',str(Path(os.environ.get('XDG_DATA_HOME',str(Path.home()/'.local/share')))/'cbodotnetup')))
     require(root.is_absolute() and root not in (Path('/'),Path.home()) and not any(str(root)==p or str(root).startswith(p+'/') for p in ('/opt','/usr','/etc','/var')),'Use a dedicated absolute user-local data root')
+    require(not {'dotnetup','.dotnet'} & set(root.parts),'The official dotnet/dotnetup state roots are reserved')
     private(root)
     marker=root/'owner'
     if not marker.exists():

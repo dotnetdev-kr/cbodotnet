@@ -140,6 +140,8 @@ internal static partial class SafeFiles
                 default: throw new InvalidOperationException("Unsupported archive entry type: " + entry.EntryType);
             }
         }
+        var remainder = new byte[8192];
+        while (gzip.Read(remainder) != 0) { } // Validate gzip trailer/CRC even when the TAR end marker appeared first.
         // Links are created only after all regular files, so an archive can never write through one.
         foreach (var item in links.Where(l => l.Hard))
         {
