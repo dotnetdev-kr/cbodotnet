@@ -20,16 +20,72 @@ REAL_SIGNATURE_VERIFY = PUBLISH.verify_report_signature
 
 
 class PublicDownloadTests(unittest.TestCase):
-    def test_public_retries_obtain_fresh_anonymous_redirects_without_mutating_asset_descriptors(self):
-        url = 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r2/consumer-manifest.json'
+    def test_small_public_download_uses_the_shared_anonymous_size_bound_without_mutating_the_asset(self):
+        url = 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r2/distribution-manifest.json'
+        payload = b'public-metadata'
+        for size in (len(payload), 16 * 1024**2):
+            asset = dict(id=123, name='distribution-manifest.json', size=size, browser_download_url=url)
+            before = copy.deepcopy(asset)
+            with self.subTest(size=size), tempfile.TemporaryDirectory() as temporary, \
+                    mock.patch.object(PUBLISH, 'get_bytes', return_value=payload) as fetch, \
+                    mock.patch.object(PUBLISH.urllib.request, 'urlopen') as opener:
+                destination = Path(temporary)/asset['name']
+                PUBLISH.GitHubReleases().download(asset, destination, public=True)
+                self.assertEqual(payload, destination.read_bytes())
+                self.assertEqual(before, asset)
+                fetch.assert_called_once_with(url, size)
+                opener.assert_not_called()
+
+    def test_small_public_download_never_replaces_an_existing_destination(self):
+        asset = dict(size=14, browser_download_url='https://github.com/example/repo/releases/download/tag/manifest.json')
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(PUBLISH, 'get_bytes', return_value=b'new metadata'):
+            destination = Path(temporary)/'manifest.json'
+            destination.write_bytes(b'existing bytes')
+            with self.assertRaises(FileExistsError):
+                PUBLISH.GitHubReleases().download(asset, destination, public=True)
+            self.assertEqual(b'existing bytes', destination.read_bytes())
+
+    def test_failed_small_public_fetch_does_not_create_a_destination(self):
+        asset = dict(size=14, browser_download_url='https://github.com/example/repo/releases/download/tag/manifest.json')
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(PUBLISH, 'get_bytes', side_effect=ValueError('oversized metadata')):
+            destination = Path(temporary)/'manifest.json'
+            with self.assertRaisesRegex(ValueError, 'oversized'):
+                PUBLISH.GitHubReleases().download(asset, destination, public=True)
+            self.assertFalse(destination.exists())
+
+    def test_outer_public_verifier_still_rejects_wrong_small_asset_bytes(self):
+        payload = b'exact-metadata'
+        name = 'distribution-manifest.json'
+        tag = 'distribution-archive-sdk-9.0.123-r2'
+        wanted = dict(name=name, size=len(payload), sha256=hashlib.sha256(payload).hexdigest())
+        asset = dict(id=123, name=name, size=len(payload), state='uploaded', digest='sha256:'+wanted['sha256'],
+                     browser_download_url=f'https://github.com/{PUBLISH.REPOSITORY}/releases/download/{tag}/{name}')
+        release = dict(tag_name=tag, assets=[asset])
+        with mock.patch.object(PUBLISH, 'get_bytes', return_value=b'wrong-metadata') as fetch:
+            with self.assertRaisesRegex(ValueError, 'differs from verified publication bytes'):
+                PUBLISH.verify_remote_assets(release, {name: wanted}, PUBLISH.GitHubReleases(), public=True)
+        fetch.assert_called_once_with(asset['browser_download_url'], asset['size'])
+
+    def test_private_small_asset_download_keeps_the_authenticated_asset_id_transport(self):
+        asset = dict(id=123, size=14, browser_download_url='https://github.com/example/repo/releases/download/tag/manifest.json')
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(PUBLISH, 'get_bytes') as fetch, \
+                mock.patch.object(PUBLISH.subprocess, 'run') as run:
+            PUBLISH.GitHubReleases().download(asset, Path(temporary)/'manifest.json', public=False)
+            fetch.assert_not_called()
+            self.assertEqual(['gh', 'api', f'repos/{PUBLISH.REPOSITORY}/releases/assets/123', '-H', 'Accept: application/octet-stream'],
+                             run.call_args.args[0])
+
+    def test_large_public_retries_obtain_fresh_anonymous_redirects_without_mutating_asset_descriptors(self):
+        url = 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r2/cbodotnet-sdk-9.0.123-linux-x64-r2.tar.gz'
         payload = b'exact-public-asset'
-        asset = dict(id=123, name='consumer-manifest.json', size=len(payload), digest='sha256:'+hashlib.sha256(payload).hexdigest(),
+        # Only exercise transport streaming here; the outer verifier checks actual size and SHA.
+        asset = dict(id=123, name='cbodotnet-sdk-9.0.123-linux-x64-r2.tar.gz', size=25 * 1024**2, digest='sha256:'+hashlib.sha256(payload).hexdigest(),
                      browser_download_url=url)
         before = copy.deepcopy(asset)
         for status in (404, 500, 502, 503, 504):
             with self.subTest(status=status), tempfile.TemporaryDirectory() as temporary, \
                     mock.patch.object(PUBLISH.urllib.request, 'urlopen') as opener, \
-                    mock.patch.object(PUBLISH.time, 'sleep') as sleep:
+                    mock.patch.object(PUBLISH.time, 'sleep') as sleep, mock.patch.object(PUBLISH, 'get_bytes') as fetch:
                 opener.side_effect = [PUBLISH.urllib.error.HTTPError(url, status, 'transient', {}, None) for _ in range(3)] + [io.BytesIO(payload)]
                 destination = Path(temporary)/'asset.json'
                 PUBLISH.GitHubReleases().download(asset, destination, public=True)
@@ -37,6 +93,7 @@ class PublicDownloadTests(unittest.TestCase):
                 self.assertEqual(before, asset)
                 self.assertEqual([mock.call(1), mock.call(2), mock.call(4)], sleep.call_args_list)
                 self.assertEqual(4, opener.call_count)
+                fetch.assert_not_called()
                 for attempt, call in enumerate(opener.call_args_list):
                     request = call.args[0]
                     parsed = PUBLISH.urllib.parse.urlsplit(request.full_url)
@@ -60,7 +117,7 @@ class PublicDownloadTests(unittest.TestCase):
                 mock.patch.object(PUBLISH.time, 'sleep') as sleep:
             destination = Path(temporary)/'asset.json'
             with self.assertRaises(PUBLISH.urllib.error.HTTPError) as raised:
-                PUBLISH.GitHubReleases().download(dict(browser_download_url=url), destination, public=True)
+                PUBLISH.GitHubReleases().download(dict(size=25 * 1024**2, browser_download_url=url), destination, public=True)
             self.assertIs(error, raised.exception)
             self.assertEqual(4, opener.call_count)
             self.assertEqual([mock.call(1), mock.call(2), mock.call(4)], sleep.call_args_list)
@@ -75,7 +132,7 @@ class PublicDownloadTests(unittest.TestCase):
                     mock.patch.object(PUBLISH.time, 'sleep') as sleep:
                 destination = Path(temporary)/'asset.json'
                 with self.assertRaises(PUBLISH.urllib.error.HTTPError):
-                    PUBLISH.GitHubReleases().download(dict(browser_download_url=url), destination, public=True)
+                    PUBLISH.GitHubReleases().download(dict(size=25 * 1024**2, browser_download_url=url), destination, public=True)
                 opener.assert_called_once()
                 sleep.assert_not_called()
                 self.assertFalse(destination.exists())

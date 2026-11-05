@@ -18,7 +18,7 @@ import urllib.parse
 from downstream_release import (REPOSITORY, descriptor, encoded, load_status, ordinary_file,
                                 require, stage_records, verify_report_signature)
 from distribution_contract import load_contract
-from release_catalog import fresh_release_url
+from release_catalog import fresh_release_url, get_bytes
 
 MANIFEST = 'distribution-manifest.json'
 SIGNATURE = MANIFEST + '.asc'
@@ -310,6 +310,11 @@ class GitHubReleases:
 
     def download(self, asset, destination, public=False):
         if public:
+            if type(asset.get('size')) is int and 0 < asset['size'] <= 16 * 1024**2:
+                data = get_bytes(asset['browser_download_url'], asset['size'])
+                with Path(destination).open('xb') as target:
+                    target.write(data)
+                return
             for attempt in range(4):
                 url = fresh_release_url(asset['browser_download_url'], attempt)
                 headers = {'Cache-Control': 'no-cache', 'Pragma': 'no-cache'} if url != asset['browser_download_url'] else {}
