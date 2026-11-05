@@ -282,6 +282,8 @@ def validate_bundle(directory,keyring,*,policy=None,historical=False,metadata_on
         require(plan['sdk']==dict(canonical['architectures'][arch]['sdk'],url=f'https://github.com/{REPOSITORY}/releases/download/{common["sourceReleaseTag"]}/'+canonical['architectures'][arch]['sdk']['name'])
             and plan['producer']==canonical['architectures'][arch]['provenance'],'Consumer signed source SDK/producer changed')
         require(indexed[item['artifactAsset']]==build['artifact'],'Consumer signed archive digest binding changed')
+        require(build['artifact']['name']==archive_name(plan) and item['artifactAsset']==build['artifact']['name'],
+            'Consumer signed archive filename differs from its versioned naming contract')
         report=json.loads((directory/item['reportAsset']).read_bytes()); validate_native_report(report,build,source)
         require(verify_report_signature(directory/item['reportAsset'],directory/item['signatureAsset'],keyring,policy,WORKFLOW,historical=historical)==signer,
             'Consumer native report signature differs from publication signer')

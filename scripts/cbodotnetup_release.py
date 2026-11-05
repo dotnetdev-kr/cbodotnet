@@ -70,10 +70,14 @@ def tool_inputs():
     return {p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
 
 
-def selected_archive(version):
-    rows = [r for r in load_archive_status()['publications'] if r['identity']['sdkVersion'] == version]
-    require(rows, 'No published branded SDK source')
-    receipt = max(rows, key=lambda r: r['identity']['packageRevision'])
+def selected_archive(version, *, policy=None):
+    policy = policy if policy is not None else load(POLICY)
+    revision = policy.get('archiveRevisions', {}).get(version)
+    require(type(revision) is int and 0 < revision < 2**31, 'A reviewed installer archive revision pin is required')
+    rows = [r for r in load_archive_status()['publications'] if r['identity']['sdkVersion'] == version
+            and r['identity']['packageRevision'] == revision]
+    require(len(rows) == 1, 'The exact pinned installer SDK archive must be published once')
+    receipt = rows[0]
     require(receipt['status'] == 'published-postverified', 'Source archive is not post-verified')
     manifest = authenticate_receipt(receipt, historical=True)
     postverified_receipt(receipt, receipt['postVerification']['reports'], manifest, source=receipt['postVerification']['workflow'])
@@ -117,7 +121,7 @@ def build(args):
     policy = load(POLICY); arch = args.arch
     require(platform.machine() in ({'x86_64'} if arch == 'x64' else {'aarch64', 'arm64'}), 'Native build architecture mismatch')
     workspace = args.workspace.resolve(); require(not workspace.exists(), 'Fresh build workspace required'); workspace.mkdir(parents=True)
-    receipt, manifest = selected_archive(policy['buildSdk'])
+    receipt, manifest = selected_archive(policy['buildSdk'], policy=policy)
     record = next(r for r in manifest['records'] if r['architecture'] == arch)
     artifact = next(a for a in receipt['assets'] if a['name'] == record['artifactAsset'])
     fetch_asset(artifact, workspace / 'sdk.tar.gz')
@@ -172,7 +176,8 @@ PY
 def source_check(args):
     require(platform.machine() in ({'x86_64'} if args.arch=='x64' else {'aarch64','arm64'}),'Native source-test CPU mismatch')
     workspace=args.workspace.resolve();require(not workspace.exists(),'Fresh source-test workspace required');workspace.mkdir(parents=True)
-    receipt,manifest=selected_archive(load(POLICY)['buildSdk'])
+    policy=load(POLICY)
+    receipt,manifest=selected_archive(policy['buildSdk'],policy=policy)
     record=next(r for r in manifest['records'] if r['architecture']==args.arch)
     asset=next(a for a in receipt['assets'] if a['name']==record['artifactAsset'])
     fetch_asset(asset,workspace/'sdk.tar.gz');sdk_tools().extract_sdk(workspace/'sdk.tar.gz',workspace/'sdk')
@@ -238,7 +243,7 @@ def catalog(output, builds, *, now=None, sequence=None):
             notices=dict(url='https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v' + policy['version'] + '/' + notice['name'], **{k:notice[k] for k in ('size','sha256')})))
     sdks = []; contract = load_contract()
     for version in policy['initialSdkVersions']:
-        receipt, manifest = selected_archive(version)
+        receipt, manifest = selected_archive(version, policy=policy)
         canonical = get_bytes('https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-' + version + '/release-manifest.json', 8 * 1024**2)
         require(hashlib.sha256(canonical).hexdigest() == contract['releases'][version]['manifestSha256'], 'Canonical source pin differs')
         for record in manifest['records']:

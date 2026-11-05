@@ -69,7 +69,7 @@ def intake(directory, architecture, revision=1, *, contract=None, catalog=None):
         sourceReleaseTag=record['tag'],sourceManifestSha256=source_sha,sourceManifestUrl=record['manifestUrl'],
         targetRid=ARCHITECTURES[architecture]['rid'],source=entry['source'],sdk=entry['sdk'],evidence=entry['evidence'],
         producer=entry['provenance'],branding=copy.deepcopy(BRANDING),licensePaths=admitted['licensePaths'],
-        securitySupport=admitted['securitySupport'],validatedUserSpaces=list(admitted['archiveUserSpaces']))
+        securitySupport=admitted['securitySupport'],validatedUserSpaces=list(admitted['archiveUserSpaces']),archiveNamingVersion=2)
     result['compatibility']=compatibility_policy(result)
     native_http=native_http_compatibility_policy(result,admitted=admitted)
     if native_http is not None:result['nativeHttpCompatibility']=native_http
@@ -108,7 +108,10 @@ def archive_stem(plan):
 
 
 def archive_name(plan):
-    return f'cbodotnet-sdk-{plan["sdkVersion"]}-linux-{plan["architecture"]}-branded-r{plan["packageRevision"]}.tar.gz'
+    naming=plan.get('archiveNamingVersion',1)
+    require(type(naming) is int and naming in (1,2),'Unsupported consumer archive naming version')
+    qualifier='-branded' if naming==1 else ''
+    return f'cbodotnet-sdk-{plan["sdkVersion"]}-linux-{plan["architecture"]}{qualifier}-r{plan["packageRevision"]}.tar.gz'
 
 
 def launcher_text(plan):

@@ -11,6 +11,43 @@ import cbodotnetup_release as UP
 
 
 class InstallerReleaseTests(unittest.TestCase):
+    def test_newer_sdk_packaging_does_not_change_the_qualified_installer_archive(self):
+        def receipt(revision):
+            return dict(identity=dict(sdkVersion='10.0.403',packageRevision=revision),status='published-postverified',
+                        postVerification=dict(reports=['native-x64','native-aarch64'],workflow={'runId':'123'}))
+        pinned=receipt(2);newer=receipt(3);manifest={'records':['signed archive records']}
+        with patch.object(UP,'load_archive_status',return_value=dict(publications=[receipt(1),newer,pinned])),\
+                patch.object(UP,'authenticate_receipt',return_value=manifest) as authenticate,\
+                patch.object(UP,'postverified_receipt') as postverified:
+            self.assertEqual(UP.selected_archive('10.0.403'),(pinned,manifest))
+            authenticate.assert_called_once_with(pinned,historical=True)
+            postverified.assert_called_once_with(pinned,pinned['postVerification']['reports'],manifest,
+                                                 source=pinned['postVerification']['workflow'])
+
+    def test_installer_archive_pin_never_falls_back_to_a_different_revision(self):
+        other=dict(identity=dict(sdkVersion='10.0.403',packageRevision=3),status='published-postverified')
+        with patch.object(UP,'load_archive_status',return_value=dict(publications=[other])),\
+                patch.object(UP,'authenticate_receipt') as authenticate:
+            with self.assertRaisesRegex(ValueError,'exact pinned'):
+                UP.selected_archive('10.0.403',policy={'archiveRevisions':{'10.0.403':2}})
+            authenticate.assert_not_called()
+
+    def test_missing_or_invalid_archive_pin_is_rejected_before_source_lookup(self):
+        for revision in (None,True,0,-1,'2',2**31):
+            with self.subTest(revision=revision),patch.object(UP,'load_archive_status') as status:
+                with self.assertRaisesRegex(ValueError,'revision pin'):
+                    UP.selected_archive('10.0.403',policy={'archiveRevisions':{'10.0.403':revision}})
+                status.assert_not_called()
+
+    def test_ambiguous_or_unverified_pinned_archive_is_rejected(self):
+        pinned=dict(identity=dict(sdkVersion='10.0.403',packageRevision=2),status='published-public-bytes-verified')
+        with patch.object(UP,'authenticate_receipt') as authenticate:
+            with patch.object(UP,'load_archive_status',return_value=dict(publications=[pinned,pinned])):
+                with self.assertRaisesRegex(ValueError,'published once'):UP.selected_archive('10.0.403')
+            with patch.object(UP,'load_archive_status',return_value=dict(publications=[pinned])):
+                with self.assertRaisesRegex(ValueError,'not post-verified'):UP.selected_archive('10.0.403')
+            authenticate.assert_not_called()
+
     def test_patched_runtime_is_outside_the_actual_advisory_range(self):
         self.assertTrue(UP.affected('10.0.13','[10.0.0, 10.0.14)'))
         self.assertFalse(UP.affected('10.0.14','[10.0.0, 10.0.14)'))

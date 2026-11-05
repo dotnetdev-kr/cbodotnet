@@ -6,6 +6,7 @@
   "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
   "signingWorkflow": ".github/workflows/distribution-release.yml",
   "initialSdkVersions": ["10.0.403"],
+  "archiveRevisions": {"10.0.403": 2},
   "targets": ["ubuntu-24.04", "debian-13", "fedora-45", "rocky-9.8"],
   "architectures": ["x64", "aarch64"],
   "catalogLifetimeDays": 30,

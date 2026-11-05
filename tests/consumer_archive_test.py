@@ -67,10 +67,23 @@ class ConsumerArchiveTests(unittest.TestCase):
         self.assertEqual(b'qualified-sdk-file\x00\xff',(tree/'payload/sdk/10.0.403/reference.dll').read_bytes())
         self.assertEqual(b'Original notices\n',(tree/'payload/ThirdPartyNotices.txt').read_bytes())
         self.assertEqual(2,build['archiveLayoutVersion'])
+        self.assertEqual(2,build['plan']['archiveNamingVersion'])
+        self.assertEqual('cbodotnet-sdk-10.0.403-linux-x64-r1.tar.gz',build['artifact']['name'])
         self.assertEqual((ROOT/'LICENSE').read_bytes(),(tree/'LICENSE.wrapper.txt').read_bytes())
         self.assertFalse(build['publicationAllowed'])
         with mock.patch.object(CR,'intake',side_effect=lambda directory,arch,revision:CA.intake(directory,arch,revision,contract=self.contract,catalog=self.catalog)):
             CR.verify_build(self.root/'build/package-build.json',self.inputs['x64'])
+
+    def test_archive_name_contract_preserves_historical_names_without_rewriting_unbranded_inputs(self):
+        historical=dict(sdkVersion='10.0.403',architecture='x64',packageRevision=2)
+        self.assertEqual('cbodotnet-sdk-10.0.403-linux-x64-branded-r2.tar.gz',CA.archive_name(historical))
+        self.assertEqual('cbodotnet-sdk-10.0.403-linux-x64-r2.tar.gz',CA.archive_name(dict(historical,archiveNamingVersion=2)))
+        for version in (0,3,True,'2'):
+            with self.subTest(version=version),self.assertRaisesRegex(ValueError,'naming version'):
+                CA.archive_name(dict(historical,archiveNamingVersion=version))
+        before=copy.deepcopy(self.release)
+        self.build()
+        self.assertEqual(before,self.release)
 
     def test_reviewed_native_stock_dependency_change_preserves_existing_archive_bytes(self):
         before=self.build(name='before')
