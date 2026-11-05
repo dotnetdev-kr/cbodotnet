@@ -1,6 +1,7 @@
 """Exercise actual downstream publication protocol without remote side effects."""
 import copy
 import hashlib
+import io
 import json
 from pathlib import Path
 import shutil
@@ -16,6 +17,68 @@ import downstream_publish as PUBLISH
 import downstream_release_test as RELEASE_TESTS
 
 REAL_SIGNATURE_VERIFY = PUBLISH.verify_report_signature
+
+
+class PublicDownloadTests(unittest.TestCase):
+    def test_public_retries_obtain_fresh_anonymous_redirects_without_mutating_asset_descriptors(self):
+        url = 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r2/consumer-manifest.json'
+        payload = b'exact-public-asset'
+        asset = dict(id=123, name='consumer-manifest.json', size=len(payload), digest='sha256:'+hashlib.sha256(payload).hexdigest(),
+                     browser_download_url=url)
+        before = copy.deepcopy(asset)
+        for status in (404, 500, 502, 503, 504):
+            with self.subTest(status=status), tempfile.TemporaryDirectory() as temporary, \
+                    mock.patch.object(PUBLISH.urllib.request, 'urlopen') as opener, \
+                    mock.patch.object(PUBLISH.time, 'sleep') as sleep:
+                opener.side_effect = [PUBLISH.urllib.error.HTTPError(url, status, 'transient', {}, None) for _ in range(3)] + [io.BytesIO(payload)]
+                destination = Path(temporary)/'asset.json'
+                PUBLISH.GitHubReleases().download(asset, destination, public=True)
+                self.assertEqual(payload, destination.read_bytes())
+                self.assertEqual(before, asset)
+                self.assertEqual([mock.call(1), mock.call(2), mock.call(4)], sleep.call_args_list)
+                self.assertEqual(4, opener.call_count)
+                for attempt, call in enumerate(opener.call_args_list):
+                    request = call.args[0]
+                    parsed = PUBLISH.urllib.parse.urlsplit(request.full_url)
+                    original = PUBLISH.urllib.parse.urlsplit(url)
+                    self.assertEqual((original.scheme, original.netloc, original.path), (parsed.scheme, parsed.netloc, parsed.path))
+                    self.assertNotIn('Authorization', dict(request.header_items()))
+                    self.assertEqual({'timeout': 60}, call.kwargs)
+                    if attempt:
+                        self.assertRegex(parsed.query, '^cbodotnet_retry='+str(attempt)+r'-[0-9]+$')
+                        self.assertEqual('no-cache', request.get_header('Cache-control'))
+                        self.assertEqual('no-cache', request.get_header('Pragma'))
+                    else:
+                        self.assertEqual(url, request.full_url)
+                        self.assertIsNone(request.get_header('Cache-control'))
+
+    def test_public_retry_exhaustion_has_four_attempts_and_does_not_create_a_destination(self):
+        url = 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/tag/asset.json'
+        error = PUBLISH.urllib.error.HTTPError(url, 504, 'transient', {}, None)
+        with tempfile.TemporaryDirectory() as temporary, \
+                mock.patch.object(PUBLISH.urllib.request, 'urlopen', side_effect=error) as opener, \
+                mock.patch.object(PUBLISH.time, 'sleep') as sleep:
+            destination = Path(temporary)/'asset.json'
+            with self.assertRaises(PUBLISH.urllib.error.HTTPError) as raised:
+                PUBLISH.GitHubReleases().download(dict(browser_download_url=url), destination, public=True)
+            self.assertIs(error, raised.exception)
+            self.assertEqual(4, opener.call_count)
+            self.assertEqual([mock.call(1), mock.call(2), mock.call(4)], sleep.call_args_list)
+            self.assertFalse(destination.exists())
+
+    def test_public_authentication_errors_are_not_retried(self):
+        url = 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/tag/asset.json'
+        for status in (401, 403):
+            error = PUBLISH.urllib.error.HTTPError(url, status, 'permanent', {}, None)
+            with self.subTest(status=status), tempfile.TemporaryDirectory() as temporary, \
+                    mock.patch.object(PUBLISH.urllib.request, 'urlopen', side_effect=error) as opener, \
+                    mock.patch.object(PUBLISH.time, 'sleep') as sleep:
+                destination = Path(temporary)/'asset.json'
+                with self.assertRaises(PUBLISH.urllib.error.HTTPError):
+                    PUBLISH.GitHubReleases().download(dict(browser_download_url=url), destination, public=True)
+                opener.assert_called_once()
+                sleep.assert_not_called()
+                self.assertFalse(destination.exists())
 
 
 class FakeGitHub:

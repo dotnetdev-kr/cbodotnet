@@ -163,6 +163,16 @@ def validate_release(release, manifest_bytes, checksum_bytes, repository):
                    for kind in KINDS}} for arch in ARCHITECTURES}}
 
 
+def fresh_release_url(url, attempt):
+    """Request a new public redirect on retry without changing the stored asset URL."""
+    parsed = urllib.parse.urlsplit(url)
+    if (attempt > 0 and parsed.scheme == "https" and parsed.netloc == "github.com"
+            and re.fullmatch(r"/[^/]+/[^/]+/releases/download/[^/]+/[^/]+", parsed.path)):
+        query = parsed.query + ("&" if parsed.query else "") + "cbodotnet_retry=" + str(attempt) + "-" + str(time.time_ns())
+        return urllib.parse.urlunsplit(parsed._replace(query=query))
+    return url
+
+
 def get_bytes(url, maximum, token=None, api=False):
     parsed = urllib.parse.urlsplit(url)
     require(parsed.scheme == "https" and parsed.hostname in {"api.github.com", "github.com"}
@@ -173,8 +183,12 @@ def get_bytes(url, maximum, token=None, api=False):
         headers["X-GitHub-Api-Version"] = "2022-11-28"
         if token:
             headers["Authorization"] = "Bearer " + token
-    request = urllib.request.Request(url, headers=headers)
     for attempt in range(3):
+        request_url = fresh_release_url(url, attempt) if not api else url
+        request_headers = dict(headers)
+        if request_url != url:
+            request_headers.update({"Cache-Control": "no-cache", "Pragma": "no-cache"})
+        request = urllib.request.Request(request_url, headers=request_headers)
         try:
             with urllib.request.urlopen(request, timeout=60) as response:
                 data = response.read(maximum + 1)

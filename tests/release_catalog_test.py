@@ -314,7 +314,7 @@ class CatalogTests(unittest.TestCase):
                               token="test-only-secret", api=True)
             self.assertEqual("Bearer test-only-secret", dict(opener.call_args.args[0].header_items())["Authorization"])
 
-    def test_transient_metadata_http_errors_retry_the_same_request_with_bounded_backoff(self):
+    def test_transient_metadata_http_errors_retry_fresh_public_redirects_with_bounded_backoff(self):
         url = "https://github.com/example/repo/releases/download/sdk-1.0.100/SHA256SUMS"
         for status in (502, 503, 504):
             with self.subTest(status=status), mock.patch.object(CATALOG.urllib.request, "urlopen") as opener, \
@@ -326,10 +326,29 @@ class CatalogTests(unittest.TestCase):
                 self.assertEqual(b"data", CATALOG.get_bytes(url, 100, token="test-only-secret"))
                 self.assertEqual(3, opener.call_count)
                 self.assertEqual([mock.call(2), mock.call(4)], sleep.call_args_list)
-                for call in opener.call_args_list:
-                    self.assertEqual(url, call.args[0].full_url)
+                self.assertEqual(url, opener.call_args_list[0].args[0].full_url)
+                original = CATALOG.urllib.parse.urlsplit(url)
+                for attempt, call in enumerate(opener.call_args_list):
+                    actual = CATALOG.urllib.parse.urlsplit(call.args[0].full_url)
+                    self.assertEqual((original.scheme, original.netloc, original.path), (actual.scheme, actual.netloc, actual.path))
+                    if attempt:
+                        self.assertRegex(actual.query, r"^cbodotnet_retry=" + str(attempt) + r"-[0-9]+$")
+                        self.assertEqual("no-cache", call.args[0].get_header("Cache-control"))
+                        self.assertEqual("no-cache", call.args[0].get_header("Pragma"))
                     self.assertNotIn("Authorization", dict(call.args[0].header_items()))
                     self.assertEqual({"timeout": 60}, call.kwargs)
+
+    def test_fresh_release_url_preserves_origin_path_and_existing_query_without_changing_non_release_urls(self):
+        url = "https://github.com/example/repo/releases/download/tag/manifest.json?original=value#fragment"
+        with mock.patch.object(CATALOG.time, "time_ns", return_value=123456):
+            self.assertEqual(url, CATALOG.fresh_release_url(url, 0))
+            self.assertEqual(url.replace("#fragment", "&cbodotnet_retry=2-123456#fragment"),
+                             CATALOG.fresh_release_url(url, 2))
+            for other in ("https://api.github.com/repos/example/repo/releases?per_page=100",
+                          "https://github.com/example/repo/metadata", "https://example.com/x/releases/download/tag/file",
+                          "http://github.com/example/repo/releases/download/tag/file",
+                          "https://user@github.com/example/repo/releases/download/tag/file"):
+                self.assertEqual(other, CATALOG.fresh_release_url(other, 1))
 
     def test_metadata_connection_errors_retry_and_keep_api_credentials_scoped(self):
         url = "https://api.github.com/repos/example/repo/releases"
@@ -345,6 +364,8 @@ class CatalogTests(unittest.TestCase):
                 for call in opener.call_args_list:
                     self.assertEqual(url, call.args[0].full_url)
                     self.assertEqual("Bearer test-only-secret", dict(call.args[0].header_items())["Authorization"])
+                    self.assertIsNone(call.args[0].get_header("Cache-control"))
+                    self.assertIsNone(call.args[0].get_header("Pragma"))
 
     def test_metadata_read_timeout_retries_without_returning_partial_content(self):
         with mock.patch.object(CATALOG.urllib.request, "urlopen") as opener, \

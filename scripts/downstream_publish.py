@@ -18,6 +18,7 @@ import urllib.parse
 from downstream_release import (REPOSITORY, descriptor, encoded, load_status, ordinary_file,
                                 require, stage_records, verify_report_signature)
 from distribution_contract import load_contract
+from release_catalog import fresh_release_url
 
 MANIFEST = 'distribution-manifest.json'
 SIGNATURE = MANIFEST + '.asc'
@@ -310,8 +311,11 @@ class GitHubReleases:
     def download(self, asset, destination, public=False):
         if public:
             for attempt in range(4):
+                url = fresh_release_url(asset['browser_download_url'], attempt)
+                headers = {'Cache-Control': 'no-cache', 'Pragma': 'no-cache'} if url != asset['browser_download_url'] else {}
+                request = urllib.request.Request(url, headers=headers)
                 try:
-                    source = urllib.request.urlopen(asset['browser_download_url'], timeout=60)
+                    source = urllib.request.urlopen(request, timeout=60)
                 except urllib.error.HTTPError as error:
                     if error.code not in {404, 500, 502, 503, 504} or attempt == 3:
                         raise

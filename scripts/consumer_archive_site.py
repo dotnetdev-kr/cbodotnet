@@ -6,11 +6,11 @@ from pathlib import Path
 import re
 import subprocess
 import tempfile
-import urllib.request
 
 from consumer_archive import (ARCHITECTURES,MANIFEST,SIGNATURE,REPOSITORY,ROOT,WORKFLOW,encoded,load_contract,load_status,
     ordinary_file,require,verify_report_signature)
 from consumer_archive_release import release_tag,validate_bundle,validate_native_report,workflow_identity
+from release_catalog import get_bytes
 
 STATUS=ROOT/'releases/archive-status.json'
 
@@ -26,7 +26,7 @@ def load_archive_status(path=None):
 def fetch_bytes(url,maximum):
     require(url.startswith(f'https://github.com/{REPOSITORY}/releases/download/distribution-archive-sdk-'),
         'Untrusted consumer release metadata URL')
-    with urllib.request.urlopen(url,timeout=60) as incoming:data=incoming.read(maximum+1)
+    data=get_bytes(url,maximum)
     require(0<len(data)<=maximum,'Consumer release metadata exceeds its bound')
     return data
 
