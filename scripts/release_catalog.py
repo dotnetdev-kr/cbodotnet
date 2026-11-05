@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import sys
 import time
 import urllib.error
 import urllib.parse
@@ -177,6 +178,12 @@ def get_bytes(url, maximum, token=None, api=False):
     parsed = urllib.parse.urlsplit(url)
     require(parsed.scheme == "https" and parsed.hostname in {"api.github.com", "github.com"}
             and parsed.username is None and parsed.password is None, "Untrusted GitHub metadata URL")
+
+    def report_failure(error):
+        location = parsed.scheme + "://" + parsed.hostname + parsed.path
+        detail = "HTTP " + str(error.code) if isinstance(error, urllib.error.HTTPError) else type(error).__name__
+        print("GitHub metadata GET failed: " + location + " (" + detail + ")", file=sys.stderr)
+
     headers = {"User-Agent": "cbodotnet-release-catalog", "Accept": "application/vnd.github+json" if api else "application/octet-stream"}
     if api:
         require(parsed.hostname == "api.github.com", "Credentials may only be sent to the GitHub API")
@@ -194,9 +201,11 @@ def get_bytes(url, maximum, token=None, api=False):
                 data = response.read(maximum + 1)
         except urllib.error.HTTPError as error:
             if error.code not in {502, 503, 504} or attempt == 2:
+                report_failure(error)
                 raise
-        except (urllib.error.URLError, TimeoutError):
+        except (urllib.error.URLError, TimeoutError) as error:
             if attempt == 2:
+                report_failure(error)
                 raise
         else:
             break

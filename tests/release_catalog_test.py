@@ -3,6 +3,7 @@ import copy
 import hashlib
 import html.parser
 import importlib.util
+import io
 import json
 from pathlib import Path
 import tempfile
@@ -400,6 +401,25 @@ class CatalogTests(unittest.TestCase):
                 self.assertIs(error, raised.exception)
                 opener.assert_called_once()
                 sleep.assert_not_called()
+
+    def test_metadata_failure_diagnostics_omit_query_token_and_redirect_url(self):
+        canonical = "https://api.github.com/repos/example/repo/releases"
+        url = canonical + "?private-query=hidden"
+        redirect = "https://release-assets.githubusercontent.com/private-path?redirect-token=hidden"
+        for error, attempts, detail in (
+                (CATALOG.urllib.error.HTTPError(redirect, 403, "private-token", {}, None), 1, "HTTP 403"),
+                (CATALOG.urllib.error.HTTPError(redirect, 504, "private-token", {}, None), 3, "HTTP 504"),
+                (CATALOG.urllib.error.URLError(redirect + " private-token"), 3, "URLError"),
+                (TimeoutError(redirect + " private-token"), 3, "TimeoutError")):
+            with self.subTest(detail=detail), mock.patch.object(CATALOG.urllib.request, "urlopen", side_effect=error) as opener, \
+                    mock.patch.object(CATALOG.time, "sleep"), mock.patch.object(CATALOG.sys, "stderr", new_callable=io.StringIO) as stderr:
+                with self.assertRaises(type(error)) as raised:
+                    CATALOG.get_bytes(url, 100, token="private-token", api=True)
+                self.assertIs(error, raised.exception)
+                self.assertEqual(attempts, opener.call_count)
+                self.assertEqual("GitHub metadata GET failed: " + canonical + " (" + detail + ")\n", stderr.getvalue())
+                for secret in ("private-query", "hidden", "private-token", "release-assets", "redirect-token"):
+                    self.assertNotIn(secret, stderr.getvalue())
 
     def test_oversized_metadata_is_rejected_without_retry(self):
         with mock.patch.object(CATALOG.urllib.request, "urlopen") as opener, \
