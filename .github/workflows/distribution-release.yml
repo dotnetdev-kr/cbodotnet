@@ -20,7 +20,7 @@ on:
         required: true
         default: deb-oci
         type: choice
-        options: [deb-oci, oci, rpm, aur, archive]
+        options: [deb-oci, oci, rpm, aur, archive, installer]
       tag:
         description: Exact qualified SDK release
         required: true
@@ -68,6 +68,34 @@ env:
   PYTHONDONTWRITEBYTECODE: '1'
 
 jobs:
+  build_installer:
+    if: inputs.channel == 'installer' && inputs.source_run_id == '' && inputs.promotion_run_id == ''
+    name: Build SDK-free cbodotnetup on native ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Authenticate the build SDK and publish NativeAOT in the pinned Rocky9 baseline
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: python3 scripts/cbodotnetup-release.py build --arch "$ARCH" --workspace "$RUNNER_TEMP/cbodotnetup-build"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: cbodotnetup-native-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/cbodotnetup-build/output
+          retention-days: 30
+          if-no-files-found: error
+
   native_archive:
     if: inputs.channel == 'archive' && inputs.source_run_id == '' && inputs.promotion_run_id == ''
     name: Build branded consumer archive on native ${{ matrix.arch }}
