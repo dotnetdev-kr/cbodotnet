@@ -88,11 +88,11 @@ def download(url,maximum):
 
 def verify(data,signature,directory):
     home=directory/'gpg';home.mkdir(mode=0o700);(home/'public.asc').write_text(PUBLIC_KEY)
-    common=['/usr/bin/gpg','--no-options','--batch','--homedir',str(home)]
-    subprocess.run(common+['--import',str(home/'public.asc')],check=True,capture_output=True,timeout=30)
+    keyring=home/'trusted.gpg'
+    subprocess.run(['/usr/bin/gpg','--no-options','--batch','--no-autostart','--homedir',str(home),'--dearmor','--output',str(keyring),str(home/'public.asc')],check=True,capture_output=True,timeout=30)
     (directory/'catalog.json').write_bytes(data);(directory/'catalog.json.asc').write_bytes(signature)
-    result=subprocess.run(common+['--no-auto-key-retrieve','--status-fd','1','--verify',str(directory/'catalog.json.asc'),str(directory/'catalog.json')],check=True,capture_output=True,text=True,timeout=30)
-    require(sum(s.startswith('[GNUPG:] VALIDSIG '+FINGERPRINT+' ') for s in result.stdout.splitlines())==1,'Catalog signer is not the independently pinned project identity')
+    result=subprocess.run(['/usr/bin/gpgv','--homedir',str(home),'--keyring',str(keyring),'--status-fd','1',str(directory/'catalog.json.asc'),str(directory/'catalog.json')],check=True,capture_output=True,text=True,timeout=30)
+    require(sum(s.startswith('[GNUPG:] VALIDSIG '+FINGERPRINT+' ') for s in result.stdout.splitlines())==1 and not any(s in result.stdout for s in ('REVKEYSIG','EXPKEYSIG','KEYEXPIRED','EXPSIG')),'Catalog signer is not the independently pinned live project identity')
 
 
 def validate(value,now):

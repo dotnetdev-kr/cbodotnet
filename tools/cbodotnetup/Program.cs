@@ -2,6 +2,7 @@ namespace Community.DotNet.Up;
 
 internal static class Program
 {
+    internal const string CurrentVersion = "0.1.0";
     internal static async Task<int> Main(string[] args)
     {
         try
@@ -37,6 +38,7 @@ internal static class Program
             using var manager = new Manager();
             var refresh = !alias && (values.Contains("--available") || values.FirstOrDefault() is "install" or "update" || values.SequenceEqual(new[] { "self", "update" }) || values.SequenceEqual(new[] { "self", "rollback" }));
             var catalog = await manager.Catalog(catalogFile, refresh);
+            SafeFiles.Require(!catalog.Revoked.Contains("tool/" + CurrentVersion + '/' + Trust.Rid), "This installer release is revoked; run the independently trusted bootstrap for a newer release");
             if (alias) return manager.Run(catalog, invoked == "cbodotnet" ? null : invoked[10..], args, true);
             SafeFiles.Require(values.Count > 0, "A command is required");
             switch (values[0])

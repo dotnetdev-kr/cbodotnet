@@ -12,12 +12,15 @@ internal sealed class Manager : IDisposable
     private readonly FileStream lease;
     private readonly Trust trust;
     private readonly Target host;
-    internal Manager()
+    private readonly Func<Asset, string, Task>? downloadOverride;
+    // Internal dependency injection is used by file-transaction tests; the CLI supplies no overrides.
+    internal Manager(string? rootOverride = null, Target? hostOverride = null, Func<Asset, string, Task>? downloadOverride = null)
     {
-        host = Trust.Host();
+        host = hostOverride ?? Trust.Host();
+        this.downloadOverride = downloadOverride;
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         var xdg = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
-        Root = Environment.GetEnvironmentVariable("CBODOTNETUP_HOME") ?? Path.Combine(xdg ?? Path.Combine(home, ".local", "share"), "cbodotnetup");
+        Root = rootOverride ?? Environment.GetEnvironmentVariable("CBODOTNETUP_HOME") ?? Path.Combine(xdg ?? Path.Combine(home, ".local", "share"), "cbodotnetup");
         SafeFiles.Require(Path.IsPathFullyQualified(Root) && !Root.Any(char.IsControl), "Use an absolute user-local cbodotnetup root");
         Root = Path.GetFullPath(Root).TrimEnd('/');
         SafeFiles.Require(!Root.Split('/').Any(part => part is "dotnetup" or ".dotnet"), "The official dotnet/dotnetup state roots are reserved");
@@ -41,6 +44,13 @@ internal sealed class Manager : IDisposable
         trust = new Trust(cache);
     }
     public void Dispose() => lease.Dispose();
+    private async Task Download(Asset asset, string path)
+    {
+        if (downloadOverride is null) { await Trust.DownloadAsset(asset, path); return; }
+        Trust.AssetValid(asset); SafeFiles.OrdinaryPath(path);
+        await downloadOverride(asset, path);
+        SafeFiles.Require(new FileInfo(path).Length == asset.Size && SafeFiles.Hash(path) == asset.Sha256, "Downloaded artifact is corrupt, truncated or has conflicting bytes");
+    }
     internal Task<Catalog> Catalog(string? file, bool refresh) => trust.Load(file, refresh);
     private string PathFor(SdkRelease sdk) => SafeFiles.Under(toolchains, sdk.Id);
     private Selection Selections() => File.Exists(Path.Combine(Root, "selection.json"))
@@ -105,12 +115,12 @@ internal sealed class Manager : IDisposable
         try
         {
             Console.WriteLine("Downloading verified Community Build SDK " + sdk.Id);
-            await Trust.DownloadAsset(sdk.SourceManifest, Path.Combine(work, "source.json"));
+            await Download(sdk.SourceManifest, Path.Combine(work, "source.json"));
             using (var source = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(work, "source.json"))))
             {
                 SafeFiles.Require(source.RootElement.GetProperty("sdkVersion").GetString() == sdk.SdkVersion, "Canonical source manifest SDK differs");
             }
-            var archive = Path.Combine(work, "sdk.tar.gz"); await Trust.DownloadAsset(sdk.Archive, archive);
+            var archive = Path.Combine(work, "sdk.tar.gz"); await Download(sdk.Archive, archive);
             var prepared = Path.Combine(work, "prepared"); SafeFiles.PrivateDirectory(prepared);
             var content = Path.Combine(prepared, "content"); SafeFiles.Extract(archive, content, sdk.ArchiveRoot);
             var root = Path.Combine(content, sdk.ArchiveRoot);
@@ -219,10 +229,10 @@ internal sealed class Manager : IDisposable
         foreach (var receipt in Installed()) VerifyInstalled(receipt, catalog);
         Console.WriteLine($"cbodotnetup 0.1.0; {host.Os} {host.VersionId}; {host.Rid}\nRoot: {Root}\nPinned signer: {Trust.Fingerprint}\nInstalled SDKs verified: {Installed().Length}");
     }
-    internal async Task SelfUpdate(Catalog catalog)
+    internal async Task SelfUpdate(Catalog catalog, string? executableOverride = null)
     {
         Trust.Validate(catalog, DateTimeOffset.UtcNow);
-        var executable = Environment.ProcessPath!; SafeFiles.OrdinaryPath(executable);
+        var executable = executableOverride ?? Environment.ProcessPath!; SafeFiles.OrdinaryPath(executable);
         var ownershipPath = executable + ".ownership.json";
         var ownership = SafeFiles.Read(ownershipPath, UpJson.Default.ToolOwnership);
         SafeFiles.Require(ownership.Owner == SafeFiles.Owner && ownership.Path == executable && ownership.Sha256 == SafeFiles.Hash(executable), "Tool is not owned by the verified bootstrap; reinstall it using get-cbodotnetup.py");
@@ -233,10 +243,12 @@ internal sealed class Manager : IDisposable
         SafeFiles.Require(Version.Parse(latest!.Version) >= Version.Parse(ownership.Version), "Tool downgrade refused");
         if (latest.Version == ownership.Version) { SafeFiles.Require(latest.Binary.Sha256 == ownership.Sha256 && latest.Notices.Sha256 == ownership.NoticesSha256, "Conflicting bytes under the existing tool identity"); Console.WriteLine("Installer is current"); return; }
         var incoming = executable + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        var incomingNotices = incoming + ".LICENSE.txt";
         try
         {
-            await Trust.DownloadAsset(latest.Binary, incoming); if (OperatingSystem.IsLinux()) File.SetUnixFileMode(incoming, (UnixFileMode)0x1ED);
-            var noticeBytes = await Trust.Download(latest.Notices.Url, latest.Notices.Size);
+            await Download(latest.Binary, incoming); if (OperatingSystem.IsLinux()) File.SetUnixFileMode(incoming, (UnixFileMode)0x1ED);
+            await Download(latest.Notices, incomingNotices);
+            var noticeBytes = File.ReadAllBytes(incomingNotices);
             SafeFiles.Require(noticeBytes.LongLength == latest.Notices.Size && SafeFiles.Hash(noticeBytes) == latest.Notices.Sha256, "Updated runtime notices differ from the signed catalog");
             var previous = executable + ".previous";
             if (SafeFiles.Exists(previous)) SafeFiles.Require(!SafeFiles.Link(previous) && ownership.PreviousSha256 == SafeFiles.Hash(previous), "Previous recovery tool is not owned");
@@ -249,13 +261,13 @@ internal sealed class Manager : IDisposable
             SafeFiles.Write(ownershipPath, new ToolOwnership(SafeFiles.Owner, executable, latest.Version, latest.Binary.Sha256, latest.Notices.Sha256, ownership.Version, ownership.Sha256), UpJson.Default.ToolOwnership);
             Console.WriteLine("Updated installer to " + latest.Version + "; retained " + previous);
         }
-        finally { if (File.Exists(incoming)) File.Delete(incoming); }
+        finally { if (File.Exists(incoming)) File.Delete(incoming); if (File.Exists(incomingNotices)) File.Delete(incomingNotices); }
     }
 
-    internal void SelfRollback(Catalog catalog)
+    internal void SelfRollback(Catalog catalog, string? executableOverride = null)
     {
         Trust.Validate(catalog, DateTimeOffset.UtcNow);
-        var executable = Environment.ProcessPath!; SafeFiles.OrdinaryPath(executable);
+        var executable = executableOverride ?? Environment.ProcessPath!; SafeFiles.OrdinaryPath(executable);
         var ownershipPath = executable + ".ownership.json"; var ownership = SafeFiles.Read(ownershipPath, UpJson.Default.ToolOwnership);
         SafeFiles.Require(ownership.Owner == SafeFiles.Owner && ownership.Path == executable && ownership.Sha256 == SafeFiles.Hash(executable), "Current tool ownership differs");
         var target = catalog.Tools.SingleOrDefault(t => t.Version == ownership.PreviousVersion && t.Rid == host.Rid);

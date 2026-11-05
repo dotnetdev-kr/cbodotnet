@@ -1,0 +1,309 @@
+{
+  "assets": [
+    {
+      "name": "archive-aarch64--installation-report.json",
+      "sha256": "d7f4df334f2d22432cb6bdf505ed522d947d9501376e2048e611834311623648",
+      "size": 8651
+    },
+    {
+      "name": "archive-aarch64--installation-report.json.asc",
+      "sha256": "22730ec0647a7bcfe586828565bcfa9e3c80f1f73e8e36579c01fbe178da40fa",
+      "size": 228
+    },
+    {
+      "name": "archive-x64--installation-report.json",
+      "sha256": "dcd395238215576d02e4caaa0c6b63e029d47e9c8a6aa6696e59917fd8c03d1e",
+      "size": 8611
+    },
+    {
+      "name": "archive-x64--installation-report.json.asc",
+      "sha256": "c33b877b6597b7510be1007a341ece252db2406887603954ec4eec16f42d0287",
+      "size": 228
+    },
+    {
+      "name": "cbodotnet-sdk-10.0.403-linux-aarch64-branded-r2.tar.gz",
+      "sha256": "e99c6908efbeee70a2de0fb3463e60f343732c8740334131567a0820ba173838",
+      "size": 216987966
+    },
+    {
+      "name": "cbodotnet-sdk-10.0.403-linux-x64-branded-r2.tar.gz",
+      "sha256": "7bb763d46e8d33f45304f0faf76f7501953ebd738e01a7bc0aec2945450c82bd",
+      "size": 223841809
+    },
+    {
+      "name": "distribution-signing-key.gpg",
+      "sha256": "562e4c9a893c1a0ffabf3d3bb4a6e4ae1090427250c2818df196a8174583a665",
+      "size": 273
+    },
+    {
+      "name": "source-SHA256SUMS",
+      "sha256": "a70b1a288f49bcf20c1bb05279a3409dbf5be0649e0b9a143133de7bd950acae",
+      "size": 614
+    },
+    {
+      "name": "source-release-manifest.json",
+      "sha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "size": 2511
+    }
+  ],
+  "compatibility": [],
+  "contractVersion": 2,
+  "identity": {
+    "channel": "archive",
+    "packageRevision": 2,
+    "sdkVersion": "10.0.403",
+    "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+    "sourceReleaseTag": "sdk-10.0.403"
+  },
+  "kind": "branded-consumer-archive-publication",
+  "records": [
+    {
+      "architecture": "aarch64",
+      "artifactAsset": "cbodotnet-sdk-10.0.403-linux-aarch64-branded-r2.tar.gz",
+      "build": {
+        "additionalDirectories": [
+          "metadata"
+        ],
+        "archiveLayoutVersion": 2,
+        "artifact": {
+          "name": "cbodotnet-sdk-10.0.403-linux-aarch64-branded-r2.tar.gz",
+          "sha256": "e99c6908efbeee70a2de0fb3463e60f343732c8740334131567a0820ba173838",
+          "size": 216987966
+        },
+        "commands": [
+          {
+            "mode": "0755",
+            "path": "dotnet",
+            "sha256": "cc2ad50c09e58b6e2b173fa5c6f8246b319b8a0af5fd827db76457c85c8977b8",
+            "size": 4311
+          },
+          {
+            "mode": "0755",
+            "path": "cbodotnet",
+            "sha256": "cc2ad50c09e58b6e2b173fa5c6f8246b319b8a0af5fd827db76457c85c8977b8",
+            "size": 4311
+          },
+          {
+            "mode": "0755",
+            "path": "cbodotnet-10.0",
+            "sha256": "cc2ad50c09e58b6e2b173fa5c6f8246b319b8a0af5fd827db76457c85c8977b8",
+            "size": 4311
+          }
+        ],
+        "directory": "cbodotnet-10.0.403-linux-aarch64-r2",
+        "kind": "consumer-archive-build",
+        "plan": {
+          "architecture": "aarch64",
+          "branding": {
+            "displayName": "Community Build of .NET (built by .NET Dev)",
+            "implementation": "distribution-wrapper",
+            "informationCommand": "--cbodotnet-info",
+            "modifyQualifiedPayload": false,
+            "versionBrandingStream": "stderr",
+            "versionStdout": "unchanged-numeric-sdk-version"
+          },
+          "compatibility": {
+            "required": false
+          },
+          "contractVersion": 2,
+          "evidence": {
+            "name": "evidence-aarch64.tar.gz",
+            "sha256": "97843567a562a42fed38f7b89bc3026496b39017f46f524f11c6073039025309",
+            "size": 42620012,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-aarch64.tar.gz"
+          },
+          "kind": "consumer-archive",
+          "licensePaths": [
+            "LICENSE.txt",
+            "ThirdPartyNotices.txt"
+          ],
+          "packageRevision": 2,
+          "producer": {
+            "artifactId": "13048586144",
+            "originalSdkName": "cbodotnet-sdk-10.0.403-linux-arm64-build.41211183670.tar.gz",
+            "originalSourceName": "cbodotnet-sources-10.0.403-linux-arm64-build.41211183670.tar.gz",
+            "projectCommit": "5721c5989e277d98b6af7c782d1b660459f8298e",
+            "runAttempt": "1",
+            "runId": "41211183670",
+            "targetRid": "linux-arm64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41211183670"
+          },
+          "publicationAllowed": false,
+          "schemaVersion": 1,
+          "sdk": {
+            "name": "cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz",
+            "sha256": "410491f0166109c2c3d115705ab64601cec56c3b1c1995267d3b16567f9c0d5b",
+            "size": 217817416,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-aarch64.tar.gz"
+          },
+          "sdkVersion": "10.0.403",
+          "securitySupport": "community-build-no-additional-security-maintenance",
+          "source": {
+            "name": "cbodotnet-source-10.0.403-linux-aarch64.tar.gz",
+            "sha256": "c074b74287d15691ee0ce01bb0d4912db017e35b91010d9380b04f1b62c8b745",
+            "size": 783799313,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-aarch64.tar.gz"
+          },
+          "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+          "sourceManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json",
+          "sourceReleaseTag": "sdk-10.0.403",
+          "status": "prepared-unpublished",
+          "targetRid": "linux-arm64",
+          "validatedUserSpaces": [
+            "ubuntu-22.04",
+            "ubuntu-24.04",
+            "debian-13"
+          ]
+        },
+        "publicationAllowed": false,
+        "qualifiedPayload": {
+          "entries": 5630,
+          "files": 4907,
+          "links": 0,
+          "sha256": "69a78079761bb027d44169b4e8ae98449ef3de30df592544b1197e0fd932b0e2"
+        },
+        "schemaVersion": 1,
+        "status": "built-unpublished",
+        "wrapperLicense": {
+          "mode": "0644",
+          "name": "LICENSE.wrapper.txt",
+          "sha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+          "size": 1079
+        }
+      },
+      "reportAsset": "archive-aarch64--installation-report.json",
+      "signatureAsset": "archive-aarch64--installation-report.json.asc"
+    },
+    {
+      "architecture": "x64",
+      "artifactAsset": "cbodotnet-sdk-10.0.403-linux-x64-branded-r2.tar.gz",
+      "build": {
+        "additionalDirectories": [
+          "metadata"
+        ],
+        "archiveLayoutVersion": 2,
+        "artifact": {
+          "name": "cbodotnet-sdk-10.0.403-linux-x64-branded-r2.tar.gz",
+          "sha256": "7bb763d46e8d33f45304f0faf76f7501953ebd738e01a7bc0aec2945450c82bd",
+          "size": 223841809
+        },
+        "commands": [
+          {
+            "mode": "0755",
+            "path": "dotnet",
+            "sha256": "d2ff58eecb0e674c86615090c5782dc8474832c48e371d1296e49076fcfb2d9d",
+            "size": 4305
+          },
+          {
+            "mode": "0755",
+            "path": "cbodotnet",
+            "sha256": "d2ff58eecb0e674c86615090c5782dc8474832c48e371d1296e49076fcfb2d9d",
+            "size": 4305
+          },
+          {
+            "mode": "0755",
+            "path": "cbodotnet-10.0",
+            "sha256": "d2ff58eecb0e674c86615090c5782dc8474832c48e371d1296e49076fcfb2d9d",
+            "size": 4305
+          }
+        ],
+        "directory": "cbodotnet-10.0.403-linux-x64-r2",
+        "kind": "consumer-archive-build",
+        "plan": {
+          "architecture": "x64",
+          "branding": {
+            "displayName": "Community Build of .NET (built by .NET Dev)",
+            "implementation": "distribution-wrapper",
+            "informationCommand": "--cbodotnet-info",
+            "modifyQualifiedPayload": false,
+            "versionBrandingStream": "stderr",
+            "versionStdout": "unchanged-numeric-sdk-version"
+          },
+          "compatibility": {
+            "required": false
+          },
+          "contractVersion": 2,
+          "evidence": {
+            "name": "evidence-x64.tar.gz",
+            "sha256": "56941c7c987707506784618cc992bab611c2f97623d4c1b56d4d4d00a1221a5e",
+            "size": 42812798,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-x64.tar.gz"
+          },
+          "kind": "consumer-archive",
+          "licensePaths": [
+            "LICENSE.txt",
+            "ThirdPartyNotices.txt"
+          ],
+          "packageRevision": 2,
+          "producer": {
+            "artifactId": "13083076281",
+            "originalSdkName": "cbodotnet-sdk-10.0.403-linux-x64-build.41301145771.tar.gz",
+            "originalSourceName": "cbodotnet-sources-10.0.403-linux-x64-build.41301145771.tar.gz",
+            "projectCommit": "29e878271353d95c8d6db4bb358976bd7ee6e988",
+            "runAttempt": "1",
+            "runId": "41301145771",
+            "targetRid": "linux-x64",
+            "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41301145771"
+          },
+          "publicationAllowed": false,
+          "schemaVersion": 1,
+          "sdk": {
+            "name": "cbodotnet-sdk-10.0.403-linux-x64.tar.gz",
+            "sha256": "0ff27ca9775fb8d3c83fce60ad511754956f311a950878dcbc05bd6737a4bc09",
+            "size": 224606406,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-sdk-10.0.403-linux-x64.tar.gz"
+          },
+          "sdkVersion": "10.0.403",
+          "securitySupport": "community-build-no-additional-security-maintenance",
+          "source": {
+            "name": "cbodotnet-source-10.0.403-linux-x64.tar.gz",
+            "sha256": "222a3f28450c258c8179eb5f4360e96f5886cd4af8fe36d33533f3bc6491009c",
+            "size": 783949395,
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/cbodotnet-source-10.0.403-linux-x64.tar.gz"
+          },
+          "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+          "sourceManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json",
+          "sourceReleaseTag": "sdk-10.0.403",
+          "status": "prepared-unpublished",
+          "targetRid": "linux-x64",
+          "validatedUserSpaces": [
+            "ubuntu-22.04",
+            "ubuntu-24.04",
+            "debian-13"
+          ]
+        },
+        "publicationAllowed": false,
+        "qualifiedPayload": {
+          "entries": 5630,
+          "files": 4907,
+          "links": 0,
+          "sha256": "8d1a90c92a4bb980368e44451d5b61be88ba032004a469aca76fe6d8b64c705a"
+        },
+        "schemaVersion": 1,
+        "status": "built-unpublished",
+        "wrapperLicense": {
+          "mode": "0644",
+          "name": "LICENSE.wrapper.txt",
+          "sha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+          "size": 1079
+        }
+      },
+      "reportAsset": "archive-x64--installation-report.json",
+      "signatureAsset": "archive-x64--installation-report.json.asc"
+    }
+  ],
+  "repository": "dotnetdev-kr/cbodotnet",
+  "schemaVersion": 1,
+  "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+  "sourceOrchestration": {
+    "commit": "ddb7ebced25d6b404f75ef42c23efee59b1c52df",
+    "repository": "dotnetdev-kr/cbodotnet",
+    "runAttempt": "1",
+    "runId": "41858418535",
+    "workflow": ".github/workflows/distribution-release.yml"
+  },
+  "status": "validated-complete-matrix",
+  "tag": "distribution-archive-sdk-10.0.403-r2",
+  "targetCommit": "ddb7ebced25d6b404f75ef42c23efee59b1c52df",
+  "wrapperPolicyVersion": 1
+}

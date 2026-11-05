@@ -91,6 +91,63 @@ try
     Check(SafeFiles.Read(state, UpJson.Default.HighWater) == new HighWater(3, sha), "atomic state roundtrip");
     using (var held = new FileStream(Path.Combine(temporary, "lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
         Reject(() => { using var conflicting = new FileStream(Path.Combine(temporary, "lock"), FileMode.Open, FileAccess.ReadWrite, FileShare.None); }, "concurrent lock acquisition");
+
+    // Exercise the real owned-file update and rollback transactions with bounded fixture assets.
+    // The test-only constructor replaces I/O, not production catalog trust or CLI options.
+    var transaction = Path.Combine(temporary, "transactions"); Directory.CreateDirectory(transaction);
+    var executable = Path.Combine(transaction, "cbodotnetup"); var noticePath = executable + ".LICENSE.txt";
+    var oldBytes = System.Text.Encoding.UTF8.GetBytes("old-native-tool"); var newBytes = System.Text.Encoding.UTF8.GetBytes("new-native-tool");
+    var oldNotice = System.Text.Encoding.UTF8.GetBytes("original runtime license"); var newNotice = System.Text.Encoding.UTF8.GetBytes("updated runtime license");
+    Asset Fixture(string url, byte[] bytes) => new(url, bytes.Length, SafeFiles.Hash(bytes));
+    var oldTool = tool with { Binary = Fixture(tool.Binary.Url, oldBytes), Notices = Fixture(tool.Notices.Url, oldNotice) };
+    var newTool = new ToolRelease("0.1.1", "linux-x64", Fixture(releaseBase + "cbodotnetup-v0.1.1/cbodotnetup-linux-x64", newBytes), Fixture(releaseBase + "cbodotnetup-v0.1.1/cbodotnetup-linux-x64.LICENSE.txt", newNotice));
+    var updateCatalog = catalog with { Tools = [oldTool, newTool] };
+    void ResetTool()
+    {
+        File.WriteAllBytes(executable, oldBytes); File.WriteAllBytes(noticePath, oldNotice);
+        File.Delete(executable + ".previous"); File.Delete(executable + ".previous.LICENSE.txt");
+        SafeFiles.Write(executable + ".ownership.json", new ToolOwnership(SafeFiles.Owner, executable, "0.1.0", oldTool.Binary.Sha256, oldTool.Notices.Sha256, null, null), UpJson.Default.ToolOwnership);
+    }
+    var resources = new Dictionary<string, byte[]> { [newTool.Binary.Url] = newBytes, [newTool.Notices.Url] = newNotice };
+    Task Fetch(Asset asset, string path) { File.WriteAllBytes(path, resources[asset.Url]); return Task.CompletedTask; }
+    ResetTool();
+    using (var manager = new Manager(Path.Combine(transaction, "data"), new("rocky", "9.8", "linux-x64"), Fetch))
+    {
+        manager.SelfUpdate(updateCatalog, executable).GetAwaiter().GetResult();
+        Check(File.ReadAllBytes(executable).SequenceEqual(newBytes) && File.ReadAllBytes(noticePath).SequenceEqual(newNotice), "authenticated tool activation");
+        Check(File.ReadAllBytes(executable + ".previous").SequenceEqual(oldBytes) && File.ReadAllBytes(executable + ".previous.LICENSE.txt").SequenceEqual(oldNotice), "previous tool and notice preservation");
+        Reject(() => manager.SelfRollback(updateCatalog with { Revoked = ["tool/0.1.0/linux-x64"] }, executable), "revoked self rollback");
+        Check(File.ReadAllBytes(executable).SequenceEqual(newBytes), "revoked rollback leaves active tool intact");
+        manager.SelfRollback(updateCatalog, executable);
+        Check(File.ReadAllBytes(executable).SequenceEqual(oldBytes) && File.ReadAllBytes(noticePath).SequenceEqual(oldNotice), "verified retained tool recovery");
+        Check(!File.Exists(executable + ".previous"), "recovery receipt consumed");
+        resources[newTool.Binary.Url] = System.Text.Encoding.UTF8.GetBytes("truncated");
+        Reject(() => manager.SelfUpdate(updateCatalog, executable).GetAwaiter().GetResult(), "corrupt update download");
+        Check(File.ReadAllBytes(executable).SequenceEqual(oldBytes), "corrupt download preserves active tool");
+        resources[newTool.Binary.Url] = newBytes;
+        resources[newTool.Notices.Url] = System.Text.Encoding.UTF8.GetBytes("wrong notice");
+        Reject(() => manager.SelfUpdate(updateCatalog, executable).GetAwaiter().GetResult(), "corrupt runtime notice download");
+        Check(File.ReadAllBytes(executable).SequenceEqual(oldBytes) && File.ReadAllBytes(noticePath).SequenceEqual(oldNotice), "failed notice update preserves executable and license");
+        resources[newTool.Notices.Url] = newNotice;
+        File.WriteAllText(executable + ".previous", "unrelated");
+        Reject(() => manager.SelfUpdate(updateCatalog, executable).GetAwaiter().GetResult(), "unrelated recovery file");
+        Check(File.ReadAllText(executable + ".previous") == "unrelated", "foreign recovery file preserved");
+        File.Delete(executable + ".previous");
+        File.AppendAllText(executable, "tampered");
+        Reject(() => manager.SelfUpdate(updateCatalog, executable).GetAwaiter().GetResult(), "modified installed executable");
+        ResetTool();
+        var conflict = oldTool with { Binary = newTool.Binary with { Url = oldTool.Binary.Url } };
+        Reject(() => manager.SelfUpdate(catalog with { Tools = [conflict] }, executable).GetAwaiter().GetResult(), "conflicting immutable tool identity");
+        Check(!Directory.EnumerateFiles(transaction, "*.tmp*").Any(), "failed updates leave no unverified activation files");
+    }
+    if (OperatingSystem.IsLinux())
+    {
+        var deep = Path.Combine(temporary, new string('a', 90), new string('b', 90)); Directory.CreateDirectory(deep);
+        var fixture = Path.Combine(AppContext.BaseDirectory, "fixtures/public-signed.json");
+        Trust.VerifySignature(fixture, fixture + ".asc", deep); passed++;
+        var modified = Path.Combine(deep, "modified.json"); File.WriteAllBytes(modified, File.ReadAllBytes(fixture).Concat(new byte[] { 32 }).ToArray());
+        Reject(() => Trust.VerifySignature(modified, fixture + ".asc", deep), "actual project signature rejects changed bytes in a long home path");
+    }
     Console.WriteLine($"cbodotnetup security tests passed: {passed}");
 }
 finally { SafeFiles.DeleteTree(temporary); }

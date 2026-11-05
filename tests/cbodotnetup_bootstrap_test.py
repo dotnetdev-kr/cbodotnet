@@ -52,6 +52,15 @@ class InstallerBootstrapTests(unittest.TestCase):
             with self.assertRaises(subprocess.CalledProcessError):BOOT.verify(b'{}',b'forged signature',Path(directory))
             self.assertFalse((Path(directory)/'cbodotnetup').exists())
 
+    def test_actual_public_signature_and_long_home_path(self):
+        fixtures=ROOT/'tools/cbodotnetup.Tests/fixtures'
+        with tempfile.TemporaryDirectory() as directory:
+            deep=Path(directory)/('a'*90)/('b'*90);deep.mkdir(parents=True)
+            BOOT.verify((fixtures/'public-signed.json').read_bytes(),(fixtures/'public-signed.json.asc').read_bytes(),deep)
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaises(subprocess.CalledProcessError):
+                BOOT.verify((fixtures/'public-signed.json').read_bytes()+b' ',(fixtures/'public-signed.json.asc').read_bytes(),Path(directory))
+
     def test_atomic_owned_file_replacement_does_not_follow_a_link(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);target=root/'target';target.write_bytes(b'original');(root/'link').symlink_to(target)

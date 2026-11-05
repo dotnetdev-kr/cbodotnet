@@ -94,10 +94,12 @@ internal sealed partial class Trust
         try
         {
             var key = Path.Combine(home, "public.asc"); File.WriteAllBytes(key, PublicKey());
-            SafeFiles.Command("/usr/bin/gpg", ["--no-options", "--batch", "--homedir", home, "--import", key]);
-            var result = SafeFiles.Command("/usr/bin/gpg", ["--no-options", "--batch", "--homedir", home, "--no-auto-key-retrieve", "--status-fd", "1", "--verify", signature, data]);
+            var keyring = Path.Combine(home, "trusted.gpg");
+            SafeFiles.Command("/usr/bin/gpg", ["--no-options", "--batch", "--no-autostart", "--homedir", home, "--dearmor", "--output", keyring, key]);
+            var result = SafeFiles.Command("/usr/bin/gpgv", ["--homedir", home, "--keyring", keyring, "--status-fd", "1", signature, data]);
             SafeFiles.Require(result.Split('\n').Count(line => line.StartsWith("[GNUPG:] VALIDSIG " + Fingerprint + " ", StringComparison.Ordinal)) == 1
-                && !result.Contains("REVKEYSIG", StringComparison.Ordinal) && !result.Contains("EXPKEYSIG", StringComparison.Ordinal), "Signature is not from the pinned live project key");
+                && !result.Contains("REVKEYSIG", StringComparison.Ordinal) && !result.Contains("EXPKEYSIG", StringComparison.Ordinal)
+                && !result.Contains("KEYEXPIRED", StringComparison.Ordinal) && !result.Contains("EXPSIG", StringComparison.Ordinal), "Signature is not from the pinned live project key");
         }
         finally { SafeFiles.DeleteTree(home); }
     }

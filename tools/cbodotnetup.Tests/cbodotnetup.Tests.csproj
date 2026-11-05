@@ -7,4 +7,5 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup><ProjectReference Include="../cbodotnetup/cbodotnetup.csproj" /></ItemGroup>
+  <ItemGroup><Content Include="fixtures/*" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
 </Project>
