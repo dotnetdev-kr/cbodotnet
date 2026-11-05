@@ -10,6 +10,8 @@ import re
 import shlex
 import subprocess
 import tempfile
+import urllib.parse
+import urllib.request
 
 from distribution_contract import ARCHITECTURES, load_contract, validate_qualified_producers
 from distribution_site import extract_repository
@@ -158,6 +160,26 @@ def fetch(url, path, maximum=16 * 1024**2, expected=None, api=False):
     return data
 
 
+def fetch_hosted_metadata(url, path, expected):
+    """Read only the two project-hosted RPM metadata files, without credentials."""
+    parsed = urllib.parse.urlsplit(url)
+    match = re.fullmatch(r'/cbodotnet/packages/rpm/(fedora-45|rocky-9\.8)/sdk-([0-9]+\.[0-9]+\.[0-9]+)-r([1-9][0-9]*)/repodata/(repomd\.xml(?:\.asc)?)', parsed.path)
+    require(parsed.scheme == 'https' and parsed.netloc == 'dotnetdev.kr' and not parsed.query
+            and not parsed.fragment and url == parsed.geturl() and match and match[2] in VERSIONS,
+            'Untrusted hosted RPM metadata URL')
+    require(isinstance(expected, dict) and expected.get('name') == match[4] and type(expected.get('size')) is int
+            and 0 < expected['size'] <= 1024**2
+            and isinstance(expected.get('sha256'), str) and re.fullmatch(r'[a-f0-9]{64}', expected['sha256']),
+            'Hosted RPM metadata needs its bounded signed descriptor')
+    request = urllib.request.Request(url, headers={'User-Agent': 'cbodotnet-public-coexistence'})
+    with urllib.request.urlopen(request, timeout=60) as incoming:
+        data = incoming.read(expected['size'] + 1)
+    require(len(data) == expected['size'] and hashlib.sha256(data).hexdigest() == expected['sha256'],
+            'Live hosted RPM metadata differs from its signed publication')
+    Path(path).write_bytes(data)
+    return data
+
+
 def preflight(directory, *, receive=False, policy=None, contract=None, catalog=None):
     policy = policy or load_status(); contract = contract or load_contract()
     selected = selected_receipts(policy, contract)
@@ -301,7 +323,7 @@ def prepare_rpm(rows, variant, arch, state, keyring):
         for name in ('repomd.xml', 'repomd.xml.asc'):
             expected_file = location / 'repodata' / name
             observed = location / ('live-' + name)
-            fetch(public + '/repodata/' + name, observed, expected=descriptor(expected_file))
+            fetch_hosted_metadata(public + '/repodata/' + name, observed, descriptor(expected_file))
         repo_id = 'cbodotnet-' + series(version)
         Path('/etc/yum.repos.d/' + repo_id + '.repo').write_text('[' + repo_id + ']\nname=Community SDK ' + version
             + '\nbaseurl=' + public + '/\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=file://' + str(key) + '\n')

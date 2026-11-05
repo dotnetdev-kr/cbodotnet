@@ -1,5 +1,8 @@
 import copy
+import hashlib
+import io
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -167,6 +170,43 @@ class SignedBindingTests(unittest.TestCase):
 
 
 class RuntimePlanTests(unittest.TestCase):
+    def test_live_project_metadata_uses_no_credentials_and_must_match_signed_bytes(self):
+        raw = b'<repomd>approved</repomd>'
+        url = 'https://dotnetdev.kr/cbodotnet/packages/rpm/fedora-45/sdk-3.0.103-r1/repodata/repomd.xml'
+        expected = dict(name='repomd.xml', size=len(raw), sha256=hashlib.sha256(raw).hexdigest())
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / 'observed.xml'
+            with patch.dict(os.environ, GH_TOKEN='fixture-never-send-to-pages'), \
+                    patch.object(MULTI.urllib.request, 'urlopen', return_value=io.BytesIO(raw)) as opened:
+                self.assertEqual(raw, MULTI.fetch_hosted_metadata(url, path, expected))
+                request = opened.call_args.args[0]
+                self.assertEqual(url, request.full_url)
+                self.assertIsNone(request.get_header('Authorization'))
+                self.assertEqual(raw, path.read_bytes())
+            for corrupted in (raw + b'extra', raw[:-1], b'x' * len(raw)):
+                target = Path(temporary) / 'bad.xml'
+                with self.subTest(payload=corrupted), patch.object(MULTI.urllib.request, 'urlopen', return_value=io.BytesIO(corrupted)):
+                    with self.assertRaisesRegex(ValueError, 'differs from its signed publication'):
+                        MULTI.fetch_hosted_metadata(url, target, expected)
+                self.assertFalse(target.exists())
+
+    def test_live_metadata_reader_does_not_broaden_github_or_project_origin_boundaries(self):
+        valid = 'https://dotnetdev.kr/cbodotnet/packages/rpm/rocky-9.8/sdk-5.0.214-r1/repodata/repomd.xml.asc'
+        expected = dict(name='repomd.xml.asc', size=1, sha256='a' * 64)
+        bad_urls = [valid.replace('https:', 'http:'), valid.replace('dotnetdev.kr', 'example.invalid'),
+                    valid + '?token=forbidden', valid + '#fragment', valid.replace('/repodata/', '/../repodata/'),
+                    valid.replace('5.0.214', '11.0.100'), valid.replace('repomd.xml.asc', 'Packages')]
+        with tempfile.TemporaryDirectory() as temporary, patch.object(MULTI.urllib.request, 'urlopen') as opened:
+            for url in bad_urls:
+                with self.subTest(url=url), self.assertRaisesRegex(ValueError, 'Untrusted hosted RPM metadata'):
+                    MULTI.fetch_hosted_metadata(url, Path(temporary) / 'bad', expected)
+            for descriptor in (None, dict(expected, size=0), dict(expected, size=2**20 + 1), dict(expected, sha256='bad')):
+                with self.subTest(descriptor=descriptor), self.assertRaisesRegex(ValueError, 'bounded signed descriptor'):
+                    MULTI.fetch_hosted_metadata(valid, Path(temporary) / 'bad', descriptor)
+            opened.assert_not_called()
+            with self.assertRaisesRegex(ValueError, 'Untrusted GitHub metadata URL'):
+                MULTI.fetch(valid, Path(temporary) / 'bad', expected=expected)
+
     def test_all_eight_native_targets_and_no_publishing_or_secret_permissions(self):
         self.assertEqual({'ubuntu-24.04', 'debian-13', 'fedora-45', 'rocky-9.8'}, set(MULTI.BASES))
         self.assertTrue(all(set(rows) == {'x64', 'aarch64'} for rows in MULTI.BASES.values()))
