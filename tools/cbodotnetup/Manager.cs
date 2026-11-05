@@ -147,22 +147,27 @@ internal sealed class Manager : IDisposable
     }
     private void Activate(SdkRelease sdk, string? channel = null)
     {
-        var selected = Selections(); selected.Active[sdk.SdkVersion] = sdk.Id;
+        var selected = Selections(); selected.Active[sdk.Series] = sdk.Id;
         if (channel is not null) selected = selected with { TrackedChannels = selected.TrackedChannels.Append(channel).Distinct().Order().ToArray() };
         SaveSelection(selected);
         if (File.Exists(Path.Combine(Root, "shell-enabled"))) Shell(true);
     }
     internal Receipt Select(string? version, Catalog catalog, bool series = false, bool allowRevoked = false)
     {
-        var installed = Installed(); var selection = Selections();
+        var chosen = Choose(Installed(), Selections(), version, series);
+        VerifyInstalled(chosen, catalog, allowRevoked); return chosen;
+    }
+    internal static Receipt Choose(Receipt[] installed, Selection selection, string? version, bool series = false)
+    {
+        installed = installed.OrderByDescending(r => Version.Parse(r.Release.SdkVersion)).ThenByDescending(r => r.Release.Revision).ToArray();
         var candidates = installed.Where(r => version is null || (series ? r.Release.Series == version : r.Release.SdkVersion == version || $"{r.Release.SdkVersion}-r{r.Release.Revision}" == version)).ToArray();
         SafeFiles.Require(candidates.Length > 0, "No matching Community Build SDK is installed");
         var chosen = candidates[0];
         if (version is null || !version.Contains("-r", StringComparison.Ordinal))
         {
-            if (selection.Active.TryGetValue(chosen.Release.SdkVersion, out var id)) chosen = candidates.FirstOrDefault(r => r.Release.Id == id) ?? chosen;
+            if (selection.Active.TryGetValue(chosen.Release.Series, out var id)) chosen = candidates.FirstOrDefault(r => r.Release.Id == id && r.Release.Series == chosen.Release.Series) ?? chosen;
         }
-        VerifyInstalled(chosen, catalog, allowRevoked); return chosen;
+        return chosen;
     }
     internal int Run(Catalog catalog, string? version, string[] arguments, bool series = false)
     {
@@ -180,7 +185,9 @@ internal sealed class Manager : IDisposable
         var trash = Path.Combine(staging, Guid.NewGuid().ToString("N"));
         Directory.Move(path, trash); SafeFiles.DeleteTree(trash);
         var parent = Path.GetDirectoryName(path)!; if (!Directory.EnumerateFileSystemEntries(parent).Any()) Directory.Delete(parent);
-        var selected = Selections(); selected.Active.Remove(sdk.SdkVersion); SaveSelection(selected);
+        var selected = Selections();
+        if (selected.Active.GetValueOrDefault(sdk.Series) == sdk.Id) selected.Active.Remove(sdk.Series);
+        SaveSelection(selected);
         if (File.Exists(Path.Combine(Root, "shell-enabled"))) Shell(true);
         Console.WriteLine("Removed " + sdk.Id);
     }
