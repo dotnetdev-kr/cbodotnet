@@ -24,56 +24,212 @@
 <meta name="twitter:image" content="https://dotnetdev.kr/cbodotnet/assets/social-card.jpg">
 <meta name="twitter:image:alt" content="An abstract violet and cyan loop suggesting connected software components and two Linux architectures.">
 <style>
-body { max-width: 68em; margin: 2em auto; padding: 0 1em; color: #111; background: white; font: 17px/1.45 Georgia, "Times New Roman", serif; }
-h1 { margin-bottom: .15em; font-size: 2em; }
-h2 { margin-top: 1.5em; font-size: 1.3em; }
-a { color: #0000b8; }
-a:visited { color: #551a8b; }
-table { border-collapse: collapse; width: 100%; text-align: left; }
-th, td { padding: .55em .8em .55em 0; vertical-align: top; border-bottom: 1px solid #ddd; }
-thead th { border-bottom: 1px solid #777; }
-small, footer { font-size: .85em; }
-.downloads { overflow-x: auto; }
-.status { display: flex; flex-wrap: wrap; align-items: center; gap: .35em; }
+:root { color-scheme: light; --ink: #202033; --muted: #626275; --accent: #5940be; --line: #e4e3ec; --soft: #f5f3fb; }
+* { box-sizing: border-box; }
+html { scroll-padding-top: 2rem; }
+body { margin: 0; color: var(--ink); background: #f7f8fc; font: 16px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+a { color: var(--accent); text-underline-offset: .18em; }
+a:hover { color: #35207f; }
+a:focus-visible, summary:focus-visible { outline: 3px solid #8865ec; outline-offset: 4px; border-radius: 3px; }
+h1, h2, h3, h4, p { margin-top: 0; }
+h1, h2, h3, h4 { line-height: 1.2; letter-spacing: -.025em; }
+h1 { margin-bottom: 1.25rem; font-size: clamp(2.7rem, 6.5vw, 4.5rem); font-weight: 750; letter-spacing: -.055em; }
+h2 { margin-bottom: .75rem; font-size: clamp(1.5rem, 3vw, 2rem); }
+h3 { margin-bottom: .6rem; font-size: 1.15rem; }
+h4 { margin-bottom: .5rem; font-size: .95rem; }
+p { margin-bottom: 1rem; }
+code { padding: .1em .32em; border-radius: .25rem; background: var(--soft); font: .87em/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; }
+pre { max-width: 100%; margin: 1.2rem 0 0; padding: 1.4rem; overflow-x: auto; border: 1px solid #33334f; border-radius: .65rem; background: #222235; color: #f2efff; font-size: .88rem; line-height: 1.65; }
+pre code { padding: 0; background: none; color: inherit; font-size: inherit; }
+.shell { max-width: 1184px; margin: 0 auto; padding: 0 2rem; }
+.site-header { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; min-height: 5.5rem; border-bottom: 1px solid var(--line); }
+.wordmark { color: var(--ink); font-size: 1.35rem; font-weight: 800; letter-spacing: -.045em; text-decoration: none; }
+.wordmark span { color: var(--accent); }
+nav { display: flex; flex-wrap: wrap; gap: 1.3rem; font-size: .88rem; }
+nav a { color: var(--muted); text-decoration: none; }
+.hero { display: grid; grid-template-columns: 1.45fr 1fr; align-items: center; gap: 3.5rem; padding: 5rem 0 3.5rem; }
+.eyebrow { margin-bottom: .85rem; color: var(--accent); font-size: .75rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+.hero .eyebrow { letter-spacing: .04em; }
+.hero-description { max-width: 36rem; color: var(--muted); font-size: 1.1rem; }
+.platforms { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.5rem 0 0; padding: 0; list-style: none; }
+.platforms li { padding: .3rem .75rem; border: 1px solid #dedbe9; border-radius: 2rem; color: #575269; background: #fff; font-size: .8rem; }
+.terminal { overflow: hidden; border: 1px solid #38324d; border-radius: .9rem; background: #242137; box-shadow: 0 18px 45px #32295518; color: #f0ebff; }
+.terminal-bar { padding: .85rem 1.25rem; border-bottom: 1px solid #ffffff12; color: #bcb4d2; font-size: .74rem; }
+.terminal-body { padding: 1.6rem; }
+.terminal-body p { margin-bottom: 1.25rem; color: #c4bbd9; font-size: .8rem; }
+.terminal code { display: block; margin: .6rem 0; padding: 0; background: none; color: #f2edff; font-size: .9rem; }
+.terminal-body > code::before { content: "$ "; color: #a98ce7; }
+.terminal .inline-command { display: inline; font-size: inherit; }
+.terminal .terminal-note { margin: 1.4rem 0 0; padding-top: 1rem; border-top: 1px solid #ffffff12; font-size: .78rem; }
+.start-section { margin-bottom: 2.5rem; }
+.start-section > h2 { font-size: 1rem; letter-spacing: 0; }
+.choice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.choice { display: block; padding: 1.45rem; border: 1px solid var(--line); border-radius: .8rem; color: var(--ink); background: #fff; text-decoration: none; transition: border-color .15s, box-shadow .15s; }
+.choice:hover { border-color: #b3a1de; color: var(--ink); box-shadow: 0 4px 18px #45357b09; }
+.choice .choice-kicker { display: block; margin-bottom: .7rem; color: var(--accent); font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.choice strong { display: block; margin-bottom: .5rem; font-size: 1.15rem; }
+.choice p { margin-bottom: .8rem; color: var(--muted); font-size: .87rem; }
+.choice .choice-link { color: var(--accent); font-size: .85rem; font-weight: 650; }
+.panel { min-width: 0; margin-bottom: 1.5rem; padding: 2rem; border: 1px solid var(--line); border-radius: .9rem; background: #fff; }
+.section-heading .eyebrow { margin-bottom: .6rem; }
+.section-description { max-width: 58rem; margin-bottom: 1.5rem; color: var(--muted); font-size: .94rem; }
+.installer-content { padding: 1.4rem 1.5rem; border-left: 3px solid #a791dc; border-radius: 0 .6rem .6rem 0; background: var(--soft); font-size: .93rem; }
+.installer-content > :last-child { margin-bottom: 0; }
+.installer-content h3 { font-size: 1rem; }
+.downloads table { width: 100%; border-collapse: collapse; text-align: left; table-layout: fixed; }
+.downloads th, .downloads td { padding: 1.1rem .6rem; vertical-align: top; border-bottom: 1px solid var(--line); }
+.downloads thead th { padding-top: .2rem; padding-bottom: .7rem; color: var(--muted); font-size: .74rem; font-weight: 600; letter-spacing: .035em; text-transform: uppercase; }
+.downloads th:first-child { width: 17%; padding-left: 0; }
+.downloads th:nth-child(2) { width: 34%; }
+.downloads tr:last-child > * { border-bottom: 0; }
+.sdk-version { display: inline-block; padding-top: .35rem; font-size: 1rem; font-weight: 700; letter-spacing: -.025em; }
+.download-buttons { display: flex; flex-wrap: wrap; gap: .5rem; }
+.download-button { display: inline-flex; align-items: center; justify-content: center; min-height: 2.35rem; padding: .4rem .8rem; border: 1px solid #ded6f0; border-radius: .45rem; background: var(--soft); color: #5035a2; font-size: .79rem; font-weight: 650; text-decoration: none; white-space: nowrap; }
+.download-button:hover { border-color: #b3a1de; background: #ede7fa; }
+summary { cursor: pointer; }
+.archive-details summary { padding: .4rem 0; color: var(--accent); font-size: .79rem; }
+.archive-details[open] summary { margin-bottom: 1rem; }
+.verification-grid { display: grid; gap: 1rem; }
+.archive-verification { min-width: 0; padding: 1rem; border: 1px solid var(--line); border-radius: .5rem; background: #fafafe; }
+.archive-verification p { margin-bottom: .6rem; font-size: .76rem; }
+.link-list { display: flex; flex-wrap: wrap; column-gap: .8rem; row-gap: .35rem; }
+.dependency-note { padding-top: .5rem; border-top: 1px solid var(--line); }
+.checksum-label { color: var(--muted); }
+.checksum { display: block; padding: 0; background: none; overflow-wrap: anywhere; font-size: .69rem; }
+.archive-note { margin: 1.25rem 0 0; padding-top: 1.25rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; }
+.installation-list { display: grid; gap: .7rem; }
+.install-details { min-width: 0; border: 1px solid var(--line); border-radius: .6rem; }
+.install-details > summary { padding: 1rem 1.2rem; font-size: .95rem; font-weight: 650; }
+.install-details > summary::marker { color: #8c80a7; }
+.method-label { float: right; margin-left: 1rem; color: var(--muted); font-size: .72rem; font-weight: 500; letter-spacing: .04em; }
+.install-details[open] > summary { border-bottom: 1px solid var(--line); background: #faf9fd; border-radius: .6rem .6rem 0 0; }
+.details-content { min-width: 0; padding: 1.2rem; }
+.details-content > p { color: var(--muted); font-size: .85rem; }
+.details-content pre:first-child { margin-top: 0; }
+.available-packages code { display: inline-block; margin: .15rem 0; }
+.muted, .empty-state { color: var(--muted); }
+.project-notes { padding: 1rem .3rem 1.5rem; color: var(--muted); font-size: .86rem; }
+.project-notes h2 { font-size: 1rem; }
+.project-notes details { padding: 1rem 0; border-top: 1px solid var(--line); }
+.project-notes summary { color: var(--ink); font-size: .87rem; }
+.project-notes details > p { margin-top: 1rem; }
+.status { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin-top: 1rem; }
 .status img { display: block; height: 20px; }
-footer { margin-top: 2em; padding-top: .75em; border-top: 1px solid #bbb; }
-@media (max-width: 38em) { body { margin-top: 1em; } table { min-width: 36em; } }
+footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; padding: 1.5rem 0 2.5rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .75rem; }
+footer p { margin: 0; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 1rem; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-width: 58rem) {
+  .hero { grid-template-columns: 1.3fr 1fr; gap: 2rem; padding-top: 3.5rem; }
+  .hero .eyebrow { max-width: 23rem; }
+  .terminal-body { padding: 1.2rem; }
+  .terminal code { font-size: .75rem; }
+  .choice { padding: 1.1rem; }
+  .downloads th:nth-child(2) { width: 31%; }
+}
+@media (max-width: 42rem) {
+  .shell { padding: 0 1.1rem; }
+  .site-header { min-height: 4.5rem; }
+  nav { gap: .9rem; font-size: .78rem; }
+  nav .desktop-link { display: none; }
+  .hero { grid-template-columns: 1fr; gap: 1.8rem; padding: 2.8rem 0 2.2rem; }
+  .hero h1 { max-width: none; }
+  .hero-description { font-size: 1rem; }
+  .terminal code { font-size: .86rem; }
+  .terminal-body { padding: 1.2rem 1.4rem; }
+  .choice-grid { grid-template-columns: 1fr; gap: .65rem; }
+  .choice { padding: 1.15rem 1.25rem; }
+  .choice strong { font-size: 1.05rem; }
+  .choice .choice-kicker { margin-bottom: .4rem; }
+  .choice p { margin-bottom: .5rem; }
+  .panel { padding: 1.35rem; border-radius: .75rem; }
+  .section-description { font-size: .88rem; }
+  .installer-content { padding: 1.1rem; font-size: .85rem; }
+  .downloads table, .downloads tbody, .downloads tr, .downloads th, .downloads td { display: block; width: 100%; }
+  .downloads thead { display: none; }
+  .downloads tr { padding: 1rem 0; border-bottom: 1px solid var(--line); }
+  .downloads tr:last-child { border: 0; padding-bottom: 0; }
+  .downloads th:first-child, .downloads th:nth-child(2) { width: 100%; }
+  .downloads th, .downloads td { padding: .4rem 0; border: 0; }
+  .sdk-version { padding-top: 0; }
+  .archive-details summary { font-size: .78rem; }
+  .install-details > summary { padding: .9rem 1rem; font-size: .88rem; }
+  .details-content { padding: 1rem; }
+  pre { padding: 1rem; font-size: .75rem; }
+}
 </style>
 </head>
 <body>
-<h1>cbodotnet</h1>
-<p>Community .NET SDK builds for glibc Linux x64 and aarch64, independently of the upstream support lifecycle.</p>
-<p class="status" aria-label="CI/CD workflow status">
+<div class="shell">
+<header class="site-header">
+<a class="wordmark" href="./">cbo<span>dotnet</span></a>
+<nav aria-label="Main navigation">
+<a href="#get-started">Get started</a>
+<a href="#downloads">SDK downloads</a>
+<a class="desktop-link" href="{{REPOSITORY_URL}}">GitHub &nearr;</a>
+</nav>
+</header>
+<main>
+<section class="hero" aria-labelledby="page-title">
+<div>
+<p class="eyebrow">Community Build of .NET (built by .NET Dev)</p>
+<h1 id="page-title">Community .NET,<br>ready for Linux.</h1>
+<p class="hero-description">Build with the SDK version you need. Verified community builds for Linux, with clear provenance and familiar commands.</p>
+<ul class="platforms" aria-label="Supported platforms"><li>Linux x64</li><li>Linux AArch64</li><li>glibc</li></ul>
+</div>
+<div class="terminal" aria-label="Community Build commands">
+<div class="terminal-bar">Familiar commands. A distinct identity.</div>
+<div class="terminal-body">
+<p>Use the shared command or select an installed series.</p>
+<code>cbodotnet --info</code>
+<code>cbodotnet-10.0 --info</code>
+<p class="terminal-note">Your existing system <code class="inline-command">dotnet</code> installation stays available.</p>
+</div>
+</div>
+</section>
+<section id="get-started" class="start-section" aria-labelledby="get-started-title">
+<h2 id="get-started-title">Choose how to get started</h2>
+<div class="choice-grid">
+<a class="choice" href="#installer"><span class="choice-kicker">For your account</span><strong>cbodotnetup</strong><p>Install and manage SDKs in your user directory. No existing .NET installation required.</p><span class="choice-link">Explore the SDK manager &rarr;</span></a>
+<a class="choice" href="#packages"><span class="choice-kicker">For your system</span><strong>Package repositories</strong><p>Use APT or DNF on a verified Linux distribution, with signed package updates.</p><span class="choice-link">Choose your distribution &rarr;</span></a>
+<a class="choice" href="#containers"><span class="choice-kicker">For containers</span><strong>OCI images</strong><p>Run a specific SDK in an isolated environment with a verified image digest.</p><span class="choice-link">Choose a container image &rarr;</span></a>
+</div>
+</section>
+<section id="installer" class="panel" aria-labelledby="installer-title">
+<div class="section-heading"><p class="eyebrow">User installation</p><h2 id="installer-title">Install with cbodotnetup</h2></div>
+<p class="section-description">Keep your SDKs in one place and select the version your project needs.</p>
+<div class="installer-content">{{INSTALLER_PANEL}}</div>
+</section>
+<section id="downloads" class="panel" aria-labelledby="downloads-title">
+<div class="section-heading"><p class="eyebrow">Portable installation</p><h2 id="downloads-title">SDK archive downloads</h2></div>
+<p class="section-description">Choose a version and architecture. Verify the signed manifest and archive checksum before extracting. <a href="{{REPOSITORY_URL}}/blob/main/docs/consumer-archives.md">Installation guide &rarr;</a></p>
+{{CONSUMER_ARCHIVES}}
+<p class="archive-note">Archives provide <code>cbodotnet</code>, <code>cbodotnet-X.Y</code> and a local <code>dotnet</code> command. Distribution libraries are still required. SDK 5.0 and .NET Core 3.x need separate compatibility companions; find their downloads under each release&rsquo;s details.</p>
+</section>
+{{DOWNSTREAM_CHANNELS}}
+<section class="project-notes" aria-labelledby="about-title">
+<h2 id="about-title">About these builds</h2>
+<p>Community builds for glibc Linux, independently of the upstream support lifecycle. These builds do not include Microsoft support or restore security support for older .NET releases. Check the verified operating systems and dependency requirements for your chosen SDK.</p>
+<p>Public commands identify themselves as <strong>Community Build of .NET (built by .NET Dev)</strong> and retain the numeric SDK version. Packages provide <code>cbodotnet-X.Y</code> and <code>cbodotnet</code>; the shared command selects the highest installed SDK series. See the <a href="{{REPOSITORY_URL}}/blob/main/docs/cli-branding.md">CLI identity policy</a> and <a href="downstream-status.json">verified distribution status</a>.</p>
+<details><summary>Build and publication status</summary>
+<div class="status" aria-label="CI/CD workflow status">
 <a href="{{REPOSITORY_URL}}/actions/workflows/checks.yml"><img src="{{REPOSITORY_URL}}/actions/workflows/checks.yml/badge.svg?branch=main" alt="Repository checks status"></a>
 <a href="{{REPOSITORY_URL}}/actions/workflows/sdk-matrix.yml"><img src="{{REPOSITORY_URL}}/actions/workflows/sdk-matrix.yml/badge.svg?branch=main" alt="Linux AArch64 SDK build status"></a>
 <a href="{{REPOSITORY_URL}}/actions/workflows/sdk-x64.yml"><img src="{{REPOSITORY_URL}}/actions/workflows/sdk-x64.yml/badge.svg?branch=main" alt="Linux x64 SDK build status"></a>
 <a href="{{REPOSITORY_URL}}/actions/workflows/upstream-sdk.yml"><img src="{{REPOSITORY_URL}}/actions/workflows/upstream-sdk.yml/badge.svg?branch=main" alt="Upstream SDK tracking and publication status"></a>
 <a href="{{REPOSITORY_URL}}/actions/workflows/publish-releases.yml"><img src="{{REPOSITORY_URL}}/actions/workflows/publish-releases.yml/badge.svg?branch=main" alt="Release publication status"></a>
 <a href="{{REPOSITORY_URL}}/actions/workflows/pages.yml"><img src="{{REPOSITORY_URL}}/actions/workflows/pages.yml/badge.svg?branch=main" alt="Download pages deployment status"></a>
-</p>
-<h2>Branded SDK downloads</h2>
-{{CONSUMER_ARCHIVES}}
-<h2>Original source releases (experimental)</h2>
-<p><strong>These initial unbranded test releases are not recommended for installation or direct use.</strong> They are retained as immutable inputs for branded distributions and for provenance. Use the verified branded packages and containers below. Each original release also retains the actual build sources and verification evidence.</p>
-<div class="downloads">
-<table>
-<thead><tr><th scope="col">SDK version</th><th scope="col">Linux x64</th><th scope="col">Linux aarch64</th><th scope="col">Verification</th></tr></thead>
-<tbody>
-{{DOWNLOAD_ROWS}}
-</tbody>
-</table>
 </div>
-<h2>Choosing a distribution</h2>
-<p>Use a branded distribution with a verified signature and checksum for your exact SDK, architecture and operating system. These are glibc builds; distribution libraries are still required. Original archive checks do not imply package or container qualification. Older SDKs require separately recorded compatibility providers.</p>
-<p>These are community builds, without Microsoft support. Construction details and any reused upstream binary inputs are recorded in the release evidence.</p>
-<h2>Package repositories and containers</h2>
-{{DOWNSTREAM_CHANNELS}}
-<p>The <a href="downstream-status.json">distribution status (JSON)</a> records verified availability. Package commands include a versioned command such as <code>cbodotnet-10.0</code> and <code>cbodotnet</code>; containers also provide <code>dotnet</code> for the same SDK. Public launchers identify themselves as <strong>Community Build of .NET (built by .NET Dev)</strong>, with the original numeric SDK version retained. See the <a href="{{REPOSITORY_URL}}/blob/main/docs/cli-branding.md">CLI identity policy</a>.</p>
-<h2>License</h2>
+</details>
+<details><summary>License and notices</summary>
 <p>Copyright &copy; 2026 cbodotnet contributors. The build automation in this repository is available under the <a href="{{REPOSITORY_URL}}/blob/main/LICENSE">MIT License</a>. Distributed SDKs, source bundles and third-party components retain their respective upstream copyrights, licenses and notices.</p>
+</details>
+</section>
+</main>
 <footer>
-<a href="{{REPOSITORY_URL}}">Source repository and build documentation</a> &middot; <a href="releases.json">Download catalog (JSON)</a><br>
-Updated {{GENERATED_AT}}
+<div class="footer-links"><a href="{{REPOSITORY_URL}}">Source &amp; documentation</a><a href="archive-status.json">Archive catalog</a><a href="downstream-status.json">Distribution status</a></div>
+<p>Updated {{GENERATED_AT}}</p>
 </footer>
+</div>
 </body>
 </html>

@@ -17,6 +17,27 @@ import distribution_site as SITE
 
 
 class DistributionSiteTests(unittest.TestCase):
+    def test_install_commands_are_collapsed_per_distribution_and_container_version(self):
+        status = dict(channels=dict(
+            deb=dict(status='published', publications=[dict(variant='ubuntu-24.04', sdkVersion='10.0.403', packageRevision=1)]),
+            rpm=dict(status='published', publications=[dict(variant='fedora-45')]),
+            oci=dict(status='published', image=dict(repository='ghcr.io/dotnetdev-kr/cbodotnet-sdk', digest='sha256:' + 'a' * 64),
+                     images=[dict(repository='ghcr.io/dotnetdev-kr/cbodotnet-sdk', digest='sha256:' + 'b' * 64, sdkVersion='8.0.133'),
+                             dict(repository='ghcr.io/dotnetdev-kr/cbodotnet-sdk', digest='sha256:' + 'a' * 64, sdkVersion='10.0.403')])
+        ))
+        markup = SITE.render_channels(status)
+        self.assertEqual(4, markup.count('<details class="install-details">'))
+        self.assertNotIn('<details class="install-details" open', markup)
+        self.assertIn('<span>Ubuntu 24.04</span>', markup)
+        self.assertIn('<span>Fedora 45</span>', markup)
+        self.assertIn('<span>SDK 10.0.403</span>', markup)
+        self.assertIn('<span>SDK 8.0.133</span>', markup)
+        self.assertLess(markup.index('<span>SDK 10.0.403</span>'), markup.index('<span>SDK 8.0.133</span>'))
+        self.assertIn('id="packages"', markup)
+        self.assertIn('id="containers"', markup)
+        self.assertIn('D7D154B4B33C19A82B95B13688135410ACD9C0EA', markup)
+        self.assertIn('docker pull ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:' + 'a' * 64, markup)
+
     def test_all_sdk_repository_urls_and_commands_remain_visible(self):
         publications = [dict(variant='debian-13', sdkVersion=version, packageRevision=1)
                         for version in ('10.0.403', '8.0.133')]

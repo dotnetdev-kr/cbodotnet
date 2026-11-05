@@ -213,45 +213,53 @@ def build_catalog(releases, fetch_asset, repository, generated_at=None):
 def render_html(catalog, template, downstream_status=None, consumer_archives=None, installer_markup=''):
     from distribution_site import render_channels
     escape = html.escape
-    consumer_rows = []
+
+    def link(url, label, attributes=''):
+        return '<a href="' + escape(url, quote=True) + '"' + attributes + '>' + escape(label) + '</a>'
+
+    sources = {release['sdkVersion']: release for release in catalog['releases']}
+    versions = {}
     for record in consumer_archives or []:
-        link = '<a href="' + escape(record['archiveUrl'], quote=True) + '">' + escape(record['archiveName']) + '</a>'
-        companion = record.get('compatibility')
-        if companion:
-            link += '<br><a href="' + escape(companion['url'], quote=True) + '">Required separate compatibility companion</a>'
-        native_http = record.get('nativeHttpCompatibility')
-        if native_http:
-            link += '<br><a href="' + escape(native_http['url'], quote=True) + '">Required separate Core 3 libcurl companion</a>'
-        consumer_rows.append('<tr><td>' + escape(record['sdkVersion']) + '</td><td>' + escape(record['architecture'])
-            + '</td><td>' + link + '<br><small>SHA-256: ' + escape(record['archiveSha256']) + '</small></td>'
-            + '<td><a href="' + escape(record['manifestUrl'], quote=True) + '">manifest</a> &middot; '
-            + '<a href="' + escape(record['signatureUrl'], quote=True) + '">signature</a></td></tr>')
-    consumer_markup = ('<p>Verified branded archives provide <code>cbodotnet</code>, a versioned command and '
-        '<code>dotnet</code>. Verify the signature and checksum before extracting. '
-        '<a href="https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/consumer-archives.md">Installation instructions</a>.</p>'
-        + '<div class="downloads"><table><thead><tr><th>SDK</th><th>Architecture</th><th>Download</th><th>Verification</th></tr></thead>'
+        versions.setdefault(record['sdkVersion'], {})[record['architecture']] = record
+    consumer_rows = []
+    for version in sorted(versions, key=lambda value: tuple(map(int, value.split('.'))), reverse=True):
+        downloads, verification = [], []
+        for arch, label in (('x64', 'Linux x64'), ('aarch64', 'Linux AArch64')):
+            record = versions[version].get(arch)
+            if record is None:
+                continue
+            downloads.append(link(record['archiveUrl'], label,
+                ' class="download-button" aria-label="Download SDK ' + escape(version, quote=True) + ' for ' + label + '"'))
+            items = [link(record['manifestUrl'], 'Manifest'), link(record['signatureUrl'], 'Signature')]
+            source = sources.get(version)
+            if source:
+                entry = source['architectures'][arch]
+                items.extend((link(entry['source']['url'], 'Build sources'), link(entry['evidence']['url'], 'Build evidence'),
+                              link(source['checksumsUrl'], 'Source checksums'), link(source['manifestUrl'], 'Source manifest')))
+            dependencies = []
+            for key, title in (('compatibility', 'Required SSL / ICU companion'),
+                               ('nativeHttpCompatibility', 'Required Core 3 libcurl companion')):
+                if record.get(key):
+                    dependencies.append(link(record[key]['url'], title))
+            spaces = ', '.join(record.get('userSpaces', []))
+            verification.append('<div class="archive-verification"><h4>' + label + '</h4>'
+                + ('<p class="muted">Verified on ' + escape(spaces) + '.</p>' if spaces else '')
+                + '<p class="link-list">' + ' '.join(items) + '</p>'
+                + ('<p class="dependency-note">' + '<br>'.join(dependencies) + '</p>' if dependencies else '')
+                + '<p class="checksum-label">Archive SHA-256</p><code class="checksum">' + escape(record['archiveSha256']) + '</code></div>')
+        consumer_rows.append('<tr><th scope="row"><span class="sdk-version">' + escape(version) + '</span></th>'
+            + '<td><div class="download-buttons">' + ''.join(downloads) + '</div></td>'
+            + '<td><details class="archive-details"><summary>Verification, sources &amp; dependencies'
+            + '<span class="visually-hidden"> for SDK ' + escape(version) + '</span></summary>'
+            + '<div class="verification-grid">' + ''.join(verification) + '</div></details></td></tr>')
+    consumer_markup = ('<div class="downloads"><table><thead><tr><th scope="col">SDK version</th>'
+        + '<th scope="col">Download archive</th><th scope="col">Release details</th></tr></thead>'
         + '<tbody>' + ''.join(consumer_rows) + '</tbody></table></div>' if consumer_rows else
-        '<p>Branded archives will appear here after signed publication and native public installation verification.</p>')
-    rows = []
-    for release in catalog["releases"]:
-        cells = ['<th scope="row"><a href="' + escape(release["releaseUrl"], quote=True) + '">' +
-                 escape(release["sdkVersion"]) + '</a></th>']
-        for arch in ("x64", "aarch64"):
-            entry = release["architectures"][arch]
-            links = []
-            for kind, label in (("sdk", "experimental unbranded tar.gz"), ("source", "source"), ("evidence", "evidence")):
-                asset = entry[kind]
-                links.append('<a href="' + escape(asset["url"], quote=True) + '">' + label + '</a>')
-            cells.append('<td>' + ' &middot; '.join(links) + '<br><small>' +
-                         format(entry["sdk"]["size"] / (1024 * 1024), ".1f") + ' MiB SDK</small></td>')
-        cells.append('<td><a href="' + escape(release["checksumsUrl"], quote=True) + '">SHA-256</a><br>' +
-                     '<a href="' + escape(release["manifestUrl"], quote=True) + '">manifest</a></td>')
-        rows.append('<tr>' + ''.join(cells) + '</tr>')
-    if not rows:
-        rows.append('<tr><td colspan="4">No complete public builds are available yet.</td></tr>')
-    replacements = {"{{DOWNLOAD_ROWS}}": "\n".join(rows), "{{GENERATED_AT}}": escape(catalog["generatedAt"]),
+        '<p class="empty-state">SDK archives will appear here after signed publication and native installation verification.</p>')
+    replacements = {"{{GENERATED_AT}}": escape(catalog["generatedAt"]),
                     "{{CONSUMER_ARCHIVES}}": consumer_markup,
-                    "{{DOWNSTREAM_CHANNELS}}": render_channels(downstream_status or {}) + installer_markup,
+                    "{{INSTALLER_PANEL}}": installer_markup or '<p>The SDK manager is not available yet. Choose an archive or a verified package below.</p>',
+                    "{{DOWNSTREAM_CHANNELS}}": render_channels(downstream_status or {}),
                     "{{REPOSITORY_URL}}": "https://github.com/" + escape(catalog["repository"], quote=True)}
     for key, value in replacements.items():
         require(template.count(key) >= 1, "Missing site template placeholder: " + key)

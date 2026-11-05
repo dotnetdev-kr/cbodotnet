@@ -53,6 +53,17 @@ def fixture(version="10.0.403"):
     return release, manifest, manifest_bytes, checksum_bytes
 
 
+def consumer_fixture(version="10.0.403"):
+    base = "https://github.com/" + REPOSITORY + "/releases/download/distribution-archive-sdk-" + version + "-r1/"
+    return [dict(sdkVersion=version, architecture=arch,
+                 archiveName="cbodotnet-sdk-" + version + "-linux-" + arch + "-r1.tar.gz",
+                 archiveUrl=base + "cbodotnet-sdk-" + version + "-linux-" + arch + "-r1.tar.gz",
+                 archiveSha256=hashlib.sha256(arch.encode()).hexdigest(),
+                 manifestUrl=base + "consumer-manifest.json", signatureUrl=base + "consumer-manifest.json.asc",
+                 userSpaces=["ubuntu-24.04", "debian-13"])
+            for arch in ("x64", "aarch64")]
+
+
 class CatalogTests(unittest.TestCase):
     def test_complete_release_binds_both_architectures_and_sources(self):
         release, _, manifest, checksums = fixture()
@@ -167,11 +178,12 @@ class CatalogTests(unittest.TestCase):
             CATALOG.build_catalog([release, release], lambda asset, _: manifest
                 if asset["name"] == "release-manifest.json" else checksums, REPOSITORY)
 
-    def test_page_contains_only_verified_asset_links_and_no_script(self):
+    def test_page_shows_verified_archives_and_their_sources_without_original_sdk_downloads(self):
         release, _, manifest, checksums = fixture()
         catalog = CATALOG.build_catalog([release], lambda asset, _: manifest
             if asset["name"] == "release-manifest.json" else checksums, REPOSITORY)
-        document = CATALOG.render_html(catalog, (ROOT / "site/index.html.in").read_text())
+        consumers = consumer_fixture()
+        document = CATALOG.render_html(catalog, (ROOT / "site/index.html.in").read_text(), consumer_archives=consumers)
 
         class Links(html.parser.HTMLParser):
             def __init__(self):
@@ -186,16 +198,52 @@ class CatalogTests(unittest.TestCase):
 
         parser = Links()
         parser.feed(document)
-        for asset in release["assets"]:
-            self.assertIn(asset["browser_download_url"], parser.links)
+        for consumer in consumers:
+            for field in ("archiveUrl", "manifestUrl", "signatureUrl"):
+                self.assertIn(consumer[field], parser.links)
+        for arch in ("x64", "aarch64"):
+            for kind in ("source", "evidence"):
+                self.assertIn(catalog["releases"][0]["architectures"][arch][kind]["url"], parser.links)
+            self.assertNotIn(catalog["releases"][0]["architectures"][arch]["sdk"]["url"], parser.links)
         self.assertEqual(0, parser.scripts)
         self.assertNotIn("{{", document)
-        self.assertIn("Linux aarch64", document)
+        self.assertNotIn("unbranded", document.lower())
+        self.assertNotIn("experimental", document.lower())
+        self.assertNotIn("Original source releases", document)
+        self.assertIn("Linux AArch64", document)
+
+    def test_archive_rows_group_architectures_by_version_and_collapse_release_details(self):
+        catalog = CATALOG.build_catalog([], lambda *_: self.fail("Unexpected fetch"), REPOSITORY)
+        consumers = consumer_fixture("8.0.133") + consumer_fixture()
+        consumers[0]["compatibility"] = dict(url="https://github.com/companion.tar.gz")
+        consumers[0]["nativeHttpCompatibility"] = dict(url="https://github.com/curl-companion.tar.gz")
+        document = CATALOG.render_html(catalog, (ROOT / "site/index.html.in").read_text(), consumer_archives=consumers)
+        self.assertEqual(2, document.count('<span class="sdk-version">'))
+        self.assertLess(document.index('<span class="sdk-version">10.0.403'), document.index('<span class="sdk-version">8.0.133'))
+        self.assertEqual(4, document.count('class="download-button"'))
+        self.assertEqual(2, document.count('<details class="archive-details">'))
+        self.assertNotIn('<details class="archive-details" open', document)
+        self.assertIn('href="https://github.com/companion.tar.gz"', document)
+        self.assertIn('href="https://github.com/curl-companion.tar.gz"', document)
+        self.assertIn("Required SSL / ICU companion", document)
+        self.assertIn("Required Core 3 libcurl companion", document)
+        for consumer in consumers:
+            self.assertIn(consumer["archiveSha256"], document)
+        self.assertIn("Verified on ubuntu-24.04, debian-13", document)
+
+    def test_installer_has_its_own_section_before_archives_and_channel_instructions(self):
+        catalog = CATALOG.build_catalog([], lambda *_: self.fail("Unexpected fetch"), REPOSITORY)
+        document = CATALOG.render_html(catalog, (ROOT / "site/index.html.in").read_text(),
+                                       installer_markup='<h3>Verified installer fixture</h3>')
+        self.assertLess(document.index('id="installer"'), document.index('id="downloads"'))
+        self.assertLess(document.index('Verified installer fixture'), document.index('id="packages"'))
+        for target in ("installer", "packages", "containers"):
+            self.assertIn('class="choice" href="#' + target + '"', document)
 
     def test_empty_catalog_has_no_invented_downloads(self):
         catalog = CATALOG.build_catalog([], lambda *_: self.fail("Unexpected fetch"), REPOSITORY)
         document = CATALOG.render_html(catalog, (ROOT / "site/index.html.in").read_text())
-        self.assertIn("No complete public builds", document)
+        self.assertIn("SDK archives will appear here after signed publication", document)
         self.assertNotIn("/releases/download/", document)
 
     def test_site_delivery_includes_the_social_image_and_absolute_card_metadata(self):
@@ -213,7 +261,8 @@ class CatalogTests(unittest.TestCase):
                             "channels": {name: {"status": "not-published", "publications": []}
                                          for name in ("deb", "oci", "rpm", "aur")}}
             with mock.patch("distribution_site.prepare_site", return_value=empty_status), \
-                 mock.patch("consumer_archive_site.archive_rows", return_value=[]):
+                 mock.patch("consumer_archive_site.archive_rows", return_value=[]), \
+                 mock.patch("cbodotnetup_site.prepare", return_value=""):
                 CATALOG.write_site(catalog, template, output)
             self.assertEqual(image, (output / "assets/social-card.jpg").read_bytes())
             self.assertEqual(catalog, json.loads((output / "releases.json").read_text(encoding="utf-8")))

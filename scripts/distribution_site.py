@@ -265,7 +265,9 @@ def prepare_site(policy, output, public_key=None):
 
 
 def render_channels(status):
-    rows = []
+    packages, containers = [], []
+    labels = {'ubuntu-24.04': 'Ubuntu 24.04', 'debian-13': 'Debian 13',
+              'fedora-45': 'Fedora 45', 'rocky-9.8': 'Rocky Linux 9.8'}
     for channel, data in status.get('channels', {}).items():
         if data.get('status') != 'published':
             continue
@@ -296,17 +298,24 @@ def render_channels(status):
                            'Suites: ./\nArchitectures: $(dpkg --print-architecture)\n'
                            'Signed-By: /usr/share/keyrings/cbodotnet-archive-keyring.gpg\nEOF\n'
                            'sudo apt-get update\nsudo apt-get install ' + package + '=' + version + '\ncbodotnet --info')
-                rows.append('<h3>' + html.escape(variant) + ' APT</h3><pre><code>' + html.escape(command) + '</code></pre>')
-                packages = sorted({'cbodotnet-sdk-' + '.'.join(row['sdkVersion'].split('.')[:2])
+                available_packages = sorted({'cbodotnet-sdk-' + '.'.join(row['sdkVersion'].split('.')[:2])
                                    for row in data['publications'] if row['variant'] == variant},
                                   key=lambda value: tuple(map(int, value.removeprefix('cbodotnet-sdk-').split('.'))), reverse=True)
-                rows.append('<p>Available SDK packages: ' + ', '.join('<code>' + html.escape(name) + '</code>' for name in packages) + '.</p>')
+                available = '<p class="available-packages">Available SDK packages: ' + ', '.join(
+                    '<code>' + html.escape(name) + '</code>' for name in available_packages) + '.</p>'
+                packages.append('<details class="install-details"><summary><span>' + html.escape(labels.get(variant, variant))
+                    + '</span><span class="method-label">APT</span></summary><div class="details-content">'
+                    + available + '<pre><code>' + html.escape(command) + '</code></pre></div></details>')
         if channel == 'oci' and data.get('image'):
-            for record in data.get('images', [data['image']]):
+            for record in sorted(data.get('images', [data['image']]),
+                                 key=lambda row: tuple(map(int, row.get('sdkVersion', '0').split('.'))), reverse=True):
                 image = record['repository'] + '@' + record['digest']
                 command = 'docker pull ' + image + '\ndocker run --rm ' + image + ' cbodotnet --info'
-                label = 'OCI SDK image' + (' ' + record['sdkVersion'] if record.get('sdkVersion') else '')
-                rows.append('<h3>' + html.escape(label) + '</h3><pre><code>' + html.escape(command) + '</code></pre>')
+                label = 'SDK ' + record['sdkVersion'] if record.get('sdkVersion') else 'SDK image'
+                containers.append('<details class="install-details"><summary><span>' + html.escape(label)
+                    + '</span><span class="method-label">OCI</span></summary><div class="details-content">'
+                    + '<p>Pull the verified multi-architecture image by its immutable digest.</p><pre><code>'
+                    + html.escape(command) + '</code></pre></div></details>')
         if channel == 'rpm':
             for variant in sorted({row['variant'] for row in data['publications']}):
                 repositories = {}
@@ -333,10 +342,19 @@ def render_channels(status):
                            "cat <<'EOF' | sudo tee /etc/yum.repos.d/cbodotnet.repo\n"
                            + '\n'.join(sections) + 'EOF\n'
                            'sudo dnf makecache --refresh\nsudo dnf install cbodotnet-sdk-' + '.'.join(preferred.split('.')[:2]) + '\ncbodotnet --info')
-                rows.append('<h3>' + html.escape(variant) + ' DNF</h3><pre><code>' + html.escape(command) + '</code></pre>')
-    if not rows:
-        return '<p>APT, RPM, AUR and consumer OCI channels are in preparation. Use the verified archive downloads above.</p>'
-    rows.insert(0, '<p>Project-operated distribution channels. Verify the signing fingerprint using the '
-                '<a href="https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/distribution-signing.md">signing policy</a> before trusting a key. '
-                'Only the displayed target combinations have passed their complete channel verification.</p>')
-    return '\n'.join(rows)
+                packages.append('<details class="install-details"><summary><span>' + html.escape(labels.get(variant, variant))
+                    + '</span><span class="method-label">DNF</span></summary><div class="details-content">'
+                    + '<pre><code>' + html.escape(command) + '</code></pre></div></details>')
+    trust = ('<p class="section-description">Choose your distribution to view installation commands. Verify the project identity using the '
+             '<a href="https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/distribution-signing.md">signing policy</a> before trusting a key. '
+             'Only the displayed targets have passed complete channel verification.</p>')
+    package_markup = '\n'.join(packages) if packages else '<p class="empty-state">Package repositories are in preparation. Use a verified SDK archive.</p>'
+    container_markup = '\n'.join(containers) if containers else '<p class="empty-state">Container images are in preparation. Use a verified SDK archive.</p>'
+    return ('<section id="packages" class="panel" aria-labelledby="packages-title"><div class="section-heading">'
+            '<p class="eyebrow">System installation</p><h2 id="packages-title">Package repositories</h2></div>' + trust
+            + '<div class="installation-list">' + package_markup + '</div></section>\n'
+            + '<section id="containers" class="panel" aria-labelledby="containers-title"><div class="section-heading">'
+            '<p class="eyebrow">Isolated environment</p><h2 id="containers-title">OCI containers</h2></div>'
+            '<p class="section-description">Choose an SDK version. Images provide <code>cbodotnet</code>, '
+            '<code>cbodotnet-X.Y</code> and <code>dotnet</code> for the same SDK.</p>'
+            + '<div class="installation-list">' + container_markup + '</div></section>')
