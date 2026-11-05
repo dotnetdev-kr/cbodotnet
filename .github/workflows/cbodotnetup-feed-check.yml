@@ -1,0 +1,35 @@
+name: cbodotnetup default public bootstrap
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    name: Default public feed on native ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Bootstrap anonymously from the default hosted feed without an installed SDK
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: python3 scripts/cbodotnetup-release.py feed-smoke --arch "$ARCH" --workspace "$RUNNER_TEMP/default-installer-feed"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: cbodotnetup-default-feed-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/default-installer-feed/report.json
+          retention-days: 30
+          if-no-files-found: error

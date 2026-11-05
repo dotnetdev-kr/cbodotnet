@@ -106,6 +106,11 @@ official installer state is part of this root. Keep unrelated files intact.
 Key rotation/revocation follows the existing [project procedure](distribution-signing.md).
 Distribute the replacement bootstrap/trust root through an independently
 authenticated source. There is no automatic acceptance of an unrelated key.
-Catalog maintenance and native runtime updates remain project responsibilities;
+The signed catalog is renewed weekly through the protected workflow, using
+authenticated published build inputs, current dependency vulnerability data
+and repeated native/public qualification. Failed renewal leaves the existing
+immutable release intact and does not extend its expiry. Maintainers must
+resolve failures before expiry. Native runtime changes require a new tool
+version. Catalog maintenance and native runtime updates remain project responsibilities;
 distribution does not create an upstream security-support promise for EOL SDKs.
 See the [implementation and trust design](cbodotnetup-design.md).

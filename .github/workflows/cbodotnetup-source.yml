@@ -1,0 +1,39 @@
+name: cbodotnetup source and security tests
+
+on:
+  push:
+    branches: [main]
+    paths: ['tools/**', 'scripts/get-cbodotnetup.py', 'scripts/cbodotnetup*', 'releases/cbodotnetup-policy.json', '.github/workflows/cbodotnetup-source.yml']
+  pull_request:
+    paths: ['tools/**', 'scripts/get-cbodotnetup.py', 'scripts/cbodotnetup*', 'releases/cbodotnetup-policy.json', '.github/workflows/cbodotnetup-source.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cbodotnetup-source-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native:
+    name: Installer core tests native ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Run the managed security and file-transaction tests using the authenticated build SDK
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: python3 scripts/cbodotnetup-release.py source-check --arch "$ARCH" --workspace "$RUNNER_TEMP/installer-source-tests"
+

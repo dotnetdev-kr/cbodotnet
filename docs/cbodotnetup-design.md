@@ -65,6 +65,17 @@ independently authenticates actual report artifact ZIP size/digest and job IDs.
 The site verifies catalog and bootstrap signatures/inventories before serving
 the feed. Expired feed content is removed from newly generated pages.
 
+The weekly catalog-renewal workflow requests this same protected signing and
+qualification path. It reuses exact previously published native tool/build
+inputs, independently verifies their signed frozen inventory and rechecks
+current official NuGet vulnerability data. Expired Actions artifacts are not
+the only recovery source. Previous signed tool entries and revocations are
+retained; a conflicting existing tool identity fails. A new runtime/CVE or
+binary source change requires new build qualification and an immutable tool
+version rather than a waiver. Renewal repeats native/public installation
+qualification before activating a new sequence; source PRs also run the core
+tests on both native architectures.
+
 ## Ownership and transactions
 
 The data root is `$XDG_DATA_HOME/cbodotnetup` (default
@@ -81,6 +92,9 @@ rejects traversal, links escaping the root, duplicate paths, special devices,
 privileged modes, excessive counts/expansion and truncation; links are created
 after regular files. Staging and activation share a filesystem. Active roots
 are exposed only by an atomic directory rename; conflicting identities fail.
+Native qualification kills a real user install during download, verifies that
+no partial SDK was activated and the package baseline remains intact, retries
+successfully, then collects that actual owned abandoned stage offline.
 
 Retry verifies the existing inventory and signed admission. Removal first
 authenticates ownership/inventory, moves the owned root out of the active

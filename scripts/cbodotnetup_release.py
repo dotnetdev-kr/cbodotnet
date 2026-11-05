@@ -9,6 +9,7 @@ from pathlib import Path
 import platform
 import re
 import shlex
+import signal
 import shutil
 import subprocess
 import tarfile
@@ -147,6 +148,51 @@ PY
     print(json.dumps(dict(status='built-native-sdk-free-binary', architecture=arch, binary=descriptor(output / ('cbodotnetup-' + rid)))))
 
 
+def source_check(args):
+    require(platform.machine() in ({'x86_64'} if args.arch=='x64' else {'aarch64','arm64'}),'Native source-test CPU mismatch')
+    workspace=args.workspace.resolve();require(not workspace.exists(),'Fresh source-test workspace required');workspace.mkdir(parents=True)
+    receipt,manifest=selected_archive(load(POLICY)['buildSdk'])
+    record=next(r for r in manifest['records'] if r['architecture']==args.arch)
+    asset=next(a for a in receipt['assets'] if a['name']==record['artifactAsset'])
+    fetch_asset(asset,workspace/'sdk.tar.gz');sdk_tools().extract_sdk(workspace/'sdk.tar.gz',workspace/'sdk')
+    root=workspace/'sdk'/record['build']['directory']/'payload'
+    environment=dict(os.environ,DOTNET_ROOT=str(root),DOTNET_CLI_HOME=str(workspace/'home'),NUGET_PACKAGES=str(workspace/'nuget'),
+        DOTNET_CLI_TELEMETRY_OPTOUT='1',DOTNET_SKIP_FIRST_TIME_EXPERIENCE='1',DOTNET_NOLOGO='1')
+    run([root/'dotnet','run','--project',ROOT/'tools/cbodotnetup.Tests','--configuration','Release',
+        '-p:RuntimeFrameworkVersion='+load(POLICY)['nativeRuntime']],cwd=ROOT/'tools',env=environment)
+
+
+def feed_smoke(args):
+    status=load(ROOT/'releases/cbodotnetup-status.json');require(status['status']=='published-postverified','A fully activated installer is required')
+    workspace=args.workspace.resolve();require(not workspace.exists(),'Fresh public feed workspace required');workspace.mkdir(parents=True)
+    descriptor_expected=next(a for a in status['catalogRelease']['assets'] if a['name']=='get-cbodotnetup.py')
+    raw=get_bytes('https://dotnetdev.kr/cbodotnet/cbodotnetup/get-cbodotnetup.py',descriptor_expected['size'])
+    require(len(raw)==descriptor_expected['size'] and hashlib.sha256(raw).hexdigest()==descriptor_expected['sha256'],'Default public bootstrap differs from authenticated publication')
+    (workspace/'get-cbodotnetup.py').write_bytes(raw)
+    script='''set -eu
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -qq
+apt-get install -y --no-install-recommends python3 ca-certificates gnupg gpgv passwd util-linux
+test ! -e /usr/bin/dotnet
+useradd --create-home --uid 10001 cbot-feed
+runuser -u cbot-feed -- python3 /feed/get-cbodotnetup.py
+runuser -u cbot-feed -- /home/cbot-feed/.local/bin/cbodotnetup --version
+runuser -u cbot-feed -- /home/cbot-feed/.local/bin/cbodotnetup list --available
+runuser -u cbot-feed -- /home/cbot-feed/.local/bin/cbodotnetup doctor
+test ! -e /usr/bin/dotnet
+python3 - <<'PY'
+from pathlib import Path
+import hashlib,json
+root=Path('/home/cbot-feed/.local/share/cbodotnetup/cache')
+Path('/feed/result.json').write_text(json.dumps(dict(status='passed',catalogSha256=hashlib.sha256((root/'catalog.json').read_bytes()).hexdigest(),sequence=json.loads((root/'catalog.json').read_bytes())['sequence'],bootstrapWithoutSdk=True)))
+PY
+'''
+    run(['docker','run','--rm','--user','0','-v',f'{workspace}:/feed',MULTI.BASES['ubuntu-24.04'][args.arch],'sh','-ec',script])
+    result=load(workspace/'result.json');require(result['catalogSha256']==status['catalogSha256'] and result['sequence']==status['catalogSequence'],'Default hosted catalog differs from exact activated version')
+    result.update(scope='cbodotnetup-default-public-feed',architecture=args.arch,version=status['version'],catalogSequence=status['catalogSequence'],catalogUrl='https://dotnetdev.kr/cbodotnet/cbodotnetup/catalog.json')
+    save(workspace/'report.json',result)
+
+
 def catalog(output, builds, *, now=None, sequence=None):
     policy = load(POLICY); now = now or datetime.now(timezone.utc)
     source = source_identity(); sequence = sequence or int(source['runId'])
@@ -154,10 +200,13 @@ def catalog(output, builds, *, now=None, sequence=None):
     tools = []
     for arch, directory in builds.items():
         report = load(directory / 'build.json'); rid = 'linux-x64' if arch == 'x64' else 'linux-arm64'
-        require(report['sourceInputs'] == tool_inputs() and report['source']['repository'] == source['repository']
+        observed={k:v for k,v in report['sourceInputs'].items() if k!='releases/cbodotnetup-policy.json'}
+        expected={k:v for k,v in tool_inputs().items() if k!='releases/cbodotnetup-policy.json'}
+        require(observed == expected and report['source']['repository'] == source['repository']
                 and report['source']['workflow'] == WORKFLOW and report['version'] == policy['version'] and report['architecture'] == arch
                 and report['rid'] == rid and report['securityTests'] == 'passed' and report['nativeRuntime']==policy['nativeRuntime']
-                and report['container']==MULTI.BASES['rocky-9.8'][arch], 'Native build provenance or checks differ')
+                and report['container']==MULTI.BASES['rocky-9.8'][arch]
+                and report['buildSdk']['name'].startswith('cbodotnet-sdk-'+policy['buildSdk']+'-'), 'Native build provenance or checks differ')
         for asset in report['artifacts']:
             actual = descriptor(directory / asset['path'])
             require(all(actual[k] == asset[k] for k in ('name', 'size', 'sha256')), 'Native artifact differs from its exact build')
@@ -182,11 +231,75 @@ def catalog(output, builds, *, now=None, sequence=None):
                 licensePaths=plan['licensePaths'], securitySupport=plan['securitySupport'],
                 dependencies=sorted({name for variant in policy['targets'] for name in contract['operatingSystems'][variant]['dependencies']}),
                 targets=[dict(os=contract['operatingSystems'][v]['id'],versionId=contract['operatingSystems'][v]['versionId'],rid=rid) for v in policy['targets']], requiresLegacyProvider=False))
+    previous=previous_catalog()
+    if previous:
+        current={(t['version'],t['rid']):t for t in tools}
+        for tool in previous['tools']:
+            key=(tool['version'],tool['rid'])
+            require(key not in current or current[key]==tool,'A published tool identity has conflicting bytes')
+            if key not in current:tools.append(tool)
+    require(len(tools)<=64,'Review signed tool retention before exceeding the catalog bound')
+    revoked=sorted(set(policy.get('revoked',[]))|set(previous['revoked'] if previous else []))
     value=dict(schemaVersion=1,kind='cbodotnetup-installation-catalog',sequence=sequence,
         issuedAt=now.isoformat().replace('+00:00','Z'),expiresAt=(now+timedelta(days=policy['catalogLifetimeDays'])).isoformat().replace('+00:00','Z'),
-        signingFingerprint=policy['signingFingerprint'],revoked=[],sdks=sdks,tools=tools,
+        signingFingerprint=policy['signingFingerprint'],revoked=revoked,sdks=sdks,tools=tools,
         channels={'.'.join(s['sdkVersion'].split('.')[:2]):s['sdkVersion']+'-r'+str(s['revision']) for s in sdks})
     save(output / 'catalog.json', value); return value
+
+
+def previous_catalog():
+    path=ROOT/'releases/cbodotnetup-status.json'
+    if not path.exists():return None
+    status=load(path);require(status['status']=='published-postverified','Previous installer feed is unqualified')
+    assets={a['name']:a for a in status['catalogRelease']['assets']}
+    with tempfile.TemporaryDirectory(prefix='cbodotnetup-prior-catalog-') as temporary:
+        directory=Path(temporary)
+        for name in ('catalog.json','catalog.json.asc'):fetch_asset(assets[name],directory/name)
+        key=directory/'trusted.gpg';run(['gpg','--batch','--yes','--dearmor','--output',key,ROOT/'releases/downstream-signing-key.asc'],capture_output=True)
+        verify_report_signature(directory/'catalog.json',directory/'catalog.json.asc',key,load_status(),WORKFLOW)
+        require(descriptor(directory/'catalog.json')['sha256']==status['catalogSha256'],'Prior signed catalog pin differs')
+        return load(directory/'catalog.json')
+
+
+def stable_version(value):
+    match=re.fullmatch(r'(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?(?:-([^+]+))?(?:\+.*)?',value.strip())
+    require(match is not None,'Review an unsupported NuGet audit version')
+    return tuple(int(match[i] or 0) for i in (1,2,3,4))+(0 if match[5] else 1,)
+
+
+def affected(version,interval):
+    require(re.fullmatch(r'\d+\.\d+\.\d+(?:\.\d+)?',version),'Native runtime package versions must be stable')
+    current=stable_version(version);interval=interval.strip()
+    require(interval[:1] in ('[','(') and interval[-1:] in (']',')'),'Review an unsupported NuGet vulnerability range')
+    bounds=interval[1:-1].split(',')
+    if len(bounds)==1:
+        require(interval.startswith('[') and interval.endswith(']'),'Malformed exact vulnerability range')
+        return current==stable_version(bounds[0])
+    require(len(bounds)==2,'Review a compound vulnerability range')
+    low,high=(b.strip() for b in bounds)
+    return (not low or current>stable_version(low) or interval[0]=='[' and current==stable_version(low)) and (not high or current<stable_version(high) or interval[-1]==']' and current==stable_version(high))
+
+
+def audit_native_packages(builds,output):
+    """Reusing a binary never bypasses current NuGet vulnerability data."""
+    index_url='https://api.nuget.org/v3/vulnerabilities/index.json'
+    raw=get_bytes(index_url,1024**2);index=json.loads(raw);require(isinstance(index,list) and 0<len(index)<=16,'Unexpected NuGet vulnerability index')
+    newest=max(datetime.fromisoformat(item['@updated'].replace('Z','+00:00')) for item in index)
+    now=datetime.now(timezone.utc);require(now-timedelta(days=2)<=newest<=now+timedelta(minutes=5),'NuGet vulnerability data is stale or future-dated')
+    databases=[];descriptors=[]
+    for item in index:
+        url=item['@id'];require(url.startswith('https://api.nuget.org/v3-vulnerabilities/') and url.endswith('.json'),'Untrusted vulnerability dataset URL')
+        data=get_bytes(url,32*1024**2);databases.append(json.loads(data));descriptors.append(dict(url=url,size=len(data),sha256=hashlib.sha256(data).hexdigest()))
+    packages=set()
+    for directory in builds.values():
+        value=load(directory/'native-package-inputs.json')
+        packages|={tuple(k.lower().split('/',1)) for k,v in value['libraries'].items() if v['type']=='package'}
+    require(packages and any(name=='microsoft.dotnet.ilcompiler' for name,_ in packages),'Actual NativeAOT package inputs are absent')
+    for name,version in sorted(packages):
+        for database in databases:
+            for advisory in database.get(name,[]):
+                require(not affected(version,advisory['versions']),'Native tool dependency is currently vulnerable: '+name+'/'+version+' '+advisory['url'])
+    save(output,dict(status='passed',observedAt=now.isoformat(),indexUrl=index_url,data=descriptors,packages=[dict(name=n,version=v) for n,v in sorted(packages)]))
 
 
 def sign(path):
@@ -195,6 +308,7 @@ def sign(path):
 
 def verify_bundle(bundle):
     bundle=Path(bundle).resolve();manifest=load(bundle/'freeze.json')
+    require(not any(p.is_symlink() for p in bundle.rglob('*')),'Frozen inputs cannot contain links')
     require(manifest['schemaVersion']==1 and manifest['kind']=='cbodotnetup-frozen-candidate'
             and manifest['source']['repository']=='dotnetdev-kr/cbodotnet' and manifest['source']['workflow']==WORKFLOW,
             'Untrusted frozen installer provenance')
@@ -229,6 +343,7 @@ def stage(args):
         require(len(native)==1 and native[0]['status']=='completed' and native[0]['conclusion']=='success','Native build did not actually succeed')
         destination=output/'tools'/report['rid'];shutil.copytree(path.parent,destination);builds[arch]=destination
     catalog(output,builds)
+    audit_native_packages(builds,output/'native-package-audit.json')
     shutil.copyfile(ROOT/'scripts/get-cbodotnetup.py',output/'get-cbodotnetup.py')
     MULTI.preflight(output/'preflight',receive=True)
     sign(output/'catalog.json')
@@ -238,10 +353,14 @@ def stage(args):
     print(json.dumps(dict(status='signed-frozen-unpublished',version=freeze['version'],catalog=descriptor(output/'catalog.json'))))
 
 
-def user(arguments,*,check=True):
-    command=['runuser','-u',MULTI.USER,'--','env','-i','PATH=/usr/local/bin:/usr/bin:/bin',
+def user_command(arguments):
+    return ['runuser','-u',MULTI.USER,'--','env','-i','PATH=/usr/local/bin:/usr/bin:/bin',
              'HOME=/home/'+MULTI.USER,'DOTNET_CLI_HOME=/home/'+MULTI.USER,'DOTNET_CLI_TELEMETRY_OPTOUT=1',
              'DOTNET_NOLOGO=1','DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1','DOTNET_CLI_UI_LANGUAGE=en',*map(str,arguments)]
+
+
+def user(arguments,*,check=True):
+    command=user_command(arguments)
     result=subprocess.run(command,text=True,capture_output=True,cwd='/home/'+MULTI.USER)
     if check:require(result.returncode==0,'Installer native command failed: '+shlex.join(list(map(str,arguments)))+'\n'+result.stdout[-6000:]+'\n'+result.stderr[-6000:])
     return result
@@ -282,6 +401,23 @@ def native_install(args):
     # Before feed activation, use the exact project-signed catalog under qualification.
     # Public verification re-downloads these same bytes from their actual immutable release.
     manager=[binary,'--catalog',bundle/'catalog.json']
+    root=home/'.local/share/cbodotnetup'
+    log=state/'interrupted-install.log'
+    with log.open('w') as output:
+        child=subprocess.Popen(user_command([*manager,'install',exact]),stdout=output,stderr=subprocess.STDOUT,
+                               cwd=home,start_new_session=True)
+        interrupted=False
+        try:
+            deadline=time.monotonic()+60
+            while child.poll() is None and time.monotonic()<deadline:
+                if any((p/'source.json').is_file() for p in (root/'staging').iterdir() if p.is_dir()):
+                    os.killpg(child.pid,signal.SIGKILL);interrupted=True;break
+                time.sleep(0.02)
+        finally:
+            if child.poll() is None:os.killpg(child.pid,signal.SIGKILL)
+            child.wait(timeout=30)
+    require(interrupted and not (root/'toolchains'/exact/rid).exists(),'Interrupted download exposed an active or partial SDK root; '+log.read_text()[-3000:])
+    MULTI.integrity(packages,MULTI.TARGETS[args.variant])
     user([*manager,'install','--channel','10.0']);user([*manager,'install',exact]);user([*manager,'update']);user([*manager,'rollback',exact])
     require(user([binary,'list']).stdout.strip()==exact+'/'+rid,'Installed list identity differs')
     user([binary,'shell','enable']);user([*manager,'self','update'])
@@ -313,8 +449,8 @@ def native_smoke(args):
     with (root/'operation.lock').open('a+b') as lock:
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         require(user([binary,'list'],check=False).returncode!=0,'Concurrent installer operation ignored process lock')
-    abandoned=root/'staging'/'0123456789abcdef0123456789abcdef';abandoned.mkdir();(abandoned/'owner').write_text('cbodotnetup-v1');(abandoned/'partial').write_bytes(b'incomplete')
-    user([binary,'gc']);require(not abandoned.exists(),'Abandoned owned stage was not collected')
+    abandoned=list((root/'staging').iterdir());require(abandoned and all(p.is_dir() and (p/'owner').read_text()=='cbodotnetup-v1' for p in abandoned),'Actual interrupted install did not leave its owned stage')
+    user([binary,'gc']);require(not list((root/'staging').iterdir()),'Abandoned owned stage was not collected')
     require(user([binary,'run',exact,'--','--version']).stdout==version+'\n','Interrupted activation affected an active SDK')
     user([binary,'remove',exact]);require(user([binary,'list']).stdout=='','Removed SDK still advertised')
     absent=user([root/'bin/cbodotnet','--version'],check=False);require(absent.returncode!=0 and not absent.stdout,'Empty user selector fell back to an official/package SDK')
@@ -475,6 +611,17 @@ def receive_public(args):
         require(hashlib.sha256(raw).hexdigest()==assets[name]['sha256'] and raw==(args.output/name).read_bytes(),'Public consumer metadata differs from the frozen signed candidate')
 
 
+def receive_published_builds(args):
+    status=load(ROOT/'releases/cbodotnetup-status.json');require(status['status']=='published-postverified','No qualified installer exists to renew')
+    require(not args.output.exists(),'Fresh published build input directory required');args.output.mkdir(parents=True)
+    assets={a['name']:a for a in status['catalogRelease']['assets']}
+    archive=args.output/'prior-inputs.tar.gz';fetch_asset(assets['cbodotnetup-verification-inputs.tar.gz'],archive)
+    extracted=args.output/'prior';sdk_tools().extract_sdk(archive,extracted);verify_bundle(extracted)
+    for arch,rid in (('x64','linux-x64'),('aarch64','linux-arm64')):shutil.copytree(extracted/'tools'/rid,args.output/('native-'+arch))
+    # Keep only authenticated build inputs for stage(); prevent duplicate build.json discovery.
+    shutil.rmtree(extracted);archive.unlink()
+
+
 def activate(args):
     publication=load(args.publication);proof=qualified_reports(args.bundle,args.reports,public=True)
     require(publication['catalogSha256']==descriptor(args.bundle/'catalog.json')['sha256'],'Public installer catalog differs')
@@ -497,6 +644,8 @@ def activate(args):
 def main():
     parser=argparse.ArgumentParser(description=__doc__); commands=parser.add_subparsers(dest='command',required=True)
     command=commands.add_parser('build'); command.add_argument('--arch',choices=('x64','aarch64'),required=True); command.add_argument('--workspace',type=Path,required=True)
+    for name in ('source-check','feed-smoke'):
+        command=commands.add_parser(name);command.add_argument('--arch',choices=('x64','aarch64'),required=True);command.add_argument('--workspace',type=Path,required=True)
     command=commands.add_parser('stage');command.add_argument('--received',type=Path,required=True);command.add_argument('--output',type=Path,required=True)
     for name in ('native','native-install','native-smoke'):
         command=commands.add_parser(name);command.add_argument('--bundle',type=Path,required=True);command.add_argument('--workspace',type=Path,required=True)
@@ -506,9 +655,10 @@ def main():
         command=commands.add_parser(name);command.add_argument('--bundle',type=Path,required=True);command.add_argument('--reports',type=Path,required=True);command.add_argument('--output',type=Path,required=True)
         if name=='activate':command.add_argument('--publication',type=Path,required=True)
     command=commands.add_parser('receive-public');command.add_argument('--publication',type=Path,required=True);command.add_argument('--output',type=Path,required=True)
+    command=commands.add_parser('receive-published-builds');command.add_argument('--output',type=Path,required=True)
     args=parser.parse_args()
-    {'build':build,'stage':stage,'native':native,'native-install':native_install,'native-smoke':native_smoke,
-     'publish':publish,'receive-public':receive_public,'activate':activate}[args.command](args)
+    {'build':build,'source-check':source_check,'feed-smoke':feed_smoke,'stage':stage,'native':native,'native-install':native_install,'native-smoke':native_smoke,
+     'publish':publish,'receive-public':receive_public,'receive-published-builds':receive_published_builds,'activate':activate}[args.command](args)
 
 
 if __name__=='__main__':main()

@@ -1,0 +1,39 @@
+name: Renew authenticated cbodotnetup catalog
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 4 * * 1'
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: cbodotnetup-catalog-renewal-request
+  cancel-in-progress: false
+
+jobs:
+  request:
+    if: github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Request protected renewal with immutable published native tools
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test -f releases/cbodotnetup-status.json || exit 0
+          python3 - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          status=json.loads(Path('releases/cbodotnetup-status.json').read_bytes())
+          policy=json.loads(Path('releases/cbodotnetup-policy.json').read_bytes())
+          assert status['status']=='published-postverified' and status['version']==policy['version']
+          subprocess.run(['gh','workflow','run','distribution-release.yml','--ref','main',
+              '-f','channel=installer','-f','publish=true','-f','source_run_id=published'],check=True)
+          PY
