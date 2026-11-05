@@ -10,10 +10,207 @@ import tarfile
 import tempfile
 import unittest
 from unittest import mock
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 import distribution_site as SITE
+
+
+class StreamingResponse:
+    def __init__(self, blocks):
+        self.blocks = iter(blocks)
+        self.read_sizes = []
+        self.closed = False
+
+    def read(self, size):
+        if size != 4 * 1024**2:
+            raise AssertionError('Large assets must be read in bounded blocks')
+        self.read_sizes.append(size)
+        block = next(self.blocks, b'')
+        if isinstance(block, Exception):
+            raise block
+        return block
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        self.closed = True
+
+
+class DistributionDownloadTests(unittest.TestCase):
+    URL = 'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-deb-sdk-10.0.403-r3/metadata.json'
+    LARGE = 17 * 1024**2
+
+    def test_small_assets_delegate_with_the_tighter_authenticated_size_bound(self):
+        data = b'signed metadata'
+        expected = dict(size=len(data), sha256=hashlib.sha256(data).hexdigest())
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(SITE, 'get_bytes', return_value=data) as fetch:
+            target = Path(temporary) / 'metadata'
+            self.assertEqual(expected['sha256'], SITE.download(self.URL, target, 128 * 1024**2, expected))
+            fetch.assert_called_once_with(self.URL, len(data))
+            self.assertEqual(data, target.read_bytes())
+
+    def test_small_assets_keep_the_caller_bound_when_it_is_tighter_than_the_descriptor(self):
+        data = b'data'
+        expected = dict(size=20, sha256=hashlib.sha256(data).hexdigest())
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(SITE, 'get_bytes', return_value=data) as fetch:
+            with self.assertRaisesRegex(ValueError, 'digest mismatch'):
+                SITE.download(self.URL, Path(temporary) / 'metadata', len(data), expected)
+            fetch.assert_called_once_with(self.URL, len(data))
+
+    def test_small_assets_preserve_sha_validation_and_exclusive_creation(self):
+        data = b'metadata'
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(SITE, 'get_bytes', return_value=data) as fetch:
+            target = Path(temporary) / 'metadata'
+            with self.assertRaisesRegex(ValueError, 'digest mismatch'):
+                SITE.download(self.URL, target, 100, dict(size=len(data), sha256='0' * 64))
+            self.assertEqual(data, target.read_bytes())
+            target.write_bytes(b'original')
+            with self.assertRaises(FileExistsError):
+                SITE.download(self.URL, target, 100)
+            self.assertEqual(b'original', target.read_bytes())
+            self.assertEqual(2, fetch.call_count)
+
+    def test_small_helper_cannot_exceed_the_download_bound(self):
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(SITE, 'get_bytes', return_value=b'oversized'):
+            target = Path(temporary) / 'metadata'
+            with self.assertRaisesRegex(ValueError, 'size bound'):
+                SITE.download(self.URL, target, 2)
+            self.assertFalse(target.exists())
+
+    def test_small_trusted_repository_metadata_uses_the_shared_anonymous_api_fallback(self):
+        url = self.URL.replace('distribution-deb-sdk-', 'repository-deb-debian-13-sdk-')
+        data = b'fallback metadata'
+        expected = dict(size=len(data), sha256=hashlib.sha256(data).hexdigest())
+        error = SITE.urllib.error.HTTPError(url, 504, 'transient', {}, None)
+        with tempfile.TemporaryDirectory() as temporary, \
+                mock.patch.object(SITE.urllib.request, 'urlopen', side_effect=error) as opener, \
+                mock.patch('release_catalog.anonymous_release_metadata', return_value=data) as fallback, \
+                mock.patch.object(SITE.time, 'sleep'):
+            target = Path(temporary) / 'metadata'
+            self.assertEqual(expected['sha256'], SITE.download(url, target, self.LARGE, expected))
+            self.assertEqual(3, opener.call_count)
+            fallback.assert_called_once_with(url, len(data))
+            self.assertEqual(data, target.read_bytes())
+
+    def test_foreign_or_unadmitted_asset_urls_never_reach_either_download_path(self):
+        with mock.patch.object(SITE, 'get_bytes') as helper, mock.patch.object(SITE.urllib.request, 'urlopen') as opener:
+            for maximum in (100, self.LARGE):
+                for url in ('http://github.com/x', 'https://evil.example/key', 'file:///etc/passwd',
+                            self.URL.replace('dotnetdev-kr/cbodotnet', 'other/repository'),
+                            self.URL.replace('distribution-deb-sdk-', 'sdk-')):
+                    with self.subTest(url=url, maximum=maximum), self.assertRaisesRegex(ValueError, 'Untrusted'):
+                        SITE.download(url, Path('unused'), maximum)
+            helper.assert_not_called()
+            opener.assert_not_called()
+
+    def test_large_transient_connection_failures_retry_fresh_public_urls_before_opening_a_file(self):
+        errors = [SITE.urllib.error.HTTPError(self.URL, code, 'transient', {}, None) for code in (502, 503, 504)]
+        errors += [SITE.urllib.error.URLError('connection reset'), TimeoutError('timed out')]
+        for error in errors:
+            with self.subTest(error=str(error)), tempfile.TemporaryDirectory() as temporary, \
+                    mock.patch.object(SITE, 'get_bytes') as helper, \
+                    mock.patch.object(SITE.time, 'sleep') as sleep, \
+                    mock.patch.object(SITE.urllib.request, 'urlopen') as opener:
+                target = Path(temporary) / 'archive'
+                response = StreamingResponse([b'large-asset-stream'])
+
+                def connect(request, **kwargs):
+                    self.assertFalse(target.exists())
+                    self.assertEqual(dict(timeout=60), kwargs)
+                    if opener.call_count == 1:
+                        raise error
+                    return response
+
+                opener.side_effect = connect
+                expected_hash = hashlib.sha256(b'large-asset-stream').hexdigest()
+                self.assertEqual(expected_hash, SITE.download(self.URL, target, self.LARGE))
+                self.assertEqual(2, opener.call_count)
+                sleep.assert_called_once_with(2)
+                original, retry = [call.args[0] for call in opener.call_args_list]
+                self.assertEqual(self.URL, original.full_url)
+                self.assertEqual(urlsplit(self.URL).path, urlsplit(retry.full_url).path)
+                self.assertRegex(urlsplit(retry.full_url).query, r'^cbodotnet_retry=1-[0-9]+$')
+                self.assertEqual('no-cache', retry.get_header('Cache-control'))
+                self.assertEqual('no-cache', retry.get_header('Pragma'))
+                self.assertNotIn('Authorization', dict(retry.header_items()))
+                self.assertTrue(response.closed)
+                helper.assert_not_called()
+
+    def test_large_connection_retry_is_limited_to_three_attempts_without_api_fallback(self):
+        error = SITE.urllib.error.HTTPError(self.URL, 504, 'transient', {}, None)
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(SITE, 'get_bytes') as helper, \
+                mock.patch.object(SITE.urllib.request, 'urlopen', side_effect=error) as opener, \
+                mock.patch.object(SITE.time, 'sleep') as sleep:
+            target = Path(temporary) / 'archive'
+            with self.assertRaises(SITE.urllib.error.HTTPError):
+                SITE.download(self.URL, target, self.LARGE)
+            self.assertEqual(3, opener.call_count)
+            self.assertEqual([mock.call(2), mock.call(4)], sleep.call_args_list)
+            self.assertFalse(target.exists())
+            helper.assert_not_called()
+
+    def test_large_permanent_http_failure_is_not_retried(self):
+        error = SITE.urllib.error.HTTPError(self.URL, 404, 'missing', {}, None)
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(SITE.urllib.request, 'urlopen', side_effect=error) as opener, \
+                mock.patch.object(SITE.time, 'sleep') as sleep:
+            target = Path(temporary) / 'archive'
+            with self.assertRaises(SITE.urllib.error.HTTPError):
+                SITE.download(self.URL, target, self.LARGE)
+            opener.assert_called_once()
+            sleep.assert_not_called()
+            self.assertFalse(target.exists())
+
+    def test_large_asset_streams_blocks_and_verifies_the_exact_descriptor(self):
+        blocks = [b'a' * (4 * 1024**2)] * 4 + [b'last block']
+        sha = hashlib.sha256()
+        for block in blocks:
+            sha.update(block)
+        expected = dict(size=sum(map(len, blocks)), sha256=sha.hexdigest())
+        response = StreamingResponse(blocks)
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(SITE, 'get_bytes') as helper, \
+                mock.patch.object(SITE.urllib.request, 'urlopen', return_value=response):
+            target = Path(temporary) / 'archive'
+            self.assertEqual(expected['sha256'], SITE.download(self.URL, target, 128 * 1024**2, expected))
+            self.assertEqual(expected['size'], target.stat().st_size)
+            self.assertEqual([4 * 1024**2] * 6, response.read_sizes)
+            self.assertTrue(response.closed)
+            helper.assert_not_called()
+
+    def test_large_descriptor_bound_is_enforced_before_writing_an_excess_block(self):
+        response = StreamingResponse([b'a' * (4 * 1024**2)] * 4 + [b'b' * (2 * 1024**2)])
+        expected = dict(size=self.LARGE, sha256='0' * 64)
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(SITE.urllib.request, 'urlopen', return_value=response) as opener, \
+                mock.patch.object(SITE.time, 'sleep') as sleep:
+            target = Path(temporary) / 'archive'
+            with self.assertRaisesRegex(ValueError, 'size bound'):
+                SITE.download(self.URL, target, 128 * 1024**2, expected)
+            self.assertEqual(16 * 1024**2, target.stat().st_size)
+            opener.assert_called_once()
+            sleep.assert_not_called()
+            self.assertTrue(response.closed)
+
+    def test_large_read_file_and_integrity_failures_are_not_retried(self):
+        for failure in ('read', 'existing', 'digest'):
+            blocks = [b'partial', SITE.urllib.error.URLError('interrupted')] if failure == 'read' else [b'contents']
+            response = StreamingResponse(blocks)
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as temporary, \
+                    mock.patch.object(SITE.urllib.request, 'urlopen', return_value=response) as opener, \
+                    mock.patch.object(SITE.time, 'sleep') as sleep:
+                target = Path(temporary) / 'archive'
+                expected = dict(size=self.LARGE, sha256='0' * 64) if failure == 'digest' else None
+                error = dict(read=SITE.urllib.error.URLError, existing=FileExistsError, digest=ValueError)[failure]
+                if failure == 'existing':
+                    target.write_bytes(b'original')
+                with self.assertRaises(error):
+                    SITE.download(self.URL, target, self.LARGE, expected)
+                if failure == 'existing':
+                    self.assertEqual(b'original', target.read_bytes())
+                opener.assert_called_once()
+                sleep.assert_not_called()
+                self.assertTrue(response.closed)
 
 
 class DistributionSiteTests(unittest.TestCase):

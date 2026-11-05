@@ -8,12 +8,15 @@ import shutil
 import subprocess
 import tarfile
 import tempfile
+import time
+import urllib.error
 import urllib.request
 
 from distribution_contract import load_contract
 from downstream_release import verify_report_signature
 from downstream_publish import publication_rows, release_tag
 from rpm_repository import asset_base as rpm_asset_base, verify_repository as verify_rpm_repository
+from release_catalog import fresh_release_url, get_bytes
 
 ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY = 'dotnetdev-kr/cbodotnet'
@@ -28,14 +31,40 @@ def download(url, target, maximum, expected=None):
     require(isinstance(url, str) and any(url.startswith(f'https://github.com/{REPOSITORY}/releases/download/' + prefix)
                                        for prefix in ('distribution-', 'repository-deb-')),
             'Untrusted distribution asset URL')
+    bound = min(maximum, expected['size']) if expected and type(expected.get('size')) is int and expected['size'] > 0 else maximum
     digest = hashlib.sha256()
     count = 0
-    with urllib.request.urlopen(url, timeout=60) as incoming, Path(target).open('xb') as output:
-        for block in iter(lambda: incoming.read(4 * 1024**2), b''):
-            count += len(block)
-            require(count <= maximum, 'Distribution download exceeds its size bound')
-            digest.update(block)
-            output.write(block)
+    if bound <= 16 * 1024**2:
+        data = get_bytes(url, bound)
+        count = len(data)
+        require(count <= bound, 'Distribution download exceeds its size bound')
+        digest.update(data)
+        with Path(target).open('xb') as output:
+            output.write(data)
+    else:
+        for attempt in range(3):
+            request_url = fresh_release_url(url, attempt)
+            headers = {'User-Agent': 'cbodotnet-distribution-site', 'Accept': 'application/octet-stream'}
+            if attempt:
+                headers.update({'Cache-Control': 'no-cache', 'Pragma': 'no-cache'})
+            request = urllib.request.Request(request_url, headers=headers)
+            try:
+                incoming = urllib.request.urlopen(request, timeout=60)
+            except urllib.error.HTTPError as error:
+                if error.code not in {502, 503, 504} or attempt == 2:
+                    raise
+            except (urllib.error.URLError, TimeoutError):
+                if attempt == 2:
+                    raise
+            else:
+                break
+            time.sleep(2 * (attempt + 1))
+        with incoming, Path(target).open('xb') as output:
+            for block in iter(lambda: incoming.read(4 * 1024**2), b''):
+                count += len(block)
+                require(count <= bound, 'Distribution download exceeds its size bound')
+                digest.update(block)
+                output.write(block)
     if expected:
         require(count == expected['size'] and digest.hexdigest() == expected['sha256'],
                 'Distribution asset digest mismatch')
