@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import MagicMock,patch
 
 ROOT=Path(__file__).resolve().parents[1]
 SPEC=importlib.util.spec_from_file_location('get_cbodotnetup',ROOT/'scripts/get-cbodotnetup.py')
@@ -67,6 +68,16 @@ class InstallerBootstrapTests(unittest.TestCase):
             with self.assertRaises(ValueError):BOOT.atomic(root/'link',b'bad')
             self.assertEqual(target.read_bytes(),b'original')
             BOOT.atomic(target,b'verified');self.assertEqual(target.read_bytes(),b'verified')
+
+    def test_http_gzip_is_bounded_after_decoding_before_signature_checks(self):
+        import gzip
+        with patch.object(BOOT.urllib.request,'build_opener') as opener:
+            response=MagicMock();response.headers={'Content-Encoding':'gzip'}
+            response.read.return_value=gzip.compress(b'verified metadata')
+            opener.return_value.open.return_value.__enter__.return_value=response
+            self.assertEqual(BOOT.download(BOOT.CATALOG,1024),b'verified metadata')
+            response.read.return_value=gzip.compress(b'x'*4096)
+            with self.assertRaisesRegex(ValueError,'Decompressed'):BOOT.download(BOOT.CATALOG,256)
 
 
 if __name__=='__main__':unittest.main()

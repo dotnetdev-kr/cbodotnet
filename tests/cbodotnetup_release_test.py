@@ -3,6 +3,7 @@ import tempfile
 import sys
 import unittest
 from unittest.mock import patch
+from unittest.mock import MagicMock
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
 import cbodotnetup_release as UP
@@ -40,6 +41,15 @@ class InstallerReleaseTests(unittest.TestCase):
                         'https://api.nuget.org/v3/vulnerabilities/index.json?token=x'):
                 with self.subTest(url=url),self.assertRaises(ValueError):UP.public_metadata(url,1024)
             network.assert_not_called()
+
+    def test_official_compressed_metadata_has_a_decoded_size_bound(self):
+        import gzip
+        with patch.object(UP.urllib.request,'build_opener') as opener:
+            response=MagicMock();response.headers={'Content-Encoding':'gzip'};response.read.return_value=gzip.compress(b'{}')
+            opener.return_value.open.return_value.__enter__.return_value=response
+            self.assertEqual(UP.public_metadata('https://api.nuget.org/v3/vulnerabilities/index.json',1024),b'{}')
+            response.read.return_value=gzip.compress(b'x'*4096)
+            with self.assertRaisesRegex(ValueError,'Decompressed'):UP.public_metadata('https://api.nuget.org/v3/vulnerabilities/index.json',256)
 
 
 if __name__=='__main__':unittest.main()

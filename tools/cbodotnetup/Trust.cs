@@ -105,7 +105,7 @@ internal sealed partial class Trust
     }
     internal static async Task<byte[]> Download(string url, long maximum)
     {
-        using var handler = new HttpClientHandler { AllowAutoRedirect = false, AutomaticDecompression = DecompressionMethods.None, UseCookies = false };
+        using var handler = new HttpClientHandler { AllowAutoRedirect = false, AutomaticDecompression = DecompressionMethods.All, UseCookies = false };
         using var client = new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(15) };
         using var deadline = new CancellationTokenSource(TimeSpan.FromMinutes(15));
         client.DefaultRequestHeaders.UserAgent.ParseAdd("cbodotnetup/0.1.0");

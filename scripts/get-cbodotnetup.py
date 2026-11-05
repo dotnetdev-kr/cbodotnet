@@ -81,9 +81,15 @@ class Redirect(urllib.request.HTTPRedirectHandler):
 
 def download(url,maximum):
     allowed(url)
-    with urllib.request.build_opener(Redirect()).open(urllib.request.Request(url,headers={'User-Agent':'cbodotnetup-bootstrap/0.1.0'}),timeout=60) as incoming:
-        data=incoming.read(maximum+1)
-    require(0<len(data)<=maximum,'Download exceeded its size bound');return data
+    with urllib.request.build_opener(Redirect()).open(urllib.request.Request(url,headers={'User-Agent':'cbodotnetup-bootstrap/0.1.0','Accept-Encoding':'identity'}),timeout=60) as incoming:
+        data=incoming.read(maximum+1);encoding=incoming.headers.get('Content-Encoding','identity').lower()
+    require(0<len(data)<=maximum,'Download exceeded its size bound')
+    if encoding=='gzip':
+        import gzip,io
+        with gzip.GzipFile(fileobj=io.BytesIO(data)) as compressed:data=compressed.read(maximum+1)
+        require(0<len(data)<=maximum,'Decompressed download exceeded its size bound')
+    else:require(encoding in ('','identity'),'Unsupported bootstrap content encoding')
+    return data
 
 
 def verify(data,signature,directory):

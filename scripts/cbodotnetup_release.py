@@ -101,9 +101,15 @@ def public_metadata(url,maximum):
     require(uri.scheme=='https' and not uri.query and not uri.fragment and (nuget or site),'Untrusted installer public metadata origin/path')
     class NoRedirect(urllib.request.HTTPRedirectHandler):
         def redirect_request(self,*args,**kwargs):raise ValueError('Unexpected installer metadata redirect')
-    request=urllib.request.Request(url,headers={'User-Agent':'cbodotnetup-public-verification'})
-    with urllib.request.build_opener(NoRedirect()).open(request,timeout=60) as incoming:data=incoming.read(maximum+1)
+    request=urllib.request.Request(url,headers={'User-Agent':'cbodotnetup-public-verification','Accept-Encoding':'identity'})
+    with urllib.request.build_opener(NoRedirect()).open(request,timeout=60) as incoming:
+        data=incoming.read(maximum+1);encoding=incoming.headers.get('Content-Encoding','identity').lower()
     require(0<len(data)<=maximum,'Installer public metadata exceeds its bound')
+    if encoding=='gzip':
+        import gzip
+        with gzip.GzipFile(fileobj=io.BytesIO(data)) as compressed:data=compressed.read(maximum+1)
+        require(0<len(data)<=maximum,'Decompressed installer metadata exceeds its bound')
+    else:require(encoding in ('','identity'),'Unsupported installer metadata content encoding')
     return data
 
 
@@ -299,7 +305,7 @@ def audit_native_packages(builds,output):
     """Reusing a binary never bypasses current NuGet vulnerability data."""
     index_url='https://api.nuget.org/v3/vulnerabilities/index.json'
     raw=public_metadata(index_url,1024**2);index=json.loads(raw);require(isinstance(index,list) and 0<len(index)<=16,'Unexpected NuGet vulnerability index')
-    newest=max(datetime.fromisoformat(item['@updated'].replace('Z','+00:00')) for item in index)
+    newest=max(datetime.fromisoformat(re.sub(r'(\.\d{6})\d+(?=[+-]|Z|$)',r'\1',item['@updated']).replace('Z','+00:00')) for item in index)
     now=datetime.now(timezone.utc);require(now-timedelta(days=2)<=newest<=now+timedelta(minutes=5),'NuGet vulnerability data is stale or future-dated')
     databases=[];descriptors=[]
     for item in index:
