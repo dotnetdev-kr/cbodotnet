@@ -174,6 +174,47 @@ def fresh_release_url(url, attempt):
     return url
 
 
+def anonymous_release_metadata(url, maximum):
+    """Resolve a canonical small public asset through the anonymous GitHub API."""
+    parsed = urllib.parse.urlsplit(url)
+    match = re.fullmatch(r"/([A-Za-z0-9][A-Za-z0-9_.-]*)/([A-Za-z0-9][A-Za-z0-9_.-]*)/releases/download/"
+                         r"([A-Za-z0-9][A-Za-z0-9_.+-]*)/([A-Za-z0-9][A-Za-z0-9_.+-]*)", parsed.path)
+    if not (parsed.scheme == "https" and parsed.netloc == "github.com" and not parsed.query and not parsed.fragment
+            and match and type(maximum) is int and 0 < maximum <= 16 * 1024**2):
+        return None
+    owner, repository, tag, name = match.groups()
+    base = "https://api.github.com/repos/" + owner + "/" + repository
+    headers = {"User-Agent": "cbodotnet-release-catalog", "Accept": "application/vnd.github+json",
+               "X-GitHub-Api-Version": "2022-11-28"}
+    print("GitHub metadata GET anonymous API fallback: " + parsed.scheme + "://" + parsed.hostname + parsed.path,
+          file=sys.stderr)
+    request = urllib.request.Request(base + "/releases/tags/" + urllib.parse.quote(tag, safe=""), headers=headers)
+    with urllib.request.urlopen(request, timeout=60) as response:
+        metadata = response.read(MAX_JSON_BYTES + 1)
+    require(len(metadata) <= MAX_JSON_BYTES, "Anonymous release API metadata exceeds its size limit")
+    release = json.loads(metadata)
+    require(isinstance(release, dict) and release.get("tag_name") == tag and release.get("draft") is False,
+            "Anonymous release API identity differs from the public release")
+    assets = release.get("assets")
+    require(isinstance(assets, list) and all(isinstance(asset, dict) for asset in assets),
+            "Anonymous release API assets are malformed")
+    matches = [asset for asset in assets if asset.get("name") == name]
+    require(len(matches) == 1, "Anonymous release API must identify the exact asset once")
+    asset = matches[0]
+    asset_id = asset.get("id")
+    require(type(asset_id) is int and asset_id > 0 and asset.get("state") == "uploaded"
+            and asset.get("browser_download_url") == url, "Anonymous release API asset identity differs")
+    asset_url = base + "/releases/assets/" + str(asset_id)
+    require(asset.get("url") == asset_url, "Anonymous release API asset URL differs")
+    require(type(asset.get("size")) is int and 0 < asset["size"] <= maximum,
+            "Anonymous release API asset exceeds its size limit")
+    request = urllib.request.Request(asset_url, headers=dict(headers, Accept="application/octet-stream"))
+    with urllib.request.urlopen(request, timeout=60) as response:
+        data = response.read(asset["size"] + 1)
+    require(len(data) == asset["size"], "Anonymous release API asset size differs")
+    return data
+
+
 def get_bytes(url, maximum, token=None, api=False):
     parsed = urllib.parse.urlsplit(url)
     require(parsed.scheme == "https" and parsed.hostname in {"api.github.com", "github.com"}
@@ -200,13 +241,22 @@ def get_bytes(url, maximum, token=None, api=False):
             with urllib.request.urlopen(request, timeout=60) as response:
                 data = response.read(maximum + 1)
         except urllib.error.HTTPError as error:
-            if error.code not in {502, 503, 504} or attempt == 2:
+            if error.code not in {502, 503, 504}:
                 report_failure(error)
                 raise
+            if attempt == 2:
+                data = anonymous_release_metadata(url, maximum) if not api else None
+                if data is None:
+                    report_failure(error)
+                    raise
+                break
         except (urllib.error.URLError, TimeoutError) as error:
             if attempt == 2:
-                report_failure(error)
-                raise
+                data = anonymous_release_metadata(url, maximum) if not api else None
+                if data is None:
+                    report_failure(error)
+                    raise
+                break
         else:
             break
         time.sleep(2 * (attempt + 1))

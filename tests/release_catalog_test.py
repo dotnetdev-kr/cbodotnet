@@ -65,6 +65,145 @@ def consumer_fixture(version="10.0.403"):
             for arch in ("x64", "aarch64")]
 
 
+class AnonymousMetadataFallbackTests(unittest.TestCase):
+    url = "https://github.com/example/repo/releases/download/sdk-10.0.403/release-manifest.json"
+    api_url = "https://api.github.com/repos/example/repo/releases/tags/sdk-10.0.403"
+    asset_url = "https://api.github.com/repos/example/repo/releases/assets/123"
+    payload = b"exact metadata"
+
+    def api_release(self):
+        return dict(tag_name="sdk-10.0.403", draft=False,
+                    assets=[dict(id=123, name="release-manifest.json", state="uploaded", size=len(self.payload),
+                                 browser_download_url=self.url, url=self.asset_url)])
+
+    def response(self, data):
+        response = mock.MagicMock()
+        response.__enter__.return_value.read.side_effect = lambda maximum: data[:maximum]
+        return response
+
+    def failures(self, error=None):
+        error = error or CATALOG.urllib.error.HTTPError(self.url, 504, "transient", {}, None)
+        return [error] * 3
+
+    def test_three_transient_failures_use_two_bounded_anonymous_api_gets_for_the_same_asset(self):
+        for error in (CATALOG.urllib.error.HTTPError(self.url, 504, "transient", {}, None),
+                      CATALOG.urllib.error.URLError("connection reset"), TimeoutError("timed out")):
+            with self.subTest(error=type(error).__name__), mock.patch.object(CATALOG.urllib.request, "urlopen") as opener, \
+                    mock.patch.object(CATALOG.time, "sleep") as sleep, \
+                    mock.patch.object(CATALOG.sys, "stderr", new_callable=io.StringIO) as stderr:
+                release = self.api_release()
+                before = copy.deepcopy(release)
+                metadata = self.response(json.dumps(release).encode())
+                binary = self.response(self.payload)
+                opener.side_effect = self.failures(error) + [metadata, binary]
+                self.assertEqual(self.payload, CATALOG.get_bytes(self.url, 100, token="private-token"))
+                self.assertEqual(before, release)
+                self.assertEqual(5, opener.call_count)
+                self.assertEqual([mock.call(2), mock.call(4)], sleep.call_args_list)
+                self.assertEqual(self.url, opener.call_args_list[0].args[0].full_url)
+                self.assertEqual(self.api_url, opener.call_args_list[3].args[0].full_url)
+                self.assertEqual(self.asset_url, opener.call_args_list[4].args[0].full_url)
+                self.assertEqual("application/vnd.github+json", opener.call_args_list[3].args[0].get_header("Accept"))
+                self.assertEqual("application/octet-stream", opener.call_args_list[4].args[0].get_header("Accept"))
+                metadata.__enter__.return_value.read.assert_called_once_with(8 * 1024**2 + 1)
+                binary.__enter__.return_value.read.assert_called_once_with(len(self.payload) + 1)
+                for call in opener.call_args_list:
+                    self.assertNotIn("Authorization", dict(call.args[0].header_items()))
+                    self.assertEqual({"timeout": 60}, call.kwargs)
+                self.assertEqual("GitHub metadata GET anonymous API fallback: " + self.url + "\n", stderr.getvalue())
+
+    def test_fallback_rejects_malformed_or_ambiguous_release_and_asset_identity_before_binary_get(self):
+        mutations = [
+            lambda value: value.update(tag_name="sdk-9.0.123"),
+            lambda value: value.update(draft=True),
+            lambda value: value.update(assets=None),
+            lambda value: value.update(assets=[None]),
+            lambda value: value.update(assets=[]),
+            lambda value: value["assets"].append(copy.deepcopy(value["assets"][0])),
+            lambda value: value["assets"][0].update(name="other-manifest.json"),
+            lambda value: value["assets"][0].update(state="new"),
+            lambda value: value["assets"][0].update(browser_download_url=self.url.replace("example/repo", "foreign/repo")),
+            lambda value: value["assets"][0].update(browser_download_url=self.url + "?different=asset"),
+            lambda value: value["assets"][0].update(url="https://example.com/asset"),
+            lambda value: value["assets"][0].update(url=self.asset_url + "?different=asset"),
+            lambda value: value["assets"][0].update(url=self.asset_url.replace("123", "456")),
+        ]
+        for field, invalid in (("id", 0), ("id", -1), ("id", True), ("id", "123"),
+                               ("size", 0), ("size", -1), ("size", True), ("size", "14"), ("size", 101)):
+            mutations.append(lambda value, field=field, invalid=invalid: value["assets"][0].update({field: invalid}))
+        for index, mutate in enumerate(mutations):
+            release = self.api_release()
+            mutate(release)
+            with self.subTest(case=index), mock.patch.object(CATALOG.urllib.request, "urlopen") as opener, \
+                    mock.patch.object(CATALOG.time, "sleep"), mock.patch.object(CATALOG.sys, "stderr", new_callable=io.StringIO):
+                opener.side_effect = self.failures() + [self.response(json.dumps(release).encode())]
+                with self.assertRaises(ValueError):
+                    CATALOG.get_bytes(self.url, 100)
+                self.assertEqual(4, opener.call_count)
+
+    def test_fallback_rejects_oversized_api_metadata_and_asset_size_mismatch(self):
+        metadata = json.dumps(self.api_release()).encode()
+        for response, expected_calls in ((self.response(b" " * (8 * 1024**2 + 1)), 4),
+                                         (self.response(self.payload + b"extra"), 5),
+                                         (self.response(self.payload[:-1]), 5)):
+            with self.subTest(requests=expected_calls), mock.patch.object(CATALOG.urllib.request, "urlopen") as opener, \
+                    mock.patch.object(CATALOG.time, "sleep"), mock.patch.object(CATALOG.sys, "stderr", new_callable=io.StringIO):
+                opener.side_effect = self.failures() + ([response] if expected_calls == 4 else [self.response(metadata), response])
+                with self.assertRaisesRegex(ValueError, "size"):
+                    CATALOG.get_bytes(self.url, 100)
+                self.assertEqual(expected_calls, opener.call_count)
+
+    def test_fallback_api_failures_are_not_retried_or_followed_by_another_fallback(self):
+        for calls in (4, 5):
+            error = CATALOG.urllib.error.HTTPError(self.asset_url, 504, "transient", {}, None)
+            with self.subTest(requests=calls), mock.patch.object(CATALOG.urllib.request, "urlopen") as opener, \
+                    mock.patch.object(CATALOG.time, "sleep") as sleep, mock.patch.object(CATALOG.sys, "stderr", new_callable=io.StringIO):
+                opener.side_effect = self.failures() + ([error] if calls == 4 else [self.response(json.dumps(self.api_release()).encode()), error])
+                with self.assertRaises(CATALOG.urllib.error.HTTPError) as raised:
+                    CATALOG.get_bytes(self.url, 100)
+                self.assertIs(error, raised.exception)
+                self.assertEqual(calls, opener.call_count)
+                self.assertEqual([mock.call(2), mock.call(4)], sleep.call_args_list)
+
+    def test_noncanonical_api_and_large_requests_never_use_the_fallback(self):
+        for url, maximum, api in ((self.url + "?private-query=hidden", 100, False),
+                                  (self.url + "#fragment", 100, False),
+                                  (self.url, 16 * 1024**2 + 1, False),
+                                  (self.api_url, 100, True)):
+            error = CATALOG.urllib.error.HTTPError(url, 504, "transient", {}, None)
+            with self.subTest(url=url, maximum=maximum), mock.patch.object(CATALOG.urllib.request, "urlopen", side_effect=error) as opener, \
+                    mock.patch.object(CATALOG.time, "sleep"), mock.patch.object(CATALOG.sys, "stderr", new_callable=io.StringIO) as stderr:
+                with self.assertRaises(CATALOG.urllib.error.HTTPError) as raised:
+                    CATALOG.get_bytes(url, maximum, token="private-token", api=api)
+                self.assertIs(error, raised.exception)
+                self.assertEqual(3, opener.call_count)
+                self.assertNotIn("fallback", stderr.getvalue())
+                self.assertNotIn("private-query", stderr.getvalue())
+                self.assertNotIn("private-token", stderr.getvalue())
+
+    def test_permanent_canonical_download_error_never_uses_the_fallback(self):
+        for status in (401, 403, 404, 429, 500):
+            error = CATALOG.urllib.error.HTTPError(self.url, status, "permanent", {}, None)
+            with self.subTest(status=status), mock.patch.object(CATALOG.urllib.request, "urlopen", side_effect=error) as opener, \
+                    mock.patch.object(CATALOG.time, "sleep") as sleep, mock.patch.object(CATALOG.sys, "stderr", new_callable=io.StringIO):
+                with self.assertRaises(CATALOG.urllib.error.HTTPError):
+                    CATALOG.get_bytes(self.url, 100)
+                opener.assert_called_once()
+                sleep.assert_not_called()
+
+    def test_fallback_body_still_must_pass_the_existing_caller_digest_check(self):
+        body = b"{}" + b" " * (len(self.payload) - 2)
+        release = self.api_release()
+        original = dict(name="release-manifest.json", state="uploaded", size=len(self.payload),
+                        browser_download_url=self.url, digest="sha256:" + CATALOG.sha256(self.payload))
+        with mock.patch.object(CATALOG.urllib.request, "urlopen") as opener, mock.patch.object(CATALOG.time, "sleep"), \
+                mock.patch.object(CATALOG.sys, "stderr", new_callable=io.StringIO):
+            opener.side_effect = self.failures() + [self.response(json.dumps(release).encode()), self.response(body)]
+            data = CATALOG.get_bytes(self.url, 100)
+        with self.assertRaisesRegex(ValueError, "digest mismatch"):
+            CATALOG.validate_api_asset(original, "release-manifest.json", "example/repo", "sdk-10.0.403", content=data)
+
+
 class CatalogTests(unittest.TestCase):
     def test_complete_release_binds_both_architectures_and_sources(self):
         release, _, manifest, checksums = fixture()
