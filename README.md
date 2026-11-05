@@ -21,25 +21,28 @@ Public names use `aarch64`. The official .NET RID remains `linux-arm64`; upstrea
 
 ## Package repositories and containers
 
-SDK **10.0.403** is available through signed project-operated APT repositories
+Versioned Community Build SDKs use signed project-operated APT repositories
 for **Ubuntu 24.04 and Debian 13** (`amd64`, `arm64`), signed RPM repositories
-for **Fedora 45 and Rocky Linux 9.8** (`x86_64`, `aarch64`), and a Debian 13-based
-GHCR SDK image (`linux/amd64`, `linux/arm64`). Use the
+for **Fedora 45 and Rocky Linux 9.8** (`x86_64`, `aarch64`), and Debian 13-based
+GHCR SDK images (`linux/amd64`, `linux/arm64`). The
+[verified delivery matrix](docs/all-sdk-distributions.md) lists the exact
+published SDKs and revisions. Use the
 [verified installation commands](https://dotnetdev.kr/cbodotnet/) and
 [distribution status and receipts](releases/downstream-status.json).
 The [Arch x86_64 recipes](docs/aur-delivery.md) have passed native build, installation
 and lifecycle validation; authenticated AUR submission is tracked separately in
 [issue #10](https://github.com/dotnetdev-kr/cbodotnet/issues/10).
 
-The [additional SDK preparation matrix](docs/additional-sdk-preparation.md)
-tracks SDKs 9, 8, 7, 6, 5 and Core 3.1/3.0 across 77 proposed delivery targets.
-Those additional package/image targets remain unqualified. A user-level
+The [original additional SDK preparation audit](docs/additional-sdk-preparation.md)
+retains the source pins and dependency decisions for SDKs 9, 8, 7, 6, 5 and Core
+3.1/3.0. Current availability comes from the signed publication receipts and
+delivery matrix above. A user-level
 `cbodotnetup` installer is tracked in
 [issue #11](https://github.com/dotnetdev-kr/cbodotnet/issues/11).
 
-The package contract provides `cbodotnet-10.0` and a common `cbodotnet` command
+The package contract provides `cbodotnet-X.Y` and a common `cbodotnet` command
 selecting the highest installed SDK series. OCI images expose
-`cbodotnet-10.0`, `cbodotnet` and `dotnet` for the same SDK. Public launchers show
+`cbodotnet-X.Y`, `cbodotnet` and `dotnet` for the same SDK. Public launchers show
 **Community Build of .NET (built by .NET Dev)** in information/help; numeric
 `--version` stdout remains compatible. [CLI identity](docs/cli-branding.md)
 explains the branding and source-provenance boundary.
@@ -89,7 +92,12 @@ Other bands and new major versions remain visible as `pending-adapter`; missing 
 
 `linux-arm64` and `linux-x64` are generic **glibc** package targets. Native checks cover Ubuntu 22.04, Ubuntu 24.04 and Debian 13 user spaces. Kernel, system-library and optional component requirements still apply; these results do not cover musl/Alpine or every Linux distribution.
 
-.NET 5 and Core 3.x verification requires the recorded external OpenSSL 1.1 inputs. Core 3.x on Debian 13 additionally uses ICU 66. Exact dependencies, framework construction and ABI measurements are recorded with each qualified delivery.
+Branded .NET 5 and Core 3.x distributions use a separately authenticated
+[OpenSSL/ICU provider](docs/legacy-compatibility-provider.md); Core 3 additionally
+uses a separate [native HTTP provider](docs/legacy-curl-provider.md). These
+providers require glibc 2.34 and, on x64, x86-64-v2. Historical source-archive
+checks used different recorded inputs. Packaging preserves those source and
+framework disclosures and does not restore upstream support for EOL runtimes.
 
 ## Copyright and license
 
@@ -106,6 +114,7 @@ SDK archives and corresponding source bundles retain their upstream copyrights, 
 - [Signed RPM repositories and qualification](docs/rpm-delivery.md)
 - [Validated Arch recipes and deferred AUR publication](docs/aur-delivery.md)
 - [Additional SDK sources, dependency gates and preparation plans](docs/additional-sdk-preparation.md)
+- [Current verified SDK distribution matrix](docs/all-sdk-distributions.md)
 - [Core 3 native HTTP and its separate libcurl dependency](docs/legacy-curl-provider.md)
 - [Downstream verification and promotion runbook](docs/downstream-release-runbook.md)
 - [AArch64 CI, source delivery and verification](docs/ci-matrix.md)

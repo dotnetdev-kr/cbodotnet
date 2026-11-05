@@ -36,6 +36,8 @@ real Core 3 custom-certificate path and was rejected. The successful candidate's
 HTTP, callback HTTPS, ordinary certificate trust and TLS 1.2 paths passed the
 [initial dual-native Debian 13 probe](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41881478644).
 That probe establishes feasibility, not a completed package/channel rollout.
+Current channel results and immutable public releases are listed in the
+[verified SDK distribution matrix](all-sdk-distributions.md).
 
 The [libcurl ABI policy](https://curl.se/libcurl/abi.html) explains its SONAME
 compatibility boundary. Native functional evidence remains mandatory: neither
@@ -54,7 +56,9 @@ system libcurl, OpenSSL, CA bundle or official dotnet files.
 Only Core 3 launchers prepend this private curl directory after saving the
 caller's environment. Selecting another Community SDK restores that caller
 environment. The default HTTP handler is unchanged. The SDK 5 provider policy,
-wrapper bytes and archive metadata remain unchanged.
+archive wrapper bytes and metadata remain unchanged. The separate Fedora 45
+stock CA-path correction is described in the
+[base-provider documentation](legacy-compatibility-provider.md).
 
 Core 3 consumer archives require two separate authenticated companions: the
 existing SSL/ICU companion and

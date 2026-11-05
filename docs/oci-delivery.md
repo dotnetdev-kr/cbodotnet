@@ -1,12 +1,21 @@
 # Consumer SDK images
 
 The public SDK image repository is
-`ghcr.io/dotnetdev-kr/cbodotnet-sdk`. The qualified input is SDK **10.0.403**,
-using a digest-pinned Debian 13 glibc base on native `linux/amd64` and
+`ghcr.io/dotnetdev-kr/cbodotnet-sdk`. The
+[verified delivery matrix](all-sdk-distributions.md) lists exact published SDKs
+and immutable image releases. Each uses a digest-pinned Debian 13 glibc base on native `linux/amd64` and
 `linux/arm64`. One versioned tag resolves to the complete two-platform index.
 Public architecture names `x64` and `aarch64` map to those OCI platforms.
 
-Revision 2, `10.0.403-debian13-r2`, is public. Its verified index is:
+The current SDK 10 image is **revision 3**, `10.0.403-debian13-r3`, at:
+
+```text
+sha256:c9335fa52f22ead1ffd8f5f12fa1e3c406df672dcae1cfeda724087655d37873
+```
+
+It includes the complete wrapper license and restores a caller's environment
+when a modern Community SDK is invoked from a legacy Community process.
+The original signed revision 2 remains public at:
 
 ```text
 sha256:c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9
@@ -32,7 +41,7 @@ selects the matching verified native platform; specify `--platform` explicitly
 when checking a particular platform.
 
 ```bash
-image=ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9
+image=ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:c9335fa52f22ead1ffd8f5f12fa1e3c406df672dcae1cfeda724087655d37873
 docker pull "$image"
 docker run --rm "$image" cbodotnet --info
 docker run --rm "$image" cbodotnet-10.0 --list-sdks
@@ -110,10 +119,11 @@ distribution's package licenses.
 
 ## Compatibility, lifecycle and corrections
 
-This consumer image covers SDK 10.0.403 on its tested Debian 13 glibc base.
-Archive execution on another user space does not qualify that space as an image
-base. Older SDKs, .NET Core 3.x/.NET 5 OpenSSL/ICU requirements, musl/Alpine,
-runtime-only and ASP.NET-only image variants require independent qualification.
+Each listed consumer image covers its exact SDK on the recorded Debian 13 glibc
+base. Archive execution on another user space does not qualify that space as an
+image base. The SDK 5 and Core 3 images use the separately authenticated legacy
+providers recorded in the delivery matrix. Musl/Alpine, runtime-only and
+ASP.NET-only image variants require independent qualification.
 Continued Community Build availability does not extend Microsoft's security
 maintenance or promise vulnerability remediation after upstream end of support.
 The [contract](distribution-contract.md) records those support boundaries.

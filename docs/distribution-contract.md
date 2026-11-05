@@ -1,5 +1,10 @@
 # Downstream distribution contract
 
+Current multi-version admission and signed public availability are listed in the
+[verified SDK distribution matrix](all-sdk-distributions.md). The SDK 10-only
+examples and foundation validation records below retain their historical scope;
+each additional SDK has its own source pins and native/public channel proof.
+
 Specification version: **2**. This specification and the checked-in
 [machine-readable contract](../releases/distribution-contract.json) resolve the
 foundation work in [issue #2](https://github.com/dotnetdev-kr/cbodotnet/issues/2),

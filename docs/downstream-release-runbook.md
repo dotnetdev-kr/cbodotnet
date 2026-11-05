@@ -1,5 +1,9 @@
 # Downstream release intake and promotion gates
 
+Use the [verified SDK distribution matrix](all-sdk-distributions.md) for current
+published SDKs and revisions. Existing releases are immutable; choose an exact
+successful native cohort or its original frozen signed bytes for recovery.
+
 [Issue #7](https://github.com/dotnetdev-kr/cbodotnet/issues/7) uses the
 [shared command](../scripts/downstream-release.py),
 [gate library](../scripts/downstream_release.py) and

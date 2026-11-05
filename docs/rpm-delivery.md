@@ -1,18 +1,23 @@
 # RPM delivery and qualification
 
-The qualified .NET SDK **10.0.403, packaging revision 1**, is published through
+The current .NET SDK **10.0.403, packaging revision 2**, is published through
 signed RPM repositories for the following four targets under
 issue [#5](https://github.com/dotnetdev-kr/cbodotnet/issues/5). Native package
 lifecycle checks, public release installation and installation from the actual
 HTTPS repository all passed. Availability and signed publication receipts are
 recorded in [`releases/downstream-status.json`](../releases/downstream-status.json).
 The [retained publication evidence](rpm-publication-validation.json) binds the
-source, signed release, native reports, recovery and hosted repository checks.
+historical revision 1 source, reports and recovery. Current versions, revisions
+and public proofs appear in the [verified delivery matrix](all-sdk-distributions.md).
 
 | Variant | Native public architectures | RPM architectures | Required native packages |
 | --- | --- | --- | --- |
 | `fedora-45` | `x64`, `aarch64` | `x86_64`, `aarch64` | `glibc`, `libgcc`, `libstdc++`, `zlib-ng-compat`, `krb5-libs`, `ca-certificates`, `libicu`, `openssl3-libs` |
 | `rocky-9.8` | `x64`, `aarch64` | `x86_64`, `aarch64` | `glibc`, `libgcc`, `libstdc++`, `zlib`, `krb5-libs`, `ca-certificates`, `libicu`, `openssl-libs` |
+
+This stock-library table describes SDK 10. Legacy SDK dependencies additionally
+include the independently owned providers linked from the delivery matrix;
+they do not inherit SDK 10's OpenSSL compatibility.
 
 The [contract](../releases/distribution-contract.json) owns this dependency policy.
 Fedora 45's default OpenSSL 4 libraries do not satisfy the qualified SDK's crypto
@@ -34,9 +39,9 @@ remain authoritative; the SDK spec uses `LicenseRef-Dotnet-SDK-ThirdParty`.
 The shared selector includes this repository's reviewed [MIT license](../LICENSE)
 under `/usr/share/licenses/cbodotnet-host/`.
 
-| Package | Version and release for revision 1 | Ownership |
+| Package | Version and release for revision 2 | Ownership |
 | --- | --- | --- |
-| `cbodotnet-sdk-10.0` | `10.0.403-1.cbot.fedora45` or `10.0.403-1.cbot.rocky9.8` | `/opt/cbodotnet/10.0`, `/usr/bin/cbodotnet-10.0`, documentation and provenance |
+| `cbodotnet-sdk-10.0` | `10.0.403-2.cbot.fedora45` or `10.0.403-2.cbot.rocky9.8` | `/opt/cbodotnet/10.0`, `/usr/bin/cbodotnet-10.0`, documentation and provenance |
 | `cbodotnet-host` | `1.0.0-1.cbot.fedora45` or `1.0.0-1.cbot.rocky9.8`, `noarch` | `/usr/bin/cbodotnet` and its selector license |
 
 Distro-specific RPM releases prevent different dependency graphs from sharing
@@ -91,7 +96,7 @@ from `main`. The initial read-only native matrix does not sign or publish:
 
 ```bash
 gh workflow run distribution-release.yml --ref main \
-  -f channel=rpm -f tag=sdk-10.0.403 -f revision=1 -f publish=false
+  -f channel=rpm -f tag=sdk-10.0.403 -f revision=2 -f publish=false
 ```
 
 Both native runner jobs must succeed. Each builds and installs real RPMs in
@@ -108,7 +113,7 @@ To promote an already successful native matrix, use its exact run and attempt:
 
 ```bash
 gh workflow run distribution-release.yml --ref main \
-  -f channel=rpm -f tag=sdk-10.0.403 -f revision=1 -f publish=true \
+  -f channel=rpm -f tag=sdk-10.0.403 -f revision=2 -f publish=true \
   -f source_run_id=SUCCESSFUL_NATIVE_RUN -f source_run_attempt=1
 ```
 
@@ -124,14 +129,26 @@ Repository metadata lives on Pages under `packages/rpm/<variant>/`. The
 `rpm-<variant>.tar.gz` archives contain signed `repodata/repomd.xml`, its indexes,
 public keys and repository manifests, without RPM blobs. Indexes point to exact
 canonical package asset URLs under the immutable GitHub release
-`distribution-rpm-sdk-10.0.403-r1`. SDK asset names include the variant and public
+`distribution-rpm-sdk-10.0.403-r2`. SDK asset names include the variant and public
 architecture; shared-host names include the variant. The signed publication
 manifest binds every package and metadata archive by size and SHA-256.
+
+Standalone legacy companion archives retain each native target's exact bytes
+under `rpm-<variant>-<architecture>--<companion-name>`. Different distro builds
+can produce different archive bytes under the original companion filename.
+Target prefixes preserve every verified artifact and keep the conflicting-hash
+rejection intact. RPM installation uses the independently signed provider RPMs;
+the companion archives remain outside the SDK payload.
 
 Post-publication jobs anonymously retrieve those public assets and install the
 signed repository in both native architectures. Only successful receipts and
 target results activate availability and request a Pages refresh. After that
 Pages deployment succeeds, verify the actual HTTPS repository commands:
+
+The source-release REST metadata lookup uses the job's ephemeral read-only
+GitHub token to avoid shared anonymous API rate limits. Public RPM, repository
+and signature downloads carry no credentials; installed client checks remain
+anonymous.
 
 ```bash
 gh workflow run rpm-site-check.yml --ref main \
@@ -148,7 +165,7 @@ resume the original signed bytes instead of rebuilding or signing them again:
 
 ```bash
 gh workflow run distribution-release.yml --ref main \
-  -f channel=rpm -f tag=sdk-10.0.403 -f revision=1 -f publish=true \
+  -f channel=rpm -f tag=sdk-10.0.403 -f revision=2 -f publish=true \
   -f promotion_run_id=FROZEN_PUBLICATION_RUN -f promotion_run_attempt=1
 ```
 
@@ -159,8 +176,8 @@ diagnose the failure and use a new packaging revision when new bytes are needed.
 
 ## Installation and package lifecycle
 
-Revision 1 is `published` in the authenticated status and has passed all four
-[native HTTPS target checks](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41788510887).
+Revision 2 is `published` in the authenticated status and passed all four native
+public installation targets in [its publication run](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41884245869).
 First confirm the full primary fingerprint through the project's trusted
 signing-policy channel. Set `variant` for the actual OS:
 
@@ -190,7 +207,7 @@ gpgkey=https://dotnetdev.kr/cbodotnet/distribution-signing-key.asc
 EOF
 sudo dnf --refresh makecache
 sudo dnf --setopt=tsflags= --setopt=keepcache=True install \
-  "cbodotnet-sdk-10.0-10.0.403-1.cbot.$distro" cbodotnet-host
+  "cbodotnet-sdk-10.0-10.0.403-2.cbot.$distro" cbodotnet-host
 cbodotnet --version
 cbodotnet-10.0 --cbodotnet-info
 ```
@@ -209,13 +226,13 @@ the retained file's size and SHA-256 to the verified signed manifest and inspect
 sudo dnf --refresh --setopt=tsflags= --setopt=keepcache=True upgrade cbodotnet-sdk-10.0
 ```
 
-To roll back to the retained revision 1 package, select the current RPM CPU name
+To roll back from a future upgrade to the retained revision 2, select the RPM CPU name
 with `rpm --eval '%{_arch}'`, then require local package signature checking:
 
 ```bash
 rpm_arch=$(rpm --eval '%{_arch}')
 sudo dnf --setopt=tsflags= --setopt=localpkg_gpgcheck=1 downgrade \
-  "./retained/cbodotnet-sdk-10.0-10.0.403-1.cbot.$distro.$rpm_arch.rpm"
+  "./retained/cbodotnet-sdk-10.0-10.0.403-2.cbot.$distro.$rpm_arch.rpm"
 sudo dnf --setopt=clean_requirements_on_remove=False remove cbodotnet-sdk-10.0
 ```
 
@@ -226,6 +243,7 @@ SDK depends on it. Upgrade and rollback are separate user actions from removal.
 
 These packages add no security-maintenance commitment beyond the qualified
 community build. Other Fedora releases, other RHEL derivatives and versions,
-musl environments and legacy .NET versions remain unqualified. The contract
+musl environments and SDK versions outside the explicit delivery matrix remain
+unqualified. Legacy SDKs have separately reviewed provider requirements. The contract
 blocks legacy downstream packaging until separate channel qualification; it
 does not permit bundling obsolete OpenSSL or ICU to bypass those gates.

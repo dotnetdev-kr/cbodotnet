@@ -1,13 +1,13 @@
 # APT delivery and qualification
 
-The qualified .NET SDK **10.0.403, packaging revision 1**, is published for
+The current .NET SDK **10.0.403, packaging revision 3**, is published for
 Ubuntu 24.04 and Debian 13 on native `amd64` and `arm64`. The immutable source
 and publication receipts are recorded in
 [`releases/downstream-status.json`](../releases/downstream-status.json).
-The [initial publication evidence](distribution-publication-validation.json)
-retains the original signed package and public installation checks. This work
-strengthens installation instructions and validation without replacing those
-revision 1 packages or rebuilding the SDK.
+The [verified delivery matrix](all-sdk-distributions.md) lists all published SDK
+versions and their immutable APT releases. Each series has its own package and
+repository. The [initial publication evidence](distribution-publication-validation.json)
+retains the historical revision 1 checks; those original assets remain unchanged.
 The [completed package-ownership and lifecycle record](apt-completion-validation.json)
 adds four native and four hosted HTTPS reports from source commit `9090f1e`.
 All targets passed with actual official SDK packages installed first.
@@ -53,7 +53,7 @@ Architectures: $(dpkg --print-architecture)
 Signed-By: /usr/share/keyrings/cbodotnet-archive-keyring.gpg
 EOF
 sudo apt-get update
-sudo apt-get install cbodotnet-sdk-10.0=10.0.403-1 cbodotnet-host=1.0.0-1
+sudo apt-get install cbodotnet-sdk-10.0=10.0.403-3 cbodotnet-host=1.0.0-1
 ```
 
 The [installation website](https://dotnetdev.kr/cbodotnet/) gives the matching
@@ -65,7 +65,7 @@ qualified matrix before publication.
 
 | Package | Version | Ownership |
 | --- | --- | --- |
-| `cbodotnet-sdk-10.0` | `10.0.403-1` | `/opt/cbodotnet/10.0`, `/usr/bin/cbodotnet-10.0`, SDK notices and provenance |
+| `cbodotnet-sdk-10.0` | `10.0.403-3` | `/opt/cbodotnet/10.0`, `/usr/bin/cbodotnet-10.0`, SDK notices and provenance |
 | `cbodotnet-host` | `1.0.0-1`, architecture `all` | `/usr/bin/cbodotnet` and the shared selector license |
 
 Both `cbodotnet-10.0` and `cbodotnet` select the Community SDK. `--version`
@@ -113,9 +113,9 @@ While the authenticated repository and its exact version are available, save
 the package files in a user-owned directory:
 
 ```sh
-mkdir -p "$HOME/cbodotnet-retained/10.0.403-1"
-cd "$HOME/cbodotnet-retained/10.0.403-1"
-apt-get download cbodotnet-sdk-10.0=10.0.403-1 cbodotnet-host=1.0.0-1
+mkdir -p "$HOME/cbodotnet-retained/10.0.403-3"
+cd "$HOME/cbodotnet-retained/10.0.403-3"
+apt-get download cbodotnet-sdk-10.0=10.0.403-3 cbodotnet-host=1.0.0-1
 ```
 
 Retain the repository's verified `InRelease` and `Packages` alongside those
@@ -131,17 +131,17 @@ version and both corresponding absolute DEB paths:
 
 ```sh
 sudo apt-get install --allow-downgrades \
-  "$HOME/cbodotnet-retained/10.0.403-1/cbodotnet-sdk-10.0_10.0.403-1_$(dpkg --print-architecture).deb" \
-  "$HOME/cbodotnet-retained/10.0.403-1/cbodotnet-host_1.0.0-1_all.deb"
+  "$HOME/cbodotnet-retained/10.0.403-3/cbodotnet-sdk-10.0_10.0.403-3_$(dpkg --print-architecture).deb" \
+  "$HOME/cbodotnet-retained/10.0.403-3/cbodotnet-host_1.0.0-1_all.deb"
 cbodotnet-10.0 --version
 cbodotnet-10.0 --cbodotnet-info
 ```
 
 [APT documents exact-version downloads and `--allow-downgrades`](https://manpages.debian.org/trixie/apt/apt-get.8.en.html).
-Only revision 1 is currently published. The hosted lifecycle check proves
-authenticated removal and reinstallation of that same revision. Earlier
-packaging upgrade/rollback fixtures are native build checks, not claims that
-another public APT revision exists.
+Retain the current signed revision before upgrading. Native qualification tests
+the real N → N+1 → N package lifecycle; the public installation reports test the
+actually released revision. A qualification-only N+1 package does not imply
+that revision has been published.
 
 ## Validation boundaries
 

@@ -1,4 +1,9 @@
-# Preparation for the seven additional SDKs
+# Historical preparation for the seven additional SDKs
+
+This document and its JSON are the original planning snapshot. Current
+production admission and published revisions are recorded in the
+[verified delivery matrix](all-sdk-distributions.md) and signed status receipts.
+The pending and blocked descriptions below describe the audit's original state.
 
 This 2026-11-04 audit prepares SDKs **9.0.123, 8.0.133, 7.0.120, 6.0.136,
 5.0.214, 3.1.426 and 3.0.103** for the existing Linux distribution channels.
@@ -6,8 +11,8 @@ The [machine-readable preparation record](../releases/additional-sdk-preparation
 contains seven source records, fourteen exact producer bindings, forty-two
 previous archive observations and **77 proposed channel/OS/architecture rows**.
 It does not admit releases to the production contract, execute a package build,
-qualify a target or publish additional SDKs. The current production admission
-remains SDK 10.0.403.
+qualify a target or publish additional SDKs. At the time of this audit,
+production admission was limited to SDK 10.0.403.
 Registered follow-up work is tracked by
 [epic 12](https://github.com/dotnetdev-kr/cbodotnet/issues/12).
 
