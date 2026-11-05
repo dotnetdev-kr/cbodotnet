@@ -568,9 +568,9 @@ def upload_release(tag,target,assets,title,body):
             require(len(matching)==1 and matching[0]['size']==index[path.name]['size'] and matching[0]['digest']=='sha256:'+index[path.name]['sha256'],'Existing immutable release asset conflicts')
         else:
             require(current['draft'],'Cannot add bytes to an existing published installer identity');api.upload(current,path)
-    current=api.get(existing);verify_remote_assets(current,expected,api)
+    current=api.get(existing);verify_remote_assets(current,index,api)
     if current['draft']:current=api.publish(current)
-    current=api.get(current);verify_remote_assets(current,expected,api,public=True)
+    current=api.get(current);verify_remote_assets(current,index,api,public=True)
     ref=api.api('repos/dotnetdev-kr/cbodotnet/git/ref/tags/'+tag)
     require(ref and ref['object']['type']=='commit' and ref['object']['sha']==target,'Published installer tag source changed')
     return dict(id=current['id'],tag=tag,targetCommit=target,url=current['html_url'],

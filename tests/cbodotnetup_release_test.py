@@ -1,6 +1,7 @@
 from pathlib import Path
 import tempfile
 import sys
+import shutil
 import unittest
 from unittest.mock import patch
 from unittest.mock import MagicMock
@@ -50,6 +51,32 @@ class InstallerReleaseTests(unittest.TestCase):
             self.assertEqual(UP.public_metadata('https://api.nuget.org/v3/vulnerabilities/index.json',1024),b'{}')
             response.read.return_value=gzip.compress(b'x'*4096)
             with self.assertRaisesRegex(ValueError,'Decompressed'):UP.public_metadata('https://api.nuget.org/v3/vulnerabilities/index.json',256)
+
+    def test_draft_resume_uses_the_real_shared_verifier_and_never_clobbers_public_bytes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path=Path(temporary)/'cbodotnetup-linux-x64';path.write_bytes(b'verified native binary')
+            tag='cbodotnetup-v0.1.0';target='b'*40
+            class Transport:
+                def __init__(self):
+                    self.release=dict(id=123,tag_name=tag,target_commitish=target,draft=True,prerelease=False,assets=[],html_url='https://github.com/dotnetdev-kr/cbodotnet/releases/tag/'+tag)
+                    self.uploads=0;self.publishes=0;self.downloads=[]
+                def find(self,unused):return self.release
+                def get(self,unused):return self.release
+                def upload(self,release,file):
+                    item=UP.descriptor(file);self.release['assets'].append(dict(id=100,**item,state='uploaded',digest='sha256:'+item['sha256'],browser_download_url='https://github.com/dotnetdev-kr/cbodotnet/releases/download/'+tag+'/'+item['name']));self.uploads+=1
+                def download(self,asset,destination,public=False):shutil.copyfile(path,destination);self.downloads.append(public)
+                def publish(self,unused):self.release['draft']=False;self.publishes+=1;return self.release
+                def api(self,unused):return dict(object=dict(type='commit',sha=target))
+            transport=Transport()
+            with patch.object(UP,'GitHubReleases',return_value=transport):
+                result=UP.upload_release(tag,target,[path],'title','body')
+                self.assertEqual(result['assets'][0]['sha256'],UP.descriptor(path)['sha256'])
+                self.assertEqual(transport.downloads,[False,True]);self.assertEqual(transport.uploads,1)
+                UP.upload_release(tag,target,[path],'title','body')
+                self.assertEqual(transport.uploads,1);self.assertEqual(transport.publishes,1)
+                path.write_bytes(b'conflicting bytes')
+                with self.assertRaisesRegex(ValueError,'conflicts'):UP.upload_release(tag,target,[path],'title','body')
+                self.assertEqual(transport.uploads,1)
 
 
 if __name__=='__main__':unittest.main()
