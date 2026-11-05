@@ -314,6 +314,83 @@ class CatalogTests(unittest.TestCase):
                               token="test-only-secret", api=True)
             self.assertEqual("Bearer test-only-secret", dict(opener.call_args.args[0].header_items())["Authorization"])
 
+    def test_transient_metadata_http_errors_retry_the_same_request_with_bounded_backoff(self):
+        url = "https://github.com/example/repo/releases/download/sdk-1.0.100/SHA256SUMS"
+        for status in (502, 503, 504):
+            with self.subTest(status=status), mock.patch.object(CATALOG.urllib.request, "urlopen") as opener, \
+                    mock.patch.object(CATALOG.time, "sleep") as sleep:
+                response = mock.MagicMock()
+                response.__enter__.return_value.read.return_value = b"data"
+                opener.side_effect = [CATALOG.urllib.error.HTTPError(url, status, "transient", {}, None),
+                                      CATALOG.urllib.error.HTTPError(url, status, "transient", {}, None), response]
+                self.assertEqual(b"data", CATALOG.get_bytes(url, 100, token="test-only-secret"))
+                self.assertEqual(3, opener.call_count)
+                self.assertEqual([mock.call(2), mock.call(4)], sleep.call_args_list)
+                for call in opener.call_args_list:
+                    self.assertEqual(url, call.args[0].full_url)
+                    self.assertNotIn("Authorization", dict(call.args[0].header_items()))
+                    self.assertEqual({"timeout": 60}, call.kwargs)
+
+    def test_metadata_connection_errors_retry_and_keep_api_credentials_scoped(self):
+        url = "https://api.github.com/repos/example/repo/releases"
+        for error in (CATALOG.urllib.error.URLError("connection reset"), TimeoutError("timed out")):
+            with self.subTest(error=type(error).__name__), mock.patch.object(CATALOG.urllib.request, "urlopen") as opener, \
+                    mock.patch.object(CATALOG.time, "sleep") as sleep:
+                response = mock.MagicMock()
+                response.__enter__.return_value.read.return_value = b"data"
+                opener.side_effect = [error, response]
+                self.assertEqual(b"data", CATALOG.get_bytes(url, 100, token="test-only-secret", api=True))
+                self.assertEqual(2, opener.call_count)
+                sleep.assert_called_once_with(2)
+                for call in opener.call_args_list:
+                    self.assertEqual(url, call.args[0].full_url)
+                    self.assertEqual("Bearer test-only-secret", dict(call.args[0].header_items())["Authorization"])
+
+    def test_metadata_read_timeout_retries_without_returning_partial_content(self):
+        with mock.patch.object(CATALOG.urllib.request, "urlopen") as opener, \
+                mock.patch.object(CATALOG.time, "sleep") as sleep:
+            response = opener.return_value.__enter__.return_value
+            response.read.side_effect = [TimeoutError("read timed out"), b"complete"]
+            self.assertEqual(b"complete", CATALOG.get_bytes("https://github.com/example/repo/metadata", 100))
+            self.assertEqual(2, opener.call_count)
+            sleep.assert_called_once_with(2)
+
+    def test_transient_metadata_failure_stops_after_three_attempts(self):
+        url = "https://github.com/example/repo/metadata"
+        errors = (CATALOG.urllib.error.HTTPError(url, 504, "transient", {}, None),
+                  CATALOG.urllib.error.URLError("connection reset"), TimeoutError("timed out"))
+        for error in errors:
+            with self.subTest(error=type(error).__name__), mock.patch.object(CATALOG.urllib.request, "urlopen", side_effect=error) as opener, \
+                    mock.patch.object(CATALOG.time, "sleep") as sleep:
+                with self.assertRaises(type(error)) as raised:
+                    CATALOG.get_bytes(url, 100)
+                self.assertIs(error, raised.exception)
+                self.assertEqual(3, opener.call_count)
+                self.assertEqual([mock.call(2), mock.call(4)], sleep.call_args_list)
+
+    def test_permanent_metadata_http_errors_are_not_retried(self):
+        url = "https://github.com/example/repo/metadata"
+        for status in (400, 401, 403, 404, 429, 500):
+            error = CATALOG.urllib.error.HTTPError(url, status, "permanent", {}, None)
+            with self.subTest(status=status), mock.patch.object(CATALOG.urllib.request, "urlopen", side_effect=error) as opener, \
+                    mock.patch.object(CATALOG.time, "sleep") as sleep:
+                with self.assertRaises(CATALOG.urllib.error.HTTPError) as raised:
+                    CATALOG.get_bytes(url, 100)
+                self.assertIs(error, raised.exception)
+                opener.assert_called_once()
+                sleep.assert_not_called()
+
+    def test_oversized_metadata_is_rejected_without_retry(self):
+        with mock.patch.object(CATALOG.urllib.request, "urlopen") as opener, \
+                mock.patch.object(CATALOG.time, "sleep") as sleep:
+            response = opener.return_value.__enter__.return_value
+            response.read.return_value = b"large"
+            with self.assertRaisesRegex(ValueError, "size limit"):
+                CATALOG.get_bytes("https://github.com/example/repo/metadata", 4)
+            response.read.assert_called_once_with(5)
+            opener.assert_called_once()
+            sleep.assert_not_called()
+
     def test_untrusted_metadata_origins_are_rejected_before_a_request(self):
         with mock.patch.object(CATALOG.urllib.request, "urlopen") as opener:
             for url in ("http://github.com/x", "https://example.com/x", "https://user@github.com/x",

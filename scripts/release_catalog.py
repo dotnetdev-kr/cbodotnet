@@ -9,6 +9,8 @@ import os
 from pathlib import Path
 import re
 import shutil
+import time
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -171,8 +173,20 @@ def get_bytes(url, maximum, token=None, api=False):
         headers["X-GitHub-Api-Version"] = "2022-11-28"
         if token:
             headers["Authorization"] = "Bearer " + token
-    with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=60) as response:
-        data = response.read(maximum + 1)
+    request = urllib.request.Request(url, headers=headers)
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(request, timeout=60) as response:
+                data = response.read(maximum + 1)
+        except urllib.error.HTTPError as error:
+            if error.code not in {502, 503, 504} or attempt == 2:
+                raise
+        except (urllib.error.URLError, TimeoutError):
+            if attempt == 2:
+                raise
+        else:
+            break
+        time.sleep(2 * (attempt + 1))
     require(len(data) <= maximum, "Downloaded metadata exceeds its size limit")
     return data
 
