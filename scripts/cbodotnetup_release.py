@@ -105,7 +105,7 @@ dnf -y --setopt=install_weak_deps=False install clang lld gcc gcc-c++ binutils z
 export DOTNET_ROOT=$(dirname {sdk}) DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 DOTNET_NOLOGO=1
 export DOTNET_CLI_HOME=/work/dotnet-home NUGET_PACKAGES=/work/nuget
 cd /work/source/tools/cbodotnetup
-{sdk} run --project ../cbodotnetup.Tests --configuration Release
+{sdk} run --project ../cbodotnetup.Tests --configuration Release -p:RuntimeFrameworkVersion={policy['nativeRuntime']}
 {sdk} publish --configuration Release --runtime {rid} --self-contained true --output /work/output \\
   -p:RuntimeFrameworkVersion={policy['nativeRuntime']} -p:IlcTreatWarningsAsErrors=true -p:RestorePackagesWithLockFile=true
 cp obj/project.assets.json /work/output/native-package-inputs.json

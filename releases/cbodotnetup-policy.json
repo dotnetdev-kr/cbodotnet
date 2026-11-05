@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "version": "0.1.0",
   "buildSdk": "10.0.403",
-  "nativeRuntime": "10.0.13",
+  "nativeRuntime": "10.0.14",
   "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
   "signingWorkflow": ".github/workflows/distribution-release.yml",
   "initialSdkVersions": ["10.0.403"],
