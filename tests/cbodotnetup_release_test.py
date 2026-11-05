@@ -33,5 +33,13 @@ class InstallerReleaseTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory,patch.object(UP,'verify_bundle',return_value={}),self.assertRaisesRegex(ValueError,'All eight'):
             UP.qualified_reports(Path(directory),Path(directory))
 
+    def test_public_metadata_reader_keeps_its_separate_narrow_origin_boundary(self):
+        with patch.object(UP.urllib.request,'build_opener') as network:
+            for url in ('https://api.nuget.org/v3/registration5-gz-semver2/a/index.json','https://dotnetdev.kr/cbodotnet/other.py',
+                        'https://evil.example/v3/vulnerabilities/index.json','http://api.nuget.org/v3/vulnerabilities/index.json',
+                        'https://api.nuget.org/v3/vulnerabilities/index.json?token=x'):
+                with self.subTest(url=url),self.assertRaises(ValueError):UP.public_metadata(url,1024)
+            network.assert_not_called()
+
 
 if __name__=='__main__':unittest.main()

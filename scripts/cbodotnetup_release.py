@@ -16,6 +16,7 @@ import tarfile
 import tempfile
 import time
 import urllib.request
+import urllib.parse
 import zipfile
 import io
 
@@ -92,6 +93,20 @@ def fetch_asset(item, destination):
     require(all(actual[k] == item[k] for k in ('size', 'sha256')), 'Artifact failed exact signed size/SHA256')
 
 
+def public_metadata(url,maximum):
+    """Explicit credential-free origins, separate from the GitHub-only metadata reader."""
+    uri=urllib.parse.urlsplit(url)
+    nuget=uri.netloc=='api.nuget.org' and (uri.path=='/v3/vulnerabilities/index.json' or re.fullmatch(r'/v3-vulnerabilities/[0-9.]+/(?:[0-9.]+/)?vulnerability\.(?:base|update)\.json',uri.path))
+    site=uri.netloc=='dotnetdev.kr' and uri.path=='/cbodotnet/cbodotnetup/get-cbodotnetup.py'
+    require(uri.scheme=='https' and not uri.query and not uri.fragment and (nuget or site),'Untrusted installer public metadata origin/path')
+    class NoRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self,*args,**kwargs):raise ValueError('Unexpected installer metadata redirect')
+    request=urllib.request.Request(url,headers={'User-Agent':'cbodotnetup-public-verification'})
+    with urllib.request.build_opener(NoRedirect()).open(request,timeout=60) as incoming:data=incoming.read(maximum+1)
+    require(0<len(data)<=maximum,'Installer public metadata exceeds its bound')
+    return data
+
+
 def build(args):
     policy = load(POLICY); arch = args.arch
     require(platform.machine() in ({'x86_64'} if arch == 'x64' else {'aarch64', 'arm64'}), 'Native build architecture mismatch')
@@ -166,7 +181,7 @@ def feed_smoke(args):
     status=load(ROOT/'releases/cbodotnetup-status.json');require(status['status']=='published-postverified','A fully activated installer is required')
     workspace=args.workspace.resolve();require(not workspace.exists(),'Fresh public feed workspace required');workspace.mkdir(parents=True)
     descriptor_expected=next(a for a in status['catalogRelease']['assets'] if a['name']=='get-cbodotnetup.py')
-    raw=get_bytes('https://dotnetdev.kr/cbodotnet/cbodotnetup/get-cbodotnetup.py',descriptor_expected['size'])
+    raw=public_metadata('https://dotnetdev.kr/cbodotnet/cbodotnetup/get-cbodotnetup.py',descriptor_expected['size'])
     require(len(raw)==descriptor_expected['size'] and hashlib.sha256(raw).hexdigest()==descriptor_expected['sha256'],'Default public bootstrap differs from authenticated publication')
     (workspace/'get-cbodotnetup.py').write_bytes(raw)
     script='''set -eu
@@ -283,13 +298,13 @@ def affected(version,interval):
 def audit_native_packages(builds,output):
     """Reusing a binary never bypasses current NuGet vulnerability data."""
     index_url='https://api.nuget.org/v3/vulnerabilities/index.json'
-    raw=get_bytes(index_url,1024**2);index=json.loads(raw);require(isinstance(index,list) and 0<len(index)<=16,'Unexpected NuGet vulnerability index')
+    raw=public_metadata(index_url,1024**2);index=json.loads(raw);require(isinstance(index,list) and 0<len(index)<=16,'Unexpected NuGet vulnerability index')
     newest=max(datetime.fromisoformat(item['@updated'].replace('Z','+00:00')) for item in index)
     now=datetime.now(timezone.utc);require(now-timedelta(days=2)<=newest<=now+timedelta(minutes=5),'NuGet vulnerability data is stale or future-dated')
     databases=[];descriptors=[]
     for item in index:
         url=item['@id'];require(url.startswith('https://api.nuget.org/v3-vulnerabilities/') and url.endswith('.json'),'Untrusted vulnerability dataset URL')
-        data=get_bytes(url,32*1024**2);databases.append(json.loads(data));descriptors.append(dict(url=url,size=len(data),sha256=hashlib.sha256(data).hexdigest()))
+        data=public_metadata(url,32*1024**2);databases.append(json.loads(data));descriptors.append(dict(url=url,size=len(data),sha256=hashlib.sha256(data).hexdigest()))
     packages=set()
     for directory in builds.values():
         value=load(directory/'native-package-inputs.json')
