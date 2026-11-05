@@ -11,10 +11,14 @@ import re
 import shlex
 import shutil
 import subprocess
+import tarfile
 import tempfile
+import time
 import urllib.request
+import zipfile
+import io
 
-from consumer_archive import sdk_tools
+from consumer_archive import sdk_tools, FUNCTIONAL_CHECKS
 from consumer_archive_site import authenticate_receipt, load_archive_status, postverified_receipt
 from distribution_contract import load_contract, validate_qualified_producers
 from downstream_release import encoded, load_status, require
@@ -76,6 +80,7 @@ def selected_archive(version):
 
 def fetch_asset(item, destination):
     path = Path(destination)
+    require(re.fullmatch(r'https://github\.com/dotnetdev-kr/cbodotnet/releases/download/[A-Za-z0-9_.+-]+/[A-Za-z0-9_.+-]+',item['url']), 'Only immutable project release assets may be downloaded')
     require(not path.exists(), 'Refusing to replace an artifact input')
     with urllib.request.urlopen(item['url'], timeout=120) as source, path.open('xb') as target:
         total = 0
@@ -151,7 +156,8 @@ def catalog(output, builds, *, now=None, sequence=None):
         report = load(directory / 'build.json'); rid = 'linux-x64' if arch == 'x64' else 'linux-arm64'
         require(report['sourceInputs'] == tool_inputs() and report['source']['repository'] == source['repository']
                 and report['source']['workflow'] == WORKFLOW and report['version'] == policy['version'] and report['architecture'] == arch
-                and report['rid'] == rid and report['securityTests'] == 'passed', 'Native build provenance or checks differ')
+                and report['rid'] == rid and report['securityTests'] == 'passed' and report['nativeRuntime']==policy['nativeRuntime']
+                and report['container']==MULTI.BASES['rocky-9.8'][arch], 'Native build provenance or checks differ')
         for asset in report['artifacts']:
             actual = descriptor(directory / asset['path'])
             require(all(actual[k] == asset[k] for k in ('name', 'size', 'sha256')), 'Native artifact differs from its exact build')
@@ -346,6 +352,148 @@ def native(args):
         if image:subprocess.run(['docker','image','rm',image],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 
 
+def qualified_reports(bundle,directory,*,public=False):
+    freeze=verify_bundle(bundle);api=GitHubReleases();reports={};proof=[]
+    for path in Path(directory).rglob('report.json'):
+        value=load(path);target=(value['variant'],value['architecture'])
+        require(target not in reports and target[0] in MULTI.TARGETS and target[1] in ('x64','aarch64'),'Duplicate or unreviewed installer target')
+        require(value['schemaVersion']==1 and value['scope']=='cbodotnetup-native-installation' and value['status']=='passed'
+                and value['checks']==dict.fromkeys(CHECKS,'passed') and value['networkForBuild']=='none' and value['userId']==10001
+                and value['bootstrapBinarySource']==('public-https' if public else 'protected-frozen-candidate')
+                and value['freezeSha256']==descriptor(Path(bundle)/'freeze.json')['sha256']
+                and value['catalogSha256']==descriptor(Path(bundle)/'catalog.json')['sha256']
+                and value['bootstrapSha256']==descriptor(Path(bundle)/'get-cbodotnetup.py')['sha256']
+                and value['packageManagedCommunityIntegrity']=='unchanged'
+                and value['functionalChecks']==dict.fromkeys(FUNCTIONAL_CHECKS,'passed'),'Incomplete native installer qualification')
+        rid='linux-x64' if target[1]=='x64' else 'linux-arm64'
+        require(value['binarySha256']==descriptor(Path(bundle)/'tools'/rid/('cbodotnetup-'+rid))['sha256'],'Qualified binary differs from frozen bytes')
+        source=value['orchestration'];run_record=api.api(f'repos/dotnetdev-kr/cbodotnet/actions/runs/{source["runId"]}/attempts/{source["runAttempt"]}')
+        require(source['repository']=='dotnetdev-kr/cbodotnet' and source['workflow']==WORKFLOW and run_record['head_sha']==source['commit']
+                and run_record['path']==WORKFLOW and run_record['head_branch']=='main' and run_record['repository']['full_name']=='dotnetdev-kr/cbodotnet'
+                and run_record['head_repository']['full_name']=='dotnetdev-kr/cbodotnet' and run_record['event']=='workflow_dispatch','Unapproved installer verification workflow')
+        jobs=api.api(f'repos/dotnetdev-kr/cbodotnet/actions/runs/{source["runId"]}/attempts/{source["runAttempt"]}/jobs?per_page=100')['jobs']
+        job_name=('Verify public cbodotnetup on ' if public else 'Qualify cbodotnetup on ')+target[0]+' native '+target[1]
+        selected=[j for j in jobs if j['name']==job_name]
+        require(len(selected)==1 and selected[0]['status']=='completed' and selected[0]['conclusion']=='success','Actual native installer job did not succeed')
+        name=('cbodotnetup-public-proof-' if public else 'cbodotnetup-native-proof-')+target[0]+'-'+target[1]+'-'+source['runId']+'-'+source['runAttempt']
+        artifacts=api.api(f'repos/dotnetdev-kr/cbodotnet/actions/runs/{source["runId"]}/artifacts?per_page=100')
+        selected_artifacts=[a for a in artifacts['artifacts'] if a['name']==name]
+        require(len(selected_artifacts)==1 and artifacts['total_count']<=100,'Exact native report artifact is absent or ambiguous')
+        artifact=selected_artifacts[0]
+        raw=subprocess.check_output(['gh','api',f'repos/dotnetdev-kr/cbodotnet/actions/artifacts/{artifact["id"]}/zip'])
+        require(not artifact['expired'] and len(raw)==artifact['size_in_bytes']<=32*1024**2
+                and 'sha256:'+hashlib.sha256(raw).hexdigest()==artifact['digest'],'Native report ZIP changed')
+        with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+            members=[m for m in archive.infolist() if m.filename=='report.json']
+            require(len(members)==1 and members[0].file_size<=2*1024**2,'Actual report JSON is absent or too large')
+            actual=archive.read(members[0]);require(actual==path.read_bytes(),'Supplied proof differs from the actual job report JSON')
+        proof.append(dict(variant=target[0],architecture=target[1],jobId=selected[0]['id'],jobName=job_name,
+            workflow=source,artifact=dict(id=artifact['id'],size=len(raw),sha256=hashlib.sha256(raw).hexdigest()),report=descriptor(path),observation=value))
+        reports[target]=value
+    require(set(reports)=={(v,a) for v in MULTI.TARGETS for a in ('x64','aarch64')},'All eight actual native targets are mandatory')
+    return proof
+
+
+def upload_release(tag,target,assets,title,body):
+    api=GitHubReleases();existing=api.find(tag)
+    if existing is None:
+        ref=api.api('repos/dotnetdev-kr/cbodotnet/git/ref/tags/'+tag)
+        require(ref is None or ref['object']['type']=='commit' and ref['object']['sha']==target,'Existing tag has unrelated source')
+        existing=api.api('repos/dotnetdev-kr/cbodotnet/releases','POST',dict(tag_name=tag,target_commitish=target,name=title,body=body,draft=True,prerelease=False,make_latest='false'))
+    require(existing['tag_name']==tag and existing['target_commitish']==target and not existing['prerelease'],'Immutable installer release source or flags differ')
+    expected=[descriptor(p) for p in assets];index={a['name']:a for a in expected}
+    require(len(index)==len(expected),'Duplicate release asset name')
+    current=api.get(existing)
+    require(set(a['name'] for a in current['assets'])<=set(index),'Unrelated release asset exists')
+    for path in assets:
+        matching=[a for a in current['assets'] if a['name']==path.name]
+        if matching:
+            require(len(matching)==1 and matching[0]['size']==index[path.name]['size'] and matching[0]['digest']=='sha256:'+index[path.name]['sha256'],'Existing immutable release asset conflicts')
+        else:
+            require(current['draft'],'Cannot add bytes to an existing published installer identity');api.upload(current,path)
+    current=api.get(existing);verify_remote_assets(current,expected,api)
+    if current['draft']:current=api.publish(current)
+    current=api.get(current);verify_remote_assets(current,expected,api,public=True)
+    ref=api.api('repos/dotnetdev-kr/cbodotnet/git/ref/tags/'+tag)
+    require(ref and ref['object']['type']=='commit' and ref['object']['sha']==target,'Published installer tag source changed')
+    return dict(id=current['id'],tag=tag,targetCommit=target,url=current['html_url'],
+        assets=[dict(item,url='https://github.com/dotnetdev-kr/cbodotnet/releases/download/'+tag+'/'+item['name']) for item in expected])
+
+
+def pack(directory,destination):
+    import gzip
+    with Path(destination).open('xb') as raw,gzip.GzipFile(filename='',fileobj=raw,mode='wb',mtime=0) as compressed,tarfile.open(fileobj=compressed,mode='w|',format=tarfile.PAX_FORMAT) as archive:
+        for path in sorted(Path(directory).rglob('*')):
+            require(not path.is_symlink(),'Publication source tree cannot contain links')
+            info=archive.gettarinfo(str(path),path.relative_to(directory).as_posix());info.uid=info.gid=info.mtime=0;info.uname=info.gname=''
+            if path.is_file():
+                with path.open('rb') as incoming:archive.addfile(info,incoming)
+            else:archive.addfile(info)
+
+
+def publish(args):
+    freeze=verify_bundle(args.bundle);proof=qualified_reports(args.bundle,args.reports)
+    output=args.output;require(not output.exists(),'Fresh publication output required');output.mkdir(parents=True)
+    tools=output/'tool-assets';tools.mkdir();version=freeze['version'];source=None
+    for arch,rid in (('x64','linux-x64'),('aarch64','linux-arm64')):
+        directory=args.bundle/'tools'/rid;build_report=load(directory/'build.json')
+        if source is None:source=build_report['source']['commit']
+        require(build_report['source']['commit']==source,'Both tool binaries must have one exact source commit')
+        for name in ('cbodotnetup-'+rid,'cbodotnetup-'+rid+'.LICENSE.txt'):shutil.copyfile(directory/name,tools/name)
+        shutil.copyfile(directory/'build.json',tools/('build-'+arch+'.json'))
+    shutil.copyfile(ROOT/'LICENSE',tools/'LICENSE')
+    run(['git','archive','--format=tar.gz','--output',tools/'cbodotnetup-source.tar.gz',source,'tools','LICENSE','releases/cbodotnetup-policy.json','releases/downstream-signing-key.asc','scripts/get-cbodotnetup.py'])
+    tool_release=upload_release('cbodotnetup-v'+version,source,sorted(tools.iterdir()),'cbodotnetup '+version+' - verified Community Build SDK manager',
+        'SDK-free NativeAOT installer for qualified Community Build of .NET SDKs. Verify the current project-signed installation catalog and its independently pinned OpenPGP key. '
+        'Linux glibc x64/AArch64; Ubuntu24.04, Debian13, Fedora45 and Rocky9.8. Initial SDK:10.0.403. '
+        'Native runtime 10.0.14; the SDK payload stays unchanged. Per-user roots preserve official and package-managed commands. '
+        'Each binary has exact signed native runtime/project license and third-party notices in its adjacent .LICENSE.txt asset. '
+        'Build/source records are retained; current signed catalog qualification is published separately. This release does not replace the latest SDK download.')
+    catalog_assets=output/'catalog-assets';catalog_assets.mkdir()
+    for name in ('catalog.json','catalog.json.asc','freeze.json','freeze.json.asc','get-cbodotnetup.py'):shutil.copyfile(args.bundle/name,catalog_assets/name)
+    pack(args.bundle,catalog_assets/'cbodotnetup-verification-inputs.tar.gz')
+    save(catalog_assets/'native-qualification.json',dict(status='passed',targets=proof))
+    catalog_value=load(args.bundle/'catalog.json')
+    release=upload_release('cbodotnetup-catalog-'+str(catalog_value['sequence']),freeze['source']['commit'],sorted(catalog_assets.iterdir()),
+        'cbodotnetup signed installation catalog '+str(catalog_value['sequence']),
+        'Project-signed installation catalog with bounded freshness, revocation, source/producer pins and immutable SDK/tool hashes. '
+        'All eight native OS/CPU qualification targets passed before this publication. Public bootstrap/native post-verification is recorded before feed activation. '
+        'AUR publication remains deferred under issue10.')
+    save(output/'publication.json',dict(schemaVersion=1,kind='cbodotnetup-publication',status='published-public-bytes-verified',
+        version=version,source=freeze['source'],toolRelease=tool_release,catalogRelease=release,nativeQualification=proof,
+        catalogSequence=catalog_value['sequence'],catalogSha256=descriptor(args.bundle/'catalog.json')['sha256']))
+
+
+def receive_public(args):
+    publication=load(args.publication);assets={a['name']:a for a in publication['catalogRelease']['assets']}
+    require(publication['status']=='published-public-bytes-verified','Exact public installer publication required')
+    args.output.parent.mkdir(parents=True,exist_ok=True)
+    archive=args.output.parent/'public-installer-inputs.tar.gz';fetch_asset(assets['cbodotnetup-verification-inputs.tar.gz'],archive)
+    sdk_tools().extract_sdk(archive,args.output);verify_bundle(args.output)
+    for name in ('catalog.json','catalog.json.asc','get-cbodotnetup.py'):
+        raw=get_bytes(assets[name]['url'],assets[name]['size'])
+        require(hashlib.sha256(raw).hexdigest()==assets[name]['sha256'] and raw==(args.output/name).read_bytes(),'Public consumer metadata differs from the frozen signed candidate')
+
+
+def activate(args):
+    publication=load(args.publication);proof=qualified_reports(args.bundle,args.reports,public=True)
+    require(publication['catalogSha256']==descriptor(args.bundle/'catalog.json')['sha256'],'Public installer catalog differs')
+    status=dict(schemaVersion=1,kind='cbodotnetup-availability',status='published-postverified',version=publication['version'],
+        catalogSequence=publication['catalogSequence'],catalogSha256=publication['catalogSha256'],toolRelease=publication['toolRelease'],
+        catalogRelease=publication['catalogRelease'],nativeQualification=publication['nativeQualification'],publicNativeVerification=proof,
+        source=publication['source'],postVerification=source_identity())
+    save(args.output,status)
+    api=GitHubReleases();path='releases/cbodotnetup-status.json'
+    content=api.api('repos/dotnetdev-kr/cbodotnet/contents/'+path+'?ref=main')
+    previous,lease=read_leased_json(api,path) if content is not None else (None,None)
+    require(previous is None or previous.get('catalogSequence',0)<=status['catalogSequence'],'Catalog activation would roll back availability')
+    import base64
+    body=dict(message='Activate independently verified cbodotnetup '+status['version']+' catalog '+str(status['catalogSequence']),content=base64.b64encode(encoded(status)).decode(),branch='main')
+    if lease is not None:body['sha']=lease['sha']
+    if previous!=status:api.api('repos/dotnetdev-kr/cbodotnet/contents/'+path,'PUT',body)
+    api.api('repos/dotnetdev-kr/cbodotnet/actions/workflows/pages.yml/dispatches','POST',dict(ref='main'))
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__); commands=parser.add_subparsers(dest='command',required=True)
     command=commands.add_parser('build'); command.add_argument('--arch',choices=('x64','aarch64'),required=True); command.add_argument('--workspace',type=Path,required=True)
@@ -354,8 +502,13 @@ def main():
         command=commands.add_parser(name);command.add_argument('--bundle',type=Path,required=True);command.add_argument('--workspace',type=Path,required=True)
         command.add_argument('--arch',choices=('x64','aarch64'),required=True);command.add_argument('--variant',choices=tuple(MULTI.TARGETS),required=True)
         command.add_argument('--public',action='store_true')
+    for name in ('publish','activate'):
+        command=commands.add_parser(name);command.add_argument('--bundle',type=Path,required=True);command.add_argument('--reports',type=Path,required=True);command.add_argument('--output',type=Path,required=True)
+        if name=='activate':command.add_argument('--publication',type=Path,required=True)
+    command=commands.add_parser('receive-public');command.add_argument('--publication',type=Path,required=True);command.add_argument('--output',type=Path,required=True)
     args=parser.parse_args()
-    {'build':build,'stage':stage,'native':native,'native-install':native_install,'native-smoke':native_smoke}[args.command](args)
+    {'build':build,'stage':stage,'native':native,'native-install':native_install,'native-smoke':native_smoke,
+     'publish':publish,'receive-public':receive_public,'activate':activate}[args.command](args)
 
 
 if __name__=='__main__':main()

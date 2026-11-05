@@ -180,6 +180,112 @@ jobs:
           retention-days: 30
           if-no-files-found: warn
 
+  publish_installer:
+    name: Publish immutable qualified cbodotnetup bytes
+    needs: [sign_installer, native_installer]
+    if: always() && inputs.channel == 'installer' && inputs.publish == true && needs.native_installer.result == 'success' && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: cbodotnetup-frozen-${{ inputs.promotion_run_id || github.run_id }}-${{ inputs.promotion_run_id != '' && inputs.promotion_run_attempt || github.run_attempt }}
+          path: ${{ runner.temp }}/installer-frozen
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.promotion_run_id || github.run_id }}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: cbodotnetup-native-proof-*-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/installer-proof
+      - name: Authenticate actual report ZIPs and publish without replacing any release bytes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/cbodotnetup-release.py publish --bundle "$RUNNER_TEMP/installer-frozen" --reports "$RUNNER_TEMP/installer-proof" --output "$RUNNER_TEMP/installer-publication"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: cbodotnetup-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/installer-publication/publication.json
+          retention-days: 30
+          if-no-files-found: error
+
+  postverify_installer:
+    name: Verify public cbodotnetup on ${{ matrix.variant }} native ${{ matrix.arch }}
+    needs: publish_installer
+    if: always() && needs.publish_installer.result == 'success'
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [ubuntu-24.04, debian-13, fedora-45, rocky-9.8]
+        arch: [x64, aarch64]
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: cbodotnetup-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/installer-publication
+      - name: Re-download the public signed input inventory anonymously
+        run: python3 scripts/cbodotnetup-release.py receive-public --publication "$RUNNER_TEMP/installer-publication/publication.json" --output "$RUNNER_TEMP/installer-public-inputs"
+      - name: Bootstrap actual public binaries and qualify native SDK installation without credentials
+        env:
+          ARCH: ${{ matrix.arch }}
+          VARIANT: ${{ matrix.variant }}
+        run: python3 scripts/cbodotnetup-release.py native --public --bundle "$RUNNER_TEMP/installer-public-inputs" --arch "$ARCH" --variant "$VARIANT" --workspace "$RUNNER_TEMP/installer-public-observation"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: cbodotnetup-public-proof-${{ matrix.variant }}-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/installer-public-observation/installed/*.json
+          retention-days: 30
+          if-no-files-found: warn
+
+  activate_installer:
+    name: Activate authenticated cbodotnetup feed
+    needs: [sign_installer, publish_installer, postverify_installer]
+    if: always() && needs.publish_installer.result == 'success' && needs.postverify_installer.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: cbodotnetup-frozen-${{ inputs.promotion_run_id || github.run_id }}-${{ inputs.promotion_run_id != '' && inputs.promotion_run_attempt || github.run_attempt }}
+          path: ${{ runner.temp }}/installer-frozen
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.promotion_run_id || github.run_id }}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: cbodotnetup-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/installer-publication
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: cbodotnetup-public-proof-*-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/installer-public-proof
+      - name: Require eight actual public native job/report ZIP proofs before enabling the feed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/cbodotnetup-release.py activate --publication "$RUNNER_TEMP/installer-publication/publication.json" --bundle "$RUNNER_TEMP/installer-frozen" --reports "$RUNNER_TEMP/installer-public-proof" --output "$RUNNER_TEMP/cbodotnetup-status.json"
+
   native_archive:
     if: inputs.channel == 'archive' && inputs.source_run_id == '' && inputs.promotion_run_id == ''
     name: Build branded consumer archive on native ${{ matrix.arch }}
