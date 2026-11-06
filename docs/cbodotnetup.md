@@ -6,11 +6,14 @@ Fedora45 and Rocky Linux9.8. It preserves official `dotnet`, official
 `dotnetup` state and package-managed `/opt/cbodotnet` installations. NativeAOT
 bootstrap does not require an installed .NET SDK.
 
-Version [0.3.0 is published](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-v0.3.0).
-It adds [project SDK selection](cbodotnetup-project-selection.md) from
-`global.json`, with explicit SDK/series precedence and no automatic SDK
-installation. [Issue #28](https://github.com/dotnetdev-kr/cbodotnet/issues/28)
-has [independent release validation](cbodotnetup-project-validation.json).
+The 0.4 tool line adds explicitly opted-in
+[private legacy providers](cbodotnetup-legacy-providers.md) for SDK5.0.214,
+Core3.1.426 and Core3.0.103. It retains
+[project SDK selection](cbodotnetup-project-selection.md) from `global.json`,
+with explicit SDK/series precedence and no automatic SDK installation.
+[Issue #29](https://github.com/dotnetdev-kr/cbodotnet/issues/29) has a separate
+[source, redistribution and maintenance decision](cbodotnetup-legacy-providers.md#reviewed-source-and-redistribution-decision)
+and installer-specific qualification gate.
 Use the [activated installer status](../releases/cbodotnetup-status.json) and
 [download site](https://dotnetdev.kr/cbodotnet/) for the active signed catalog
 and bootstrap. Installer admission is scoped to each SDK, OS version and CPU;
@@ -19,33 +22,38 @@ The earlier compatible catalog migration is recorded in
 [#26](https://github.com/dotnetdev-kr/cbodotnet/issues/26) and its
 [independent evidence](cbodotnetup-v2-validation.json); the five-SDK expansion
 is recorded in [#27](https://github.com/dotnetdev-kr/cbodotnet/issues/27) and its
-[qualification evidence](cbodotnetup-modern-sdk-validation.json). Historical
-0.2.0 and 0.1.0 validation remains below.
+[qualification evidence](cbodotnetup-modern-sdk-validation.json). The published
+[0.3.0 tool](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-v0.3.0)
+and [project-selection evidence](cbodotnetup-project-validation.json), along
+with earlier validation records, remain below.
 
 ## SDK admission and lifecycle
 
-The activated neutral archives from
-[#27](https://github.com/dotnetdev-kr/cbodotnet/issues/27) are listed below.
-Their [independent installer evidence](cbodotnetup-modern-sdk-validation.json)
-verifies every advertised OS/CPU combination.
+The 0.4 contract includes the neutral archive revisions below. The active
+signed catalog determines which exact SDK/OS/CPU cells are available. The
+modern SDKs retain the [#27 installer evidence](cbodotnetup-modern-sdk-validation.json);
+legacy additions require their own [#29 validation](cbodotnetup-legacy-validation.json).
 
-| SDK | Archive revision | Community channel |
-| --- | --- | --- |
-| 10.0.403 | r3 | 10.0 |
-| 9.0.123 | r2 | 9.0 |
-| 8.0.133 | r2 | 8.0 |
-| 7.0.120 | r2 | 7.0 |
-| 6.0.136 | r2 | 6.0 |
+| SDK | Archive revision | Community channel | Private provider consent |
+| --- | --- | --- | --- |
+| 10.0.403 | r3 | 10.0 | None |
+| 9.0.123 | r2 | 9.0 | None |
+| 8.0.133 | r2 | 8.0 | None |
+| 7.0.120 | r2 | 7.0 | None |
+| 6.0.136 | r2 | 6.0 | None |
+| 5.0.214 | r2 | 5.0 | `--with-legacy-providers`: SSL/ICU companion |
+| 3.1.426 | r2 | 3.1 | `--with-legacy-providers`: SSL/ICU and curl companions |
+| 3.0.103 | r2 | 3.0 | `--with-legacy-providers`: SSL/ICU and curl companions |
 
 Run `cbodotnetup list --available` to authenticate current admission before
 installing. Published package/archive evidence establishes the inputs; installer
 promotion separately requires native and anonymous public installation evidence
-for every advertised SDK/OS/CPU combination. The five-SDK matrix contains 40
-cells: 32 additional cells for SDK9/8/7/6 and eight SDK10 regression cells.
+for every advertised SDK/OS/CPU combination. The eight-SDK contract has 64
+cells: 40 modern regressions and 24 legacy-provider additions.
 Unqualified or revoked combinations are refused before activation.
 
 The [upstream lifecycle policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core),
-reviewed on 2026-11-06, records:
+reviewed on 2026-11-07, records:
 
 | .NET series | Upstream phase on the review date | Upstream end of support |
 | --- | --- | --- |
@@ -54,6 +62,9 @@ reviewed on 2026-11-06, records:
 | 8 LTS | Maintenance | 2026-11-10 |
 | 7 STS | Ended | 2024-05-14 |
 | 6 LTS | Ended | 2024-11-12 |
+| 5 STS | Ended | 2022-05-10 |
+| Core 3.1 LTS | Ended | 2022-12-13 |
+| Core 3.0 STS | Ended | 2020-03-03 |
 
 These dates describe product series; upstream servicing also requires current
 patches. The exact immutable Community SDK pins above have their own provenance
@@ -62,27 +73,31 @@ and qualification records. Catalogs declare
 covers observed installation and runtime behavior and does not extend vendor
 servicing or automatically track later upstream patches.
 
-Microsoft's [Ubuntu](https://learn.microsoft.com/en-us/dotnet/core/install/linux-ubuntu-install)
+The 2026-11-06 modern-target review found .NET10/9/8 in Microsoft's
+[Ubuntu](https://learn.microsoft.com/en-us/dotnet/core/install/linux-ubuntu-install)
 and [Debian](https://learn.microsoft.com/en-us/dotnet/core/install/linux-debian)
-installation tables include .NET10/9/8 on Ubuntu24.04 and Debian13 on the review
-date. Its [supported OS table](https://github.com/dotnet/core/blob/main/release-notes/10.0/supported-os.md)
-lists Fedora44/43, while this project qualifies Fedora45 independently. Rocky9.8
+installation tables for Ubuntu24.04 and Debian13. Its
+[supported OS table](https://github.com/dotnet/core/blob/main/release-notes/10.0/supported-os.md)
+listed Fedora44/43, while this project qualifies Fedora45 independently. Rocky9.8
 is also an explicit Community target; an RHEL9 listing alone is not evidence for
-this project's exact Rocky package/CPU combination. The SDK7/6 targets retain
+this project's exact Rocky package/CPU combination. SDK7/6/5 and Core3 retain
 their upstream EOL status even after successful Community installation tests.
 
 The original SDK9/8/7/6 expansion reused the immutable 0.2.0 tool and activated
 the [historical schema2 catalog](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-catalog-42213550406).
 The schema1 feed remains limited to
-SDK10 revision2 and compatible tool records. Additional legacy-provider SDKs
-and musl admission have separate work items.
+SDK10 revision2 and compatible tool records. The schema2 feed remains
+modern-only. The schema3 provider contract extends the installer without
+adding unsupported SDK records to either older feed. Musl admission remains
+a separate work item.
 
 ## Bootstrap
 
 Install Python3, GnuPG, CA certificates and the [SDK's OS dependencies](../releases/distribution-contract.json)
 using your OS package manager. These are explicit prerequisites; the installer
-does not install packages or obsolete native libraries. Do not use `sudo` to
-run the bootstrap or the installed manager.
+does not provision system packages or replace host libraries. Legacy consent
+allows only the separately authenticated private companions described below.
+Do not use `sudo` to run the bootstrap or the installed manager.
 
 Download and review `get-cbodotnetup.py` from the verified download site or an
 independently trusted repository commit. Compare its embedded public key and
@@ -119,7 +134,10 @@ cbodotnetup doctor
 cbodotnetup list --available
 cbodotnetup install --channel 10.0
 cbodotnetup install --channel 9.0
+cbodotnetup install 5.0.214-r2 --with-legacy-providers
+cbodotnetup install --channel 3.1 --with-legacy-providers
 cbodotnetup update
+cbodotnetup update --with-legacy-providers
 cbodotnetup run -- build
 cbodotnetup run 9.0.123-r2 -- --version
 cbodotnetup rollback 9.0.123-r2
@@ -136,7 +154,7 @@ The root is `$XDG_DATA_HOME/cbodotnetup`, defaulting to
 absolute user-owned root. `shell enable` creates only owned `cbodotnet` and
 `cbodotnet-X.Y` links in `<root>/bin` and prints that directory for explicit PATH
 configuration. It never creates a user-local `dotnet` alias. Exact `run` works
-without PATH changes. In version 0.3, the common alias and `run --` use the
+without PATH changes. In versions 0.3 and later, the common alias and `run --` use the
 nearest cwd/ancestor `global.json` SDK request; without one they preserve the
 highest installed Community SDK series and active revision. Explicit `run`
 versions and versioned aliases take precedence. See the
@@ -159,45 +177,99 @@ it does not silently fetch a withdrawn version. A different rollback target
 becomes usable only when separately admitted and installed. Concurrent
 operations fail with a retry message.
 
+## Explicit legacy-provider installation
+
+The first installation of SDK5 or Core3 requires `--with-legacy-providers`.
+This authorizes only the exact signed user-scoped companions bound to that
+SDK and host. Existing system/package providers and caller-supplied provider
+roots are not imported. The SDK payload remains unchanged. These installations
+require glibc >=2.34 and, on x64, x86-64-v2 on every exposed processor, plus the
+[documented stock OS dependencies](cbodotnetup-legacy-providers.md#explicit-installation-and-prerequisites).
+Owned legacy provider paths must not contain `:`, `;`, `$` or control
+characters, because the native loader interprets separators and expansion
+tokens. Choose an ordinary `CBODOTNETUP_HOME`; spaces remain supported.
+The signed metadata, source/license review and runtime requirements are
+explained in the [provider contract](cbodotnetup-legacy-providers.md).
+
+An identical installed SDK retry verifies its retained providers. A tracked
+legacy channel can reuse its existing receipt's consent during `update`.
+Removing that SDK leaves the tracked channel but does not preserve implicit
+permission to download its providers again: use
+`cbodotnetup update --with-legacy-providers` or an explicitly opted-in install
+to restore it. Project selection never downloads a missing provider or SDK.
+
+Providers are shared only by exact authenticated identity. Removing one SDK
+does not remove another SDK's dependency. After SDK removal, `gc` verifies the
+remaining references and collects only unreferenced owned provider objects.
+The child's provider environment is isolated; successful, failing and
+unstartable children do not rewrite the manager's caller environment. An
+explicit user `SSL_CERT_FILE` is preserved; otherwise the reviewed target CA
+bundle is selected. Official dotnet and the system CA bundle remain under
+their existing owners.
+
+The manager runs the verified legacy payload host with this complete child
+environment. The standalone Core3 archive wrapper correction is tracked in
+[#31](https://github.com/dotnetdev-kr/cbodotnet/issues/31); this tool release
+preserves the existing r2 archive bytes.
+
 ## Catalog migration and compatibility
 
-The 0.2 and 0.3 clients use the versioned schema2 feed at
-`https://dotnetdev.kr/cbodotnet/cbodotnetup/v2/catalog.json`. Its neutral SDK10
-archive is revision3. The legacy endpoint
-`https://dotnetdev.kr/cbodotnet/cbodotnetup/catalog.json` remains schema1, with
-the historical SDK10 revision2 archive and compatible tool records, including
-authenticated upgrades to 0.2 and 0.3. No old release asset is renamed or replaced.
-Historical unbranded trial SDKs are not admitted.
+Three signed feeds preserve clients that validate unknown fields strictly:
+
+| Client line | Feed below `https://dotnetdev.kr/cbodotnet/cbodotnetup/` | Trust cache | SDK namespace |
+| --- | --- | --- | --- |
+| 0.1 | `catalog.json` (schema1) | `<root>/cache/` | `toolchains/`: SDK10 archive r2 |
+| 0.2 / 0.3 | `v2/catalog.json` (schema2) | `<root>/cache/v2/` | `toolchains-v2/`: modern SDKs |
+| 0.4 | `v3/catalog.json` (schema3) | `<root>/cache/v3/` | Existing modern namespace plus legacy `toolchains-v3/` |
+
+The schema3 feed hash-binds its separately signed `catalog-v2.json`
+compatibility projection. Modern SDK records and receipts remain unchanged,
+and new modern installations retain that exact schema2 admission. An older
+0.2/0.3 executable can therefore still verify them. Legacy SDK receipts and
+their provider references live only in `toolchains-v3/`; immutable shared
+companions live separately in `providers/`. Older clients ignore those roots.
+The schema1 feed retains SDK10 revision2 with its original filename. All three
+feeds retain compatible authenticated tool upgrade records. No historical
+release asset is renamed or replaced, and trial SDKs are not admitted.
 
 Existing 0.1.0 users can upgrade with `cbodotnetup self update`, then run
-`cbodotnetup list --available` to authenticate the new feed before using
-`cbodotnetup update` or installing a revision3 SDK. Revision2 remains retained
+`cbodotnetup list --available` to authenticate the current feed before using
+`cbodotnetup update` or installing another SDK. SDK10 revision2 remains retained
 for explicit SDK rollback. SDK availability still requires individual OS/CPU
 qualification; the new catalog format does not admit additional SDK series,
 legacy providers or musl by itself.
 
-Both client generations share the owner marker, operation lock and selection
-state, but retain separate signed cache/high-water records: 0.1.0 uses
-`<root>/cache/`, and 0.2 and later use `<root>/cache/v2/`. Historical SDK installations
-stay in `<root>/toolchains/`; neutral SDK installations use
-`<root>/toolchains-v2/`. The new client verifies both namespaces. The old client
-sees its original namespace only, so a retained 0.1.0 executable can operate
-without parsing schema2 admissions. A shared selection naming an unseen neutral
-revision falls back to an installed compatible revision in the old namespace.
-Retain revision2 if recovery with the old tool must include SDK execution.
+All client generations share the owner marker, operation lock and selection
+state, while their signed cache/high-water records remain separate. The 0.4
+client verifies all three SDK namespaces without rewriting older receipts.
+A shared selection naming an unseen revision falls back to a compatible
+installed revision visible to the old client. Retain SDK10 revision2 if recovery
+with 0.1.0 must include SDK execution; retain a modern installation for recovery
+with 0.2/0.3. Those older tools cannot manage legacy provider installations.
+
+After a 0.3 self-update, 0.4 can use an authenticated modern-only schema2 cache
+offline until a schema3 cache has been established. `list --available` explicitly
+refreshes schema3 admission. A malformed or conflicting schema3 cache does not
+silently fall back. When explicitly installing a modern SDK from a local
+schema3 catalog, its exact signed `catalog-v2.json`/`.asc` may be supplied
+alongside it; otherwise that install obtains the canonical bound projection.
+Local execution does not download the projection.
 
 `self rollback` restores the retained, admitted and unrevoked tool executable
 and notices. After returning to 0.1.0, its schema1 feed and original SDK roots
 remain usable; `self update` can authenticate the upgrade again. Neutral SDK
-roots remain intact for the new client. If an update is interrupted, rerun the
+roots and private providers remain intact for the new client. A retained 0.3
+tool can run its modern SDKs while leaving legacy state untouched, then
+authenticate a re-upgrade. Re-upgrade before maintaining legacy tracked
+channels. If an update is interrupted, rerun the
 independently trusted current bootstrap with a fresh signed catalog to repair
 the owned executable and marker; it does not erase SDK roots or bypass hashes.
 
-The two feeds are renewed together through the protected publication workflow,
+The three feeds are renewed together through the protected publication workflow,
 each with its own monotonic sequence/hash record and a 30-day catalog lifetime.
 There is no automatic schema1 sunset. Retirement requires an announced owner
 decision, a documented upgrade/support window and independently authenticated
-bootstrap recovery instructions. A failed renewal does not extend either
+bootstrap recovery instructions. A failed renewal does not extend any
 catalog's validity. Already installed SDK execution can use an authenticated
 offline cache, but new installation and self-update require a fresh catalog.
 Revoking the old tool also requires reviewing its migration fixture and the
@@ -205,18 +277,22 @@ upgrade/retirement plan; renewal must never restore a revoked tool to admission.
 
 `list --available`, installation, update and self-update obtain a fresh catalog.
 `--catalog FILE` uses a local project-signed catalog and adjacent `.asc` with the
-same signature/freshness/anti-rollback rules. The active catalog for 0.2 and later,
-including a local file, must use schema2; schema1 is accepted only for retained
-SDK admission verification. Offline `run`, installed `list`,
+same signature/freshness/anti-rollback rules. The 0.4 default endpoint requires
+schema3. A local schema2 bridge is accepted for modern SDK operations and tool
+recovery; schema1 is accepted only for retained SDK admission verification.
+Offline `run`, installed `list`,
 removal and `doctor` use the last verified cache. Offline clients cannot learn
 new revocations until refreshing. Signature/key revocation and known release
 revocations still apply. SDKs needing unadmitted legacy providers are rejected
-with an actionable dependency message.
+with an actionable dependency message. A project request never opts into
+provider installation.
 
 ## Recovery and removal
 
 Interrupted SDK staging never replaces an active root. Retry the exact install;
-`gc` removes abandoned marked staging data. Changed installed inventories are
+`gc` removes abandoned marked staging data and unreferenced verified providers.
+It preserves companions still referenced by any retained legacy SDK.
+Changed installed inventories are
 refused and reported by `doctor`; inspect the cause before restoring the
 original bytes or manually removing your own data. `gc` retains installed SDKs.
 
@@ -243,10 +319,53 @@ version. Catalog maintenance and native runtime updates remain project responsib
 distribution does not create an upstream security-support promise for EOL SDKs.
 See the [implementation and trust design](cbodotnetup-design.md).
 
-## 0.3.0 project selection validation
+## 0.4 legacy-provider qualification
+
+The [issue-29 independent validation record](cbodotnetup-legacy-validation.json)
+is the completion record for immutable source/tool assets, the three signed
+feeds, provider origins, actual native/public job and artifact identities,
+hosted bootstrap and historical release preservation. Promotion requires all
+64 SDK/OS/CPU cells in each phase: 40 modern regressions and 24 legacy cells.
+Neither the source review nor an existing SDK/package qualification substitutes
+for these installer results.
+
+Legacy gates require explicit consent; source, signature, CPU and ABI rejection;
+private crypto/ICU library mappings; offline console/apphost/ASP.NET and
+HTTP/TLS/globalization; forced Core3 CurlHandler with callback and ordinary CA
+validation; shared-provider lifetime; interruption recovery; immutable SDK
+inventories; actual old-tool rollback/re-upgrade; and official/package-managed
+coexistence. Core tests exercise successful, failing and unstartable children
+through the common manager launch path, including a modern child nested in a
+legacy scope, to verify caller-environment restoration in one managed process.
+
+The immutable [0.4.0 release](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-v0.4.0)
+passed all 64 cells in both the candidate and anonymous public phases of the
+[native release workflow](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42256817100).
+Each phase also passed 624 native reference checks and 1,680 project-selection
+cases across the 56 additional SDK cells. Actual 0.1/0.2/0.3 migration paths
+remain covered; the public phase includes 0.4→0.3→0.4 recovery with installed
+legacy SDKs and shared providers, preserving their receipts and selections.
+
+The [native C# source suite](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42256788052)
+passed 436 checks on each CPU. [Repository CI](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42256787837)
+ran 872 Python tests: 868 passed and four were skipped.
+After [Pages deployment](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42261726388),
+the [default hosted-feed checks](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42262834534)
+authenticated all three feeds and bootstrapped 0.4.0 on both CPUs without an
+installed SDK. The activated catalog sequence is
+[42256817100](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-catalog-42256817100).
+
+Independent validation downloaded all 36 new tool/catalog assets anonymously,
+matched their sizes and SHA256 hashes, and verified 16 pinned-project signatures:
+12 catalog/freeze signatures, three original provider source publications and
+the previous active catalog. All 77 earlier releases and 1,010 earlier assets
+retained their metadata, identities and hashes. The latest SDK download remains
+SDK10.0.403 archive r3.
+
+## Retained 0.3.0 project selection validation
 
 The [independent issue-28 evidence](cbodotnetup-project-validation.json) binds
-the new immutable tool/source assets and paired signed catalogs to actual REST
+the then-new immutable tool/source assets and paired signed catalogs to actual REST
 job IDs, original ZIP/report bytes, source CI logs and release preservation.
 The candidate phase passed all 40 SDK/OS/CPU cells across eight native targets.
 Each qualification phase evaluates 78 matching-only native reference cases per
@@ -267,11 +386,11 @@ The anonymous public phase also passed all 40 cells across eight native targets.
 After [Pages deployment](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42225918010),
 the [default hosted-feed checks](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42226898913)
 authenticated and bootstrapped 0.3.0 on both CPUs without an installed SDK.
-The activated paired catalog sequence is
+The activated paired catalog sequence was
 [42222819193](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-catalog-42222819193).
 Independent comparison preserved all 75 earlier releases and 984 earlier assets,
 including their titles, bodies, file identities and hashes. The latest SDK
-download remains SDK10.0.403 archive r3. All 26 new tool/catalog assets were
+download remained SDK10.0.403 archive r3. All 26 new tool/catalog assets were
 downloaded anonymously and matched REST/status hash pins. The signed frozen
 inventory, source inputs and seven GPG signatures were verified separately.
 

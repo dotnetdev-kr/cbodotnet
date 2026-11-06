@@ -37,15 +37,18 @@ The [original additional SDK preparation audit](docs/additional-sdk-preparation.
 retains the source pins and dependency decisions for SDKs 9, 8, 7, 6, 5 and Core
 3.1/3.0. Current availability comes from the signed publication receipts and
 delivery matrix above. The [cbodotnetup per-user SDK manager](docs/cbodotnetup.md)
-provides a signed, SDK-free bootstrap for **SDK10.0.403, 9.0.123, 8.0.133,
-7.0.120 and 6.0.136** on the same four Ubuntu/Debian/Fedora/Rocky versions and
-both native CPUs. It installs into user data roots, with explicit shell aliases
-and authenticated updates/recovery. Version 0.3 adds
+provides a signed, SDK-free bootstrap on the same four Ubuntu/Debian/Fedora/Rocky
+versions and both native CPUs. The 0.4.0 release supports **SDK10.0.403,
+9.0.123, 8.0.133, 7.0.120, 6.0.136, 5.0.214, Core3.1.426 and Core3.0.103**.
+Legacy installations require explicit `--with-legacy-providers` consent for
+[verified private companions](docs/cbodotnetup-legacy-providers.md); no system
+library or official SDK is replaced. It installs into user data roots, with
+explicit shell aliases and authenticated updates/recovery. It retains
 [project SDK selection from `global.json`](docs/cbodotnetup-project-selection.md)
 using owned installed SDKs; explicit versions and versioned aliases take
-precedence. See the [0.3.0 tool release](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-v0.3.0)
-and [activated installer status](releases/cbodotnetup-status.json). Additional
-SDK installer admissions remain separate from package qualification.
+precedence. The [activated installer status](releases/cbodotnetup-status.json)
+and download site identify the released tool and qualified SDK/OS/CPU cells;
+installer admission remains separate from package qualification.
 
 The package contract provides `cbodotnet-X.Y` and a common `cbodotnet` command
 selecting the highest installed SDK series. OCI images expose
@@ -124,6 +127,7 @@ SDK archives and corresponding source bundles retain their upstream copyrights, 
 - [Current verified SDK distribution matrix](docs/all-sdk-distributions.md)
 - [cbodotnetup user installation, updates and recovery](docs/cbodotnetup.md)
 - [Project SDK selection and global.json limits](docs/cbodotnetup-project-selection.md)
+- [cbodotnetup legacy provider trust, consent and maintenance](docs/cbodotnetup-legacy-providers.md)
 - [Core 3 native HTTP and its separate libcurl dependency](docs/legacy-curl-provider.md)
 - [Downstream verification and promotion runbook](docs/downstream-release-runbook.md)
 - [AArch64 CI, source delivery and verification](docs/ci-matrix.md)
