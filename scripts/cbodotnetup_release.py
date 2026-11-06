@@ -32,6 +32,12 @@ import published_sdk_coexistence as MULTI
 ROOT = Path(__file__).resolve().parents[1]
 POLICY = ROOT / 'releases/cbodotnetup-policy.json'
 WORKFLOW = '.github/workflows/distribution-release.yml'
+# Fedora's earlier qualification manifests were removed upstream. Keep historical
+# package/archive build pins intact; this is the installer consumer qualification
+# environment, independently reviewed from the official Fedora 45 image index.
+QUALIFICATION_BASES = {**MULTI.BASES, 'fedora-45': {
+    'x64': 'quay.io/fedora/fedora:45@sha256:79dd6556b8fe1a559051fad5159d4987ead218f1914e7a5bd20350d9ea0f9e52',
+    'aarch64': 'quay.io/fedora/fedora:45@sha256:daf39f8ebfd7624260f632d705c380f6abd4c6b430ee133b2187c6297f1ce444'}}
 LEGACY_BOOTSTRAP = dict(
     url='https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-41952285282/get-cbodotnetup.py',
     size=11478,sha256='534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409')
@@ -624,6 +630,7 @@ def native_smoke(args):
     MULTI.integrity(state['packages'],MULTI.TARGETS[args.variant]);official=assert_unchanged(args.workspace/'official.json')
     require((home/'.local/share/dotnetup/owner-test').read_text()=='untouched','Official installer state was changed')
     save(args.workspace/'report.json',dict(schemaVersion=1,scope='cbodotnetup-native-installation',status='passed',variant=args.variant,architecture=args.arch,
+        baseImage=QUALIFICATION_BASES[args.variant][args.arch],
         orchestration=source_identity(),bootstrapBinarySource=state['bootstrapBinarySource'],
         catalogSha256=state['catalogSha256'],freezeSha256=state['freezeSha256'],bootstrapSha256=state['bootstrapSha256'],binarySha256=state['binarySha256'],
         migration=state['migration'],
@@ -643,7 +650,7 @@ def native(args):
     command=['python3','/repo/scripts/cbodotnetup-release.py'];cid=image=None
     try:
         script=MULTI.bootstrap_script(args.variant)+'exec '+shlex.join(command+['native-install',*common])
-        cid=subprocess.check_output(['docker','create','--user','0',*mounts,MULTI.BASES[args.variant][args.arch],'sh','-ec',script],text=True).strip()
+        cid=subprocess.check_output(['docker','create','--user','0',*mounts,QUALIFICATION_BASES[args.variant][args.arch],'sh','-ec',script],text=True).strip()
         run(['docker','start','--attach',cid]);info=json.loads(subprocess.check_output(['docker','inspect',cid],text=True))[0]
         require(info['State']['ExitCode']==0,'Native installer/bootstrap failed')
         image=subprocess.check_output(['docker','commit',cid],text=True).strip()
@@ -660,6 +667,7 @@ def qualified_reports(bundle,directory,*,public=False):
         value=load(path);target=(value['variant'],value['architecture'])
         require(target not in reports and target[0] in MULTI.TARGETS and target[1] in ('x64','aarch64'),'Duplicate or unreviewed installer target')
         require(value['schemaVersion']==1 and value['scope']=='cbodotnetup-native-installation' and value['status']=='passed'
+                and value.get('baseImage')==QUALIFICATION_BASES[target[0]][target[1]]
                 and value['checks']==dict.fromkeys(CHECKS,'passed') and value['networkForBuild']=='none' and value['userId']==10001
                 and value['bootstrapBinarySource']==('public-https' if public else 'protected-frozen-candidate')
                 and value['freezeSha256']==descriptor(Path(bundle)/'freeze.json')['sha256']
