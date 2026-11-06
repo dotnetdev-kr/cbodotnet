@@ -8,6 +8,7 @@ import shutil
 import unittest
 from unittest.mock import patch
 from unittest.mock import MagicMock
+from types import SimpleNamespace
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
 import cbodotnetup_release as UP
@@ -54,15 +55,21 @@ class InstallerReleaseTests(unittest.TestCase):
 
     def test_new_client_pins_neutral_revision_without_changing_the_old_feed_pin(self):
         policy=UP.load(UP.POLICY)
-        self.assertEqual(policy['version'],'0.3.0')
-        self.assertEqual(policy['initialSdkVersions'],['10.0.403','9.0.123','8.0.133','7.0.120','6.0.136'])
-        self.assertEqual(policy['archiveRevisions'],{'10.0.403':3,'9.0.123':2,'8.0.133':2,'7.0.120':2,'6.0.136':2})
+        self.assertEqual(policy['version'],'0.4.0')
+        self.assertEqual(policy['initialSdkVersions'],['10.0.403','9.0.123','8.0.133','7.0.120','6.0.136','5.0.214','3.1.426','3.0.103'])
+        self.assertEqual(policy['archiveRevisions'],{'10.0.403':3,'9.0.123':2,'8.0.133':2,'7.0.120':2,'6.0.136':2,'5.0.214':2,'3.1.426':2,'3.0.103':2})
         self.assertEqual(policy['legacyArchiveRevisions'],{'10.0.403':2})
         targets=UP.reviewed_sdk_targets(policy)
-        self.assertEqual(sum(len(variants) for sdk in targets.values() for variants in sdk.values()),40)
+        self.assertEqual(sum(len(variants) for sdk in targets.values() for variants in sdk.values()),64)
 
-    def paired_catalogs(self,directory,*,previous_sequence=80,previous_tools=None,previous_revoked=None):
-        policy=UP.load(UP.POLICY);source=dict(repository='dotnetdev-kr/cbodotnet',commit='b'*40,workflow=UP.WORKFLOW,runId='123',runAttempt='1')
+    def paired_catalogs(self,directory,*,previous_sequence=80,previous_tools=None,previous_revoked=None,provider_aware=False):
+        policy=UP.load(UP.POLICY)
+        if not provider_aware:
+            versions=policy['modernSdkVersions']
+            policy=dict(policy,version='0.3.0',initialSdkVersions=versions,
+                archiveRevisions={v:policy['archiveRevisions'][v] for v in versions},
+                sdkTargets={v:policy['sdkTargets'][v] for v in versions})
+        source=dict(repository='dotnetdev-kr/cbodotnet',commit='b'*40,workflow=UP.WORKFLOW,runId='123',runAttempt='1')
         builds={}
         for arch,rid in (('x64','linux-x64'),('aarch64','linux-arm64')):
             target=directory/arch;target.mkdir();(target/('cbodotnetup-'+rid)).write_bytes(b'native-'+rid.encode())
@@ -74,17 +81,54 @@ class InstallerReleaseTests(unittest.TestCase):
         def sdk(selected,schema):
             marker='-branded' if schema==1 else ''
             return [dict(sdkVersion=version,revision=selected['archiveRevisions'][version],rid=rid,
+                requiresLegacyProvider=version in ('5.0.214','3.1.426','3.0.103'),
                 archive=dict(url=f'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-{version}-r{selected["archiveRevisions"][version]}/cbodotnet-sdk-{version}-linux-{arch}{marker}-r{selected["archiveRevisions"][version]}.tar.gz'))
                 for version in selected['initialSdkVersions'] for arch,rid in (('x64','linux-x64'),('aarch64','linux-arm64'))]
         previous=dict(sequence=previous_sequence,
             revoked=previous_revoked if previous_revoked is not None else ['tool/0.0.1/linux-x64'],
             tools=previous_tools if previous_tools is not None else [dict(version=v,rid=r)
-                for v in ('0.1.0','0.2.0') for r in ('linux-x64','linux-arm64')])
-        with patch.object(UP,'source_identity',return_value=source),patch.object(UP,'tool_inputs',return_value={}),\
+                for v in (('0.1.0','0.2.0','0.3.0') if provider_aware else ('0.1.0','0.2.0')) for r in ('linux-x64','linux-arm64')])
+        real_load=UP.load
+        providers=[dict(providerId='test-provider',revision=1,rid=rid,minimumGlibc='2.34') for rid in ('linux-x64','linux-arm64')]
+        provider_module=SimpleNamespace(catalog_provider_metadata=lambda sdks:(providers,[]),validate_provider_catalog=lambda *args:None)
+        with patch.object(UP,'load',side_effect=lambda path:policy if Path(path)==UP.POLICY else real_load(path)),\
+                patch.dict(sys.modules,{'cbodotnetup_providers':provider_module}),\
+                patch.object(UP,'source_identity',return_value=source),patch.object(UP,'tool_inputs',return_value={}),\
                 patch.object(UP,'previous_catalog',return_value=previous),\
                 patch.object(UP,'catalog_sdks',side_effect=sdk):
             UP.catalog(directory,builds,now=datetime(2026,11,6,tzinfo=timezone.utc),sequence=88)
         return UP.load(directory/'catalog.json'),UP.load(directory/'catalog-v1.json'),UP.load(directory/'catalog-v1-bootstrap.json')
+
+    def test_provider_generation_binds_modern_projection_and_keeps_old_clients_modern_only(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory=Path(temporary);current,legacy,unused=self.paired_catalogs(directory,provider_aware=True)
+            projection=UP.load(directory/'catalog-v2.json')
+            self.assertEqual(current['schemaVersion'],3);self.assertEqual(projection['schemaVersion'],2)
+            self.assertEqual(len(current['sdks']),16);self.assertEqual(len(projection['sdks']),10)
+            self.assertEqual(current['tools'],projection['tools']);self.assertEqual(len(current['tools']),8)
+            self.assertTrue(all(not sdk['requiresLegacyProvider'] for sdk in projection['sdks']))
+            self.assertEqual(current['compatibilityCatalog']['sha256'],UP.descriptor(directory/'catalog-v2.json')['sha256'])
+            self.assertEqual(set(current)-set(projection),{'providers','providerBindings','compatibilityCatalog'})
+            for version in ('0.2.0','0.3.0'):
+                prior=UP.load(directory/f'catalog-v2-tool-{version[:3]}.json')
+                self.assertEqual(prior,dict(projection,sequence=87,tools=[tool for tool in projection['tools'] if tool['version']==version]))
+            self.assertEqual(len(UP.load(directory/'catalog-v3-revoked.json')['revoked'])-len(current['revoked']),6)
+
+    def test_provider_generation_rejects_changed_projection_and_abi_fixture(self):
+        provider_module=SimpleNamespace(validate_provider_catalog=lambda *args:None)
+        for mutation in ('projection','abi-fixture','old-project-client','unknown-field'):
+            with self.subTest(mutation=mutation),tempfile.TemporaryDirectory() as temporary:
+                directory=Path(temporary);current,legacy,unused=self.paired_catalogs(directory,provider_aware=True)
+                if mutation=='projection':
+                    value=UP.load(directory/'catalog-v2.json');value['sdks'].pop();UP.save(directory/'catalog-v2.json',value)
+                elif mutation=='abi-fixture':
+                    value=UP.load(directory/'catalog-v3-provider-incompatible.json');value['providers'][0]['minimumGlibc']='2.34';UP.save(directory/'catalog-v3-provider-incompatible.json',value)
+                elif mutation=='old-project-client':
+                    value=UP.load(directory/'catalog-v2-tool-0.3.json');value['tools']=current['tools'];UP.save(directory/'catalog-v2-tool-0.3.json',value)
+                else:
+                    current['unsafeUnknown']=True;UP.save(directory/'catalog.json',current)
+                with patch.dict(sys.modules,{'cbodotnetup_providers':provider_module}),self.assertRaises(ValueError):
+                    UP.verify_catalog_pair(directory,tool_version='0.4.0')
 
     def test_paired_catalogs_keep_old_shape_upgrade_tools_and_independent_sdk_names(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -221,7 +265,7 @@ class InstallerReleaseTests(unittest.TestCase):
         wrong=copy.deepcopy(original);wrong['sdkTargets'][version]['x64']='ubuntu-24.04';cases.append(wrong)
         wrong=copy.deepcopy(original);wrong['sdkTargets'][version]={'x64':[],'aarch64':[]};cases.append(wrong)
         wrong=copy.deepcopy(original);wrong['archiveRevisions'][version]=True;cases.append(wrong)
-        wrong=copy.deepcopy(original);wrong['sdkTargets']['5.0.214']=wrong['sdkTargets'][version];cases.append(wrong)
+        wrong=copy.deepcopy(original);wrong['sdkTargets']['2.1.999']=wrong['sdkTargets'][version];cases.append(wrong)
         for policy in cases:
             with self.subTest(policy=policy),patch.object(UP,'selected_archive') as archive:
                 with self.assertRaises(ValueError):UP.catalog_sdks(policy,schema=2)
@@ -328,7 +372,7 @@ class InstallerReleaseTests(unittest.TestCase):
         with patch.object(UP.urllib.request,'build_opener') as opener:
             response=MagicMock();response.headers={'Content-Encoding':'identity'};response.read.return_value=b'{}'
             opener.return_value.open.return_value.__enter__.return_value=response
-            for path in ('catalog.json','catalog.json.asc','v2/catalog.json','v2/catalog.json.asc'):
+            for path in ('catalog.json','catalog.json.asc','v2/catalog.json','v2/catalog.json.asc','v3/catalog.json','v3/catalog.json.asc'):
                 with self.subTest(path=path):
                     self.assertEqual(UP.public_metadata('https://dotnetdev.kr/cbodotnet/cbodotnetup/'+path,1024),b'{}')
 

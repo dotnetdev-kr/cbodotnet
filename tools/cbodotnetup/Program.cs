@@ -2,7 +2,7 @@ namespace Community.DotNet.Up;
 
 internal static class Program
 {
-    internal const string CurrentVersion = "0.3.0";
+    internal const string CurrentVersion = "0.4.0";
     internal static bool RefreshesCatalog(IReadOnlyList<string> values) => values.SequenceEqual(new[] { "list", "--available" })
         || values.FirstOrDefault() is "install" or "update"
         || values.SequenceEqual(new[] { "self", "update" }) || values.SequenceEqual(new[] { "self", "rollback" });
@@ -21,12 +21,13 @@ internal static class Program
                     list [--available]                 List installed or authenticated available SDKs
                     install VERSION[-rN]               Install an exact qualified SDK
                     install --channel X.Y              Install and track a signed Community channel
+                    --with-legacy-providers            Explicitly install signed private legacy companions
                     run [VERSION[-rN]] -- [SDK ARGS]    Run an owned SDK; global.json selects when omitted
                     remove VERSION[-rN]                Remove one verified owned installation
                     update                             Update tracked channels; retain prior SDKs
                     rollback VERSION-rN                Select a retained, verified SDK revision
                     doctor                             Verify installed files and report host/trust
-                    gc                                 Collect abandoned owned staging data
+                    gc                                 Collect owned staging and unreferenced providers
                     shell enable|disable               Manage opt-in aliases in the user data bin
                     self update|rollback               Authenticate an update or retained tool recovery
                     --catalog FILE                     Use a local project-signed catalog and .asc
@@ -52,13 +53,19 @@ internal static class Program
                     foreach (var sdk in catalog.Sdks.Where(s => s.Rid == Trust.Rid).OrderByDescending(s => Version.Parse(s.SdkVersion)))
                         Console.WriteLine(sdk.Id + (catalog.Revoked.Contains(sdk.Id) ? " [revoked]" : sdk.RequiresLegacyProvider ? " [requires separate legacy provider]" : "")); break;
                 case "install" when values.Count == 2: await manager.Install(catalog, values[1]); break;
-                case "install" when values.Count == 3 && values[1] == "--channel":
-                    SafeFiles.Require(catalog.Channels.TryGetValue(values[2], out var version), "Unknown signed Community channel"); await manager.Install(catalog, version!, values[2]); break;
+                case "install" when values.Count == 3 && values[2] == "--with-legacy-providers":
+                    await manager.Install(catalog, values[1], allowLegacyProviders: true); break;
+                case "install" when values.Count is 3 or 4 && values[1] == "--channel"
+                    && (values.Count == 3 || values[3] == "--with-legacy-providers"):
+                    SafeFiles.Require(catalog.Channels.TryGetValue(values[2], out var version), "Unknown signed Community channel");
+                    await manager.Install(catalog, version!, values[2], allowLegacyProviders: values.Count == 4); break;
                 case "run" when values.Count >= 3 && values[2] == "--": return manager.Run(catalog, values[1], values.Skip(3).ToArray());
                 case "run" when values.Count >= 2 && values[1] == "--": return manager.Run(catalog, null, values.Skip(2).ToArray());
                 case "remove" when values.Count == 2: manager.Remove(catalog, values[1]); break;
                 case "rollback" when values.Count == 2 && values[1].Contains("-r", StringComparison.Ordinal): manager.Rollback(catalog, values[1]); break;
                 case "update" when values.Count == 1: await manager.Update(catalog); break;
+                case "update" when values.SequenceEqual(new[] { "update", "--with-legacy-providers" }):
+                    await manager.Update(catalog, allowLegacyProviders: true); break;
                 case "doctor" when values.Count == 1: manager.Doctor(catalog); break;
                 case "gc" when values.Count == 1: manager.Collect(); break;
                 case "shell" when values.Count == 2 && values[1] is "enable" or "disable": manager.Shell(values[1] == "enable"); break;

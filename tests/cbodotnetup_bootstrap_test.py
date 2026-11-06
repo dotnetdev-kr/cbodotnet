@@ -26,14 +26,15 @@ class InstallerBootstrapTests(unittest.TestCase):
 
     def test_catalog_expiry_future_and_identity_fail_closed(self):
         now=datetime.now(timezone.utc);good=self.catalog();BOOT.validate(good,now)
-        for change in ({'schemaVersion':1},{'schemaVersion':3},{'schemaVersion':True},{'sequence':True},{'sequence':0},{'kind':'other'},{'signingFingerprint':'A'*40},
+        BOOT.validate(dict(good,schemaVersion=3),now)
+        for change in ({'schemaVersion':1},{'schemaVersion':4},{'schemaVersion':True},{'sequence':True},{'sequence':0},{'kind':'other'},{'signingFingerprint':'A'*40},
                        {'expiresAt':(now-timedelta(seconds=1)).isoformat()},
                        {'expiresAt':(now+timedelta(days=32)).isoformat()},
                        {'issuedAt':(now+timedelta(minutes=6)).isoformat()}):
             with self.subTest(change=change),self.assertRaises(ValueError):BOOT.validate(dict(good,**change),now)
 
-    def test_new_bootstrap_uses_only_the_versioned_v2_endpoint(self):
-        self.assertEqual(BOOT.CATALOG,'https://dotnetdev.kr/cbodotnet/cbodotnetup/v2/catalog.json')
+    def test_new_bootstrap_uses_only_the_versioned_v3_endpoint(self):
+        self.assertEqual(BOOT.CATALOG,'https://dotnetdev.kr/cbodotnet/cbodotnetup/v3/catalog.json')
 
     def test_duplicate_properties_rejected_at_every_depth(self):
         for raw in (b'{"sequence":1,"sequence":2}',b'{"tools":[{"rid":"linux-x64","rid":"linux-arm64"}]}'):

@@ -40,10 +40,10 @@ try
     Trust.ValidateActive(catalogV2, now); passed++;
     Reject(() => Trust.ValidateActive(catalog, now), "legacy catalog cannot populate or replace the v2 active cache");
     Check(Trust.ArchiveSchema(sdk) == 1 && Trust.ArchiveSchema(neutralSdk) == 2, "canonical archive names determine isolated admission schema");
-    Check(Trust.CatalogUrl == "https://dotnetdev.kr/cbodotnet/cbodotnetup/v2/catalog.json", "new clients use a versioned catalog endpoint");
+    Check(Trust.CatalogUrl == "https://dotnetdev.kr/cbodotnet/cbodotnetup/v3/catalog.json", "new clients use a separate provider-capable catalog endpoint");
     Reject(() => Trust.Validate(catalogV2 with { SchemaVersion = 1 }, now), "neutral archive cannot enter the v1 catalog");
     Reject(() => Trust.Validate(catalog with { SchemaVersion = 2 }, now), "branded archive cannot enter the v2 catalog");
-    Reject(() => Trust.Validate(catalog with { SchemaVersion = 3 }, now), "unknown catalog schema");
+    Reject(() => Trust.Validate(catalog with { SchemaVersion = 4 }, now), "unknown catalog schema");
     var sdkJson = JsonSerializer.Serialize(sdk, UpJson.Default.SdkRelease);
     Check(!sdkJson.Contains("archiveNaming", StringComparison.Ordinal), "v1 SDK receipt shape has no new naming member");
     var unknownCatalog = JsonNode.Parse(JsonSerializer.Serialize(catalogV2, UpJson.Default.Catalog))!;
@@ -261,6 +261,7 @@ try
     ProjectSdkResolverTests.Run(Check, Reject, temporary);
     SdkInvocationTests.Run(Check, Reject, temporary);
     ProjectAdmissionTests.Run(Check, temporary, neutralSdk, catalogV2);
+    LegacyProviderTests.Run(Check, Reject, temporary, catalogV2, neutralSdk);
     Console.WriteLine($"cbodotnetup security tests passed: {passed}");
 }
 finally { SafeFiles.DeleteTree(temporary); }

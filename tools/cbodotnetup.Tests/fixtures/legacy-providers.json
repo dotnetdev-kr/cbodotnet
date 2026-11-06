@@ -1,0 +1,1263 @@
+{
+  "schemaVersion": 3,
+  "sdks": [
+    {
+      "sdkVersion": "5.0.214",
+      "revision": 2,
+      "rid": "linux-x64",
+      "archive": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-5.0.214-r2/cbodotnet-sdk-5.0.214-linux-x64-r2.tar.gz",
+        "size": 234632463,
+        "sha256": "325e2e30783ecb9211e6ecb0874f05e941ac81408bcd900685c9ec41ee1e1d4f"
+      },
+      "archiveRoot": "cbodotnet-5.0.214-linux-x64-r2",
+      "sourceManifestSha256": "2a98666b057b5e8c2c8ef149c5ebca7528c2048d7cc1aa38611d48d0d104c67f",
+      "requiresLegacyProvider": true,
+      "targets": [
+        {
+          "os": "ubuntu",
+          "versionId": "24.04",
+          "rid": "linux-x64"
+        },
+        {
+          "os": "debian",
+          "versionId": "13",
+          "rid": "linux-x64"
+        },
+        {
+          "os": "fedora",
+          "versionId": "45",
+          "rid": "linux-x64"
+        },
+        {
+          "os": "rocky",
+          "versionId": "9.8",
+          "rid": "linux-x64"
+        }
+      ]
+    },
+    {
+      "sdkVersion": "5.0.214",
+      "revision": 2,
+      "rid": "linux-arm64",
+      "archive": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-5.0.214-r2/cbodotnet-sdk-5.0.214-linux-aarch64-r2.tar.gz",
+        "size": 227906204,
+        "sha256": "d5c94593db514bf0a6959a0d78e9554898f653c20b7d6db5389d6e6a07301ff1"
+      },
+      "archiveRoot": "cbodotnet-5.0.214-linux-aarch64-r2",
+      "sourceManifestSha256": "2a98666b057b5e8c2c8ef149c5ebca7528c2048d7cc1aa38611d48d0d104c67f",
+      "requiresLegacyProvider": true,
+      "targets": [
+        {
+          "os": "ubuntu",
+          "versionId": "24.04",
+          "rid": "linux-arm64"
+        },
+        {
+          "os": "debian",
+          "versionId": "13",
+          "rid": "linux-arm64"
+        },
+        {
+          "os": "fedora",
+          "versionId": "45",
+          "rid": "linux-arm64"
+        },
+        {
+          "os": "rocky",
+          "versionId": "9.8",
+          "rid": "linux-arm64"
+        }
+      ]
+    },
+    {
+      "sdkVersion": "3.1.426",
+      "revision": 2,
+      "rid": "linux-x64",
+      "archive": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.1.426-r2/cbodotnet-sdk-3.1.426-linux-x64-r2.tar.gz",
+        "size": 166405488,
+        "sha256": "e6fa378fe18ff73e2fb85a404a521d5643ff597636be1a5d3f0351e133d26124"
+      },
+      "archiveRoot": "cbodotnet-3.1.426-linux-x64-r2",
+      "sourceManifestSha256": "70049972a8781c309fae40e5f68d74847d0a9a590d36de4f25ecc2ad50578b09",
+      "requiresLegacyProvider": true,
+      "targets": [
+        {
+          "os": "ubuntu",
+          "versionId": "24.04",
+          "rid": "linux-x64"
+        },
+        {
+          "os": "debian",
+          "versionId": "13",
+          "rid": "linux-x64"
+        },
+        {
+          "os": "fedora",
+          "versionId": "45",
+          "rid": "linux-x64"
+        },
+        {
+          "os": "rocky",
+          "versionId": "9.8",
+          "rid": "linux-x64"
+        }
+      ]
+    },
+    {
+      "sdkVersion": "3.1.426",
+      "revision": 2,
+      "rid": "linux-arm64",
+      "archive": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.1.426-r2/cbodotnet-sdk-3.1.426-linux-aarch64-r2.tar.gz",
+        "size": 164204786,
+        "sha256": "a3c9ee8bcd6732d3ef7f016bf75e1373635be7141e8736ab1db9981a0881715f"
+      },
+      "archiveRoot": "cbodotnet-3.1.426-linux-aarch64-r2",
+      "sourceManifestSha256": "70049972a8781c309fae40e5f68d74847d0a9a590d36de4f25ecc2ad50578b09",
+      "requiresLegacyProvider": true,
+      "targets": [
+        {
+          "os": "ubuntu",
+          "versionId": "24.04",
+          "rid": "linux-arm64"
+        },
+        {
+          "os": "debian",
+          "versionId": "13",
+          "rid": "linux-arm64"
+        },
+        {
+          "os": "fedora",
+          "versionId": "45",
+          "rid": "linux-arm64"
+        },
+        {
+          "os": "rocky",
+          "versionId": "9.8",
+          "rid": "linux-arm64"
+        }
+      ]
+    },
+    {
+      "sdkVersion": "3.0.103",
+      "revision": 2,
+      "rid": "linux-x64",
+      "archive": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.0.103-r2/cbodotnet-sdk-3.0.103-linux-x64-r2.tar.gz",
+        "size": 158872352,
+        "sha256": "676ab4b790121468df8c0edf416301751f7298821f0469759c87b4095a562ee7"
+      },
+      "archiveRoot": "cbodotnet-3.0.103-linux-x64-r2",
+      "sourceManifestSha256": "3bac912a788bf38320cb45bfe6a62b3da0dbcaf50bb564a370ae7c5a09fb5e98",
+      "requiresLegacyProvider": true,
+      "targets": [
+        {
+          "os": "ubuntu",
+          "versionId": "24.04",
+          "rid": "linux-x64"
+        },
+        {
+          "os": "debian",
+          "versionId": "13",
+          "rid": "linux-x64"
+        },
+        {
+          "os": "fedora",
+          "versionId": "45",
+          "rid": "linux-x64"
+        },
+        {
+          "os": "rocky",
+          "versionId": "9.8",
+          "rid": "linux-x64"
+        }
+      ]
+    },
+    {
+      "sdkVersion": "3.0.103",
+      "revision": 2,
+      "rid": "linux-arm64",
+      "archive": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.0.103-r2/cbodotnet-sdk-3.0.103-linux-aarch64-r2.tar.gz",
+        "size": 157193310,
+        "sha256": "cec400dbbb082f86bfa2c748a0f01b30c27fdc13ca584b659c3e174a31c7f654"
+      },
+      "archiveRoot": "cbodotnet-3.0.103-linux-aarch64-r2",
+      "sourceManifestSha256": "3bac912a788bf38320cb45bfe6a62b3da0dbcaf50bb564a370ae7c5a09fb5e98",
+      "requiresLegacyProvider": true,
+      "targets": [
+        {
+          "os": "ubuntu",
+          "versionId": "24.04",
+          "rid": "linux-arm64"
+        },
+        {
+          "os": "debian",
+          "versionId": "13",
+          "rid": "linux-arm64"
+        },
+        {
+          "os": "fedora",
+          "versionId": "45",
+          "rid": "linux-arm64"
+        },
+        {
+          "os": "rocky",
+          "versionId": "9.8",
+          "rid": "linux-arm64"
+        }
+      ]
+    }
+  ],
+  "providers": [
+    {
+      "providerId": "rocky8-curl-20261104",
+      "version": "2026.11.4",
+      "revision": 1,
+      "rid": "linux-arm64",
+      "root": "/usr/lib/cbodotnet/compat/curl-rocky8",
+      "archive": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.1.426-r2/cbodotnet-compat-curl-rocky8-2026.11.4-linux-aarch64.tar.gz",
+        "size": 265118,
+        "sha256": "2b980c62a6a69607064af5443acb969c2f6d2ead5862768259ae2a0d71002411"
+      },
+      "manifestSha256": "80e456481dd20c502b1611569739add56fad29982b569b9ef8ffdcf194f4b3c3",
+      "policySha256": "f24a14a825101f2f1045d1a1573ff72b08903704729e5574b9e17c1f3186a02c",
+      "libc": "glibc",
+      "minimumGlibc": "2.17",
+      "cpuBaseline": "armv8-a",
+      "cpuFlags": [],
+      "targets": [
+        {
+          "os": "ubuntu",
+          "versionId": "24.04",
+          "rid": "linux-arm64"
+        },
+        {
+          "os": "debian",
+          "versionId": "13",
+          "rid": "linux-arm64"
+        },
+        {
+          "os": "fedora",
+          "versionId": "45",
+          "rid": "linux-arm64"
+        },
+        {
+          "os": "rocky",
+          "versionId": "9.8",
+          "rid": "linux-arm64"
+        }
+      ],
+      "securitySupport": "community-build-no-additional-security-maintenance",
+      "manifest": {
+        "schemaVersion": 1,
+        "providerId": "rocky8-curl-20261104",
+        "providerRoot": "/usr/lib/cbodotnet/compat/curl-rocky8",
+        "architecture": "aarch64",
+        "policySha256": "f24a14a825101f2f1045d1a1573ff72b08903704729e5574b9e17c1f3186a02c",
+        "signingFingerprint": "7051C470A929F454CEBE37B715AF5DAC6D745A60",
+        "key": {
+          "name": "RPM-GPG-KEY-Rocky-8",
+          "url": "https://dl.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8",
+          "size": 1672,
+          "sha256": "ef1ca99bba38bb2869a06fbf46860fcdaeece796be98f8dfb0160b84bdbc69ab"
+        },
+        "packages": [
+          {
+            "name": "libcurl-minimal-7.61.1-34.el8_10.18.aarch64.rpm",
+            "url": "https://dl.rockylinux.org/pub/rocky/8/BaseOS/aarch64/os/Packages/l/libcurl-minimal-7.61.1-34.el8_10.18.aarch64.rpm",
+            "size": 283684,
+            "sha256": "8ac4e2c81ea98d6e19d0dd9638d32a777686ecb5964f38b1a7fb5150c20ed6f1",
+            "packageName": "libcurl-minimal",
+            "epoch": 0,
+            "version": "7.61.1",
+            "release": "34.el8_10.18",
+            "sourcePackage": "curl-7.61.1-34.el8_10.18.src.rpm",
+            "files": [
+              {
+                "path": "usr/lib64/libcurl.so.4.5.0",
+                "size": 537616,
+                "sha256": "47016d6f9f2f56285733ea8555345eaa52b1c5c3968ef60dca2fd803b3b1abbb",
+                "soname": [
+                  "libcurl.so.4"
+                ],
+                "needed": [
+                  "libnghttp2.so.14",
+                  "libssl.so.1.1",
+                  "libcrypto.so.1.1",
+                  "libgssapi_krb5.so.2",
+                  "libkrb5.so.3",
+                  "libk5crypto.so.3",
+                  "libcom_err.so.2",
+                  "libz.so.1",
+                  "libpthread.so.0",
+                  "libc.so.6",
+                  "ld-linux-aarch64.so.1"
+                ],
+                "glibcMaximum": "2.17",
+                "curlVersionDefinitions": []
+              }
+            ],
+            "licenses": [
+              {
+                "path": "usr/share/licenses/libcurl-minimal/COPYING",
+                "size": 1088,
+                "sha256": "5f3849ec38ddb927e79f514bf948890c41b8d1407286a49609b8fb1585931095"
+              }
+            ]
+          }
+        ],
+        "sourcePackages": [
+          {
+            "name": "curl-7.61.1-34.el8_10.18.src.rpm",
+            "url": "https://dl.rockylinux.org/pub/rocky/8/BaseOS/source/tree/Packages/c/curl-7.61.1-34.el8_10.18.src.rpm",
+            "size": 2659913,
+            "sha256": "b8aa7ccd55663ac2777696288a19474c2e06096b4a411e32466d10c1800feabc"
+          }
+        ],
+        "securityScope": "Exact project repackaging of maintained Rocky Linux 8.10 libcurl bytes for the optional Core3 native CurlHandler. This does not restore upstream .NET support or promise additional security maintenance. Source updates require review and native HTTP, HTTPS, trust and lifecycle qualification.",
+        "files": [
+          {
+            "path": "LICENSE.curl.txt",
+            "mode": "0o644",
+            "type": "file",
+            "size": 1088,
+            "sha256": "5f3849ec38ddb927e79f514bf948890c41b8d1407286a49609b8fb1585931095"
+          },
+          {
+            "path": "NOTICE.txt",
+            "mode": "0o644",
+            "type": "file",
+            "size": 690,
+            "sha256": "23b2dd419ba857a55652d35e951ca2a98a3cfc11054250932977565192e121ad"
+          },
+          {
+            "path": "lib",
+            "mode": "0o755",
+            "type": "directory"
+          },
+          {
+            "path": "lib/libcurl.so.4",
+            "mode": "0o777",
+            "type": "symlink",
+            "target": "libcurl.so.4.5.0"
+          },
+          {
+            "path": "lib/libcurl.so.4.5.0",
+            "mode": "0o755",
+            "type": "file",
+            "size": 537616,
+            "sha256": "47016d6f9f2f56285733ea8555345eaa52b1c5c3968ef60dca2fd803b3b1abbb"
+          }
+        ],
+        "baseProvider": {
+          "providerId": "rocky9-20261104",
+          "packageName": "cbodotnet-compat-rocky9",
+          "version": "2026.11.4",
+          "root": "/usr/lib/cbodotnet/compat/rocky9",
+          "policySha256": "6fcae0b9ebe497240f99a93d031fc73b57a0f26c9353c199b2faca34e197f776"
+        },
+        "nativeHttpComponents": {
+          "3.0.103": {
+            "x64": {
+              "path": "shared/Microsoft.NETCore.App/3.0.3/System.Net.Http.Native.so",
+              "sha256": "151cc8ca6221e09f7c703fa6da2f5ec687d35958cb39ab92b5b5a0df10021090"
+            },
+            "aarch64": {
+              "path": "shared/Microsoft.NETCore.App/3.0.3/System.Net.Http.Native.so",
+              "sha256": "30f55fbfb25984932824c415f2e4d543943f63ff84c5577310f2bbda70a70339"
+            }
+          },
+          "3.1.426": {
+            "x64": {
+              "path": "shared/Microsoft.NETCore.App/3.1.32/System.Net.Http.Native.so",
+              "sha256": "1cb8b6f2a518df6b0f30275042861dcf839ace4ba95ecdc6730c237c76fbf855"
+            },
+            "aarch64": {
+              "path": "shared/Microsoft.NETCore.App/3.1.32/System.Net.Http.Native.so",
+              "sha256": "acf314702d985faadb681cf458529e0fd78782afaa4e943fd2b5bac37405cc66"
+            }
+          }
+        }
+      },
+      "sourceManifest": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.1.426-r2/distribution-manifest.json",
+        "size": 49141,
+        "sha256": "8ac3032b1a81743d96c93e2ac611b3e5abde30c01d729bd8a9c6facfff2fc0a5"
+      },
+      "sourceSignature": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.1.426-r2/distribution-manifest.json.asc",
+        "size": 228,
+        "sha256": "d5e17c352272afd2a6e0f3804ef4b9824aa96e7508ec60624f459923f2e63cbf"
+      }
+    },
+    {
+      "providerId": "rocky8-curl-20261104",
+      "version": "2026.11.4",
+      "revision": 1,
+      "rid": "linux-x64",
+      "root": "/usr/lib/cbodotnet/compat/curl-rocky8",
+      "archive": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.1.426-r2/cbodotnet-compat-curl-rocky8-2026.11.4-linux-x64.tar.gz",
+        "size": 271289,
+        "sha256": "57d5ec73601082b5d7ccf5000921122740ad5b998ec1e84bd0b56d8aac3b43a6"
+      },
+      "manifestSha256": "bbdee2b4969c3b708dab32121dd40468e923462e3a0c3fb8652755e3c6cb2ff3",
+      "policySha256": "f24a14a825101f2f1045d1a1573ff72b08903704729e5574b9e17c1f3186a02c",
+      "libc": "glibc",
+      "minimumGlibc": "2.17",
+      "cpuBaseline": "x86-64",
+      "cpuFlags": [],
+      "targets": [
+        {
+          "os": "ubuntu",
+          "versionId": "24.04",
+          "rid": "linux-x64"
+        },
+        {
+          "os": "debian",
+          "versionId": "13",
+          "rid": "linux-x64"
+        },
+        {
+          "os": "fedora",
+          "versionId": "45",
+          "rid": "linux-x64"
+        },
+        {
+          "os": "rocky",
+          "versionId": "9.8",
+          "rid": "linux-x64"
+        }
+      ],
+      "securitySupport": "community-build-no-additional-security-maintenance",
+      "manifest": {
+        "schemaVersion": 1,
+        "providerId": "rocky8-curl-20261104",
+        "providerRoot": "/usr/lib/cbodotnet/compat/curl-rocky8",
+        "architecture": "x64",
+        "policySha256": "f24a14a825101f2f1045d1a1573ff72b08903704729e5574b9e17c1f3186a02c",
+        "signingFingerprint": "7051C470A929F454CEBE37B715AF5DAC6D745A60",
+        "key": {
+          "name": "RPM-GPG-KEY-Rocky-8",
+          "url": "https://dl.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8",
+          "size": 1672,
+          "sha256": "ef1ca99bba38bb2869a06fbf46860fcdaeece796be98f8dfb0160b84bdbc69ab"
+        },
+        "packages": [
+          {
+            "name": "libcurl-minimal-7.61.1-34.el8_10.18.x86_64.rpm",
+            "url": "https://dl.rockylinux.org/pub/rocky/8/BaseOS/x86_64/os/Packages/l/libcurl-minimal-7.61.1-34.el8_10.18.x86_64.rpm",
+            "size": 301416,
+            "sha256": "3eba14942a2cc3ea2f60d025a76f3a579e3c1c008e820fdea24ea9f12f1bbd21",
+            "packageName": "libcurl-minimal",
+            "epoch": 0,
+            "version": "7.61.1",
+            "release": "34.el8_10.18",
+            "sourcePackage": "curl-7.61.1-34.el8_10.18.src.rpm",
+            "files": [
+              {
+                "path": "usr/lib64/libcurl.so.4.5.0",
+                "size": 562424,
+                "sha256": "53eda597e148602036d5a7aec6e68551593db6716e5a658fe8485f0fe16978f5",
+                "soname": [
+                  "libcurl.so.4"
+                ],
+                "needed": [
+                  "libnghttp2.so.14",
+                  "libssl.so.1.1",
+                  "libcrypto.so.1.1",
+                  "libgssapi_krb5.so.2",
+                  "libkrb5.so.3",
+                  "libk5crypto.so.3",
+                  "libcom_err.so.2",
+                  "libz.so.1",
+                  "libpthread.so.0",
+                  "libc.so.6"
+                ],
+                "glibcMaximum": "2.17",
+                "curlVersionDefinitions": []
+              }
+            ],
+            "licenses": [
+              {
+                "path": "usr/share/licenses/libcurl-minimal/COPYING",
+                "size": 1088,
+                "sha256": "5f3849ec38ddb927e79f514bf948890c41b8d1407286a49609b8fb1585931095"
+              }
+            ]
+          }
+        ],
+        "sourcePackages": [
+          {
+            "name": "curl-7.61.1-34.el8_10.18.src.rpm",
+            "url": "https://dl.rockylinux.org/pub/rocky/8/BaseOS/source/tree/Packages/c/curl-7.61.1-34.el8_10.18.src.rpm",
+            "size": 2659913,
+            "sha256": "b8aa7ccd55663ac2777696288a19474c2e06096b4a411e32466d10c1800feabc"
+          }
+        ],
+        "securityScope": "Exact project repackaging of maintained Rocky Linux 8.10 libcurl bytes for the optional Core3 native CurlHandler. This does not restore upstream .NET support or promise additional security maintenance. Source updates require review and native HTTP, HTTPS, trust and lifecycle qualification.",
+        "files": [
+          {
+            "path": "LICENSE.curl.txt",
+            "mode": "0o644",
+            "type": "file",
+            "size": 1088,
+            "sha256": "5f3849ec38ddb927e79f514bf948890c41b8d1407286a49609b8fb1585931095"
+          },
+          {
+            "path": "NOTICE.txt",
+            "mode": "0o644",
+            "type": "file",
+            "size": 690,
+            "sha256": "23b2dd419ba857a55652d35e951ca2a98a3cfc11054250932977565192e121ad"
+          },
+          {
+            "path": "lib",
+            "mode": "0o755",
+            "type": "directory"
+          },
+          {
+            "path": "lib/libcurl.so.4",
+            "mode": "0o777",
+            "type": "symlink",
+            "target": "libcurl.so.4.5.0"
+          },
+          {
+            "path": "lib/libcurl.so.4.5.0",
+            "mode": "0o755",
+            "type": "file",
+            "size": 562424,
+            "sha256": "53eda597e148602036d5a7aec6e68551593db6716e5a658fe8485f0fe16978f5"
+          }
+        ],
+        "baseProvider": {
+          "providerId": "rocky9-20261104",
+          "packageName": "cbodotnet-compat-rocky9",
+          "version": "2026.11.4",
+          "root": "/usr/lib/cbodotnet/compat/rocky9",
+          "policySha256": "6fcae0b9ebe497240f99a93d031fc73b57a0f26c9353c199b2faca34e197f776"
+        },
+        "nativeHttpComponents": {
+          "3.0.103": {
+            "x64": {
+              "path": "shared/Microsoft.NETCore.App/3.0.3/System.Net.Http.Native.so",
+              "sha256": "151cc8ca6221e09f7c703fa6da2f5ec687d35958cb39ab92b5b5a0df10021090"
+            },
+            "aarch64": {
+              "path": "shared/Microsoft.NETCore.App/3.0.3/System.Net.Http.Native.so",
+              "sha256": "30f55fbfb25984932824c415f2e4d543943f63ff84c5577310f2bbda70a70339"
+            }
+          },
+          "3.1.426": {
+            "x64": {
+              "path": "shared/Microsoft.NETCore.App/3.1.32/System.Net.Http.Native.so",
+              "sha256": "1cb8b6f2a518df6b0f30275042861dcf839ace4ba95ecdc6730c237c76fbf855"
+            },
+            "aarch64": {
+              "path": "shared/Microsoft.NETCore.App/3.1.32/System.Net.Http.Native.so",
+              "sha256": "acf314702d985faadb681cf458529e0fd78782afaa4e943fd2b5bac37405cc66"
+            }
+          }
+        }
+      },
+      "sourceManifest": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.1.426-r2/distribution-manifest.json",
+        "size": 49141,
+        "sha256": "8ac3032b1a81743d96c93e2ac611b3e5abde30c01d729bd8a9c6facfff2fc0a5"
+      },
+      "sourceSignature": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.1.426-r2/distribution-manifest.json.asc",
+        "size": 228,
+        "sha256": "d5e17c352272afd2a6e0f3804ef4b9824aa96e7508ec60624f459923f2e63cbf"
+      }
+    },
+    {
+      "providerId": "rocky9-20261104",
+      "version": "2026.11.4",
+      "revision": 1,
+      "rid": "linux-arm64",
+      "root": "/usr/lib/cbodotnet/compat/rocky9",
+      "archive": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-5.0.214-r2/cbodotnet-compat-rocky9-2026.11.4-linux-aarch64.tar.gz",
+        "size": 14869075,
+        "sha256": "428c7e3b727f07b9924b51c5e55824648a06c148648ba680cb21b19b25e1251f"
+      },
+      "manifestSha256": "c046b0f8b0c2f8bd2bfb3f56f8c4ab449d8c35e97b6441a075a0ea794dd9d4f6",
+      "policySha256": "6fcae0b9ebe497240f99a93d031fc73b57a0f26c9353c199b2faca34e197f776",
+      "libc": "glibc",
+      "minimumGlibc": "2.34",
+      "cpuBaseline": "armv8-a",
+      "cpuFlags": [],
+      "targets": [
+        {
+          "os": "ubuntu",
+          "versionId": "24.04",
+          "rid": "linux-arm64"
+        },
+        {
+          "os": "debian",
+          "versionId": "13",
+          "rid": "linux-arm64"
+        },
+        {
+          "os": "fedora",
+          "versionId": "45",
+          "rid": "linux-arm64"
+        },
+        {
+          "os": "rocky",
+          "versionId": "9.8",
+          "rid": "linux-arm64"
+        }
+      ],
+      "securitySupport": "community-build-no-additional-security-maintenance",
+      "manifest": {
+        "schemaVersion": 1,
+        "providerId": "rocky9-20261104",
+        "providerRoot": "/usr/lib/cbodotnet/compat/rocky9",
+        "architecture": "aarch64",
+        "policySha256": "6fcae0b9ebe497240f99a93d031fc73b57a0f26c9353c199b2faca34e197f776",
+        "signingFingerprint": "21CB256AE16FC54C6E652949702D426D350D275D",
+        "key": {
+          "name": "RPM-GPG-KEY-Rocky-9",
+          "url": "https://dl.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9",
+          "size": 1750,
+          "sha256": "3a66e521e7a4abac9768d889c7cd60a8250f59512b275cf576c8a10ff34624c1"
+        },
+        "packages": [
+          {
+            "name": "compat-openssl11-1.1.1k-5.el9_8.6.aarch64.rpm",
+            "url": "https://dl.rockylinux.org/pub/rocky/9/AppStream/aarch64/os/Packages/c/compat-openssl11-1.1.1k-5.el9_8.6.aarch64.rpm",
+            "size": 1435871,
+            "sha256": "4164cd1cdd7e29bc3f37ed3f4bc0e29fa32716def1fbbbe540014bd49c50738f",
+            "epoch": 1,
+            "version": "1.1.1k",
+            "release": "5.el9_8.6",
+            "architecture": "aarch64",
+            "license": "OpenSSL AND Apache-2.0",
+            "sourcePackage": "compat-openssl11-1.1.1k-5.el9_8.6.src.rpm",
+            "files": [
+              {
+                "path": "usr/lib64/libcrypto.so.1.1.1k",
+                "size": 2829512,
+                "sha256": "77929950be99580b798f92d1624dde307bac0241504fca9f85a61f524fdf4135",
+                "machine": 183,
+                "soname": [
+                  "libcrypto.so.1.1"
+                ],
+                "needed": [
+                  "libz.so.1",
+                  "libc.so.6",
+                  "ld-linux-aarch64.so.1"
+                ],
+                "glibcMaximum": "2.34"
+              },
+              {
+                "path": "usr/lib64/libssl.so.1.1.1k",
+                "size": 619416,
+                "sha256": "3e4c30dd5511f30520c954d4282ebf2abd7cdc118e8616f944a7029e50ccc276",
+                "machine": 183,
+                "soname": [
+                  "libssl.so.1.1"
+                ],
+                "needed": [
+                  "libcrypto.so.1.1",
+                  "libc.so.6",
+                  "ld-linux-aarch64.so.1"
+                ],
+                "glibcMaximum": "2.17"
+              }
+            ],
+            "licenses": [
+              {
+                "path": "usr/share/licenses/compat-openssl11/LICENSE",
+                "size": 6121,
+                "sha256": "c32913b33252e71190af2066f08115c69bc9fddadf3bf29296e20c835389841c"
+              }
+            ],
+            "fileName": "compat-openssl11-1.1.1k-5.el9_8.6.aarch64.rpm",
+            "packageName": "compat-openssl11"
+          },
+          {
+            "name": "libicu-67.1-10.el9_6.aarch64.rpm",
+            "url": "https://dl.rockylinux.org/pub/rocky/9/BaseOS/aarch64/os/Packages/l/libicu-67.1-10.el9_6.aarch64.rpm",
+            "size": 9927160,
+            "sha256": "88b6b0b3b903042624beac2e0b904bab80d34b57e6d236f0f885304e54a8af4d",
+            "epoch": 0,
+            "version": "67.1",
+            "release": "10.el9_6",
+            "architecture": "aarch64",
+            "license": "Unicode-DFS-2016 AND BSD-2-Clause AND BSD-3-Clause AND LicenseRef-Fedora-Public-Domain",
+            "sourcePackage": "icu-67.1-10.el9_6.src.rpm",
+            "files": [
+              {
+                "path": "usr/lib64/libicudata.so.67.1",
+                "size": 28445080,
+                "sha256": "a6cae333a6d140c35523ed278e89d179e729afc01cea1e6795df9d923aaea2f4",
+                "machine": 183,
+                "soname": [
+                  "libicudata.so.67"
+                ],
+                "needed": [],
+                "glibcMaximum": null
+              },
+              {
+                "path": "usr/lib64/libicui18n.so.67.1",
+                "size": 3101344,
+                "sha256": "20e28442c85f9daaa08fd8a5597f98861c9aad4ed86921369276bddae5a7d76e",
+                "machine": 183,
+                "soname": [
+                  "libicui18n.so.67"
+                ],
+                "needed": [
+                  "libicuuc.so.67",
+                  "libstdc++.so.6",
+                  "libm.so.6",
+                  "libgcc_s.so.1",
+                  "libc.so.6",
+                  "ld-linux-aarch64.so.1"
+                ],
+                "glibcMaximum": "2.29"
+              },
+              {
+                "path": "usr/lib64/libicuuc.so.67.1",
+                "size": 1987248,
+                "sha256": "73754a7362589a3ae2d5e361a32bb893193912b6ab7b0444a473040d765501b5",
+                "machine": 183,
+                "soname": [
+                  "libicuuc.so.67"
+                ],
+                "needed": [
+                  "libicudata.so.67",
+                  "libstdc++.so.6",
+                  "libm.so.6",
+                  "libgcc_s.so.1",
+                  "libc.so.6",
+                  "ld-linux-aarch64.so.1"
+                ],
+                "glibcMaximum": "2.34"
+              }
+            ],
+            "licenses": [
+              {
+                "path": "usr/share/licenses/libicu/LICENSE",
+                "size": 21001,
+                "sha256": "25e21013a7bc2fad735e28c5278a120e4c7f1c327c8c8b9b4df1751748cddbb2"
+              }
+            ],
+            "fileName": "libicu-67.1-10.el9_6.aarch64.rpm",
+            "packageName": "libicu"
+          }
+        ],
+        "sourcePackages": [
+          {
+            "name": "compat-openssl11-1.1.1k-5.el9_8.6.src.rpm",
+            "url": "https://dl.rockylinux.org/pub/rocky/9/AppStream/source/tree/Packages/c/compat-openssl11-1.1.1k-5.el9_8.6.src.rpm",
+            "size": 7632849,
+            "sha256": "5db77898fe9448fbcd30e5c190227dfa37f6d8391777e72b23f1265b911daa72"
+          },
+          {
+            "name": "icu-67.1-10.el9_6.src.rpm",
+            "url": "https://dl.rockylinux.org/pub/rocky/9/BaseOS/source/tree/Packages/i/icu-67.1-10.el9_6.src.rpm",
+            "size": 23180143,
+            "sha256": "f54906b1d9469a82da2fa1684f76b7193b7984fe28b21a9cd8f05025b2844420"
+          }
+        ],
+        "securityScope": "Exact project repackaging of Rocky-maintained compatibility libraries. This does not restore upstream .NET/OpenSSL support or promise additional security maintenance. Future provider revisions require reviewed upstream updates and native qualification.",
+        "files": [
+          {
+            "path": "LICENSE.icu.txt",
+            "mode": "0o644",
+            "type": "file",
+            "size": 21001,
+            "sha256": "25e21013a7bc2fad735e28c5278a120e4c7f1c327c8c8b9b4df1751748cddbb2"
+          },
+          {
+            "path": "LICENSE.openssl.txt",
+            "mode": "0o644",
+            "type": "file",
+            "size": 6121,
+            "sha256": "c32913b33252e71190af2066f08115c69bc9fddadf3bf29296e20c835389841c"
+          },
+          {
+            "path": "NOTICE.txt",
+            "mode": "0o644",
+            "type": "file",
+            "size": 780,
+            "sha256": "e21192e53847a21ca848dd47434b10b55dc9fd79337cce01b4b48b4b8a8937dd"
+          },
+          {
+            "path": "lib",
+            "mode": "0o755",
+            "type": "directory"
+          },
+          {
+            "path": "lib/libcrypto.so.1.1",
+            "mode": "0o777",
+            "type": "symlink",
+            "target": "libcrypto.so.1.1.1k"
+          },
+          {
+            "path": "lib/libcrypto.so.1.1.1k",
+            "mode": "0o755",
+            "type": "file",
+            "size": 2829512,
+            "sha256": "77929950be99580b798f92d1624dde307bac0241504fca9f85a61f524fdf4135"
+          },
+          {
+            "path": "lib/libicudata.so.67",
+            "mode": "0o777",
+            "type": "symlink",
+            "target": "libicudata.so.67.1"
+          },
+          {
+            "path": "lib/libicudata.so.67.1",
+            "mode": "0o755",
+            "type": "file",
+            "size": 28445080,
+            "sha256": "a6cae333a6d140c35523ed278e89d179e729afc01cea1e6795df9d923aaea2f4"
+          },
+          {
+            "path": "lib/libicui18n.so.67",
+            "mode": "0o777",
+            "type": "symlink",
+            "target": "libicui18n.so.67.1"
+          },
+          {
+            "path": "lib/libicui18n.so.67.1",
+            "mode": "0o755",
+            "type": "file",
+            "size": 3101344,
+            "sha256": "20e28442c85f9daaa08fd8a5597f98861c9aad4ed86921369276bddae5a7d76e"
+          },
+          {
+            "path": "lib/libicuuc.so.67",
+            "mode": "0o777",
+            "type": "symlink",
+            "target": "libicuuc.so.67.1"
+          },
+          {
+            "path": "lib/libicuuc.so.67.1",
+            "mode": "0o755",
+            "type": "file",
+            "size": 1987248,
+            "sha256": "73754a7362589a3ae2d5e361a32bb893193912b6ab7b0444a473040d765501b5"
+          },
+          {
+            "path": "lib/libssl.so.1.1",
+            "mode": "0o777",
+            "type": "symlink",
+            "target": "libssl.so.1.1.1k"
+          },
+          {
+            "path": "lib/libssl.so.1.1.1k",
+            "mode": "0o755",
+            "type": "file",
+            "size": 619416,
+            "sha256": "3e4c30dd5511f30520c954d4282ebf2abd7cdc118e8616f944a7029e50ccc276"
+          },
+          {
+            "path": "openssl.cnf",
+            "mode": "0o644",
+            "type": "file",
+            "size": 273,
+            "sha256": "650bc90ef37e46f7b5c86f969a9f714e342494bc8471db213058fea2816ad37f"
+          }
+        ],
+        "opensslConfiguration": {
+          "content": "# Scoped Community Build legacy TLS policy; no host configuration includes.\nopenssl_conf = cbodotnet_modules\n[cbodotnet_modules]\nssl_conf = cbodotnet_ssl\n[cbodotnet_ssl]\nsystem_default = cbodotnet_tls\n[cbodotnet_tls]\nMinProtocol = TLSv1.2\nCipherString = DEFAULT@SECLEVEL=2\n",
+          "sha256": "650bc90ef37e46f7b5c86f969a9f714e342494bc8471db213058fea2816ad37f",
+          "minimumProtocol": "TLSv1.2",
+          "securityLevel": 2,
+          "inheritsHostCryptoPolicy": false
+        }
+      },
+      "sourceManifest": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-5.0.214-r2/distribution-manifest.json",
+        "size": 35460,
+        "sha256": "6780a337bd907bcf42b6094aabeb571b8d1ac6334884ffb7388931bb10f12d6b"
+      },
+      "sourceSignature": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-5.0.214-r2/distribution-manifest.json.asc",
+        "size": 228,
+        "sha256": "7885d9698a35227f14be4ef9bd8989cb3047495c4896729a551b4649caf18d4c"
+      }
+    },
+    {
+      "providerId": "rocky9-20261104",
+      "version": "2026.11.4",
+      "revision": 1,
+      "rid": "linux-x64",
+      "root": "/usr/lib/cbodotnet/compat/rocky9",
+      "archive": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-5.0.214-r2/cbodotnet-compat-rocky9-2026.11.4-linux-x64.tar.gz",
+        "size": 15046416,
+        "sha256": "c1eba7f2b8f3addc8bcee392dde9e33b3d9f691e5bbe0cbb1d0841ec8e1412e1"
+      },
+      "manifestSha256": "19a1f16972f653df3f0d32a0ac483689fc3cbd8486eb197030d2446754d4e430",
+      "policySha256": "6fcae0b9ebe497240f99a93d031fc73b57a0f26c9353c199b2faca34e197f776",
+      "libc": "glibc",
+      "minimumGlibc": "2.34",
+      "cpuBaseline": "x86-64-v2",
+      "cpuFlags": [
+        "cx16",
+        "lahf_lm",
+        "popcnt",
+        "pni",
+        "ssse3",
+        "sse4_1",
+        "sse4_2"
+      ],
+      "targets": [
+        {
+          "os": "ubuntu",
+          "versionId": "24.04",
+          "rid": "linux-x64"
+        },
+        {
+          "os": "debian",
+          "versionId": "13",
+          "rid": "linux-x64"
+        },
+        {
+          "os": "fedora",
+          "versionId": "45",
+          "rid": "linux-x64"
+        },
+        {
+          "os": "rocky",
+          "versionId": "9.8",
+          "rid": "linux-x64"
+        }
+      ],
+      "securitySupport": "community-build-no-additional-security-maintenance",
+      "manifest": {
+        "schemaVersion": 1,
+        "providerId": "rocky9-20261104",
+        "providerRoot": "/usr/lib/cbodotnet/compat/rocky9",
+        "architecture": "x64",
+        "policySha256": "6fcae0b9ebe497240f99a93d031fc73b57a0f26c9353c199b2faca34e197f776",
+        "signingFingerprint": "21CB256AE16FC54C6E652949702D426D350D275D",
+        "key": {
+          "name": "RPM-GPG-KEY-Rocky-9",
+          "url": "https://dl.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9",
+          "size": 1750,
+          "sha256": "3a66e521e7a4abac9768d889c7cd60a8250f59512b275cf576c8a10ff34624c1"
+        },
+        "packages": [
+          {
+            "name": "compat-openssl11-1.1.1k-5.el9_8.6.x86_64.rpm",
+            "url": "https://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/Packages/c/compat-openssl11-1.1.1k-5.el9_8.6.x86_64.rpm",
+            "size": 1522446,
+            "sha256": "d0a9dea703933955dc7872aa20f49841cea408ea5a5eb9546956c55e24a4afad",
+            "epoch": 1,
+            "version": "1.1.1k",
+            "release": "5.el9_8.6",
+            "architecture": "x86_64",
+            "license": "OpenSSL AND Apache-2.0",
+            "sourcePackage": "compat-openssl11-1.1.1k-5.el9_8.6.src.rpm",
+            "files": [
+              {
+                "path": "usr/lib64/libcrypto.so.1.1.1k",
+                "size": 3110432,
+                "sha256": "c266630a52c6fe3ffd02f248596d7ff7d9c24263a226796630a0755ffa63e4cf",
+                "machine": 62,
+                "soname": [
+                  "libcrypto.so.1.1"
+                ],
+                "needed": [
+                  "libz.so.1",
+                  "libc.so.6"
+                ],
+                "glibcMaximum": "2.34"
+              },
+              {
+                "path": "usr/lib64/libssl.so.1.1.1k",
+                "size": 648392,
+                "sha256": "c9e52ae60e45792bd7a3b3a75f2402b65058ed2f341506a0d173d00229fe2abe",
+                "machine": 62,
+                "soname": [
+                  "libssl.so.1.1"
+                ],
+                "needed": [
+                  "libcrypto.so.1.1",
+                  "libc.so.6"
+                ],
+                "glibcMaximum": "2.17"
+              }
+            ],
+            "licenses": [
+              {
+                "path": "usr/share/licenses/compat-openssl11/LICENSE",
+                "size": 6121,
+                "sha256": "c32913b33252e71190af2066f08115c69bc9fddadf3bf29296e20c835389841c"
+              }
+            ],
+            "fileName": "compat-openssl11-1.1.1k-5.el9_8.6.x86_64.rpm",
+            "packageName": "compat-openssl11"
+          },
+          {
+            "name": "libicu-67.1-10.el9_6.x86_64.rpm",
+            "url": "https://dl.rockylinux.org/pub/rocky/9/BaseOS/x86_64/os/Packages/l/libicu-67.1-10.el9_6.x86_64.rpm",
+            "size": 10034103,
+            "sha256": "14c314868326269c62498d149399888ce3c819efddaba79d50d2a5ac90c29b87",
+            "epoch": 0,
+            "version": "67.1",
+            "release": "10.el9_6",
+            "architecture": "x86_64",
+            "license": "Unicode-DFS-2016 AND BSD-2-Clause AND BSD-3-Clause AND LicenseRef-Fedora-Public-Domain",
+            "sourcePackage": "icu-67.1-10.el9_6.src.rpm",
+            "files": [
+              {
+                "path": "usr/lib64/libicudata.so.67.1",
+                "size": 28408336,
+                "sha256": "ffbbc3c96e3fcbb4c165cdb6058417fa61fb98a264550eea27a96da7849b0363",
+                "machine": 62,
+                "soname": [
+                  "libicudata.so.67"
+                ],
+                "needed": [],
+                "glibcMaximum": null
+              },
+              {
+                "path": "usr/lib64/libicui18n.so.67.1",
+                "size": 3203984,
+                "sha256": "089faaa2743f0089e8bd970d7fdc53e75e8e98bde52dd45c4f4e0e01551e25a2",
+                "machine": 62,
+                "soname": [
+                  "libicui18n.so.67"
+                ],
+                "needed": [
+                  "libicuuc.so.67",
+                  "libstdc++.so.6",
+                  "libm.so.6",
+                  "libgcc_s.so.1",
+                  "libc.so.6"
+                ],
+                "glibcMaximum": "2.29"
+              },
+              {
+                "path": "usr/lib64/libicuuc.so.67.1",
+                "size": 2018648,
+                "sha256": "7a7ee473e7ca98f0b1197950177c4b91b6f0a38598e247aa8845434875b91e1f",
+                "machine": 62,
+                "soname": [
+                  "libicuuc.so.67"
+                ],
+                "needed": [
+                  "libicudata.so.67",
+                  "libstdc++.so.6",
+                  "libm.so.6",
+                  "libgcc_s.so.1",
+                  "libc.so.6",
+                  "ld-linux-x86-64.so.2"
+                ],
+                "glibcMaximum": "2.34"
+              }
+            ],
+            "licenses": [
+              {
+                "path": "usr/share/licenses/libicu/LICENSE",
+                "size": 21001,
+                "sha256": "25e21013a7bc2fad735e28c5278a120e4c7f1c327c8c8b9b4df1751748cddbb2"
+              }
+            ],
+            "fileName": "libicu-67.1-10.el9_6.x86_64.rpm",
+            "packageName": "libicu"
+          }
+        ],
+        "sourcePackages": [
+          {
+            "name": "compat-openssl11-1.1.1k-5.el9_8.6.src.rpm",
+            "url": "https://dl.rockylinux.org/pub/rocky/9/AppStream/source/tree/Packages/c/compat-openssl11-1.1.1k-5.el9_8.6.src.rpm",
+            "size": 7632849,
+            "sha256": "5db77898fe9448fbcd30e5c190227dfa37f6d8391777e72b23f1265b911daa72"
+          },
+          {
+            "name": "icu-67.1-10.el9_6.src.rpm",
+            "url": "https://dl.rockylinux.org/pub/rocky/9/BaseOS/source/tree/Packages/i/icu-67.1-10.el9_6.src.rpm",
+            "size": 23180143,
+            "sha256": "f54906b1d9469a82da2fa1684f76b7193b7984fe28b21a9cd8f05025b2844420"
+          }
+        ],
+        "securityScope": "Exact project repackaging of Rocky-maintained compatibility libraries. This does not restore upstream .NET/OpenSSL support or promise additional security maintenance. Future provider revisions require reviewed upstream updates and native qualification.",
+        "files": [
+          {
+            "path": "LICENSE.icu.txt",
+            "mode": "0o644",
+            "type": "file",
+            "size": 21001,
+            "sha256": "25e21013a7bc2fad735e28c5278a120e4c7f1c327c8c8b9b4df1751748cddbb2"
+          },
+          {
+            "path": "LICENSE.openssl.txt",
+            "mode": "0o644",
+            "type": "file",
+            "size": 6121,
+            "sha256": "c32913b33252e71190af2066f08115c69bc9fddadf3bf29296e20c835389841c"
+          },
+          {
+            "path": "NOTICE.txt",
+            "mode": "0o644",
+            "type": "file",
+            "size": 780,
+            "sha256": "e21192e53847a21ca848dd47434b10b55dc9fd79337cce01b4b48b4b8a8937dd"
+          },
+          {
+            "path": "lib",
+            "mode": "0o755",
+            "type": "directory"
+          },
+          {
+            "path": "lib/libcrypto.so.1.1",
+            "mode": "0o777",
+            "type": "symlink",
+            "target": "libcrypto.so.1.1.1k"
+          },
+          {
+            "path": "lib/libcrypto.so.1.1.1k",
+            "mode": "0o755",
+            "type": "file",
+            "size": 3110432,
+            "sha256": "c266630a52c6fe3ffd02f248596d7ff7d9c24263a226796630a0755ffa63e4cf"
+          },
+          {
+            "path": "lib/libicudata.so.67",
+            "mode": "0o777",
+            "type": "symlink",
+            "target": "libicudata.so.67.1"
+          },
+          {
+            "path": "lib/libicudata.so.67.1",
+            "mode": "0o755",
+            "type": "file",
+            "size": 28408336,
+            "sha256": "ffbbc3c96e3fcbb4c165cdb6058417fa61fb98a264550eea27a96da7849b0363"
+          },
+          {
+            "path": "lib/libicui18n.so.67",
+            "mode": "0o777",
+            "type": "symlink",
+            "target": "libicui18n.so.67.1"
+          },
+          {
+            "path": "lib/libicui18n.so.67.1",
+            "mode": "0o755",
+            "type": "file",
+            "size": 3203984,
+            "sha256": "089faaa2743f0089e8bd970d7fdc53e75e8e98bde52dd45c4f4e0e01551e25a2"
+          },
+          {
+            "path": "lib/libicuuc.so.67",
+            "mode": "0o777",
+            "type": "symlink",
+            "target": "libicuuc.so.67.1"
+          },
+          {
+            "path": "lib/libicuuc.so.67.1",
+            "mode": "0o755",
+            "type": "file",
+            "size": 2018648,
+            "sha256": "7a7ee473e7ca98f0b1197950177c4b91b6f0a38598e247aa8845434875b91e1f"
+          },
+          {
+            "path": "lib/libssl.so.1.1",
+            "mode": "0o777",
+            "type": "symlink",
+            "target": "libssl.so.1.1.1k"
+          },
+          {
+            "path": "lib/libssl.so.1.1.1k",
+            "mode": "0o755",
+            "type": "file",
+            "size": 648392,
+            "sha256": "c9e52ae60e45792bd7a3b3a75f2402b65058ed2f341506a0d173d00229fe2abe"
+          },
+          {
+            "path": "openssl.cnf",
+            "mode": "0o644",
+            "type": "file",
+            "size": 273,
+            "sha256": "650bc90ef37e46f7b5c86f969a9f714e342494bc8471db213058fea2816ad37f"
+          }
+        ],
+        "opensslConfiguration": {
+          "content": "# Scoped Community Build legacy TLS policy; no host configuration includes.\nopenssl_conf = cbodotnet_modules\n[cbodotnet_modules]\nssl_conf = cbodotnet_ssl\n[cbodotnet_ssl]\nsystem_default = cbodotnet_tls\n[cbodotnet_tls]\nMinProtocol = TLSv1.2\nCipherString = DEFAULT@SECLEVEL=2\n",
+          "sha256": "650bc90ef37e46f7b5c86f969a9f714e342494bc8471db213058fea2816ad37f",
+          "minimumProtocol": "TLSv1.2",
+          "securityLevel": 2,
+          "inheritsHostCryptoPolicy": false
+        }
+      },
+      "sourceManifest": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-5.0.214-r2/distribution-manifest.json",
+        "size": 35460,
+        "sha256": "6780a337bd907bcf42b6094aabeb571b8d1ac6334884ffb7388931bb10f12d6b"
+      },
+      "sourceSignature": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-5.0.214-r2/distribution-manifest.json.asc",
+        "size": 228,
+        "sha256": "7885d9698a35227f14be4ef9bd8989cb3047495c4896729a551b4649caf18d4c"
+      }
+    }
+  ],
+  "providerBindings": [
+    {
+      "sdkId": "3.0.103-r2/linux-arm64",
+      "sourceManifestSha256": "3bac912a788bf38320cb45bfe6a62b3da0dbcaf50bb564a370ae7c5a09fb5e98",
+      "archiveSha256": "cec400dbbb082f86bfa2c748a0f01b30c27fdc13ca584b659c3e174a31c7f654",
+      "providerIds": [
+        "rocky9-20261104-r1/linux-arm64",
+        "rocky8-curl-20261104-r1/linux-arm64"
+      ]
+    },
+    {
+      "sdkId": "3.0.103-r2/linux-x64",
+      "sourceManifestSha256": "3bac912a788bf38320cb45bfe6a62b3da0dbcaf50bb564a370ae7c5a09fb5e98",
+      "archiveSha256": "676ab4b790121468df8c0edf416301751f7298821f0469759c87b4095a562ee7",
+      "providerIds": [
+        "rocky9-20261104-r1/linux-x64",
+        "rocky8-curl-20261104-r1/linux-x64"
+      ]
+    },
+    {
+      "sdkId": "3.1.426-r2/linux-arm64",
+      "sourceManifestSha256": "70049972a8781c309fae40e5f68d74847d0a9a590d36de4f25ecc2ad50578b09",
+      "archiveSha256": "a3c9ee8bcd6732d3ef7f016bf75e1373635be7141e8736ab1db9981a0881715f",
+      "providerIds": [
+        "rocky9-20261104-r1/linux-arm64",
+        "rocky8-curl-20261104-r1/linux-arm64"
+      ]
+    },
+    {
+      "sdkId": "3.1.426-r2/linux-x64",
+      "sourceManifestSha256": "70049972a8781c309fae40e5f68d74847d0a9a590d36de4f25ecc2ad50578b09",
+      "archiveSha256": "e6fa378fe18ff73e2fb85a404a521d5643ff597636be1a5d3f0351e133d26124",
+      "providerIds": [
+        "rocky9-20261104-r1/linux-x64",
+        "rocky8-curl-20261104-r1/linux-x64"
+      ]
+    },
+    {
+      "sdkId": "5.0.214-r2/linux-arm64",
+      "sourceManifestSha256": "2a98666b057b5e8c2c8ef149c5ebca7528c2048d7cc1aa38611d48d0d104c67f",
+      "archiveSha256": "d5c94593db514bf0a6959a0d78e9554898f653c20b7d6db5389d6e6a07301ff1",
+      "providerIds": [
+        "rocky9-20261104-r1/linux-arm64"
+      ]
+    },
+    {
+      "sdkId": "5.0.214-r2/linux-x64",
+      "sourceManifestSha256": "2a98666b057b5e8c2c8ef149c5ebca7528c2048d7cc1aa38611d48d0d104c67f",
+      "archiveSha256": "325e2e30783ecb9211e6ecb0874f05e941ac81408bcd900685c9ec41ee1e1d4f",
+      "providerIds": [
+        "rocky9-20261104-r1/linux-x64"
+      ]
+    }
+  ]
+}

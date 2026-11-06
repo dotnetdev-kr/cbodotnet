@@ -14,16 +14,19 @@ SDK_CHECKS = ('bootstrap-authentication', 'signature-authentication', 'source-pr
               'community-package-coexistence', 'other-sdk-preservation', 'removal')
 
 
-def validate_previous_tool_upgrade(value, row, baseline, catalog, tool_version):
+def validate_previous_tool_upgrade(value, row, baseline, catalog, tool_version, *, compatibility_catalog=None):
     """Bind the actual previous client cycle to signed binaries and owned SDK state."""
     require(isinstance(value, dict), 'Previous 0.2 tool upgrade evidence is required')
     public = row['bootstrapBinarySource'] == 'public-https'
     protocol = ('actual-0.2.0-self-update-rollback-reupgrade' if public
                 else 'protected-frozen-candidate-bootstrap-from-0.2.0')
-    prior_tools = [tool for tool in catalog['tools'] if tool['version'] == '0.2.0'
+    projection=compatibility_catalog if catalog['schemaVersion']==3 else catalog
+    require(isinstance(projection,dict) and projection['schemaVersion']==2,
+            'Previous clients require their exact compatible schema2 catalog')
+    prior_tools = [tool for tool in projection['tools'] if tool['version'] == '0.2.0'
                    and 'tool/' + tool['version'] + '/' + tool['rid'] not in catalog['revoked']]
     old = [tool for tool in prior_tools if tool['rid'] == row['rid']]
-    previous = dict(catalog, sequence=catalog['sequence'] - 1, tools=prior_tools)
+    previous = dict(projection, sequence=projection['sequence'] - 1, tools=prior_tools)
     require(len(old) == 1 and value.get('status') == 'passed'
             and value.get('fromVersion') == '0.2.0' and value.get('toVersion') == tool_version
             and value.get('protocol') == protocol
@@ -38,19 +41,25 @@ def validate_previous_tool_upgrade(value, row, baseline, catalog, tool_version):
             and value.get('baselinePayloadVerified') is True
             and value.get('rollbackVerified') is public,
             'Previous tool upgrade/rollback evidence differs from signed binaries or retained SDK state')
+    if catalog['schemaVersion']==3:
+        require(value.get('compatibilityCatalogSha256')==catalog['compatibilityCatalog']['sha256']
+                ==hashlib.sha256(encoded(projection)).hexdigest(),
+                'Previous client migration differs from the signed modern projection')
     for name in ('baselineReceiptSha256', 'baselineInventorySha256',
                  'baselineCatalogSha256', 'baselineOwnedStateSha256'):
         require(isinstance(value.get(name), str) and re.fullmatch('[a-f0-9]{64}', value[name]),
                 'Previous tool upgrade retained-state hash is incomplete')
 
 
-def validate_additional_sdk_qualifications(catalog, observations, *, tool_version=None):
+def validate_additional_sdk_qualifications(catalog, observations, *, tool_version=None, compatibility_catalog=None):
     """Return exact passed cells; catalog-only admission never constitutes evidence."""
     expected = {}
     for sdk in catalog['sdks']:
         if sdk['sdkVersion'] == '10.0.403':
             continue  # The original per-target report owns the SDK10 migration regression.
-        require(catalog['schemaVersion'] == 2 and not sdk['requiresLegacyProvider'],
+        if catalog['schemaVersion']==3 and sdk['requiresLegacyProvider']:
+            continue  # The separately gated legacy matrix owns these cells.
+        require(catalog['schemaVersion'] in (2,3) and not sdk['requiresLegacyProvider'],
                 'Additional installer SDKs require the modern catalog and no legacy provider')
         require(f"{sdk['sdkVersion']}-r{sdk['revision']}/{sdk['rid']}" not in catalog['revoked'],
                 'A revoked SDK cannot be advertised as qualified for new installation')
@@ -99,7 +108,8 @@ def validate_additional_sdk_qualifications(catalog, observations, *, tool_versio
                 from cbodotnetup_project import validate_project_evidence
                 require(isinstance(row.get('projectSelection'),dict),'Offline owned project-SDK selection evidence is required for this tool release')
                 validate_project_evidence(row['projectSelection'],sdk,baseline[0],catalog)
-                validate_previous_tool_upgrade(row.get('previousToolUpgrade'), row, baseline[0], catalog, tool_version)
+                validate_previous_tool_upgrade(row.get('previousToolUpgrade'), row, baseline[0], catalog, tool_version,
+                                               compatibility_catalog=compatibility_catalog)
             seen.add(key)
             rows.append(dict(sdkVersion=row['sdkVersion'], revision=row['revision'], rid=row['rid'],
                              target=target, variant=row['variant'], architecture=arch,

@@ -9,8 +9,9 @@ namespace Community.DotNet.Up;
 internal sealed partial class Trust
 {
     internal const string Fingerprint = "D7D154B4B33C19A82B95B13688135410ACD9C0EA";
-    internal const string CatalogUrl = "https://dotnetdev.kr/cbodotnet/cbodotnetup/v2/catalog.json";
+    internal const string CatalogUrl = "https://dotnetdev.kr/cbodotnet/cbodotnetup/v3/catalog.json";
     private readonly string cache;
+    private string? localCatalogDirectory;
     internal Trust(string cache) { this.cache = cache; SafeFiles.PrivateDirectory(cache); }
     [GeneratedRegex(@"^[a-f0-9]{64}$", RegexOptions.CultureInvariant)] private static partial Regex ShaPattern();
     [GeneratedRegex(@"^[1-9][0-9]*\.[0-9]+\.[0-9]+$", RegexOptions.CultureInvariant)] internal static partial Regex VersionPattern();
@@ -52,7 +53,7 @@ internal sealed partial class Trust
     }
     internal static void Validate(Catalog catalog, DateTimeOffset now, bool fresh = true)
     {
-        SafeFiles.Require(catalog is not null && catalog.SchemaVersion is 1 or 2 && catalog.Kind == "cbodotnetup-installation-catalog"
+        SafeFiles.Require(catalog is not null && catalog.SchemaVersion is 1 or 2 or 3 && catalog.Kind == "cbodotnetup-installation-catalog"
             && catalog.Sequence > 0 && catalog.SigningFingerprint == Fingerprint && catalog.IssuedAt.Offset == TimeSpan.Zero
             && catalog.ExpiresAt.Offset == TimeSpan.Zero && catalog.IssuedAt <= now.AddMinutes(5)
             && catalog.ExpiresAt > catalog.IssuedAt && catalog.ExpiresAt - catalog.IssuedAt <= TimeSpan.FromDays(31)
@@ -75,7 +76,7 @@ internal sealed partial class Trust
                 && sdk.Producer.ValueKind == JsonValueKind.Object,
                 "Malformed, unqualified or duplicate SDK catalog entry");
             AssetValid(sdk.Archive); AssetValid(sdk.SourceManifest, 8 * 1024 * 1024); AssetValid(sdk.Evidence);
-            SafeFiles.Require(ArchiveSchema(sdk) == catalog.SchemaVersion
+            SafeFiles.Require(ArchiveSchema(sdk) == (catalog.SchemaVersion == 1 ? 1 : 2)
                 && sdk.SourceManifest.Url == $"https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-{sdk.SdkVersion}/release-manifest.json", "Catalog source/archive identity mismatch");
         }
         foreach (var tool in catalog.Tools)
@@ -90,17 +91,18 @@ internal sealed partial class Trust
         foreach (var channel in catalog.Channels)
             SafeFiles.Require(Regex.IsMatch(channel.Key, @"^[1-9][0-9]*\.[0-9]+$", RegexOptions.CultureInvariant)
                 && catalog.Sdks.Any(s => s.Series == channel.Key && $"{s.SdkVersion}-r{s.Revision}" == channel.Value), "Channel refers to an unqualified SDK");
+        ProviderSupport.Validate(catalog);
     }
     internal static void ValidateActive(Catalog catalog, DateTimeOffset now, bool fresh = true)
     {
         Validate(catalog, now, fresh);
-        SafeFiles.Require(catalog.SchemaVersion == 2,
-            "cbodotnetup requires a schema-2 catalog; schema-1 catalogs are only for retained SDK receipts and cbodotnetup 0.1");
+        SafeFiles.Require(catalog.SchemaVersion is 2 or 3,
+            "cbodotnetup requires a schema-2 bridge or schema-3 catalog; schema-1 catalogs are only for retained SDK receipts and cbodotnetup 0.1");
     }
     internal static void Admit(Catalog catalog, SdkRelease sdk, Target host)
     {
         SafeFiles.Require(sdk.Rid == host.Rid && sdk.Targets.Contains(host) && !catalog.Revoked.Contains(sdk.Id), "SDK is revoked or this OS/architecture is not individually qualified");
-        SafeFiles.Require(!sdk.RequiresLegacyProvider, "This SDK needs a separately qualified legacy provider; cbodotnetup does not install native dependencies automatically");
+        if (sdk.RequiresLegacyProvider) _ = ProviderSupport.For(catalog, sdk, host);
     }
     internal static void Advance(long sequence, string sha, HighWater previous) => SafeFiles.Require(sequence > previous.Sequence
         || (sequence == previous.Sequence && sha == previous.Sha256), "Catalog rollback or conflicting sequence rejected");
@@ -160,7 +162,7 @@ internal sealed partial class Trust
     }
     internal async Task<Catalog> Load(string? file, bool refresh)
     {
-        var path = Path.Combine(cache, "catalog.json"); var signature = path + ".asc";
+        var selectedCache = File.Exists(Path.Combine(cache, "catalog.json")) ? cache : CacheFor(2);
         var incoming = Path.Combine(cache, "incoming-" + Guid.NewGuid().ToString("N"));
         if (refresh || file is not null)
         {
@@ -181,23 +183,87 @@ internal sealed partial class Trust
                 var data = Path.Combine(incoming, "catalog.json");
                 VerifySignature(data, data + ".asc", incoming);
                 var value = SafeFiles.Read(data, UpJson.Default.Catalog); ValidateActive(value, DateTimeOffset.UtcNow);
-                var sha = SafeFiles.Hash(data); var high = Path.Combine(cache, "high-water.json");
-                if (File.Exists(high))
-                {
-                    var previous = SafeFiles.Read(high, UpJson.Default.HighWater);
-                    Advance(value.Sequence, sha, previous);
-                }
-                // A crash between these writes fails closed against high-water on the next read.
-                SafeFiles.Write(high, new HighWater(value.Sequence, sha), UpJson.Default.HighWater);
-                SafeFiles.Atomic(path, File.ReadAllBytes(data)); SafeFiles.Atomic(signature, File.ReadAllBytes(data + ".asc"));
+                SafeFiles.Require(file is not null || value.SchemaVersion == 3, "The default endpoint must provide schema-3 admission");
+                Store(value, data); selectedCache = CacheFor(value.SchemaVersion);
+                localCatalogDirectory = file is not null && value.SchemaVersion == 3 ? Path.GetDirectoryName(Path.GetFullPath(file)) : null;
             }
             finally { SafeFiles.DeleteTree(incoming); }
         }
+        var path = Path.Combine(selectedCache, "catalog.json"); var signature = path + ".asc";
         SafeFiles.Require(File.Exists(path) && File.Exists(signature), "No authenticated catalog is cached; run list --available online");
         VerifySignature(path, signature, cache);
         var catalog = SafeFiles.Read(path, UpJson.Default.Catalog); ValidateActive(catalog, DateTimeOffset.UtcNow, refresh || file is not null);
-        var watermark = SafeFiles.Read(Path.Combine(cache, "high-water.json"), UpJson.Default.HighWater);
+        var watermark = SafeFiles.Read(Path.Combine(selectedCache, "high-water.json"), UpJson.Default.HighWater);
         SafeFiles.Require(catalog.Sequence == watermark.Sequence && SafeFiles.Hash(path) == watermark.Sha256, "Cached catalog does not match its high-water record");
         return catalog;
+    }
+    internal string CacheFor(int schema) => schema == 3 ? cache : Path.Combine(Path.GetDirectoryName(cache)!, "v2");
+    private void Store(Catalog value, string data)
+    {
+        var directory = CacheFor(value.SchemaVersion); SafeFiles.PrivateDirectory(directory);
+        var sha = SafeFiles.Hash(data); var high = Path.Combine(directory, "high-water.json");
+        if (File.Exists(high)) Advance(value.Sequence, sha, SafeFiles.Read(high, UpJson.Default.HighWater));
+        SafeFiles.Write(high, new HighWater(value.Sequence, sha), UpJson.Default.HighWater);
+        SafeFiles.Atomic(Path.Combine(directory, "catalog.json"), File.ReadAllBytes(data));
+        SafeFiles.Atomic(Path.Combine(directory, "catalog.json.asc"), File.ReadAllBytes(data + ".asc"));
+    }
+    internal void Retain(Catalog value, string destination)
+    {
+        var source = Path.Combine(CacheFor(value.SchemaVersion), "catalog.json");
+        VerifySignature(source, source + ".asc", cache);
+        var actual = SafeFiles.Read(source, UpJson.Default.Catalog);
+        SafeFiles.Require(ProviderSupport.Equal(value, actual, UpJson.Default.Catalog), "Cached admission changed before activation");
+        File.Copy(source, Path.Combine(destination, "catalog.json")); File.Copy(source + ".asc", Path.Combine(destination, "catalog.json.asc"));
+    }
+    internal static void ValidateCompatibility(Catalog value, Catalog compatible)
+    {
+        ValidateActive(compatible, DateTimeOffset.UtcNow);
+        var modern = value.Sdks.Where(s => !s.RequiresLegacyProvider).ToArray();
+        var legacy = value.Sdks.Where(s => s.RequiresLegacyProvider).Select(s => s.Id).ToHashSet(StringComparer.Ordinal);
+        bool Relevant(string key) => !key.StartsWith("provider/", StringComparison.Ordinal) && !legacy.Contains(key);
+        SafeFiles.Require(value.SchemaVersion == 3 && compatible.SchemaVersion == 2
+            && value.Sequence == compatible.Sequence && value.IssuedAt == compatible.IssuedAt && value.ExpiresAt == compatible.ExpiresAt
+            && modern.Length == compatible.Sdks.Length && modern.All(s => compatible.Sdks.Any(c => ProviderSupport.Equal(s, c, UpJson.Default.SdkRelease)))
+            && value.Tools.Length == compatible.Tools.Length && value.Tools.All(t => compatible.Tools.Contains(t))
+            && value.Revoked.Where(Relevant).ToHashSet(StringComparer.Ordinal).SetEquals(compatible.Revoked.Where(Relevant))
+            && compatible.Channels.Count == value.Channels.Count(c => modern.Any(s => s.Series == c.Key))
+            && compatible.Channels.All(c => value.Channels.TryGetValue(c.Key, out var version) && version == c.Value),
+            "Compatible schema-2 projection differs from modern SDK/tool admission");
+    }
+    internal async Task<Catalog> Compatibility(Catalog value)
+    {
+        if (value.SchemaVersion == 2) return value;
+        SafeFiles.Require(value.SchemaVersion == 3 && value.CompatibilityCatalog is not null, "No compatible modern SDK admission is available");
+        var asset = value.CompatibilityCatalog!; var destination = Path.Combine(CacheFor(2), "catalog.json");
+        SafeFiles.OrdinaryPath(destination);
+        if (!File.Exists(destination) || SafeFiles.Hash(destination) != asset.Sha256)
+        {
+            var scratch = Path.Combine(cache, "compatible-" + Guid.NewGuid().ToString("N")); SafeFiles.PrivateDirectory(scratch);
+            try
+            {
+                var data = Path.Combine(scratch, "catalog.json");
+                var local = localCatalogDirectory is null ? null : Path.Combine(localCatalogDirectory, "catalog-v2.json");
+                if (local is not null && (SafeFiles.Exists(local) || SafeFiles.Exists(local + ".asc")))
+                {
+                    SafeFiles.OrdinaryPath(local); SafeFiles.OrdinaryPath(local + ".asc");
+                    SafeFiles.Require(new FileInfo(local).Length == asset.Size && SafeFiles.Hash(local) == asset.Sha256
+                        && new FileInfo(local + ".asc").Length is > 0 and <= 64 * 1024,
+                        "Adjacent compatible catalog differs from signed schema-3 binding");
+                    File.Copy(local, data); File.Copy(local + ".asc", data + ".asc");
+                }
+                else
+                {
+                    await DownloadAsset(asset, data);
+                    File.WriteAllBytes(data + ".asc", await Download(asset.Url + ".asc", 64 * 1024));
+                }
+                VerifySignature(data, data + ".asc", scratch);
+                var compatible = SafeFiles.Read(data, UpJson.Default.Catalog); ValidateCompatibility(value, compatible); Store(compatible, data);
+            }
+            finally { SafeFiles.DeleteTree(scratch); }
+        }
+        VerifySignature(destination, destination + ".asc", cache);
+        SafeFiles.Require(new FileInfo(destination).Length == asset.Size && SafeFiles.Hash(destination) == asset.Sha256,
+            "Compatible catalog bytes differ from signed schema-3 binding");
+        var result = SafeFiles.Read(destination, UpJson.Default.Catalog); ValidateCompatibility(value, result); return result;
     }
 }

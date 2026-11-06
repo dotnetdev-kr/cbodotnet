@@ -156,6 +156,15 @@ class InstallerMatrixTests(unittest.TestCase):
         self.assertEqual(len(rows),32)
         self.assertEqual({row['sdkVersion'] for row in rows},{'9.0.123','8.0.133','7.0.120','6.0.136'})
 
+    def test_legacy_cells_have_a_separate_gate_and_cannot_replace_modern_cells(self):
+        catalog,observations=self.inputs()
+        legacy=copy.deepcopy(catalog['sdks'][0]);legacy.update(sdkVersion='5.0.214',requiresLegacyProvider=True)
+        catalog=dict(catalog,schemaVersion=3,sdks=catalog['sdks']+[legacy])
+        self.assertEqual(len(validate_additional_sdk_qualifications(catalog,observations)),32)
+        observations[0]['additionalSdkQualifications'][0]['sdkVersion']='5.0.214'
+        with self.assertRaisesRegex(ValueError,'Unexpected'):
+            validate_additional_sdk_qualifications(catalog,observations)
+
     def test_project_tool_requires_new_proof_without_breaking_published_old_tool(self):
         catalog,observations=self.inputs()
         self.assertEqual(len(validate_additional_sdk_qualifications(catalog,observations,tool_version='0.2.0')),32)

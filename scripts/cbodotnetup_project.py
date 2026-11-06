@@ -183,7 +183,7 @@ def _snapshot(directory):
 def owned_sdk_state(root):
     root = Path(root)
     paths = [root / 'owner', root / 'selection.json']
-    for namespace in ('toolchains', 'toolchains-v2'):
+    for namespace in ('toolchains', 'toolchains-v2', 'toolchains-v3', 'providers'):
         paths.extend((root / namespace).glob('*/*/*.json'))
         paths.extend((root / namespace).glob('*/*/*.asc'))
     return {path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
@@ -246,7 +246,8 @@ def qualify_project_selection(root, binary, sdk, baseline, workspace, execute):
     observe('major-roll-forward', project('major', dict(sdk=dict(version=unavailable_band, rollForward='major'))), higher)
     observe('feature-band-rejection', project('band', dict(sdk=dict(version=unavailable_band, rollForward='patch'))), None, error='global.json')
     observe('missing-sdk-no-install', project('missing', dict(sdk=dict(version='99.0.999', rollForward='disable'))), None, error='cbodotnetup list --available')
-    cached = json.loads((root / 'cache/v2/catalog.json').read_bytes())
+    active_cache = root / ('cache/v3' if (root / 'cache/v3/catalog.json').is_file() else 'cache/v2')
+    cached = json.loads((active_cache / 'catalog.json').read_bytes())
     missing_admitted = next((release for release in cached['sdks'] if release['rid'] == sdk['rid']
                              and release['sdkVersion'] not in (lower, higher)
                              and not release['requiresLegacyProvider']
@@ -290,7 +291,10 @@ def qualify_project_selection(root, binary, sdk, baseline, workspace, execute):
         rows.append(dict(name=name, status='passed', expectedVersion=higher, exitCode=runtime.returncode))
     before = _snapshot(workspace)
     forwarded = invoke(pinned, [binary, 'run', lower_exact, '--', '--available'])
-    require(forwarded.returncode != 0 and 'dotnet---available' in forwarded.stdout+forwarded.stderr
+    forwarded_text = forwarded.stdout + forwarded.stderr
+    forwarded_diagnostic = ('--available' in forwarded_text and 'cbodotnetup:' not in forwarded_text
+                            if sdk['requiresLegacyProvider'] else 'dotnet---available' in forwarded_text)
+    require(forwarded.returncode != 0 and forwarded_diagnostic
             and _snapshot(workspace) == before,
             'An SDK argument was intercepted as an installer refresh or changed project files: '
             + forwarded.stdout[-2000:] + forwarded.stderr[-2000:])
@@ -312,8 +316,9 @@ def qualify_project_selection(root, binary, sdk, baseline, workspace, execute):
     msbuild = pinned / 'msbuild'; msbuild.mkdir()
     (msbuild / 'global.json').write_text(json.dumps(dict(sdk=dict(version=higher, rollForward='disable'))))
     project_file = msbuild / 'Inspect.csproj'
-    project_text = ('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net'+lower.split('.')[0]
-                            +'.0</TargetFramework></PropertyGroup><Target Name="InspectCommunitySdk">'
+    from sdk_runtime import target_framework
+    project_text = ('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>'+target_framework(lower)
+                            +'</TargetFramework></PropertyGroup><Target Name="InspectCommunitySdk">'
                             '<Message Importance="high" Text="CBODOTNETUP_SDK=$(NETCoreSdkVersion)" />'
                             '<Message Importance="high" Text="CBODOTNETUP_PATH=$(MSBuildSDKsPath)" />'
                             '</Target></Project>')
@@ -329,7 +334,8 @@ def qualify_project_selection(root, binary, sdk, baseline, workspace, execute):
                       'dotnet_msbuild_sdk_resolver_cli_dir=/untrusted/sdk', *launch]
         result = invoke(pinned, launch)
         expected = release['sdkVersion']
-        selected = root / 'toolchains-v2' / (expected + '-r' + str(release['revision'])) / release['rid'] / 'content' / release['archiveRoot'] / 'payload/sdk' / expected / 'Sdks'
+        namespace = 'toolchains-v3' if release['requiresLegacyProvider'] else 'toolchains-v2'
+        selected = root / namespace / (expected + '-r' + str(release['revision'])) / release['rid'] / 'content' / release['archiveRoot'] / 'payload/sdk' / expected / 'Sdks'
         require(result.returncode == 0 and 'CBODOTNETUP_SDK='+expected in result.stdout
                 and 'CBODOTNETUP_PATH='+str(selected) in result.stdout and _snapshot(workspace) == before,
                 'MSBuild re-resolved another SDK or changed project files: ' + name

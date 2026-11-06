@@ -78,7 +78,7 @@ internal static partial class SafeFiles
         CheckJson(document.RootElement);
         return JsonSerializer.Deserialize(bytes, type) ?? throw new InvalidOperationException("Empty metadata");
     }
-    private static void CheckJson(JsonElement value)
+    internal static void CheckJson(JsonElement value)
     {
         if (value.ValueKind == JsonValueKind.Object)
         {
@@ -98,6 +98,10 @@ internal static partial class SafeFiles
         return output.GetAwaiter().GetResult();
     }
     internal static void Extract(string archive, string destination, string expectedRoot)
+        => ExtractCore(archive, destination, expectedRoot, false);
+    internal static void ExtractProvider(string archive, string destination)
+        => ExtractCore(archive, destination, "rootfs", true);
+    private static void ExtractCore(string archive, string destination, string expectedRoot, bool provider)
     {
         Require(!Exists(destination), "Extraction destination already exists");
         PrivateDirectory(destination);
@@ -112,7 +116,9 @@ internal static partial class SafeFiles
         while ((entry = tar.GetNextEntry(false)) is not null)
         {
             var name = entry.Name.TrimEnd('/');
-            Require(name == expectedRoot || name.StartsWith(expectedRoot + '/', StringComparison.Ordinal), "Unexpected archive root");
+            Require(name == expectedRoot || name.StartsWith(expectedRoot + '/', StringComparison.Ordinal)
+                || provider && name == "provider-manifest.json" && entry.EntryType is TarEntryType.RegularFile or TarEntryType.V7RegularFile,
+                "Unexpected archive root");
             var path = Under(destination, name);
             Require(seen.Count < 200_000 && seen.Add(name), "Duplicate entry or excessive archive entries");
             Require(((int)entry.Mode & ~0x1FF) == 0 && entry.Length >= 0, "Unsafe archive mode or length");

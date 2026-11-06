@@ -8,10 +8,12 @@ internal sealed class Manager : IDisposable
     internal readonly string Root;
     private readonly string toolchains;
     private readonly string modernToolchains;
+    private readonly string providerToolchains;
     private readonly string cache;
     private readonly string staging;
     private readonly FileStream lease;
     private readonly Trust trust;
+    private readonly ProviderStore providers;
     private readonly Target host;
     private readonly Func<Asset, string, Task>? downloadOverride;
     // Internal dependency injection is used by file-transaction tests; the CLI supplies no overrides.
@@ -41,12 +43,14 @@ internal sealed class Manager : IDisposable
         try { lease = new FileStream(lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None); }
         catch (IOException) { throw new InvalidOperationException("Another cbodotnetup operation is running; retry after it completes"); }
         toolchains = Path.Combine(Root, "toolchains"); modernToolchains = Path.Combine(Root, "toolchains-v2");
+        providerToolchains = Path.Combine(Root, "toolchains-v3");
         // The released 0.1 client must retain its own catalog/high-water and SDK namespace.
         // It cannot validate v2 admissions after a tool rollback, so it must not enumerate them.
         var legacyCache = Path.Combine(Root, "cache"); SafeFiles.PrivateDirectory(legacyCache);
-        cache = Path.Combine(legacyCache, "v2"); staging = Path.Combine(Root, "staging");
-        foreach (var path in new[] { toolchains, modernToolchains, cache, staging }) SafeFiles.PrivateDirectory(path);
+        cache = Path.Combine(legacyCache, "v3"); staging = Path.Combine(Root, "staging");
+        foreach (var path in new[] { toolchains, modernToolchains, providerToolchains, Path.Combine(legacyCache, "v2"), cache, staging }) SafeFiles.PrivateDirectory(path);
         trust = new Trust(cache);
+        providers = new ProviderStore(Path.Combine(Root, "providers"), staging, cache, trust, Download);
     }
     public void Dispose() => lease.Dispose();
     private async Task Download(Asset asset, string path)
@@ -57,21 +61,21 @@ internal sealed class Manager : IDisposable
         SafeFiles.Require(new FileInfo(path).Length == asset.Size && SafeFiles.Hash(path) == asset.Sha256, "Downloaded artifact is corrupt, truncated or has conflicting bytes");
     }
     internal Task<Catalog> Catalog(string? file, bool refresh) => trust.Load(file, refresh);
-    private string PathFor(SdkRelease sdk) => SafeFiles.Under(Trust.ArchiveSchema(sdk) == 1 ? toolchains : modernToolchains, sdk.Id);
+    private string PathFor(SdkRelease sdk) => SafeFiles.Under(sdk.RequiresLegacyProvider ? providerToolchains : Trust.ArchiveSchema(sdk) == 1 ? toolchains : modernToolchains, sdk.Id);
     private Selection Selections() => File.Exists(Path.Combine(Root, "selection.json"))
         ? SafeFiles.Read(Path.Combine(Root, "selection.json"), UpJson.Default.Selection) : new(new(StringComparer.Ordinal), []);
     private void SaveSelection(Selection value) => SafeFiles.Write(Path.Combine(Root, "selection.json"), value, UpJson.Default.Selection);
     internal Receipt[] Installed()
     {
         var result = new List<Receipt>();
-        foreach (var version in new[] { toolchains, modernToolchains }.SelectMany(Directory.EnumerateDirectories))
+        foreach (var version in new[] { toolchains, modernToolchains, providerToolchains }.SelectMany(Directory.EnumerateDirectories))
         {
             SafeFiles.OrdinaryPath(version);
             foreach (var directory in Directory.EnumerateDirectories(version))
             {
                 SafeFiles.OrdinaryPath(directory);
                 var receipt = SafeFiles.Read(Path.Combine(directory, "receipt.json"), UpJson.Default.Receipt);
-                SafeFiles.Require(receipt.Owner == SafeFiles.Owner && receipt.SchemaVersion == 1
+                SafeFiles.Require(receipt.Owner == SafeFiles.Owner && receipt.SchemaVersion == (receipt.Release.RequiresLegacyProvider ? 2 : 1)
                     && PathFor(receipt.Release) == directory && receipt.Release.Rid == host.Rid, "Unowned or conflicting toolchain state");
                 result.Add(receipt);
             }
@@ -89,6 +93,18 @@ internal sealed class Manager : IDisposable
             && original.Sdks.Contains(sdk, SdkComparer.Instance), "Installed receipt differs from its signed admission");
         var expected = SafeFiles.Read(Path.Combine(path, "inventory.json"), UpJson.Default.InventoryItemArray);
         SafeFiles.Require(expected.SequenceEqual(SafeFiles.Inventory(Path.Combine(path, "content"))), "Installed bytes, modes, links or file inventory changed; removal/update is refused");
+        if (sdk.RequiresLegacyProvider)
+        {
+            var required = ProviderSupport.For(allowRevoked ? original : catalog, sdk, host, allowRevoked);
+            var references = SafeFiles.Read(Path.Combine(path, "providers.json"), UpJson.Default.ProviderReferences);
+            SafeFiles.Require(receipt.SchemaVersion == 2 && original.SchemaVersion == 3 && references.SchemaVersion == 1
+                && references.SdkId == sdk.Id && references.ProviderIds.SequenceEqual(required.Select(p => p.Id)),
+                "Legacy SDK provider references differ from signed admission");
+            var retainedBinding = ProviderSupport.For(original, sdk, host, true);
+            SafeFiles.Require(references.ProviderIds.SequenceEqual(retainedBinding.Select(p => p.Id)), "Retained SDK provider binding changed");
+            if (!allowRevoked) ProviderSupport.CheckHost(required);
+            foreach (var provider in required) providers.Verify(provider);
+        }
     }
     private sealed class SdkComparer : IEqualityComparer<SdkRelease>
     {
@@ -105,7 +121,7 @@ internal sealed class Manager : IDisposable
         Trust.Admit(catalog, sdk, host);
         return sdk;
     }
-    internal async Task Install(Catalog catalog, string version, string? channel = null)
+    internal async Task Install(Catalog catalog, string version, string? channel = null, bool allowLegacyProviders = false)
     {
         Trust.Validate(catalog, DateTimeOffset.UtcNow);
         var sdk = Resolve(catalog, version); var path = PathFor(sdk);
@@ -115,6 +131,14 @@ internal sealed class Manager : IDisposable
             SafeFiles.Require(SdkComparer.Instance.Equals(previous.Release, sdk), "Existing identity has conflicting catalog bytes");
             VerifyInstalled(previous, catalog); Activate(sdk, channel); Console.WriteLine("Already installed and verified: " + sdk.Id); return;
         }
+        var required = sdk.RequiresLegacyProvider ? ProviderSupport.For(catalog, sdk, host) : [];
+        if (sdk.RequiresLegacyProvider)
+        {
+            SafeFiles.Require(allowLegacyProviders, "This SDK requires signed private legacy providers. Install explicitly with: cbodotnetup install "
+                + sdk.SdkVersion + "-r" + sdk.Revision + " --with-legacy-providers");
+            await providers.Ensure(catalog, required);
+        }
+        var admission = !sdk.RequiresLegacyProvider && catalog.SchemaVersion == 3 ? await trust.Compatibility(catalog) : catalog;
         var work = Path.Combine(staging, Guid.NewGuid().ToString("N")); SafeFiles.PrivateDirectory(work);
         SafeFiles.Atomic(Path.Combine(work, "owner"), System.Text.Encoding.UTF8.GetBytes(SafeFiles.Owner));
         try
@@ -136,13 +160,26 @@ internal sealed class Manager : IDisposable
                 var p = provenance.RootElement;
                 SafeFiles.Require(p.GetProperty("sdkVersion").GetString() == sdk.SdkVersion && p.GetProperty("packageRevision").GetInt32() == sdk.Revision
                     && p.GetProperty("sourceManifestSha256").GetString() == sdk.SourceManifestSha256
-                    && p.GetProperty("targetRid").GetString() == host.Rid && !p.GetProperty("compatibility").GetProperty("required").GetBoolean()
+                    && p.GetProperty("targetRid").GetString() == host.Rid && p.GetProperty("compatibility").GetProperty("required").GetBoolean() == sdk.RequiresLegacyProvider
                     && JsonElement.DeepEquals(p.GetProperty("producer"), sdk.Producer), "Archive provenance differs from signed catalog");
+                if (sdk.RequiresLegacyProvider)
+                {
+                    foreach (var provider in required)
+                    {
+                        var item = p.GetProperty(provider.ProviderId == ProviderSupport.BaseId ? "compatibility" : "nativeHttpCompatibility");
+                        SafeFiles.Require(item.GetProperty("required").GetBoolean() && item.GetProperty("providerId").GetString() == provider.ProviderId
+                            && item.GetProperty("root").GetString() == provider.Root && item.GetProperty("policySha256").GetString() == provider.PolicySha256
+                            && item.GetProperty("companionName").GetString() == Path.GetFileName(new Uri(provider.Archive.Url).AbsolutePath),
+                            "Archive provider provenance differs from signed catalog");
+                    }
+                }
             }
-            File.Copy(Path.Combine(cache, "catalog.json"), Path.Combine(prepared, "catalog.json")); File.Copy(Path.Combine(cache, "catalog.json.asc"), Path.Combine(prepared, "catalog.json.asc"));
+            trust.Retain(admission, prepared);
             SafeFiles.Write(Path.Combine(prepared, "inventory.json"), SafeFiles.Inventory(content), UpJson.Default.InventoryItemArray);
-            var receipt = new Receipt(1, SafeFiles.Owner, sdk, SafeFiles.Hash(Path.Combine(cache, "catalog.json")), catalog.Sequence, DateTimeOffset.UtcNow);
+            var receipt = new Receipt(sdk.RequiresLegacyProvider ? 2 : 1, SafeFiles.Owner, sdk, SafeFiles.Hash(Path.Combine(prepared, "catalog.json")), admission.Sequence, DateTimeOffset.UtcNow);
             SafeFiles.Write(Path.Combine(prepared, "receipt.json"), receipt, UpJson.Default.Receipt);
+            if (sdk.RequiresLegacyProvider) SafeFiles.Write(Path.Combine(prepared, "providers.json"),
+                new ProviderReferences(1, sdk.Id, required.Select(p => p.Id).ToArray()), UpJson.Default.ProviderReferences);
             SafeFiles.Atomic(Path.Combine(prepared, "owner"), System.Text.Encoding.UTF8.GetBytes(SafeFiles.Owner));
             SafeFiles.PrivateDirectory(Path.GetDirectoryName(path)!);
             Directory.Move(prepared, path); // Same-filesystem activation. A crash before this rename cannot expose a partial SDK.
@@ -181,7 +218,13 @@ internal sealed class Manager : IDisposable
         var archive = Path.Combine(PathFor(sdk), "content", sdk.ArchiveRoot);
         var launcher = Path.Combine(archive, "cbodotnet");
         var start = SdkInvocation.Create(launcher, Path.Combine(archive, "payload"), sdk.SdkVersion, arguments);
+        var required = sdk.RequiresLegacyProvider ? ProviderSupport.For(catalog, sdk, host) : [];
+        ProviderEnvironment.Apply(start, host, required.ToDictionary(p => p.ProviderId, p => providers.Verify(p), StringComparer.Ordinal));
         SdkInvocation.WriteBrand(arguments);
+        return RunChild(start);
+    }
+    internal static int RunChild(ProcessStartInfo start)
+    {
         using var child = Process.Start(start) ?? throw new InvalidOperationException("Cannot execute the installed SDK");
         child.WaitForExit(); return child.ExitCode;
     }
@@ -206,14 +249,14 @@ internal sealed class Manager : IDisposable
     private string MissingProjectSdk(ProjectSdkRequest request, Catalog catalog)
     {
         var available = catalog.Sdks.Where(s => s.Rid == host.Rid && s.Targets.Contains(host)
-            && !s.RequiresLegacyProvider && !catalog.Revoked.Contains(s.Id)).ToArray();
+            && !catalog.Revoked.Contains(s.Id) && (!s.RequiresLegacyProvider || ProviderSupport.Eligible(catalog, s, host))).ToArray();
         var matching = ProjectSdkResolver.SelectVersion(request, available.Select(s => s.SdkVersion));
         var message = $"No installed Community Build SDK matches '{request.Version ?? "latest"}' with rollForward '{request.RollForward}' in {request.GlobalJsonPath}.";
         if (!string.IsNullOrWhiteSpace(request.ErrorMessage)) message += " " + request.ErrorMessage;
         var install = available.Where(s => s.SdkVersion == matching).OrderByDescending(s => s.Revision).FirstOrDefault();
         return message + (matching is null
             ? " No matching SDK is admitted in the cached signed catalog. Review the project pin or explicitly refresh with cbodotnetup list --available."
-            : $" Install it explicitly with: cbodotnetup install {install!.SdkVersion}-r{install.Revision}. SDK selection never installs or downloads an SDK automatically.");
+            : $" Install it explicitly with: cbodotnetup install {install!.SdkVersion}-r{install.Revision}{(install.RequiresLegacyProvider ? " --with-legacy-providers" : "")}. SDK selection never installs or downloads an SDK automatically.");
     }
     internal void Remove(Catalog catalog, string version)
     {
@@ -229,12 +272,30 @@ internal sealed class Manager : IDisposable
     }
     internal void Rollback(Catalog catalog, string version)
     { var receipt = Select(version, catalog); Activate(receipt.Release); Console.WriteLine("Selected retained verified SDK " + receipt.Release.Id); }
-    internal async Task Update(Catalog catalog)
+    internal async Task Update(Catalog catalog, bool allowLegacyProviders = false)
     {
         var channels = Selections().TrackedChannels;
         SafeFiles.Require(channels.Length > 0, "No tracked channels; use install --channel 10.0");
         foreach (var channel in channels)
-        { SafeFiles.Require(catalog.Channels.TryGetValue(channel, out var version), "Tracked channel is unavailable in the current signed catalog"); await Install(catalog, version!, channel); }
+        {
+            SafeFiles.Require(catalog.Channels.TryGetValue(channel, out var version), "Tracked channel is unavailable in the current signed catalog");
+            var consent = allowLegacyProviders;
+            if (!consent)
+            {
+                var prior = Installed().FirstOrDefault(r => r.Release.RequiresLegacyProvider && r.Release.Series == channel);
+                if (prior is not null)
+                {
+                    var signed = Path.Combine(PathFor(prior.Release), "catalog.json");
+                    SafeFiles.Require(File.Exists(signed) && File.Exists(signed + ".asc"),
+                        "Tracked legacy receipt has no retained signed admission; review and reinstall with explicit provider consent");
+                    // A fabricated or damaged receipt must not authorize a new
+                    // provider download when a channel advances to another revision.
+                    VerifyInstalled(prior, catalog, allowRevoked: true);
+                    consent = true;
+                }
+            }
+            await Install(catalog, version!, channel, allowLegacyProviders: consent);
+        }
     }
     internal void Shell(bool enable)
     {
@@ -265,11 +326,20 @@ internal sealed class Manager : IDisposable
             SafeFiles.Require(Guid.TryParseExact(Path.GetFileName(directory), "N", out _) && File.ReadAllText(Path.Combine(directory, "owner")) == SafeFiles.Owner, "Unowned staging directory; leaving it intact");
             SafeFiles.DeleteTree(directory);
         }
-        Console.WriteLine("Removed abandoned owned staging data; retained installed SDKs");
+        var referenced = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var receipt in Installed().Where(r => r.Release.RequiresLegacyProvider))
+        {
+            var original = SafeFiles.Read(Path.Combine(PathFor(receipt.Release), "catalog.json"), UpJson.Default.Catalog);
+            VerifyInstalled(receipt, original, allowRevoked: true);
+            foreach (var id in SafeFiles.Read(Path.Combine(PathFor(receipt.Release), "providers.json"), UpJson.Default.ProviderReferences).ProviderIds) referenced.Add(id);
+        }
+        providers.Collect(referenced);
+        Console.WriteLine("Removed abandoned owned staging data and unreferenced verified providers; retained installed SDKs");
     }
     internal void Doctor(Catalog catalog)
     {
         foreach (var receipt in Installed()) VerifyInstalled(receipt, catalog);
+        providers.Doctor();
         Console.WriteLine($"cbodotnetup {Program.CurrentVersion}; {host.Os} {host.VersionId}; {host.Rid}\nRoot: {Root}\nPinned signer: {Trust.Fingerprint}\nInstalled SDKs verified: {Installed().Length}");
     }
     internal async Task SelfUpdate(Catalog catalog, string? executableOverride = null)

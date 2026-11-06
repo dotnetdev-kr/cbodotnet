@@ -8,12 +8,61 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
+from unittest.mock import MagicMock
+from types import SimpleNamespace
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
 import cbodotnetup_site as SITE
 
 
 class InstallerSiteGates(unittest.TestCase):
+    def provider_fixture(self):
+        from downstream_release import encoded
+        status,raws=self.fixture()
+        compatibility=json.loads(raws['catalog.json'])
+        projection=encoded(compatibility)
+        catalog=dict(compatibility,schemaVersion=3,
+            sdks=compatibility['sdks']+[dict(sdkVersion='5.0.214',requiresLegacyProvider=True)],
+            channels=dict(compatibility['channels'],**{'5.0':'5.0.214-r2'}),providers=[],providerBindings=[],
+            compatibilityCatalog=dict(url='https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-123/catalog-v2.json',
+                size=len(projection),sha256=hashlib.sha256(projection).hexdigest()))
+        raws.update({'catalog.json':encoded(catalog),'catalog-v2.json':projection,'catalog-v2.json.asc':b'projection signature'})
+        freeze={'files':[dict(path=name,size=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+            for name,raw in raws.items() if not name.startswith('freeze.')]}
+        raws['freeze.json']=encoded(freeze)
+        status.update(version='0.4.0',catalogSha256=hashlib.sha256(raws['catalog.json']).hexdigest(),
+            compatibilityCatalogSequence=123,compatibilityCatalogSha256=hashlib.sha256(projection).hexdigest())
+        base='https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-123/'
+        status['catalogRelease']['assets']=[dict(name=name,url=base+name,size=len(raw),sha256=hashlib.sha256(raw).hexdigest()) for name,raw in raws.items()]
+        for row in status['publicNativeVerification']:row['observation']['catalogSha256']=status['catalogSha256']
+        status['nativeQualification']=copy.deepcopy(status['publicNativeVerification'])
+        for row in status['nativeQualification']:row['observation']['bootstrapBinarySource']='protected-frozen-candidate'
+        return status,raws
+
+    def test_provider_feed_preserves_v1_v2_bytes_and_requires_both_phase_gates(self):
+        status,raws=self.provider_fixture();legacy_gate=MagicMock()
+        modules={'cbodotnetup_providers':SimpleNamespace(validate_provider_catalog=MagicMock()),
+                 'cbodotnetup_legacy':SimpleNamespace(validate_legacy_qualifications=legacy_gate)}
+        context,verify=self.io(raws)
+        with context,patch.dict(sys.modules,modules),patch.object(SITE,'validate_additional_sdk_qualifications') as modern_gate, tempfile.TemporaryDirectory() as temporary:
+            output=Path(temporary);html=SITE.prepare(output,status)
+            for generation,source in (('v1','catalog-v1.json'),('v2','catalog-v2.json'),('v3','catalog.json')):
+                directory=output/'cbodotnetup'/('' if generation=='v1' else generation)
+                self.assertEqual((directory/'catalog.json').read_bytes(),raws[source])
+            self.assertIn('cbodotnetup/v3/catalog.json',html);self.assertIn('--with-legacy-providers',html)
+            self.assertEqual(modern_gate.call_count,2);self.assertEqual(legacy_gate.call_count,2)
+            self.assertEqual(verify.call_count,4)
+
+    def test_missing_provider_qualification_cannot_publish_any_generation(self):
+        status,raws=self.provider_fixture()
+        modules={'cbodotnetup_providers':SimpleNamespace(validate_provider_catalog=MagicMock()),
+                 'cbodotnetup_legacy':SimpleNamespace(validate_legacy_qualifications=MagicMock(side_effect=ValueError('Legacy proof required')))}
+        context,unused=self.io(raws)
+        with context,patch.dict(sys.modules,modules),patch.object(SITE,'validate_additional_sdk_qualifications'),tempfile.TemporaryDirectory() as temporary:
+            output=Path(temporary)/'site'
+            with self.assertRaisesRegex(ValueError,'Legacy proof'):SITE.prepare(output,status)
+            self.assertFalse(output.exists())
+
     def additional_fixture(self):
         sdk=dict(sdkVersion='9.0.123',revision=2,rid='linux-x64',requiresLegacyProvider=False,
             sourceManifestSha256='a'*64,targets=[dict(os='ubuntu',versionId='24.04',rid='linux-x64')],

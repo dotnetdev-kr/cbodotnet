@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "kind": "cbodotnetup-legacy-provider-admission",
+  "reviewedAt": "2026-11-07",
+  "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+  "consentOption": "--with-legacy-providers",
+  "libc": "glibc",
+  "securitySupport": "community-build-no-additional-security-maintenance",
+  "targets": [
+    "ubuntu-24.04",
+    "debian-13",
+    "fedora-45",
+    "rocky-9.8"
+  ],
+  "sdkSources": {
+    "5.0.214": {
+      "revision": 2,
+      "sourceManifestSha256": "2a98666b057b5e8c2c8ef149c5ebca7528c2048d7cc1aa38611d48d0d104c67f",
+      "archives": {
+        "linux-x64": {
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-5.0.214-r2/cbodotnet-sdk-5.0.214-linux-x64-r2.tar.gz",
+          "size": 234632463,
+          "sha256": "325e2e30783ecb9211e6ecb0874f05e941ac81408bcd900685c9ec41ee1e1d4f"
+        },
+        "linux-arm64": {
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-5.0.214-r2/cbodotnet-sdk-5.0.214-linux-aarch64-r2.tar.gz",
+          "size": 227906204,
+          "sha256": "d5c94593db514bf0a6959a0d78e9554898f653c20b7d6db5389d6e6a07301ff1"
+        }
+      }
+    },
+    "3.1.426": {
+      "revision": 2,
+      "sourceManifestSha256": "70049972a8781c309fae40e5f68d74847d0a9a590d36de4f25ecc2ad50578b09",
+      "archives": {
+        "linux-x64": {
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.1.426-r2/cbodotnet-sdk-3.1.426-linux-x64-r2.tar.gz",
+          "size": 166405488,
+          "sha256": "e6fa378fe18ff73e2fb85a404a521d5643ff597636be1a5d3f0351e133d26124"
+        },
+        "linux-arm64": {
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.1.426-r2/cbodotnet-sdk-3.1.426-linux-aarch64-r2.tar.gz",
+          "size": 164204786,
+          "sha256": "a3c9ee8bcd6732d3ef7f016bf75e1373635be7141e8736ab1db9981a0881715f"
+        }
+      }
+    },
+    "3.0.103": {
+      "revision": 2,
+      "sourceManifestSha256": "3bac912a788bf38320cb45bfe6a62b3da0dbcaf50bb564a370ae7c5a09fb5e98",
+      "archives": {
+        "linux-x64": {
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.0.103-r2/cbodotnet-sdk-3.0.103-linux-x64-r2.tar.gz",
+          "size": 158872352,
+          "sha256": "676ab4b790121468df8c0edf416301751f7298821f0469759c87b4095a562ee7"
+        },
+        "linux-arm64": {
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.0.103-r2/cbodotnet-sdk-3.0.103-linux-aarch64-r2.tar.gz",
+          "size": 157193310,
+          "sha256": "cec400dbbb082f86bfa2c748a0f01b30c27fdc13ca584b659c3e174a31c7f654"
+        }
+      }
+    }
+  },
+  "providers": {
+    "rocky9-20261104": {
+      "kind": "compatibility",
+      "version": "2026.11.4",
+      "revision": 1,
+      "root": "/usr/lib/cbodotnet/compat/rocky9",
+      "policyPath": "releases/legacy-compatibility-provider.json",
+      "policySha256": "6fcae0b9ebe497240f99a93d031fc73b57a0f26c9353c199b2faca34e197f776",
+      "minimumGlibc": "2.34",
+      "canonicalSdkVersion": "5.0.214",
+      "canonicalSdkRevision": 2,
+      "sourceManifest": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-5.0.214-r2/distribution-manifest.json",
+        "size": 35460,
+        "sha256": "6780a337bd907bcf42b6094aabeb571b8d1ac6334884ffb7388931bb10f12d6b"
+      },
+      "sourceSignature": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-5.0.214-r2/distribution-manifest.json.asc",
+        "size": 228,
+        "sha256": "7885d9698a35227f14be4ef9bd8989cb3047495c4896729a551b4649caf18d4c"
+      },
+      "architectures": {
+        "linux-x64": {
+          "architecture": "x64",
+          "cpuBaseline": "x86-64-v2",
+          "cpuFlags": [
+            "cx16",
+            "lahf_lm",
+            "popcnt",
+            "pni",
+            "ssse3",
+            "sse4_1",
+            "sse4_2"
+          ],
+          "archive": {
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-5.0.214-r2/cbodotnet-compat-rocky9-2026.11.4-linux-x64.tar.gz",
+            "size": 15046416,
+            "sha256": "c1eba7f2b8f3addc8bcee392dde9e33b3d9f691e5bbe0cbb1d0841ec8e1412e1"
+          }
+        },
+        "linux-arm64": {
+          "architecture": "aarch64",
+          "cpuBaseline": "armv8-a",
+          "cpuFlags": [],
+          "archive": {
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-5.0.214-r2/cbodotnet-compat-rocky9-2026.11.4-linux-aarch64.tar.gz",
+            "size": 14869075,
+            "sha256": "428c7e3b727f07b9924b51c5e55824648a06c148648ba680cb21b19b25e1251f"
+          }
+        }
+      }
+    },
+    "rocky8-curl-20261104": {
+      "kind": "nativeHttpCompatibility",
+      "version": "2026.11.4",
+      "revision": 1,
+      "root": "/usr/lib/cbodotnet/compat/curl-rocky8",
+      "policyPath": "releases/legacy-curl-provider.json",
+      "policySha256": "f24a14a825101f2f1045d1a1573ff72b08903704729e5574b9e17c1f3186a02c",
+      "minimumGlibc": "2.17",
+      "canonicalSdkVersion": "3.1.426",
+      "canonicalSdkRevision": 2,
+      "sourceManifest": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.1.426-r2/distribution-manifest.json",
+        "size": 49141,
+        "sha256": "8ac3032b1a81743d96c93e2ac611b3e5abde30c01d729bd8a9c6facfff2fc0a5"
+      },
+      "sourceSignature": {
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.1.426-r2/distribution-manifest.json.asc",
+        "size": 228,
+        "sha256": "d5e17c352272afd2a6e0f3804ef4b9824aa96e7508ec60624f459923f2e63cbf"
+      },
+      "architectures": {
+        "linux-x64": {
+          "architecture": "x64",
+          "cpuBaseline": "x86-64",
+          "cpuFlags": [],
+          "archive": {
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.1.426-r2/cbodotnet-compat-curl-rocky8-2026.11.4-linux-x64.tar.gz",
+            "size": 271289,
+            "sha256": "57d5ec73601082b5d7ccf5000921122740ad5b998ec1e84bd0b56d8aac3b43a6"
+          }
+        },
+        "linux-arm64": {
+          "architecture": "aarch64",
+          "cpuBaseline": "armv8-a",
+          "cpuFlags": [],
+          "archive": {
+            "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-3.1.426-r2/cbodotnet-compat-curl-rocky8-2026.11.4-linux-aarch64.tar.gz",
+            "size": 265118,
+            "sha256": "2b980c62a6a69607064af5443acb969c2f6d2ead5862768259ae2a0d71002411"
+          }
+        }
+      }
+    }
+  },
+  "maintenance": {
+    "decision": "Reuse exact vendor-signed and project-published compatibility companions; no host packages or new native library builds",
+    "additionalSecurityMaintenance": false,
+    "upstreamDotnetSupportRestored": false,
+    "preinstalledProvidersAccepted": false,
+    "references": [
+      "https://apollo.build.resf.org/RLSA-2026:80514",
+      "https://apollo.build.resf.org/RLSA-2026:92368",
+      "https://docs.rockylinux.org/releases/",
+      "https://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/Packages/c/",
+      "https://dl.rockylinux.org/pub/rocky/9/BaseOS/x86_64/os/Packages/l/",
+      "https://dl.rockylinux.org/pub/rocky/8/BaseOS/x86_64/os/Packages/l/"
+    ]
+  }
+}
