@@ -1,0 +1,1747 @@
+{
+  "schemaVersion": 1,
+  "scope": "isolated-sdk-matching-reference",
+  "reference": "https://github.com/dotnet/runtime/blob/v10.0.14/src/native/corehost/fxr/sdk_resolver.cpp",
+  "cases": [
+    {
+      "name": "policy-disable-8.0.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "rollForward": "disable"
+        }
+      },
+      "expectedVersion": "8.0.100",
+      "policy": "disable"
+    },
+    {
+      "name": "policy-patch-8.0.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "rollForward": "patch"
+        }
+      },
+      "expectedVersion": "8.0.100",
+      "policy": "patch"
+    },
+    {
+      "name": "policy-feature-8.0.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "rollForward": "feature"
+        }
+      },
+      "expectedVersion": "8.0.101",
+      "policy": "feature"
+    },
+    {
+      "name": "policy-minor-8.0.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "rollForward": "minor"
+        }
+      },
+      "expectedVersion": "8.0.101",
+      "policy": "minor"
+    },
+    {
+      "name": "policy-major-8.0.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "rollForward": "major"
+        }
+      },
+      "expectedVersion": "8.0.101",
+      "policy": "major"
+    },
+    {
+      "name": "policy-latestPatch-8.0.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "rollForward": "latestPatch"
+        }
+      },
+      "expectedVersion": "8.0.101",
+      "policy": "latestPatch"
+    },
+    {
+      "name": "policy-latestFeature-8.0.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "rollForward": "latestFeature"
+        }
+      },
+      "expectedVersion": "8.0.203",
+      "policy": "latestFeature"
+    },
+    {
+      "name": "policy-latestMinor-8.0.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "rollForward": "latestMinor"
+        }
+      },
+      "expectedVersion": "8.1.101",
+      "policy": "latestMinor"
+    },
+    {
+      "name": "policy-latestMajor-8.0.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "rollForward": "latestMajor"
+        }
+      },
+      "expectedVersion": "10.0.100-preview.10",
+      "policy": "latestMajor"
+    },
+    {
+      "name": "policy-disable-8.0.102",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.102",
+          "rollForward": "disable"
+        }
+      },
+      "expectedVersion": null,
+      "policy": "disable"
+    },
+    {
+      "name": "policy-patch-8.0.102",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.102",
+          "rollForward": "patch"
+        }
+      },
+      "expectedVersion": null,
+      "policy": "patch"
+    },
+    {
+      "name": "policy-feature-8.0.102",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.102",
+          "rollForward": "feature"
+        }
+      },
+      "expectedVersion": "8.0.203",
+      "policy": "feature"
+    },
+    {
+      "name": "policy-minor-8.0.102",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.102",
+          "rollForward": "minor"
+        }
+      },
+      "expectedVersion": "8.0.203",
+      "policy": "minor"
+    },
+    {
+      "name": "policy-major-8.0.102",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.102",
+          "rollForward": "major"
+        }
+      },
+      "expectedVersion": "8.0.203",
+      "policy": "major"
+    },
+    {
+      "name": "policy-latestPatch-8.0.102",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.102",
+          "rollForward": "latestPatch"
+        }
+      },
+      "expectedVersion": null,
+      "policy": "latestPatch"
+    },
+    {
+      "name": "policy-latestFeature-8.0.102",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.102",
+          "rollForward": "latestFeature"
+        }
+      },
+      "expectedVersion": "8.0.203",
+      "policy": "latestFeature"
+    },
+    {
+      "name": "policy-latestMinor-8.0.102",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.102",
+          "rollForward": "latestMinor"
+        }
+      },
+      "expectedVersion": "8.1.101",
+      "policy": "latestMinor"
+    },
+    {
+      "name": "policy-latestMajor-8.0.102",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.102",
+          "rollForward": "latestMajor"
+        }
+      },
+      "expectedVersion": "10.0.100-preview.10",
+      "policy": "latestMajor"
+    },
+    {
+      "name": "policy-disable-8.0.300",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.300",
+          "rollForward": "disable"
+        }
+      },
+      "expectedVersion": null,
+      "policy": "disable"
+    },
+    {
+      "name": "policy-patch-8.0.300",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.300",
+          "rollForward": "patch"
+        }
+      },
+      "expectedVersion": null,
+      "policy": "patch"
+    },
+    {
+      "name": "policy-feature-8.0.300",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.300",
+          "rollForward": "feature"
+        }
+      },
+      "expectedVersion": null,
+      "policy": "feature"
+    },
+    {
+      "name": "policy-minor-8.0.300",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.300",
+          "rollForward": "minor"
+        }
+      },
+      "expectedVersion": "8.1.101",
+      "policy": "minor"
+    },
+    {
+      "name": "policy-major-8.0.300",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.300",
+          "rollForward": "major"
+        }
+      },
+      "expectedVersion": "8.1.101",
+      "policy": "major"
+    },
+    {
+      "name": "policy-latestPatch-8.0.300",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.300",
+          "rollForward": "latestPatch"
+        }
+      },
+      "expectedVersion": null,
+      "policy": "latestPatch"
+    },
+    {
+      "name": "policy-latestFeature-8.0.300",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.300",
+          "rollForward": "latestFeature"
+        }
+      },
+      "expectedVersion": null,
+      "policy": "latestFeature"
+    },
+    {
+      "name": "policy-latestMinor-8.0.300",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.300",
+          "rollForward": "latestMinor"
+        }
+      },
+      "expectedVersion": "8.1.101",
+      "policy": "latestMinor"
+    },
+    {
+      "name": "policy-latestMajor-8.0.300",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.300",
+          "rollForward": "latestMajor"
+        }
+      },
+      "expectedVersion": "10.0.100-preview.10",
+      "policy": "latestMajor"
+    },
+    {
+      "name": "policy-disable-8.2.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.2.100",
+          "rollForward": "disable"
+        }
+      },
+      "expectedVersion": null,
+      "policy": "disable"
+    },
+    {
+      "name": "policy-patch-8.2.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.2.100",
+          "rollForward": "patch"
+        }
+      },
+      "expectedVersion": null,
+      "policy": "patch"
+    },
+    {
+      "name": "policy-feature-8.2.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.2.100",
+          "rollForward": "feature"
+        }
+      },
+      "expectedVersion": null,
+      "policy": "feature"
+    },
+    {
+      "name": "policy-minor-8.2.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.2.100",
+          "rollForward": "minor"
+        }
+      },
+      "expectedVersion": null,
+      "policy": "minor"
+    },
+    {
+      "name": "policy-major-8.2.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.2.100",
+          "rollForward": "major"
+        }
+      },
+      "expectedVersion": "9.0.100",
+      "policy": "major"
+    },
+    {
+      "name": "policy-latestPatch-8.2.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.2.100",
+          "rollForward": "latestPatch"
+        }
+      },
+      "expectedVersion": null,
+      "policy": "latestPatch"
+    },
+    {
+      "name": "policy-latestFeature-8.2.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.2.100",
+          "rollForward": "latestFeature"
+        }
+      },
+      "expectedVersion": null,
+      "policy": "latestFeature"
+    },
+    {
+      "name": "policy-latestMinor-8.2.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.2.100",
+          "rollForward": "latestMinor"
+        }
+      },
+      "expectedVersion": null,
+      "policy": "latestMinor"
+    },
+    {
+      "name": "policy-latestMajor-8.2.100",
+      "category": "rollForward",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.2.100",
+          "rollForward": "latestMajor"
+        }
+      },
+      "expectedVersion": "10.0.100-preview.10",
+      "policy": "latestMajor"
+    },
+    {
+      "name": "default-patch-exact",
+      "category": "matching",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100"
+        }
+      },
+      "expectedVersion": "8.0.100"
+    },
+    {
+      "name": "default-patch-missing",
+      "category": "matching",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.102"
+        }
+      },
+      "expectedVersion": null
+    },
+    {
+      "name": "highest-no-global",
+      "category": "matching",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": null,
+      "expectedVersion": "10.0.100-preview.10"
+    },
+    {
+      "name": "highest-empty-global",
+      "category": "matching",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {},
+      "expectedVersion": "10.0.100-preview.10"
+    },
+    {
+      "name": "highest-unrelated-global",
+      "category": "matching",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "msbuildSdks": {
+          "Ignored.Package": "1.0.0"
+        }
+      },
+      "expectedVersion": "10.0.100-preview.10"
+    },
+    {
+      "name": "highest-no-version",
+      "category": "prerelease",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "allowPrerelease": false
+        }
+      },
+      "expectedVersion": "9.0.100"
+    },
+    {
+      "name": "preview-filtered",
+      "category": "prerelease",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "rollForward": "latestMajor",
+          "allowPrerelease": false
+        }
+      },
+      "expectedVersion": "9.0.100"
+    },
+    {
+      "name": "preview-request-forces-prerelease",
+      "category": "prerelease",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "10.0.100-preview.2",
+          "rollForward": "latestPatch",
+          "allowPrerelease": false
+        }
+      },
+      "expectedVersion": "10.0.100-preview.10"
+    },
+    {
+      "name": "preview-exact-disable",
+      "category": "prerelease",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "10.0.100-preview.2",
+          "rollForward": "disable"
+        }
+      },
+      "expectedVersion": "10.0.100-preview.2"
+    },
+    {
+      "name": "stable-after-preview",
+      "category": "prerelease",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10",
+        "10.0.100"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "10.0.100-preview.2",
+          "rollForward": "latestPatch"
+        }
+      },
+      "expectedVersion": "10.0.100"
+    },
+    {
+      "name": "preview-numeric-identifiers",
+      "category": "prerelease",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "10.0.100-preview.1",
+          "rollForward": "latestPatch"
+        }
+      },
+      "expectedVersion": "10.0.100-preview.10"
+    },
+    {
+      "name": "prerelease-case-sensitive",
+      "category": "prerelease",
+      "versions": [
+        "10.0.100-preview.2",
+        "10.0.100-preview.10",
+        "10.0.100-Preview.99"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "10.0.100-preview.2",
+          "rollForward": "latestPatch"
+        }
+      },
+      "expectedVersion": "10.0.100-preview.10"
+    },
+    {
+      "name": "comments",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "expectedVersion": "8.0.100",
+      "configurationText": "{\n// CLI project selection\n\"sdk\": { /* retained */ \"version\":\"8.0.100\" }\n}\n"
+    },
+    {
+      "name": "host-paths",
+      "category": "paths",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "paths": [
+            "$host$"
+          ]
+        }
+      },
+      "expectedVersion": "8.0.100"
+    },
+    {
+      "name": "empty-paths",
+      "category": "paths",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "paths": []
+        }
+      },
+      "expectedVersion": null,
+      "failClosed": true
+    },
+    {
+      "name": "custom-error-message",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "errorMessage": "Use cbodotnetup install 8.0.100"
+        }
+      },
+      "expectedVersion": "8.0.100"
+    },
+    {
+      "name": "malformed-json",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "expectedVersion": null,
+      "failClosed": true,
+      "nativeExpectedVersion": "10.0.100-preview.10",
+      "nativeState": "invalid_json",
+      "configurationText": "{\"sdk\":"
+    },
+    {
+      "name": "non-object-root",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": [],
+      "expectedVersion": null,
+      "failClosed": true,
+      "nativeExpectedVersion": "10.0.100-preview.10",
+      "nativeState": "invalid_json"
+    },
+    {
+      "name": "null-root",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": null,
+      "expectedVersion": null,
+      "failClosed": true,
+      "nativeExpectedVersion": "10.0.100-preview.10",
+      "nativeState": "invalid_json",
+      "configurationText": "null"
+    },
+    {
+      "name": "sdk-null",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": null
+      },
+      "expectedVersion": "10.0.100-preview.10",
+      "nativeState": "valid"
+    },
+    {
+      "name": "sdk-version-null",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": null
+        }
+      },
+      "expectedVersion": "10.0.100-preview.10",
+      "nativeState": "valid"
+    },
+    {
+      "name": "sdk-version-number",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": 10
+        }
+      },
+      "expectedVersion": null,
+      "failClosed": true,
+      "nativeExpectedVersion": "10.0.100-preview.10",
+      "nativeState": "invalid_data"
+    },
+    {
+      "name": "sdk-version-partial",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0"
+        }
+      },
+      "expectedVersion": null,
+      "failClosed": true,
+      "nativeExpectedVersion": "10.0.100-preview.10",
+      "nativeState": "invalid_data"
+    },
+    {
+      "name": "sdk-version-leading-zero",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.099"
+        }
+      },
+      "expectedVersion": null,
+      "failClosed": true,
+      "nativeExpectedVersion": "10.0.100-preview.10",
+      "nativeState": "invalid_data"
+    },
+    {
+      "name": "sdk-rollforward-unknown",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "rollForward": "future"
+        }
+      },
+      "expectedVersion": null,
+      "failClosed": true,
+      "nativeExpectedVersion": "10.0.100-preview.10",
+      "nativeState": "invalid_data"
+    },
+    {
+      "name": "sdk-rollforward-null",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "rollForward": null
+        }
+      },
+      "expectedVersion": "8.0.100",
+      "nativeState": "valid"
+    },
+    {
+      "name": "sdk-prerelease-string",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "allowPrerelease": "false"
+        }
+      },
+      "expectedVersion": null,
+      "failClosed": true,
+      "nativeExpectedVersion": "10.0.100-preview.10",
+      "nativeState": "invalid_data"
+    },
+    {
+      "name": "sdk-prerelease-null",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "allowPrerelease": null
+        }
+      },
+      "expectedVersion": "8.0.100",
+      "nativeState": "valid"
+    },
+    {
+      "name": "sdk-paths-null",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "paths": null
+        }
+      },
+      "expectedVersion": "8.0.100",
+      "nativeState": "valid"
+    },
+    {
+      "name": "sdk-paths-string",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "paths": "$host$"
+        }
+      },
+      "expectedVersion": null,
+      "failClosed": true,
+      "nativeExpectedVersion": "10.0.100-preview.10",
+      "nativeState": "invalid_data"
+    },
+    {
+      "name": "sdk-paths-null-entry",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "8.0.100",
+          "paths": [
+            null
+          ]
+        }
+      },
+      "expectedVersion": null,
+      "failClosed": true,
+      "nativeExpectedVersion": null,
+      "nativeState": "valid"
+    },
+    {
+      "name": "trailing-comma",
+      "category": "json",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configurationText": "{\"sdk\":{\"version\":\"8.0.100\",},}",
+      "expectedVersion": null,
+      "failClosed": true,
+      "nativeExpectedVersion": "10.0.100-preview.10",
+      "nativeState": "invalid_json"
+    },
+    {
+      "name": "band-zero-latest-feature",
+      "category": "featureBand",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "9.0.0",
+          "rollForward": "latestFeature"
+        }
+      },
+      "expectedVersion": "9.0.100",
+      "nativeState": "__invalid_data_no_fallback"
+    },
+    {
+      "name": "band-zero-latest-major",
+      "category": "featureBand",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "9.0.0",
+          "rollForward": "latestMajor"
+        }
+      },
+      "expectedVersion": "10.0.100-preview.10",
+      "nativeState": "__invalid_data_no_fallback"
+    },
+    {
+      "name": "band-ninety-nine-feature",
+      "category": "featureBand",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "9.0.99",
+          "rollForward": "feature"
+        }
+      },
+      "expectedVersion": "9.0.100",
+      "nativeState": "__invalid_data_no_fallback"
+    },
+    {
+      "name": "band-ninety-nine-latest-patch",
+      "category": "featureBand",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "9.0.99",
+          "rollForward": "latestPatch"
+        }
+      },
+      "expectedVersion": null,
+      "nativeState": "__invalid_data_no_fallback"
+    },
+    {
+      "name": "band-ninety-nine-patch",
+      "category": "featureBand",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "9.0.99",
+          "rollForward": "patch"
+        }
+      },
+      "expectedVersion": null,
+      "nativeState": "__invalid_data_no_fallback"
+    },
+    {
+      "name": "band-ninety-nine-disable",
+      "category": "featureBand",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "9.0.99",
+          "rollForward": "disable"
+        }
+      },
+      "expectedVersion": null,
+      "nativeState": "__invalid_data_no_fallback"
+    },
+    {
+      "name": "zero-semver-major",
+      "category": "featureBand",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "0.0.0",
+          "rollForward": "latestMajor"
+        }
+      },
+      "expectedVersion": "10.0.100-preview.10",
+      "nativeState": "__invalid_data_no_fallback"
+    },
+    {
+      "name": "band-zero-default-patch",
+      "category": "featureBand",
+      "versions": [
+        "8.0.100",
+        "8.0.101",
+        "8.0.200",
+        "8.0.203",
+        "8.1.100",
+        "8.1.101",
+        "9.0.100",
+        "10.0.100-preview.2",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "10.0.0"
+        }
+      },
+      "expectedVersion": null,
+      "nativeState": "__invalid_data_no_fallback"
+    },
+    {
+      "name": "preview-uint-overflow-number-vs-text",
+      "category": "prerelease",
+      "versions": [
+        "10.0.100-preview.4294967296",
+        "10.0.100-preview.10"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "10.0.100-preview.1",
+          "rollForward": "latestPatch"
+        }
+      },
+      "expectedVersion": "10.0.100-preview.10"
+    },
+    {
+      "name": "preview-uint-overflow-text-comparison",
+      "category": "prerelease",
+      "versions": [
+        "10.0.100-preview.10000000000",
+        "10.0.100-preview.9999999999"
+      ],
+      "configuration": {
+        "sdk": {
+          "version": "10.0.100-preview.1",
+          "rollForward": "latestPatch"
+        }
+      },
+      "expectedVersion": "10.0.100-preview.10000000000"
+    }
+  ]
+}

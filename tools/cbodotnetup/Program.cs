@@ -2,7 +2,10 @@ namespace Community.DotNet.Up;
 
 internal static class Program
 {
-    internal const string CurrentVersion = "0.2.0";
+    internal const string CurrentVersion = "0.3.0";
+    internal static bool RefreshesCatalog(IReadOnlyList<string> values) => values.SequenceEqual(new[] { "list", "--available" })
+        || values.FirstOrDefault() is "install" or "update"
+        || values.SequenceEqual(new[] { "self", "update" }) || values.SequenceEqual(new[] { "self", "rollback" });
     internal static async Task<int> Main(string[] args)
     {
         try
@@ -18,7 +21,7 @@ internal static class Program
                     list [--available]                 List installed or authenticated available SDKs
                     install VERSION[-rN]               Install an exact qualified SDK
                     install --channel X.Y              Install and track a signed Community channel
-                    run VERSION[-rN] -- [SDK ARGS]      Execute an installed SDK without PATH changes
+                    run [VERSION[-rN]] -- [SDK ARGS]    Run an owned SDK; global.json selects when omitted
                     remove VERSION[-rN]                Remove one verified owned installation
                     update                             Update tracked channels; retain prior SDKs
                     rollback VERSION-rN                Select a retained, verified SDK revision
@@ -36,7 +39,7 @@ internal static class Program
             if (!alias && catalogIndex >= 0 && (values.IndexOf("--") < 0 || catalogIndex < values.IndexOf("--")))
             { SafeFiles.Require(catalogIndex + 1 < values.Count, "--catalog requires a path"); catalogFile = Path.GetFullPath(values[catalogIndex + 1]); values.RemoveRange(catalogIndex, 2); }
             using var manager = new Manager();
-            var refresh = !alias && (values.Contains("--available") || values.FirstOrDefault() is "install" or "update" || values.SequenceEqual(new[] { "self", "update" }) || values.SequenceEqual(new[] { "self", "rollback" }));
+            var refresh = !alias && RefreshesCatalog(values);
             var catalog = await manager.Catalog(catalogFile, refresh);
             SafeFiles.Require(!catalog.Revoked.Contains("tool/" + CurrentVersion + '/' + Trust.Rid), "This installer release is revoked; run the independently trusted bootstrap for a newer release");
             if (alias) return manager.Run(catalog, invoked == "cbodotnet" ? null : invoked[10..], args, true);
@@ -52,6 +55,7 @@ internal static class Program
                 case "install" when values.Count == 3 && values[1] == "--channel":
                     SafeFiles.Require(catalog.Channels.TryGetValue(values[2], out var version), "Unknown signed Community channel"); await manager.Install(catalog, version!, values[2]); break;
                 case "run" when values.Count >= 3 && values[2] == "--": return manager.Run(catalog, values[1], values.Skip(3).ToArray());
+                case "run" when values.Count >= 2 && values[1] == "--": return manager.Run(catalog, null, values.Skip(2).ToArray());
                 case "remove" when values.Count == 2: manager.Remove(catalog, values[1]); break;
                 case "rollback" when values.Count == 2 && values[1].Contains("-r", StringComparison.Ordinal): manager.Rollback(catalog, values[1]); break;
                 case "update" when values.Count == 1: await manager.Update(catalog); break;

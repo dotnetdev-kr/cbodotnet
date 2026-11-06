@@ -95,7 +95,7 @@ internal sealed partial class Trust
     {
         Validate(catalog, now, fresh);
         SafeFiles.Require(catalog.SchemaVersion == 2,
-            "cbodotnetup 0.2 requires a schema-2 catalog; schema-1 catalogs are only for retained SDK receipts and cbodotnetup 0.1");
+            "cbodotnetup requires a schema-2 catalog; schema-1 catalogs are only for retained SDK receipts and cbodotnetup 0.1");
     }
     internal static void Admit(Catalog catalog, SdkRelease sdk, Target host)
     {

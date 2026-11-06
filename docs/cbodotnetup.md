@@ -117,6 +117,7 @@ cbodotnetup list --available
 cbodotnetup install --channel 10.0
 cbodotnetup install --channel 9.0
 cbodotnetup update
+cbodotnetup run -- build
 cbodotnetup run 9.0.123-r2 -- --version
 cbodotnetup rollback 9.0.123-r2
 cbodotnetup shell enable
@@ -131,10 +132,15 @@ The root is `$XDG_DATA_HOME/cbodotnetup`, defaulting to
 `$HOME/.local/share/cbodotnetup`; `CBODOTNETUP_HOME` can select a dedicated
 absolute user-owned root. `shell enable` creates only owned `cbodotnet` and
 `cbodotnet-X.Y` links in `<root>/bin` and prints that directory for explicit PATH
-configuration. It never creates a user-local `dotnet` alias. The common command
-selects the highest installed Community SDK series; exact `run` works without
-PATH changes. Branding is **Community Build of .NET (built by .NET Dev)** and
-`--version` stdout remains numeric.
+configuration. It never creates a user-local `dotnet` alias. Exact `run` works
+without PATH changes. In the 0.3 tool line, the common alias and `run --` use the
+nearest cwd/ancestor `global.json` SDK request; without one they preserve the
+highest installed Community SDK series and active revision. Explicit `run`
+versions and versioned aliases take precedence. See the
+[project SDK selection contract](cbodotnetup-project-selection.md) for policy,
+ownership restrictions and the managed `--info` output boundary. Earlier tools
+retain their published default selection behavior. Branding is **Community
+Build of .NET (built by .NET Dev)** and `--version` stdout remains numeric.
 
 An exact revision names an immutable archive. Identical retries verify existing
 bytes/modes/links before succeeding; conflicting state is refused. Updates keep

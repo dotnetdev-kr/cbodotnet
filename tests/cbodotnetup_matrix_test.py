@@ -12,7 +12,7 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
-from cbodotnetup_matrix import SDK_CHECKS,validate_additional_sdk_qualifications
+from cbodotnetup_matrix import SDK_CHECKS,validate_additional_sdk_qualifications,validate_previous_tool_upgrade
 from consumer_archive import FUNCTIONAL_CHECKS
 import cbodotnetup_release as UP
 
@@ -109,11 +109,58 @@ class InstallerMatrixTests(unittest.TestCase):
                 observations.append(dict(context,additionalSdkQualifications=rows))
         return dict(schemaVersion=2,sdks=sdks,revoked=[]),observations
 
+    def upgrade_inputs(self, public=True):
+        catalog, observations = self.inputs()
+        catalog.update(sequence=123, tools=[dict(version='0.2.0', rid=rid, binary=dict(sha256=digit*64))
+                       for rid, digit in [('linux-x64', 'd'), ('linux-arm64', 'e')]])
+        row = observations[0]['additionalSdkQualifications'][0]
+        row['bootstrapBinarySource'] = 'public-https' if public else 'protected-frozen-candidate'
+        baseline = next(sdk for sdk in catalog['sdks'] if sdk['sdkVersion'] == '10.0.403' and sdk['rid'] == row['rid'])
+        prior = dict(catalog, sequence=122)
+        prior_hash = hashlib.sha256(UP.encoded(prior)).hexdigest()
+        proof = dict(status='passed', fromVersion='0.2.0', toVersion='0.3.0',
+                     protocol='actual-0.2.0-self-update-rollback-reupgrade' if public else 'protected-frozen-candidate-bootstrap-from-0.2.0',
+                     oldBinarySha256='d'*64, currentBinarySha256=row['binarySha256'],
+                     previousCatalogSha256=prior_hash, currentCatalogSha256=row['catalogSha256'],
+                     baseline={key: baseline[key] for key in ('sdkVersion', 'revision', 'rid')},
+                     baselineReceiptSha256='f'*64, baselineInventorySha256='1'*64,
+                     baselineCatalogSha256=prior_hash, baselineOwnedStateSha256='2'*64,
+                     baselineReceiptUnchanged=True, baselineOwnedStateUnchanged=True,
+                     baselinePayloadVerified=True, rollbackVerified=public)
+        return proof, row, baseline, catalog
+
+    def test_previous_tool_cycle_is_bound_to_public_or_candidate_protocol(self):
+        for public in (True, False):
+            proof, row, baseline, catalog = self.upgrade_inputs(public)
+            validate_previous_tool_upgrade(proof, row, baseline, catalog, '0.3.0')
+
+    def test_previous_tool_cycle_cannot_substitute_binary_catalog_or_owned_sdk(self):
+        mutations = [lambda proof: proof.update(oldBinarySha256='0'*64),
+                     lambda proof: proof.update(currentBinarySha256='0'*64),
+                     lambda proof: proof.update(previousCatalogSha256='0'*64),
+                     lambda proof: proof.update(baselineCatalogSha256='0'*64),
+                     lambda proof: proof.update(baselineOwnedStateUnchanged=False),
+                     lambda proof: proof.update(rollbackVerified=False),
+                     lambda proof: proof.update(protocol='protected-frozen-candidate-bootstrap-from-0.2.0'),
+                     lambda proof: proof['baseline'].update(sdkVersion='9.0.123'),
+                     lambda proof: proof.update(baselineReceiptSha256='not-a-hash')]
+        for mutate in mutations:
+            proof, row, baseline, catalog = self.upgrade_inputs()
+            mutate(proof)
+            with self.subTest(mutate=mutate), self.assertRaises(ValueError):
+                validate_previous_tool_upgrade(proof, row, baseline, catalog, '0.3.0')
+
     def test_all_thirty_two_cells_are_independently_bound(self):
         catalog,observations=self.inputs()
         rows=validate_additional_sdk_qualifications(catalog,observations)
         self.assertEqual(len(rows),32)
         self.assertEqual({row['sdkVersion'] for row in rows},{'9.0.123','8.0.133','7.0.120','6.0.136'})
+
+    def test_project_tool_requires_new_proof_without_breaking_published_old_tool(self):
+        catalog,observations=self.inputs()
+        self.assertEqual(len(validate_additional_sdk_qualifications(catalog,observations,tool_version='0.2.0')),32)
+        with self.assertRaisesRegex(ValueError,'project-SDK reference'):
+            validate_additional_sdk_qualifications(catalog,observations,tool_version='0.3.0')
 
     def test_ten_only_historical_feed_needs_no_additional_proof(self):
         catalog,observations=self.inputs()

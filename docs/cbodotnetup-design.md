@@ -159,9 +159,26 @@ authenticates ownership/inventory, moves the owned root out of the active
 namespace and deletes without following links. Revoked roots can be removed,
 while installation/execution remains blocked. Garbage collection only removes
 marked UUID staging roots. SDK revisions remain until explicitly removed, and
-rollback selects a retained verified revision. Default aliases still choose
-the highest installed SDK series. Shell integration is explicit and never
-edits shell startup files or replaces unrelated commands.
+rollback selects a retained verified revision. With no project SDK request,
+default aliases choose the highest installed SDK series. The 0.3 tool line
+adds the [project selection contract](cbodotnetup-project-selection.md): exact
+`run` and versioned aliases precede the nearest cwd/ancestor `global.json`,
+which precedes the installed default. The resolver searches only the owned
+qualified inventory, fails closed on malformed configuration or symlinked
+discovery paths, and accepts `sdk.paths` only as literal `$host$` entries.
+Selection is offline and does not mutate project files or installation state.
+Shell integration is explicit and never edits startup files or replaces
+unrelated commands.
+
+SDK commands pass through the retained signed wrapper to `exec` the selected
+SDK's `dotnet.dll`; owned MSBuild SDK/extension paths prevent a second initial
+SDK choice when project or solution ancestry differs from cwd. Workload
+resolution stays enabled. Native-only lists and application/`exec` dispatch keep
+the payload host. Branding streams are preserved, while managed `--info`
+intentionally omits the muxer's appended host/runtime footer. This controls
+the initial CLI/MSBuild choice, rather than sandboxing custom targets or tools.
+The source change requires a new immutable tool release and full native/public
+qualification; it does not change existing SDK archives or published tools.
 
 Authenticated self-update replaces an owned bootstrap executable only after
 verifying both binary and notices, retaining the prior executable/notices.

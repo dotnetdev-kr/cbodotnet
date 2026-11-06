@@ -88,7 +88,7 @@ def prepare(output,status=None):
                 and r['observation']['migration'].get('legacyCatalogSha256')==status['legacyCatalogSha256']
                 for r in status['publicNativeVerification']),'All eight actual old-client migration proofs are required')
     observations=[r['observation'] for r in status['publicNativeVerification']]
-    validate_additional_sdk_qualifications(catalog,observations)
+    validate_additional_sdk_qualifications(catalog,observations,tool_version=status['version'])
     if any(s['sdkVersion']!='10.0.403' for s in catalog['sdks']):
         candidate=status.get('nativeQualification',[])
         require(len(candidate)==8 and {(r['variant'],r['architecture']) for r in candidate}==targets
@@ -96,7 +96,7 @@ def prepare(output,status=None):
                     and r['observation']['bootstrapBinarySource']=='protected-frozen-candidate'
                     and r['observation']['catalogSha256']==status['catalogSha256'] for r in candidate),
                 'All eight candidate reports are required for additional SDK admission')
-        validate_additional_sdk_qualifications(catalog,[r['observation'] for r in candidate])
+        validate_additional_sdk_qualifications(catalog,[r['observation'] for r in candidate],tool_version=status['version'])
     now=datetime.now(timezone.utc)
     fresh=fresh_catalog(catalog,now)
     if legacy is not None:fresh=fresh_catalog(legacy,now) and fresh

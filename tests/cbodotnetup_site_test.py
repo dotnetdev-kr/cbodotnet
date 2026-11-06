@@ -161,6 +161,12 @@ class InstallerSiteGates(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary,context:
             with self.assertRaisesRegex(ValueError,'candidate reports'):SITE.prepare(Path(temporary),status)
 
+    def test_project_capable_tool_cannot_enable_feed_without_native_project_reference(self):
+        status,raws=self.fixture();status['version']='0.3.0';context,_=self.io(raws)
+        with tempfile.TemporaryDirectory() as temporary,context:
+            with self.assertRaisesRegex(ValueError,'project-SDK reference'):SITE.prepare(Path(temporary),status)
+            self.assertFalse((Path(temporary)/'cbodotnetup').exists())
+
     def test_schema2_cannot_replace_the_legacy_endpoint_without_legacy_status(self):
         status,raws=self.fixture();del status['legacyCatalogSha256'];del status['legacyCatalogSequence']
         context,_=self.io(raws)

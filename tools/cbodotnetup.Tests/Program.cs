@@ -258,6 +258,9 @@ try
         var modified = Path.Combine(deep, "modified.json"); File.WriteAllBytes(modified, File.ReadAllBytes(fixture).Concat(new byte[] { 32 }).ToArray());
         Reject(() => Trust.VerifySignature(modified, fixture + ".asc", deep), "actual project signature rejects changed bytes in a long home path");
     }
+    ProjectSdkResolverTests.Run(Check, Reject, temporary);
+    SdkInvocationTests.Run(Check, Reject, temporary);
+    ProjectAdmissionTests.Run(Check, temporary, neutralSdk, catalogV2);
     Console.WriteLine($"cbodotnetup security tests passed: {passed}");
 }
 finally { SafeFiles.DeleteTree(temporary); }

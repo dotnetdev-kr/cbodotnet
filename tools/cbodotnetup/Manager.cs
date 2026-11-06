@@ -160,6 +160,7 @@ internal sealed class Manager : IDisposable
     internal Receipt Select(string? version, Catalog catalog, bool series = false, bool allowRevoked = false)
     {
         var chosen = Choose(Installed(), Selections(), version, series);
+        if (!allowRevoked) Trust.Admit(catalog, chosen.Release, host);
         VerifyInstalled(chosen, catalog, allowRevoked); return chosen;
     }
     internal static Receipt Choose(Receipt[] installed, Selection selection, string? version, bool series = false)
@@ -176,13 +177,43 @@ internal sealed class Manager : IDisposable
     }
     internal int Run(Catalog catalog, string? version, string[] arguments, bool series = false)
     {
-        var sdk = Select(version, catalog, series).Release;
-        var launcher = Path.Combine(PathFor(sdk), "content", sdk.ArchiveRoot, "cbodotnet");
-        var start = new ProcessStartInfo(launcher) { UseShellExecute = false };
-        foreach (var argument in arguments) start.ArgumentList.Add(argument);
-        // Existing signed archive wrapper sets the selected host root and branding itself.
+        var sdk = SelectForRun(catalog, version, arguments, series).Release;
+        var archive = Path.Combine(PathFor(sdk), "content", sdk.ArchiveRoot);
+        var launcher = Path.Combine(archive, "cbodotnet");
+        var start = SdkInvocation.Create(launcher, Path.Combine(archive, "payload"), sdk.SdkVersion, arguments);
+        SdkInvocation.WriteBrand(arguments);
         using var child = Process.Start(start) ?? throw new InvalidOperationException("Cannot execute the installed SDK");
         child.WaitForExit(); return child.ExitCode;
+    }
+    internal Receipt SelectForRun(Catalog catalog, string? version, string[] arguments, bool series = false,
+        string? workingDirectory = null)
+    {
+        // An explicit version or versioned alias takes precedence. Runtime/native
+        // host commands keep the existing default and do not engage SDK discovery.
+        if (version is not null || !SdkInvocation.UsesSdk(arguments)) return Select(version, catalog, series);
+        var request = ProjectSdkResolver.Discover(workingDirectory ?? Directory.GetCurrentDirectory());
+        if (request is null || !request.HasSelection) return Select(null, catalog);
+        var installed = Installed();
+        var resolved = ProjectSdkResolver.SelectVersion(request, installed.Select(r => r.Release.SdkVersion));
+        if (resolved is null) throw new InvalidOperationException(MissingProjectSdk(request, catalog));
+        var selected = Choose(installed, Selections(), resolved);
+        // Select first, then validate; a revoked/corrupt winner must not silently
+        // fall back to a different SDK or an official/package-managed root.
+        Trust.Admit(catalog, selected.Release, host);
+        VerifyInstalled(selected, catalog);
+        return selected;
+    }
+    private string MissingProjectSdk(ProjectSdkRequest request, Catalog catalog)
+    {
+        var available = catalog.Sdks.Where(s => s.Rid == host.Rid && s.Targets.Contains(host)
+            && !s.RequiresLegacyProvider && !catalog.Revoked.Contains(s.Id)).ToArray();
+        var matching = ProjectSdkResolver.SelectVersion(request, available.Select(s => s.SdkVersion));
+        var message = $"No installed Community Build SDK matches '{request.Version ?? "latest"}' with rollForward '{request.RollForward}' in {request.GlobalJsonPath}.";
+        if (!string.IsNullOrWhiteSpace(request.ErrorMessage)) message += " " + request.ErrorMessage;
+        var install = available.Where(s => s.SdkVersion == matching).OrderByDescending(s => s.Revision).FirstOrDefault();
+        return message + (matching is null
+            ? " No matching SDK is admitted in the cached signed catalog. Review the project pin or explicitly refresh with cbodotnetup list --available."
+            : $" Install it explicitly with: cbodotnetup install {install!.SdkVersion}-r{install.Revision}. SDK selection never installs or downloads an SDK automatically.");
     }
     internal void Remove(Catalog catalog, string version)
     {

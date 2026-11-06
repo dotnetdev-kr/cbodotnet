@@ -1,6 +1,9 @@
 """Bind additional installer SDK qualification to every signed catalog target."""
+import hashlib
+import re
+
 from consumer_archive import FUNCTIONAL_CHECKS
-from downstream_release import require
+from downstream_release import encoded, require
 
 
 SDK_CHECKS = ('bootstrap-authentication', 'signature-authentication', 'source-producer-linkage',
@@ -11,7 +14,37 @@ SDK_CHECKS = ('bootstrap-authentication', 'signature-authentication', 'source-pr
               'community-package-coexistence', 'other-sdk-preservation', 'removal')
 
 
-def validate_additional_sdk_qualifications(catalog, observations):
+def validate_previous_tool_upgrade(value, row, baseline, catalog, tool_version):
+    """Bind the actual previous client cycle to signed binaries and owned SDK state."""
+    require(isinstance(value, dict), 'Previous 0.2 tool upgrade evidence is required')
+    public = row['bootstrapBinarySource'] == 'public-https'
+    protocol = ('actual-0.2.0-self-update-rollback-reupgrade' if public
+                else 'protected-frozen-candidate-bootstrap-from-0.2.0')
+    prior_tools = [tool for tool in catalog['tools'] if tool['version'] == '0.2.0'
+                   and 'tool/' + tool['version'] + '/' + tool['rid'] not in catalog['revoked']]
+    old = [tool for tool in prior_tools if tool['rid'] == row['rid']]
+    previous = dict(catalog, sequence=catalog['sequence'] - 1, tools=prior_tools)
+    require(len(old) == 1 and value.get('status') == 'passed'
+            and value.get('fromVersion') == '0.2.0' and value.get('toVersion') == tool_version
+            and value.get('protocol') == protocol
+            and value.get('oldBinarySha256') == old[0]['binary']['sha256']
+            and value.get('currentBinarySha256') == row['binarySha256']
+            and value.get('previousCatalogSha256') == hashlib.sha256(encoded(previous)).hexdigest()
+            and value.get('baselineCatalogSha256') == value.get('previousCatalogSha256')
+            and value.get('currentCatalogSha256') == row['catalogSha256']
+            and value.get('baseline') == {key: baseline[key] for key in ('sdkVersion', 'revision', 'rid')}
+            and value.get('baselineReceiptUnchanged') is True
+            and value.get('baselineOwnedStateUnchanged') is True
+            and value.get('baselinePayloadVerified') is True
+            and value.get('rollbackVerified') is public,
+            'Previous tool upgrade/rollback evidence differs from signed binaries or retained SDK state')
+    for name in ('baselineReceiptSha256', 'baselineInventorySha256',
+                 'baselineCatalogSha256', 'baselineOwnedStateSha256'):
+        require(isinstance(value.get(name), str) and re.fullmatch('[a-f0-9]{64}', value[name]),
+                'Previous tool upgrade retained-state hash is incomplete')
+
+
+def validate_additional_sdk_qualifications(catalog, observations, *, tool_version=None):
     """Return exact passed cells; catalog-only admission never constitutes evidence."""
     expected = {}
     for sdk in catalog['sdks']:
@@ -25,9 +58,14 @@ def validate_additional_sdk_qualifications(catalog, observations):
             key = (sdk['sdkVersion'], sdk['rid'], target['os'], target['versionId'])
             require(key not in expected and target['rid'] == sdk['rid'], 'Duplicate or inconsistent SDK target')
             expected[key] = (sdk, target)
+    project_required=tool_version is not None and tuple(map(int,tool_version.split('.'))) >= (0,3,0)
     rows = []
     seen = set()
     for observation in observations:
+        if project_required:
+            from cbodotnetup_project import validate_reference_evidence
+            require(isinstance(observation.get('projectSdkReference'),dict),'Native project-SDK reference evidence is required for this tool release')
+            validate_reference_evidence(observation['projectSdkReference'])
         additions = observation.get('additionalSdkQualifications', [])
         require(isinstance(additions, list), 'Additional SDK qualification must be an array')
         for row in additions:
@@ -57,6 +95,11 @@ def validate_additional_sdk_qualifications(catalog, observations):
                 require(isinstance(alias,dict) and alias.get('sdkVersion')==release['sdkVersion'] and alias.get('packageRevision')==release['revision']
                         and alias.get('targetRid')==release['rid'] and alias.get('sourceManifestSha256')==release['sourceManifestSha256']
                         and alias.get('qualifiedPayloadModified') is False,'Alias selected another SDK source/revision/RID')
+            if project_required:
+                from cbodotnetup_project import validate_project_evidence
+                require(isinstance(row.get('projectSelection'),dict),'Offline owned project-SDK selection evidence is required for this tool release')
+                validate_project_evidence(row['projectSelection'],sdk,baseline[0],catalog)
+                validate_previous_tool_upgrade(row.get('previousToolUpgrade'), row, baseline[0], catalog, tool_version)
             seen.add(key)
             rows.append(dict(sdkVersion=row['sdkVersion'], revision=row['revision'], rid=row['rid'],
                              target=target, variant=row['variant'], architecture=arch,

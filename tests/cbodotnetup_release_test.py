@@ -54,14 +54,14 @@ class InstallerReleaseTests(unittest.TestCase):
 
     def test_new_client_pins_neutral_revision_without_changing_the_old_feed_pin(self):
         policy=UP.load(UP.POLICY)
-        self.assertEqual(policy['version'],'0.2.0')
+        self.assertEqual(policy['version'],'0.3.0')
         self.assertEqual(policy['initialSdkVersions'],['10.0.403','9.0.123','8.0.133','7.0.120','6.0.136'])
         self.assertEqual(policy['archiveRevisions'],{'10.0.403':3,'9.0.123':2,'8.0.133':2,'7.0.120':2,'6.0.136':2})
         self.assertEqual(policy['legacyArchiveRevisions'],{'10.0.403':2})
         targets=UP.reviewed_sdk_targets(policy)
         self.assertEqual(sum(len(variants) for sdk in targets.values() for variants in sdk.values()),40)
 
-    def paired_catalogs(self,directory,*,previous_sequence=80):
+    def paired_catalogs(self,directory,*,previous_sequence=80,previous_tools=None,previous_revoked=None):
         policy=UP.load(UP.POLICY);source=dict(repository='dotnetdev-kr/cbodotnet',commit='b'*40,workflow=UP.WORKFLOW,runId='123',runAttempt='1')
         builds={}
         for arch,rid in (('x64','linux-x64'),('aarch64','linux-arm64')):
@@ -76,7 +76,10 @@ class InstallerReleaseTests(unittest.TestCase):
             return [dict(sdkVersion=version,revision=selected['archiveRevisions'][version],rid=rid,
                 archive=dict(url=f'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-{version}-r{selected["archiveRevisions"][version]}/cbodotnet-sdk-{version}-linux-{arch}{marker}-r{selected["archiveRevisions"][version]}.tar.gz'))
                 for version in selected['initialSdkVersions'] for arch,rid in (('x64','linux-x64'),('aarch64','linux-arm64'))]
-        previous=dict(sequence=previous_sequence,revoked=['tool/0.0.1/linux-x64'],tools=[dict(version='0.1.0',rid=r) for r in ('linux-x64','linux-arm64')])
+        previous=dict(sequence=previous_sequence,
+            revoked=previous_revoked if previous_revoked is not None else ['tool/0.0.1/linux-x64'],
+            tools=previous_tools if previous_tools is not None else [dict(version=v,rid=r)
+                for v in ('0.1.0','0.2.0') for r in ('linux-x64','linux-arm64')])
         with patch.object(UP,'source_identity',return_value=source),patch.object(UP,'tool_inputs',return_value={}),\
                 patch.object(UP,'previous_catalog',return_value=previous),\
                 patch.object(UP,'catalog_sdks',side_effect=sdk):
@@ -89,7 +92,7 @@ class InstallerReleaseTests(unittest.TestCase):
             self.assertEqual(current['schemaVersion'],2);self.assertEqual(legacy['schemaVersion'],1)
             self.assertEqual(set(current),set(legacy))
             self.assertEqual(current['sequence'],legacy['sequence']);self.assertEqual(current['expiresAt'],legacy['expiresAt'])
-            self.assertEqual(current['tools'],legacy['tools']);self.assertEqual(len(current['tools']),4)
+            self.assertEqual(current['tools'],legacy['tools']);self.assertEqual(len(current['tools']),6)
             self.assertEqual(current['revoked'],['tool/0.0.1/linux-x64'])
             self.assertEqual(current['channels'],{'10.0':'10.0.403-r3','9.0':'9.0.123-r2','8.0':'8.0.133-r2','7.0':'7.0.120-r2','6.0':'6.0.136-r2'})
             self.assertEqual(legacy['channels'],{'10.0':'10.0.403-r2'})
@@ -108,6 +111,59 @@ class InstallerReleaseTests(unittest.TestCase):
             expected=set(current['revoked'])|{f'{s["sdkVersion"]}-r{s["revision"]}/{s["rid"]}' for s in current['sdks'] if s['sdkVersion']!='10.0.403'}
             self.assertEqual(revoked,dict(current,revoked=sorted(expected)))
             self.assertFalse(any(value.startswith('10.0.403-') for value in revoked['revoked']))
+            prior=UP.load(Path(temporary)/'catalog-v2-tool-0.2.json')
+            self.assertEqual(prior,dict(current,sequence=87,tools=[t for t in current['tools'] if t['version']=='0.2.0']))
+            self.assertEqual({t['rid'] for t in prior['tools']},{'linux-x64','linux-arm64'})
+
+    def test_project_selection_catalog_requires_actual_unrevoked_previous_tool_on_both_cpus(self):
+        all_tools=[dict(version=v,rid=r) for v in ('0.1.0','0.2.0') for r in ('linux-x64','linux-arm64')]
+        for tools,revoked in ((all_tools[:-1],[]),(all_tools,['tool/0.2.0/linux-x64'])):
+            with self.subTest(tools=tools,revoked=revoked),tempfile.TemporaryDirectory() as temporary:
+                with self.assertRaisesRegex(ValueError,'Actual 0.2.0 binaries'):
+                    self.paired_catalogs(Path(temporary),previous_tools=tools,previous_revoked=revoked)
+
+    def test_previous_tool_fixture_binds_every_sdk_trust_field_and_exact_previous_tool_set(self):
+        for mutation in ('missing','sequence','sdk','issuedAt','revoked','tools'):
+            with self.subTest(mutation=mutation),tempfile.TemporaryDirectory() as temporary:
+                directory=Path(temporary);current,legacy,unused=self.paired_catalogs(directory)
+                path=directory/'catalog-v2-tool-0.2.json';prior=UP.load(path)
+                if mutation=='missing':path.unlink()
+                elif mutation=='sequence':prior['sequence']-=1
+                elif mutation=='sdk':prior['sdks'].pop()
+                elif mutation=='issuedAt':prior['issuedAt']='2026-11-05T00:00:00Z'
+                elif mutation=='revoked':prior['revoked']=[]
+                else:prior['tools']=current['tools']
+                if mutation!='missing':UP.save(path,prior)
+                with self.assertRaises((ValueError,FileNotFoundError)):UP.verify_catalog_pair(directory)
+
+    def test_optional_previous_tool_fixture_is_checked_even_for_a_historical_tool_version(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory=Path(temporary);current,legacy,unused=self.paired_catalogs(directory)
+            for value,name in ((current,'catalog.json'),(legacy,'catalog-v1.json')):
+                value['tools']=[t for t in value['tools'] if t['version']!='0.3.0'];UP.save(directory/name,value)
+            revoked=UP.load(directory/'catalog-v2-revoked.json');revoked['tools']=current['tools']
+            UP.save(directory/'catalog-v2-revoked.json',revoked)
+            prior=UP.load(directory/'catalog-v2-tool-0.2.json');prior['sequence']-=1
+            UP.save(directory/'catalog-v2-tool-0.2.json',prior)
+            with self.assertRaisesRegex(ValueError,'Previous-tool test fixture'):UP.verify_catalog_pair(directory)
+
+    def test_previous_tool_fixture_is_authenticated_and_frozen_with_the_candidate(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory=Path(temporary);self.paired_catalogs(directory)
+            original=directory/'get-cbodotnetup-v0.1.0.py';original.write_bytes(b'original bootstrap test input')
+            bootstrap=dict(url=UP.LEGACY_BOOTSTRAP['url'],**{k:UP.descriptor(original)[k] for k in ('size','sha256')})
+            for path in directory.glob('catalog*.json'):Path(str(path)+'.asc').write_bytes(b'signature test input')
+            freeze=dict(schemaVersion=1,kind='cbodotnetup-frozen-candidate',version='0.3.0',legacyBootstrap=bootstrap,
+                source=dict(repository='dotnetdev-kr/cbodotnet',workflow=UP.WORKFLOW),
+                files=[UP.descriptor(p)|dict(path=p.relative_to(directory).as_posix()) for p in sorted(directory.rglob('*')) if p.is_file()])
+            UP.save(directory/'freeze.json',freeze);(directory/'freeze.json.asc').write_bytes(b'freeze signature test input')
+            with patch.object(UP,'LEGACY_BOOTSTRAP',bootstrap),patch.object(UP,'run'),patch.object(UP,'load_status',return_value={}),\
+                    patch.object(UP,'verify_report_signature') as authenticate:
+                self.assertEqual(UP.verify_bundle(directory),freeze)
+                self.assertTrue(any(call.args[0]==directory/'catalog-v2-tool-0.2.json'
+                    and call.args[1]==directory/'catalog-v2-tool-0.2.json.asc' for call in authenticate.call_args_list))
+                (directory/'catalog-v2-tool-0.2.json.asc').unlink()
+                with self.assertRaisesRegex(ValueError,'ordinary artifact'):UP.verify_bundle(directory)
 
     def test_migration_pair_rejects_legacy_shape_drift_cross_generation_names_and_bad_fixture(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -127,6 +183,7 @@ class InstallerReleaseTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             directory=Path(temporary);UP.save(directory/'catalog.json',dict(schemaVersion=1))
             self.assertEqual(UP.verify_catalog_pair(directory),({'schemaVersion':1},None))
+            with self.assertRaisesRegex(ValueError,'schema2 candidate'):UP.verify_catalog_pair(directory,tool_version='0.3.0')
 
     def test_renewal_cannot_reuse_or_decrease_a_published_sequence(self):
         for previous in (88,89):
@@ -218,8 +275,12 @@ class InstallerReleaseTests(unittest.TestCase):
             directory=Path(temporary);current,legacy,unused=self.paired_catalogs(directory)
             current['sdks']=[s for s in current['sdks'] if s['sdkVersion']=='10.0.403']
             current['channels']={'10.0':'10.0.403-r3'}
+            current['tools']=[t for t in current['tools'] if t['version']!='0.3.0']
+            legacy['tools']=current['tools']
             UP.save(directory/'catalog.json',current)
+            UP.save(directory/'catalog-v1.json',legacy)
             (directory/'catalog-v2-revoked.json').unlink()
+            (directory/'catalog-v2-tool-0.2.json').unlink()
             self.assertEqual(UP.verify_catalog_pair(directory),(current,legacy))
 
     def test_patched_runtime_is_outside_the_actual_advisory_range(self):
