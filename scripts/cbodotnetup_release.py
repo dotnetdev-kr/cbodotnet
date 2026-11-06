@@ -204,6 +204,19 @@ def feed_smoke(args):
     raw=public_metadata('https://dotnetdev.kr/cbodotnet/cbodotnetup/get-cbodotnetup.py',descriptor_expected['size'])
     require(len(raw)==descriptor_expected['size'] and hashlib.sha256(raw).hexdigest()==descriptor_expected['sha256'],'Default public bootstrap differs from authenticated publication')
     (workspace/'get-cbodotnetup.py').write_bytes(raw)
+    for generation,key in (('v2','catalogSha256'),('v1','legacyCatalogSha256')):
+        url='https://dotnetdev.kr/cbodotnet/cbodotnetup/'+('v2/' if generation=='v2' else '')+'catalog.json'
+        data=public_metadata(url,8*1024**2)
+        require(hashlib.sha256(data).hexdigest()==status[key],'Hosted catalog generation differs from activated signed bytes')
+        catalog_value=json.loads(data)
+        require(catalog_value['schemaVersion']==(2 if generation=='v2' else 1) and catalog_value['sequence']==status['catalogSequence'],'Hosted catalog schema/sequence differs')
+        (workspace/('catalog-'+generation+'.json')).write_bytes(data)
+        (workspace/('catalog-'+generation+'.json.asc')).write_bytes(public_metadata(url+'.asc',64*1024))
+    keyring=workspace/'trusted.gpg'
+    run(['gpg','--batch','--yes','--dearmor','--output',keyring,ROOT/'releases/downstream-signing-key.asc'],capture_output=True)
+    for generation in ('v1','v2'):
+        data=workspace/('catalog-'+generation+'.json')
+        verify_report_signature(data,Path(str(data)+'.asc'),keyring,load_status(),WORKFLOW)
     script='''set -eu
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
@@ -218,13 +231,13 @@ test ! -e /usr/bin/dotnet
 python3 - <<'PY'
 from pathlib import Path
 import hashlib,json
-root=Path('/home/cbot-feed/.local/share/cbodotnetup/cache')
+root=Path('/home/cbot-feed/.local/share/cbodotnetup/cache/v2')
 Path('/feed/result.json').write_text(json.dumps(dict(status='passed',catalogSha256=hashlib.sha256((root/'catalog.json').read_bytes()).hexdigest(),sequence=json.loads((root/'catalog.json').read_bytes())['sequence'],bootstrapWithoutSdk=True)))
 PY
 '''
     run(['docker','run','--rm','--user','0','-v',f'{workspace}:/feed',MULTI.BASES['ubuntu-24.04'][args.arch],'sh','-ec',script])
     result=load(workspace/'result.json');require(result['catalogSha256']==status['catalogSha256'] and result['sequence']==status['catalogSequence'],'Default hosted catalog differs from exact activated version')
-    result.update(scope='cbodotnetup-default-public-feed',architecture=args.arch,version=status['version'],catalogSequence=status['catalogSequence'],catalogUrl='https://dotnetdev.kr/cbodotnet/cbodotnetup/catalog.json')
+    result.update(scope='cbodotnetup-default-public-feed',architecture=args.arch,version=status['version'],catalogSequence=status['catalogSequence'],catalogUrl='https://dotnetdev.kr/cbodotnet/cbodotnetup/v2/catalog.json',legacyCatalogSha256=status['legacyCatalogSha256'],pairedHostedFeeds='passed')
     save(workspace/'report.json',result)
 
 
