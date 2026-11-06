@@ -176,3 +176,17 @@ An interrupted tool replacement can be repaired by rerunning the pinned
 bootstrap with a fresh signed catalog. The user data/SDK roots are independent
 of this repair. There is no unsigned override or automatic native dependency
 download. Additional SDK versions require a new per-target installer admission.
+
+The [modern SDK qualification evidence](cbodotnetup-modern-sdk-validation.json)
+records 40 candidate and 40 public SDK/OS/CPU cells using the unchanged 0.2.0
+executable. Additional SDKs use independent test roots and run alongside SDK10
+one at a time. The harness disconnects the disposable container's network for
+functional and removal checks and reaps the actual worker process during
+interruption injection. This keeps the process holding the operation lock in
+the killed session instead of leaving a runuser/PAM child alive.
+
+A candidate that fails public qualification remains immutable and unactivated,
+with a release notice directing users to the active feed. Corrected validation
+publishes a fresh signed catalog sequence; it does not replace the earlier
+catalog or its native-qualification asset. Feed activation still requires all
+advertised cells to pass the anonymous public phase.

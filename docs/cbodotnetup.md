@@ -21,8 +21,10 @@ the historical 0.1.0 evidence is retained at the end of this document.
 
 ## SDK admission and lifecycle
 
-The reviewed neutral archive inputs for
-[#27](https://github.com/dotnetdev-kr/cbodotnet/issues/27) are:
+The activated neutral archives from
+[#27](https://github.com/dotnetdev-kr/cbodotnet/issues/27) are listed below.
+Their [independent installer evidence](cbodotnetup-modern-sdk-validation.json)
+verifies every advertised OS/CPU combination.
 
 | SDK | Archive revision | Community channel |
 | --- | --- | --- |
@@ -66,8 +68,9 @@ is also an explicit Community target; an RHEL9 listing alone is not evidence for
 this project's exact Rocky package/CPU combination. The SDK7/6 targets retain
 their upstream EOL status even after successful Community installation tests.
 
-The SDK9/8/7/6 expansion reuses the immutable 0.2.0 tool and publishes a new
-signed schema2 catalog after qualification. The schema1 feed remains limited to
+The SDK9/8/7/6 expansion reuses the immutable 0.2.0 tool and is activated through
+the [signed schema2 catalog](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-catalog-42213550406).
+The schema1 feed remains limited to
 SDK10 revision2 and compatible tool records. Additional legacy-provider SDKs
 and musl admission have separate work items.
 
@@ -110,13 +113,15 @@ accepts a custom trust key, unsigned metadata or a mismatching binary.
 ```sh
 cbodotnetup list
 cbodotnetup doctor
+cbodotnetup list --available
 cbodotnetup install --channel 10.0
+cbodotnetup install --channel 9.0
 cbodotnetup update
-cbodotnetup run 10.0.403-r2 -- --version
-cbodotnetup rollback 10.0.403-r2
+cbodotnetup run 9.0.123-r2 -- --version
+cbodotnetup rollback 9.0.123-r2
 cbodotnetup shell enable
 cbodotnetup shell disable
-cbodotnetup remove 10.0.403-r2
+cbodotnetup remove 9.0.123-r2
 cbodotnetup gc
 cbodotnetup self update
 cbodotnetup self rollback
@@ -221,6 +226,31 @@ resolve failures before expiry. Native runtime changes require a new tool
 version. Catalog maintenance and native runtime updates remain project responsibilities;
 distribution does not create an upstream security-support promise for EOL SDKs.
 See the [implementation and trust design](cbodotnetup-design.md).
+
+## Modern SDK installation validation
+
+The [modern SDK evidence](cbodotnetup-modern-sdk-validation.json) compares the
+actual candidate and public job IDs, original artifact ZIPs and report bytes.
+Each phase passed 32 additional SDK9/8/7/6 cells and eight SDK10 regression
+cells. Every additional SDK was installed alongside SDK10 in its own test root;
+the common alias kept SDK10 while the versioned alias and explicit run selected
+the intended lower series. Offline DLL/apphost, ASP.NET/HTTP, TLS, cryptography
+and full ICU checks passed, followed by removal and preservation of official
+and package-managed files.
+
+Signed revocation, invalid signatures, interrupted installations, locking,
+retry/collection, tracked updates and retained selection were exercised. The
+interruption harness kills and reaps the actual unprivileged worker session;
+an independent Linux regression verifies immediate lock reacquisition without
+sleep or lock retries. Actual 0.1.0 upgrade/rollback/re-upgrade remains covered
+by the SDK10 regression in all eight public environments.
+
+The hosted bootstrap passed on both native CPUs and authenticated the exact
+five-SDK catalog. CI ran 799 Python tests: 796 passed and three were skipped;
+the native core suite passed 119 checks per CPU. Existing 73 releases and 952
+assets, including the unchanged 0.2.0 tool binaries, remained intact. The earlier
+unactivated candidate is preserved with a notice; the active catalog sequence
+is 42213550406.
 
 ## 0.2.0 migration validation
 
