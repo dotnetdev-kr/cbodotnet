@@ -174,7 +174,7 @@ while installation/execution remains blocked. Garbage collection only removes
 marked UUID staging roots and unreferenced verified provider objects. SDK revisions remain until explicitly removed, and
 rollback selects a retained verified revision. With no project SDK request,
 default aliases choose the highest installed SDK series. The 0.3 and later tools
-adds the [project selection contract](cbodotnetup-project-selection.md): exact
+add the [project selection contract](cbodotnetup-project-selection.md): exact
 `run` and versioned aliases precede the nearest cwd/ancestor `global.json`,
 which precedes the installed default. The resolver searches only the owned
 qualified inventory, fails closed on malformed configuration or symlinked
