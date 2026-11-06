@@ -45,6 +45,23 @@ legacy additions require their own [#29 validation](cbodotnetup-legacy-validatio
 | 3.1.426 | r2 | 3.1 | `--with-legacy-providers`: SSL/ICU and curl companions |
 | 3.0.103 | r2 | 3.0 | `--with-legacy-providers`: SSL/ICU and curl companions |
 
+These are installer admission pins. The separate standalone
+Core3 [3.1.426 r3](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-archive-sdk-3.1.426-r3)
+and [3.0.103 r3](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-archive-sdk-3.0.103-r3)
+archives use the root-variable-only wrapper correction from
+[#31](https://github.com/dotnetdev-kr/cbodotnet/issues/31). That archive contract
+has its own five-OS matrix, including Ubuntu22.04, and does not change the
+current four-OS installer matrix. The 0.4 tool remains on the authenticated
+Core3 r2 archives and supplies the complete verified provider environment to
+their payload hosts. Admitting another archive revision requires a separate
+installer policy/catalog change and qualification; it is not inferred from
+standalone archive publication.
+
+The [standalone archive validation](core3-archive-curl-validation.json) records
+20 native candidate and 20 anonymous public cells for the two r3 SDK archives.
+It also verifies preservation of the installer's existing signed feeds and
+admission/provider policy bytes.
+
 Run `cbodotnetup list --available` to authenticate current admission before
 installing. Published package/archive evidence establishes the inputs; installer
 promotion separately requires native and anonymous public installation evidence
@@ -208,9 +225,12 @@ bundle is selected. Official dotnet and the system CA bundle remain under
 their existing owners.
 
 The manager runs the verified legacy payload host with this complete child
-environment. The standalone Core3 archive wrapper correction is tracked in
-[#31](https://github.com/dotnetdev-kr/cbodotnet/issues/31); this tool release
-preserves the existing r2 archive bytes.
+environment. Standalone Core3 archive r3 has a separate corrected wrapper
+contract and [installation guide](consumer-archives.md). The current 0.4 tool
+retains its signed r2 pins, immutable SDK/provider bytes and complete private
+child environment from #29. The standalone correction in
+[#31](https://github.com/dotnetdev-kr/cbodotnet/issues/31) does not replace those
+installer inputs or alter their update/rollback contract.
 
 ## Catalog migration and compatibility
 

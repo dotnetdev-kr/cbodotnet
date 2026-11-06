@@ -1,15 +1,19 @@
 # Verified SDK distributions
 
-The table tracks the activated, signed and publicly post-verified distribution
-revisions for each exact SDK. All eight current archive releases use neutral
-filenames and have passed both native public installation jobs. The
-[archive status](../releases/archive-status.json) records their availability.
+The table identifies distribution revisions for each exact SDK. The
+[archive status](../releases/archive-status.json) records which signed revisions
+have completed public post-verification and are active. Current archive releases
+use neutral filenames; each revision has its own native and public installation
+gates.
 The underlying SDK bytes, modes, links and original notices remain unchanged.
 Packaging adds Community Build launchers and provenance.
 
 APT covers Ubuntu 24.04 and Debian 13 on x64/AArch64; RPM covers Fedora 45 and
 Rocky Linux 9.8 on x64/AArch64. OCI uses Debian 13 on linux/amd64 and linux/arm64.
-Archives are natively tested in Ubuntu 22.04, Ubuntu 24.04 and Debian 13.
+SDK10/9/8/7/6/5 archives are natively tested in Ubuntu22.04, Ubuntu24.04 and
+Debian13. Core3.1/Core3.0 archive r3 additionally targets Fedora45 and Rocky9.8:
+five OS versions on both native CPUs. This Core3-specific extension does not
+extend the archive target matrix for the other SDKs.
 Arch recipes are built and tested on x86_64; AUR publication remains
 [issue #10](https://github.com/dotnetdev-kr/cbodotnet/issues/10).
 
@@ -21,8 +25,8 @@ Arch recipes are built and tested on x86_64; AUR publication remains
 | 7.0.120 | [r2](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-archive-sdk-7.0.120-r2) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-deb-sdk-7.0.120-r1) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-rpm-sdk-7.0.120-r1) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-oci-sdk-7.0.120-r1) | [Passed](aur-all-sdk-validation.json) |
 | 6.0.136 | [r2](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-archive-sdk-6.0.136-r2) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-deb-sdk-6.0.136-r1) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-rpm-sdk-6.0.136-r1) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-oci-sdk-6.0.136-r1) | [Passed](aur-all-sdk-validation.json) |
 | 5.0.214 | [r2](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-archive-sdk-5.0.214-r2) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-deb-sdk-5.0.214-r1) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-rpm-sdk-5.0.214-r1) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-oci-sdk-5.0.214-r1) | [Passed](aur-all-sdk-validation.json) |
-| 3.1.426 | [r2](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-archive-sdk-3.1.426-r2) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-deb-sdk-3.1.426-r1) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-rpm-sdk-3.1.426-r1) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-oci-sdk-3.1.426-r1) | [Passed](aur-all-sdk-validation.json) |
-| 3.0.103 | [r2](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-archive-sdk-3.0.103-r2) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-deb-sdk-3.0.103-r1) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-rpm-sdk-3.0.103-r1) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-oci-sdk-3.0.103-r1) | [Passed](aur-all-sdk-validation.json) |
+| 3.1.426 | [r3](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-archive-sdk-3.1.426-r3) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-deb-sdk-3.1.426-r1) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-rpm-sdk-3.1.426-r1) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-oci-sdk-3.1.426-r1) | [Passed](aur-all-sdk-validation.json) |
+| 3.0.103 | [r3](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-archive-sdk-3.0.103-r3) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-deb-sdk-3.0.103-r1) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-rpm-sdk-3.0.103-r1) | [r1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-oci-sdk-3.0.103-r1) | [Passed](aur-all-sdk-validation.json) |
 
 Published channel coverage is **32/32**. The current receipts and exact source pins are in
 [package/OCI status](../releases/downstream-status.json),
@@ -33,10 +37,19 @@ Published channel coverage is **32/32**. The current receipts and exact source p
 The new archives use `archiveNamingVersion: 2` and filenames such as
 `cbodotnet-sdk-10.0.403-linux-x64-r3.tar.gz`. Previously signed archives keep
 their original `-branded-` names, asset bytes, URLs and qualification evidence.
-`cbodotnetup` 0.1.0 deliberately remains on the separately qualified signed
-SDK10.0.403 archive r2 through the explicit `archiveRevisions` entry in its
-[policy](../releases/cbodotnetup-policy.json); archive publication does not
-automatically expand installer admission.
+`cbodotnetup` 0.4.0 admits SDK10.0.403 archive r3 and the seven other SDKs'
+archive r2 inputs through its [reviewed policy](../releases/cbodotnetup-policy.json)
+and active signed schema3 catalog. Its installer matrix is Ubuntu24.04,
+Debian13, Fedora45 and Rocky9.8 on both native CPUs. The retained schema1 view
+for 0.1.0 clients remains SDK10.0.403 archive r2 with compatible tool updates.
+Archive publication does not automatically expand installer admission.
+
+In particular, standalone Core3 archive r3 uses the corrected root-only
+provider activation from [#31](https://github.com/dotnetdev-kr/cbodotnet/issues/31).
+The current installer continues to authenticate its existing Core3 r2 pins and
+executes their verified payload hosts with the complete private child
+environment implemented in [#29](https://github.com/dotnetdev-kr/cbodotnet/issues/29).
+Its SDK records, provider bytes and old-client recovery views are unchanged.
 
 Installed commands are `cbodotnet-X.Y` and `cbodotnet`; the common command
 selects the highest installed Community SDK series. OCI and archive-local
@@ -69,12 +82,43 @@ The original framework/bootstrap/source-construction disclosures remain
 
 ## Retained proof
 
+Core3.1/Core3.0 r3 candidate qualification passed all **20 SDK/OS/CPU cells**:
+two SDKs, five OS versions and two native CPUs. Each cell includes a clean
+root-variable-only CLI, private curl/SSL/ICU mappings, forced CurlHandler
+HTTP/callback HTTPS/default CA/TLS, an actual retained-r2 failure and corrected
+r3 positive control, retained revision selection, identical reinstall and
+owned-root removal. It preserves observed global path presence/absence,
+provider trees, stock/transitive libraries and the package database; this
+archive gate does not provision an official SDK package. The
+[source CI](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42304903067) ran
+**893 Python tests: 889 passed and four skipped**.
+
+The [independent Core3 archive evidence](core3-archive-curl-validation.json)
+also confirms all **20 anonymous public cells**, the original candidate/public
+report ZIPs and exact source identities. Candidate runs
+[Core3.1](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42304918843) and
+[Core3.0](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42304930728)
+were promoted without rebuilding. The
+[Core3.1 public workflow](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42306206137)
+and [Core3.0 public workflow](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42306217793)
+both completed publication, runtime replay and availability activation.
+
+All 30 new assets were downloaded anonymously and matched their size/SHA256
+pins. Twelve project signatures were verified: six new publication/report
+signatures and six retained r2 comparison signatures. All 79 earlier releases
+and 1,046 assets preserved their metadata, identities and hashes; totals are
+now 81 releases and 1,076 assets. The latest SDK pointer remains SDK10 archive
+r3. The [final Pages deployment](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42308365095)
+passed, and the live site exposes all four new SDK/CPU archive links.
+Installer feeds, admission/provider policies and package/OCI status remain
+byte-for-byte unchanged.
+
 The [neutral archive and website audit](neutral-archive-validation.json)
 authenticates all eight new archive revisions, sixteen real public native jobs
 and their exact report ZIPs. It also records preservation of the prior 63
 releases and 832 assets, the final Pages build and deployment, all sixteen live
 download links, desktop/mobile layout checks and the unchanged signed
-`cbodotnetup` 0.1.0 feed.
+then-current `cbodotnetup` 0.1.0 feed.
 
 [The retained release validation](all-sdk-release-validation.json) independently
 authenticates all 32 signed release cells before the neutral archive filename

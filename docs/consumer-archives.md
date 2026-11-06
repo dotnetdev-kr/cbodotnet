@@ -55,7 +55,10 @@ that explicit host. The
 [.NET environment-variable reference](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-environment-variables)
 describes host and apphost root selection. For a compiled apphost invoked
 directly, set `DOTNET_ROOT` to the absolute `payload/` directory. The archive
-root itself contains wrappers and is not the runtime root.
+root itself contains wrappers and is not the runtime root. Legacy apphosts also
+need their complete native-provider environment; setting `DOTNET_ROOT` alone
+does not supply OpenSSL, ICU or Core3 curl. The wrapper sets that environment
+for CLI-launched applications.
 
 Original file bytes, modes and links are compared with the qualified SDK during
 protected promotion. Only an explicitly admitted empty metadata directory may
@@ -88,16 +91,16 @@ command with an absolute path:
 
 ```sh
 CBODOTNET_COMPAT_ROOT=/absolute/companion/rootfs/usr/lib/cbodotnet/compat/rocky9 \
-  /absolute/cbodotnet-3.1.426-linux-aarch64-r2/cbodotnet --info
+  /absolute/cbodotnet-5.0.214-linux-aarch64-r2/cbodotnet --info
 ```
 
 Alternatively, an independently installed project compatibility package owns
 the managed default `/usr/lib/cbodotnet/compat/rocky9`. Required SDK launchers fail
 with a clear message if the companion is missing. Their compatibility variables
 are scoped to the selected SDK process; selecting another Community SDK restores
-the original caller environment. Consumer archive validation covers the admitted
-Ubuntu 22.04, Ubuntu 24.04 and Debian 13 user spaces. The compatibility libraries'
-GLIBC requirement is independent of the original SDK's recorded minimum.
+the original caller environment. The admitted user spaces are recorded per
+archive revision. The compatibility libraries' GLIBC requirement is independent
+of the original SDK's recorded minimum.
 
 Core 3.0 and 3.1 additionally contain an optional native `CurlHandler` whose
 `System.Net.Http.Native.so` requires the older Curl/OpenSSL interface. A modern
@@ -117,18 +120,51 @@ absolute roots for one command:
 ```sh
 CBODOTNET_COMPAT_ROOT=/absolute/base/rootfs/usr/lib/cbodotnet/compat/rocky9 \
 CBODOTNET_CURL_COMPAT_ROOT=/absolute/http/rootfs/usr/lib/cbodotnet/compat/curl-rocky8 \
-  /absolute/cbodotnet-3.1.426-linux-aarch64-r2/cbodotnet --info
+  /absolute/cbodotnet-3.1.426-linux-aarch64-r3/cbodotnet --info
 ```
+
+Core3 revision3 plans use `archiveLauncherVersion: 2`. These launchers activate
+both verified companions from the two root variables, including when the caller
+has no preconfigured loader environment. They verify the closed provider tree,
+component hashes, configuration and notices before executing the SDK. Required
+provider roots must be ordinary absolute paths without symlinked ancestors,
+control characters, `:`, `;` or `$`; spaces are supported. An invalid, missing
+or substituted provider fails before the payload host starts. These internal
+checks supplement verification against the signed publication manifest; they
+do not authenticate an unverified downloaded wrapper.
 
 The managed default for the second package is
 `/usr/lib/cbodotnet/compat/curl-rocky8`. Neither companion enters `payload/` or
 replaces system libraries. Core3 launchers scope the private Curl root before
-the private SSL/ICU root. Native preparation installs the reviewed stock
+the private SSL/ICU root, followed by the caller's original library path. An
+unset `SSL_CERT_FILE` selects the readable stock CA bundle at
+`/etc/ssl/certs/ca-certificates.crt` or `/etc/pki/tls/certs/ca-bundle.crt`.
+Explicit empty or custom certificate settings are retained. A nested modern
+Community SDK restores the original caller's unset, empty or custom scoped
+values rather than retaining a legacy library path.
+
+Native preparation installs the reviewed stock
 transitive dependencies through authenticated OS repositories before networking
 is disabled. Validation additionally forces the actual native CurlHandler and
 checks HTTP, callback HTTPS, ordinary certificate trust and TLS 1.2, with exact
 native HTTP/Curl hashes and loaded-library paths. Missing either provider or
 failed native HTTP evidence blocks qualification.
+
+The revision3 qualification matrix includes Ubuntu22.04, Ubuntu24.04,
+Debian13, Fedora45 and Rocky9.8 on native x64/AArch64 for both Core3 SDKs:
+20 cells in each candidate/public phase. Ubuntu22.04 remains a regression
+target alongside the four newer distribution targets. Provider requirements
+remain glibc>=2.34 and x86-64-v2 on x64; these glibc companions do not establish
+Alpine/musl support.
+
+Historical revision2 wrappers activated only the SSL/ICU base. The earlier
+runtime tests supplied curl through their outer environment, which left the
+root-variable-only scenario untested. [Issue #31](https://github.com/dotnetdev-kr/cbodotnet/issues/31)
+tracks the correction and comparison against actual signed r2 inputs. Original
+r2 archives, signatures and reports retain their bytes and recorded test
+preconditions. The independent `cbodotnetup` 0.4.0 installer already constructs
+its complete private child environment and keeps its separately qualified r2
+SDK/provider pins; archive publication does not change those pins.
 
 ## Authentication and immutable publication
 
@@ -154,12 +190,13 @@ titles and bodies identify the unbranded archives as experimental and not
 recommended for direct installation. Their tags, stable-release flags,
 manifests, source archives, evidence and SDK bytes stay unchanged.
 
-`cbodotnetup` 0.1.0 continues to admit the separately validated signed
-10.0.403 revision 2 archive. The explicit `archiveRevisions` entry in the
-[installer policy](../releases/cbodotnetup-policy.json) pins that revision for
-build inputs and catalog generation, including scheduled catalog renewal.
-New archive filenames do not automatically change installer admission or
-invalidate existing installations and their signed update path.
+`cbodotnetup` has independent revision admission in the
+[installer policy](../releases/cbodotnetup-policy.json), including scheduled
+catalog renewal. The 0.4.0 tool retains the Core3 r2 SDK/provider inputs and
+supplies its own complete scoped child environment. Its signed historical
+schema1 feed still admits SDK10.0.403 r2 for actual 0.1.0 clients and their
+verified upgrade path. Publishing a new archive revision does not automatically
+change installer admission or invalidate existing installations.
 
 ## Repeatable native checks
 
@@ -185,3 +222,30 @@ original payload inventories and exact reviewed wrapper bytes. It requires
 both complete native reports and every admitted user space. Missing evidence,
 another source identity or an unexpected compatibility artifact blocks signing
 and publication.
+
+Launcher contract2 also authenticates and retains the actual r2 comparison
+archive. The same forced-Curl HTTPS program must fail through its clean-caller
+r2 wrapper and pass through r3. Runtime checks then select the retained physical
+revisions in order r2→r3→r2→r3, extract r3 afresh, compare every installed
+byte/mode/link, and remove the owned SDK roots and selector. Provider trees,
+stock dependencies, package inventory/database and deliberately created
+unrelated user files retain their before/after state. Reports record the actual
+presence or absence of protected global dotnet paths and identify this as an
+archive lifecycle gate. Actual official-package installation/coexistence has
+separate [APT](apt-delivery.md) and [RPM](rpm-delivery.md) qualification.
+
+## Core3 revision3 validation
+
+Together, [Core3.1.426 r3](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-archive-sdk-3.1.426-r3)
+and [Core3.0.103 r3](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-archive-sdk-3.0.103-r3)
+passed all 20 SDK/OS/CPU cells in each candidate and anonymous public phase.
+The [independent validation record](core3-archive-curl-validation.json) binds
+actual source/run/job identities, original report ZIPs, exact SDK payload and
+wrapper inventories, reviewed official image indexes and 12 project signatures.
+It independently verifies all 30 new public assets and preservation of the
+79 earlier releases and 1,046 earlier assets. The homepage's four new Core3
+archive links passed live verification after the final Pages deployment.
+
+Source CI ran 893 Python tests: 889 passed and four were skipped. The existing
+installer feeds and policies, package/OCI availability and legacy provider
+policies retain their exact bytes. The latest SDK download remains SDK10 r3.
