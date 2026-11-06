@@ -53,6 +53,19 @@ def synthetic_proof(plan=None):
 
 
 class LifecycleEvidenceTests(unittest.TestCase):
+    def test_ldd_accepts_only_mapping_address_lines_and_preserves_missing_dependency_rejection(self):
+        binary='/opt/cbodotnet-consumer-validation/original/SDK payload/System.Net.Http.Native.so'
+        warning=binary+': /usr/lib/cbodotnet/compat/curl-rocky8/lib/libcurl.so.4: no version information available (required by '+binary+')'
+        output='\n'.join([warning,'\tlinux-vdso.so.1 (0x00007feab19f0000)',
+            '\tlibcurl.so.4 => /usr/lib/cbodotnet/compat/curl-rocky8/lib/libcurl.so.4 (0x00007f112200)',
+            '\tlibc.so.6 => /test stock libraries/libc.so.6 (0xAABB)',
+            '\t/lib64/ld-linux-x86-64.so.2 (0x1234)',
+            'ldd: warning: you do not have execution permission for '+binary])
+        self.assertEqual(['/usr/lib/cbodotnet/compat/curl-rocky8/lib/libcurl.so.4',
+            '/test stock libraries/libc.so.6','/lib64/ld-linux-x86-64.so.2'],LIFE._ldd_paths(output))
+        for missing in ('libcurl.so.4 => not found','\tlibssl.so.1.1 =>   not found\n'):
+            with self.assertRaisesRegex(ValueError,'dependency is missing'):LIFE._ldd_paths(output+'\n'+missing)
+
     def test_gate_rejects_missing_or_self_inconsistent_lifecycle_fields(self):
         plan=selected_plan();proof=synthetic_proof(plan);LIFE.validate_lifecycle_evidence(proof,plan)
         changes=(lambda p:p.update(officialPackageProvisioned=True),
@@ -150,7 +163,8 @@ class BoundedArchiveLifecycleTests(unittest.TestCase):
         calls=[]
         def ldd(arguments,**kwargs):
             calls.append(arguments[1]);self.assertNotIn('tracept',arguments[1])
-            return subprocess.CompletedProcess(arguments,0,'libcurl.so.4 => '+str(library)+' (0x1)\nlibc.so.6 => '+str(stock)+' (0x2)\n','')
+            warning=arguments[1]+': '+str(library)+': no version information available (required by '+arguments[1]+')\n'
+            return subprocess.CompletedProcess(arguments,0,warning+'libcurl.so.4 => '+str(library)+' (0x1)\nlibc.so.6 => '+str(stock)+' (0x2)\n',warning)
         with mock.patch.object(LIFE.subprocess,'run',side_effect=ldd):
             inputs,libraries=LIFE._stock_libraries(payload,[str(provider)],{},self.api,self.install)
         self.assertEqual([str(stock)],[row['path'] for row in libraries]);self.assertEqual(3,len(calls))

@@ -101,6 +101,19 @@ def _package_state(api):
         excludedVolatileNames=list(RPM_VOLATILE)+['*-shm','*-wal','*-journal'])
 
 
+def _ldd_paths(output):
+    """Read only glibc mapping lines, never absolute-prefix diagnostics."""
+    require(not re.search(r'=>\s+not found(?:\s|$)',output),
+            'Archive runtime dependency is missing during system capture')
+    result=[]
+    for line in output.splitlines():
+        # Version warnings begin with the input ELF's absolute path too, but
+        # do not end with a loaded-address field. Paths may contain spaces.
+        match=re.fullmatch(r'\s*(?:\S+\s+=>\s+)?(/.+?)\s+\(0x[0-9A-Fa-f]+\)\s*',line)
+        if match:result.append(match.group(1))
+    return result
+
+
 def _stock_libraries(payload,providers,runtime_env,api,root):
     inputs={Path(payload)/'dotnet'}
     inputs.update(path for path in (Path(payload)/'host/fxr').glob('*/libhostfxr.so') if path.is_file())
@@ -120,11 +133,10 @@ def _stock_libraries(payload,providers,runtime_env,api,root):
             require('not a dynamic executable' in combined or 'statically linked' in combined,
                     'Cannot inventory archive runtime transitive dependencies: '+str(binary)+'\n'+combined)
             continue
-        require('=> not found' not in combined,'Archive runtime dependency is missing during system capture')
-        for line in result.stdout.splitlines():
-            match=re.search(r'=>\s+(.+?)\s+\(',line)
-            name=match.group(1) if match else line.strip().split(' (',1)[0]
-            if not name.startswith('/'):continue
+        # Both streams are checked for missing dependencies; stdout alone
+        # supplies successful mappings (stderr contains loader diagnostics).
+        _ldd_paths(combined)
+        for name in _ldd_paths(result.stdout):
             candidate=Path(name)
             if root in candidate.resolve(strict=True).parents:continue
             if any(candidate.resolve(strict=True)==Path(provider).resolve(strict=True)
