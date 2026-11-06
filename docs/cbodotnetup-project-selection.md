@@ -1,9 +1,10 @@
 # Project SDK selection
 
-This contract applies to the 0.3 tool line and implements
-[#28](https://github.com/dotnetdev-kr/cbodotnet/issues/28). Public availability
-still follows the authenticated active feed and release qualification. Earlier
-tools keep their published selection behavior.
+This contract applies to [cbodotnetup 0.3.0](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-v0.3.0)
+and implements [#28](https://github.com/dotnetdev-kr/cbodotnet/issues/28).
+The [independent release evidence](cbodotnetup-project-validation.json) records
+qualification; the authenticated active feed determines available revisions.
+Earlier tools keep their published selection behavior.
 
 ## Invocation and precedence
 

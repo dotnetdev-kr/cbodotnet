@@ -6,18 +6,21 @@ Fedora45 and Rocky Linux9.8. It preserves official `dotnet`, official
 `dotnetup` state and package-managed `/opt/cbodotnet` installations. NativeAOT
 bootstrap does not require an installed .NET SDK.
 
-Version [0.2.0 is published](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-v0.2.0).
-The 0.2.0 catalog migration passed both an eight-target native candidate matrix
-and an eight-target anonymous public binary/SDK download matrix before
-[feed activation](../releases/cbodotnetup-status.json). Use the
+Version [0.3.0 is published](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-v0.3.0).
+It adds [project SDK selection](cbodotnetup-project-selection.md) from
+`global.json`, with explicit SDK/series precedence and no automatic SDK
+installation. [Issue #28](https://github.com/dotnetdev-kr/cbodotnet/issues/28)
+has [independent release validation](cbodotnetup-project-validation.json).
+Use the [activated installer status](../releases/cbodotnetup-status.json) and
 [download site](https://dotnetdev.kr/cbodotnet/) for the active signed catalog
 and bootstrap. Installer admission is scoped to each SDK, OS version and CPU;
 the active signed catalog is the source of available versions.
-The compatible catalog migration is recorded in
+The earlier compatible catalog migration is recorded in
 [#26](https://github.com/dotnetdev-kr/cbodotnet/issues/26) and its
-[independent validation evidence](cbodotnetup-v2-validation.json). The
-availability record and signed public feed determine the active revisions;
-the historical 0.1.0 evidence is retained at the end of this document.
+[independent evidence](cbodotnetup-v2-validation.json); the five-SDK expansion
+is recorded in [#27](https://github.com/dotnetdev-kr/cbodotnet/issues/27) and its
+[qualification evidence](cbodotnetup-modern-sdk-validation.json). Historical
+0.2.0 and 0.1.0 validation remains below.
 
 ## SDK admission and lifecycle
 
@@ -68,8 +71,8 @@ is also an explicit Community target; an RHEL9 listing alone is not evidence for
 this project's exact Rocky package/CPU combination. The SDK7/6 targets retain
 their upstream EOL status even after successful Community installation tests.
 
-The SDK9/8/7/6 expansion reuses the immutable 0.2.0 tool and is activated through
-the [signed schema2 catalog](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-catalog-42213550406).
+The original SDK9/8/7/6 expansion reused the immutable 0.2.0 tool and activated
+the [historical schema2 catalog](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-catalog-42213550406).
 The schema1 feed remains limited to
 SDK10 revision2 and compatible tool records. Additional legacy-provider SDKs
 and musl admission have separate work items.
@@ -133,7 +136,7 @@ The root is `$XDG_DATA_HOME/cbodotnetup`, defaulting to
 absolute user-owned root. `shell enable` creates only owned `cbodotnet` and
 `cbodotnet-X.Y` links in `<root>/bin` and prints that directory for explicit PATH
 configuration. It never creates a user-local `dotnet` alias. Exact `run` works
-without PATH changes. In the 0.3 tool line, the common alias and `run --` use the
+without PATH changes. In version 0.3, the common alias and `run --` use the
 nearest cwd/ancestor `global.json` SDK request; without one they preserve the
 highest installed Community SDK series and active revision. Explicit `run`
 versions and versioned aliases take precedence. See the
@@ -141,6 +144,13 @@ versions and versioned aliases take precedence. See the
 ownership restrictions and the managed `--info` output boundary. Earlier tools
 retain their published default selection behavior. Branding is **Community
 Build of .NET (built by .NET Dev)** and `--version` stdout remains numeric.
+
+From a project directory, `cbodotnetup run -- build` or `cbodotnet build` uses
+the nearest cwd/ancestor SDK request. `cbodotnet-9.0 build` selects the installed
+9.0 series, and `cbodotnetup run 10.0.403-r3 -- build` selects that exact archive
+despite a different project pin. Missing SDKs produce an explicit install
+action. Relative or absolute `sdk.paths` roots are unsupported; omit the field
+or use literal `$host$` entries to keep selection within verified owned SDKs.
 
 An exact revision names an immutable archive. Identical retries verify existing
 bytes/modes/links before succeeding; conflicting state is refused. Updates keep
@@ -151,12 +161,12 @@ operations fail with a retry message.
 
 ## Catalog migration and compatibility
 
-The 0.2 client uses the versioned schema2 feed at
+The 0.2 and 0.3 clients use the versioned schema2 feed at
 `https://dotnetdev.kr/cbodotnet/cbodotnetup/v2/catalog.json`. Its neutral SDK10
 archive is revision3. The legacy endpoint
 `https://dotnetdev.kr/cbodotnet/cbodotnetup/catalog.json` remains schema1, with
 the historical SDK10 revision2 archive and compatible tool records, including
-the authenticated upgrade to 0.2. No old release asset is renamed or replaced.
+authenticated upgrades to 0.2 and 0.3. No old release asset is renamed or replaced.
 Historical unbranded trial SDKs are not admitted.
 
 Existing 0.1.0 users can upgrade with `cbodotnetup self update`, then run
@@ -168,7 +178,7 @@ legacy providers or musl by itself.
 
 Both client generations share the owner marker, operation lock and selection
 state, but retain separate signed cache/high-water records: 0.1.0 uses
-`<root>/cache/`, and 0.2 uses `<root>/cache/v2/`. Historical SDK installations
+`<root>/cache/`, and 0.2 and later use `<root>/cache/v2/`. Historical SDK installations
 stay in `<root>/toolchains/`; neutral SDK installations use
 `<root>/toolchains-v2/`. The new client verifies both namespaces. The old client
 sees its original namespace only, so a retained 0.1.0 executable can operate
@@ -195,7 +205,7 @@ upgrade/retirement plan; renewal must never restore a revoked tool to admission.
 
 `list --available`, installation, update and self-update obtain a fresh catalog.
 `--catalog FILE` uses a local project-signed catalog and adjacent `.asc` with the
-same signature/freshness/anti-rollback rules. The 0.2 client's active catalog,
+same signature/freshness/anti-rollback rules. The active catalog for 0.2 and later,
 including a local file, must use schema2; schema1 is accepted only for retained
 SDK admission verification. Offline `run`, installed `list`,
 removal and `doctor` use the last verified cache. Offline clients cannot learn
@@ -233,7 +243,38 @@ version. Catalog maintenance and native runtime updates remain project responsib
 distribution does not create an upstream security-support promise for EOL SDKs.
 See the [implementation and trust design](cbodotnetup-design.md).
 
-## Modern SDK installation validation
+## 0.3.0 project selection validation
+
+The [independent issue-28 evidence](cbodotnetup-project-validation.json) binds
+the new immutable tool/source assets and paired signed catalogs to actual REST
+job IDs, original ZIP/report bytes, source CI logs and release preservation.
+The candidate phase passed all 40 SDK/OS/CPU cells across eight native targets.
+Each qualification phase evaluates 78 matching-only native reference cases per
+target (624 checks) and 30 project-selection cases per additional SDK cell
+(960 checks across 32 cells). SDK10 supplies the eight migration regressions.
+
+Project checks cover explicit/versioned/project precedence, policy matching,
+unsupported paths, missing SDK diagnostics, offline argument forwarding,
+owned CLI/MSBuild binding and preservation of project and installed SDK files.
+Actual previous 0.2.0 binaries exercise upgrade and retained SDK state; public
+qualification also requires tool rollback and re-upgrade. The original 0.1.0
+migration remains a separate SDK10 regression.
+
+The native C# source suite passed 315 checks on each CPU. Repository CI ran
+830 Python tests: 826 passed and four were skipped.
+
+The anonymous public phase also passed all 40 cells across eight native targets.
+After [Pages deployment](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42225918010),
+the [default hosted-feed checks](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42226898913)
+authenticated and bootstrapped 0.3.0 on both CPUs without an installed SDK.
+The activated paired catalog sequence is
+[42222819193](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-catalog-42222819193).
+Independent comparison preserved all 75 earlier releases and 984 earlier assets,
+including their titles, bodies, file identities and hashes. The latest SDK
+download remains SDK10.0.403 archive r3. All 26 new tool/catalog assets were
+downloaded anonymously and compared with their signed inventory and REST pins.
+
+## Retained modern SDK installation validation
 
 The [modern SDK evidence](cbodotnetup-modern-sdk-validation.json) compares the
 actual candidate and public job IDs, original artifact ZIPs and report bytes.
