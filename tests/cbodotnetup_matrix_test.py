@@ -1,12 +1,79 @@
 from pathlib import Path
 import copy
 import hashlib
+import os
+import signal
+import subprocess
 import sys
+import tempfile
+import time
+from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
 from cbodotnetup_matrix import SDK_CHECKS,validate_additional_sdk_qualifications
 from consumer_archive import FUNCTIONAL_CHECKS
+import cbodotnetup_release as UP
+
+
+class InterruptedWorkerTests(unittest.TestCase):
+    def test_worker_is_direct_session_leader_with_explicit_unprivileged_identity(self):
+        account=SimpleNamespace(pw_uid=10001,pw_gid=10002)
+        environment={'CBODOTNETUP_HOME':'/home/'+UP.MULTI.USER+'/matrix'}
+        with patch.dict(sys.modules,{'pwd':SimpleNamespace(getpwnam=lambda name:account)}),\
+                patch.object(UP.os,'geteuid',return_value=0,create=True),\
+                patch.dict(UP.os.environ,{'GH_TOKEN':'must-not-inherit','LD_PRELOAD':'must-not-inherit'}),\
+                patch.object(UP.subprocess,'Popen') as popen:
+            UP.user_process([Path('/home/worker/cbodotnetup'),'install','8.0.133-r2'],stdout=UP.subprocess.DEVNULL,
+                            extra_environment=environment)
+        command=popen.call_args.args[0];options=popen.call_args.kwargs
+        self.assertEqual(command,['/home/worker/cbodotnetup','install','8.0.133-r2'])
+        self.assertNotIn('runuser',command)
+        self.assertEqual(options['user'],10001);self.assertEqual(options['group'],10002)
+        self.assertEqual(options['extra_groups'],[]);self.assertIs(options['start_new_session'],True)
+        self.assertEqual(options['cwd'],'/home/'+UP.MULTI.USER)
+        self.assertEqual(options['env'],dict(UP.user_environment(),**environment))
+        self.assertNotIn('GH_TOKEN',options['env']);self.assertNotIn('LD_PRELOAD',options['env'])
+
+    @unittest.skipUnless(sys.platform=='linux','POSIX process groups and flock are required')
+    def test_killed_worker_is_reaped_and_its_operation_lock_is_immediately_available(self):
+        # Exercise actual process-group termination without requiring root in the
+        # unit-test runner. Credential kwargs are checked above, then removed by
+        # this test-only launcher so the real child runs as the current account.
+        import fcntl
+        real_popen=subprocess.Popen
+        account=SimpleNamespace(pw_uid=10001,pw_gid=10002)
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);lock=root/'operation.lock';ready=root/'ready';child=None
+            def unprivileged_launch(arguments,**options):
+                for name in ('user','group','extra_groups'):options.pop(name)
+                options['cwd']=temporary
+                options['env']=dict(options['env'],HOME=temporary,DOTNET_CLI_HOME=temporary)
+                return real_popen(arguments,**options)
+            script=('import fcntl,os,pathlib,sys,time\n'
+                    'with open(sys.argv[1],"a+b") as lease:\n'
+                    ' fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)\n'
+                    ' pathlib.Path(sys.argv[2]).write_text(str(os.getpid())+":"+str(os.getpgrp()))\n'
+                    ' time.sleep(120)\n')
+            try:
+                with patch.dict(sys.modules,{'pwd':SimpleNamespace(getpwnam=lambda name:account)}),\
+                        patch.object(UP.os,'geteuid',return_value=0),\
+                        patch.object(UP.subprocess,'Popen',side_effect=unprivileged_launch):
+                    child=UP.user_process([sys.executable,'-c',script,str(lock),str(ready)],stdout=UP.subprocess.DEVNULL)
+                deadline=time.monotonic()+10
+                while not ready.exists() and child.poll() is None and time.monotonic()<deadline:time.sleep(0.01)
+                self.assertTrue(ready.exists(),'The direct worker did not acquire its lock')
+                self.assertEqual(ready.read_text(),f'{child.pid}:{child.pid}')
+                with lock.open('a+b') as retry:
+                    with self.assertRaises(BlockingIOError):fcntl.flock(retry,fcntl.LOCK_EX|fcntl.LOCK_NB)
+                    os.killpg(child.pid,signal.SIGKILL)
+                    self.assertEqual(child.wait(timeout=5),-signal.SIGKILL)
+                    # No sleep, lock retry or orphan cleanup may be needed here.
+                    fcntl.flock(retry,fcntl.LOCK_EX|fcntl.LOCK_NB)
+            finally:
+                if child is not None and child.poll() is None:
+                    os.killpg(child.pid,signal.SIGKILL);child.wait(timeout=5)
 
 
 class InstallerMatrixTests(unittest.TestCase):

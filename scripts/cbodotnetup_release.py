@@ -529,10 +529,35 @@ def stage(args):
     print(json.dumps(dict(status='signed-frozen-unpublished',version=freeze['version'],catalog=descriptor(output/'catalog.json'))))
 
 
+def user_environment():
+    home='/home/'+MULTI.USER
+    return dict(PATH='/usr/local/bin:/usr/bin:/bin',HOME=home,DOTNET_CLI_HOME=home,
+                DOTNET_CLI_TELEMETRY_OPTOUT='1',DOTNET_NOLOGO='1',
+                DOTNET_SKIP_FIRST_TIME_EXPERIENCE='1',DOTNET_CLI_UI_LANGUAGE='en')
+
+
 def user_command(arguments):
-    return ['runuser','-u',MULTI.USER,'--','env','-i','PATH=/usr/local/bin:/usr/bin:/bin',
-             'HOME=/home/'+MULTI.USER,'DOTNET_CLI_HOME=/home/'+MULTI.USER,'DOTNET_CLI_TELEMETRY_OPTOUT=1',
-             'DOTNET_NOLOGO=1','DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1','DOTNET_CLI_UI_LANGUAGE=en',*map(str,arguments)]
+    return ['runuser','-u',MULTI.USER,'--','env','-i',
+            *(name+'='+value for name,value in user_environment().items()),*map(str,arguments)]
+
+
+def user_process(arguments, *, stdout, extra_environment=None):
+    """Start the actual worker as its session leader, without a runuser/PAM fork.
+
+    The interruption test must kill and reap the process holding operation.lock.
+    Killing a runuser wrapper's group can otherwise leave its PAM child alive.
+    """
+    import pwd
+    account=pwd.getpwnam(MULTI.USER)
+    require(os.geteuid()==0 and account.pw_uid==10001 and account.pw_gid>0,
+            'A disposable root harness and dedicated unprivileged worker are required')
+    environment=user_environment()
+    require(extra_environment is None or set(extra_environment)<= {'CBODOTNETUP_HOME'},
+            'Only an explicit SDK-manager root may supplement the clean worker environment')
+    environment.update(extra_environment or {})
+    return subprocess.Popen(list(map(str,arguments)),stdout=stdout,stderr=subprocess.STDOUT,
+                            cwd=environment['HOME'],env=environment,user=account.pw_uid,
+                            group=account.pw_gid,extra_groups=[],start_new_session=True)
 
 
 def user(arguments,*,check=True):
@@ -603,8 +628,7 @@ def native_install(args):
     manager=[binary,'--catalog',bundle/'catalog.json']
     log=state/'interrupted-install.log'
     with log.open('w') as output:
-        child=subprocess.Popen(user_command([*manager,'install',exact]),stdout=output,stderr=subprocess.STDOUT,
-                               cwd=home,start_new_session=True)
+        child=user_process([*manager,'install',exact],stdout=output)
         interrupted=False
         try:
             deadline=time.monotonic()+60
@@ -744,8 +768,7 @@ def native_matrix_install(args):
     require(matrix_user(root,[*manager,'install','99.0.999'],check=False).returncode!=0,'Additional SDK resolver accepted an unqualified version')
     log=args.workspace/('sdk-'+sdk['sdkVersion']+'-interrupted.log')
     with log.open('w') as output:
-        command=user_command(['env','CBODOTNETUP_HOME='+str(root),*manager,'install',exact])
-        child=subprocess.Popen(command,stdout=output,stderr=subprocess.STDOUT,cwd='/home/'+MULTI.USER,start_new_session=True)
+        child=user_process([*manager,'install',exact],stdout=output,extra_environment={'CBODOTNETUP_HOME':str(root)})
         interrupted=False
         try:
             deadline=time.monotonic()+90
