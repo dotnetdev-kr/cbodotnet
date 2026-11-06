@@ -272,7 +272,8 @@ The activated paired catalog sequence is
 Independent comparison preserved all 75 earlier releases and 984 earlier assets,
 including their titles, bodies, file identities and hashes. The latest SDK
 download remains SDK10.0.403 archive r3. All 26 new tool/catalog assets were
-downloaded anonymously and compared with their signed inventory and REST pins.
+downloaded anonymously and matched REST/status hash pins. The signed frozen
+inventory, source inputs and seven GPG signatures were verified separately.
 
 ## Retained modern SDK installation validation
 
