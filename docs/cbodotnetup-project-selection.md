@@ -131,10 +131,16 @@ distinction is documented in the [global.json reference](https://learn.microsoft
 Passing a selected wrapper straight to the muxer would also let the muxer reject
 an explicitly selected SDK because of a conflicting project request.
 
-For SDK commands, the manager therefore invokes the original authenticated
-archive wrapper with `exec <payload>/sdk/<version>/dotnet.dll`. The wrapper
-retains its owned native host, architecture-specific roots and compatibility
-settings. The manager binds the child's `MSBuildSDKsPath` and
+For SDK commands, the manager binds `exec <payload>/sdk/<version>/dotnet.dll`.
+Modern SDKs use the original authenticated archive wrapper and its owned host
+and architecture-specific roots. Starting in 0.4, legacy SDK/runtime commands
+use the verified payload host directly, with the manager supplying the complete
+owned host/provider environment. The historical Core3 archive wrapper's base
+fragment does not activate its separate curl companion; direct host binding
+avoids relying on an inherited external library path. The original wrapper
+still supplies `--cbodotnet-info` identity JSON before executing any SDK.
+See the [provider execution contract](cbodotnetup-legacy-providers.md).
+The manager binds the child's `MSBuildSDKsPath` and
 `MSBuildExtensionsPath` to that SDK and removes inherited resolver-directory and
 MSBuild-executable overrides. It does not rewrite `global.json` or the SDK.
 

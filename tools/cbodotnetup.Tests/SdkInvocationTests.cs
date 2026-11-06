@@ -32,6 +32,27 @@ internal static class SdkInvocationTests
                 "Runtime-option prefix cannot bypass SDK binding: " + string.Join(' ', args));
         check(SdkInvocation.Create(wrapper, Path.Combine(root, "payload"), "10.0.403", ["--cbodotnet-info"])
             .ArgumentList.SequenceEqual(new[] { "--cbodotnet-info" }), "Community identity remains owned by the original wrapper");
+        var payload = Path.Combine(root, "payload"); var payloadHost = Path.Combine(payload, "dotnet");
+        File.WriteAllText(payloadHost, "test-only non-executable payload host marker");
+        foreach (var rid in new[] { "linux-x64", "linux-arm64" })
+        {
+            var direct = SdkInvocation.Create(wrapper, payload, "10.0.403", arguments, rid);
+            check(direct.FileName == payloadHost && direct.ArgumentList.SequenceEqual(new[] { "exec", entrypoint }.Concat(arguments)),
+                "Legacy managed SDK launch binds the verified payload host instead of an incomplete historical wrapper");
+            check(direct.Environment["DOTNET_ROOT"] == payload && direct.Environment["DOTNET_HOST_PATH"] == payloadHost
+                && direct.Environment["DOTNET_MULTILEVEL_LOOKUP"] == "0"
+                && direct.Environment[rid == "linux-x64" ? "DOTNET_ROOT_X64" : "DOTNET_ROOT_ARM64"] == payload
+                && !direct.Environment.ContainsKey(rid == "linux-x64" ? "DOTNET_ROOT_ARM64" : "DOTNET_ROOT_X64")
+                && !direct.Environment.ContainsKey("DOTNET_ROOT_X86"), "Raw legacy host discovery cannot select another architecture or system root");
+            foreach (var args in new[] { new[] { "exec", "application.dll" }, new[] { "application.dll" }, new[] { "--list-runtimes" } })
+                check(SdkInvocation.Create(wrapper, payload, "10.0.403", args, rid).FileName == payloadHost,
+                    "Legacy runtime/application dispatch also uses the verified payload host");
+            check(SdkInvocation.Create(wrapper, payload, "10.0.403", ["--cbodotnet-info"], rid).FileName == wrapper,
+                "Only the original archive identity command retains the immutable legacy wrapper");
+        }
+        File.Delete(payloadHost);
+        reject(() => SdkInvocation.Create(wrapper, payload, "10.0.403", ["--version"], "linux-x64"),
+            "Missing verified raw payload host cannot fall back to the archive wrapper or system dotnet");
         var names = new[] { "MSBUILD_EXE_PATH", "DOTNET_MSBUILD_SDK_RESOLVER_CLI_DIR", "MSBUILDALTERNATESDKRESOLVERDIRECTORY", "MSBuildSDKsPath" };
         var previous = names.ToDictionary(n => n, Environment.GetEnvironmentVariable);
         try

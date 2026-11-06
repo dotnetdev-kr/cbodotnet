@@ -99,8 +99,11 @@ Provider settings are applied to `ProcessStartInfo.Environment`, after restoring
 an inherited Community wrapper scope. The manager does not change its own
 process environment. Canonical owned roots override arbitrary provider-root
 variables; an explicit caller `SSL_CERT_FILE` is preserved, otherwise the
-reviewed current OS CA path is selected. The immutable wrapper supplies private
-OpenSSL/ICU/libcurl settings and the SDK root, while the selected managed CLI and
+reviewed current OS CA path is selected. Legacy SDK/runtime commands execute the
+verified payload host with complete owned OpenSSL/ICU/libcurl and native-root
+settings supplied by the manager. The historical Core3 archive wrapper lacks
+curl activation, so it is retained only for its early identity JSON command.
+Modern SDK commands keep their archive wrapper. The selected managed CLI and
 MSBuild binding from 0.3 remains in force. Modern child commands receive their
 restored caller environment. Project code can still explicitly launch its own
 commands; this is not a process sandbox.

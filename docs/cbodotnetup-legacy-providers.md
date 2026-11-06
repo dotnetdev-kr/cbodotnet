@@ -111,8 +111,8 @@ original vendor policy and complete companion bytes before signing admission.
 
 Each companion has exactly two top-level entries: `provider-manifest.json` and
 `rootfs/`. Outer and inner provider-manifest bytes must agree. Every file,
-directory, mode and SONAME link is checked; extra paths, traversal, hardlinks,
-special files and modified notices or native binaries fail. The SDK payload
+directory, mode and SONAME link is checked; extra paths, traversal, escaping or
+unapproved links, special files and modified notices or native binaries fail. The SDK payload
 remains unchanged and never contains these companions.
 
 For an owned installer root, storage is separate:
@@ -155,8 +155,16 @@ provider roots cannot redirect it to unrelated libraries. The selected child's
 environment receives the owned SSL/ICU and, for Core3, curl roots. Configuration
 is applied to that child without mutating the manager's environment.
 
-The immutable wrappers preserve the caller's presence and value of scoped
-variables. A subsequent Community SDK selection restores that environment
+Legacy SDK/runtime commands execute the verified `payload/dotnet` host with
+the complete native-root and provider environment bound by the manager.
+Historical Core3 archive wrappers activate only their base provider; their curl
+qualification used an externally supplied library path. The manager therefore
+supplies both private prefixes directly and does not depend on the caller's
+library settings. It retains the original wrapper for the early
+`--cbodotnet-info` identity response and preserves all archive bytes.
+
+The manager preserves the caller's presence and value of scoped variables in
+the existing Community scope convention. A subsequent SDK selection restores that environment
 before applying its own provider settings. The scope covers `LD_LIBRARY_PATH`,
 `OPENSSL_CONF`, `CLR_OPENSSL_VERSION_OVERRIDE`, `CLR_ICU_VERSION_OVERRIDE` and
 `SSL_CERT_FILE`. Successful and failing legacy children must leave a subsequent

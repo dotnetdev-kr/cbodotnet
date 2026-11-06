@@ -47,6 +47,7 @@ internal sealed class ProviderStore
     }
     internal async Task Ensure(Catalog catalog, IEnumerable<ProviderRelease> providers)
     {
+        ProviderSupport.CheckOwnedRoot(root);
         var required = providers.ToArray(); ProviderSupport.CheckHost(required);
         foreach (var provider in required)
         {

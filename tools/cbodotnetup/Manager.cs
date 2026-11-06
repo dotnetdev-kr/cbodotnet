@@ -102,7 +102,10 @@ internal sealed class Manager : IDisposable
                 "Legacy SDK provider references differ from signed admission");
             var retainedBinding = ProviderSupport.For(original, sdk, host, true);
             SafeFiles.Require(references.ProviderIds.SequenceEqual(retainedBinding.Select(p => p.Id)), "Retained SDK provider binding changed");
-            if (!allowRevoked) ProviderSupport.CheckHost(required);
+            if (!allowRevoked)
+            {
+                ProviderSupport.CheckOwnedRoot(Root); ProviderSupport.CheckHost(required);
+            }
             foreach (var provider in required) providers.Verify(provider);
         }
     }
@@ -216,8 +219,12 @@ internal sealed class Manager : IDisposable
     {
         var sdk = SelectForRun(catalog, version, arguments, series).Release;
         var archive = Path.Combine(PathFor(sdk), "content", sdk.ArchiveRoot);
-        var launcher = Path.Combine(archive, "cbodotnet");
-        var start = SdkInvocation.Create(launcher, Path.Combine(archive, "payload"), sdk.SdkVersion, arguments);
+        var payload = Path.Combine(archive, "payload");
+        // Historical consumer wrappers declare the Core3 curl companion but do
+        // not activate its environment. Keep those bytes immutable and launch
+        // the verified payload host with the manager's complete child scope.
+        var start = SdkInvocation.Create(Path.Combine(archive, "cbodotnet"), payload, sdk.SdkVersion, arguments,
+            sdk.RequiresLegacyProvider ? sdk.Rid : null);
         var required = sdk.RequiresLegacyProvider ? ProviderSupport.For(catalog, sdk, host) : [];
         ProviderEnvironment.Apply(start, host, required.ToDictionary(p => p.ProviderId, p => providers.Verify(p), StringComparer.Ordinal));
         SdkInvocation.WriteBrand(arguments);

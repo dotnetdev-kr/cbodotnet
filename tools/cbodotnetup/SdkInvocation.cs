@@ -26,9 +26,12 @@ internal static class SdkInvocation
         return !Application(first);
     }
 
-    internal static ProcessStartInfo Create(string wrapper, string payload, string version, string[] arguments)
+    internal static ProcessStartInfo Create(string wrapper, string payload, string version, string[] arguments, string? legacyRid = null)
     {
-        var start = new ProcessStartInfo(wrapper) { UseShellExecute = false };
+        if (legacyRid is not null) SafeFiles.Require(legacyRid is "linux-x64" or "linux-arm64", "Unsupported owned payload host RID");
+        var rawHost = legacyRid is not null && !arguments.SequenceEqual(new[] { "--cbodotnet-info" });
+        var start = new ProcessStartInfo(rawHost ? Path.Combine(payload, "dotnet") : wrapper) { UseShellExecute = false };
+        if (rawHost) BindHost(start, payload, legacyRid!);
         var sdk = Path.Combine(payload, "sdk", version);
         if (UsesSdk(arguments) && !arguments.SequenceEqual(new[] { "--cbodotnet-info" }))
         {
@@ -65,11 +68,25 @@ internal static class SdkInvocation
 
     internal static void WriteBrand(string[] arguments)
     {
-        // The wrapper sees exec plus an absolute DLL, so reproduce only its
-        // diagnostic banner rules; its custom JSON/native paths still own theirs.
+        // The selected host sees exec plus an absolute DLL, so reproduce the
+        // wrapper's SDK banner rules. Its custom identity path owns its output.
         if (!UsesSdk(arguments) || arguments.SequenceEqual(new[] { "--cbodotnet-info" })) return;
         if (arguments.SequenceEqual(new[] { "--version" })) Console.Error.WriteLine(Brand);
         else if (arguments.Length == 0 || arguments.Length == 1 && arguments[0] is "--info" or "--help" or "-h" or "help")
             Console.WriteLine(Brand);
+    }
+    internal static void BindHost(ProcessStartInfo start, string payload, string rid)
+    {
+        SafeFiles.Require(rid is "linux-x64" or "linux-arm64", "Unsupported owned payload host RID");
+        var host = Path.Combine(payload, "dotnet"); SafeFiles.OrdinaryPath(host);
+        SafeFiles.Require(File.Exists(host), "The verified installed payload host is missing: " + host);
+        var bound = new[] { "DOTNET_ROOT", "DOTNET_HOST_PATH", "DOTNET_MULTILEVEL_LOOKUP" };
+        foreach (var name in start.Environment.Keys.Where(n => n.StartsWith("DOTNET_ROOT_", StringComparison.OrdinalIgnoreCase)
+            || bound.Contains(n, StringComparer.OrdinalIgnoreCase)).ToArray())
+            start.Environment.Remove(name);
+        start.Environment["DOTNET_ROOT"] = payload;
+        start.Environment[rid == "linux-x64" ? "DOTNET_ROOT_X64" : "DOTNET_ROOT_ARM64"] = payload;
+        start.Environment["DOTNET_HOST_PATH"] = host;
+        start.Environment["DOTNET_MULTILEVEL_LOOKUP"] = "0";
     }
 }

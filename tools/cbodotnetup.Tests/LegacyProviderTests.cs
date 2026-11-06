@@ -64,6 +64,15 @@ internal static class LegacyProviderTests
         var incompatible = providers.Select(p => p with { MinimumGlibc = "999.0" }).ToArray();
         Trust.Validate(catalog with { Providers = incompatible }, DateTimeOffset.UtcNow); check(true, "A signed stricter ABI restriction remains structurally valid");
         reject(() => ProviderSupport.CheckCapabilities(incompatible[baseIndex], "2.41", [ProviderSupport.X64Flags]), "Stricter signed ABI requirements fail on the actual capability vector");
+        ProviderSupport.CheckOwnedRoot("/owned/provider with spaces");check(true,"Spaces remain supported in owned legacy provider roots");
+        foreach(var root in new[]{"/owned/with:separator","/owned/with;separator","/owned/$ORIGIN","/owned/$LIB","/owned/$PLATFORM","/owned/control\nvalue"})
+        {
+            var child=new ProcessStartInfo("unused-test-child");child.Environment["LD_LIBRARY_PATH"]="/caller/original:paths;$ORIGIN";
+            reject(()=>ProviderEnvironment.Apply(child,host,new Dictionary<string,string>{{ProviderSupport.BaseId,root}}),
+                "Owned provider root cannot redirect ld.so through separators, expansion tokens or controls");
+            check(child.Environment["LD_LIBRARY_PATH"]=="/caller/original:paths;$ORIGIN",
+                "Unsafe owned provider root rejection precedes child mutation and does not sanitize explicit caller library paths");
+        }
         var projected = bridge with { Sequence = catalog.Sequence, IssuedAt = catalog.IssuedAt, ExpiresAt = catalog.ExpiresAt };
         Trust.ValidateCompatibility(catalog, projected); check(true, "Compatible projection preserves exact modern SDK/tool admissions");
         reject(() => Trust.ValidateCompatibility(catalog, projected with { Sequence = projected.Sequence - 1 }), "Compatible catalog cannot replay another generation");
@@ -185,33 +194,60 @@ internal static class LegacyProviderTests
                 Environment.SetEnvironmentVariable("CBODOTNET_CURL_COMPAT_ROOT","/untrusted/curl");
                 var parent=names.ToDictionary(n=>n,Environment.GetEnvironmentVariable);
                 var roots=new Dictionary<string,string>{{ProviderSupport.BaseId,"/owned/base"},{ProviderSupport.CurlId,"/owned/curl"}};
-                ProcessStartInfo Plan(bool legacy)
+                ProcessStartInfo Plan(bool legacy, ProcessStartInfo? inherited = null)
                 {
                     var start=new ProcessStartInfo(OperatingSystem.IsLinux()?"/bin/sh":"unused-test-child"){UseShellExecute=false,RedirectStandardOutput=true,RedirectStandardError=true};
+                    if(inherited is not null)
+                    {
+                        start.Environment.Clear();foreach(var item in inherited.Environment) start.Environment[item.Key]=item.Value;
+                    }
                     ProviderEnvironment.Apply(start,new("fedora","45","linux-x64"),legacy?roots:new Dictionary<string,string>());return start;
                 }
+                var expectedPath="/owned/curl/lib:/owned/base/lib"+(string.IsNullOrEmpty(original)?"":":"+original);
                 foreach(var legacy in new[]{true,false})
                 {
                     var plan=Plan(legacy);
-                    check(ProviderEnvironment.Scoped.All(n=>n=="SSL_CERT_FILE" && legacy && original is null
-                        ?plan.Environment[n]=="/etc/ssl/certs/ca-certificates.crt":original is null?!plan.Environment.ContainsKey(n):plan.Environment[n]==original),
-                        "Child environment restores inherited unset/empty/value state before SDK selection");
-                    check(!plan.Environment.ContainsKey("CBODOTNET_COMPAT_SCOPE")
-                        &&!plan.Environment.Keys.Any(n=>n.StartsWith("CBODOTNET_COMPAT_SAVED_",StringComparison.Ordinal))
-                        &&(legacy?plan.Environment["CBODOTNET_COMPAT_ROOT"]=="/owned/base"&&!plan.Environment.Values.Contains("/untrusted/base")
-                            :!plan.Environment.ContainsKey("CBODOTNET_COMPAT_ROOT")&&!plan.Environment.ContainsKey("CBODOTNET_CURL_COMPAT_ROOT")),
+                    check(legacy
+                        ?plan.Environment["LD_LIBRARY_PATH"]==expectedPath&&plan.Environment["OPENSSL_CONF"]=="/owned/base/openssl.cnf"
+                            &&plan.Environment["CLR_OPENSSL_VERSION_OVERRIDE"]=="1.1"&&plan.Environment["CLR_ICU_VERSION_OVERRIDE"]=="67"
+                            &&plan.Environment["SSL_CERT_FILE"]==(original??"/etc/ssl/certs/ca-certificates.crt")
+                        :ProviderEnvironment.Scoped.All(n=>original is null?!plan.Environment.ContainsKey(n):plan.Environment[n]==original),
+                        "Legacy scope binds curl before base while preserving the caller CA; modern scope restores all caller values");
+                    check(legacy
+                        ?plan.Environment["CBODOTNET_COMPAT_SCOPE"]=="rocky9"&&plan.Environment["CBODOTNET_COMPAT_ROOT"]=="/owned/base"
+                            &&plan.Environment["CBODOTNET_CURL_COMPAT_ROOT"]=="/owned/curl"
+                            &&ProviderEnvironment.Scoped.All(n=>plan.Environment["CBODOTNET_COMPAT_SAVED_"+n+"_SET"]==(original is null?"0":"1")
+                                &&(original is null?!plan.Environment.ContainsKey("CBODOTNET_COMPAT_SAVED_"+n+"_VALUE")
+                                    :plan.Environment["CBODOTNET_COMPAT_SAVED_"+n+"_VALUE"]==original))
+                        :!plan.Environment.ContainsKey("CBODOTNET_COMPAT_SCOPE")&&!plan.Environment.Keys.Any(n=>n.StartsWith("CBODOTNET_COMPAT_SAVED_",StringComparison.Ordinal))
+                            &&!plan.Environment.ContainsKey("CBODOTNET_COMPAT_ROOT")&&!plan.Environment.ContainsKey("CBODOTNET_CURL_COMPAT_ROOT"),
                         "Only approved provider roots enter legacy children; modern children carry no provider scope");
                 }
+                var scopedLegacy=Plan(true);var nestedModern=Plan(false,scopedLegacy);
+                check(ProviderEnvironment.Scoped.All(n=>original is null?!nestedModern.Environment.ContainsKey(n):nestedModern.Environment[n]==original)
+                    &&!nestedModern.Environment.ContainsKey("CBODOTNET_COMPAT_SCOPE")&&!nestedModern.Environment.ContainsKey("CBODOTNET_COMPAT_ROOT"),
+                    "A modern manager nested inside a raw legacy child restores the pre-provider caller, never a curl/base prefix");
+                var nestedLegacy=Plan(true,scopedLegacy);
+                check(nestedLegacy.Environment["LD_LIBRARY_PATH"]==expectedPath
+                    &&nestedLegacy.Environment["CBODOTNET_COMPAT_SAVED_LD_LIBRARY_PATH_SET"]==(original is null?"0":"1"),
+                    "Nested legacy selection saves the original caller instead of stacking provider prefixes");
+                var sdk5=Plan(true,scopedLegacy);
+                ProviderEnvironment.Apply(sdk5,new("rocky","9.8","linux-x64"),new Dictionary<string,string>{{ProviderSupport.BaseId,"/owned/base"}});
+                check(sdk5.Environment["LD_LIBRARY_PATH"]=="/owned/base/lib"+(string.IsNullOrEmpty(original)?"":":"+original)
+                    &&!sdk5.Environment.ContainsKey("CBODOTNET_CURL_COMPAT_ROOT")
+                    &&(original is null?!sdk5.Environment.ContainsKey("CLR_ICU_VERSION_OVERRIDE"):sdk5.Environment["CLR_ICU_VERSION_OVERRIDE"]==original),
+                    "Nested SDK5 selection removes Core3 curl and ICU overrides while retaining its required base provider");
                 if(OperatingSystem.IsLinux())
                 {
                     foreach(var code in new[]{0,7})
                     {
-                        var legacy=Plan(true);legacy.ArgumentList.Add("-c");legacy.ArgumentList.Add("test \"$CBODOTNET_COMPAT_ROOT\" = /owned/base || exit 91; test \"${CBODOTNET_COMPAT_SCOPE+x}\" != x || exit 92; exit "+code);
+                        var legacy=Plan(true);legacy.ArgumentList.Add("-c");legacy.ArgumentList.Add("test \"$CBODOTNET_COMPAT_ROOT\" = /owned/base || exit 91; test \"$CBODOTNET_COMPAT_SCOPE\" = rocky9 || exit 92; test \"$LD_LIBRARY_PATH\" = \"$1\" || exit 95; exit "+code);
+                        legacy.ArgumentList.Add("legacy-environment-probe");legacy.ArgumentList.Add(expectedPath);
                         check(Manager.RunChild(legacy)==code,"Actual legacy child success/failure uses the same launch path as Manager.Run");
                         check(names.All(n=>Environment.GetEnvironmentVariable(n)==parent[n]),"Legacy child exit never changes caller process environment");
-                        var modern=Plan(false);modern.ArgumentList.Add("-c");modern.ArgumentList.Add("test \"${CBODOTNET_COMPAT_ROOT+x}\" != x || exit 93; test \"${LD_LIBRARY_PATH-}\" = \"$1\" || exit 94");
+                        var modern=Plan(false,legacy);modern.ArgumentList.Add("-c");modern.ArgumentList.Add("test \"${CBODOTNET_COMPAT_ROOT+x}\" != x || exit 93; test \"${CBODOTNET_COMPAT_SCOPE+x}\" != x || exit 96; test \"${LD_LIBRARY_PATH-}\" = \"$1\" || exit 94");
                         modern.ArgumentList.Add("test-child");modern.ArgumentList.Add(original??"");
-                        check(Manager.RunChild(modern)==0,"A subsequent actual modern child sees the original caller environment after either legacy exit");
+                        check(Manager.RunChild(modern)==0,"An actual nested modern child restores the original caller environment after either legacy exit");
                     }
                     var missing=Plan(true);missing.FileName=Path.Combine(temporary,"nonexistent-provider-test-child");var failed=false;
                     try {Manager.RunChild(missing);}catch(System.ComponentModel.Win32Exception){failed=true;}

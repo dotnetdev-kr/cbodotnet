@@ -121,6 +121,12 @@ internal static partial class ProviderSupport
             .Select(line => line[(line.IndexOf(':') + 1)..].Split(' ', StringSplitOptions.RemoveEmptyEntries)).ToArray();
         foreach (var provider in providers) CheckCapabilities(provider, glibc, rows);
     }
+    internal static void CheckOwnedRoot(string root)
+    {
+        SafeFiles.Require(!string.IsNullOrEmpty(root) && root.StartsWith("/", StringComparison.Ordinal)
+            && !root.Any(c => char.IsControl(c) || c is ':' or ';' or '$'),
+            "Legacy provider roots cannot contain loader separators (: or ;) or $ tokens. Choose an ordinary absolute CBODOTNETUP_HOME; spaces are supported.");
+    }
     [LibraryImport("libc.so.6", EntryPoint = "gnu_get_libc_version")] private static partial IntPtr GlibcVersion();
 
     internal static void ValidateSource(string source, ProviderRelease provider)
