@@ -23,9 +23,11 @@ BASES={
  'ubuntu-22.04':'ubuntu:22.04@sha256:076e7bf82319619f28dd0aa9c02ab34b055ad37100395b4f49a2ffba04fb5e11',
  'ubuntu-24.04':'ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852',
  'debian-13':'debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4',
+ # Reviewed official Fedora45 index; earlier RPM qualification manifests were
+ # removed upstream. Historical package profiles and signed reports stay intact.
  'fedora-45':{
-  'x64':'quay.io/fedora/fedora:45@sha256:ea0998f4c945b85c2134793cda4fac35ee394f0d677a04c5b1fe769e13f959b8',
-  'aarch64':'quay.io/fedora/fedora:45@sha256:0b22780214954d098cffee33d7c5658ca99d8de06d231b2a00ebfda501b27a30'},
+  'x64':'quay.io/fedora/fedora:45@sha256:79dd6556b8fe1a559051fad5159d4987ead218f1914e7a5bd20350d9ea0f9e52',
+  'aarch64':'quay.io/fedora/fedora:45@sha256:daf39f8ebfd7624260f632d705c380f6abd4c6b430ee133b2187c6297f1ce444'},
  'rocky-9.8':{
   'x64':'quay.io/rockylinux/rockylinux:9.8@sha256:ed654c694190a670bb5c33f68995b862214fc96ffbdca95e07a8935ba0a3717d',
   'aarch64':'quay.io/rockylinux/rockylinux:9.8@sha256:67492e5a371d9db7c2ffb2708abae92147fb900900832a7ed3fb2ac4df9ec052'}}
