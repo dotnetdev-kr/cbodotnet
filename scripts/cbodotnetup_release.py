@@ -649,7 +649,13 @@ def native(args):
     if args.public:common+=['--public']
     command=['python3','/repo/scripts/cbodotnetup-release.py'];cid=image=None
     try:
-        script=MULTI.bootstrap_script(args.variant)+'exec '+shlex.join(command+['native-install',*common])
+        # Consumer prerequisites are explicit, before any SDK/tool execution.
+        # Minimal Fedora images now provide OpenSSL 4, while the reviewed .NET
+        # dependency contract requires the maintained openssl3-libs package.
+        dependencies=load_contract()['operatingSystems'][args.variant]['dependencies']
+        require(dependencies and all(re.fullmatch(r'[A-Za-z0-9+_.-]+',name) for name in dependencies),'Unsafe or missing consumer prerequisites')
+        install=['apt-get','install','-y','--no-install-recommends'] if MULTI.TARGETS[args.variant]=='deb' else ['dnf','-y','--setopt=install_weak_deps=False','--setopt=tsflags=','install']
+        script=MULTI.bootstrap_script(args.variant)+shlex.join(install+dependencies)+'\nexec '+shlex.join(command+['native-install',*common])
         cid=subprocess.check_output(['docker','create','--user','0',*mounts,QUALIFICATION_BASES[args.variant][args.arch],'sh','-ec',script],text=True).strip()
         run(['docker','start','--attach',cid]);info=json.loads(subprocess.check_output(['docker','inspect',cid],text=True))[0]
         require(info['State']['ExitCode']==0,'Native installer/bootstrap failed')
