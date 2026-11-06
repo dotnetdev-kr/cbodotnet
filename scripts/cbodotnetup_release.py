@@ -881,7 +881,10 @@ def native_matrix_install(args):
             'A revoked additional SDK was installed')
     require(all(not list((revoked_root/name).iterdir()) for name in ('toolchains','toolchains-v2','staging')),
             'Revoked SDK rejection wrote an active or staging installation')
-    require((root/'cache/v2/high-water.json').read_bytes()==high,'Independent revoked fixture changed the normal catalog watermark')
+    # The bootstrap and managed client serialize identical watermark records
+    # with different whitespace. A valid main-catalog request may normalize it
+    # during this cycle; only a sequence/hash change indicates fixture leakage.
+    require(load(root/'cache/v2/high-water.json')==json.loads(high),'Independent revoked fixture changed the normal catalog watermark')
     save(args.workspace/('sdk-'+sdk['sdkVersion']+'-state.json'),dict(sdk=sdk,exact=exact,baseline=baseline,
         baselineExact=baseline_exact,catalogSha256=descriptor(args.bundle/'catalog.json')['sha256'],
         previousToolUpgrade=previous_upgrade,
