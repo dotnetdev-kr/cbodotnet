@@ -231,7 +231,9 @@
       "archiveUserSpaces": [
         "ubuntu-22.04",
         "ubuntu-24.04",
-        "debian-13"
+        "debian-13",
+        "fedora-45",
+        "rocky-9.8"
       ],
       "securitySupport": "community-build-no-additional-security-maintenance",
       "licensePaths": [
@@ -272,7 +274,9 @@
       "archiveUserSpaces": [
         "ubuntu-22.04",
         "ubuntu-24.04",
-        "debian-13"
+        "debian-13",
+        "fedora-45",
+        "rocky-9.8"
       ],
       "securitySupport": "community-build-no-additional-security-maintenance",
       "licensePaths": [

@@ -90,6 +90,8 @@ def validate_native_report(report, build, source):
             'Native consumer reports omit exact wrapper license verification')
     else:require(build.get('archiveLayoutVersion',1)==1,'Unsupported consumer archive layout version')
     validate_native_http_report(report,plan)
+    from consumer_archive_clean import validate_clean_report
+    validate_clean_report(report,plan)
     return report
 
 

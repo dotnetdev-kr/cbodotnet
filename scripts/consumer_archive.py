@@ -7,7 +7,7 @@ import hashlib
 import importlib.util
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import shlex
 import shutil
@@ -70,6 +70,7 @@ def intake(directory, architecture, revision=1, *, contract=None, catalog=None):
         targetRid=ARCHITECTURES[architecture]['rid'],source=entry['source'],sdk=entry['sdk'],evidence=entry['evidence'],
         producer=entry['provenance'],branding=copy.deepcopy(BRANDING),licensePaths=admitted['licensePaths'],
         securitySupport=admitted['securitySupport'],validatedUserSpaces=list(admitted['archiveUserSpaces']),archiveNamingVersion=2)
+    if version in {'3.0.103','3.1.426'} and revision>=3:result['archiveLauncherVersion']=2
     result['compatibility']=compatibility_policy(result)
     native_http=native_http_compatibility_policy(result,admitted=admitted)
     if native_http is not None:result['nativeHttpCompatibility']=native_http
@@ -85,6 +86,9 @@ def compatibility_policy(plan):
             policySha256=hashlib.sha256(POLICY.read_text().replace('\r\n','\n').encode()).hexdigest(),
             companionName=f'cbodotnet-compat-rocky9-{provider["version"]}-linux-{plan["architecture"]}.tar.gz',
             archiveCaBundle='/etc/ssl/certs/ca-certificates.crt')
+        if plan.get('archiveLauncherVersion')==2:
+            result.pop('archiveCaBundle')
+            result['archiveCaBundles']=['/etc/ssl/certs/ca-certificates.crt','/etc/pki/tls/certs/ca-bundle.crt']
     return result
 
 
@@ -114,6 +118,99 @@ def archive_name(plan):
     return f'cbodotnet-sdk-{plan["sdkVersion"]}-linux-{plan["architecture"]}{qualifier}-r{plan["packageRevision"]}.tar.gz'
 
 
+def archive_provider_records(plan):
+    """Reconstruct exact companion trees from reviewed vendor/source policy pins.
+
+    This does not authenticate an arbitrary extracted companion. Its caller must
+    first verify the published archive and project signature; the generated
+    launcher then rejects changes to this closed layout before using its loader
+    paths. No live filesystem data participates in these expected values.
+    """
+    import legacy_compat as base
+    import legacy_curl as curl
+    arch=plan['architecture']
+    require(arch in {'x64','aarch64'} and curl.required(plan),'Exact Core3 architecture required')
+    records=[]
+    for native_http,module,variable in ((False,base,'CBODOTNET_COMPAT_ROOT'),(True,curl,'CBODOTNET_CURL_COMPAT_ROOT')):
+        policy=module.load_policy()
+        inventory=[dict(path='lib',mode='0o755',type='directory')]
+        for package in policy['architectures'][arch]['packages']:
+            for item in package['files']:
+                name=PurePosixPath(item['path']).name
+                inventory.append(dict(path='lib/'+name,mode='0o755',type='file',size=item['size'],sha256=item['sha256']))
+                for soname in item['soname']:
+                    inventory.append(dict(path='lib/'+soname,mode='0o777',type='symlink',target=name))
+            filename='LICENSE.curl.txt' if native_http else ('LICENSE.openssl.txt' if package['packageName']=='compat-openssl11' else 'LICENSE.icu.txt')
+            require(len(package['licenses'])==1,'Exact companion license required')
+            item=package['licenses'][0]
+            inventory.append(dict(path=filename,mode='0o644',type='file',size=item['size'],sha256=item['sha256']))
+        generated={'NOTICE.txt':module.notice_text(policy)}
+        if not native_http:generated['openssl.cnf']=policy['opensslConfiguration']['content']
+        for name,content in generated.items():
+            raw=content.encode()
+            inventory.append(dict(path=name,mode='0o644',type='file',size=len(raw),sha256=hashlib.sha256(raw).hexdigest()))
+        inventory.sort(key=lambda row:row['path'])
+        manifest=dict(schemaVersion=1,providerId=policy['providerId'],architecture=arch,providerRoot=module.PROVIDER_ROOT,
+            policySha256=hashlib.sha256(module.POLICY.read_text().replace('\r\n','\n').encode()).hexdigest(),
+            signingFingerprint=module.FINGERPRINT,packages=policy['architectures'][arch]['packages'],
+            sourcePackages=policy['sources'],key=policy['key'],securityScope=policy['securityScope'],files=copy.deepcopy(inventory))
+        if native_http:manifest.update(baseProvider=policy['baseProvider'],nativeHttpComponents=policy['nativeHttpComponents'])
+        else:manifest['opensslConfiguration']=policy['opensslConfiguration']
+        raw=(json.dumps(manifest,sort_keys=True,indent=2)+'\n').encode()
+        inventory.append(dict(path='provider-manifest.json',mode='0o644',type='file',size=len(raw),sha256=hashlib.sha256(raw).hexdigest()))
+        inventory.sort(key=lambda row:row['path'])
+        require(len({row['path'] for row in inventory})==len(inventory),'Duplicate companion layout')
+        records.append(dict(variable=variable,root=module.PROVIDER_ROOT,providerId=policy['providerId'],inventory=inventory))
+    return records
+
+
+def archive_provider_preflight(plan):
+    """Check a complete closed companion layout before setting any private LD path."""
+    lines=['# Verify separately authenticated companions before activating private loader paths.',
+        'for _cbodotnet_tool in sha256sum find readlink stat grep; do',
+        '  command -v "$_cbodotnet_tool" >/dev/null 2>&1 || { echo "cbodotnet: companion verification requires sha256sum, find, readlink, stat and grep" >&2; exit 70; }',
+        'done']
+    for record in archive_provider_records(plan):
+        lines += ['_cbodotnet_provider=${'+record['variable']+':-'+record['root']+'}',
+            r'case "$_cbodotnet_provider" in /|*/|*//*|*/./*|*/../*|*/.|*/..|*:*|*\;*|*\$*) echo "cbodotnet: unsafe compatibility provider root" >&2; exit 70 ;; /*) ;; *) echo "cbodotnet: compatibility provider root must be absolute" >&2; exit 70 ;; esac',
+            'if printf \'%s\' "$_cbodotnet_provider" | LC_ALL=C grep \'[[:cntrl:]]\' >/dev/null; then echo "cbodotnet: control characters in compatibility provider root" >&2; exit 70; fi',
+            '_cbodotnet_parent=$_cbodotnet_provider',
+            'while :; do',
+            '  [ -d "$_cbodotnet_parent" ] && [ ! -L "$_cbodotnet_parent" ] || { echo "cbodotnet: compatibility provider directory is missing or symlinked" >&2; exit 70; }',
+            '  [ "$_cbodotnet_parent" != / ] || break',
+            '  _cbodotnet_parent=${_cbodotnet_parent%/*}; [ -n "$_cbodotnet_parent" ] || _cbodotnet_parent=/',
+            'done']
+        for row in record['inventory']:
+            path='"$_cbodotnet_provider/'+row['path']+'"'
+            require(re.fullmatch(r'[A-Za-z0-9._/-]+',row['path']) and '..' not in PurePosixPath(row['path']).parts,'Unsafe companion path pin')
+            require(row['mode'] in {'0o644','0o755','0o777'},'Unreviewed companion file mode')
+            lines.append('[ "$(stat -c %a -- '+path+')" = '+row['mode'][2:]+' ] || { echo "cbodotnet: companion file mode differs" >&2; exit 70; }')
+            if row['type']=='directory':
+                check='[ -d '+path+' ] && [ ! -L '+path+' ]'
+            elif row['type']=='symlink':
+                require(re.fullmatch(r'[A-Za-z0-9._-]+',row['target']),'Unsafe companion SONAME target')
+                check='[ -L '+path+' ] && [ "$(readlink -- '+path+')" = '+shlex.quote(row['target'])+' ]'
+            else:
+                require(row['type']=='file' and re.fullmatch(r'[a-f0-9]{64}',row['sha256']),'Invalid companion file pin')
+                lines += ['[ -f '+path+' ] && [ ! -L '+path+' ] && [ -r '+path+' ] || { echo "cbodotnet: missing or substituted companion file" >&2; exit 70; }',
+                    '_cbodotnet_hash=$(sha256sum < '+path+') || { echo "cbodotnet: companion hash verification failed" >&2; exit 70; }',
+                    '[ "${_cbodotnet_hash%% *}" = '+shlex.quote(row['sha256'])+' ] || { echo "cbodotnet: companion file hash differs from reviewed sources" >&2; exit 70; }']
+                continue
+            lines.append(check+' || { echo "cbodotnet: companion directory or SONAME differs" >&2; exit 70; }')
+        lines += ['_cbodotnet_paths=$(find "$_cbodotnet_provider" -mindepth 1 -print) || { echo "cbodotnet: cannot inspect companion tree" >&2; exit 70; }',
+            '_cbodotnet_count=0',
+            'while IFS= read -r _cbodotnet_path; do',
+            '  _cbodotnet_relative=${_cbodotnet_path#"$_cbodotnet_provider"/}',
+            '  case "$_cbodotnet_relative" in '+ '|'.join(shlex.quote(row['path']) for row in record['inventory'])+') ;; *) echo "cbodotnet: unaccounted companion path" >&2; exit 70 ;; esac',
+            '  _cbodotnet_count=$((_cbodotnet_count + 1))',
+            'done <<EOF_CBODOTNET_PROVIDER_PATHS',
+            '$_cbodotnet_paths',
+            'EOF_CBODOTNET_PROVIDER_PATHS',
+            '[ "$_cbodotnet_count" = '+str(len(record['inventory']))+' ] || { echo "cbodotnet: companion path inventory differs" >&2; exit 70; }']
+    lines.append('unset _cbodotnet_tool _cbodotnet_provider _cbodotnet_parent _cbodotnet_hash _cbodotnet_paths _cbodotnet_path _cbodotnet_relative _cbodotnet_count')
+    return '\n'.join(lines)+'\n'
+
+
 def launcher_text(plan):
     versioned = '.'.join(plan['sdkVersion'].split('.')[:2])
     require(re.fullmatch(r'[1-9][0-9]*\.[0-9]+',versioned), 'Invalid SDK series')
@@ -126,12 +223,32 @@ def launcher_text(plan):
     if 'nativeHttpCompatibility' in plan:
         information['nativeHttpCompatibility']=ordered_policy(plan['nativeHttpCompatibility'],
             ('required','providerId','root','policySha256','companionName','baseProviderId'))
+    launcher_version=plan.get('archiveLauncherVersion',1)
+    require(type(launcher_version) is int and launcher_version in (1,2),'Unsupported consumer archive launcher version')
+    if launcher_version==2:
+        require(plan['sdkVersion'] in {'3.0.103','3.1.426'} and plan['packageRevision']>=3,
+                'The new archive launcher is only admitted for new Core3 revisions')
+        information['archiveLauncherVersion']=2
     # The root is resolved only at execution, so movement never rewrites payload bytes.
     prefix = json.dumps(information,separators=(',',':'))[:-1] + ',"sdkRoot":"'
     replacements = {'@ARCH_ROOT@':'DOTNET_ROOT_X64' if plan['architecture']=='x64' else 'DOTNET_ROOT_ARM64',
         '@BRAND@':shlex.quote(BRANDING['displayName']),'@IDENTITY_PREFIX@':shlex.quote(prefix),'@IDENTITY_SUFFIX@':shlex.quote('"}')}
     from legacy_compat import launcher_environment
     replacements['@COMPAT@']=launcher_environment(dict(plan,variant='ubuntu-24.04'))
+    if launcher_version==2:
+        from legacy_curl import launcher_environment as native_http_environment
+        # Restore a parent Community scope before verification subprocesses run.
+        restore=launcher_environment(dict(plan,sdkVersion='10.0.403',variant='ubuntu-24.04'))
+        ca_bundles=plan['compatibility'].get('archiveCaBundles')
+        require(ca_bundles==['/etc/ssl/certs/ca-certificates.crt','/etc/pki/tls/certs/ca-bundle.crt'],
+                'Exact reviewed archive CA bundle candidates required')
+        ca_lines=['# Preserve an explicit caller CA, including an intentionally empty value.',
+            'if [ "${CBODOTNET_COMPAT_SAVED_SSL_CERT_FILE_SET-}" != 1 ]; then']
+        for index,path in enumerate(ca_bundles):
+            ca_lines.append(('  if' if index==0 else '  elif')+' [ -r '+shlex.quote(path)+' ]; then export SSL_CERT_FILE='+shlex.quote(path))
+        ca_lines+=['  else echo "cbodotnet: install a reviewed system CA bundle or set SSL_CERT_FILE explicitly" >&2; exit 70',
+                   '  fi','fi']
+        replacements['@COMPAT@']=restore+archive_provider_preflight(plan)+replacements['@COMPAT@']+'\n'.join(ca_lines)+'\n'+native_http_environment(plan)
     template = (ROOT / 'scripts/cbodotnet-archive-launcher.sh.in').read_text(encoding='utf-8')
     return re.sub(r'@(?:ARCH_ROOT|BRAND|IDENTITY_PREFIX|IDENTITY_SUFFIX|COMPAT)@',lambda match:replacements[match[0]],template)
 
@@ -182,14 +299,33 @@ def build_archive(inputs, architecture, revision, output, *, contract=None, cata
     (tree / 'README.txt').write_text('Community Build of .NET (built by .NET Dev)\n\n'
         + 'Run ./cbodotnet, ./cbodotnet-' + '.'.join(plan['sdkVersion'].split('.')[:2]) + ' or ./dotnet.\n'
         + 'Add this extracted directory to PATH explicitly if desired. The unchanged SDK is under payload/.\n'
-        + 'For direct apphost execution set DOTNET_ROOT to the absolute payload/ directory.\n'
+        + ('For direct apphost execution set DOTNET_ROOT and the complete provider environment below.\n'
+           if plan.get('archiveLauncherVersion')==2 else 'For direct apphost execution set DOTNET_ROOT to the absolute payload/ directory.\n')
         + 'Original licensing: payload/LICENSE.txt and payload/ThirdPartyNotices.txt.\n'
         + 'Additional consumer wrappers: LICENSE.wrapper.txt (exact cbodotnet project MIT notice).\n'
         + 'Source and qualification: ' + plan['sourceManifestUrl'] + '\n'
         + ('Core3 additionally requires both separately managed compatibility companions.\n'
            + 'Native HTTP provider: ' + plan['nativeHttpCompatibility']['root'] + '\n'
            + 'Companion: ' + plan['nativeHttpCompatibility']['companionName'] + '\n'
-           if 'nativeHttpCompatibility' in plan else ''),encoding='utf-8',newline='\n')
+           if 'nativeHttpCompatibility' in plan else '')
+        + ('\nCore3 launcher contract v2:\n'
+           + 'Authenticate the project distribution-manifest.json and detached signature first, then verify/extract the exact SDK and both companion archives.\n'
+           + 'The launcher checks the pinned companion bytes, metadata, modes and SONAME layout; it does not perform project GPG verification.\n'
+           + 'Set CBODOTNET_COMPAT_ROOT and CBODOTNET_CURL_COMPAT_ROOT to the absolute companion roots under their extracted rootfs directories.\n'
+           + 'Roots must be ordinary directories with no symlink ancestors, controls, :, ; or $ loader syntax; ordinary spaces are supported.\n'
+           + 'Runtime verification requires coreutils sha256sum/readlink/stat, find and grep.\n'
+           + 'An explicit SSL_CERT_FILE is preserved. Otherwise the first readable reviewed stock CA path is used: /etc/ssl/certs/ca-certificates.crt or /etc/pki/tls/certs/ca-bundle.crt.\n'
+           + 'CLI child processes get curl/lib before SSL/ICU/lib, private openssl.cnf, CLR_OPENSSL_VERSION_OVERRIDE=1.1 and CLR_ICU_VERSION_OVERRIDE=67.\n'
+           + 'Direct apphosts require that same complete environment in addition to DOTNET_ROOT; setting DOTNET_ROOT alone is insufficient.\n'
+           + 'Direct apphost example from this extracted archive directory, after companion verification/root setup:\n'
+           + '  unset DOTNET_ROOT_X64 DOTNET_ROOT_ARM64 DOTNET_ROOT_X86\n'
+           + '  export DOTNET_ROOT="$PWD/payload"\n'
+           + '  export LD_LIBRARY_PATH="$CBODOTNET_CURL_COMPAT_ROOT/lib:$CBODOTNET_COMPAT_ROOT/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"\n'
+           + '  export OPENSSL_CONF="$CBODOTNET_COMPAT_ROOT/openssl.cnf"\n'
+           + '  export CLR_OPENSSL_VERSION_OVERRIDE=1.1 CLR_ICU_VERSION_OVERRIDE=67\n'
+           + '  export SSL_CERT_FILE=/absolute/path/to/the/reviewed/system/CA-bundle\n'
+           + '  ./your-apphost\n'
+           if plan.get('archiveLauncherVersion')==2 else ''),encoding='utf-8',newline='\n')
     current = tools.snapshot(payload)
     require({key:value for key,value in current.items() if key not in added} == original,'Qualified payload bytes, modes or links changed')
     archive = output / archive_name(plan)

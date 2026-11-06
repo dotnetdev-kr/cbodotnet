@@ -47,13 +47,15 @@ def postverify(receipt_path,architecture,workspace,keyring,output=None):
         (workspace/'native-http-compat').mkdir();native_http_provider=native_http['record']
         download(assets[native_http['asset']],workspace/'native-http-compat'/native_http_provider['companion']['path'])
         (workspace/'native-http-compat/provider-build.json').write_bytes(encoded(native_http_provider))
+    import consumer_archive_clean as clean
+    historical=clean.receive_historical(build,workspace)
     spaces=[]
     for variant in plan['validatedUserSpaces']:
         require(variant in CI.BASES,'Published archive user space is not admitted for native execution')
         cid=None;snapshot=None
         try:
-            cid=CI.run(['docker','create','-v',f'{ROOT}:/repo:ro','-v',f'{workspace}:/delivery',CI.BASES[variant],
-                'bash','-ec','apt-get update -qq && apt-get install -y --no-install-recommends python3 && '
+            cid=CI.run(['docker','create','-v',f'{ROOT}:/repo:ro','-v',f'{workspace}:/delivery',CI.base_image(variant,architecture),
+                'bash','-ec',CI.container_prepare_command(variant)+
                 f'python3 /repo/scripts/consumer-archive-ci.py prepare --workspace /delivery --variant {variant}']).strip()
             CI.run(['docker','start','--attach',cid]);require(json.loads(CI.run(['docker','inspect',cid]))[0]['State']['ExitCode']==0,
                 'Public consumer preparation failed')
@@ -63,7 +65,7 @@ def postverify(receipt_path,architecture,workspace,keyring,output=None):
         finally:
             if cid:subprocess.run(['docker','rm','--force',cid],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
             if snapshot:subprocess.run(['docker','image','rm',snapshot],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-        report=json.loads((workspace/(variant+'-report.json')).read_bytes());report['baseImage']=CI.BASES[variant];spaces.append(report)
+        report=json.loads((workspace/(variant+'-report.json')).read_bytes());report['baseImage']=CI.base_image(variant,architecture);spaces.append(report)
     result=dict(schemaVersion=1,scope='published-consumer-archive-installation',status='passed',architecture=architecture,
         identity=identity(plan),artifact=build['artifact'],commands=build['commands'],qualifiedPayload=build['qualifiedPayload'],
         orchestration=source,networkForBuild='none',checks=dict.fromkeys(REPORT_CHECKS,'passed'),userSpaces=spaces,
@@ -71,6 +73,7 @@ def postverify(receipt_path,architecture,workspace,keyring,output=None):
         compatibility=dict(required=False) if provider is None else dict(required=True,policySha256=provider['policySha256'],
             companion=provider['companion'],manifest=provider['manifest']))
     if build.get('archiveLayoutVersion',1)==2:result['wrapperLicense']=build['wrapperLicense']
+    if historical is not None:result['historicalR2Publication']=historical
     if native_http_provider is not None:
         result['nativeHttpCompatibility']=dict(required=True,policySha256=native_http_provider['policySha256'],
             companion=native_http_provider['companion'],manifest=native_http_provider['manifest'])
