@@ -107,8 +107,11 @@ def prepare(args):
     env=dict(os.environ,DEBIAN_FRONTEND='noninteractive')
     dependencies=native_dependencies(load_contract(),plan['sdkVersion'],args.variant)
     if args.variant in {'fedora-45','rocky-9.8'}:
+        # Rocky's pinned minimal image owns these tools through coreutils-single.
+        # Retain that package family while provisioning the runtime prerequisites.
+        coreutils='coreutils-single' if args.variant=='rocky-9.8' else 'coreutils'
         run(['dnf','-y','--setopt=install_weak_deps=False','--setopt=tsflags=','install',
-             'python3','util-linux','shadow-utils','findutils','coreutils','grep',
+             'python3','util-linux','shadow-utils','findutils',coreutils,'grep',
              *(['binutils'] if 'nativeHttpCompatibility' in plan else []),*dependencies],env=env)
     else:
         run(['apt-get','update','-qq'],env=env)

@@ -16,6 +16,27 @@ import consumer_archive_ci as CI
 
 
 class ConsumerArchiveCiTests(unittest.TestCase):
+    def test_rocky_prerequisites_preserve_the_pinned_coreutils_single_package_family(self):
+        for variant,expected,conflict in [('rocky-9.8','coreutils-single','coreutils'),
+                                          ('fedora-45','coreutils','coreutils-single')]:
+            with self.subTest(variant=variant),tempfile.TemporaryDirectory() as temporary:
+                workspace=Path(temporary);(workspace/'build').mkdir()
+                (workspace/'build/package-build.json').write_text(json.dumps(dict(plan=dict(
+                    sdkVersion='3.1.426',architecture='x64',nativeHttpCompatibility={'required':True}))))
+                calls=[]
+                def run(arguments,**kwargs):
+                    calls.append(arguments)
+                    if arguments[0]=='useradd':raise RuntimeError('stop after prerequisite provisioning')
+                    return ''
+                with mock.patch.object(CI,'guard'),mock.patch.object(CI,'load_contract',return_value={}),\
+                        mock.patch.object(CI,'native_dependencies',return_value=[]),mock.patch.object(CI,'run',side_effect=run):
+                    with self.assertRaisesRegex(RuntimeError,'prerequisite provisioning'):
+                        CI.prepare(SimpleNamespace(workspace=workspace,variant=variant))
+                install=next(command for command in calls if command[0]=='dnf')
+                self.assertIn(expected,install);self.assertNotIn(conflict,install)
+                self.assertIn('binutils',install)
+                self.assertFalse(any(option.startswith(('--allowerasing','--nobest','--skip-broken')) for option in install))
+
     def test_core3_preparation_installs_readelf_before_companion_elf_validation(self):
         for version in ('3.0.103','3.1.426','5.0.214','10.0.403'):
             with self.subTest(version=version),tempfile.TemporaryDirectory() as temporary:
