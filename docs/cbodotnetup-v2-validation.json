@@ -1,0 +1,1462 @@
+{
+  "aurPublicationExcludedIssue": 10,
+  "catalogRelease": {
+    "assets": [
+      {
+        "name": "catalog-v1-bootstrap.json",
+        "sha256": "992d1d5e11300cff6aa93098c35e5ae22c362bbe0d94c840965eb5eca94f34ea",
+        "size": 6822,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-42191278788/catalog-v1-bootstrap.json"
+      },
+      {
+        "name": "catalog-v1-bootstrap.json.asc",
+        "sha256": "c8dbfe524b51e9dc99e2301eb00fb8dd6fdfa511db2b9bc917f02f12240a7e93",
+        "size": 228,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-42191278788/catalog-v1-bootstrap.json.asc"
+      },
+      {
+        "name": "catalog-v1-expired.json",
+        "sha256": "31c6f5945c1ab13804861b7f161c8dc90de056fd18f457529ebe3e7eab98bfc1",
+        "size": 6822,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-42191278788/catalog-v1-expired.json"
+      },
+      {
+        "name": "catalog-v1-expired.json.asc",
+        "sha256": "7d6bfc8d893cf015d4c06ac59c8466e07af38837bab0d9c9bbfe6fea3373ebe4",
+        "size": 228,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-42191278788/catalog-v1-expired.json.asc"
+      },
+      {
+        "name": "catalog-v1.json",
+        "sha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+        "size": 8004,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-42191278788/catalog-v1.json"
+      },
+      {
+        "name": "catalog-v1.json.asc",
+        "sha256": "94460e54c328293b8d9f9b09e7239d5bdc7b57fcf074843fd550b0a0b3fda392",
+        "size": 228,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-42191278788/catalog-v1.json.asc"
+      },
+      {
+        "name": "catalog.json",
+        "sha256": "7613f8fbfaae04e26a145008cf4ecfcbe81e28664042ceb2d22dc8fb382618e3",
+        "size": 7988,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-42191278788/catalog.json"
+      },
+      {
+        "name": "catalog.json.asc",
+        "sha256": "4c8ea02af869fe7b7ec38af9256321c1bc82ed69605662ab398c6e3ce00e380d",
+        "size": 228,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-42191278788/catalog.json.asc"
+      },
+      {
+        "name": "cbodotnetup-verification-inputs.tar.gz",
+        "sha256": "c79f0bf9e2c973105a49353a05937bedac6a26fa244184811c531158477ba762",
+        "size": 21202334,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-42191278788/cbodotnetup-verification-inputs.tar.gz"
+      },
+      {
+        "name": "freeze.json",
+        "sha256": "a2dc075da5f38a0f1ee64b66f0c1051ee20f7103b75f761ccaece1285a4fa93c",
+        "size": 23045,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-42191278788/freeze.json"
+      },
+      {
+        "name": "freeze.json.asc",
+        "sha256": "7fdd152ad1a8b14e13d85e64ebee9e16a6a124b84c5cd6f3f4249bd5b190bf15",
+        "size": 228,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-42191278788/freeze.json.asc"
+      },
+      {
+        "name": "get-cbodotnetup-v0.1.0.py",
+        "sha256": "534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409",
+        "size": 11478,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-42191278788/get-cbodotnetup-v0.1.0.py"
+      },
+      {
+        "name": "get-cbodotnetup.py",
+        "sha256": "229ea09b829c52438d281f15788cc6008c21b15c755d820a4fe8f825c57a4b0b",
+        "size": 11628,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-42191278788/get-cbodotnetup.py"
+      },
+      {
+        "name": "native-qualification.json",
+        "sha256": "8387c613dfe37cf14074c796869e44dfdee8f08eba77464de35eaee6e79d2317",
+        "size": 154010,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-42191278788/native-qualification.json"
+      }
+    ],
+    "id": 436296623,
+    "tag": "cbodotnetup-catalog-42191278788",
+    "targetCommit": "638339db325bb31087b4aec6a25ee91f760c42a9",
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-catalog-42191278788"
+  },
+  "catalogSchemas": {
+    "current": 2,
+    "legacy": 1
+  },
+  "catalogSequence": 42191278788,
+  "catalogSha256": "7613f8fbfaae04e26a145008cf4ecfcbe81e28664042ceb2d22dc8fb382618e3",
+  "defaultPublicFeeds": {
+    "runId": "42194105218",
+    "status": "passed",
+    "targets": [
+      {
+        "architecture": "aarch64",
+        "artifact": {
+          "id": 13490728211,
+          "sha256": "0981e3e55aaf14ae5ad4623a89bfacddad5d0e4ebcd88c81c8b2f396d8e17571",
+          "size": 436
+        },
+        "headSha": "b265498215b651e073eaa4095cd47d65349074d3",
+        "jobId": 127812954350,
+        "jobName": "Default public feed on native aarch64",
+        "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42194105218/job/127812954350",
+        "observation": {
+          "architecture": "aarch64",
+          "bootstrapWithoutSdk": true,
+          "catalogSequence": 42191278788,
+          "catalogSha256": "7613f8fbfaae04e26a145008cf4ecfcbe81e28664042ceb2d22dc8fb382618e3",
+          "catalogUrl": "https://dotnetdev.kr/cbodotnet/cbodotnetup/v2/catalog.json",
+          "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+          "pairedHostedFeeds": "passed",
+          "scope": "cbodotnetup-default-public-feed",
+          "sequence": 42191278788,
+          "status": "passed",
+          "version": "0.2.0"
+        },
+        "report": {
+          "sha256": "35b32436c51534042cb78e1c71ba42a5982b06b742d85bf2cfaa14c9fef035db",
+          "size": 505
+        },
+        "runId": "42194105218"
+      },
+      {
+        "architecture": "x64",
+        "artifact": {
+          "id": 13491456560,
+          "sha256": "111e52296db95c2ed4aca84b614970ae8560de4dd9cc01c045c531646755f908",
+          "size": 435
+        },
+        "headSha": "b265498215b651e073eaa4095cd47d65349074d3",
+        "jobId": 127812954794,
+        "jobName": "Default public feed on native x64",
+        "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42194105218/job/127812954794",
+        "observation": {
+          "architecture": "x64",
+          "bootstrapWithoutSdk": true,
+          "catalogSequence": 42191278788,
+          "catalogSha256": "7613f8fbfaae04e26a145008cf4ecfcbe81e28664042ceb2d22dc8fb382618e3",
+          "catalogUrl": "https://dotnetdev.kr/cbodotnet/cbodotnetup/v2/catalog.json",
+          "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+          "pairedHostedFeeds": "passed",
+          "scope": "cbodotnetup-default-public-feed",
+          "sequence": 42191278788,
+          "status": "passed",
+          "version": "0.2.0"
+        },
+        "report": {
+          "sha256": "dcf9c08543d2facfc26e1327eff777d75dddc8dc248849f837c50d5d5f48a808",
+          "size": 501
+        },
+        "runId": "42194105218"
+      }
+    ]
+  },
+  "fedoraQualificationRefresh": {
+    "architectures": {
+      "aarch64": {
+        "layerSha256": "aef9f26863a5113b4115b4adc62dc2cd039b004682360abd9dd4856e4421b4d7",
+        "layerSize": 70363485,
+        "manifestSha256": "daf39f8ebfd7624260f632d705c380f6abd4c6b430ee133b2187c6297f1ce444"
+      },
+      "x64": {
+        "layerSha256": "03c1312ebb103d903ed51071bbf3ed551871ebcb03762ec9c79de6ee961bf96d",
+        "layerSize": 74590414,
+        "manifestSha256": "79dd6556b8fe1a559051fad5159d4987ead218f1914e7a5bd20350d9ea0f9e52"
+      }
+    },
+    "indexSha256": "5ad386251aa5d0111754dff91a930acc1a928afe7bafc46762024e096ab9bbb0",
+    "osRelease": {
+      "ID": "fedora",
+      "RELEASE_TYPE": "stable",
+      "VARIANT_ID": "container",
+      "VERSION_ID": "45"
+    },
+    "reason": "previous immutable Fedora45 qualification manifests removed upstream",
+    "registry": "quay.io/fedora/fedora:45",
+    "scope": "installer consumer qualification only; historical RPM/archive pins unchanged",
+    "verification": "anonymous manifest/config/full-layer sizes and SHA256; tar read without unpacking"
+  },
+  "historicalReleasePreservation": {
+    "auditedAt": "2026-11-06T09:12:13.3701969+00:00",
+    "baselinePath": ".build/issue26-releases-before.json",
+    "baselineSha256": "285ca9a85f66c77cb438886faa3ef85ba61930bd9aa659a66c08d8ec932d053f",
+    "differences": [],
+    "expectedNewReleaseTags": [
+      "cbodotnetup-v0.2.0",
+      "cbodotnetup-catalog-42191278788"
+    ],
+    "kind": "cbodotnetup-issue26-release-history-audit",
+    "latestRelease": {
+      "id": 435402979,
+      "matchesExpectedSdk": true,
+      "tag": "distribution-archive-sdk-10.0.403-r3",
+      "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-archive-sdk-10.0.403-r3"
+    },
+    "liveAssetCount": 952,
+    "liveReleaseCount": 73,
+    "missingExpectedNewTags": [],
+    "newReleases": [
+      {
+        "assetCount": 8,
+        "draft": false,
+        "id": 436296249,
+        "prerelease": false,
+        "tag": "cbodotnetup-v0.2.0",
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-v0.2.0"
+      },
+      {
+        "assetCount": 14,
+        "draft": false,
+        "id": 436296623,
+        "prerelease": false,
+        "tag": "cbodotnetup-catalog-42191278788",
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-catalog-42191278788"
+      }
+    ],
+    "oldAssetCount": 930,
+    "oldReleaseCount": 71,
+    "schemaVersion": 1,
+    "source": "GitHub REST API release collection and latest pointer through authenticated gh read-only requests",
+    "status": "passed",
+    "unchangedOldReleases": true
+  },
+  "inputEvidence": {
+    "fedoraRefresh": {
+      "sha256": "990b018a5501f801c8ef6cd23c5fec871cba507cfccc32b4f233a764773f5846",
+      "size": 892
+    },
+    "feed-artifacts": {
+      "sha256": "5972454b5b479e0f076c88c90db28a6e2f4d588ed80d199533f44701cf33eb7c",
+      "size": 1459
+    },
+    "feed-jobs": {
+      "sha256": "f2756a9997992317d0a55d8002aea548cc4ee469fc060b59dee5c99d5fbdf44b",
+      "size": 4202
+    },
+    "historyAudit": {
+      "sha256": "62cf0d425faac6ced14fe3aceac18f2db9bacde56544dbd467925c2a29630183",
+      "size": 1489
+    },
+    "jobs": {
+      "sha256": "a92b43d98db20a4a9b032ac375e1d26395d4a8f460a734c7f355c5be0a0b4c2d",
+      "size": 59282
+    },
+    "recordedTestSummary": {
+      "sha256": "0b1a7b94e7d523a293ad57be9446544f518de0167fb0feb850018f2277bb2842",
+      "size": 1007
+    },
+    "source-jobs": {
+      "sha256": "5b684b7a11415176bd73798bae72c812df5bed9aa41cc64d392ebc113dcf2a20",
+      "size": 3802
+    }
+  },
+  "issue": 26,
+  "kind": "cbodotnetup-v2-issue26-validation",
+  "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+  "nativeQualification": [
+    {
+      "architecture": "aarch64",
+      "artifact": {
+        "id": 13491015420,
+        "sha256": "39af361e055a030b837942223b99ef32a90a09838a58358072bc9a6727447924",
+        "size": 6821
+      },
+      "baseImage": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+      "binarySha256": "ef8061af2aa2696b98413aeffd6d1789fa607b652fcebe97bb17bf8ba0f01252",
+      "bootstrapSha256": "229ea09b829c52438d281f15788cc6008c21b15c755d820a4fe8f825c57a4b0b",
+      "checks": {
+        "branded-aliases": "passed",
+        "community-package-coexistence": "passed",
+        "concurrency": "passed",
+        "exact-version-install": "passed",
+        "http-crypto-globalization": "passed",
+        "idempotent-install": "passed",
+        "interrupted-activation": "passed",
+        "official-package-coexistence": "passed",
+        "offline-build-runtime": "passed",
+        "owned-paths": "passed",
+        "removal": "passed",
+        "rollback": "passed",
+        "sdk-free-bootstrap": "passed",
+        "signature-authentication": "passed",
+        "signature-rejection": "passed",
+        "source-producer-linkage": "passed",
+        "tamper-rejection": "passed",
+        "unqualified-rejection": "passed"
+      },
+      "freezeSha256": "a2dc075da5f38a0f1ee64b66f0c1051ee20f7103b75f761ccaece1285a4fa93c",
+      "functionalChecks": {
+        "aspNetCoreLoopbackHttp": "passed",
+        "consoleApphostExecution": "passed",
+        "consoleDllExecution": "passed",
+        "cryptographicRandomBytes": "passed",
+        "frFrDecimalFormatting": "passed",
+        "rsaSha256SignAndVerify": "passed",
+        "tls12LoopbackHandshake": "passed"
+      },
+      "jobId": 127807691106,
+      "jobName": "Qualify cbodotnetup on debian-13 native aarch64",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42192440876/job/127807691106",
+      "migration": {
+        "expiredCatalogRejection": "passed",
+        "interruptedOwnershipRecovery": "passed",
+        "legacyBootstrapSha256": "534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409",
+        "legacyCachePreserved": "passed",
+        "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+        "newSdk": "10.0.403-r3",
+        "newVersion": "0.2.0",
+        "oldBinarySha256": "3c81c33a8185fb16bf12bd872fb17f314f292a6cc0a4c6226517437c00f043da",
+        "oldSdk": "10.0.403-r2",
+        "oldVersion": "0.1.0",
+        "protocol": "actual-0.1.0-frozen-bootstrap-migration",
+        "sdkRollback": "passed",
+        "status": "passed"
+      },
+      "report": {
+        "sha256": "90140ad877cb80580903180fc642b608561829fe9fb7dda4c239fbe25456475e",
+        "size": 11610
+      },
+      "sdkSourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "status": "passed",
+      "variant": "debian-13"
+    },
+    {
+      "architecture": "x64",
+      "artifact": {
+        "id": 13491155333,
+        "sha256": "f90499e00e831a554110c5b6b6a94cf65fe96b90d0d37e13a5d709fd53a0b0ef",
+        "size": 6791
+      },
+      "baseImage": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+      "binarySha256": "38aa89cf885e9766b884d1ee1cc64f995c82d2e02e2be1d74dcdf6099416a5de",
+      "bootstrapSha256": "229ea09b829c52438d281f15788cc6008c21b15c755d820a4fe8f825c57a4b0b",
+      "checks": {
+        "branded-aliases": "passed",
+        "community-package-coexistence": "passed",
+        "concurrency": "passed",
+        "exact-version-install": "passed",
+        "http-crypto-globalization": "passed",
+        "idempotent-install": "passed",
+        "interrupted-activation": "passed",
+        "official-package-coexistence": "passed",
+        "offline-build-runtime": "passed",
+        "owned-paths": "passed",
+        "removal": "passed",
+        "rollback": "passed",
+        "sdk-free-bootstrap": "passed",
+        "signature-authentication": "passed",
+        "signature-rejection": "passed",
+        "source-producer-linkage": "passed",
+        "tamper-rejection": "passed",
+        "unqualified-rejection": "passed"
+      },
+      "freezeSha256": "a2dc075da5f38a0f1ee64b66f0c1051ee20f7103b75f761ccaece1285a4fa93c",
+      "functionalChecks": {
+        "aspNetCoreLoopbackHttp": "passed",
+        "consoleApphostExecution": "passed",
+        "consoleDllExecution": "passed",
+        "cryptographicRandomBytes": "passed",
+        "frFrDecimalFormatting": "passed",
+        "rsaSha256SignAndVerify": "passed",
+        "tls12LoopbackHandshake": "passed"
+      },
+      "jobId": 127807691154,
+      "jobName": "Qualify cbodotnetup on debian-13 native x64",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42192440876/job/127807691154",
+      "migration": {
+        "expiredCatalogRejection": "passed",
+        "interruptedOwnershipRecovery": "passed",
+        "legacyBootstrapSha256": "534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409",
+        "legacyCachePreserved": "passed",
+        "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+        "newSdk": "10.0.403-r3",
+        "newVersion": "0.2.0",
+        "oldBinarySha256": "56c1a7ffd36ed13ca804ecc2a7d18ffba10e183311047be3256b5b967a23bcb6",
+        "oldSdk": "10.0.403-r2",
+        "oldVersion": "0.1.0",
+        "protocol": "actual-0.1.0-frozen-bootstrap-migration",
+        "sdkRollback": "passed",
+        "status": "passed"
+      },
+      "report": {
+        "sha256": "e89002ffe0ebc40f22b362f5590ece099d184afaa382e15e209c1d0106989f69",
+        "size": 11582
+      },
+      "sdkSourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "status": "passed",
+      "variant": "debian-13"
+    },
+    {
+      "architecture": "aarch64",
+      "artifact": {
+        "id": 13491141215,
+        "sha256": "2f4cc5b1100d5b0cd6140575f127c829989ea5d8cfa6010f62bc9c2dc2cdfeed",
+        "size": 8938
+      },
+      "baseImage": "quay.io/fedora/fedora:45@sha256:daf39f8ebfd7624260f632d705c380f6abd4c6b430ee133b2187c6297f1ce444",
+      "binarySha256": "ef8061af2aa2696b98413aeffd6d1789fa607b652fcebe97bb17bf8ba0f01252",
+      "bootstrapSha256": "229ea09b829c52438d281f15788cc6008c21b15c755d820a4fe8f825c57a4b0b",
+      "checks": {
+        "branded-aliases": "passed",
+        "community-package-coexistence": "passed",
+        "concurrency": "passed",
+        "exact-version-install": "passed",
+        "http-crypto-globalization": "passed",
+        "idempotent-install": "passed",
+        "interrupted-activation": "passed",
+        "official-package-coexistence": "passed",
+        "offline-build-runtime": "passed",
+        "owned-paths": "passed",
+        "removal": "passed",
+        "rollback": "passed",
+        "sdk-free-bootstrap": "passed",
+        "signature-authentication": "passed",
+        "signature-rejection": "passed",
+        "source-producer-linkage": "passed",
+        "tamper-rejection": "passed",
+        "unqualified-rejection": "passed"
+      },
+      "freezeSha256": "a2dc075da5f38a0f1ee64b66f0c1051ee20f7103b75f761ccaece1285a4fa93c",
+      "functionalChecks": {
+        "aspNetCoreLoopbackHttp": "passed",
+        "consoleApphostExecution": "passed",
+        "consoleDllExecution": "passed",
+        "cryptographicRandomBytes": "passed",
+        "frFrDecimalFormatting": "passed",
+        "rsaSha256SignAndVerify": "passed",
+        "tls12LoopbackHandshake": "passed"
+      },
+      "jobId": 127807691065,
+      "jobName": "Qualify cbodotnetup on fedora-45 native aarch64",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42192440876/job/127807691065",
+      "migration": {
+        "expiredCatalogRejection": "passed",
+        "interruptedOwnershipRecovery": "passed",
+        "legacyBootstrapSha256": "534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409",
+        "legacyCachePreserved": "passed",
+        "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+        "newSdk": "10.0.403-r3",
+        "newVersion": "0.2.0",
+        "oldBinarySha256": "3c81c33a8185fb16bf12bd872fb17f314f292a6cc0a4c6226517437c00f043da",
+        "oldSdk": "10.0.403-r2",
+        "oldVersion": "0.1.0",
+        "protocol": "actual-0.1.0-frozen-bootstrap-migration",
+        "sdkRollback": "passed",
+        "status": "passed"
+      },
+      "report": {
+        "sha256": "a5760c64a8c6ac7927196ce2fbe9e7e401a191736b92c14e16722af575d1869f",
+        "size": 20804
+      },
+      "sdkSourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "status": "passed",
+      "variant": "fedora-45"
+    },
+    {
+      "architecture": "x64",
+      "artifact": {
+        "id": 13490308733,
+        "sha256": "f6dfa3ccc255d6f69bee096e6b93506482145701128fdf1f5dfb95108f1bc7fd",
+        "size": 8951
+      },
+      "baseImage": "quay.io/fedora/fedora:45@sha256:79dd6556b8fe1a559051fad5159d4987ead218f1914e7a5bd20350d9ea0f9e52",
+      "binarySha256": "38aa89cf885e9766b884d1ee1cc64f995c82d2e02e2be1d74dcdf6099416a5de",
+      "bootstrapSha256": "229ea09b829c52438d281f15788cc6008c21b15c755d820a4fe8f825c57a4b0b",
+      "checks": {
+        "branded-aliases": "passed",
+        "community-package-coexistence": "passed",
+        "concurrency": "passed",
+        "exact-version-install": "passed",
+        "http-crypto-globalization": "passed",
+        "idempotent-install": "passed",
+        "interrupted-activation": "passed",
+        "official-package-coexistence": "passed",
+        "offline-build-runtime": "passed",
+        "owned-paths": "passed",
+        "removal": "passed",
+        "rollback": "passed",
+        "sdk-free-bootstrap": "passed",
+        "signature-authentication": "passed",
+        "signature-rejection": "passed",
+        "source-producer-linkage": "passed",
+        "tamper-rejection": "passed",
+        "unqualified-rejection": "passed"
+      },
+      "freezeSha256": "a2dc075da5f38a0f1ee64b66f0c1051ee20f7103b75f761ccaece1285a4fa93c",
+      "functionalChecks": {
+        "aspNetCoreLoopbackHttp": "passed",
+        "consoleApphostExecution": "passed",
+        "consoleDllExecution": "passed",
+        "cryptographicRandomBytes": "passed",
+        "frFrDecimalFormatting": "passed",
+        "rsaSha256SignAndVerify": "passed",
+        "tls12LoopbackHandshake": "passed"
+      },
+      "jobId": 127807691191,
+      "jobName": "Qualify cbodotnetup on fedora-45 native x64",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42192440876/job/127807691191",
+      "migration": {
+        "expiredCatalogRejection": "passed",
+        "interruptedOwnershipRecovery": "passed",
+        "legacyBootstrapSha256": "534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409",
+        "legacyCachePreserved": "passed",
+        "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+        "newSdk": "10.0.403-r3",
+        "newVersion": "0.2.0",
+        "oldBinarySha256": "56c1a7ffd36ed13ca804ecc2a7d18ffba10e183311047be3256b5b967a23bcb6",
+        "oldSdk": "10.0.403-r2",
+        "oldVersion": "0.1.0",
+        "protocol": "actual-0.1.0-frozen-bootstrap-migration",
+        "sdkRollback": "passed",
+        "status": "passed"
+      },
+      "report": {
+        "sha256": "be39d257738c978aa925630725c7cb8c321f315471d886634fa46ee23c37c561",
+        "size": 20722
+      },
+      "sdkSourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "status": "passed",
+      "variant": "fedora-45"
+    },
+    {
+      "architecture": "aarch64",
+      "artifact": {
+        "id": 13489908910,
+        "sha256": "e6b75159be067d60e89803b2eb69e2ac742486cdf57718e19d1b006f004b9378",
+        "size": 8824
+      },
+      "baseImage": "quay.io/rockylinux/rockylinux:9.8@sha256:67492e5a371d9db7c2ffb2708abae92147fb900900832a7ed3fb2ac4df9ec052",
+      "binarySha256": "ef8061af2aa2696b98413aeffd6d1789fa607b652fcebe97bb17bf8ba0f01252",
+      "bootstrapSha256": "229ea09b829c52438d281f15788cc6008c21b15c755d820a4fe8f825c57a4b0b",
+      "checks": {
+        "branded-aliases": "passed",
+        "community-package-coexistence": "passed",
+        "concurrency": "passed",
+        "exact-version-install": "passed",
+        "http-crypto-globalization": "passed",
+        "idempotent-install": "passed",
+        "interrupted-activation": "passed",
+        "official-package-coexistence": "passed",
+        "offline-build-runtime": "passed",
+        "owned-paths": "passed",
+        "removal": "passed",
+        "rollback": "passed",
+        "sdk-free-bootstrap": "passed",
+        "signature-authentication": "passed",
+        "signature-rejection": "passed",
+        "source-producer-linkage": "passed",
+        "tamper-rejection": "passed",
+        "unqualified-rejection": "passed"
+      },
+      "freezeSha256": "a2dc075da5f38a0f1ee64b66f0c1051ee20f7103b75f761ccaece1285a4fa93c",
+      "functionalChecks": {
+        "aspNetCoreLoopbackHttp": "passed",
+        "consoleApphostExecution": "passed",
+        "consoleDllExecution": "passed",
+        "cryptographicRandomBytes": "passed",
+        "frFrDecimalFormatting": "passed",
+        "rsaSha256SignAndVerify": "passed",
+        "tls12LoopbackHandshake": "passed"
+      },
+      "jobId": 127807691192,
+      "jobName": "Qualify cbodotnetup on rocky-9.8 native aarch64",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42192440876/job/127807691192",
+      "migration": {
+        "expiredCatalogRejection": "passed",
+        "interruptedOwnershipRecovery": "passed",
+        "legacyBootstrapSha256": "534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409",
+        "legacyCachePreserved": "passed",
+        "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+        "newSdk": "10.0.403-r3",
+        "newVersion": "0.2.0",
+        "oldBinarySha256": "3c81c33a8185fb16bf12bd872fb17f314f292a6cc0a4c6226517437c00f043da",
+        "oldSdk": "10.0.403-r2",
+        "oldVersion": "0.1.0",
+        "protocol": "actual-0.1.0-frozen-bootstrap-migration",
+        "sdkRollback": "passed",
+        "status": "passed"
+      },
+      "report": {
+        "sha256": "63ee13ff3db1979d6b92dd5960e1203cdb3be0481c6b88d11cf471b7b070a184",
+        "size": 20819
+      },
+      "sdkSourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "status": "passed",
+      "variant": "rocky-9.8"
+    },
+    {
+      "architecture": "x64",
+      "artifact": {
+        "id": 13489544534,
+        "sha256": "a1d5616832cc8611bc10c4592173e3c94c22e73163deb3def1090992f2cee6d7",
+        "size": 8815
+      },
+      "baseImage": "quay.io/rockylinux/rockylinux:9.8@sha256:ed654c694190a670bb5c33f68995b862214fc96ffbdca95e07a8935ba0a3717d",
+      "binarySha256": "38aa89cf885e9766b884d1ee1cc64f995c82d2e02e2be1d74dcdf6099416a5de",
+      "bootstrapSha256": "229ea09b829c52438d281f15788cc6008c21b15c755d820a4fe8f825c57a4b0b",
+      "checks": {
+        "branded-aliases": "passed",
+        "community-package-coexistence": "passed",
+        "concurrency": "passed",
+        "exact-version-install": "passed",
+        "http-crypto-globalization": "passed",
+        "idempotent-install": "passed",
+        "interrupted-activation": "passed",
+        "official-package-coexistence": "passed",
+        "offline-build-runtime": "passed",
+        "owned-paths": "passed",
+        "removal": "passed",
+        "rollback": "passed",
+        "sdk-free-bootstrap": "passed",
+        "signature-authentication": "passed",
+        "signature-rejection": "passed",
+        "source-producer-linkage": "passed",
+        "tamper-rejection": "passed",
+        "unqualified-rejection": "passed"
+      },
+      "freezeSha256": "a2dc075da5f38a0f1ee64b66f0c1051ee20f7103b75f761ccaece1285a4fa93c",
+      "functionalChecks": {
+        "aspNetCoreLoopbackHttp": "passed",
+        "consoleApphostExecution": "passed",
+        "consoleDllExecution": "passed",
+        "cryptographicRandomBytes": "passed",
+        "frFrDecimalFormatting": "passed",
+        "rsaSha256SignAndVerify": "passed",
+        "tls12LoopbackHandshake": "passed"
+      },
+      "jobId": 127807691119,
+      "jobName": "Qualify cbodotnetup on rocky-9.8 native x64",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42192440876/job/127807691119",
+      "migration": {
+        "expiredCatalogRejection": "passed",
+        "interruptedOwnershipRecovery": "passed",
+        "legacyBootstrapSha256": "534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409",
+        "legacyCachePreserved": "passed",
+        "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+        "newSdk": "10.0.403-r3",
+        "newVersion": "0.2.0",
+        "oldBinarySha256": "56c1a7ffd36ed13ca804ecc2a7d18ffba10e183311047be3256b5b967a23bcb6",
+        "oldSdk": "10.0.403-r2",
+        "oldVersion": "0.1.0",
+        "protocol": "actual-0.1.0-frozen-bootstrap-migration",
+        "sdkRollback": "passed",
+        "status": "passed"
+      },
+      "report": {
+        "sha256": "8edb5bfa98db6beacd96837b5b424485cabbda76a2b3e35b19984cf8160ffc6d",
+        "size": 20739
+      },
+      "sdkSourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "status": "passed",
+      "variant": "rocky-9.8"
+    },
+    {
+      "architecture": "aarch64",
+      "artifact": {
+        "id": 13490551676,
+        "sha256": "f984a6db5e99c3140caffcfd3658c2cbc3f780a3133401d0173b273c17d0d6cf",
+        "size": 7082
+      },
+      "baseImage": "ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852",
+      "binarySha256": "ef8061af2aa2696b98413aeffd6d1789fa607b652fcebe97bb17bf8ba0f01252",
+      "bootstrapSha256": "229ea09b829c52438d281f15788cc6008c21b15c755d820a4fe8f825c57a4b0b",
+      "checks": {
+        "branded-aliases": "passed",
+        "community-package-coexistence": "passed",
+        "concurrency": "passed",
+        "exact-version-install": "passed",
+        "http-crypto-globalization": "passed",
+        "idempotent-install": "passed",
+        "interrupted-activation": "passed",
+        "official-package-coexistence": "passed",
+        "offline-build-runtime": "passed",
+        "owned-paths": "passed",
+        "removal": "passed",
+        "rollback": "passed",
+        "sdk-free-bootstrap": "passed",
+        "signature-authentication": "passed",
+        "signature-rejection": "passed",
+        "source-producer-linkage": "passed",
+        "tamper-rejection": "passed",
+        "unqualified-rejection": "passed"
+      },
+      "freezeSha256": "a2dc075da5f38a0f1ee64b66f0c1051ee20f7103b75f761ccaece1285a4fa93c",
+      "functionalChecks": {
+        "aspNetCoreLoopbackHttp": "passed",
+        "consoleApphostExecution": "passed",
+        "consoleDllExecution": "passed",
+        "cryptographicRandomBytes": "passed",
+        "frFrDecimalFormatting": "passed",
+        "rsaSha256SignAndVerify": "passed",
+        "tls12LoopbackHandshake": "passed"
+      },
+      "jobId": 127807691118,
+      "jobName": "Qualify cbodotnetup on ubuntu-24.04 native aarch64",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42192440876/job/127807691118",
+      "migration": {
+        "expiredCatalogRejection": "passed",
+        "interruptedOwnershipRecovery": "passed",
+        "legacyBootstrapSha256": "534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409",
+        "legacyCachePreserved": "passed",
+        "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+        "newSdk": "10.0.403-r3",
+        "newVersion": "0.2.0",
+        "oldBinarySha256": "3c81c33a8185fb16bf12bd872fb17f314f292a6cc0a4c6226517437c00f043da",
+        "oldSdk": "10.0.403-r2",
+        "oldVersion": "0.1.0",
+        "protocol": "actual-0.1.0-frozen-bootstrap-migration",
+        "sdkRollback": "passed",
+        "status": "passed"
+      },
+      "report": {
+        "sha256": "ff1b845fbfefe12e67a2cf097704df1699527d34f169ddddc9683722a36f948c",
+        "size": 11393
+      },
+      "sdkSourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "status": "passed",
+      "variant": "ubuntu-24.04"
+    },
+    {
+      "architecture": "x64",
+      "artifact": {
+        "id": 13490781002,
+        "sha256": "4a5efaa7f6a9ad643831c8b5e1fead737bc2134d2ad1b9405abbd4b908c7d464",
+        "size": 7059
+      },
+      "baseImage": "ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852",
+      "binarySha256": "38aa89cf885e9766b884d1ee1cc64f995c82d2e02e2be1d74dcdf6099416a5de",
+      "bootstrapSha256": "229ea09b829c52438d281f15788cc6008c21b15c755d820a4fe8f825c57a4b0b",
+      "checks": {
+        "branded-aliases": "passed",
+        "community-package-coexistence": "passed",
+        "concurrency": "passed",
+        "exact-version-install": "passed",
+        "http-crypto-globalization": "passed",
+        "idempotent-install": "passed",
+        "interrupted-activation": "passed",
+        "official-package-coexistence": "passed",
+        "offline-build-runtime": "passed",
+        "owned-paths": "passed",
+        "removal": "passed",
+        "rollback": "passed",
+        "sdk-free-bootstrap": "passed",
+        "signature-authentication": "passed",
+        "signature-rejection": "passed",
+        "source-producer-linkage": "passed",
+        "tamper-rejection": "passed",
+        "unqualified-rejection": "passed"
+      },
+      "freezeSha256": "a2dc075da5f38a0f1ee64b66f0c1051ee20f7103b75f761ccaece1285a4fa93c",
+      "functionalChecks": {
+        "aspNetCoreLoopbackHttp": "passed",
+        "consoleApphostExecution": "passed",
+        "consoleDllExecution": "passed",
+        "cryptographicRandomBytes": "passed",
+        "frFrDecimalFormatting": "passed",
+        "rsaSha256SignAndVerify": "passed",
+        "tls12LoopbackHandshake": "passed"
+      },
+      "jobId": 127807691079,
+      "jobName": "Qualify cbodotnetup on ubuntu-24.04 native x64",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42192440876/job/127807691079",
+      "migration": {
+        "expiredCatalogRejection": "passed",
+        "interruptedOwnershipRecovery": "passed",
+        "legacyBootstrapSha256": "534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409",
+        "legacyCachePreserved": "passed",
+        "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+        "newSdk": "10.0.403-r3",
+        "newVersion": "0.2.0",
+        "oldBinarySha256": "56c1a7ffd36ed13ca804ecc2a7d18ffba10e183311047be3256b5b967a23bcb6",
+        "oldSdk": "10.0.403-r2",
+        "oldVersion": "0.1.0",
+        "protocol": "actual-0.1.0-frozen-bootstrap-migration",
+        "sdkRollback": "passed",
+        "status": "passed"
+      },
+      "report": {
+        "sha256": "fe39a262e2dea82a4fbc8ed3bfab2daf6bae550ef8e266f7b09632c5ace5df80",
+        "size": 11357
+      },
+      "sdkSourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "status": "passed",
+      "variant": "ubuntu-24.04"
+    }
+  ],
+  "pagesDeployment": {
+    "conclusion": "success",
+    "head_branch": "main",
+    "head_sha": "b265498215b651e073eaa4095cd47d65349074d3",
+    "html_url": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42193695509",
+    "id": 42193695509,
+    "path": ".github/workflows/pages.yml",
+    "restEvidence": {
+      "sha256": "8162f6688494c0b232a31909a67287c3ef4d27e685a844e0e194d63d2bcabe0b",
+      "size": 12814
+    },
+    "status": "completed"
+  },
+  "publicNativeVerification": [
+    {
+      "architecture": "aarch64",
+      "artifact": {
+        "id": 13491001611,
+        "sha256": "dba127ba76ab1fb2f05b93a3adefc256ea466675fc8709dd67aa000cc3cc0dc3",
+        "size": 6826
+      },
+      "baseImage": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+      "binarySha256": "ef8061af2aa2696b98413aeffd6d1789fa607b652fcebe97bb17bf8ba0f01252",
+      "bootstrapSha256": "229ea09b829c52438d281f15788cc6008c21b15c755d820a4fe8f825c57a4b0b",
+      "checks": {
+        "branded-aliases": "passed",
+        "community-package-coexistence": "passed",
+        "concurrency": "passed",
+        "exact-version-install": "passed",
+        "http-crypto-globalization": "passed",
+        "idempotent-install": "passed",
+        "interrupted-activation": "passed",
+        "official-package-coexistence": "passed",
+        "offline-build-runtime": "passed",
+        "owned-paths": "passed",
+        "removal": "passed",
+        "rollback": "passed",
+        "sdk-free-bootstrap": "passed",
+        "signature-authentication": "passed",
+        "signature-rejection": "passed",
+        "source-producer-linkage": "passed",
+        "tamper-rejection": "passed",
+        "unqualified-rejection": "passed"
+      },
+      "freezeSha256": "a2dc075da5f38a0f1ee64b66f0c1051ee20f7103b75f761ccaece1285a4fa93c",
+      "functionalChecks": {
+        "aspNetCoreLoopbackHttp": "passed",
+        "consoleApphostExecution": "passed",
+        "consoleDllExecution": "passed",
+        "cryptographicRandomBytes": "passed",
+        "frFrDecimalFormatting": "passed",
+        "rsaSha256SignAndVerify": "passed",
+        "tls12LoopbackHandshake": "passed"
+      },
+      "jobId": 127809973936,
+      "jobName": "Verify public cbodotnetup on debian-13 native aarch64",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42192440876/job/127809973936",
+      "migration": {
+        "expiredCatalogRejection": "passed",
+        "interruptedOwnershipRecovery": "passed",
+        "legacyBootstrapSha256": "534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409",
+        "legacyCachePreserved": "passed",
+        "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+        "newSdk": "10.0.403-r3",
+        "newVersion": "0.2.0",
+        "oldBinarySha256": "3c81c33a8185fb16bf12bd872fb17f314f292a6cc0a4c6226517437c00f043da",
+        "oldSdk": "10.0.403-r2",
+        "oldVersion": "0.1.0",
+        "protocol": "actual-0.1.0-self-update-rollback-reupgrade",
+        "sdkRollback": "passed",
+        "status": "passed"
+      },
+      "report": {
+        "sha256": "6edaf4ea1ad021c2909d5270bc01ae741aef79d3b2b6003d41982fb8e25d8c43",
+        "size": 11600
+      },
+      "sdkSourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "status": "passed",
+      "variant": "debian-13"
+    },
+    {
+      "architecture": "x64",
+      "artifact": {
+        "id": 13491031036,
+        "sha256": "6b8d5f29c8095ed577e849513f1efe38860b483fd37b782d4084209a9bb2842d",
+        "size": 6799
+      },
+      "baseImage": "debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4",
+      "binarySha256": "38aa89cf885e9766b884d1ee1cc64f995c82d2e02e2be1d74dcdf6099416a5de",
+      "bootstrapSha256": "229ea09b829c52438d281f15788cc6008c21b15c755d820a4fe8f825c57a4b0b",
+      "checks": {
+        "branded-aliases": "passed",
+        "community-package-coexistence": "passed",
+        "concurrency": "passed",
+        "exact-version-install": "passed",
+        "http-crypto-globalization": "passed",
+        "idempotent-install": "passed",
+        "interrupted-activation": "passed",
+        "official-package-coexistence": "passed",
+        "offline-build-runtime": "passed",
+        "owned-paths": "passed",
+        "removal": "passed",
+        "rollback": "passed",
+        "sdk-free-bootstrap": "passed",
+        "signature-authentication": "passed",
+        "signature-rejection": "passed",
+        "source-producer-linkage": "passed",
+        "tamper-rejection": "passed",
+        "unqualified-rejection": "passed"
+      },
+      "freezeSha256": "a2dc075da5f38a0f1ee64b66f0c1051ee20f7103b75f761ccaece1285a4fa93c",
+      "functionalChecks": {
+        "aspNetCoreLoopbackHttp": "passed",
+        "consoleApphostExecution": "passed",
+        "consoleDllExecution": "passed",
+        "cryptographicRandomBytes": "passed",
+        "frFrDecimalFormatting": "passed",
+        "rsaSha256SignAndVerify": "passed",
+        "tls12LoopbackHandshake": "passed"
+      },
+      "jobId": 127809973609,
+      "jobName": "Verify public cbodotnetup on debian-13 native x64",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42192440876/job/127809973609",
+      "migration": {
+        "expiredCatalogRejection": "passed",
+        "interruptedOwnershipRecovery": "passed",
+        "legacyBootstrapSha256": "534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409",
+        "legacyCachePreserved": "passed",
+        "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+        "newSdk": "10.0.403-r3",
+        "newVersion": "0.2.0",
+        "oldBinarySha256": "56c1a7ffd36ed13ca804ecc2a7d18ffba10e183311047be3256b5b967a23bcb6",
+        "oldSdk": "10.0.403-r2",
+        "oldVersion": "0.1.0",
+        "protocol": "actual-0.1.0-self-update-rollback-reupgrade",
+        "sdkRollback": "passed",
+        "status": "passed"
+      },
+      "report": {
+        "sha256": "ae4992993f6ad5285a98caf640c0e32a9157bf32423f83e8d29949b25be715ab",
+        "size": 11572
+      },
+      "sdkSourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "status": "passed",
+      "variant": "debian-13"
+    },
+    {
+      "architecture": "aarch64",
+      "artifact": {
+        "id": 13490737147,
+        "sha256": "caccf3e80b8d292c9aad3e9304d0d6de6ccb93ea059240a9115704746e85eb2c",
+        "size": 8934
+      },
+      "baseImage": "quay.io/fedora/fedora:45@sha256:daf39f8ebfd7624260f632d705c380f6abd4c6b430ee133b2187c6297f1ce444",
+      "binarySha256": "ef8061af2aa2696b98413aeffd6d1789fa607b652fcebe97bb17bf8ba0f01252",
+      "bootstrapSha256": "229ea09b829c52438d281f15788cc6008c21b15c755d820a4fe8f825c57a4b0b",
+      "checks": {
+        "branded-aliases": "passed",
+        "community-package-coexistence": "passed",
+        "concurrency": "passed",
+        "exact-version-install": "passed",
+        "http-crypto-globalization": "passed",
+        "idempotent-install": "passed",
+        "interrupted-activation": "passed",
+        "official-package-coexistence": "passed",
+        "offline-build-runtime": "passed",
+        "owned-paths": "passed",
+        "removal": "passed",
+        "rollback": "passed",
+        "sdk-free-bootstrap": "passed",
+        "signature-authentication": "passed",
+        "signature-rejection": "passed",
+        "source-producer-linkage": "passed",
+        "tamper-rejection": "passed",
+        "unqualified-rejection": "passed"
+      },
+      "freezeSha256": "a2dc075da5f38a0f1ee64b66f0c1051ee20f7103b75f761ccaece1285a4fa93c",
+      "functionalChecks": {
+        "aspNetCoreLoopbackHttp": "passed",
+        "consoleApphostExecution": "passed",
+        "consoleDllExecution": "passed",
+        "cryptographicRandomBytes": "passed",
+        "frFrDecimalFormatting": "passed",
+        "rsaSha256SignAndVerify": "passed",
+        "tls12LoopbackHandshake": "passed"
+      },
+      "jobId": 127809973784,
+      "jobName": "Verify public cbodotnetup on fedora-45 native aarch64",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42192440876/job/127809973784",
+      "migration": {
+        "expiredCatalogRejection": "passed",
+        "interruptedOwnershipRecovery": "passed",
+        "legacyBootstrapSha256": "534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409",
+        "legacyCachePreserved": "passed",
+        "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+        "newSdk": "10.0.403-r3",
+        "newVersion": "0.2.0",
+        "oldBinarySha256": "3c81c33a8185fb16bf12bd872fb17f314f292a6cc0a4c6226517437c00f043da",
+        "oldSdk": "10.0.403-r2",
+        "oldVersion": "0.1.0",
+        "protocol": "actual-0.1.0-self-update-rollback-reupgrade",
+        "sdkRollback": "passed",
+        "status": "passed"
+      },
+      "report": {
+        "sha256": "8b0a4dd2804b8f9360c847003adbd0f0fab54e899f8eb05411a20a431eddf0a9",
+        "size": 20794
+      },
+      "sdkSourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "status": "passed",
+      "variant": "fedora-45"
+    },
+    {
+      "architecture": "x64",
+      "artifact": {
+        "id": 13490319484,
+        "sha256": "d22d7fcd56218f89121fe599f75749ff11fa5893edec472ed074e080e6eeca4b",
+        "size": 8955
+      },
+      "baseImage": "quay.io/fedora/fedora:45@sha256:79dd6556b8fe1a559051fad5159d4987ead218f1914e7a5bd20350d9ea0f9e52",
+      "binarySha256": "38aa89cf885e9766b884d1ee1cc64f995c82d2e02e2be1d74dcdf6099416a5de",
+      "bootstrapSha256": "229ea09b829c52438d281f15788cc6008c21b15c755d820a4fe8f825c57a4b0b",
+      "checks": {
+        "branded-aliases": "passed",
+        "community-package-coexistence": "passed",
+        "concurrency": "passed",
+        "exact-version-install": "passed",
+        "http-crypto-globalization": "passed",
+        "idempotent-install": "passed",
+        "interrupted-activation": "passed",
+        "official-package-coexistence": "passed",
+        "offline-build-runtime": "passed",
+        "owned-paths": "passed",
+        "removal": "passed",
+        "rollback": "passed",
+        "sdk-free-bootstrap": "passed",
+        "signature-authentication": "passed",
+        "signature-rejection": "passed",
+        "source-producer-linkage": "passed",
+        "tamper-rejection": "passed",
+        "unqualified-rejection": "passed"
+      },
+      "freezeSha256": "a2dc075da5f38a0f1ee64b66f0c1051ee20f7103b75f761ccaece1285a4fa93c",
+      "functionalChecks": {
+        "aspNetCoreLoopbackHttp": "passed",
+        "consoleApphostExecution": "passed",
+        "consoleDllExecution": "passed",
+        "cryptographicRandomBytes": "passed",
+        "frFrDecimalFormatting": "passed",
+        "rsaSha256SignAndVerify": "passed",
+        "tls12LoopbackHandshake": "passed"
+      },
+      "jobId": 127809973648,
+      "jobName": "Verify public cbodotnetup on fedora-45 native x64",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42192440876/job/127809973648",
+      "migration": {
+        "expiredCatalogRejection": "passed",
+        "interruptedOwnershipRecovery": "passed",
+        "legacyBootstrapSha256": "534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409",
+        "legacyCachePreserved": "passed",
+        "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+        "newSdk": "10.0.403-r3",
+        "newVersion": "0.2.0",
+        "oldBinarySha256": "56c1a7ffd36ed13ca804ecc2a7d18ffba10e183311047be3256b5b967a23bcb6",
+        "oldSdk": "10.0.403-r2",
+        "oldVersion": "0.1.0",
+        "protocol": "actual-0.1.0-self-update-rollback-reupgrade",
+        "sdkRollback": "passed",
+        "status": "passed"
+      },
+      "report": {
+        "sha256": "ff1476563a02616e455e221262e0d4a247b6e7d3c7dc6d7b6bdb9c518dfee139",
+        "size": 20712
+      },
+      "sdkSourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "status": "passed",
+      "variant": "fedora-45"
+    },
+    {
+      "architecture": "aarch64",
+      "artifact": {
+        "id": 13489939770,
+        "sha256": "f1ba2d92c9755317e260c6ad22725998a10103c2e773f03b4a0aba510b06a619",
+        "size": 8824
+      },
+      "baseImage": "quay.io/rockylinux/rockylinux:9.8@sha256:67492e5a371d9db7c2ffb2708abae92147fb900900832a7ed3fb2ac4df9ec052",
+      "binarySha256": "ef8061af2aa2696b98413aeffd6d1789fa607b652fcebe97bb17bf8ba0f01252",
+      "bootstrapSha256": "229ea09b829c52438d281f15788cc6008c21b15c755d820a4fe8f825c57a4b0b",
+      "checks": {
+        "branded-aliases": "passed",
+        "community-package-coexistence": "passed",
+        "concurrency": "passed",
+        "exact-version-install": "passed",
+        "http-crypto-globalization": "passed",
+        "idempotent-install": "passed",
+        "interrupted-activation": "passed",
+        "official-package-coexistence": "passed",
+        "offline-build-runtime": "passed",
+        "owned-paths": "passed",
+        "removal": "passed",
+        "rollback": "passed",
+        "sdk-free-bootstrap": "passed",
+        "signature-authentication": "passed",
+        "signature-rejection": "passed",
+        "source-producer-linkage": "passed",
+        "tamper-rejection": "passed",
+        "unqualified-rejection": "passed"
+      },
+      "freezeSha256": "a2dc075da5f38a0f1ee64b66f0c1051ee20f7103b75f761ccaece1285a4fa93c",
+      "functionalChecks": {
+        "aspNetCoreLoopbackHttp": "passed",
+        "consoleApphostExecution": "passed",
+        "consoleDllExecution": "passed",
+        "cryptographicRandomBytes": "passed",
+        "frFrDecimalFormatting": "passed",
+        "rsaSha256SignAndVerify": "passed",
+        "tls12LoopbackHandshake": "passed"
+      },
+      "jobId": 127809973730,
+      "jobName": "Verify public cbodotnetup on rocky-9.8 native aarch64",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42192440876/job/127809973730",
+      "migration": {
+        "expiredCatalogRejection": "passed",
+        "interruptedOwnershipRecovery": "passed",
+        "legacyBootstrapSha256": "534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409",
+        "legacyCachePreserved": "passed",
+        "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+        "newSdk": "10.0.403-r3",
+        "newVersion": "0.2.0",
+        "oldBinarySha256": "3c81c33a8185fb16bf12bd872fb17f314f292a6cc0a4c6226517437c00f043da",
+        "oldSdk": "10.0.403-r2",
+        "oldVersion": "0.1.0",
+        "protocol": "actual-0.1.0-self-update-rollback-reupgrade",
+        "sdkRollback": "passed",
+        "status": "passed"
+      },
+      "report": {
+        "sha256": "08420c422c22024eafcfe5e2a727d728ffa2405f40fbd19a0c90918226ffe656",
+        "size": 20809
+      },
+      "sdkSourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "status": "passed",
+      "variant": "rocky-9.8"
+    },
+    {
+      "architecture": "x64",
+      "artifact": {
+        "id": 13491021246,
+        "sha256": "eae6b52f80799ca5dd16917b09a1815afcf0c4b7692417d33730950e63d63bb9",
+        "size": 8823
+      },
+      "baseImage": "quay.io/rockylinux/rockylinux:9.8@sha256:ed654c694190a670bb5c33f68995b862214fc96ffbdca95e07a8935ba0a3717d",
+      "binarySha256": "38aa89cf885e9766b884d1ee1cc64f995c82d2e02e2be1d74dcdf6099416a5de",
+      "bootstrapSha256": "229ea09b829c52438d281f15788cc6008c21b15c755d820a4fe8f825c57a4b0b",
+      "checks": {
+        "branded-aliases": "passed",
+        "community-package-coexistence": "passed",
+        "concurrency": "passed",
+        "exact-version-install": "passed",
+        "http-crypto-globalization": "passed",
+        "idempotent-install": "passed",
+        "interrupted-activation": "passed",
+        "official-package-coexistence": "passed",
+        "offline-build-runtime": "passed",
+        "owned-paths": "passed",
+        "removal": "passed",
+        "rollback": "passed",
+        "sdk-free-bootstrap": "passed",
+        "signature-authentication": "passed",
+        "signature-rejection": "passed",
+        "source-producer-linkage": "passed",
+        "tamper-rejection": "passed",
+        "unqualified-rejection": "passed"
+      },
+      "freezeSha256": "a2dc075da5f38a0f1ee64b66f0c1051ee20f7103b75f761ccaece1285a4fa93c",
+      "functionalChecks": {
+        "aspNetCoreLoopbackHttp": "passed",
+        "consoleApphostExecution": "passed",
+        "consoleDllExecution": "passed",
+        "cryptographicRandomBytes": "passed",
+        "frFrDecimalFormatting": "passed",
+        "rsaSha256SignAndVerify": "passed",
+        "tls12LoopbackHandshake": "passed"
+      },
+      "jobId": 127809973742,
+      "jobName": "Verify public cbodotnetup on rocky-9.8 native x64",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42192440876/job/127809973742",
+      "migration": {
+        "expiredCatalogRejection": "passed",
+        "interruptedOwnershipRecovery": "passed",
+        "legacyBootstrapSha256": "534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409",
+        "legacyCachePreserved": "passed",
+        "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+        "newSdk": "10.0.403-r3",
+        "newVersion": "0.2.0",
+        "oldBinarySha256": "56c1a7ffd36ed13ca804ecc2a7d18ffba10e183311047be3256b5b967a23bcb6",
+        "oldSdk": "10.0.403-r2",
+        "oldVersion": "0.1.0",
+        "protocol": "actual-0.1.0-self-update-rollback-reupgrade",
+        "sdkRollback": "passed",
+        "status": "passed"
+      },
+      "report": {
+        "sha256": "ccf5930ed2080bbb6c7e890cab23c66d484ac6cae700eaa41ead73dc7371c0ec",
+        "size": 20729
+      },
+      "sdkSourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "status": "passed",
+      "variant": "rocky-9.8"
+    },
+    {
+      "architecture": "aarch64",
+      "artifact": {
+        "id": 13490423972,
+        "sha256": "7c058f6970136c542cec799c8bd02c3fa25f1a0fde35e7084e3f165305c33f94",
+        "size": 7083
+      },
+      "baseImage": "ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852",
+      "binarySha256": "ef8061af2aa2696b98413aeffd6d1789fa607b652fcebe97bb17bf8ba0f01252",
+      "bootstrapSha256": "229ea09b829c52438d281f15788cc6008c21b15c755d820a4fe8f825c57a4b0b",
+      "checks": {
+        "branded-aliases": "passed",
+        "community-package-coexistence": "passed",
+        "concurrency": "passed",
+        "exact-version-install": "passed",
+        "http-crypto-globalization": "passed",
+        "idempotent-install": "passed",
+        "interrupted-activation": "passed",
+        "official-package-coexistence": "passed",
+        "offline-build-runtime": "passed",
+        "owned-paths": "passed",
+        "removal": "passed",
+        "rollback": "passed",
+        "sdk-free-bootstrap": "passed",
+        "signature-authentication": "passed",
+        "signature-rejection": "passed",
+        "source-producer-linkage": "passed",
+        "tamper-rejection": "passed",
+        "unqualified-rejection": "passed"
+      },
+      "freezeSha256": "a2dc075da5f38a0f1ee64b66f0c1051ee20f7103b75f761ccaece1285a4fa93c",
+      "functionalChecks": {
+        "aspNetCoreLoopbackHttp": "passed",
+        "consoleApphostExecution": "passed",
+        "consoleDllExecution": "passed",
+        "cryptographicRandomBytes": "passed",
+        "frFrDecimalFormatting": "passed",
+        "rsaSha256SignAndVerify": "passed",
+        "tls12LoopbackHandshake": "passed"
+      },
+      "jobId": 127809973589,
+      "jobName": "Verify public cbodotnetup on ubuntu-24.04 native aarch64",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42192440876/job/127809973589",
+      "migration": {
+        "expiredCatalogRejection": "passed",
+        "interruptedOwnershipRecovery": "passed",
+        "legacyBootstrapSha256": "534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409",
+        "legacyCachePreserved": "passed",
+        "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+        "newSdk": "10.0.403-r3",
+        "newVersion": "0.2.0",
+        "oldBinarySha256": "3c81c33a8185fb16bf12bd872fb17f314f292a6cc0a4c6226517437c00f043da",
+        "oldSdk": "10.0.403-r2",
+        "oldVersion": "0.1.0",
+        "protocol": "actual-0.1.0-self-update-rollback-reupgrade",
+        "sdkRollback": "passed",
+        "status": "passed"
+      },
+      "report": {
+        "sha256": "139b2f11449eea2d6d0efc3863b9249ed4e9f85bcc779a6cb4c8ffcc9dbef5e5",
+        "size": 11383
+      },
+      "sdkSourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "status": "passed",
+      "variant": "ubuntu-24.04"
+    },
+    {
+      "architecture": "x64",
+      "artifact": {
+        "id": 13489749964,
+        "sha256": "acf53bd6a6459189e38ca0f27a3214867a394d958beaef18b4a7bcb734712fb8",
+        "size": 7064
+      },
+      "baseImage": "ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852",
+      "binarySha256": "38aa89cf885e9766b884d1ee1cc64f995c82d2e02e2be1d74dcdf6099416a5de",
+      "bootstrapSha256": "229ea09b829c52438d281f15788cc6008c21b15c755d820a4fe8f825c57a4b0b",
+      "checks": {
+        "branded-aliases": "passed",
+        "community-package-coexistence": "passed",
+        "concurrency": "passed",
+        "exact-version-install": "passed",
+        "http-crypto-globalization": "passed",
+        "idempotent-install": "passed",
+        "interrupted-activation": "passed",
+        "official-package-coexistence": "passed",
+        "offline-build-runtime": "passed",
+        "owned-paths": "passed",
+        "removal": "passed",
+        "rollback": "passed",
+        "sdk-free-bootstrap": "passed",
+        "signature-authentication": "passed",
+        "signature-rejection": "passed",
+        "source-producer-linkage": "passed",
+        "tamper-rejection": "passed",
+        "unqualified-rejection": "passed"
+      },
+      "freezeSha256": "a2dc075da5f38a0f1ee64b66f0c1051ee20f7103b75f761ccaece1285a4fa93c",
+      "functionalChecks": {
+        "aspNetCoreLoopbackHttp": "passed",
+        "consoleApphostExecution": "passed",
+        "consoleDllExecution": "passed",
+        "cryptographicRandomBytes": "passed",
+        "frFrDecimalFormatting": "passed",
+        "rsaSha256SignAndVerify": "passed",
+        "tls12LoopbackHandshake": "passed"
+      },
+      "jobId": 127809973629,
+      "jobName": "Verify public cbodotnetup on ubuntu-24.04 native x64",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42192440876/job/127809973629",
+      "migration": {
+        "expiredCatalogRejection": "passed",
+        "interruptedOwnershipRecovery": "passed",
+        "legacyBootstrapSha256": "534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409",
+        "legacyCachePreserved": "passed",
+        "legacyCatalogSha256": "541b92a5c4ef11fd778ee3e59937bf47c7819784c46bce85c3e9c2737c804a90",
+        "newSdk": "10.0.403-r3",
+        "newVersion": "0.2.0",
+        "oldBinarySha256": "56c1a7ffd36ed13ca804ecc2a7d18ffba10e183311047be3256b5b967a23bcb6",
+        "oldSdk": "10.0.403-r2",
+        "oldVersion": "0.1.0",
+        "protocol": "actual-0.1.0-self-update-rollback-reupgrade",
+        "sdkRollback": "passed",
+        "status": "passed"
+      },
+      "report": {
+        "sha256": "ac810280764e504d3fad23bf3d6e78ad106bb2c69f888fa638be4c2f76f10ebf",
+        "size": 11347
+      },
+      "sdkSourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "status": "passed",
+      "variant": "ubuntu-24.04"
+    }
+  ],
+  "publicationSource": {
+    "commit": "638339db325bb31087b4aec6a25ee91f760c42a9",
+    "repository": "dotnetdev-kr/cbodotnet",
+    "runAttempt": "1",
+    "runId": "42191278788",
+    "workflow": ".github/workflows/distribution-release.yml"
+  },
+  "qualificationSource": {
+    "commit": "e2a8a96f7466ed38bf8146e33ec108a0ee4fbc86",
+    "repository": "dotnetdev-kr/cbodotnet",
+    "runAttempt": "1",
+    "runId": "42192440876",
+    "workflow": ".github/workflows/distribution-release.yml"
+  },
+  "schemaVersion": 1,
+  "sdkRevisions": {
+    "current": 3,
+    "legacy": 2
+  },
+  "status": "passed",
+  "statusFile": {
+    "sha256": "4c2297adc525ac461a9414595a93f34e45c61287c7ea6002120aae2538b615ca",
+    "size": 315820
+  },
+  "tests": {
+    "nativeCore": {
+      "runId": "42191256402",
+      "sourceCommit": "638339db325bb31087b4aec6a25ee91f760c42a9",
+      "targets": [
+        {
+          "architecture": "x64",
+          "checksPassed": 119,
+          "jobId": 127803553000,
+          "jobName": "Installer core tests native x64",
+          "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42191256402/job/127803553000",
+          "log": {
+            "sha256": "479d4186c71e47dfb3996e423a748c3f63cc7465fc00535036766bea78a38291",
+            "size": 15654
+          }
+        },
+        {
+          "architecture": "aarch64",
+          "checksPassed": 119,
+          "jobId": 127803552712,
+          "jobName": "Installer core tests native aarch64",
+          "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42191256402/job/127803552712",
+          "log": {
+            "sha256": "5456d2740325dacc78eb06aeb9e7854dd3cc57b0dabd8d3675bcfe7098d85689",
+            "size": 15682
+          }
+        }
+      ]
+    },
+    "python": {
+      "evidence": "Previously recorded local suite summary in .build/issue26-work-state.json",
+      "passed": 776,
+      "skipped": 5,
+      "total": 781
+    }
+  },
+  "toolRelease": {
+    "assets": [
+      {
+        "name": "LICENSE",
+        "sha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+        "size": 1079,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v0.2.0/LICENSE"
+      },
+      {
+        "name": "build-aarch64.json",
+        "sha256": "8812f2e5367a84db2ad85433dcc3aa4f39232e60cbf162eebd628fb816200ac1",
+        "size": 6293,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v0.2.0/build-aarch64.json"
+      },
+      {
+        "name": "build-x64.json",
+        "sha256": "1be82abe9845a39851e96722412e0ddee3cee69f31535e927104dd9714bdb747",
+        "size": 6257,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v0.2.0/build-x64.json"
+      },
+      {
+        "name": "cbodotnetup-linux-arm64",
+        "sha256": "ef8061af2aa2696b98413aeffd6d1789fa607b652fcebe97bb17bf8ba0f01252",
+        "size": 9326264,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v0.2.0/cbodotnetup-linux-arm64"
+      },
+      {
+        "name": "cbodotnetup-linux-arm64.LICENSE.txt",
+        "sha256": "b494eba485a84f00c0f7ec3ea19b4270110210214035cec093a0b998b2316778",
+        "size": 444077,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v0.2.0/cbodotnetup-linux-arm64.LICENSE.txt"
+      },
+      {
+        "name": "cbodotnetup-linux-x64",
+        "sha256": "38aa89cf885e9766b884d1ee1cc64f995c82d2e02e2be1d74dcdf6099416a5de",
+        "size": 9145952,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v0.2.0/cbodotnetup-linux-x64"
+      },
+      {
+        "name": "cbodotnetup-linux-x64.LICENSE.txt",
+        "sha256": "f224563c6576e12203bdd47a20da863e64b181a7401e5e4aa48cd24ee93fee68",
+        "size": 444063,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v0.2.0/cbodotnetup-linux-x64.LICENSE.txt"
+      },
+      {
+        "name": "cbodotnetup-source.tar.gz",
+        "sha256": "d34a1f2f3997149e061e51d7a280287782890c4e3d79e43c4fa90bae201f65c0",
+        "size": 31651,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v0.2.0/cbodotnetup-source.tar.gz"
+      }
+    ],
+    "id": 436296249,
+    "tag": "cbodotnetup-v0.2.0",
+    "targetCommit": "638339db325bb31087b4aec6a25ee91f760c42a9",
+    "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-v0.2.0"
+  },
+  "toolSourceCommit": "638339db325bb31087b4aec6a25ee91f760c42a9",
+  "verification": "Offline byte comparison of activated status, actual REST job/artifact metadata, downloaded ZIP/report bytes, source job logs and release-history audit",
+  "verifiedAt": "2026-11-06T09:21:48.268329+00:00",
+  "version": "0.2.0"
+}

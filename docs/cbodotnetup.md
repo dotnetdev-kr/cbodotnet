@@ -6,17 +6,18 @@ Debian13, Fedora45 and Rocky Linux9.8. It preserves official `dotnet`, official
 `dotnetup` state and package-managed `/opt/cbodotnet` installations. NativeAOT
 bootstrap does not require an installed .NET SDK.
 
-Version [0.1.0 is published](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-v0.1.0).
+Version [0.2.0 is published](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-v0.2.0).
 Both the eight-target native candidate matrix and a second eight-target matrix
 using anonymous public binary/SDK downloads passed before
 [feed activation](../releases/cbodotnetup-status.json). Use the
 [download site](https://dotnetdev.kr/cbodotnet/) for the active signed catalog
 and bootstrap. Other SDKs already have package distributions; installer
 admission remains individually scoped and initially includes SDK10.0.403 only.
-The 0.2 catalog migration described below is tracked in
-[#26](https://github.com/dotnetdev-kr/cbodotnet/issues/26). The availability
-record and signed public feed determine which tool and SDK revisions are
-activated; the historical validation at the end of this document covers 0.1.0.
+The compatible catalog migration is recorded in
+[#26](https://github.com/dotnetdev-kr/cbodotnet/issues/26) and its
+[independent validation evidence](cbodotnetup-v2-validation.json). The
+availability record and signed public feed determine the active revisions;
+the historical 0.1.0 evidence is retained at the end of this document.
 
 ## Bootstrap
 
@@ -168,6 +169,23 @@ resolve failures before expiry. Native runtime changes require a new tool
 version. Catalog maintenance and native runtime updates remain project responsibilities;
 distribution does not create an upstream security-support promise for EOL SDKs.
 See the [implementation and trust design](cbodotnetup-design.md).
+
+## 0.2.0 migration validation
+
+The [0.2.0 evidence](cbodotnetup-v2-validation.json) binds eight native candidate
+and eight anonymous public installation reports to the actual job IDs, downloaded
+artifact ZIPs and report hashes. All public targets exercised the released 0.1.0
+bootstrap and executable, r2 installation, authenticated 0.2.0 self-update, neutral
+r3 installation, SDK rollback, tool rollback to 0.1.0 and re-upgrade. Expired
+signed catalogs were rejected, old cache bytes stayed unchanged, and the verified
+bootstrap repaired an injected interrupted ownership commit.
+
+The default hosted bootstrap also passed on native x64 and AArch64 without an
+installed SDK, checking both hosted signed feeds against activated hashes. Core
+security and file-transaction tests passed 119 checks on each native CPU. The
+Python suite ran 781 tests: 776 passed and five required unavailable environment
+features. Existing 71 releases and 930 assets retained their exact metadata and
+identities; the latest SDK pointer remains SDK10 revision3.
 
 ## Retained 0.1.0 validation
 

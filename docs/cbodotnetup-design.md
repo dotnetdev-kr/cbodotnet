@@ -20,7 +20,7 @@ SDK archives, native tool binaries, runtime notices and their source links.
 
 [The policy](../releases/cbodotnetup-policy.json) pins the reference, build SDK,
 runtime, initial SDK admission, OS/CPU matrix and signing workflow. Native x64
-and AArch64 builds use the already authenticated branded SDK10.0.403 archive in
+and AArch64 builds use the already authenticated SDK10.0.403 revision3 archive in
 the existing digest-pinned Rocky Linux9.8 images. NativeAOT runtime10.0.14 is
 explicit, including the [Brotli security fix](https://github.com/advisories/GHSA-p3jp-9v83-76w9).
 NuGet auditing and compiler warnings remain errors. Invariant globalization
