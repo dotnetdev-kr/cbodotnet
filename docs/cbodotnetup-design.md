@@ -39,12 +39,34 @@ replace the reference silently or claim upstream code was imported.
 
 ## Catalog and trust
 
-Catalog schema1 contains a monotonic sequence, UTC issue/expiry times (maximum
+Both catalog generations contain a monotonic sequence, UTC issue/expiry times (maximum
 31 days), signer, revocations, admitted SDKs, native tools and tracked Community
 channels. Each SDK binds its exact version/revision, RID, archive root,
 HTTPS URL/size/SHA256, canonical source manifest, producer, evidence, notices,
 native dependencies, EOL/support boundary and individually admitted OS versions.
 Tool releases bind binary and native-runtime notice assets under immutable tags.
+
+The 0.2 migration uses a versioned schema2 endpoint,
+`/cbodotnet/cbodotnetup/v2/catalog.json`, for neutral SDK archive filenames.
+The original `/cbodotnet/cbodotnetup/catalog.json` stays schema1 and retains
+SDK10.0.403 revision2 with its original filename, plus compatible authenticated
+tool update records. Schema2 initially admits the separately qualified neutral
+SDK10 revision3; it does not infer admission for other SDKs or libc targets.
+Canonical naming is versioned and bound to exact SDK/source/revision identity.
+Historical unbranded trial archives remain inadmissible.
+
+Old 0.1.0 clients validate every catalog entry strictly, including SDK URL
+spelling. Adding new fields, neutral URLs or musl entries to their shared feed
+could prevent self-update itself. New metadata therefore belongs to the new
+endpoint. The new client can verify retained schema1 admissions without
+weakening schema2's canonical-name checks. Receipt/SDK JSON remains compatible
+with the old owned-state model; signed catalog schema distinguishes admission.
+
+Versioned cache/high-water paths isolate the two sequence/hash histories:
+`cache/` for schema1 and `cache/v2/` for schema2. They are not interchangeable,
+even if the two publication sequences happen to have equal numeric values.
+Refreshing one feed must not replace the other's cache or watermark. The
+shared operation lock still serializes all mutations across client generations.
 
 The existing project public key is embedded independently in the bootstrap and
 NativeAOT binary. GnuPG runs with an isolated keyring, explicit pinned identity,
@@ -76,6 +98,13 @@ version rather than a waiver. Renewal repeats native/public installation
 qualification before activating a new sequence; source PRs also run the core
 tests on both native architectures.
 
+Renewal signs and verifies both feeds, preserving the schema1 upgrade route and
+prior tool/revocation identities while refreshing bounded validity. The normal
+lifetime is 30 days. There is no automatic legacy-feed retirement: an explicit
+announced owner decision must define the support/upgrade window and a trusted
+bootstrap recovery route. Failed maintenance does not extend signatures or
+silently disable freshness checks.
+
 ## Ownership and transactions
 
 The data root is `$XDG_DATA_HOME/cbodotnetup` (default
@@ -84,8 +113,17 @@ ordinary, user-owned root. System paths, official `.dotnet`/`dotnetup` state,
 symlinked ancestors, unrelated non-empty roots and writable-by-other-user owned
 directories are rejected. Root execution is refused.
 
-`toolchains/<sdk>-r<revision>/<rid>/content/<archive-root>/` retains the original
-branded archive tree. Receipt, signed admission and installed file inventory
+`toolchains/<sdk>-r<revision>/<rid>/content/<archive-root>/` retains historical
+schema1 SDK installations. Neutral SDKs use the separate `toolchains-v2/`
+namespace with the same layout. The new client verifies both; 0.1.0 enumerates
+only its original namespace, preserving usable tool rollback without attempting
+to parse a schema2 retained admission. No SDK root is moved or rewritten during
+a tool upgrade. A shared default selection that names a revision invisible to
+the old client falls back to a compatible retained installation. Without a
+retained schema1 SDK, the old client reports no installed matching SDK rather
+than executing a neutral or official SDK implicitly.
+
+Receipt, signed admission and installed file inventory
 are separate. Process locks serialize mutation and managed execution. Downloads
 have size/time limits and HTTPS origin/redirect restrictions. Extraction
 rejects traversal, links escaping the root, duplicate paths, special devices,
@@ -108,6 +146,12 @@ edits shell startup files or replaces unrelated commands.
 Authenticated self-update replaces an owned bootstrap executable only after
 verifying both binary and notices, retaining the prior executable/notices.
 Self-rollback requires the retained version to remain admitted and unrevoked.
+Both current and legacy catalogs retain the tool identities needed to verify
+the 0.1.0 to 0.2 upgrade, rollback and re-upgrade route. Public qualification
+must exercise the actual released old binary, its schema1 SDK installation,
+the authenticated new executable and neutral SDK, and return to the old tool
+without modifying either SDK namespace. An old binary cannot validate a new
+catalog merely because the same project key signed it.
 An interrupted tool replacement can be repaired by rerunning the pinned
 bootstrap with a fresh signed catalog. The user data/SDK roots are independent
 of this repair. There is no unsigned override or automatic native dependency

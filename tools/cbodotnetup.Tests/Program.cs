@@ -1,6 +1,7 @@
 using System.Formats.Tar;
 using System.IO.Compression;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Community.DotNet.Up;
 
 var passed = 0;
@@ -32,6 +33,54 @@ try
     var tool = new ToolRelease("0.1.0", "linux-x64", new(releaseBase + "cbodotnetup-v0.1.0/cbodotnetup-linux-x64", 1, sha), new(releaseBase + "cbodotnetup-v0.1.0/cbodotnetup-linux-x64.LICENSE.txt", 1, sha));
     var catalog = new Catalog(1, "cbodotnetup-installation-catalog", 1, now.AddMinutes(-1), now.AddDays(30), Trust.Fingerprint, [], [sdk], [tool], new() { ["10.0"] = "10.0.403-r2" });
     Trust.Validate(catalog, now); passed++;
+    var neutralSdk = sdk with { Revision = 3, ArchiveRoot = "cbodotnet-10.0.403-linux-x64-r3",
+        Archive = sdk.Archive with { Url = releaseBase + "distribution-archive-sdk-10.0.403-r3/cbodotnet-sdk-10.0.403-linux-x64-r3.tar.gz" } };
+    var catalogV2 = catalog with { SchemaVersion = 2, Sdks = [neutralSdk], Channels = new() { ["10.0"] = "10.0.403-r3" } };
+    Trust.Validate(catalogV2, now); passed++;
+    Trust.ValidateActive(catalogV2, now); passed++;
+    Reject(() => Trust.ValidateActive(catalog, now), "legacy catalog cannot populate or replace the v2 active cache");
+    Check(Trust.ArchiveSchema(sdk) == 1 && Trust.ArchiveSchema(neutralSdk) == 2, "canonical archive names determine isolated admission schema");
+    Check(Trust.CatalogUrl == "https://dotnetdev.kr/cbodotnet/cbodotnetup/v2/catalog.json", "new clients use a versioned catalog endpoint");
+    Reject(() => Trust.Validate(catalogV2 with { SchemaVersion = 1 }, now), "neutral archive cannot enter the v1 catalog");
+    Reject(() => Trust.Validate(catalog with { SchemaVersion = 2 }, now), "branded archive cannot enter the v2 catalog");
+    Reject(() => Trust.Validate(catalog with { SchemaVersion = 3 }, now), "unknown catalog schema");
+    var sdkJson = JsonSerializer.Serialize(sdk, UpJson.Default.SdkRelease);
+    Check(!sdkJson.Contains("archiveNaming", StringComparison.Ordinal), "v1 SDK receipt shape has no new naming member");
+    var unknownCatalog = JsonNode.Parse(JsonSerializer.Serialize(catalogV2, UpJson.Default.Catalog))!;
+    unknownCatalog["ignored"] = true;
+    Reject(() => SafeFiles.Parse(System.Text.Encoding.UTF8.GetBytes(unknownCatalog.ToJsonString()), UpJson.Default.Catalog), "unknown catalog member");
+    var unknownSdk = JsonNode.Parse(JsonSerializer.Serialize(catalogV2, UpJson.Default.Catalog))!;
+    unknownSdk["sdks"]![0]!["archiveNaming"] = "guessed-future-name";
+    Reject(() => SafeFiles.Parse(System.Text.Encoding.UTF8.GetBytes(unknownSdk.ToJsonString()), UpJson.Default.Catalog), "unknown SDK naming member");
+    foreach (var url in new[] {
+        neutralSdk.Archive.Url.Replace("-r3.tar.gz", "-unbranded-r3.tar.gz", StringComparison.Ordinal),
+        neutralSdk.Archive.Url.Replace("linux-x64-r3.tar.gz", "linux-aarch64-r3.tar.gz", StringComparison.Ordinal),
+        neutralSdk.Archive.Url.Replace("linux-x64-r3.tar.gz", "linux-x64-r4.tar.gz", StringComparison.Ordinal),
+        neutralSdk.Archive.Url.Replace("distribution-archive-sdk-10.0.403-r3/", "distribution-archive-sdk-10.0.403-r2/", StringComparison.Ordinal),
+        neutralSdk.Archive.Url.Replace("dotnetdev-kr/cbodotnet/", "other/project/", StringComparison.Ordinal),
+        neutralSdk.Archive.Url + "?download=1" })
+        Reject(() => Trust.Validate(catalogV2 with { Sdks = [neutralSdk with { Archive = neutralSdk.Archive with { Url = url } }] }, now), "noncanonical neutral archive " + url);
+    Reject(() => Trust.Validate(catalogV2 with { Sdks = [neutralSdk with { SourceManifest = neutralSdk.SourceManifest with { Url = releaseBase + "sdk-10.0.404/release-manifest.json" } }] }, now), "wrong source release URL");
+    Reject(() => Trust.Validate(catalogV2 with { Sdks = [neutralSdk with { SourceManifest = neutralSdk.SourceManifest with { Sha256 = new string('b', 64) } }] }, now), "conflicting source asset hash");
+    Reject(() => Trust.Validate(null!, now), "null catalog");
+    Reject(() => Trust.Validate(catalogV2 with { Sdks = null! }, now), "null SDK collection");
+    Reject(() => Trust.Validate(catalogV2 with { Sdks = [null!] }, now), "null SDK entry");
+    Reject(() => Trust.Validate(catalogV2 with { Sdks = [neutralSdk with { SdkVersion = null! }] }, now), "missing SDK version");
+    Reject(() => Trust.Validate(catalogV2 with { Sdks = [neutralSdk with { Archive = null! }] }, now), "null SDK archive");
+    Reject(() => Trust.Validate(catalogV2 with { Sdks = [neutralSdk with { SourceManifest = null! }] }, now), "null SDK source manifest");
+    Reject(() => Trust.Validate(catalogV2 with { Sdks = [neutralSdk with { Targets = null! }] }, now), "null SDK targets");
+    Reject(() => Trust.Validate(catalogV2 with { Sdks = [neutralSdk with { Targets = [null!] }] }, now), "null target entry");
+    Reject(() => Trust.Validate(catalogV2 with { Sdks = [neutralSdk with { LicensePaths = null! }] }, now), "null license paths");
+    Reject(() => Trust.Validate(catalogV2 with { Sdks = [neutralSdk with { Dependencies = null! }] }, now), "null dependency list");
+    Reject(() => Trust.Validate(catalogV2 with { Sdks = [neutralSdk with { Dependencies = [null!] }] }, now), "null dependency entry");
+    Reject(() => Trust.Validate(catalogV2 with { Tools = [null!] }, now), "null tool entry");
+    Reject(() => Trust.AssetValid(new(releaseBase + "a/b", 1, null!)), "missing artifact hash");
+    Reject(() => Trust.AssetValid(new(null!, 1, sha)), "missing artifact URL");
+    var legacyCatalogPath = Path.Combine(AppContext.BaseDirectory, "fixtures/catalog-v1.json");
+    var publishedV1 = SafeFiles.Read(legacyCatalogPath, UpJson.Default.Catalog);
+    Trust.Validate(publishedV1, publishedV1.IssuedAt.AddMinutes(1)); passed++;
+    Reject(() => Trust.ValidateActive(publishedV1, publishedV1.IssuedAt.AddMinutes(1)), "actual legacy feed cannot replace v2 active admission");
+    Check(publishedV1.SchemaVersion == 1 && publishedV1.Sdks.All(s => s.SdkVersion == "10.0.403" && s.Revision == 2), "actual released legacy feed remains readable");
     Trust.Admit(catalog, sdk, new("rocky", "9.8", "linux-x64")); passed++;
     Reject(() => Trust.Admit(catalog, sdk, new("rocky", "9.8", "linux-arm64")), "wrong actual CPU");
     Reject(() => Trust.Admit(catalog, sdk, new("ubuntu", "24.04", "linux-x64")), "unqualified actual OS");
@@ -55,6 +104,53 @@ try
     Check(Manager.Choose([newer, lowerSeries], new(new() { ["10.0"] = lowerSeries.Release.Id }, []), null) == newer, "corrupt cross-series selection cannot override the highest installed series");
     Check(Manager.Choose([newer, older], choice, "10.0.404-r1") == newer, "exact revision bypasses the active selector");
     Reject(() => Manager.Choose([], choice, null), "empty selector never falls back to official SDK");
+
+    // Exercise state produced by a real old client without loading or rewriting its cache.
+    var migration = Path.Combine(temporary, "migration-state"); SafeFiles.PrivateDirectory(migration);
+    File.WriteAllText(Path.Combine(migration, "owner"), SafeFiles.Owner + "\n");
+    var legacyCache = Path.Combine(migration, "cache"); SafeFiles.PrivateDirectory(legacyCache);
+    var legacyCatalogBytes = System.Text.Encoding.UTF8.GetBytes("retained signed v1 catalog bytes\n");
+    var legacyWatermarkBytes = System.Text.Encoding.UTF8.GetBytes("{\"sequence\":42,\"sha256\":\"" + sha + "\"}\n");
+    File.WriteAllBytes(Path.Combine(legacyCache, "catalog.json"), legacyCatalogBytes);
+    File.WriteAllBytes(Path.Combine(legacyCache, "high-water.json"), legacyWatermarkBytes);
+    string SeedReceipt(string space, Receipt receipt)
+    {
+        var directory = Path.GetFullPath(Path.Combine(migration, space, receipt.Release.Id));
+        SafeFiles.PrivateDirectory(directory);
+        var path = Path.Combine(directory, "receipt.json");
+        SafeFiles.Write(path, receipt, UpJson.Default.Receipt);
+        return path;
+    }
+    var neutralReceipt = Installed(neutralSdk);
+    var legacyReceiptPath = SeedReceipt("toolchains", older);
+    var neutralReceiptPath = SeedReceipt("toolchains-v2", neutralReceipt);
+    var originalLegacyReceipt = File.ReadAllBytes(legacyReceiptPath);
+    var originalNeutralReceipt = File.ReadAllBytes(neutralReceiptPath);
+    using (var manager = new Manager(migration, new("rocky", "9.8", "linux-x64")))
+    {
+        var merged = manager.Installed();
+        Check(merged.Select(r => r.Release.Id).SequenceEqual(new[] { neutralSdk.Id, sdk.Id }), "new manager merges both immutable SDK namespaces in revision order");
+        Check(Directory.Exists(Path.Combine(legacyCache, "v2")), "new manager creates a separate v2 catalog cache");
+        Check(File.ReadAllBytes(Path.Combine(legacyCache, "catalog.json")).SequenceEqual(legacyCatalogBytes)
+            && File.ReadAllBytes(Path.Combine(legacyCache, "high-water.json")).SequenceEqual(legacyWatermarkBytes), "new manager preserves legacy catalog and replay watermark bytes");
+        Check(File.ReadAllBytes(legacyReceiptPath).SequenceEqual(originalLegacyReceipt)
+            && File.ReadAllBytes(neutralReceiptPath).SequenceEqual(originalNeutralReceipt), "namespace discovery never rewrites old or new SDK receipts");
+        using (var document = JsonDocument.Parse(originalNeutralReceipt))
+            Check(document.RootElement.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal).SequenceEqual(
+                new[] { "catalogSequence", "catalogSha256", "installedAt", "owner", "release", "schemaVersion" })
+                && document.RootElement.GetProperty("schemaVersion").GetInt32() == 1
+                && !document.RootElement.GetProperty("release").TryGetProperty("archiveNaming", out _), "neutral receipts retain the unchanged v1 JSON member shape");
+        var unseenNeutralSelection = new Selection(new() { ["10.0"] = neutralSdk.Id }, []);
+        Check(Manager.Choose([older], unseenNeutralSelection, null) == older
+            && Manager.Choose([older], unseenNeutralSelection, "10.0", true) == older, "old client selection falls back to retained r2 when r3 lives in an unseen namespace");
+        var misplacedNeutral = SeedReceipt("toolchains", neutralReceipt);
+        Reject(() => manager.Installed(), "neutral receipt in the legacy SDK namespace");
+        SafeFiles.DeleteTree(Path.GetDirectoryName(misplacedNeutral)!);
+        var misplacedLegacy = SeedReceipt("toolchains-v2", older);
+        Reject(() => manager.Installed(), "legacy receipt in the neutral SDK namespace");
+        SafeFiles.DeleteTree(Path.GetDirectoryName(misplacedLegacy)!);
+        Check(manager.Installed().Length == 2, "rejecting misplaced receipts preserves valid SDK discovery");
+    }
     Reject(() => Trust.Validate(catalog with { ExpiresAt = now.AddSeconds(-1) }, now), "expired catalog");
     Reject(() => Trust.Validate(catalog with { IssuedAt = now.AddMinutes(6) }, now), "future catalog");
     Reject(() => Trust.Validate(catalog with { ExpiresAt = now.AddDays(32) }, now), "unbounded catalog validity");
@@ -158,6 +254,7 @@ try
         var deep = Path.Combine(temporary, new string('a', 90), new string('b', 90)); Directory.CreateDirectory(deep);
         var fixture = Path.Combine(AppContext.BaseDirectory, "fixtures/public-signed.json");
         Trust.VerifySignature(fixture, fixture + ".asc", deep); passed++;
+        Trust.VerifySignature(legacyCatalogPath, legacyCatalogPath + ".asc", deep); passed++;
         var modified = Path.Combine(deep, "modified.json"); File.WriteAllBytes(modified, File.ReadAllBytes(fixture).Concat(new byte[] { 32 }).ToArray());
         Reject(() => Trust.VerifySignature(modified, fixture + ".asc", deep), "actual project signature rejects changed bytes in a long home path");
     }

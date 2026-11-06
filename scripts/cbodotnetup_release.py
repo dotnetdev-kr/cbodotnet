@@ -32,6 +32,12 @@ import published_sdk_coexistence as MULTI
 ROOT = Path(__file__).resolve().parents[1]
 POLICY = ROOT / 'releases/cbodotnetup-policy.json'
 WORKFLOW = '.github/workflows/distribution-release.yml'
+LEGACY_BOOTSTRAP = dict(
+    url='https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-41952285282/get-cbodotnetup.py',
+    size=11478,sha256='534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409')
+CATALOG_ASSETS = ('catalog.json','catalog.json.asc','catalog-v1.json','catalog-v1.json.asc',
+                  'catalog-v1-bootstrap.json','catalog-v1-bootstrap.json.asc',
+                  'catalog-v1-expired.json','catalog-v1-expired.json.asc','get-cbodotnetup-v0.1.0.py')
 CHECKS = ('sdk-free-bootstrap', 'signature-authentication', 'source-producer-linkage', 'exact-version-install',
           'idempotent-install', 'owned-paths', 'official-package-coexistence', 'community-package-coexistence',
           'offline-build-runtime', 'http-crypto-globalization', 'branded-aliases', 'rollback', 'removal',
@@ -101,7 +107,10 @@ def public_metadata(url,maximum):
     """Explicit credential-free origins, separate from the GitHub-only metadata reader."""
     uri=urllib.parse.urlsplit(url)
     nuget=uri.netloc=='api.nuget.org' and (uri.path=='/v3/vulnerabilities/index.json' or re.fullmatch(r'/v3-vulnerabilities/[0-9.]+/(?:[0-9.]+/)?vulnerability\.(?:base|update)\.json',uri.path))
-    site=uri.netloc=='dotnetdev.kr' and uri.path=='/cbodotnet/cbodotnetup/get-cbodotnetup.py'
+    site=uri.netloc=='dotnetdev.kr' and uri.path in {
+        '/cbodotnet/cbodotnetup/get-cbodotnetup.py',
+        '/cbodotnet/cbodotnetup/catalog.json','/cbodotnet/cbodotnetup/catalog.json.asc',
+        '/cbodotnet/cbodotnetup/v2/catalog.json','/cbodotnet/cbodotnetup/v2/catalog.json.asc'}
     require(uri.scheme=='https' and not uri.query and not uri.fragment and (nuget or site),'Untrusted installer public metadata origin/path')
     class NoRedirect(urllib.request.HTTPRedirectHandler):
         def redirect_request(self,*args,**kwargs):raise ValueError('Unexpected installer metadata redirect')
@@ -241,22 +250,9 @@ def catalog(output, builds, *, now=None, sequence=None):
         tools.append(dict(version=policy['version'], rid=rid,
             binary=dict(url='https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v' + policy['version'] + '/' + item['name'], **{k:item[k] for k in ('size','sha256')}),
             notices=dict(url='https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v' + policy['version'] + '/' + notice['name'], **{k:notice[k] for k in ('size','sha256')})))
-    sdks = []; contract = load_contract()
-    for version in policy['initialSdkVersions']:
-        receipt, manifest = selected_archive(version, policy=policy)
-        canonical = get_bytes('https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-' + version + '/release-manifest.json', 8 * 1024**2)
-        require(hashlib.sha256(canonical).hexdigest() == contract['releases'][version]['manifestSha256'], 'Canonical source pin differs')
-        for record in manifest['records']:
-            plan = record['build']['plan']; arch = record['architecture']; rid = plan['targetRid']
-            require(plan['sourceManifestSha256'] == contract['releases'][version]['manifestSha256'] and not plan['compatibility']['required'], 'Legacy or unreviewed initial SDK admission')
-            item = next(a for a in receipt['assets'] if a['name'] == record['artifactAsset'])
-            sdks.append(dict(sdkVersion=version, revision=receipt['identity']['packageRevision'], rid=rid,
-                archiveRoot=record['build']['directory'], archive={k:item[k] for k in ('url','size','sha256')},
-                sourceManifestSha256=plan['sourceManifestSha256'], sourceManifest=dict(url=plan['sourceManifestUrl'],size=len(canonical),sha256=plan['sourceManifestSha256']),
-                producer=plan['producer'], evidence={k:plan['evidence'][k] for k in ('url','size','sha256')},
-                licensePaths=plan['licensePaths'], securitySupport=plan['securitySupport'],
-                dependencies=sorted({name for variant in policy['targets'] for name in contract['operatingSystems'][variant]['dependencies']}),
-                targets=[dict(os=contract['operatingSystems'][v]['id'],versionId=contract['operatingSystems'][v]['versionId'],rid=rid) for v in policy['targets']], requiresLegacyProvider=False))
+    sdks = catalog_sdks(policy, schema=2)
+    legacy_policy = dict(policy, archiveRevisions=policy['legacyArchiveRevisions'])
+    legacy_sdks = catalog_sdks(legacy_policy, schema=1)
     previous=previous_catalog()
     if previous:
         current={(t['version'],t['rid']):t for t in tools}
@@ -266,11 +262,81 @@ def catalog(output, builds, *, now=None, sequence=None):
             if key not in current:tools.append(tool)
     require(len(tools)<=64,'Review signed tool retention before exceeding the catalog bound')
     revoked=sorted(set(policy.get('revoked',[]))|set(previous['revoked'] if previous else []))
-    value=dict(schemaVersion=1,kind='cbodotnetup-installation-catalog',sequence=sequence,
+    if previous:require(sequence>previous['sequence'],'A renewed catalog must advance the published sequence')
+    common=dict(kind='cbodotnetup-installation-catalog',sequence=sequence,
         issuedAt=now.isoformat().replace('+00:00','Z'),expiresAt=(now+timedelta(days=policy['catalogLifetimeDays'])).isoformat().replace('+00:00','Z'),
-        signingFingerprint=policy['signingFingerprint'],revoked=revoked,sdks=sdks,tools=tools,
+        signingFingerprint=policy['signingFingerprint'],revoked=revoked,tools=tools)
+    value=dict(schemaVersion=2,**common,sdks=sdks,
         channels={'.'.join(s['sdkVersion'].split('.')[:2]):s['sdkVersion']+'-r'+str(s['revision']) for s in sdks})
-    save(output / 'catalog.json', value); return value
+    legacy=dict(schemaVersion=1,**common,sdks=legacy_sdks,
+        channels={'.'.join(s['sdkVersion'].split('.')[:2]):s['sdkVersion']+'-r'+str(s['revision']) for s in legacy_sdks})
+    old_tools=[t for t in tools if t['version']=='0.1.0' and 'tool/'+t['version']+'/'+t['rid'] not in revoked]
+    require({t['rid'] for t in old_tools}=={'linux-x64','linux-arm64'} and len(old_tools)==2 and sequence>2,
+            'Actual 0.1.0 binaries for both CPUs must remain authenticated for migration qualification')
+    bootstrap=dict(legacy,sequence=sequence-1,tools=old_tools)
+    expired=dict(bootstrap,sequence=sequence-2,
+        issuedAt=(now-timedelta(days=32)).isoformat().replace('+00:00','Z'),
+        expiresAt=(now-timedelta(days=2)).isoformat().replace('+00:00','Z'))
+    save(output/'catalog.json',value);save(output/'catalog-v1.json',legacy)
+    save(output/'catalog-v1-bootstrap.json',bootstrap);save(output/'catalog-v1-expired.json',expired)
+    verify_catalog_pair(output)
+    return value
+
+
+def catalog_sdks(policy, *, schema):
+    """Schema is also the closed archive naming contract; old feeds gain no new fields."""
+    require(schema in (1,2),'Unsupported installation catalog schema')
+    sdks = []; contract = load_contract()
+    for version in policy['initialSdkVersions']:
+        receipt, manifest = selected_archive(version, policy=policy)
+        canonical = get_bytes('https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-' + version + '/release-manifest.json', 8 * 1024**2)
+        require(hashlib.sha256(canonical).hexdigest() == contract['releases'][version]['manifestSha256'], 'Canonical source pin differs')
+        for record in manifest['records']:
+            plan = record['build']['plan']; arch = record['architecture']; rid = plan['targetRid']
+            require(plan['sourceManifestSha256'] == contract['releases'][version]['manifestSha256'] and not plan['compatibility']['required'], 'Legacy or unreviewed initial SDK admission')
+            item = next(a for a in receipt['assets'] if a['name'] == record['artifactAsset'])
+            revision=receipt['identity']['packageRevision']
+            expected=f'cbodotnet-sdk-{version}-linux-{arch}'+('-branded' if schema==1 else '')+f'-r{revision}.tar.gz'
+            require(item['name']==expected and item['url']==f'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-{version}-r{revision}/{expected}',
+                    'SDK archive does not match its catalog schema/naming identity')
+            sdks.append(dict(sdkVersion=version, revision=receipt['identity']['packageRevision'], rid=rid,
+                archiveRoot=record['build']['directory'], archive={k:item[k] for k in ('url','size','sha256')},
+                sourceManifestSha256=plan['sourceManifestSha256'], sourceManifest=dict(url=plan['sourceManifestUrl'],size=len(canonical),sha256=plan['sourceManifestSha256']),
+                producer=plan['producer'], evidence={k:plan['evidence'][k] for k in ('url','size','sha256')},
+                licensePaths=plan['licensePaths'], securitySupport=plan['securitySupport'],
+                dependencies=sorted({name for variant in policy['targets'] for name in contract['operatingSystems'][variant]['dependencies']}),
+                targets=[dict(os=contract['operatingSystems'][v]['id'],versionId=contract['operatingSystems'][v]['versionId'],rid=rid) for v in policy['targets']], requiresLegacyProvider=False))
+    return sdks
+
+
+def verify_catalog_pair(bundle):
+    """A migration/renewal candidate may never strand the old client's feed."""
+    current=load(Path(bundle)/'catalog.json')
+    if current['schemaVersion']==1:return current,None  # Previously published immutable bundles.
+    require(current['schemaVersion']==2,'Unsupported candidate catalog schema')
+    legacy=load(Path(bundle)/'catalog-v1.json')
+    fields={'schemaVersion','kind','sequence','issuedAt','expiresAt','signingFingerprint','revoked','sdks','tools','channels'}
+    require(set(current)==set(legacy)==fields and legacy['schemaVersion']==1,'Legacy catalog shape is not v1 compatible')
+    shared=fields-{'schemaVersion','sdks','channels'}
+    require(all(current[k]==legacy[k] for k in shared),'Paired catalog trust, sequence, lifetime or tools differ')
+    require(current['sdks'] and legacy['sdks'],'Both catalog generations need admitted SDKs')
+    for value,suffix in ((current,''),(legacy,'-branded')):
+        for sdk in value['sdks']:
+            arch={'linux-x64':'x64','linux-arm64':'aarch64'}.get(sdk['rid'])
+            require(arch is not None,'Unsupported catalog libc/RID')
+            version=sdk['sdkVersion'];revision=sdk['revision']
+            expected=f'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-{version}-r{revision}/cbodotnet-sdk-{version}-linux-{arch}{suffix}-r{revision}.tar.gz'
+            require(sdk['archive']['url']==expected,'Cross-generation SDK archive identity')
+    bootstrap=load(Path(bundle)/'catalog-v1-bootstrap.json')
+    expected=dict(legacy,sequence=current['sequence']-1,tools=[t for t in legacy['tools'] if t['version']=='0.1.0' and 'tool/'+t['version']+'/'+t['rid'] not in legacy['revoked']])
+    require(bootstrap==expected and len(bootstrap['tools'])==2 and {t['rid'] for t in bootstrap['tools']}=={'linux-x64','linux-arm64'},
+            'Legacy bootstrap fixture is not bound to the paired signed migration feeds')
+    issued=datetime.fromisoformat(current['issuedAt'].replace('Z','+00:00'))
+    expired=dict(bootstrap,sequence=current['sequence']-2,
+        issuedAt=(issued-timedelta(days=32)).isoformat().replace('+00:00','Z'),
+        expiresAt=(issued-timedelta(days=2)).isoformat().replace('+00:00','Z'))
+    require(load(Path(bundle)/'catalog-v1-expired.json')==expired,'Expired legacy test fixture differs from the signed migration candidate')
+    return current,legacy
 
 
 def previous_catalog():
@@ -341,8 +407,14 @@ def verify_bundle(bundle):
     with tempfile.TemporaryDirectory(prefix='cbodotnetup-public-key-') as temporary:
         key=Path(temporary)/'trusted.gpg'
         run(['gpg','--batch','--yes','--dearmor','--output',key,ROOT/'releases/downstream-signing-key.asc'],capture_output=True)
-        for name in ('freeze.json','catalog.json'):
+        current,legacy=verify_catalog_pair(bundle)
+        names=('freeze.json','catalog.json')+ (('catalog-v1.json','catalog-v1-bootstrap.json','catalog-v1-expired.json') if legacy else ())
+        for name in names:
             verify_report_signature(bundle/name,bundle/(name+'.asc'),key,load_status(),WORKFLOW)
+    if legacy:
+        old=descriptor(bundle/'get-cbodotnetup-v0.1.0.py')
+        require(all(old[k]==LEGACY_BOOTSTRAP[k] for k in ('size','sha256')) and manifest.get('legacyBootstrap')==LEGACY_BOOTSTRAP,
+                'Original released 0.1.0 bootstrap bytes or origin differ')
     indexed={a['path']:a for a in manifest['files']}
     require(len(indexed)==len(manifest['files']),'Duplicate frozen file')
     for name,item in indexed.items():
@@ -371,9 +443,11 @@ def stage(args):
     catalog(output,builds)
     audit_native_packages(builds,output/'native-package-audit.json')
     shutil.copyfile(ROOT/'scripts/get-cbodotnetup.py',output/'get-cbodotnetup.py')
+    fetch_asset(LEGACY_BOOTSTRAP,output/'get-cbodotnetup-v0.1.0.py')
     MULTI.preflight(output/'preflight',receive=True)
-    sign(output/'catalog.json')
+    for name in ('catalog.json','catalog-v1.json','catalog-v1-bootstrap.json','catalog-v1-expired.json'):sign(output/name)
     freeze=dict(schemaVersion=1,kind='cbodotnetup-frozen-candidate',source=source_identity(),version=load(POLICY)['version'],
+        legacyBootstrap=LEGACY_BOOTSTRAP,
         files=[descriptor(p)|dict(path=p.relative_to(output).as_posix()) for p in sorted(output.rglob('*')) if p.is_file()])
     save(output/'freeze.json',freeze);sign(output/'freeze.json');verify_bundle(output)
     print(json.dumps(dict(status='signed-frozen-unpublished',version=freeze['version'],catalog=descriptor(output/'catalog.json'))))
@@ -400,9 +474,33 @@ def native_install(args):
     run(['useradd','--create-home','--uid','10001',MULTI.USER])
     home=Path('/home')/MULTI.USER;binary=home/'.local/bin/cbodotnetup'
     rid='linux-x64' if args.arch=='x64' else 'linux-arm64'
+    # Exercise the actual immutable 0.1.0 bootstrap and binary, with a fresh,
+    # signed v1 fixture; the historical signed catalog itself eventually expires.
+    root=home/'.local/share/cbodotnetup'
+    old_catalog=bundle/'catalog-v1-bootstrap.json';legacy=bundle/'catalog-v1.json'
+    user(['python3',bundle/'get-cbodotnetup-v0.1.0.py','--catalog-file',old_catalog])
+    require(user([binary,'--version']).stdout.strip()=='0.1.0','The actual released legacy tool was not bootstrapped')
+    old_sdk=next(s for s in load(old_catalog)['sdks'] if s['rid']==rid)
+    old_exact=old_sdk['sdkVersion']+'-r'+str(old_sdk['revision'])
+    old_manager=[binary,'--catalog',old_catalog]
+    user([*old_manager,'list','--available']);user([*old_manager,'install',old_exact]);user([binary,'doctor'])
+    old_ownership=(Path(str(binary)+'.ownership.json')).read_bytes()
+    old_binary=descriptor(binary)['sha256']
+    old_high=(root/'cache/high-water.json').read_bytes()
+    require(user([binary,'--catalog',bundle/'catalog-v1-expired.json','list','--available'],check=False).returncode!=0,'Legacy client accepted an expired signed catalog')
+    require((root/'cache/high-water.json').read_bytes()==old_high,'Rejected expired input modified legacy high-water')
     bootstrap=['python3',bundle/'get-cbodotnetup.py','--catalog-file',bundle/'catalog.json']
-    if not args.public:bootstrap+=['--binary-file',bundle/'tools'/rid/('cbodotnetup-'+rid)]
-    user(bootstrap);require(user([binary,'--version']).stdout.strip()==load(POLICY)['version'],'SDK-free bootstrap binary failed')
+    if args.public:
+        user([binary,'--catalog',legacy,'self','update'])
+        require(Path(str(binary)+'.previous').is_file() and descriptor(Path(str(binary)+'.previous'))['sha256']==old_binary,'Actual legacy self-update did not retain the legacy executable')
+    else:
+        # New immutable tool URLs are not public until candidate qualification.
+        # Authenticate the same frozen bytes through the offline bootstrap here;
+        # the subsequent public phase must exercise real legacy self-update.
+        bootstrap+=['--binary-file',bundle/'tools'/rid/('cbodotnetup-'+rid)]
+        user(bootstrap)
+    require(user([binary,'--version']).stdout.strip()==load(POLICY)['version'],'SDK-free migration binary failed')
+    legacy_cache={name:(root/'cache'/name).read_bytes() for name in ('catalog.json','catalog.json.asc','high-water.json')}
     require(not Path('/usr/bin/dotnet').exists(),'Bootstrap silently installed a system SDK')
     catalog_value=load(bundle/'catalog.json');sdk=next(s for s in catalog_value['sdks'] if s['rid']==rid)
     version=sdk['sdkVersion'];exact=version+'-r'+str(sdk['revision'])
@@ -427,7 +525,6 @@ def native_install(args):
     # Before feed activation, use the exact project-signed catalog under qualification.
     # Public verification re-downloads these same bytes from their actual immutable release.
     manager=[binary,'--catalog',bundle/'catalog.json']
-    root=home/'.local/share/cbodotnetup'
     log=state/'interrupted-install.log'
     with log.open('w') as output:
         child=subprocess.Popen(user_command([*manager,'install',exact]),stdout=output,stderr=subprocess.STDOUT,
@@ -442,12 +539,39 @@ def native_install(args):
         finally:
             if child.poll() is None:os.killpg(child.pid,signal.SIGKILL)
             child.wait(timeout=30)
-    require(interrupted and not (root/'toolchains'/exact/rid).exists(),'Interrupted download exposed an active or partial SDK root; '+log.read_text()[-3000:])
+    require(interrupted and not (root/'toolchains-v2'/exact/rid).exists(),'Interrupted download exposed an active or partial SDK root; '+log.read_text()[-3000:])
     MULTI.integrity(packages,MULTI.TARGETS[args.variant])
     user([*manager,'install','--channel','10.0']);user([*manager,'install',exact]);user([*manager,'update']);user([*manager,'rollback',exact])
-    require(user([binary,'list']).stdout.strip()==exact+'/'+rid,'Installed list identity differs')
+    require(set(user([binary,'list']).stdout.splitlines())=={old_exact+'/'+rid,exact+'/'+rid},'Migrated installed list identity differs')
     user([binary,'shell','enable']);user([*manager,'self','update'])
+    user([*manager,'rollback',old_exact])
+    require(user([root/'bin/cbodotnet','--version']).stdout==old_sdk['sdkVersion']+'\n','SDK rollback lost the legacy admission')
+    user([*manager,'rollback',exact])
+    if args.public:
+        user([*manager,'self','rollback'])
+        require(user([binary,'--version']).stdout.strip()=='0.1.0','Actual tool rollback did not restore the legacy executable')
+        require(user([binary,'list']).stdout.strip()==old_exact+'/'+rid,'Legacy rollback enumerated incompatible neutral SDK state')
+        user([binary,'doctor'])
+        require(user([root/'bin/cbodotnet','--version']).stdout==old_sdk['sdkVersion']+'\n','Legacy rollback did not fall back to its retained SDK')
+        user([binary,'--catalog',legacy,'self','update'])
+        require(user([binary,'--version']).stdout.strip()==load(POLICY)['version'],'Legacy tool could not re-upgrade')
+        user([*manager,'list','--available'])
+    # Deterministically inject the self-update crash boundary after executable
+    # replacement but before its ownership receipt is committed. Recovery must
+    # authenticate the actual bytes; no untrusted binary is admitted by this test.
+    Path(str(binary)+'.ownership.json').write_bytes(old_ownership)
+    require(user([*manager,'self','update'],check=False).returncode!=0,'Conflicting tool ownership was accepted')
+    user(bootstrap)
+    require(user([binary,'--version']).stdout.strip()==load(POLICY)['version'],'Verified bootstrap did not repair interrupted ownership')
+    user([binary,'doctor'])
+    require(all((root/'cache'/name).read_bytes()==raw for name,raw in legacy_cache.items()),'New client overwrote the legacy catalog/high-water')
+    migration=dict(status='passed',protocol='actual-0.1.0-self-update-rollback-reupgrade' if args.public else 'actual-0.1.0-frozen-bootstrap-migration',
+        oldVersion='0.1.0',newVersion=load(POLICY)['version'],oldSdk=old_exact,newSdk=exact,
+        legacyCatalogSha256=descriptor(legacy)['sha256'],legacyBootstrapSha256=descriptor(bundle/'get-cbodotnetup-v0.1.0.py')['sha256'],
+        oldBinarySha256=old_binary,expiredCatalogRejection='passed',legacyCachePreserved='passed',
+        interruptedOwnershipRecovery='passed',sdkRollback='passed')
     save(state/'installed.json',dict(sdk=sdk,exact=exact,rid=rid,officialBaseline=official,packages=packages,packageInventory=package_inventory,
+        legacyExact=old_exact,migration=migration,
         catalogSha256=descriptor(bundle/'catalog.json')['sha256'],freezeSha256=descriptor(bundle/'freeze.json')['sha256'],
         bootstrapSha256=descriptor(bundle/'get-cbodotnetup.py')['sha256'],binarySha256=descriptor(binary)['sha256'],bootstrapBinarySource='public-https' if args.public else 'protected-frozen-candidate'))
 
@@ -463,7 +587,7 @@ def native_smoke(args):
         result=user([root/'bin'/alias,'--version']);require(result.stdout==version+'\n' and result.stderr==MULTI.BRAND+'\n','User-local alias selected another SDK or lost branding')
         info=json.loads(user([root/'bin'/alias,'--cbodotnet-info']).stdout)
         require(info['sdkVersion']==version and info['sourceManifestSha256']==sdk['sourceManifestSha256'],'User alias source identity differs');observations.append(info)
-    payload=root/'toolchains'/exact/state['rid']/'content'/sdk['archiveRoot']/'payload'
+    payload=root/'toolchains-v2'/exact/state['rid']/'content'/sdk['archiveRoot']/'payload'
     wrapper=home/'run-managed-sdk.sh';wrapper.write_text('#!/bin/sh\nexec '+shlex.quote(str(binary))+' run '+shlex.quote(exact)+' -- "$@"\n');wrapper.chmod(0o755)
     from sdk_runtime import smoke_script,validate_smoke_output
     functional=validate_smoke_output(user(['sh','-ec',smoke_script(version,str(payload),MULTI.USER,cli=str(wrapper),workdir=str(home/'offline-cbodotnetup'))]).stdout)
@@ -478,7 +602,9 @@ def native_smoke(args):
     abandoned=list((root/'staging').iterdir());require(abandoned and all(p.is_dir() and (p/'owner').read_text()=='cbodotnetup-v1' for p in abandoned),'Actual interrupted install did not leave its owned stage')
     user([binary,'gc']);require(not list((root/'staging').iterdir()),'Abandoned owned stage was not collected')
     require(user([binary,'run',exact,'--','--version']).stdout==version+'\n','Interrupted activation affected an active SDK')
-    user([binary,'remove',exact]);require(user([binary,'list']).stdout=='','Removed SDK still advertised')
+    user([binary,'remove',exact])
+    require(user([binary,'list']).stdout.strip()==state['legacyExact']+'/'+state['rid'],'Neutral SDK removal damaged the retained legacy SDK')
+    user([binary,'remove',state['legacyExact']]);require(user([binary,'list']).stdout=='','Removed SDK still advertised')
     absent=user([root/'bin/cbodotnet','--version'],check=False);require(absent.returncode!=0 and not absent.stdout,'Empty user selector fell back to an official/package SDK')
     user([binary,'shell','disable'])
     require(MULTI.APT.inventory(Path('/opt/cbodotnet'))==state['packageInventory'],'User installer changed package-managed Community SDK inventory')
@@ -487,9 +613,10 @@ def native_smoke(args):
     save(args.workspace/'report.json',dict(schemaVersion=1,scope='cbodotnetup-native-installation',status='passed',variant=args.variant,architecture=args.arch,
         orchestration=source_identity(),bootstrapBinarySource=state['bootstrapBinarySource'],
         catalogSha256=state['catalogSha256'],freezeSha256=state['freezeSha256'],bootstrapSha256=state['bootstrapSha256'],binarySha256=state['binarySha256'],
+        migration=state['migration'],
         networkForBuild='none',userId=10001,checks=dict.fromkeys(CHECKS,'passed'),functionalChecks=functional,aliases=observations,
         officialBaseline=state['officialBaseline'],officialAfterRemoval=official,packageManagedCommunityIntegrity='unchanged',
-        rollbackScope='retained exact admitted SDK revision selection; additional revisions need their own admission'))
+        rollbackScope='signed legacy r2 and neutral r3 SDK selection; actual public 0.1.0 tool rollback and re-upgrade'))
 
 
 def native(args):
@@ -527,6 +654,11 @@ def qualified_reports(bundle,directory,*,public=False):
                 and value['bootstrapSha256']==descriptor(Path(bundle)/'get-cbodotnetup.py')['sha256']
                 and value['packageManagedCommunityIntegrity']=='unchanged'
                 and value['functionalChecks']==dict.fromkeys(FUNCTIONAL_CHECKS,'passed'),'Incomplete native installer qualification')
+        migration=value.get('migration',{})
+        require(migration.get('status')=='passed' and migration.get('protocol')==('actual-0.1.0-self-update-rollback-reupgrade' if public else 'actual-0.1.0-frozen-bootstrap-migration')
+                and migration.get('legacyCatalogSha256')==descriptor(Path(bundle)/'catalog-v1.json')['sha256']
+                and all(migration.get(check)=='passed' for check in ('expiredCatalogRejection','legacyCachePreserved','interruptedOwnershipRecovery','sdkRollback')),
+                'Actual legacy client migration/recovery evidence is required')
         rid='linux-x64' if target[1]=='x64' else 'linux-arm64'
         require(value['binarySha256']==descriptor(Path(bundle)/'tools'/rid/('cbodotnetup-'+rid))['sha256'],'Qualified binary differs from frozen bytes')
         source=value['orchestration'];run_record=api.api(f'repos/dotnetdev-kr/cbodotnet/actions/runs/{source["runId"]}/attempts/{source["runAttempt"]}')
@@ -610,9 +742,10 @@ def publish(args):
         'Linux glibc x64/AArch64; Ubuntu24.04, Debian13, Fedora45 and Rocky9.8. Initial SDK:10.0.403. '
         'Native runtime 10.0.14; the SDK payload stays unchanged. Per-user roots preserve official and package-managed commands. '
         'Each binary has exact signed native runtime/project license and third-party notices in its adjacent .LICENSE.txt asset. '
+        'Version 0.2 uses the versioned schema2 catalog for neutral SDK archive names; the schema1 feed keeps 0.1 clients able to self-update. '
         'Build/source records are retained; current signed catalog qualification is published separately. This release does not replace the latest SDK download.')
     catalog_assets=output/'catalog-assets';catalog_assets.mkdir()
-    for name in ('catalog.json','catalog.json.asc','freeze.json','freeze.json.asc','get-cbodotnetup.py'):shutil.copyfile(args.bundle/name,catalog_assets/name)
+    for name in (*CATALOG_ASSETS,'freeze.json','freeze.json.asc','get-cbodotnetup.py'):shutil.copyfile(args.bundle/name,catalog_assets/name)
     pack(args.bundle,catalog_assets/'cbodotnetup-verification-inputs.tar.gz')
     save(catalog_assets/'native-qualification.json',dict(status='passed',targets=proof))
     catalog_value=load(args.bundle/'catalog.json')
@@ -620,10 +753,13 @@ def publish(args):
         'cbodotnetup signed installation catalog '+str(catalog_value['sequence']),
         'Project-signed installation catalog with bounded freshness, revocation, source/producer pins and immutable SDK/tool hashes. '
         'All eight native OS/CPU qualification targets passed before this publication. Public bootstrap/native post-verification is recorded before feed activation. '
+        'catalog.json is the schema2 feed; catalog-v1.json is the compatible schema1 feed. '
+        'catalog-v1-bootstrap.json and catalog-v1-expired.json are test-only migration qualification fixtures, not installation feeds. '
         'AUR publication remains deferred under issue10.')
     save(output/'publication.json',dict(schemaVersion=1,kind='cbodotnetup-publication',status='published-public-bytes-verified',
         version=version,source=freeze['source'],toolRelease=tool_release,catalogRelease=release,nativeQualification=proof,
-        catalogSequence=catalog_value['sequence'],catalogSha256=descriptor(args.bundle/'catalog.json')['sha256']))
+        catalogSequence=catalog_value['sequence'],catalogSha256=descriptor(args.bundle/'catalog.json')['sha256'],
+        legacyCatalogSequence=load(args.bundle/'catalog-v1.json')['sequence'],legacyCatalogSha256=descriptor(args.bundle/'catalog-v1.json')['sha256']))
 
 
 def receive_public(args):
@@ -632,7 +768,7 @@ def receive_public(args):
     args.output.parent.mkdir(parents=True,exist_ok=True)
     archive=args.output.parent/'public-installer-inputs.tar.gz';fetch_asset(assets['cbodotnetup-verification-inputs.tar.gz'],archive)
     sdk_tools().extract_sdk(archive,args.output);verify_bundle(args.output)
-    for name in ('catalog.json','catalog.json.asc','get-cbodotnetup.py'):
+    for name in (*CATALOG_ASSETS,'get-cbodotnetup.py'):
         raw=get_bytes(assets[name]['url'],assets[name]['size'])
         require(hashlib.sha256(raw).hexdigest()==assets[name]['sha256'] and raw==(args.output/name).read_bytes(),'Public consumer metadata differs from the frozen signed candidate')
 
@@ -655,6 +791,9 @@ def activate(args):
         catalogSequence=publication['catalogSequence'],catalogSha256=publication['catalogSha256'],toolRelease=publication['toolRelease'],
         catalogRelease=publication['catalogRelease'],nativeQualification=publication['nativeQualification'],publicNativeVerification=proof,
         source=publication['source'],postVerification=source_identity())
+    require(publication['legacyCatalogSha256']==descriptor(args.bundle/'catalog-v1.json')['sha256']
+            and publication['legacyCatalogSequence']==publication['catalogSequence'], 'Public legacy migration feed differs')
+    status.update(legacyCatalogSequence=publication['legacyCatalogSequence'],legacyCatalogSha256=publication['legacyCatalogSha256'])
     save(args.output,status)
     api=GitHubReleases();path='releases/cbodotnetup-status.json'
     content=api.api('repos/dotnetdev-kr/cbodotnet/contents/'+path+'?ref=main')

@@ -16,7 +16,7 @@ import urllib.parse
 import urllib.request
 
 FINGERPRINT='D7D154B4B33C19A82B95B13688135410ACD9C0EA'
-CATALOG='https://dotnetdev.kr/cbodotnet/cbodotnetup/catalog.json'
+CATALOG='https://dotnetdev.kr/cbodotnet/cbodotnetup/v2/catalog.json'
 OWNER='cbodotnetup-v1'
 PUBLIC_KEY='''-----BEGIN PGP PUBLIC KEY BLOCK-----
 
@@ -81,7 +81,7 @@ class Redirect(urllib.request.HTTPRedirectHandler):
 
 def download(url,maximum):
     allowed(url)
-    with urllib.request.build_opener(Redirect()).open(urllib.request.Request(url,headers={'User-Agent':'cbodotnetup-bootstrap/0.1.0','Accept-Encoding':'identity'}),timeout=60) as incoming:
+    with urllib.request.build_opener(Redirect()).open(urllib.request.Request(url,headers={'User-Agent':'cbodotnetup-bootstrap/0.2.0','Accept-Encoding':'identity'}),timeout=60) as incoming:
         data=incoming.read(maximum+1);encoding=incoming.headers.get('Content-Encoding','identity').lower()
     require(0<len(data)<=maximum,'Download exceeded its size bound')
     if encoding=='gzip':
@@ -102,7 +102,7 @@ def verify(data,signature,directory):
 
 
 def validate(value,now):
-    require(value['schemaVersion']==1 and value['kind']=='cbodotnetup-installation-catalog' and value['signingFingerprint']==FINGERPRINT
+    require(type(value['schemaVersion']) is int and value['schemaVersion']==2 and value['kind']=='cbodotnetup-installation-catalog' and value['signingFingerprint']==FINGERPRINT
             and type(value['sequence']) is int and value['sequence']>0,'Invalid signed catalog identity')
     issued=datetime.fromisoformat(value['issuedAt'].replace('Z','+00:00'));expires=datetime.fromisoformat(value['expiresAt'].replace('Z','+00:00'))
     require(issued.utcoffset()==expires.utcoffset()==timedelta(0) and issued<=now+timedelta(minutes=5)
@@ -128,7 +128,8 @@ def main():
     lock=ordinary(root/'operation.lock')
     with lock.open('a+b') as lease:
         fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
-        cache=private(root/'cache');destination=private(args.install_dir.absolute())/'cbodotnetup';ordinary(destination)
+        # The old client's signed catalog and high-water remain available for tool rollback.
+        cache=private(private(root/'cache')/'v2');destination=private(args.install_dir.absolute())/'cbodotnetup';ordinary(destination)
         with tempfile.TemporaryDirectory(prefix='bootstrap-',dir=cache) as temporary:
             directory=Path(temporary)
             if args.catalog_file:

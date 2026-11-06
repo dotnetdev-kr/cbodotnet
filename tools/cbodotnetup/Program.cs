@@ -2,19 +2,19 @@ namespace Community.DotNet.Up;
 
 internal static class Program
 {
-    internal const string CurrentVersion = "0.1.0";
+    internal const string CurrentVersion = "0.2.0";
     internal static async Task<int> Main(string[] args)
     {
         try
         {
             var invoked = Path.GetFileName(Environment.GetCommandLineArgs()[0]);
             var alias = invoked == "cbodotnet" || invoked.StartsWith("cbodotnet-", StringComparison.Ordinal);
-            if (!alias && args.SequenceEqual(new[] { "--version" })) { Console.WriteLine("0.1.0"); return 0; }
+            if (!alias && args.SequenceEqual(new[] { "--version" })) { Console.WriteLine(CurrentVersion); return 0; }
             if (args.Length == 0 && invoked != "cbodotnet" && !invoked.StartsWith("cbodotnet-", StringComparison.Ordinal)
                 || !alias && (args.SequenceEqual(new[] { "--help" }) || args.SequenceEqual(new[] { "help" })))
             {
-                Console.WriteLine("""
-                    cbodotnetup 0.1.0 — Community Build of .NET (built by .NET Dev)
+                Console.WriteLine($"""
+                    cbodotnetup {CurrentVersion} — Community Build of .NET (built by .NET Dev)
                     list [--available]                 List installed or authenticated available SDKs
                     install VERSION[-rN]               Install an exact qualified SDK
                     install --channel X.Y              Install and track a signed Community channel

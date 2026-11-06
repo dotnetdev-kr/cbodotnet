@@ -14,7 +14,7 @@ BOOT=importlib.util.module_from_spec(SPEC);SPEC.loader.exec_module(BOOT)
 class InstallerBootstrapTests(unittest.TestCase):
     def catalog(self):
         now=datetime.now(timezone.utc)
-        return dict(schemaVersion=1,kind='cbodotnetup-installation-catalog',signingFingerprint=BOOT.FINGERPRINT,sequence=1,
+        return dict(schemaVersion=2,kind='cbodotnetup-installation-catalog',signingFingerprint=BOOT.FINGERPRINT,sequence=1,
                     issuedAt=(now-timedelta(minutes=1)).isoformat(),expiresAt=(now+timedelta(days=30)).isoformat())
 
     def test_embedded_key_is_exact_independent_repository_trust_root(self):
@@ -26,11 +26,14 @@ class InstallerBootstrapTests(unittest.TestCase):
 
     def test_catalog_expiry_future_and_identity_fail_closed(self):
         now=datetime.now(timezone.utc);good=self.catalog();BOOT.validate(good,now)
-        for change in ({'sequence':True},{'sequence':0},{'kind':'other'},{'signingFingerprint':'A'*40},
+        for change in ({'schemaVersion':1},{'schemaVersion':3},{'schemaVersion':True},{'sequence':True},{'sequence':0},{'kind':'other'},{'signingFingerprint':'A'*40},
                        {'expiresAt':(now-timedelta(seconds=1)).isoformat()},
                        {'expiresAt':(now+timedelta(days=32)).isoformat()},
                        {'issuedAt':(now+timedelta(minutes=6)).isoformat()}):
             with self.subTest(change=change),self.assertRaises(ValueError):BOOT.validate(dict(good,**change),now)
+
+    def test_new_bootstrap_uses_only_the_versioned_v2_endpoint(self):
+        self.assertEqual(BOOT.CATALOG,'https://dotnetdev.kr/cbodotnet/cbodotnetup/v2/catalog.json')
 
     def test_duplicate_properties_rejected_at_every_depth(self):
         for raw in (b'{"sequence":1,"sequence":2}',b'{"tools":[{"rid":"linux-x64","rid":"linux-arm64"}]}'):

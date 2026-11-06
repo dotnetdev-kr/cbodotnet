@@ -1,0 +1,204 @@
+{
+  "channels": {
+    "10.0": "10.0.403-r2"
+  },
+  "expiresAt": "2026-12-05T02:00:40.609480Z",
+  "issuedAt": "2026-11-05T02:00:40.609480Z",
+  "kind": "cbodotnetup-installation-catalog",
+  "revoked": [],
+  "schemaVersion": 1,
+  "sdks": [
+    {
+      "archive": {
+        "sha256": "e99c6908efbeee70a2de0fb3463e60f343732c8740334131567a0820ba173838",
+        "size": 216987966,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-10.0.403-r2/cbodotnet-sdk-10.0.403-linux-aarch64-branded-r2.tar.gz"
+      },
+      "archiveRoot": "cbodotnet-10.0.403-linux-aarch64-r2",
+      "dependencies": [
+        "ca-certificates",
+        "glibc",
+        "krb5-libs",
+        "libc6",
+        "libgcc",
+        "libgcc-s1",
+        "libgssapi-krb5-2",
+        "libicu",
+        "libicu74",
+        "libicu76",
+        "libssl3t64",
+        "libstdc++",
+        "libstdc++6",
+        "openssl-libs",
+        "openssl3-libs",
+        "zlib",
+        "zlib-ng-compat",
+        "zlib1g"
+      ],
+      "evidence": {
+        "sha256": "97843567a562a42fed38f7b89bc3026496b39017f46f524f11c6073039025309",
+        "size": 42620012,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-aarch64.tar.gz"
+      },
+      "licensePaths": [
+        "LICENSE.txt",
+        "ThirdPartyNotices.txt"
+      ],
+      "producer": {
+        "artifactId": "13048586144",
+        "originalSdkName": "cbodotnet-sdk-10.0.403-linux-arm64-build.41211183670.tar.gz",
+        "originalSourceName": "cbodotnet-sources-10.0.403-linux-arm64-build.41211183670.tar.gz",
+        "projectCommit": "5721c5989e277d98b6af7c782d1b660459f8298e",
+        "runAttempt": "1",
+        "runId": "41211183670",
+        "targetRid": "linux-arm64",
+        "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41211183670"
+      },
+      "requiresLegacyProvider": false,
+      "revision": 2,
+      "rid": "linux-arm64",
+      "sdkVersion": "10.0.403",
+      "securitySupport": "community-build-no-additional-security-maintenance",
+      "sourceManifest": {
+        "sha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+        "size": 2511,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json"
+      },
+      "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "targets": [
+        {
+          "os": "ubuntu",
+          "rid": "linux-arm64",
+          "versionId": "24.04"
+        },
+        {
+          "os": "debian",
+          "rid": "linux-arm64",
+          "versionId": "13"
+        },
+        {
+          "os": "fedora",
+          "rid": "linux-arm64",
+          "versionId": "45"
+        },
+        {
+          "os": "rocky",
+          "rid": "linux-arm64",
+          "versionId": "9.8"
+        }
+      ]
+    },
+    {
+      "archive": {
+        "sha256": "7bb763d46e8d33f45304f0faf76f7501953ebd738e01a7bc0aec2945450c82bd",
+        "size": 223841809,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-10.0.403-r2/cbodotnet-sdk-10.0.403-linux-x64-branded-r2.tar.gz"
+      },
+      "archiveRoot": "cbodotnet-10.0.403-linux-x64-r2",
+      "dependencies": [
+        "ca-certificates",
+        "glibc",
+        "krb5-libs",
+        "libc6",
+        "libgcc",
+        "libgcc-s1",
+        "libgssapi-krb5-2",
+        "libicu",
+        "libicu74",
+        "libicu76",
+        "libssl3t64",
+        "libstdc++",
+        "libstdc++6",
+        "openssl-libs",
+        "openssl3-libs",
+        "zlib",
+        "zlib-ng-compat",
+        "zlib1g"
+      ],
+      "evidence": {
+        "sha256": "56941c7c987707506784618cc992bab611c2f97623d4c1b56d4d4d00a1221a5e",
+        "size": 42812798,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/evidence-x64.tar.gz"
+      },
+      "licensePaths": [
+        "LICENSE.txt",
+        "ThirdPartyNotices.txt"
+      ],
+      "producer": {
+        "artifactId": "13083076281",
+        "originalSdkName": "cbodotnet-sdk-10.0.403-linux-x64-build.41301145771.tar.gz",
+        "originalSourceName": "cbodotnet-sources-10.0.403-linux-x64-build.41301145771.tar.gz",
+        "projectCommit": "29e878271353d95c8d6db4bb358976bd7ee6e988",
+        "runAttempt": "1",
+        "runId": "41301145771",
+        "targetRid": "linux-x64",
+        "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/41301145771"
+      },
+      "requiresLegacyProvider": false,
+      "revision": 2,
+      "rid": "linux-x64",
+      "sdkVersion": "10.0.403",
+      "securitySupport": "community-build-no-additional-security-maintenance",
+      "sourceManifest": {
+        "sha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+        "size": 2511,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-10.0.403/release-manifest.json"
+      },
+      "sourceManifestSha256": "16f9d534cf572531b52c9296b1c3652432e6f1f8a8b1614c326e007c07c79c3d",
+      "targets": [
+        {
+          "os": "ubuntu",
+          "rid": "linux-x64",
+          "versionId": "24.04"
+        },
+        {
+          "os": "debian",
+          "rid": "linux-x64",
+          "versionId": "13"
+        },
+        {
+          "os": "fedora",
+          "rid": "linux-x64",
+          "versionId": "45"
+        },
+        {
+          "os": "rocky",
+          "rid": "linux-x64",
+          "versionId": "9.8"
+        }
+      ]
+    }
+  ],
+  "sequence": 41952285282,
+  "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+  "tools": [
+    {
+      "binary": {
+        "sha256": "3c81c33a8185fb16bf12bd872fb17f314f292a6cc0a4c6226517437c00f043da",
+        "size": 9326240,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v0.1.0/cbodotnetup-linux-arm64"
+      },
+      "notices": {
+        "sha256": "b494eba485a84f00c0f7ec3ea19b4270110210214035cec093a0b998b2316778",
+        "size": 444077,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v0.1.0/cbodotnetup-linux-arm64.LICENSE.txt"
+      },
+      "rid": "linux-arm64",
+      "version": "0.1.0"
+    },
+    {
+      "binary": {
+        "sha256": "56c1a7ffd36ed13ca804ecc2a7d18ffba10e183311047be3256b5b967a23bcb6",
+        "size": 9145920,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v0.1.0/cbodotnetup-linux-x64"
+      },
+      "notices": {
+        "sha256": "f224563c6576e12203bdd47a20da863e64b181a7401e5e4aa48cd24ee93fee68",
+        "size": 444063,
+        "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v0.1.0/cbodotnetup-linux-x64.LICENSE.txt"
+      },
+      "rid": "linux-x64",
+      "version": "0.1.0"
+    }
+  ]
+}

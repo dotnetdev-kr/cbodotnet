@@ -1,4 +1,7 @@
 from pathlib import Path
+from datetime import datetime,timezone
+import copy
+import hashlib
 import tempfile
 import sys
 import shutil
@@ -11,7 +14,7 @@ import cbodotnetup_release as UP
 
 
 class InstallerReleaseTests(unittest.TestCase):
-    def test_newer_sdk_packaging_does_not_change_the_qualified_installer_archive(self):
+    def test_legacy_archive_pin_is_independent_of_the_new_neutral_revision(self):
         def receipt(revision):
             return dict(identity=dict(sdkVersion='10.0.403',packageRevision=revision),status='published-postverified',
                         postVerification=dict(reports=['native-x64','native-aarch64'],workflow={'runId':'123'}))
@@ -19,7 +22,8 @@ class InstallerReleaseTests(unittest.TestCase):
         with patch.object(UP,'load_archive_status',return_value=dict(publications=[receipt(1),newer,pinned])),\
                 patch.object(UP,'authenticate_receipt',return_value=manifest) as authenticate,\
                 patch.object(UP,'postverified_receipt') as postverified:
-            self.assertEqual(UP.selected_archive('10.0.403'),(pinned,manifest))
+            legacy=dict(UP.load(UP.POLICY),archiveRevisions=UP.load(UP.POLICY)['legacyArchiveRevisions'])
+            self.assertEqual(UP.selected_archive('10.0.403',policy=legacy),(pinned,manifest))
             authenticate.assert_called_once_with(pinned,historical=True)
             postverified.assert_called_once_with(pinned,pinned['postVerification']['reports'],manifest,
                                                  source=pinned['postVerification']['workflow'])
@@ -40,13 +44,104 @@ class InstallerReleaseTests(unittest.TestCase):
                 status.assert_not_called()
 
     def test_ambiguous_or_unverified_pinned_archive_is_rejected(self):
-        pinned=dict(identity=dict(sdkVersion='10.0.403',packageRevision=2),status='published-public-bytes-verified')
+        pinned=dict(identity=dict(sdkVersion='10.0.403',packageRevision=3),status='published-public-bytes-verified')
         with patch.object(UP,'authenticate_receipt') as authenticate:
             with patch.object(UP,'load_archive_status',return_value=dict(publications=[pinned,pinned])):
                 with self.assertRaisesRegex(ValueError,'published once'):UP.selected_archive('10.0.403')
             with patch.object(UP,'load_archive_status',return_value=dict(publications=[pinned])):
                 with self.assertRaisesRegex(ValueError,'not post-verified'):UP.selected_archive('10.0.403')
             authenticate.assert_not_called()
+
+    def test_new_client_pins_neutral_revision_without_changing_the_old_feed_pin(self):
+        policy=UP.load(UP.POLICY)
+        self.assertEqual(policy['version'],'0.2.0')
+        self.assertEqual(policy['archiveRevisions'],{'10.0.403':3})
+        self.assertEqual(policy['legacyArchiveRevisions'],{'10.0.403':2})
+
+    def paired_catalogs(self,directory,*,previous_sequence=80):
+        policy=UP.load(UP.POLICY);source=dict(repository='dotnetdev-kr/cbodotnet',commit='b'*40,workflow=UP.WORKFLOW,runId='123',runAttempt='1')
+        builds={}
+        for arch,rid in (('x64','linux-x64'),('aarch64','linux-arm64')):
+            target=directory/arch;target.mkdir();(target/('cbodotnetup-'+rid)).write_bytes(b'native-'+rid.encode())
+            (target/('cbodotnetup-'+rid+'.LICENSE.txt')).write_bytes(b'notices')
+            UP.save(target/'build.json',dict(sourceInputs={},source=source,version=policy['version'],architecture=arch,rid=rid,
+                securityTests='passed',nativeRuntime=policy['nativeRuntime'],container=UP.MULTI.BASES['rocky-9.8'][arch],
+                buildSdk=dict(name='cbodotnet-sdk-10.0.403-linux-'+arch+'-r3.tar.gz'),artifacts=[]))
+            builds[arch]=target
+        def sdk(schema):
+            revision=2 if schema==1 else 3;marker='-branded' if schema==1 else ''
+            return [dict(sdkVersion='10.0.403',revision=revision,rid=rid,
+                archive=dict(url=f'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-10.0.403-r{revision}/cbodotnet-sdk-10.0.403-linux-{arch}{marker}-r{revision}.tar.gz'))
+                for arch,rid in (('x64','linux-x64'),('aarch64','linux-arm64'))]
+        previous=dict(sequence=previous_sequence,revoked=['tool/0.0.1/linux-x64'],tools=[dict(version='0.1.0',rid=r) for r in ('linux-x64','linux-arm64')])
+        with patch.object(UP,'source_identity',return_value=source),patch.object(UP,'tool_inputs',return_value={}),\
+                patch.object(UP,'previous_catalog',return_value=previous),\
+                patch.object(UP,'catalog_sdks',side_effect=lambda policy,schema:sdk(schema)):
+            UP.catalog(directory,builds,now=datetime(2026,11,6,tzinfo=timezone.utc),sequence=88)
+        return UP.load(directory/'catalog.json'),UP.load(directory/'catalog-v1.json'),UP.load(directory/'catalog-v1-bootstrap.json')
+
+    def test_paired_catalogs_keep_old_shape_upgrade_tools_and_independent_sdk_names(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            current,legacy,bootstrap=self.paired_catalogs(Path(temporary))
+            self.assertEqual(current['schemaVersion'],2);self.assertEqual(legacy['schemaVersion'],1)
+            self.assertEqual(set(current),set(legacy))
+            self.assertEqual(current['sequence'],legacy['sequence']);self.assertEqual(current['expiresAt'],legacy['expiresAt'])
+            self.assertEqual(current['tools'],legacy['tools']);self.assertEqual(len(current['tools']),4)
+            self.assertEqual(current['revoked'],['tool/0.0.1/linux-x64'])
+            self.assertEqual(current['channels'],{'10.0':'10.0.403-r3'})
+            self.assertEqual(legacy['channels'],{'10.0':'10.0.403-r2'})
+            self.assertTrue(all('-branded-' not in s['archive']['url'] for s in current['sdks']))
+            self.assertTrue(all('-branded-r2.tar.gz' in s['archive']['url'] for s in legacy['sdks']))
+            self.assertEqual(bootstrap['sequence'],87)
+            self.assertEqual({t['version'] for t in bootstrap['tools']},{'0.1.0'})
+            expired=UP.load(Path(temporary)/'catalog-v1-expired.json')
+            self.assertEqual(expired['sequence'],86)
+            self.assertEqual(expired['issuedAt'],'2026-10-05T00:00:00Z')
+            self.assertEqual(expired['expiresAt'],'2026-11-04T00:00:00Z')
+            self.assertEqual(expired['tools'],bootstrap['tools'])
+
+    def test_migration_pair_rejects_legacy_shape_drift_cross_generation_names_and_bad_fixture(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory=Path(temporary);current,legacy,bootstrap=self.paired_catalogs(directory)
+            cases=[('catalog-v1.json',dict(legacy,newField=True)),
+                   ('catalog-v1.json',dict(legacy,sequence=legacy['sequence']+1)),
+                   ('catalog-v1.json',dict(legacy,tools=legacy['tools'][:2])),
+                   ('catalog-v1-bootstrap.json',dict(bootstrap,tools=current['tools']))]
+            wrong=copy.deepcopy(current);wrong['sdks'][0]['archive']['url']=legacy['sdks'][0]['archive']['url'];cases.append(('catalog.json',wrong))
+            for name,value in cases:
+                with self.subTest(name=name,value=value):
+                    UP.save(directory/'catalog.json',current);UP.save(directory/'catalog-v1.json',legacy);UP.save(directory/'catalog-v1-bootstrap.json',bootstrap)
+                    UP.save(directory/name,value)
+                    with self.assertRaises(ValueError):UP.verify_catalog_pair(directory)
+
+    def test_historical_v1_bundle_remains_readable_without_new_companion_files(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory=Path(temporary);UP.save(directory/'catalog.json',dict(schemaVersion=1))
+            self.assertEqual(UP.verify_catalog_pair(directory),({'schemaVersion':1},None))
+
+    def test_renewal_cannot_reuse_or_decrease_a_published_sequence(self):
+        for previous in (88,89):
+            with self.subTest(previous=previous),tempfile.TemporaryDirectory() as temporary:
+                with self.assertRaisesRegex(ValueError,'advance'):
+                    self.paired_catalogs(Path(temporary),previous_sequence=previous)
+
+    def test_source_admission_binds_exact_archive_naming_to_catalog_schema(self):
+        canonical=b'{"source":"reviewed"}';sha=hashlib.sha256(canonical).hexdigest();version='10.0.403'
+        contract=dict(releases={version:dict(manifestSha256=sha)},operatingSystems={'ubuntu-24.04':dict(id='ubuntu',versionId='24.04',dependencies=['libicu'])})
+        policy=dict(initialSdkVersions=[version],targets=['ubuntu-24.04'])
+        for schema,marker,revision,accepted in ((1,'-branded',2,True),(2,'',3,True),(1,'',3,False),(2,'-branded',2,False),(2,'-unbranded',3,False)):
+            name=f'cbodotnet-sdk-{version}-linux-x64{marker}-r{revision}.tar.gz'
+            asset=dict(name=name,url=f'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-{version}-r{revision}/{name}',size=1,sha256='a'*64)
+            plan=dict(targetRid='linux-x64',sourceManifestSha256=sha,sourceManifestUrl=f'https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-{version}/release-manifest.json',
+                compatibility=dict(required=False),producer=dict(origin='reviewed'),evidence=dict(url='evidence',size=1,sha256='b'*64),
+                licensePaths=['LICENSE.txt','ThirdPartyNotices.txt'],securitySupport='community-build-no-additional-security-maintenance')
+            manifest=dict(records=[dict(architecture='x64',artifactAsset=name,build=dict(directory='root',plan=plan))])
+            receipt=dict(identity=dict(packageRevision=revision),assets=[asset])
+            with self.subTest(schema=schema,marker=marker),patch.object(UP,'load_contract',return_value=contract),\
+                    patch.object(UP,'selected_archive',return_value=(receipt,manifest)),patch.object(UP,'get_bytes',return_value=canonical):
+                if accepted:self.assertEqual(UP.catalog_sdks(policy,schema=schema)[0]['archive']['url'],asset['url'])
+                else:
+                    with self.assertRaisesRegex(ValueError,'schema/naming'):UP.catalog_sdks(policy,schema=schema)
 
     def test_patched_runtime_is_outside_the_actual_advisory_range(self):
         self.assertTrue(UP.affected('10.0.13','[10.0.0, 10.0.14)'))
@@ -88,6 +183,14 @@ class InstallerReleaseTests(unittest.TestCase):
             self.assertEqual(UP.public_metadata('https://api.nuget.org/v3/vulnerabilities/index.json',1024),b'{}')
             response.read.return_value=gzip.compress(b'x'*4096)
             with self.assertRaisesRegex(ValueError,'Decompressed'):UP.public_metadata('https://api.nuget.org/v3/vulnerabilities/index.json',256)
+
+    def test_public_feed_reader_admits_both_exact_catalog_generations(self):
+        with patch.object(UP.urllib.request,'build_opener') as opener:
+            response=MagicMock();response.headers={'Content-Encoding':'identity'};response.read.return_value=b'{}'
+            opener.return_value.open.return_value.__enter__.return_value=response
+            for path in ('catalog.json','catalog.json.asc','v2/catalog.json','v2/catalog.json.asc'):
+                with self.subTest(path=path):
+                    self.assertEqual(UP.public_metadata('https://dotnetdev.kr/cbodotnet/cbodotnetup/'+path,1024),b'{}')
 
     def test_draft_resume_uses_the_real_shared_verifier_and_never_clobbers_public_bytes(self):
         with tempfile.TemporaryDirectory() as temporary:

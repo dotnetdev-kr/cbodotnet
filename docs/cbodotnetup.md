@@ -13,6 +13,10 @@ using anonymous public binary/SDK downloads passed before
 [download site](https://dotnetdev.kr/cbodotnet/) for the active signed catalog
 and bootstrap. Other SDKs already have package distributions; installer
 admission remains individually scoped and initially includes SDK10.0.403 only.
+The 0.2 catalog migration described below is tracked in
+[#26](https://github.com/dotnetdev-kr/cbodotnet/issues/26). The availability
+record and signed public feed determine which tool and SDK revisions are
+activated; the historical validation at the end of this document covers 0.1.0.
 
 ## Bootstrap
 
@@ -81,9 +85,55 @@ it does not silently fetch a withdrawn version. Initial availability has one
 SDK/revision; a different rollback target becomes usable only when separately
 admitted and installed. Concurrent operations fail with a retry message.
 
+## Catalog migration and compatibility
+
+The 0.2 client uses the versioned schema2 feed at
+`https://dotnetdev.kr/cbodotnet/cbodotnetup/v2/catalog.json`. Its neutral SDK10
+archive is revision3. The legacy endpoint
+`https://dotnetdev.kr/cbodotnet/cbodotnetup/catalog.json` remains schema1, with
+the historical SDK10 revision2 archive and compatible tool records, including
+the authenticated upgrade to 0.2. No old release asset is renamed or replaced.
+Historical unbranded trial SDKs are not admitted.
+
+Existing 0.1.0 users can upgrade with `cbodotnetup self update`, then run
+`cbodotnetup list --available` to authenticate the new feed before using
+`cbodotnetup update` or installing a revision3 SDK. Revision2 remains retained
+for explicit SDK rollback. SDK availability still requires individual OS/CPU
+qualification; the new catalog format does not admit additional SDK series,
+legacy providers or musl by itself.
+
+Both client generations share the owner marker, operation lock and selection
+state, but retain separate signed cache/high-water records: 0.1.0 uses
+`<root>/cache/`, and 0.2 uses `<root>/cache/v2/`. Historical SDK installations
+stay in `<root>/toolchains/`; neutral SDK installations use
+`<root>/toolchains-v2/`. The new client verifies both namespaces. The old client
+sees its original namespace only, so a retained 0.1.0 executable can operate
+without parsing schema2 admissions. A shared selection naming an unseen neutral
+revision falls back to an installed compatible revision in the old namespace.
+Retain revision2 if recovery with the old tool must include SDK execution.
+
+`self rollback` restores the retained, admitted and unrevoked tool executable
+and notices. After returning to 0.1.0, its schema1 feed and original SDK roots
+remain usable; `self update` can authenticate the upgrade again. Neutral SDK
+roots remain intact for the new client. If an update is interrupted, rerun the
+independently trusted current bootstrap with a fresh signed catalog to repair
+the owned executable and marker; it does not erase SDK roots or bypass hashes.
+
+The two feeds are renewed together through the protected publication workflow,
+each with its own monotonic sequence/hash record and a 30-day catalog lifetime.
+There is no automatic schema1 sunset. Retirement requires an announced owner
+decision, a documented upgrade/support window and independently authenticated
+bootstrap recovery instructions. A failed renewal does not extend either
+catalog's validity. Already installed SDK execution can use an authenticated
+offline cache, but new installation and self-update require a fresh catalog.
+Revoking the old tool also requires reviewing its migration fixture and the
+upgrade/retirement plan; renewal must never restore a revoked tool to admission.
+
 `list --available`, installation, update and self-update obtain a fresh catalog.
 `--catalog FILE` uses a local project-signed catalog and adjacent `.asc` with the
-same signature/freshness/anti-rollback rules. Offline `run`, installed `list`,
+same signature/freshness/anti-rollback rules. The 0.2 client's active catalog,
+including a local file, must use schema2; schema1 is accepted only for retained
+SDK admission verification. Offline `run`, installed `list`,
 removal and `doctor` use the last verified cache. Offline clients cannot learn
 new revocations until refreshing. Signature/key revocation and known release
 revocations still apply. SDKs needing unadmitted legacy providers are rejected
@@ -119,7 +169,7 @@ version. Catalog maintenance and native runtime updates remain project responsib
 distribution does not create an upstream security-support promise for EOL SDKs.
 See the [implementation and trust design](cbodotnetup-design.md).
 
-## Retained validation
+## Retained 0.1.0 validation
 
 The [independent final evidence](cbodotnetup-validation.json) authenticates the
 two public immutable releases, exact tool/source/catalog/notices, signed native

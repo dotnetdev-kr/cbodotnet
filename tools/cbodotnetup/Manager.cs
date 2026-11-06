@@ -7,6 +7,7 @@ internal sealed class Manager : IDisposable
 {
     internal readonly string Root;
     private readonly string toolchains;
+    private readonly string modernToolchains;
     private readonly string cache;
     private readonly string staging;
     private readonly FileStream lease;
@@ -39,8 +40,12 @@ internal sealed class Manager : IDisposable
         var lockPath = Path.Combine(Root, "operation.lock"); SafeFiles.OrdinaryPath(lockPath);
         try { lease = new FileStream(lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None); }
         catch (IOException) { throw new InvalidOperationException("Another cbodotnetup operation is running; retry after it completes"); }
-        toolchains = Path.Combine(Root, "toolchains"); cache = Path.Combine(Root, "cache"); staging = Path.Combine(Root, "staging");
-        foreach (var path in new[] { toolchains, cache, staging }) SafeFiles.PrivateDirectory(path);
+        toolchains = Path.Combine(Root, "toolchains"); modernToolchains = Path.Combine(Root, "toolchains-v2");
+        // The released 0.1 client must retain its own catalog/high-water and SDK namespace.
+        // It cannot validate v2 admissions after a tool rollback, so it must not enumerate them.
+        var legacyCache = Path.Combine(Root, "cache"); SafeFiles.PrivateDirectory(legacyCache);
+        cache = Path.Combine(legacyCache, "v2"); staging = Path.Combine(Root, "staging");
+        foreach (var path in new[] { toolchains, modernToolchains, cache, staging }) SafeFiles.PrivateDirectory(path);
         trust = new Trust(cache);
     }
     public void Dispose() => lease.Dispose();
@@ -52,14 +57,14 @@ internal sealed class Manager : IDisposable
         SafeFiles.Require(new FileInfo(path).Length == asset.Size && SafeFiles.Hash(path) == asset.Sha256, "Downloaded artifact is corrupt, truncated or has conflicting bytes");
     }
     internal Task<Catalog> Catalog(string? file, bool refresh) => trust.Load(file, refresh);
-    private string PathFor(SdkRelease sdk) => SafeFiles.Under(toolchains, sdk.Id);
+    private string PathFor(SdkRelease sdk) => SafeFiles.Under(Trust.ArchiveSchema(sdk) == 1 ? toolchains : modernToolchains, sdk.Id);
     private Selection Selections() => File.Exists(Path.Combine(Root, "selection.json"))
         ? SafeFiles.Read(Path.Combine(Root, "selection.json"), UpJson.Default.Selection) : new(new(StringComparer.Ordinal), []);
     private void SaveSelection(Selection value) => SafeFiles.Write(Path.Combine(Root, "selection.json"), value, UpJson.Default.Selection);
     internal Receipt[] Installed()
     {
         var result = new List<Receipt>();
-        foreach (var version in Directory.EnumerateDirectories(toolchains))
+        foreach (var version in new[] { toolchains, modernToolchains }.SelectMany(Directory.EnumerateDirectories))
         {
             SafeFiles.OrdinaryPath(version);
             foreach (var directory in Directory.EnumerateDirectories(version))
@@ -234,7 +239,7 @@ internal sealed class Manager : IDisposable
     internal void Doctor(Catalog catalog)
     {
         foreach (var receipt in Installed()) VerifyInstalled(receipt, catalog);
-        Console.WriteLine($"cbodotnetup 0.1.0; {host.Os} {host.VersionId}; {host.Rid}\nRoot: {Root}\nPinned signer: {Trust.Fingerprint}\nInstalled SDKs verified: {Installed().Length}");
+        Console.WriteLine($"cbodotnetup {Program.CurrentVersion}; {host.Os} {host.VersionId}; {host.Rid}\nRoot: {Root}\nPinned signer: {Trust.Fingerprint}\nInstalled SDKs verified: {Installed().Length}");
     }
     internal async Task SelfUpdate(Catalog catalog, string? executableOverride = null)
     {
