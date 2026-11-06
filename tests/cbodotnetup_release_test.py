@@ -55,8 +55,11 @@ class InstallerReleaseTests(unittest.TestCase):
     def test_new_client_pins_neutral_revision_without_changing_the_old_feed_pin(self):
         policy=UP.load(UP.POLICY)
         self.assertEqual(policy['version'],'0.2.0')
-        self.assertEqual(policy['archiveRevisions'],{'10.0.403':3})
+        self.assertEqual(policy['initialSdkVersions'],['10.0.403','9.0.123','8.0.133','7.0.120','6.0.136'])
+        self.assertEqual(policy['archiveRevisions'],{'10.0.403':3,'9.0.123':2,'8.0.133':2,'7.0.120':2,'6.0.136':2})
         self.assertEqual(policy['legacyArchiveRevisions'],{'10.0.403':2})
+        targets=UP.reviewed_sdk_targets(policy)
+        self.assertEqual(sum(len(variants) for sdk in targets.values() for variants in sdk.values()),40)
 
     def paired_catalogs(self,directory,*,previous_sequence=80):
         policy=UP.load(UP.POLICY);source=dict(repository='dotnetdev-kr/cbodotnet',commit='b'*40,workflow=UP.WORKFLOW,runId='123',runAttempt='1')
@@ -68,15 +71,15 @@ class InstallerReleaseTests(unittest.TestCase):
                 securityTests='passed',nativeRuntime=policy['nativeRuntime'],container=UP.MULTI.BASES['rocky-9.8'][arch],
                 buildSdk=dict(name='cbodotnet-sdk-10.0.403-linux-'+arch+'-r3.tar.gz'),artifacts=[]))
             builds[arch]=target
-        def sdk(schema):
-            revision=2 if schema==1 else 3;marker='-branded' if schema==1 else ''
-            return [dict(sdkVersion='10.0.403',revision=revision,rid=rid,
-                archive=dict(url=f'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-10.0.403-r{revision}/cbodotnet-sdk-10.0.403-linux-{arch}{marker}-r{revision}.tar.gz'))
-                for arch,rid in (('x64','linux-x64'),('aarch64','linux-arm64'))]
+        def sdk(selected,schema):
+            marker='-branded' if schema==1 else ''
+            return [dict(sdkVersion=version,revision=selected['archiveRevisions'][version],rid=rid,
+                archive=dict(url=f'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-{version}-r{selected["archiveRevisions"][version]}/cbodotnet-sdk-{version}-linux-{arch}{marker}-r{selected["archiveRevisions"][version]}.tar.gz'))
+                for version in selected['initialSdkVersions'] for arch,rid in (('x64','linux-x64'),('aarch64','linux-arm64'))]
         previous=dict(sequence=previous_sequence,revoked=['tool/0.0.1/linux-x64'],tools=[dict(version='0.1.0',rid=r) for r in ('linux-x64','linux-arm64')])
         with patch.object(UP,'source_identity',return_value=source),patch.object(UP,'tool_inputs',return_value={}),\
                 patch.object(UP,'previous_catalog',return_value=previous),\
-                patch.object(UP,'catalog_sdks',side_effect=lambda policy,schema:sdk(schema)):
+                patch.object(UP,'catalog_sdks',side_effect=sdk):
             UP.catalog(directory,builds,now=datetime(2026,11,6,tzinfo=timezone.utc),sequence=88)
         return UP.load(directory/'catalog.json'),UP.load(directory/'catalog-v1.json'),UP.load(directory/'catalog-v1-bootstrap.json')
 
@@ -88,8 +91,10 @@ class InstallerReleaseTests(unittest.TestCase):
             self.assertEqual(current['sequence'],legacy['sequence']);self.assertEqual(current['expiresAt'],legacy['expiresAt'])
             self.assertEqual(current['tools'],legacy['tools']);self.assertEqual(len(current['tools']),4)
             self.assertEqual(current['revoked'],['tool/0.0.1/linux-x64'])
-            self.assertEqual(current['channels'],{'10.0':'10.0.403-r3'})
+            self.assertEqual(current['channels'],{'10.0':'10.0.403-r3','9.0':'9.0.123-r2','8.0':'8.0.133-r2','7.0':'7.0.120-r2','6.0':'6.0.136-r2'})
             self.assertEqual(legacy['channels'],{'10.0':'10.0.403-r2'})
+            self.assertEqual(len(current['sdks']),10)
+            self.assertEqual({s['sdkVersion'] for s in legacy['sdks']},{'10.0.403'})
             self.assertTrue(all('-branded-' not in s['archive']['url'] for s in current['sdks']))
             self.assertTrue(all('-branded-r2.tar.gz' in s['archive']['url'] for s in legacy['sdks']))
             self.assertEqual(bootstrap['sequence'],87)
@@ -99,6 +104,10 @@ class InstallerReleaseTests(unittest.TestCase):
             self.assertEqual(expired['issuedAt'],'2026-10-05T00:00:00Z')
             self.assertEqual(expired['expiresAt'],'2026-11-04T00:00:00Z')
             self.assertEqual(expired['tools'],bootstrap['tools'])
+            revoked=UP.load(Path(temporary)/'catalog-v2-revoked.json')
+            expected=set(current['revoked'])|{f'{s["sdkVersion"]}-r{s["revision"]}/{s["rid"]}' for s in current['sdks'] if s['sdkVersion']!='10.0.403'}
+            self.assertEqual(revoked,dict(current,revoked=sorted(expected)))
+            self.assertFalse(any(value.startswith('10.0.403-') for value in revoked['revoked']))
 
     def test_migration_pair_rejects_legacy_shape_drift_cross_generation_names_and_bad_fixture(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -128,7 +137,8 @@ class InstallerReleaseTests(unittest.TestCase):
     def test_source_admission_binds_exact_archive_naming_to_catalog_schema(self):
         canonical=b'{"source":"reviewed"}';sha=hashlib.sha256(canonical).hexdigest();version='10.0.403'
         contract=dict(releases={version:dict(manifestSha256=sha)},operatingSystems={'ubuntu-24.04':dict(id='ubuntu',versionId='24.04',dependencies=['libicu'])})
-        policy=dict(initialSdkVersions=[version],targets=['ubuntu-24.04'])
+        policy=dict(initialSdkVersions=[version],targets=['ubuntu-24.04'],architectures=['x64','aarch64'],
+            archiveRevisions={version:3},sdkTargets={version:dict(x64=['ubuntu-24.04'],aarch64=[])})
         for schema,marker,revision,accepted in ((1,'-branded',2,True),(2,'',3,True),(1,'',3,False),(2,'-branded',2,False),(2,'-unbranded',3,False)):
             name=f'cbodotnet-sdk-{version}-linux-x64{marker}-r{revision}.tar.gz'
             asset=dict(name=name,url=f'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-{version}-r{revision}/{name}',size=1,sha256='a'*64)
@@ -142,6 +152,75 @@ class InstallerReleaseTests(unittest.TestCase):
                 if accepted:self.assertEqual(UP.catalog_sdks(policy,schema=schema)[0]['archive']['url'],asset['url'])
                 else:
                     with self.assertRaisesRegex(ValueError,'schema/naming'):UP.catalog_sdks(policy,schema=schema)
+
+    def test_missing_or_invalid_per_sdk_cells_fail_before_archive_lookup(self):
+        original=UP.load(UP.POLICY);version='9.0.123'
+        cases=[]
+        missing=copy.deepcopy(original);missing.pop('sdkTargets');cases.append(missing)
+        missing=copy.deepcopy(original);missing['sdkTargets'].pop(version);cases.append(missing)
+        missing=copy.deepcopy(original);missing['sdkTargets'][version].pop('aarch64');cases.append(missing)
+        wrong=copy.deepcopy(original);wrong['sdkTargets'][version]['x64']=['alpine-3.24'];cases.append(wrong)
+        wrong=copy.deepcopy(original);wrong['sdkTargets'][version]['x64']=['ubuntu-24.04','ubuntu-24.04'];cases.append(wrong)
+        wrong=copy.deepcopy(original);wrong['sdkTargets'][version]['x64']='ubuntu-24.04';cases.append(wrong)
+        wrong=copy.deepcopy(original);wrong['sdkTargets'][version]={'x64':[],'aarch64':[]};cases.append(wrong)
+        wrong=copy.deepcopy(original);wrong['archiveRevisions'][version]=True;cases.append(wrong)
+        wrong=copy.deepcopy(original);wrong['sdkTargets']['5.0.214']=wrong['sdkTargets'][version];cases.append(wrong)
+        for policy in cases:
+            with self.subTest(policy=policy),patch.object(UP,'selected_archive') as archive:
+                with self.assertRaises(ValueError):UP.catalog_sdks(policy,schema=2)
+                archive.assert_not_called()
+
+    def test_sdk_records_use_only_their_explicit_os_cpu_cells(self):
+        canonical=b'{"source":"reviewed"}';digest=hashlib.sha256(canonical).hexdigest()
+        versions=['9.0.123','8.0.133']
+        systems={'ubuntu-24.04':dict(id='ubuntu',versionId='24.04',dependencies=['icu-ubuntu']),
+                 'debian-13':dict(id='debian',versionId='13',dependencies=['icu-debian'])}
+        policy=dict(initialSdkVersions=versions,archiveRevisions={v:2 for v in versions},
+            targets=list(systems),architectures=['x64','aarch64'],sdkTargets={
+                '9.0.123':dict(x64=['ubuntu-24.04'],aarch64=[]),
+                '8.0.133':dict(x64=['debian-13'],aarch64=['ubuntu-24.04'])})
+        contract=dict(releases={v:dict(manifestSha256=digest) for v in versions},operatingSystems=systems)
+        def archive(version,**unused):
+            assets=[];records=[]
+            for arch,rid in (('x64','linux-x64'),('aarch64','linux-arm64')):
+                name=f'cbodotnet-sdk-{version}-linux-{arch}-r2.tar.gz'
+                assets.append(dict(name=name,url=f'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-{version}-r2/{name}',size=1,sha256='a'*64))
+                plan=dict(targetRid=rid,sourceManifestSha256=digest,
+                    sourceManifestUrl=f'https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-{version}/release-manifest.json',
+                    compatibility=dict(required=False),producer=dict(origin='reviewed'),
+                    evidence=dict(url='evidence',size=1,sha256='b'*64),licensePaths=['LICENSE.txt','ThirdPartyNotices.txt'],
+                    securitySupport='community-build-no-additional-security-maintenance')
+                records.append(dict(architecture=arch,artifactAsset=name,build=dict(directory='root',plan=plan)))
+            return dict(identity=dict(packageRevision=2),assets=assets),dict(records=records)
+        with patch.object(UP,'load_contract',return_value=contract),patch.object(UP,'selected_archive',side_effect=archive),\
+                patch.object(UP,'get_bytes',return_value=canonical):
+            records=UP.catalog_sdks(policy,schema=2)
+        self.assertEqual([(r['sdkVersion'],r['rid']) for r in records],
+            [('9.0.123','linux-x64'),('8.0.133','linux-x64'),('8.0.133','linux-arm64')])
+        self.assertEqual([(r['targets'][0]['os'],r['dependencies']) for r in records],
+            [('ubuntu',['icu-ubuntu']),('debian',['icu-debian']),('ubuntu',['icu-ubuntu'])])
+
+    def test_revoked_fixture_must_revoke_exact_new_sdk_set_and_preserve_every_other_field(self):
+        for mutation in ('missing','omit-sdk','revoke-sdk10','change-archive','leak-into-v1'):
+            with self.subTest(mutation=mutation),tempfile.TemporaryDirectory() as temporary:
+                directory=Path(temporary);current,legacy,unused=self.paired_catalogs(directory)
+                path=directory/'catalog-v2-revoked.json';fixture=UP.load(path)
+                if mutation=='missing':path.unlink()
+                elif mutation=='omit-sdk':fixture['revoked'].pop();UP.save(path,fixture)
+                elif mutation=='revoke-sdk10':fixture['revoked'].append('10.0.403-r3/linux-x64');UP.save(path,fixture)
+                elif mutation=='change-archive':fixture['sdks'][0]['archive']['sha256']='c'*64;UP.save(path,fixture)
+                else:
+                    legacy['sdks'].append(current['sdks'][2]);UP.save(directory/'catalog-v1.json',legacy)
+                with self.assertRaises((ValueError,FileNotFoundError)):UP.verify_catalog_pair(directory)
+
+    def test_historical_sdk10_only_v2_bundle_needs_no_new_revocation_fixture(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory=Path(temporary);current,legacy,unused=self.paired_catalogs(directory)
+            current['sdks']=[s for s in current['sdks'] if s['sdkVersion']=='10.0.403']
+            current['channels']={'10.0':'10.0.403-r3'}
+            UP.save(directory/'catalog.json',current)
+            (directory/'catalog-v2-revoked.json').unlink()
+            self.assertEqual(UP.verify_catalog_pair(directory),(current,legacy))
 
     def test_patched_runtime_is_outside_the_actual_advisory_range(self):
         self.assertTrue(UP.affected('10.0.13','[10.0.0, 10.0.14)'))

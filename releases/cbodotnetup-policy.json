@@ -5,11 +5,33 @@
   "nativeRuntime": "10.0.14",
   "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
   "signingWorkflow": ".github/workflows/distribution-release.yml",
-  "initialSdkVersions": ["10.0.403"],
-  "archiveRevisions": {"10.0.403": 3},
+  "initialSdkVersions": ["10.0.403", "9.0.123", "8.0.133", "7.0.120", "6.0.136"],
+  "archiveRevisions": {"10.0.403": 3, "9.0.123": 2, "8.0.133": 2, "7.0.120": 2, "6.0.136": 2},
   "legacyArchiveRevisions": {"10.0.403": 2},
   "targets": ["ubuntu-24.04", "debian-13", "fedora-45", "rocky-9.8"],
   "architectures": ["x64", "aarch64"],
+  "sdkTargets": {
+    "10.0.403": {
+      "x64": ["ubuntu-24.04", "debian-13", "fedora-45", "rocky-9.8"],
+      "aarch64": ["ubuntu-24.04", "debian-13", "fedora-45", "rocky-9.8"]
+    },
+    "9.0.123": {
+      "x64": ["ubuntu-24.04", "debian-13", "fedora-45", "rocky-9.8"],
+      "aarch64": ["ubuntu-24.04", "debian-13", "fedora-45", "rocky-9.8"]
+    },
+    "8.0.133": {
+      "x64": ["ubuntu-24.04", "debian-13", "fedora-45", "rocky-9.8"],
+      "aarch64": ["ubuntu-24.04", "debian-13", "fedora-45", "rocky-9.8"]
+    },
+    "7.0.120": {
+      "x64": ["ubuntu-24.04", "debian-13", "fedora-45", "rocky-9.8"],
+      "aarch64": ["ubuntu-24.04", "debian-13", "fedora-45", "rocky-9.8"]
+    },
+    "6.0.136": {
+      "x64": ["ubuntu-24.04", "debian-13", "fedora-45", "rocky-9.8"],
+      "aarch64": ["ubuntu-24.04", "debian-13", "fedora-45", "rocky-9.8"]
+    }
+  },
   "catalogLifetimeDays": 30,
   "upstreamReference": {
     "repository": "dotnet/sdk",

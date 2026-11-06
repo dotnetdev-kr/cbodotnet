@@ -10,6 +10,7 @@ import tempfile
 
 from downstream_release import require,load_status,verify_report_signature
 from release_catalog import get_bytes
+from cbodotnetup_matrix import validate_additional_sdk_qualifications
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -86,6 +87,16 @@ def prepare(output,status=None):
                 and r['observation']['migration'].get('protocol')=='actual-0.1.0-self-update-rollback-reupgrade'
                 and r['observation']['migration'].get('legacyCatalogSha256')==status['legacyCatalogSha256']
                 for r in status['publicNativeVerification']),'All eight actual old-client migration proofs are required')
+    observations=[r['observation'] for r in status['publicNativeVerification']]
+    validate_additional_sdk_qualifications(catalog,observations)
+    if any(s['sdkVersion']!='10.0.403' for s in catalog['sdks']):
+        candidate=status.get('nativeQualification',[])
+        require(len(candidate)==8 and {(r['variant'],r['architecture']) for r in candidate}==targets
+                and all(r['observation']['status']=='passed'
+                    and r['observation']['bootstrapBinarySource']=='protected-frozen-candidate'
+                    and r['observation']['catalogSha256']==status['catalogSha256'] for r in candidate),
+                'All eight candidate reports are required for additional SDK admission')
+        validate_additional_sdk_qualifications(catalog,[r['observation'] for r in candidate])
     now=datetime.now(timezone.utc)
     fresh=fresh_catalog(catalog,now)
     if legacy is not None:fresh=fresh_catalog(legacy,now) and fresh
@@ -99,9 +110,11 @@ def prepare(output,status=None):
         current=destination/'v2';current.mkdir(exist_ok=True)
         for suffix in ('','.asc'):(current/('catalog.json'+suffix)).write_bytes(raws['catalog.json'+suffix])
         catalog_link='cbodotnetup/v2/catalog.json'
+    versions=sorted({s['sdkVersion'] for s in catalog['sdks']},key=lambda v:tuple(map(int,v.split('.'))),reverse=True)
+    sdk_list=', '.join('<code>'+html.escape(v)+'</code>' for v in versions)
     return ('<h3>cbodotnetup '+html.escape(status['version'])+'</h3><p>Verified per-user SDK manager for Linux glibc x64/AArch64 on Ubuntu24.04, Debian13, Fedora45 and Rocky9.8. '
-        'Start with SDK10.0.403. Python3 and GnuPG are required; no installed .NET SDK is needed. '
-        '<a href="https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/cbodotnetup.md">Bootstrap, trust and usage instructions</a>. '
+        'Community-qualified SDKs: '+sdk_list+'. Python3 and GnuPG are required; no installed .NET SDK is needed. '
+        '<a href="https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/cbodotnetup.md">Versions, lifecycle, bootstrap and usage instructions</a>. '
         'Review the bootstrap and independently verify the project signing identity before running it. '
         '<a href="cbodotnetup/get-cbodotnetup.py">Download bootstrap</a> &middot; '
         '<a href="'+catalog_link+'">signed catalog</a> &middot; <a href="'+catalog_link+'.asc">signature</a>.</p>')

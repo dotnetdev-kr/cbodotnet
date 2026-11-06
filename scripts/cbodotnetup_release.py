@@ -43,7 +43,8 @@ LEGACY_BOOTSTRAP = dict(
     size=11478,sha256='534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409')
 CATALOG_ASSETS = ('catalog.json','catalog.json.asc','catalog-v1.json','catalog-v1.json.asc',
                   'catalog-v1-bootstrap.json','catalog-v1-bootstrap.json.asc',
-                  'catalog-v1-expired.json','catalog-v1-expired.json.asc','get-cbodotnetup-v0.1.0.py')
+                  'catalog-v1-expired.json','catalog-v1-expired.json.asc',
+                  'catalog-v2-revoked.json','catalog-v2-revoked.json.asc','get-cbodotnetup-v0.1.0.py')
 CHECKS = ('sdk-free-bootstrap', 'signature-authentication', 'source-producer-linkage', 'exact-version-install',
           'idempotent-install', 'owned-paths', 'official-package-coexistence', 'community-package-coexistence',
           'offline-build-runtime', 'http-crypto-globalization', 'branded-aliases', 'rollback', 'removal',
@@ -238,11 +239,14 @@ python3 - <<'PY'
 from pathlib import Path
 import hashlib,json
 root=Path('/home/cbot-feed/.local/share/cbodotnetup/cache/v2')
-Path('/feed/result.json').write_text(json.dumps(dict(status='passed',catalogSha256=hashlib.sha256((root/'catalog.json').read_bytes()).hexdigest(),sequence=json.loads((root/'catalog.json').read_bytes())['sequence'],bootstrapWithoutSdk=True)))
+catalog=json.loads((root/'catalog.json').read_bytes())
+Path('/feed/result.json').write_text(json.dumps(dict(status='passed',catalogSha256=hashlib.sha256((root/'catalog.json').read_bytes()).hexdigest(),sequence=catalog['sequence'],bootstrapWithoutSdk=True,sdkVersions=sorted({s['sdkVersion'] for s in catalog['sdks']}))))
 PY
 '''
     run(['docker','run','--rm','--user','0','-v',f'{workspace}:/feed',MULTI.BASES['ubuntu-24.04'][args.arch],'sh','-ec',script])
     result=load(workspace/'result.json');require(result['catalogSha256']==status['catalogSha256'] and result['sequence']==status['catalogSequence'],'Default hosted catalog differs from exact activated version')
+    require(result['sdkVersions']==sorted({sdk['sdkVersion'] for sdk in load(workspace/'catalog-v2.json')['sdks']}),
+            'Hosted bootstrap did not authenticate every activated SDK series')
     result.update(scope='cbodotnetup-default-public-feed',architecture=args.arch,version=status['version'],catalogSequence=status['catalogSequence'],catalogUrl='https://dotnetdev.kr/cbodotnet/cbodotnetup/v2/catalog.json',legacyCatalogSha256=status['legacyCatalogSha256'],pairedHostedFeeds='passed')
     save(workspace/'report.json',result)
 
@@ -270,7 +274,10 @@ def catalog(output, builds, *, now=None, sequence=None):
             binary=dict(url='https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v' + policy['version'] + '/' + item['name'], **{k:item[k] for k in ('size','sha256')}),
             notices=dict(url='https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v' + policy['version'] + '/' + notice['name'], **{k:notice[k] for k in ('size','sha256')})))
     sdks = catalog_sdks(policy, schema=2)
-    legacy_policy = dict(policy, archiveRevisions=policy['legacyArchiveRevisions'])
+    legacy_versions = list(policy['legacyArchiveRevisions'])
+    legacy_policy = dict(policy, initialSdkVersions=legacy_versions,
+        archiveRevisions=policy['legacyArchiveRevisions'],
+        sdkTargets={version:policy['sdkTargets'][version] for version in legacy_versions})
     legacy_sdks = catalog_sdks(legacy_policy, schema=1)
     previous=previous_catalog()
     if previous:
@@ -296,15 +303,49 @@ def catalog(output, builds, *, now=None, sequence=None):
     expired=dict(bootstrap,sequence=sequence-2,
         issuedAt=(now-timedelta(days=32)).isoformat().replace('+00:00','Z'),
         expiresAt=(now-timedelta(days=2)).isoformat().replace('+00:00','Z'))
+    revoked_fixture=dict(value,revoked=sorted(set(value['revoked'])|{
+        f'{sdk["sdkVersion"]}-r{sdk["revision"]}/{sdk["rid"]}' for sdk in sdks
+        if sdk['sdkVersion'] not in legacy_versions}))
     save(output/'catalog.json',value);save(output/'catalog-v1.json',legacy)
     save(output/'catalog-v1-bootstrap.json',bootstrap);save(output/'catalog-v1-expired.json',expired)
+    save(output/'catalog-v2-revoked.json',revoked_fixture)
     verify_catalog_pair(output)
     return value
+
+
+def reviewed_sdk_targets(policy):
+    """Every SDK/CPU/OS admission is explicit; new versions inherit no host matrix."""
+    versions=policy.get('initialSdkVersions');targets=policy.get('targets');arches=policy.get('architectures')
+    mapping=policy.get('sdkTargets');revisions=policy.get('archiveRevisions')
+    require(isinstance(versions,list) and 0<len(versions)<=64
+            and all(isinstance(v,str) and re.fullmatch(r'[1-9][0-9]*\.[0-9]+\.[0-9]+',v) for v in versions)
+            and len(versions)==len(set(versions)),
+            'Explicit unique SDK version admission is required')
+    require(isinstance(targets,list) and targets and all(isinstance(v,str) and v in MULTI.TARGETS for v in targets)
+            and len(targets)==len(set(targets)) and isinstance(arches,list) and len(arches)==2
+            and all(isinstance(v,str) for v in arches) and set(arches)=={'x64','aarch64'},
+            'Explicit reviewed installer OS/CPU admission is required')
+    require(isinstance(mapping,dict) and set(mapping)==set(versions)
+            and isinstance(revisions,dict) and set(revisions)==set(versions)
+            and all(type(r) is int and 0<r<2**31 for r in revisions.values()),
+            'SDK target and immutable revision policy must cover exactly the admitted versions')
+    for version in versions:
+        cells=mapping[version]
+        require(isinstance(cells,dict) and set(cells)==set(arches),
+                'Each SDK needs an explicit target list for both CPUs')
+        for arch in arches:
+            variants=cells[arch]
+            require(isinstance(variants,list) and all(isinstance(v,str) for v in variants)
+                    and len(variants)==len(set(variants)) and set(variants)<=set(targets),
+                    'SDK target cells are duplicated or outside the reviewed OS matrix')
+        require(any(cells.values()),'An advertised SDK needs at least one explicitly admitted target cell')
+    return mapping
 
 
 def catalog_sdks(policy, *, schema):
     """Schema is also the closed archive naming contract; old feeds gain no new fields."""
     require(schema in (1,2),'Unsupported installation catalog schema')
+    targets=reviewed_sdk_targets(policy)
     sdks = []; contract = load_contract()
     for version in policy['initialSdkVersions']:
         receipt, manifest = selected_archive(version, policy=policy)
@@ -312,6 +353,10 @@ def catalog_sdks(policy, *, schema):
         require(hashlib.sha256(canonical).hexdigest() == contract['releases'][version]['manifestSha256'], 'Canonical source pin differs')
         for record in manifest['records']:
             plan = record['build']['plan']; arch = record['architecture']; rid = plan['targetRid']
+            require(arch in ('x64','aarch64') and rid=={'x64':'linux-x64','aarch64':'linux-arm64'}[arch],
+                    'Archive CPU/RID differs from the explicit installer admission')
+            variants=targets[version][arch]
+            if not variants:continue
             require(plan['sourceManifestSha256'] == contract['releases'][version]['manifestSha256'] and not plan['compatibility']['required'], 'Legacy or unreviewed initial SDK admission')
             item = next(a for a in receipt['assets'] if a['name'] == record['artifactAsset'])
             revision=receipt['identity']['packageRevision']
@@ -323,8 +368,8 @@ def catalog_sdks(policy, *, schema):
                 sourceManifestSha256=plan['sourceManifestSha256'], sourceManifest=dict(url=plan['sourceManifestUrl'],size=len(canonical),sha256=plan['sourceManifestSha256']),
                 producer=plan['producer'], evidence={k:plan['evidence'][k] for k in ('url','size','sha256')},
                 licensePaths=plan['licensePaths'], securitySupport=plan['securitySupport'],
-                dependencies=sorted({name for variant in policy['targets'] for name in contract['operatingSystems'][variant]['dependencies']}),
-                targets=[dict(os=contract['operatingSystems'][v]['id'],versionId=contract['operatingSystems'][v]['versionId'],rid=rid) for v in policy['targets']], requiresLegacyProvider=False))
+                dependencies=sorted({name for variant in variants for name in contract['operatingSystems'][variant]['dependencies']}),
+                targets=[dict(os=contract['operatingSystems'][v]['id'],versionId=contract['operatingSystems'][v]['versionId'],rid=rid) for v in variants], requiresLegacyProvider=False))
     return sdks
 
 
@@ -339,6 +384,10 @@ def verify_catalog_pair(bundle):
     shared=fields-{'schemaVersion','sdks','channels'}
     require(all(current[k]==legacy[k] for k in shared),'Paired catalog trust, sequence, lifetime or tools differ')
     require(current['sdks'] and legacy['sdks'],'Both catalog generations need admitted SDKs')
+    require(legacy['channels']=={'10.0':'10.0.403-r2'} and len(legacy['sdks'])==2
+            and {(s['sdkVersion'],s['revision'],s['rid']) for s in legacy['sdks']}
+                =={('10.0.403',2,'linux-x64'),('10.0.403',2,'linux-arm64')},
+            'The v1 catalog must preserve only SDK10 revision2 on both CPUs')
     for value,suffix in ((current,''),(legacy,'-branded')):
         for sdk in value['sdks']:
             arch={'linux-x64':'x64','linux-arm64':'aarch64'}.get(sdk['rid'])
@@ -346,6 +395,13 @@ def verify_catalog_pair(bundle):
             version=sdk['sdkVersion'];revision=sdk['revision']
             expected=f'https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-{version}-r{revision}/cbodotnet-sdk-{version}-linux-{arch}{suffix}-r{revision}.tar.gz'
             require(sdk['archive']['url']==expected,'Cross-generation SDK archive identity')
+    added_ids={f'{s["sdkVersion"]}-r{s["revision"]}/{s["rid"]}' for s in current['sdks']
+               if s['sdkVersion'] not in {legacy_sdk['sdkVersion'] for legacy_sdk in legacy['sdks']}}
+    revoked_path=Path(bundle)/'catalog-v2-revoked.json'
+    if added_ids or revoked_path.exists():
+        expected_revoked=dict(current,revoked=sorted(set(current['revoked'])|added_ids))
+        require(load(revoked_path)==expected_revoked,
+                'Revoked SDK test fixture differs from the exact signed candidate admissions')
     bootstrap=load(Path(bundle)/'catalog-v1-bootstrap.json')
     expected=dict(legacy,sequence=current['sequence']-1,tools=[t for t in legacy['tools'] if t['version']=='0.1.0' and 'tool/'+t['version']+'/'+t['rid'] not in legacy['revoked']])
     require(bootstrap==expected and len(bootstrap['tools'])==2 and {t['rid'] for t in bootstrap['tools']}=={'linux-x64','linux-arm64'},
@@ -428,6 +484,7 @@ def verify_bundle(bundle):
         run(['gpg','--batch','--yes','--dearmor','--output',key,ROOT/'releases/downstream-signing-key.asc'],capture_output=True)
         current,legacy=verify_catalog_pair(bundle)
         names=('freeze.json','catalog.json')+ (('catalog-v1.json','catalog-v1-bootstrap.json','catalog-v1-expired.json') if legacy else ())
+        if (bundle/'catalog-v2-revoked.json').exists():names+=('catalog-v2-revoked.json',)
         for name in names:
             verify_report_signature(bundle/name,bundle/(name+'.asc'),key,load_status(),WORKFLOW)
     if legacy:
@@ -464,7 +521,7 @@ def stage(args):
     shutil.copyfile(ROOT/'scripts/get-cbodotnetup.py',output/'get-cbodotnetup.py')
     fetch_asset(LEGACY_BOOTSTRAP,output/'get-cbodotnetup-v0.1.0.py')
     MULTI.preflight(output/'preflight',receive=True)
-    for name in ('catalog.json','catalog-v1.json','catalog-v1-bootstrap.json','catalog-v1-expired.json'):sign(output/name)
+    for name in ('catalog.json','catalog-v1.json','catalog-v1-bootstrap.json','catalog-v1-expired.json','catalog-v2-revoked.json'):sign(output/name)
     freeze=dict(schemaVersion=1,kind='cbodotnetup-frozen-candidate',source=source_identity(),version=load(POLICY)['version'],
         legacyBootstrap=LEGACY_BOOTSTRAP,
         files=[descriptor(p)|dict(path=p.relative_to(output).as_posix()) for p in sorted(output.rglob('*')) if p.is_file()])
@@ -639,6 +696,154 @@ def native_smoke(args):
         rollbackScope='signed legacy r2 and neutral r3 SDK selection; actual public 0.1.0 tool rollback and re-upgrade'))
 
 
+def matrix_sdk(args):
+    catalog_value=load(args.bundle/'catalog.json')
+    rid='linux-x64' if args.arch=='x64' else 'linux-arm64'
+    matches=[sdk for sdk in catalog_value['sdks'] if sdk['sdkVersion']==args.sdk_version and sdk['rid']==rid]
+    require(len(matches)==1 and args.sdk_version!='10.0.403','One additional SDK identity is required')
+    sdk=matches[0];target=load_contract()['operatingSystems'][args.variant]
+    require(dict(os=target['id'],versionId=target['versionId'],rid=rid) in sdk['targets'],
+            'The additional SDK does not admit the actual native OS/CPU')
+    return catalog_value,sdk
+
+
+def matrix_paths(args, *, revoked=False):
+    home=Path('/home')/MULTI.USER
+    suffix=args.sdk_version+('-revoked' if revoked else '')
+    return home/'.local/share'/('cbodotnetup-matrix-'+suffix),home/'.local/bin'/('cbodotnetup-matrix-'+suffix)/'cbodotnetup'
+
+
+def matrix_user(root, arguments, *, check=True):
+    return user(['env','CBODOTNETUP_HOME='+str(root),*arguments],check=check)
+
+
+def matrix_bootstrap(args, root, binary, catalog_file):
+    command=['python3',args.bundle/'get-cbodotnetup.py','--catalog-file',catalog_file,'--install-dir',binary.parent]
+    if not args.public:command+=['--binary-file',args.bundle/'tools'/('linux-x64' if args.arch=='x64' else 'linux-arm64')/('cbodotnetup-'+('linux-x64' if args.arch=='x64' else 'linux-arm64'))]
+    matrix_user(root,command)
+    require(matrix_user(root,[binary,'--version']).stdout.strip()==load(POLICY)['version'],
+            'Additional SDK bootstrap executed another installer version')
+
+
+def native_matrix_install(args):
+    MULTI.check_container(args.variant,args.arch);verify_bundle(args.bundle)
+    catalog_value,sdk=matrix_sdk(args);root,binary=matrix_paths(args)
+    require(not root.exists() and not binary.parent.exists(),'Fresh independent additional-SDK user root required')
+    matrix_bootstrap(args,root,binary,args.bundle/'catalog.json')
+    manager=[binary,'--catalog',args.bundle/'catalog.json']
+    exact=sdk['sdkVersion']+'-r'+str(sdk['revision']);series='.'.join(sdk['sdkVersion'].split('.')[:2])
+    baseline=next(s for s in catalog_value['sdks'] if s['sdkVersion']=='10.0.403' and s['rid']==sdk['rid'])
+    baseline_exact=baseline['sdkVersion']+'-r'+str(baseline['revision'])
+    matrix_user(root,[*manager,'install','--channel','10.0'])
+    bad=root/'bad-catalog.json';bad.write_bytes((args.bundle/'catalog.json').read_bytes()+b' ')
+    shutil.copyfile(args.bundle/'catalog.json.asc',str(bad)+'.asc')
+    high=(root/'cache/v2/high-water.json').read_bytes()
+    require(matrix_user(root,[binary,'--catalog',bad,'list','--available'],check=False).returncode!=0,
+            'Additional SDK accepted a modified catalog signature')
+    require((root/'cache/v2/high-water.json').read_bytes()==high,'Signature rejection changed the active catalog watermark')
+    require(matrix_user(root,[*manager,'install','99.0.999'],check=False).returncode!=0,'Additional SDK resolver accepted an unqualified version')
+    log=args.workspace/('sdk-'+sdk['sdkVersion']+'-interrupted.log')
+    with log.open('w') as output:
+        command=user_command(['env','CBODOTNETUP_HOME='+str(root),*manager,'install',exact])
+        child=subprocess.Popen(command,stdout=output,stderr=subprocess.STDOUT,cwd='/home/'+MULTI.USER,start_new_session=True)
+        interrupted=False
+        try:
+            deadline=time.monotonic()+90
+            while child.poll() is None and time.monotonic()<deadline:
+                if any((stage/'source.json').is_file() for stage in (root/'staging').iterdir() if stage.is_dir()):
+                    os.killpg(child.pid,signal.SIGKILL);interrupted=True;break
+                time.sleep(0.02)
+        finally:
+            if child.poll() is None:os.killpg(child.pid,signal.SIGKILL)
+            child.wait(timeout=30)
+    require(interrupted and not (root/'toolchains-v2'/exact/sdk['rid']).exists(),
+            'Interrupted additional SDK installation exposed a partial active root; '+log.read_text()[-3000:])
+    matrix_user(root,[*manager,'install','--channel',series]);matrix_user(root,[*manager,'install',exact])
+    matrix_user(root,[*manager,'update']);matrix_user(root,[*manager,'rollback',exact])
+    require(set(matrix_user(root,[binary,'list']).stdout.splitlines())=={baseline_exact+'/'+sdk['rid'],exact+'/'+sdk['rid']},
+            'Additional SDK install/update changed the independent installation set')
+    matrix_user(root,[binary,'shell','enable'])
+    # Use a separate cache/root for the same-sequence signed revocation fixture.
+    # It must never replace the normal feed or poison its anti-rollback record.
+    revoked_root,revoked_binary=matrix_paths(args,revoked=True)
+    matrix_bootstrap(args,revoked_root,revoked_binary,args.bundle/'catalog-v2-revoked.json')
+    require(matrix_user(revoked_root,[revoked_binary,'--catalog',args.bundle/'catalog-v2-revoked.json','install',exact],check=False).returncode!=0,
+            'A revoked additional SDK was installed')
+    require(all(not list((revoked_root/name).iterdir()) for name in ('toolchains','toolchains-v2','staging')),
+            'Revoked SDK rejection wrote an active or staging installation')
+    require((root/'cache/v2/high-water.json').read_bytes()==high,'Independent revoked fixture changed the normal catalog watermark')
+    save(args.workspace/('sdk-'+sdk['sdkVersion']+'-state.json'),dict(sdk=sdk,exact=exact,baseline=baseline,
+        baselineExact=baseline_exact,catalogSha256=descriptor(args.bundle/'catalog.json')['sha256'],
+        bootstrapSha256=descriptor(args.bundle/'get-cbodotnetup.py')['sha256'],binarySha256=descriptor(binary)['sha256'],
+        bootstrapBinarySource='public-https' if args.public else 'protected-frozen-candidate'))
+
+
+def native_matrix_smoke(args):
+    from cbodotnetup_matrix import SDK_CHECKS
+    from sdk_runtime import smoke_script,validate_smoke_output
+    MULTI.check_container(args.variant,args.arch,offline=True)
+    state=load(args.workspace/('sdk-'+args.sdk_version+'-state.json'));sdk=state['sdk'];root,binary=matrix_paths(args)
+    exact=state['exact'];baseline_exact=state['baselineExact'];home=Path('/home')/MULTI.USER
+    expected_series='.'.join(sdk['sdkVersion'].split('.')[:2]);aliases=[]
+    for alias,expected in (('cbodotnet','10.0.403'),('cbodotnet-10.0','10.0.403'),('cbodotnet-'+expected_series,sdk['sdkVersion'])):
+        result=matrix_user(root,[root/'bin'/alias,'--version'])
+        require(result.stdout==expected+'\n' and result.stderr==MULTI.BRAND+'\n','An additional SDK alias lost branding or chose the wrong default')
+        info=json.loads(matrix_user(root,[root/'bin'/alias,'--cbodotnet-info']).stdout)
+        require(info['sdkVersion']==expected,'Additional SDK alias source identity differs')
+        if expected==sdk['sdkVersion']:
+            require(info['sourceManifestSha256']==sdk['sourceManifestSha256'] and info['packageRevision']==sdk['revision']
+                    and info['targetRid']==sdk['rid'] and info['qualifiedPayloadModified'] is False,
+                    'Additional SDK alias differs from the exact admitted source/revision/RID')
+        aliases.append(info)
+    result=matrix_user(root,[binary,'run',exact,'--','--version'])
+    require(result.stdout==sdk['sdkVersion']+'\n' and result.stderr==MULTI.BRAND+'\n','Explicit additional SDK run selected another toolchain')
+    payload=root/'toolchains-v2'/exact/sdk['rid']/'content'/sdk['archiveRoot']/'payload'
+    wrapper=home/('run-managed-sdk-'+sdk['sdkVersion']+'.sh')
+    wrapper.write_text('#!/bin/sh\nexec env CBODOTNETUP_HOME='+shlex.quote(str(root))+' '+shlex.quote(str(binary))+' run '+shlex.quote(exact)+' -- "$@"\n')
+    wrapper.chmod(0o755)
+    functional=validate_smoke_output(matrix_user(root,['sh','-ec',smoke_script(sdk['sdkVersion'],str(payload),MULTI.USER,
+        cli=str(wrapper),workdir=str(home/('offline-cbodotnetup-'+sdk['sdkVersion'])))]).stdout)
+    matrix_user(root,[binary,'doctor'])
+    notice=payload/'LICENSE.txt';original=notice.read_bytes();notice.write_bytes(original+b'changed')
+    require(matrix_user(root,[binary,'doctor'],check=False).returncode!=0,'Modified additional SDK bytes were accepted')
+    notice.write_bytes(original)
+    import fcntl
+    with (root/'operation.lock').open('a+b') as lock:
+        fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        require(matrix_user(root,[binary,'list'],check=False).returncode!=0,'Additional SDK operation ignored its inter-process lock')
+    require(list((root/'staging').iterdir()),'Additional SDK interrupted install left no owned recovery stage')
+    matrix_user(root,[binary,'gc']);require(not list((root/'staging').iterdir()),'Additional SDK recovery did not collect its abandoned stage')
+    matrix_user(root,[binary,'rollback',exact])
+    require(matrix_user(root,[binary,'run',exact,'--','--version']).stdout==sdk['sdkVersion']+'\n','Retained additional SDK selection was not executable')
+    matrix_user(root,[binary,'remove',exact])
+    require(matrix_user(root,[binary,'list']).stdout.strip()==baseline_exact+'/'+sdk['rid'],'Additional SDK removal changed the retained SDK10 installation')
+    require(matrix_user(root,[root/'bin/cbodotnet','--version']).stdout=='10.0.403\n','Additional SDK removal changed the highest-series default')
+    require(matrix_user(root,[binary,'rollback',exact],check=False).returncode!=0,'Removed additional SDK silently selected another installation')
+    matrix_user(root,[binary,'doctor']);matrix_user(root,[binary,'remove',baseline_exact])
+    require(matrix_user(root,[binary,'list']).stdout=='','Additional SDK test left an installed payload')
+    absent=matrix_user(root,[root/'bin/cbodotnet','--version'],check=False)
+    require(absent.returncode!=0 and not absent.stdout,'Empty additional SDK root fell back to a system/package SDK')
+    matrix_user(root,[binary,'shell','disable'])
+    original_state=load(args.workspace/'installed.json')
+    require(MULTI.APT.inventory(Path('/opt/cbodotnet'))==original_state['packageInventory'],
+            'Additional SDK lifecycle modified package-managed Community files')
+    MULTI.integrity(original_state['packages'],MULTI.TARGETS[args.variant])
+    if MULTI.TARGETS[args.variant]=='deb':from apt_official import assert_unchanged
+    else:from rpm_official import assert_unchanged
+    assert_unchanged(args.workspace/'official.json')
+    require((home/'.local/share/dotnetup/owner-test').read_text()=='untouched','Additional SDK changed official installer state')
+    target=load_contract()['operatingSystems'][args.variant]
+    observation=dict(status='passed',sdkVersion=sdk['sdkVersion'],revision=sdk['revision'],rid=sdk['rid'],
+        target=dict(os=target['id'],versionId=target['versionId'],rid=sdk['rid']),variant=args.variant,architecture=args.arch,
+        archive=sdk['archive'],sourceManifestSha256=sdk['sourceManifestSha256'],catalogSha256=state['catalogSha256'],
+        bootstrapSha256=state['bootstrapSha256'],binarySha256=state['binarySha256'],bootstrapBinarySource=state['bootstrapBinarySource'],
+        networkForBuild='none',userId=10001,checks=dict.fromkeys(SDK_CHECKS,'passed'),functionalChecks=functional,aliases=aliases,
+        rollbackScope='retained exact admitted additional SDK revision; cross-revision r2/r3 and tool rollback covered by SDK10 regression')
+    save(args.workspace/('sdk-'+sdk['sdkVersion']+'-observation.json'),observation)
+    report=load(args.workspace/'report.json');report.setdefault('additionalSdkQualifications',[]).append(observation)
+    save(args.workspace/'report.json',report)
+
+
 def native(args):
     verify_bundle(args.bundle)
     require(platform.machine() in ({'x86_64'} if args.arch=='x64' else {'aarch64','arm64'}),'Native CPU required')
@@ -647,7 +852,7 @@ def native(args):
     mounts += [part for name in ('GITHUB_REPOSITORY','GITHUB_SHA','GITHUB_RUN_ID','GITHUB_RUN_ATTEMPT') for part in ('-e',name)]
     common=['--bundle','/bundle','--variant',args.variant,'--arch',args.arch,'--workspace','/delivery/installed']
     if args.public:common+=['--public']
-    command=['python3','/repo/scripts/cbodotnetup-release.py'];cid=image=None
+    command=['python3','/repo/scripts/cbodotnetup-release.py'];cid=None
     try:
         # Consumer prerequisites are explicit, before any SDK/tool execution.
         # Minimal Fedora images now provide OpenSSL 4, while the reviewed .NET
@@ -655,19 +860,37 @@ def native(args):
         dependencies=load_contract()['operatingSystems'][args.variant]['dependencies']
         require(dependencies and all(re.fullmatch(r'[A-Za-z0-9+_.-]+',name) for name in dependencies),'Unsafe or missing consumer prerequisites')
         install=['apt-get','install','-y','--no-install-recommends'] if MULTI.TARGETS[args.variant]=='deb' else ['dnf','-y','--setopt=install_weak_deps=False','--setopt=tsflags=','install']
-        script=MULTI.bootstrap_script(args.variant)+shlex.join(install+dependencies)+'\nexec '+shlex.join(command+['native-install',*common])
-        cid=subprocess.check_output(['docker','create','--user','0',*mounts,QUALIFICATION_BASES[args.variant][args.arch],'sh','-ec',script],text=True).strip()
-        run(['docker','start','--attach',cid]);info=json.loads(subprocess.check_output(['docker','inspect',cid],text=True))[0]
-        require(info['State']['ExitCode']==0,'Native installer/bootstrap failed')
-        image=subprocess.check_output(['docker','commit',cid],text=True).strip()
-        run(['docker','run','--rm','--network','none','--user','0',*mounts,image,*command,'native-smoke',*common])
+        ready='/tmp/cbodotnetup-qualification-ready'
+        script='rm -f '+ready+'\n'+MULTI.bootstrap_script(args.variant)+shlex.join(install+dependencies)+'\ntouch '+ready+'\nexec sleep infinity'
+        cid=subprocess.check_output(['docker','create','--network','bridge','--user','0',*mounts,QUALIFICATION_BASES[args.variant][args.arch],'sh','-ec',script],text=True).strip()
+        run(['docker','start',cid])
+        deadline=time.monotonic()+900
+        while True:
+            info=json.loads(subprocess.check_output(['docker','inspect',cid],text=True))[0]
+            if not info['State']['Running'] or time.monotonic()>=deadline:
+                logs=subprocess.check_output(['docker','logs',cid],text=True,stderr=subprocess.STDOUT)
+                raise ValueError('Native consumer prerequisite provisioning failed or timed out:\n'+logs[-12000:])
+            if subprocess.run(['docker','exec',cid,'test','-f',ready],capture_output=True).returncode==0:break
+            time.sleep(1)
+        run(['docker','exec',cid,*command,'native-install',*common])
+        run(['docker','network','disconnect','bridge',cid])
+        run(['docker','exec',cid,*command,'native-smoke',*common])
+        os_target=load_contract()['operatingSystems'][args.variant]
+        actual_target=dict(os=os_target['id'],versionId=os_target['versionId'],rid='linux-x64' if args.arch=='x64' else 'linux-arm64')
+        versions=list(dict.fromkeys(s['sdkVersion'] for s in load(args.bundle/'catalog.json')['sdks']
+            if s['sdkVersion']!='10.0.403' and s['rid']==actual_target['rid'] and actual_target in s['targets']))
+        for version in versions:
+            run(['docker','network','connect','bridge',cid])
+            run(['docker','exec',cid,*command,'native-matrix-install',*common,'--sdk-version',version])
+            run(['docker','network','disconnect','bridge',cid])
+            run(['docker','exec',cid,*command,'native-matrix-smoke',*common,'--sdk-version',version])
         shutil.copyfile(workspace/'installed/report.json',workspace/'report.json')
     finally:
         if cid:subprocess.run(['docker','rm','--force',cid],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-        if image:subprocess.run(['docker','image','rm',image],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 
 
 def qualified_reports(bundle,directory,*,public=False):
+    from cbodotnetup_matrix import validate_additional_sdk_qualifications
     freeze=verify_bundle(bundle);api=GitHubReleases();reports={};proof=[]
     for path in Path(directory).rglob('report.json'):
         value=load(path);target=(value['variant'],value['architecture'])
@@ -712,6 +935,7 @@ def qualified_reports(bundle,directory,*,public=False):
             workflow=source,artifact=dict(id=artifact['id'],size=len(raw),sha256=hashlib.sha256(raw).hexdigest()),report=descriptor(path),observation=value))
         reports[target]=value
     require(set(reports)=={(v,a) for v in MULTI.TARGETS for a in ('x64','aarch64')},'All eight actual native targets are mandatory')
+    validate_additional_sdk_qualifications(load(Path(bundle)/'catalog.json'),list(reports.values()))
     return proof
 
 
@@ -781,7 +1005,7 @@ def publish(args):
         'Project-signed installation catalog with bounded freshness, revocation, source/producer pins and immutable SDK/tool hashes. '
         'All eight native OS/CPU qualification targets passed before this publication. Public bootstrap/native post-verification is recorded before feed activation. '
         'catalog.json is the schema2 feed; catalog-v1.json is the compatible schema1 feed. '
-        'catalog-v1-bootstrap.json and catalog-v1-expired.json are test-only migration qualification fixtures, not installation feeds. '
+        'catalog-v1-bootstrap.json, catalog-v1-expired.json and catalog-v2-revoked.json are test-only qualification fixtures, not installation feeds. '
         'AUR publication remains deferred under issue10.')
     save(output/'publication.json',dict(schemaVersion=1,kind='cbodotnetup-publication',status='published-public-bytes-verified',
         version=version,source=freeze['source'],toolRelease=tool_release,catalogRelease=release,nativeQualification=proof,
@@ -839,10 +1063,11 @@ def main():
     for name in ('source-check','feed-smoke'):
         command=commands.add_parser(name);command.add_argument('--arch',choices=('x64','aarch64'),required=True);command.add_argument('--workspace',type=Path,required=True)
     command=commands.add_parser('stage');command.add_argument('--received',type=Path,required=True);command.add_argument('--output',type=Path,required=True)
-    for name in ('native','native-install','native-smoke'):
+    for name in ('native','native-install','native-smoke','native-matrix-install','native-matrix-smoke'):
         command=commands.add_parser(name);command.add_argument('--bundle',type=Path,required=True);command.add_argument('--workspace',type=Path,required=True)
         command.add_argument('--arch',choices=('x64','aarch64'),required=True);command.add_argument('--variant',choices=tuple(MULTI.TARGETS),required=True)
         command.add_argument('--public',action='store_true')
+        if name.startswith('native-matrix-'):command.add_argument('--sdk-version',required=True)
     for name in ('publish','activate'):
         command=commands.add_parser(name);command.add_argument('--bundle',type=Path,required=True);command.add_argument('--reports',type=Path,required=True);command.add_argument('--output',type=Path,required=True)
         if name=='activate':command.add_argument('--publication',type=Path,required=True)
@@ -850,6 +1075,7 @@ def main():
     command=commands.add_parser('receive-published-builds');command.add_argument('--output',type=Path,required=True)
     args=parser.parse_args()
     {'build':build,'source-check':source_check,'feed-smoke':feed_smoke,'stage':stage,'native':native,'native-install':native_install,'native-smoke':native_smoke,
+     'native-matrix-install':native_matrix_install,'native-matrix-smoke':native_matrix_smoke,
      'publish':publish,'receive-public':receive_public,'receive-published-builds':receive_published_builds,'activate':activate}[args.command](args)
 
 

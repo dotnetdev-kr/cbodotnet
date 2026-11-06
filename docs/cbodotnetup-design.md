@@ -19,7 +19,8 @@ SDK archives, native tool binaries, runtime notices and their source links.
 ## Build and maintenance inputs
 
 [The policy](../releases/cbodotnetup-policy.json) pins the reference, build SDK,
-runtime, initial SDK admission, OS/CPU matrix and signing workflow. Native x64
+runtime, exact SDK archive revisions, OS/CPU admission matrix and signing
+workflow. Native x64
 and AArch64 builds use the already authenticated SDK10.0.403 revision3 archive in
 the existing digest-pinned Rocky Linux9.8 images. NativeAOT runtime10.0.14 is
 explicit, including the [Brotli security fix](https://github.com/advisories/GHSA-p3jp-9v83-76w9).
@@ -51,9 +52,27 @@ The 0.2 migration uses a versioned schema2 endpoint,
 The original `/cbodotnet/cbodotnetup/catalog.json` stays schema1 and retains
 SDK10.0.403 revision2 with its original filename, plus compatible authenticated
 tool update records. Schema2 initially admits the separately qualified neutral
-SDK10 revision3; it does not infer admission for other SDKs or libc targets.
+SDK10 revision3. SDK9/8/7/6 expansion uses the same strict schema and independently
+qualified neutral revision2 archives; every advertised SDK/OS/CPU cell requires
+its own installer evidence. The full five-SDK matrix has 40 cells, including the
+eight existing SDK10 regression cells. Archive/package qualification establishes
+inputs without replacing native installer admission.
 Canonical naming is versioned and bound to exact SDK/source/revision identity.
 Historical unbranded trial archives remain inadmissible.
+
+The current and legacy SDK admission policies are independent. Extending the
+schema2 SDK list must leave schema1's SDK10 revision2 records unchanged in shape
+and scope. The immutable 0.2.0 NativeAOT executables and their notices can be
+reused when only catalog admission changes; any binary/source/runtime change
+still requires a new immutable tool version. Admission binds the exact SDK
+revision, source hash, OS version and native CPU. Unsupported or revoked cells
+remain outside activation, with no implicit selection of another SDK or root.
+
+The catalog's security-support declaration describes the Community maintenance
+boundary. Upstream series lifecycle and current-patch requirements are recorded
+separately in the [user guide](cbodotnetup.md#sdk-admission-and-lifecycle). A
+successful native test on Fedora45, Rocky9.8 or an upstream EOL SDK does not
+establish a vendor support commitment.
 
 Old 0.1.0 clients validate every catalog entry strictly, including SDK URL
 spelling. Adding new fields, neutral URLs or musl entries to their shared feed
@@ -81,8 +100,9 @@ discover new revocations; the last accepted revocation list remains enforced.
 The private key stays only in the existing protected `downstream-release`
 environment and approved `distribution-release.yml` workflow. Candidate signing
 precedes native qualification but does not enable availability. Immutable
-publication requires all eight actual native targets. Activation requires a
-second eight-target pass using anonymous public binary/archive downloads, and
+publication requires actual native evidence for every advertised SDK/OS/CPU
+cell. Activation requires a second pass over the same cells using anonymous
+public binary/archive downloads, and
 independently authenticates actual report artifact ZIP size/digest and job IDs.
 The site verifies catalog and bootstrap signatures/inventories before serving
 the feed. Expired feed content is removed from newly generated pages.

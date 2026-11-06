@@ -2,6 +2,7 @@ from pathlib import Path
 from contextlib import ExitStack
 from datetime import datetime,timedelta,timezone
 import hashlib
+import copy
 import json
 import sys
 import tempfile
@@ -13,6 +14,39 @@ import cbodotnetup_site as SITE
 
 
 class InstallerSiteGates(unittest.TestCase):
+    def additional_fixture(self):
+        sdk=dict(sdkVersion='9.0.123',revision=2,rid='linux-x64',requiresLegacyProvider=False,
+            sourceManifestSha256='a'*64,targets=[dict(os='ubuntu',versionId='24.04',rid='linux-x64')],
+            archive=dict(url='https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-9.0.123-r2/cbodotnet-sdk-9.0.123-linux-x64-r2.tar.gz',size=3,sha256='b'*64))
+        def expand(catalog,legacy):
+            catalog['sdks'][0].update(rid='linux-x64',sourceManifestSha256='e'*64)
+            catalog['sdks'].append(sdk);catalog['channels']['9.0']='9.0.123-r2'
+        status,raws=self.fixture(alter=expand)
+        for proof in status['publicNativeVerification']:
+            observation=proof['observation']
+            observation.update(variant=proof['variant'],architecture=proof['architecture'],binarySha256='c'*64,
+                bootstrapSha256='d'*64,additionalSdkQualifications=[])
+            if (proof['variant'],proof['architecture'])==('ubuntu-24.04','x64'):
+                from cbodotnetup_matrix import SDK_CHECKS,FUNCTIONAL_CHECKS
+                row={key:copy.deepcopy(observation[key]) for key in ('catalogSha256','bootstrapBinarySource',
+                    'binarySha256','bootstrapSha256','variant','architecture')}
+                row.update(sdkVersion=sdk['sdkVersion'],revision=2,rid=sdk['rid'],target=sdk['targets'][0],
+                    archive=copy.deepcopy(sdk['archive']),sourceManifestSha256=sdk['sourceManifestSha256'],status='passed',
+                    networkForBuild='none',userId=10001,checks=dict.fromkeys(SDK_CHECKS,'passed'),
+                    functionalChecks=dict.fromkeys(FUNCTIONAL_CHECKS,'passed'))
+                baseline=dict(sdkVersion='10.0.403',packageRevision=3,targetRid='linux-x64',
+                    sourceManifestSha256='e'*64,qualifiedPayloadModified=False)
+                selected=dict(sdkVersion=sdk['sdkVersion'],packageRevision=2,targetRid='linux-x64',
+                    sourceManifestSha256=sdk['sourceManifestSha256'],qualifiedPayloadModified=False)
+                row['aliases']=[copy.deepcopy(baseline),copy.deepcopy(baseline),selected]
+                observation['additionalSdkQualifications']=[row]
+        status['nativeQualification']=copy.deepcopy(status['publicNativeVerification'])
+        for proof in status['nativeQualification']:
+            proof['observation']['bootstrapBinarySource']='protected-frozen-candidate'
+            for row in proof['observation']['additionalSdkQualifications']:
+                row['bootstrapBinarySource']='protected-frozen-candidate'
+        return status,raws
+
     def fixture(self,dual=True,alter=None):
         now=datetime.now(timezone.utc)
         common=dict(kind='cbodotnetup-installation-catalog',sequence=123,
@@ -96,6 +130,36 @@ class InstallerSiteGates(unittest.TestCase):
             self.assertEqual((output/'cbodotnetup/get-cbodotnetup.py').read_bytes(),raws['get-cbodotnetup.py'])
             self.assertIn('href="cbodotnetup/v2/catalog.json"',markup)
             self.assertEqual({call.args[0].name for call in verify.call_args_list},{'catalog.json','catalog-v1.json','freeze.json'})
+
+    def test_additional_sdk_requires_both_candidate_and_public_cell_proof(self):
+        for phase in ('nativeQualification','publicNativeVerification'):
+            status,raws=self.additional_fixture()
+            for proof in status[phase]:proof['observation']['additionalSdkQualifications']=[]
+            context,_=self.io(raws)
+            with self.subTest(phase=phase),tempfile.TemporaryDirectory() as temporary,context:
+                with self.assertRaisesRegex(ValueError,'Every additional SDK'):SITE.prepare(Path(temporary),status)
+                self.assertFalse((Path(temporary)/'cbodotnetup').exists())
+
+    def test_complete_cell_proofs_expose_only_catalog_sdk_versions(self):
+        status,raws=self.additional_fixture();context,_=self.io(raws)
+        with tempfile.TemporaryDirectory() as temporary,context:
+            markup=SITE.prepare(Path(temporary),status)
+            self.assertIn('<code>10.0.403</code>, <code>9.0.123</code>',markup)
+            self.assertNotIn('7.0.120',markup)
+            self.assertIn('Versions, lifecycle',markup)
+
+    def test_mismatched_additional_archive_cannot_enable_the_feed(self):
+        status,raws=self.additional_fixture()
+        status['publicNativeVerification'][0]['observation']['additionalSdkQualifications'][0]['archive']['sha256']='0'*64
+        context,_=self.io(raws)
+        with tempfile.TemporaryDirectory() as temporary,context:
+            with self.assertRaisesRegex(ValueError,'differs'):SITE.prepare(Path(temporary),status)
+            self.assertFalse((Path(temporary)/'cbodotnetup').exists())
+
+    def test_public_proof_cannot_substitute_for_candidate_phase(self):
+        status,raws=self.additional_fixture();status['nativeQualification']=status['publicNativeVerification'];context,_=self.io(raws)
+        with tempfile.TemporaryDirectory() as temporary,context:
+            with self.assertRaisesRegex(ValueError,'candidate reports'):SITE.prepare(Path(temporary),status)
 
     def test_schema2_cannot_replace_the_legacy_endpoint_without_legacy_status(self):
         status,raws=self.fixture();del status['legacyCatalogSha256'];del status['legacyCatalogSequence']

@@ -1,23 +1,75 @@
 # cbodotnetup
 
 `cbodotnetup` manages verified Community Build SDKs in a regular user's home.
-Initial admission is SDK10.0.403 on Linux glibc x64/AArch64: Ubuntu24.04,
-Debian13, Fedora45 and Rocky Linux9.8. It preserves official `dotnet`, official
+Its Linux glibc target matrix is x64/AArch64 on Ubuntu24.04, Debian13,
+Fedora45 and Rocky Linux9.8. It preserves official `dotnet`, official
 `dotnetup` state and package-managed `/opt/cbodotnet` installations. NativeAOT
 bootstrap does not require an installed .NET SDK.
 
 Version [0.2.0 is published](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-v0.2.0).
-Both the eight-target native candidate matrix and a second eight-target matrix
-using anonymous public binary/SDK downloads passed before
+The 0.2.0 catalog migration passed both an eight-target native candidate matrix
+and an eight-target anonymous public binary/SDK download matrix before
 [feed activation](../releases/cbodotnetup-status.json). Use the
 [download site](https://dotnetdev.kr/cbodotnet/) for the active signed catalog
-and bootstrap. Other SDKs already have package distributions; installer
-admission remains individually scoped and initially includes SDK10.0.403 only.
+and bootstrap. Installer admission is scoped to each SDK, OS version and CPU;
+the active signed catalog is the source of available versions.
 The compatible catalog migration is recorded in
 [#26](https://github.com/dotnetdev-kr/cbodotnet/issues/26) and its
 [independent validation evidence](cbodotnetup-v2-validation.json). The
 availability record and signed public feed determine the active revisions;
 the historical 0.1.0 evidence is retained at the end of this document.
+
+## SDK admission and lifecycle
+
+The reviewed neutral archive inputs for
+[#27](https://github.com/dotnetdev-kr/cbodotnet/issues/27) are:
+
+| SDK | Archive revision | Community channel |
+| --- | --- | --- |
+| 10.0.403 | r3 | 10.0 |
+| 9.0.123 | r2 | 9.0 |
+| 8.0.133 | r2 | 8.0 |
+| 7.0.120 | r2 | 7.0 |
+| 6.0.136 | r2 | 6.0 |
+
+Run `cbodotnetup list --available` to authenticate current admission before
+installing. Published package/archive evidence establishes the inputs; installer
+promotion separately requires native and anonymous public installation evidence
+for every advertised SDK/OS/CPU combination. The five-SDK matrix contains 40
+cells: 32 additional cells for SDK9/8/7/6 and eight SDK10 regression cells.
+Unqualified or revoked combinations are refused before activation.
+
+The [upstream lifecycle policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core),
+reviewed on 2026-11-06, records:
+
+| .NET series | Upstream phase on the review date | Upstream end of support |
+| --- | --- | --- |
+| 10 LTS | Active | 2028-11-14 |
+| 9 STS | Maintenance | 2026-11-10 |
+| 8 LTS | Maintenance | 2026-11-10 |
+| 7 STS | Ended | 2024-05-14 |
+| 6 LTS | Ended | 2024-11-12 |
+
+These dates describe product series; upstream servicing also requires current
+patches. The exact immutable Community SDK pins above have their own provenance
+and qualification records. Catalogs declare
+`community-build-no-additional-security-maintenance`; Community qualification
+covers observed installation and runtime behavior and does not extend vendor
+servicing or automatically track later upstream patches.
+
+Microsoft's [Ubuntu](https://learn.microsoft.com/en-us/dotnet/core/install/linux-ubuntu-install)
+and [Debian](https://learn.microsoft.com/en-us/dotnet/core/install/linux-debian)
+installation tables include .NET10/9/8 on Ubuntu24.04 and Debian13 on the review
+date. Its [supported OS table](https://github.com/dotnet/core/blob/main/release-notes/10.0/supported-os.md)
+lists Fedora44/43, while this project qualifies Fedora45 independently. Rocky9.8
+is also an explicit Community target; an RHEL9 listing alone is not evidence for
+this project's exact Rocky package/CPU combination. The SDK7/6 targets retain
+their upstream EOL status even after successful Community installation tests.
+
+The SDK9/8/7/6 expansion reuses the immutable 0.2.0 tool and publishes a new
+signed schema2 catalog after qualification. The schema1 feed remains limited to
+SDK10 revision2 and compatible tool records. Additional legacy-provider SDKs
+and musl admission have separate work items.
 
 ## Bootstrap
 
@@ -82,9 +134,9 @@ PATH changes. Branding is **Community Build of .NET (built by .NET Dev)** and
 An exact revision names an immutable archive. Identical retries verify existing
 bytes/modes/links before succeeding; conflicting state is refused. Updates keep
 previous SDK roots. `rollback` selects an already retained, signed revision;
-it does not silently fetch a withdrawn version. Initial availability has one
-SDK/revision; a different rollback target becomes usable only when separately
-admitted and installed. Concurrent operations fail with a retry message.
+it does not silently fetch a withdrawn version. A different rollback target
+becomes usable only when separately admitted and installed. Concurrent
+operations fail with a retry message.
 
 ## Catalog migration and compatibility
 
