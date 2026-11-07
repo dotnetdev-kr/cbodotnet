@@ -1,0 +1,738 @@
+{
+  "schemaVersion": 1,
+  "kind": "musl-native-host-validation",
+  "repository": "dotnetdev-kr/cbodotnet",
+  "issue": 24,
+  "sourceAdmission": false,
+  "productQualification": false,
+  "purpose": "Retain authenticated build-host failure/control evidence and the reason for a container-engine change.",
+  "commonInputs": {
+    "sdkVersion": "10.0.403",
+    "vmrCommit": "5a2162bea6845eabc1fc721624a43568c65db3b1",
+    "bootstrapSdk": "10.0.401",
+    "bootstrapRuntime": "10.0.12",
+    "alpine": "3.24.4",
+    "dotnetProcessorCount": 2,
+    "originalScannerParallelism": 4,
+    "msbuildMaxCpuCount": 2,
+    "scannerSourceChanged": false,
+    "upstreamAllowlistsChanged": false,
+    "observedAlpineMuslSignalConstants": {
+      "SIGRTMIN": 35,
+      "SIGRTMAX": 64,
+      "SIGABRT": 6
+    }
+  },
+  "authenticatedFailures": [
+    {
+      "runId": 42354496987,
+      "attempt": 1,
+      "jobId": 128349488288,
+      "commit": "b1f29f82001e18bd8fedf57683cdeff9355b8a3d",
+      "runUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42354496987",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42354496987/job/128349488288",
+      "artifact": {
+        "id": 13566827703,
+        "name": "sdk-musl-net10-aarch64-42354496987-1",
+        "apiUrl": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13566827703",
+        "expiresAt": "2026-11-21T08:16:25Z",
+        "zip": {
+          "size": 718384493,
+          "sha256": "aedb72942bf8fc7313420cb1029a96012c6d5837eb5bddc4774da65a47738aee",
+          "actualApiBytesVerified": true
+        },
+        "nestedTar": {
+          "size": 718383496,
+          "sha256": "5541b3846764829d56efba41294e3071ce2b1b1e1373139fbdd9decd2937f0d4",
+          "actualEnvelopeBytesVerified": true
+        }
+      },
+      "selectedFiles": [
+        {
+          "path": "delivery/reports/build/build.log",
+          "size": 584,
+          "sha256": "45433b64f4f9e83fe88f33166d12556cb2602804bc176ee38cbe54ccdbc6c627"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/MSBuild_CommTrace_PID_105.txt",
+          "size": 3180,
+          "sha256": "eee86c9d6989f50946a3c66e629ec0165cf85a0d143e6abe94ced4bf2a078a5e"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/MSBuild_CommTrace_PID_143.txt",
+          "size": 1442,
+          "sha256": "e0203a603346443af265069368b29473baeb9a6f3354c403802722369f4e0a05"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/MSBuild_CommTrace_PID_72.txt",
+          "size": 222,
+          "sha256": "6e26a0d7a0e2806e62b1e597f07448aa06a37adaa1dc4703299a968f18e3d2ca"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/exit-code.txt",
+          "size": 4,
+          "sha256": "690e07064753123c967bbac0180f32da6a753a5bd8b79a47644cef58e776d9f0"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/memory-after.events",
+          "size": 70,
+          "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/memory-before.events",
+          "size": 70,
+          "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/process-limits.txt",
+          "size": 1323,
+          "sha256": "56a7e5db9ef1c8db374e5ccb5819d6656e1e99b60253d19a2ecb3dd52259bcae"
+        }
+      ],
+      "facts": {
+        "architecture": "aarch64",
+        "primaryContainerPid": 105,
+        "normalWorkerContainerPid": 143,
+        "exitCode": 139,
+        "stage": "full-graph-restore-before-scanner",
+        "oomCountersBeforeAndAfter": 0,
+        "coreFileLimitBytes": 0,
+        "observed": "Primary dotnet SIGSEGV after normal worker handshake; worker later observes abrupt parent disconnect.",
+        "dumpCaptured": false,
+        "msbuildFailureTextCaptured": false
+      }
+    },
+    {
+      "runId": 42354496987,
+      "attempt": 1,
+      "jobId": 128349488379,
+      "commit": "b1f29f82001e18bd8fedf57683cdeff9355b8a3d",
+      "runUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42354496987",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42354496987/job/128349488379",
+      "artifact": {
+        "id": 13566364131,
+        "name": "sdk-musl-net10-x64-42354496987-1",
+        "apiUrl": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13566364131",
+        "expiresAt": "2026-11-21T08:19:30Z",
+        "zip": {
+          "size": 768551962,
+          "sha256": "51077d4ba24b08ba5326a687ab7ba1158326633f019bcd16a6ca23657d7bc1b7",
+          "actualApiBytesVerified": true
+        },
+        "nestedTar": {
+          "size": 768550969,
+          "sha256": "8cae271a15324176623187c147ef40b73c2422c381359b626cf8bfddf938e8b1",
+          "actualEnvelopeBytesVerified": true
+        }
+      },
+      "selectedFiles": [
+        {
+          "path": "delivery/reports/build/build.log",
+          "size": 2714,
+          "sha256": "060f47e420d744760e35a1925bcaf72ea380dc83784e60a5a69e962583a26072"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/MSBuild_CommTrace_PID_102.txt",
+          "size": 3396,
+          "sha256": "f03d2534b65fc894f2487ec407c3696e80ef6663c11a1c2c19bf6b6b8d78026b"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/MSBuild_CommTrace_PID_142.txt",
+          "size": 4383,
+          "sha256": "9fc76905be5a25c95bb18bb0b35f00f11ce9c2a9ae8066bee0bf9af0745f5878"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/MSBuild_CommTrace_PID_142_node_1.txt",
+          "size": 229,
+          "sha256": "5a370fd6cd9b1677080fbc0783efab798910151d56249cb93ff7e1525ac8b20e"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/MSBuild_CommTrace_PID_196.txt",
+          "size": 2272,
+          "sha256": "8d293d64ff0f6775ee3dfb41b9f52ac634cc354bfaf1c154cd88fb8badd2acf8"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/MSBuild_CommTrace_PID_71.txt",
+          "size": 222,
+          "sha256": "3d19d78cbe6e1ad46fbe06402725eda30977f9e180ced77a799be564085a2b4a"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/exit-code.txt",
+          "size": 2,
+          "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/memory-after.events",
+          "size": 70,
+          "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/memory-before.events",
+          "size": 70,
+          "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/process-limits.txt",
+          "size": 1323,
+          "sha256": "b5ba5879c2fa1ac4b52135b951e991a3f32942286a289ea423fa90e4a258ae11"
+        }
+      ],
+      "facts": {
+        "architecture": "x64",
+        "normalWorkerContainerPid": 142,
+        "taskHostContainerPid": 196,
+        "exitCode": 1,
+        "stage": "original-binary-scan",
+        "msbuildError": "MSB4217",
+        "oomCountersBeforeAndAfter": 0,
+        "pipeEofAfterHandshakeMilliseconds": 552.0746,
+        "childObservedRunningAtEof": true,
+        "dumpCaptured": false,
+        "msbuildFailureTextCaptured": false
+      }
+    },
+    {
+      "runId": 42355426521,
+      "attempt": 1,
+      "jobId": 128352357138,
+      "commit": "a1cc7f9e8ca52a2d6234976c58b01316684d0080",
+      "runUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42355426521",
+      "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42355426521/job/128352357138",
+      "artifact": {
+        "id": 13567866023,
+        "name": "sdk-musl-net10-aarch64-42355426521-1",
+        "apiUrl": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13567866023",
+        "expiresAt": "2026-11-21T08:29:55Z",
+        "zip": {
+          "size": 718404464,
+          "sha256": "3a9c3b1ded2625770773f9e8e1942e03817c75774f2f36f89d24441966580f67",
+          "actualApiBytesVerified": true
+        },
+        "nestedTar": {
+          "size": 718403467,
+          "sha256": "0cafef006d6bdc31fac0809b2a13b89e797de695524100ddc6e53840c092bfd7",
+          "actualEnvelopeBytesVerified": true
+        }
+      },
+      "selectedFiles": [
+        {
+          "path": "delivery/reports/build/build.log",
+          "size": 2713,
+          "sha256": "f98e088ea4ee920a23fad256e2c4ab5fc1ff0802d57a5a5238dcd69d7db6511a"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/MSBuild_CommTrace_PID_105.txt",
+          "size": 3402,
+          "sha256": "9b2ad45d90c35fa988ca5ed94b8a279fdbe4dd4e9e6ce19fdcacd75b94f4a365"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/MSBuild_CommTrace_PID_145.txt",
+          "size": 4385,
+          "sha256": "ed1a147f26fb3e38b450fb0d94d6253f59f1e5458d95484023c330bd45e275eb"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/MSBuild_CommTrace_PID_145_node_1.txt",
+          "size": 229,
+          "sha256": "cd59cebf67b801534e705094c3f6823e6409a7e0b44142c78c8cfb6d14930008"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/MSBuild_CommTrace_PID_196.txt",
+          "size": 2274,
+          "sha256": "387080ac2e949d7739f7f0fef80765233cb4bc0e559c7753b98020d4f739e9a5"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/MSBuild_CommTrace_PID_72.txt",
+          "size": 222,
+          "sha256": "8e9d5e00ae9092b6bbc0e95fe16a3d6399d76e03928c4161e30b0375c4c22595"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/exit-code.txt",
+          "size": 2,
+          "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/memory-after.events",
+          "size": 70,
+          "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/memory-before.events",
+          "size": 70,
+          "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+        },
+        {
+          "path": "delivery/reports/diagnostics/container-0016/process-limits.txt",
+          "size": 1323,
+          "sha256": "56a7e5db9ef1c8db374e5ccb5819d6656e1e99b60253d19a2ecb3dd52259bcae"
+        },
+        {
+          "path": "delivery/reports/diagnostics/host/core-policy.txt",
+          "size": 128,
+          "sha256": "a31577225379f578574187e03b18914e8c8b2bf8f1ce487666e782fe9c418860"
+        },
+        {
+          "path": "delivery/reports/diagnostics/host/kernel.txt",
+          "size": 54761,
+          "sha256": "80ddd22b6a54c72cfe60365d6871e6047e27c5bf747bedc23be45459a2efe9c3"
+        }
+      ],
+      "facts": {
+        "architecture": "aarch64",
+        "normalWorkerContainerPid": 145,
+        "taskHostContainerPid": 196,
+        "exitCode": 1,
+        "stage": "original-binary-scan",
+        "msbuildError": "MSB4217",
+        "oomCountersBeforeAndAfter": 0,
+        "profile": "containers-default-0.57.4-apparmor1",
+        "stackedPeer": "containers-default-0.57.4-apparmor1//&crun",
+        "dumpCaptured": false,
+        "msbuildFailureTextCaptured": false,
+        "hostToContainerPidMappingCaptured": false,
+        "inference": "Audit denials temporally match TaskHost failure; host PID 9076 cannot be formally equated to container PID 196 from captured files."
+      },
+      "timeline": [
+        {
+          "utc": "2026-11-07T08:29:38.2262648Z",
+          "event": "Normal worker 145 launches TaskHost 196",
+          "source": "MSBuild_CommTrace_PID_145.txt"
+        },
+        {
+          "utc": "2026-11-07T08:29:38.3389642Z",
+          "event": "TaskHost handshake completes",
+          "source": "MSBuild_CommTrace_PID_196.txt"
+        },
+        {
+          "utc": "2026-11-07T08:29:38.900Z",
+          "event": "AppArmor signal send denied",
+          "hostPid": 9076,
+          "comm": ".NET TP Worker",
+          "signal": "rtmin+3",
+          "auditSerial": 141,
+          "source": "host/kernel.txt"
+        },
+        {
+          "utc": "2026-11-07T08:29:38.904Z",
+          "event": "AppArmor ptrace trace denied",
+          "hostPid": 9094,
+          "comm": "createdump",
+          "auditSerial": 142,
+          "source": "host/kernel.txt"
+        },
+        {
+          "utc": "2026-11-07T08:29:38.905Z",
+          "event": "AppArmor ABRT send denied twice",
+          "hostPid": 9076,
+          "comm": ".NET TP Worker",
+          "signal": "abrt",
+          "auditSerials": [
+            143,
+            144
+          ],
+          "source": "host/kernel.txt"
+        },
+        {
+          "utc": "2026-11-07T08:29:39.6310175Z",
+          "event": "Parent reads TaskHost pipe EOF",
+          "source": "MSBuild_CommTrace_PID_145_node_1.txt"
+        },
+        {
+          "utc": "2026-11-07T08:29:39.6312464Z",
+          "event": "Parent observes child 196 still running at that instant",
+          "source": "MSBuild_CommTrace_PID_145_node_1.txt"
+        }
+      ]
+    }
+  ],
+  "diagnosticControl": {
+    "runId": 42356613685,
+    "attempt": 1,
+    "jobId": 128355974931,
+    "commit": "2ae76df651184a4fed2aa609ac82b2c498564a27",
+    "runUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42356613685",
+    "jobUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42356613685/job/128355974931",
+    "artifact": {
+      "id": 13567558909,
+      "name": "sdk-musl-net10-aarch64-42356613685-1",
+      "apiUrl": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13567558909",
+      "expiresAt": "2026-11-21T08:46:58Z",
+      "zip": {
+        "size": 718413280,
+        "sha256": "69a64098fbc7744011f30de50da1d53117335faf395685787a28cb81f37e0ccb",
+        "actualApiBytesVerified": true
+      },
+      "nestedTar": {
+        "size": 718412283,
+        "sha256": "28219ea0e814191b5f666919a8d5d51449eadb82e9bc35c7d8da2fe0c593d91c",
+        "actualEnvelopeBytesVerified": true
+      }
+    },
+    "sourceAdmission": false,
+    "productQualification": false,
+    "jobLogFacts": {
+      "fullGraphRestoreSeconds": 9.19,
+      "scopedInitProjectBuildSeconds": 17.84,
+      "scannerExecutionSeconds": 13.9289944,
+      "restoreErrors": 0,
+      "scopedInitProjectErrors": 0,
+      "sourcePolicy": "AppArmor unconfined; SYS_PTRACE requested",
+      "dotnetProcessorCount": 2,
+      "msbuildMaxCpuCount": 2,
+      "scope": "Full-graph restore followed by original init-detect-binaries project; full SDK compilation/tests/collect/consumer qualification not run.",
+      "workflowConclusion": "failure",
+      "expectedAdmissionRejection": "Diagnostic ptrace or unspecified diagnostic mode cannot qualify"
+    },
+    "causalLimit": "This diagnostic also scopes execution to restore and the original scan; it is not a complete one-variable full SDK before/after build.",
+    "selectedFiles": [
+      {
+        "path": "delivery/producer-validation.json",
+        "size": 34045,
+        "sha256": "e6d8c1baf41eb0a0ea3a24ffd35f8669f096bd13ff2758c8c03f8bcbf14a8e11"
+      },
+      {
+        "path": "delivery/reports/build/build.log",
+        "size": 942,
+        "sha256": "d066e298b7f47d69b25b62fd6ed8a66889efc03df79bffe9123509211c3307d5"
+      },
+      {
+        "path": "delivery/reports/build/diagnostic-binaries/NewBinaries.txt",
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "delivery/reports/build/diagnostic-binaries/Updatedallowed-sb-binaries.txt",
+        "size": 1110,
+        "sha256": "767e04d1f66615d1b2097e8ef2806dad422bb0bda3d4d4eb847d89a21d3a9caf"
+      },
+      {
+        "path": "delivery/reports/build/diagnostic-binaries/Updatedallowed-vmr-binaries.txt",
+        "size": 3945,
+        "sha256": "2f034870238334d4fde50e5ba5188838433ccc632c15530e6aa4db01317c6dca"
+      },
+      {
+        "path": "delivery/reports/build/diagnostic-controls.json",
+        "size": 585,
+        "sha256": "cb922f0ffe4d3ab1cca5450462545ab18ed0cc69c6fba14f14c3f59278ceac3c"
+      },
+      {
+        "path": "delivery/reports/build/diagnostic-restore.log",
+        "size": 1946,
+        "sha256": "01b219273cfaf180890fcf73090bddab4859a1a5531d7760e0876943ab555537"
+      },
+      {
+        "path": "delivery/reports/build/feed-adjustments.json",
+        "size": 3875,
+        "sha256": "dd1134aedaba2d9a9038f32d2a3dfd7489af53303ea053e741b19e0c9b7fafe2"
+      },
+      {
+        "path": "delivery/reports/build/feed-adjustments.patch",
+        "size": 19359,
+        "sha256": "273d6b872ced9c5845356c772a5eb6de3df70ba8e7807fbb498650d33d4905cd"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0016/MSBuild_CommTrace_PID_115.txt",
+        "size": 3434,
+        "sha256": "87a3b8ecba0ab7c4eec4b082cf71a96f010dbbcb0d56cc6eebe45db9576ddba8"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0016/MSBuild_CommTrace_PID_156.txt",
+        "size": 1913,
+        "sha256": "aad43f15fd606fa9fe109bd510fc15480bab7293c65114c35ece2b7935676562"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0016/MSBuild_CommTrace_PID_84.txt",
+        "size": 222,
+        "sha256": "559718a6d4f922a4d53a3b081fe887f710bb1beb49b88972d17e3c0f118aebd6"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0016/apparmor-current.txt",
+        "size": 31,
+        "sha256": "22fa5c69fedce49d3195c8f92fb5e8ddb4a007099c06ad894f437264588a23f0"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0016/exit-code.txt",
+        "size": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0016/failure-collection.log",
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0016/kernel-core-policy.txt",
+        "size": 172,
+        "sha256": "8b8f94f0d1e62d518f0d2008b8e776a5924336a7e1a80791e828eb79ad25eee4"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0016/kernel.txt",
+        "size": 115,
+        "sha256": "32419891a5daacaeddd6b969dc758d4e47f869f5066af2ce2fce7bf39f557f14"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0016/memory-after.events",
+        "size": 70,
+        "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0016/memory-before.events",
+        "size": 70,
+        "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0016/msbuild-failure-capture.json",
+        "size": 98,
+        "sha256": "ff3f593d86779b71d50dc24bfb9219e5a81f2d633fe61f97f55b5d0129ea0af6"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0016/process-limits.txt",
+        "size": 1323,
+        "sha256": "56a7e5db9ef1c8db374e5ccb5819d6656e1e99b60253d19a2ecb3dd52259bcae"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0016/process-status.txt",
+        "size": 1137,
+        "sha256": "7df98d56e1b84946259cde4e196ad2c71faf8a1af9dc86722b6475a8c2e98fcd"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0017/MSBuild_CommTrace_PID_147.txt",
+        "size": 2667,
+        "sha256": "1825f201e4951bfed9e8031a036121a7bd3818d149e679883d460d28eac51b38"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0017/MSBuild_CommTrace_PID_88.txt",
+        "size": 2799,
+        "sha256": "3e2ee57304903e478fb143e100087700922868753f115b992c9bc4febf46dd7f"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0017/apparmor-current.txt",
+        "size": 31,
+        "sha256": "22fa5c69fedce49d3195c8f92fb5e8ddb4a007099c06ad894f437264588a23f0"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0017/exit-code.txt",
+        "size": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0017/failure-collection.log",
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0017/kernel-core-policy.txt",
+        "size": 172,
+        "sha256": "8b8f94f0d1e62d518f0d2008b8e776a5924336a7e1a80791e828eb79ad25eee4"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0017/kernel.txt",
+        "size": 115,
+        "sha256": "32419891a5daacaeddd6b969dc758d4e47f869f5066af2ce2fce7bf39f557f14"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0017/memory-after.events",
+        "size": 70,
+        "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0017/memory-before.events",
+        "size": 70,
+        "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0017/msbuild-failure-capture.json",
+        "size": 98,
+        "sha256": "ff3f593d86779b71d50dc24bfb9219e5a81f2d633fe61f97f55b5d0129ea0af6"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0017/process-limits.txt",
+        "size": 1323,
+        "sha256": "56a7e5db9ef1c8db374e5ccb5819d6656e1e99b60253d19a2ecb3dd52259bcae"
+      },
+      {
+        "path": "delivery/reports/diagnostics/container-0017/process-status.txt",
+        "size": 1137,
+        "sha256": "7fa6936d0ae18e59c8fe7de7c8f80e5b4b9c7760c90315bb6fa28aea8a8282a5"
+      },
+      {
+        "path": "delivery/reports/diagnostics/host/core-policy.txt",
+        "size": 128,
+        "sha256": "a31577225379f578574187e03b18914e8c8b2bf8f1ce487666e782fe9c418860"
+      },
+      {
+        "path": "delivery/reports/diagnostics/host/kernel.txt",
+        "size": 48284,
+        "sha256": "dd48e478c6d4072a9debbc6018895b06fed71bc5218183405e15a9d383aa34d2"
+      },
+      {
+        "path": "delivery/reports/prepare/identity.json",
+        "size": 1026,
+        "sha256": "b78af2f781a3597486d3ea89abdde97c5df4581c24099bca0e613f8d637f185c"
+      }
+    ],
+    "rawFacts": {
+      "producerStatus": "diagnostic-only",
+      "producerKind": "musl-sdk-producer-diagnostic",
+      "diagnosticPtrace": true,
+      "productionQualification": false,
+      "fullGraphRestore": "passed",
+      "originalTaskHostScan": "passed",
+      "fullSdkCompilation": false,
+      "newBinaries": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sourceSecurity": {
+        "restore": {
+          "exitCode": 0,
+          "apparmor": "crun//&unconfined (unconfined)",
+          "uid": [
+            "1001",
+            "1001",
+            "1001",
+            "1001"
+          ],
+          "gid": [
+            "1001",
+            "1001",
+            "1001",
+            "1001"
+          ],
+          "noNewPrivs": 1,
+          "seccomp": 2,
+          "capabilities": {
+            "CapInh": "0000000000080000",
+            "CapPrm": "0000000000080000",
+            "CapEff": "0000000000080000",
+            "CapBnd": "0000000000080000",
+            "CapAmb": "0000000000080000"
+          }
+        },
+        "originalScanner": {
+          "exitCode": 0,
+          "apparmor": "crun//&unconfined (unconfined)",
+          "uid": [
+            "1001",
+            "1001",
+            "1001",
+            "1001"
+          ],
+          "gid": [
+            "1001",
+            "1001",
+            "1001",
+            "1001"
+          ],
+          "noNewPrivs": 1,
+          "seccomp": 2,
+          "capabilities": {
+            "CapInh": "0000000000080000",
+            "CapPrm": "0000000000080000",
+            "CapEff": "0000000000080000",
+            "CapBnd": "0000000000080000",
+            "CapAmb": "0000000000080000"
+          }
+        }
+      },
+      "hostKernelAppArmorDenialCount": 0
+    }
+  },
+  "localControls": {
+    "architecture": "aarch64",
+    "host": "WSL native Linux",
+    "containerUser": 31024,
+    "apparmorEnabled": false,
+    "seccompEnabled": true,
+    "capDrop": "all",
+    "noNewPrivileges": true,
+    "results": [
+      {
+        "scope": "Original TaskHostFactory sources, official SDK tree and original allowlist",
+        "files": 4907,
+        "detectedBinaries": 3231,
+        "exitCode": 0
+      },
+      {
+        "scope": "Exact original BinaryToolKit.csproj package pins and full clean VMR",
+        "files": 81232,
+        "seconds": 15.6578106,
+        "newBinariesBytes": 0,
+        "exitCode": 0
+      },
+      {
+        "scope": "Original build.sh, NoTargets init project, default node reuse",
+        "scanSeconds": 16.1424333,
+        "newBinariesBytes": 0,
+        "scannerPassed": true,
+        "outerExitCode": 1,
+        "outerFailure": "Post-scan Publish=true lacks UnifiedBuild.Tasks.dll in the scoped diagnostic; original scanner completed."
+      },
+      {
+        "scope": "Original full graph restore with Build=false, Publish=false and normal out-of-process worker",
+        "seconds": 30.87,
+        "exitCode": 0,
+        "errors": 0,
+        "warnings": 0
+      }
+    ],
+    "interpretation": "The full native source and m:2 paths pass locally with AppArmor disabled; this alone does not establish the GitHub failure cause."
+  },
+  "sources": [
+    {
+      "role": "Matching bootstrap runtime implementation",
+      "url": "https://github.com/dotnet/runtime/blob/v10.0.12/src/coreclr/pal/src/exception/signal.cpp#L974",
+      "finding": "Activation injection uses SIGRTMIN; an unexpected pthread_kill failure calls PROCAbort."
+    },
+    {
+      "role": "Official runtime repository, diagnosed incident and maintainer response",
+      "url": "https://github.com/dotnet/runtime/issues/136603",
+      "finding": "Denied thread-directed activation signals were diagnosed as an environment-caused GC suspension abort; improved error logging was accepted."
+    },
+    {
+      "role": "Exact shipped containers/common template",
+      "url": "https://github.com/containers/common/blob/v0.57.4/pkg/apparmor/apparmor_linux_template.go",
+      "finding": "Own-profile signal/ptrace permissions name the literal profile and do not include the observed stacked crun peer."
+    },
+    {
+      "role": "First-party application incident, not a Podman maintainer report",
+      "url": "https://github.com/TetronIO/JIM/issues/1953",
+      "finding": "Reports the same Ubuntu 24.04/rootful Podman 4.9.3 profile, own-GC-signal/ABRT denials and stacked crun peer; a same-host Docker control passed."
+    },
+    {
+      "role": "Related older containers/common runtime-receive defect",
+      "url": "https://github.com/containers/common/issues/1898",
+      "finding": "Concerns receiving signals from confined crun, not proof of a fix for the observed own-thread stacked-peer send failure."
+    },
+    {
+      "role": "Official container runtime repository issue",
+      "url": "https://github.com/containerd/containerd/issues/14485",
+      "finding": "Describes own-process signal and ptrace failure when an exact peer rule encounters a stacked profile."
+    },
+    {
+      "role": "Open proposed container runtime policy correction, checked 2026-11-07",
+      "url": "https://github.com/containerd/containerd/pull/14487",
+      "finding": "Proposes exact own-stacked-peer permissions; no released fixed-version guarantee is inferred."
+    }
+  ],
+  "interpretation": {
+    "auditSignalNames": "AppArmor rtmin+3 is an audit signal name, not musl SIGRTMIN plus three.",
+    "confidence": "Authenticated observations and primary runtime behavior strongly support host-policy interference; full production qualification remains separate.",
+    "avoids": "No scanner/allowlist/test/ELF gate relaxation, SDK patch, global host LSM/sysctl change, or product availability follows from these diagnostics."
+  },
+  "normalDocker": {
+    "state": "pending-actual-normal-producer-evidence",
+    "intendedPolicy": {
+      "engine": "rootful Docker",
+      "apparmor": "engine-default",
+      "seccomp": "engine-default",
+      "capDrop": "all",
+      "noNewPrivileges": true
+    },
+    "evidenceRequirements": [
+      "Actual Docker client/server version and selected engine-info bytes",
+      "Actual source and SDK-free worker process AppArmor/NoNewPrivs/capability/seccomp status",
+      "Both native CPUs, unchanged VMR source, all six producer stages and independent public consumer qualification"
+    ],
+    "sourceAdmission": false
+  }
+}

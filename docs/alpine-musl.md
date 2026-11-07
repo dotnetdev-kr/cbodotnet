@@ -92,6 +92,14 @@ package transaction and source/bootstrap input is retained in evidence.
 The unmodified upstream binary scanner, upstream tests, corresponding sources,
 ELF dependency audit and native SDK verification must all pass.
 
+The [native host investigation](musl-native-host-validation.json) records the
+Ubuntu runner's Podman/AppArmor signal-denial evidence and the isolated restore
+and scanner controls. Normal producers use rootful Docker with its default
+enforced AppArmor and seccomp policies, dropped capabilities and non-root users.
+Admission binds the actual engine version, kernel, daemon settings and observed
+process security to the retained evidence. Source-only diagnostic runs use a
+separate mode that cannot enter the qualification catalog.
+
 `musl-release.yml` then runs the `producer`, `archive`, `apk` and `oci` phases.
 Consumer promotion reconstructs candidates from the admitted SDK and verifies
 the actual GitHub artifact ZIP digest and native job identity before signing.
