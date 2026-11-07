@@ -165,7 +165,7 @@ class Registry:
             write_token=authentication.get('token') or authentication.get('access_token')
             require(isinstance(write_token,str) and 0<len(write_token)<=16384,'Scoped GHCR push token is absent')
             tag=reference[len(IMAGE_REPOSITORY)+1:]
-            # GHCR does not promise tag compare-and-swap. Main-workflow global
+            # GHCR does not promise tag compare-and-swap. Main-workflow OCI-channel
             # concurrency serializes our publishers; absence + exact raw-byte
             # pre/post checks remain mandatory. This header is only extra defense.
             request=urllib.request.Request('https://ghcr.io/v2/'+REGISTRY_NAME+'/manifests/'+tag,data=raw,method='PUT',

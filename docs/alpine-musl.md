@@ -111,6 +111,9 @@ explicit musl RID, while the original test harness receives portable OS
 traits and accepted skips are retained.
 
 `musl-release.yml` then runs the `producer`, `archive`, `apk` and `oci` phases.
+After the successful producer is published and admitted in the source catalog,
+the three consumer channels may run in parallel. Channel-specific concurrency
+serializes repeated publishers, including the canonical OCI index writer.
 Consumer promotion reconstructs candidates from the admitted SDK and verifies
 the actual GitHub artifact ZIP digest and native job identity before signing.
 The APK signer changes only the signature envelope; original compressed control

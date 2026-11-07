@@ -40,7 +40,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: isolated-musl-release
+  group: isolated-musl-release-${{ inputs.channel }}
   cancel-in-progress: false
 
 env:
