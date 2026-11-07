@@ -69,6 +69,42 @@ jobs:
             --attempt "$PRODUCER_ATTEMPT" --output "$RUNNER_TEMP/musl-received"
           python3 scripts/musl_release.py stage-producer --received "$RUNNER_TEMP/musl-received" \
             --output "$RUNNER_TEMP/musl-source-stage"
+      - name: Retain small authenticated host evidence for independent release review
+        run: |
+          python3 - <<'PY'
+          import json,os,sys
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from downstream_release import descriptor,encoded,ordinary_file
+          root=Path(os.environ['RUNNER_TEMP'])
+          received=json.loads(ordinary_file(root/'musl-received/received.json').read_bytes())
+          result=dict(schemaVersion=1,kind='independently-validated-musl-producer-hosts',
+              status='passed',sourceAdmission=False,runId=received['runId'],runAttempt=received['runAttempt'],
+              projectCommit=received['projectCommit'],sourceManifest=descriptor(root/'musl-source-stage/release-manifest.json'),
+              architectures={})
+          for arch in ('x64','aarch64'):
+              tree=root/'musl-received'/(arch+'-received')/'delivery'
+              identity=json.loads(ordinary_file(tree/'reports/prepare/identity.json').read_bytes())
+              processes=[]
+              for directory in sorted((tree/'reports/diagnostics').glob('container-*')):
+                  status_file=ordinary_file(directory/'process-status.txt')
+                  profile_file=ordinary_file(directory/'apparmor-current.txt')
+                  status=dict(line.split(':',1) for line in status_file.read_text().splitlines() if ':' in line)
+                  processes.append(dict(directory=directory.name,statusSha256=descriptor(status_file)['sha256'],
+                      appArmor=profile_file.read_text().strip('\0\r\n '),appArmorSha256=descriptor(profile_file)['sha256'],
+                      process={name:status[name].strip() for name in ('Uid','Gid','CapInh','CapPrm','CapEff','CapBnd','CapAmb','NoNewPrivs','Seccomp')}))
+              result['architectures'][arch]=dict(prepareIdentity=identity,
+                  producerValidation=descriptor(tree/'producer-validation.json'),
+                  artifact=received['architectures'][arch]['artifact'],
+                  artifactZip=received['architectures'][arch]['artifactZip'],processes=processes)
+          (root/'musl-source-hosts.json').write_bytes(encoded(result))
+          PY
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: musl-source-hosts-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/musl-source-hosts.json
+          if-no-files-found: error
+          retention-days: 30
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: musl-source-stage-${{ github.run_id }}-${{ github.run_attempt }}
