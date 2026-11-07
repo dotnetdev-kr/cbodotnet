@@ -788,6 +788,15 @@ def load_json(path):
     return json.loads(path.read_text(encoding='utf-8'), object_pairs_hook=unique)
 
 
+def validate_retained_input_hook(index_path, expected_sha256):
+    """Select the actual built VMR root, independently of corresponding-source names."""
+    with index_path.open(encoding='utf-8') as index:
+        records = [row for line in index if (row := json.loads(line)).get('path')
+                   == 'vmr/repo-projects/Directory.Build.targets']
+    require(len(records) == 1 and records[0].get('sha256') == expected_sha256,
+            'The retained actual VMR source must contain the recorded pre-cleanup observation hook')
+
+
 def delivery_index(release, rows):
     """Bind a complete ordinary tree without interpreting untrusted paths."""
     require(isinstance(rows, list) and rows, 'A nonempty delivery inventory is required')
@@ -1008,11 +1017,7 @@ def validate(release):
                         in imported_keys for p in record['packages'])
                 and path.read_bytes() == (release / 'reports/ci-inputs/restored-inputs' / path.name).read_bytes(),
                 'Pre-cleanup input inventory must be retained, source-packaged and aggregated unchanged')
-    with (release / 'sources' / source['index']['path']).open(encoding='utf-8') as index:
-        target_records = [json.loads(line) for line in index if 'vmr/repo-projects/Directory.Build.targets' in line]
-    require(len(target_records) == 1 and target_records[0]['path'] == 'vmr/repo-projects/Directory.Build.targets'
-            and target_records[0]['sha256'] == hook.get('adjustedSha256'),
-            'The retained actual VMR source must contain the recorded pre-cleanup observation hook')
+    validate_retained_input_hook(release / 'sources' / source['index']['path'], hook.get('adjustedSha256'))
     smoke = load_json(release / 'reports/verify/sdk/verification.json')
     required_checks = ['consoleDllExecution', 'consoleApphostExecution', 'rsaSha256SignAndVerify',
                        'cryptographicRandomBytes', 'frFrDecimalFormatting', 'aspNetCoreLoopbackHttp']

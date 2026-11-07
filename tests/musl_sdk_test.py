@@ -417,6 +417,22 @@ class ActualElfBindingTests(unittest.TestCase):
 
 
 class ImportedInputObservationTests(unittest.TestCase):
+    def test_actual_vmr_hook_is_distinct_from_shared_source_and_other_json_fields(self):
+        actual = dict(path='vmr/repo-projects/Directory.Build.targets', sha256='a' * 64)
+        shared = dict(path='shared-vmr/repo-projects/Directory.Build.targets', sha256='b' * 64)
+        unrelated = dict(path='orchestration/report.json', sha256='c' * 64,
+                         note='vmr/repo-projects/Directory.Build.targets')
+        with tempfile.TemporaryDirectory() as temporary:
+            index = Path(temporary) / 'source-index.jsonl'
+            def check(rows):
+                index.write_text(''.join(json.dumps(row) + '\n' for row in rows), encoding='utf-8')
+                M.validate_retained_input_hook(index, 'a' * 64)
+            check([shared, unrelated, actual])
+            for rows in ([shared, unrelated], [shared, actual, actual],
+                         [shared, dict(actual, sha256='d' * 64)]):
+                with self.subTest(rows=rows), self.assertRaisesRegex(ValueError, 'recorded pre-cleanup'):
+                    check(rows)
+
     def test_actual_root_hook_preserves_embedded_project_xml_and_comments(self):
         original = b'''\xef\xbb\xbf<Project>
           <PropertyGroup><Generated><![CDATA[<Project><PropertyGroup /></Project>]]></Generated></PropertyGroup>

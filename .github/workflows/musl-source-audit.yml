@@ -1,0 +1,57 @@
+name: Revalidate retained musl source diagnostics
+run-name: Read-only musl audit source=${{ inputs.source_run_id }}/${{ inputs.source_run_attempt }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Completed failed native source run to inspect; never eligible for publication
+        required: true
+        type: string
+      source_run_attempt:
+        description: Exact source run attempt
+        required: true
+        default: '1'
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  audit:
+    if: github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    name: Inspect retained ${{ matrix.arch }} source evidence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64, aarch64]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Authenticate failed-run evidence and independently revalidate its sealed subset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ inputs.source_run_id }}
+          SOURCE_ATTEMPT: ${{ inputs.source_run_attempt }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REPOSITORY" == dotnetdev-kr/cbodotnet && "$GITHUB_REF" == refs/heads/main ]]
+          [[ "$GITHUB_WORKFLOW_SHA" == "$GITHUB_SHA" && $(git rev-parse HEAD) == "$GITHUB_SHA" ]]
+          python3 scripts/musl_source_audit.py --run-id "$SOURCE_RUN" --attempt "$SOURCE_ATTEMPT" \
+            --arch '${{ matrix.arch }}' --workspace "$RUNNER_TEMP/musl-source-audit-${{ matrix.arch }}" \
+            --output "$RUNNER_TEMP/musl-source-audit-result-${{ matrix.arch }}.json"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: musl-source-audit-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/musl-source-audit-result-${{ matrix.arch }}.json
+          if-no-files-found: error
+          retention-days: 30
