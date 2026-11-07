@@ -2,6 +2,7 @@
 """Build .NET 10.0.403 natively under pinned Alpine; never publishes or signs."""
 import argparse
 import datetime as dt
+import fnmatch
 import hashlib
 import importlib.util
 import json
@@ -10,6 +11,7 @@ from pathlib import Path, PurePosixPath
 import platform
 import re
 import shutil
+import stat
 import struct
 import subprocess
 import sys
@@ -118,6 +120,50 @@ def prepare_image_context(profile, context, root=ROOT):
     shutil.copyfile(seeder, context / 'seed-apk-cache.sh')
 
 
+def capture_failure_logs(destination):
+    """Preserve bounded ordinary MSBuild failures without following tmp links."""
+    destination = ordinary(destination)
+    output = destination / 'msbuild-failures'
+    output.mkdir()
+    result = dict(schemaVersion=1, kind='msbuild-failure-log-capture', files=[], skipped=[])
+    total = 0
+    for directory, prefix in [('/tmp', 'tmp'), ('/tmp/MSBuildTemproot', 'temproot')]:
+        try:
+            parent = os.open(directory, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+        except FileNotFoundError:
+            continue
+        except OSError as error:
+            result['skipped'].append(dict(directory=directory, reason=str(error)))
+            continue
+        try:
+            for name in sorted(os.listdir(parent)):
+                if not fnmatch.fnmatchcase(name, 'MSBuild*.failure.txt'):
+                    continue
+                entry = dict(directory=directory, name=name)
+                try:
+                    descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK, dir_fd=parent)
+                    with os.fdopen(descriptor, 'rb') as incoming:
+                        info = os.fstat(incoming.fileno())
+                        require(stat.S_ISREG(info.st_mode), 'Not an ordinary file')
+                        require(0 <= info.st_size <= 16 * 1024**2, 'Failure log exceeds 16 MiB')
+                        require(len(result['files']) < 128 and total + info.st_size <= 64 * 1024**2,
+                                'Failure log capture exceeds its total bound')
+                        data = incoming.read(16 * 1024**2 + 1)
+                        require(len(data) == info.st_size, 'Failure log changed size during capture')
+                    filename = prefix + '--' + hashlib.sha256(name.encode()).hexdigest()[:16] + '.failure.txt'
+                    with (output / filename).open('xb') as outgoing:
+                        outgoing.write(data)
+                    result['files'].append(dict(entry, path='msbuild-failures/' + filename,
+                        bytes=len(data), sha256=hashlib.sha256(data).hexdigest()))
+                    total += len(data)
+                except (OSError, ValueError) as error:
+                    result['skipped'].append(dict(entry, reason=str(error)))
+        finally:
+            os.close(parent)
+    write(destination / 'msbuild-failure-capture.json', result)
+    return result
+
+
 class Producer:
     def __init__(self, args):
         self.args = args
@@ -185,7 +231,7 @@ class Producer:
     def container_security_options(self, *, source):
         options = ['--cap-drop=all', '--security-opt=no-new-privileges']
         if source and self.diagnostic_ptrace:
-            options.append('--cap-add=SYS_PTRACE')
+            options += ['--cap-add=SYS_PTRACE', '--security-opt=apparmor=unconfined']
         return options
 
     def bootstrap_environment(self):
@@ -209,9 +255,17 @@ class Producer:
         script = ('if [ -r /sys/fs/cgroup/memory.events ]; then '
                   'cat /sys/fs/cgroup/memory.events > /diag/memory-before.events; fi; '
                   'cat /proc/self/limits > /diag/process-limits.txt; '
+                  'cat /proc/self/status > /diag/process-status.txt; '
+                  'if [ -r /proc/self/attr/current ]; then cat /proc/self/attr/current > /diag/apparmor-current.txt; fi; '
+                  'uname -a > /diag/kernel.txt; '
+                  'for policy in /proc/sys/kernel/core_pattern /proc/sys/fs/suid_dumpable /proc/sys/kernel/yama/ptrace_scope; do '
+                  'if [ -r "$policy" ]; then printf "%s=" "$policy" >> /diag/kernel-core-policy.txt; '
+                  'cat "$policy" >> /diag/kernel-core-policy.txt; fi; done; '
                   '"$@"; result=$?; '
                   'if [ -r /sys/fs/cgroup/memory.events ]; then '
                   'cat /sys/fs/cgroup/memory.events > /diag/memory-after.events; fi; '
+                  'python3 /project/scripts/musl-sdk.py capture-failure-logs --destination /diag '
+                  '> /diag/failure-collection.log 2>&1 || :; '
                   'printf "%s\\n" "$result" > /diag/exit-code.txt; exit "$result"')
         return ['sh', '-c', script, 'musl-sdk-observed-command', *command]
 
@@ -311,6 +365,7 @@ class Producer:
               targetRid=self.id['rid'], libc='musl', sourceCommit=SOURCE, sharedVmrCommit=SHARED,
               projectCommit=self.project, runId=self.args.run_id, runAttempt=self.args.run_attempt,
               diagnosticPtrace=self.diagnostic_ptrace,
+              sourceAppArmorPolicy='unconfined' if self.diagnostic_ptrace else 'engine-default',
               buildId=self.args.build_id, imageId=self.image, verificationImageId=self.verify_image,
               bootstrapRoot='/vmr/.dotnet', profile=dict(path=self.profile_path.name,
               **fingerprint(self.profile_path)), nativeArchitecture=platform.machine(), emulation=False))
@@ -514,12 +569,13 @@ class Producer:
                 if self.diagnostic_ptrace:
                     write(self.output / 'producer-validation.json', dict(schemaVersion=1, status='diagnostic-only',
                         kind='musl-sdk-producer-diagnostic', diagnosticPtrace=True, productionQualification=False,
+                        sourceAppArmorPolicy='unconfined',
                         sdkVersion=SDK, targetRid=self.id['rid'], libc='musl', architecture=self.args.arch,
                         projectCommit=self.project, sourceCommit=SOURCE, sharedVmrCommit=SHARED,
                         runId=self.args.run_id, runAttempt=self.args.run_attempt,
                         plannedStages=['prepare', 'build'], stages=[load_json(self.reports / 'stages' / (name + '.json'))
                             for name in ['prepare', 'build'] if (self.reports / 'stages' / (name + '.json')).is_file()],
-                        scope='Source-only crash diagnosis with SYS_PTRACE. No scan/test/collect/consumer qualification or admission.'))
+                        scope='Source-only crash diagnosis with SYS_PTRACE and AppArmor unconfined. No scan/test/collect/consumer qualification or admission.'))
         if self.diagnostic_ptrace:
             return
         self.seal()
@@ -634,6 +690,7 @@ def validate(release):
                 dt.datetime.fromisoformat(stages[after]['startedAtUtc']), 'Producer stages are out of order')
     prepare = load_json(release / 'reports/prepare/identity.json')
     require(prepare.get('diagnosticPtrace') is False, 'Diagnostic ptrace source construction cannot qualify')
+    require(prepare.get('sourceAppArmorPolicy') == 'engine-default', 'Diagnostic AppArmor source construction cannot qualify')
     sdk = load_json(release / 'producer-sdk.json')
     for record in [prepare, sdk]:
         for key in ['sdkVersion', 'targetRid', 'libc', 'sourceCommit', 'sharedVmrCommit',
@@ -657,6 +714,8 @@ def validate(release):
                 require('--cap-drop=all' in command and '--security-opt=no-new-privileges' in command
                     and '--privileged' not in command and not any(str(value).startswith('--cap-add') for value in command),
                     'Qualified source and consumer containers must retain dropped capabilities without diagnostic ptrace')
+                require(not any(str(value).startswith('--security-opt=apparmor=') for value in command),
+                    'Diagnostic AppArmor policy overrides cannot qualify')
     profile_path = ROOT / 'profiles' / ('dotnet-' + SDK + '-linux-musl-' + result['architecture'] + '.json')
     require(prepare.get('profile', {}).get('path') == profile_path.name
             and all(prepare['profile'].get(k) == v for k, v in fingerprint(profile_path).items()),
@@ -827,14 +886,18 @@ def main():
         run.add_argument('--' + name, required=True)
     check = commands.add_parser('validate')
     check.add_argument('--release-dir', type=Path, required=True)
+    capture = commands.add_parser('capture-failure-logs')
+    capture.add_argument('--destination', type=Path, required=True)
     args = parser.parse_args()
     if args.command == 'run':
         require(re.fullmatch(r'[0-9]{8}\.[1-9][0-9]*', args.build_id)
                 and all(re.fullmatch(r'[1-9][0-9]*', item) for item in [args.run_id, args.run_attempt]),
                 'Invalid build/run identity')
         Producer(args).execute()
-    else:
+    elif args.command == 'validate':
         validate(args.release_dir)
+    else:
+        capture_failure_logs(args.destination)
 
 
 if __name__ == '__main__':

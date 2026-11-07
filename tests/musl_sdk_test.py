@@ -114,13 +114,16 @@ class DiagnosticPtraceTests(unittest.TestCase):
             producer.container(['consumer-probe'],source=False)
             source,consumer = producer.commands
             self.assertIn('--cap-add=SYS_PTRACE',source)
+            self.assertIn('--security-opt=apparmor=unconfined',source)
             for command in (source,consumer):
                 self.assertIn('--cap-drop=all',command)
                 self.assertIn('--security-opt=no-new-privileges',command)
             self.assertFalse(any(value.startswith('--cap-add') for value in consumer))
+            self.assertFalse(any(value.startswith('--security-opt=apparmor=') for value in consumer))
             producer.diagnostic_ptrace = False
             producer.container(['ordinary-source'],source=True)
             self.assertFalse(any(value.startswith('--cap-add') for value in producer.commands[-1]))
+            self.assertFalse(any(value.startswith('--security-opt=apparmor=') for value in producer.commands[-1]))
 
     def test_diagnostic_success_and_failure_stop_after_build_and_remain_unqualified(self):
         for failed in (False,True):
@@ -139,6 +142,7 @@ class DiagnosticPtraceTests(unittest.TestCase):
                 result = M.load_json(producer.output/'producer-validation.json')
                 self.assertEqual('diagnostic-only',result['status'])
                 self.assertTrue(result['diagnosticPtrace']);self.assertFalse(result['productionQualification'])
+                self.assertEqual('unconfined',result['sourceAppArmorPolicy'])
                 self.assertEqual(['prepare','build'],[stage['stage'] for stage in result['stages']])
                 self.assertEqual('failed' if failed else 'passed',result['stages'][-1]['status'])
                 with self.assertRaisesRegex(ValueError,'Diagnostic ptrace'):M.validate(producer.output)
