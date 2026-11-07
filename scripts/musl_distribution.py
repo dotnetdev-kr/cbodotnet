@@ -189,7 +189,7 @@ def apk_candidate(architecture, revision, workspace, output):
     lifecycle_file=workspace/'Lifecycle.Containerfile'
     lifecycle_file.write_text('FROM '+ARCHIVE.BASES[architecture]+'\nRUN apk add --no-cache '
         +' '.join(name+'='+version for name,version in ARCHIVE.RUNTIME_PACKAGES.items())
-        +' python3=3.14.10-r1 binutils=2.45.1-r1 dotnet10-sdk=10.0.303-r2 '
+        +' python3=3.14.10-r1 binutils=2.45.1-r1 openssl=3.5.9-r0 dotnet10-sdk=10.0.303-r2 '
         '&& addgroup -g 10001 cbot-musl && adduser -D -u 10001 -G cbot-musl cbot-musl\n',encoding='utf-8')
     lifecycle_image=image+'-lifecycle'
     ARCHIVE.run(['docker','build','--pull=false','-f',lifecycle_file,'-t',lifecycle_image,context])
