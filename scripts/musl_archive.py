@@ -288,9 +288,11 @@ def resolve_system_path(candidate, root):
     return resolved if resolved.is_file() else None
 
 
-def audit_elf(payload, architecture, target_policy=None, *, system_root=Path('/'), native=True):
+def audit_elf(payload, architecture, target_policy=None, *, system_root=Path('/'), native=True, entrypoint='dotnet'):
     """Inspect every regular ELF; resolve host DT_NEEDED transitively to stock APKs."""
     require(architecture in ARCHITECTURES, 'Unknown musl audit architecture')
+    require(isinstance(entrypoint, str) and re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._+-]*', entrypoint),
+            'An ordinary ELF entrypoint filename is required')
     payload = Path(payload).resolve(strict=True)
     system_root = Path(system_root).resolve(strict=True)
     if native:
@@ -397,14 +399,14 @@ def audit_elf(payload, architecture, target_policy=None, *, system_root=Path('/'
         else:
             record = inspected(path)
             record['path'] = relative
-            if relative == 'dotnet':
+            if relative == entrypoint:
                 require(record['interpreter'] == expected['interpreter'] and record['elfType'] in {'DYN', 'EXEC'},
-                        'Musl SDK host lacks the matching native interpreter')
+                        'Musl entrypoint lacks the matching native interpreter')
             record['dependencies'] = closure(path, record, {str(path)})
             record['disposition'] = 'host-runtime-or-tool'
             rows.append(record)
-    require(any(row['path'] == 'dotnet' and row['disposition'] == 'host-runtime-or-tool' for row in rows),
-            'Complete payload audit did not find the native dotnet host')
+    require(any(row['path'] == entrypoint and row['disposition'] == 'host-runtime-or-tool' for row in rows),
+            'Complete payload audit did not find the native ' + entrypoint + ' host')
     require(used_classifications == set(classified), 'Unused non-host target classification is not permitted')
     return dict(schemaVersion=1, scope='musl-complete-payload-elf-closure', status='passed', native=native, libc='musl',
         architecture=architecture, targetRid=expected['rid'], elfFiles=rows, symlinks=links,

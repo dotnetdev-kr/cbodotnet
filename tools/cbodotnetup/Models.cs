@@ -19,7 +19,8 @@ internal sealed record Catalog(int SchemaVersion, string Kind, long Sequence, Da
     SdkRelease[] Sdks, ToolRelease[] Tools, Dictionary<string, string> Channels,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] Asset? CompatibilityCatalog = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ProviderRelease[]? Providers = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ProviderBinding[]? ProviderBindings = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ProviderBinding[]? ProviderBindings = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Libc = null);
 internal sealed record ProviderRelease(string ProviderId, string Version, int Revision, string Rid, string Root,
     Asset Archive, string ManifestSha256, string PolicySha256, string Libc, string MinimumGlibc,
     string CpuBaseline, string[] CpuFlags, Target[] Targets, string SecuritySupport, JsonElement Manifest,

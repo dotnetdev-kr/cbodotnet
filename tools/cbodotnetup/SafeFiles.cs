@@ -10,6 +10,7 @@ namespace Community.DotNet.Up;
 internal static partial class SafeFiles
 {
     internal const string Owner = "cbodotnetup-v1";
+    internal static string StatExecutable => File.Exists("/usr/bin/stat") ? "/usr/bin/stat" : "/bin/stat";
     internal static void Require([DoesNotReturnIf(false)] bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);
@@ -34,16 +35,21 @@ internal static partial class SafeFiles
         Require(target.StartsWith(Path.GetFullPath(root) + Path.DirectorySeparatorChar, StringComparison.Ordinal), "Path escaped its owned root");
         return target;
     }
-    internal static void PrivateDirectory(string path)
+    internal static void PrivateDirectory(string path, bool preserveExistingMode = false)
     {
         OrdinaryPath(path);
+        var existed = Directory.Exists(path);
         Directory.CreateDirectory(path);
         if (OperatingSystem.IsLinux())
         {
             var mode = File.GetUnixFileMode(path);
             Require((mode & (UnixFileMode.GroupWrite | UnixFileMode.OtherWrite)) == 0, "Owned directory is writable by another user: " + path);
-            Require(Command("/usr/bin/stat", ["--format=%u", "--", path]).Trim() == GetEuid().ToString(), "Owned directory belongs to another user");
-            File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+            Require(Command(StatExecutable, ["--format=%u", "--", path]).Trim() == GetEuid().ToString(), "Owned directory belongs to another user");
+            // The musl and glibc namespaces may share an explicitly selected
+            // owned parent. Validate its owner and write protection without
+            // changing the other libc's existing directory permissions.
+            if (!preserveExistingMode || !existed)
+                File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
         }
     }
     internal static string Hash(string path)

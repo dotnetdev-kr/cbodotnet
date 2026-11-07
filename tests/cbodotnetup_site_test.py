@@ -16,6 +16,61 @@ import cbodotnetup_site as SITE
 
 
 class InstallerSiteGates(unittest.TestCase):
+    def musl_fixture(self):
+        from downstream_release import encoded
+        status,raws=self.provider_fixture();glibc=json.loads(raws['catalog.json'])
+        catalog={key:copy.deepcopy(value) for key,value in glibc.items() if key in SITE.CATALOG_FIELDS}
+        tools=[dict(version=version,rid=rid) for version in ('0.5.0','0.5.1') for rid in ('linux-musl-x64','linux-musl-arm64')]
+        catalog.update(schemaVersion=4,libc='musl',tools=tools,channels={'10.0':'10.0.403-r1'},
+            sdks=[dict(sdkVersion='10.0.403',revision=1,rid=rid) for rid in ('linux-musl-x64','linux-musl-arm64')])
+        baseline=dict(catalog,sequence=catalog['sequence']-1,tools=[t for t in tools if t['version']=='0.5.0'])
+        raws.update({'catalog-musl.json':encoded(catalog),'catalog-musl.json.asc':b'musl signature',
+            'catalog-musl-baseline.json':encoded(baseline),'catalog-musl-baseline.json.asc':b'musl baseline signature'})
+        status.update(version='0.5.1',muslCatalogSequence=catalog['sequence'],muslCatalogSha256=hashlib.sha256(raws['catalog-musl.json']).hexdigest())
+        for arch in ('x64','aarch64'):
+            observation=dict(status='passed',variant='alpine-3.24',architecture=arch,libc='musl',
+                bootstrapBinarySource='public-https',catalogSha256=status['muslCatalogSha256'])
+            status['publicNativeVerification'].append(dict(variant='alpine-3.24',architecture=arch,observation=observation))
+            observation=copy.deepcopy(observation);observation['bootstrapBinarySource']='protected-frozen-candidate'
+            status['nativeQualification'].append(dict(variant='alpine-3.24',architecture=arch,observation=observation))
+        freeze={'files':[dict(path=name,size=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+            for name,raw in raws.items() if not name.startswith('freeze.')]}
+        raws['freeze.json']=encoded(freeze)
+        base='https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-123/'
+        status['catalogRelease']['assets']=[dict(name=name,url=base+name,size=len(raw),sha256=hashlib.sha256(raw).hexdigest()) for name,raw in raws.items()]
+        return status,raws
+
+    def musl_modules(self,gate=None):
+        return {'cbodotnetup_providers':SimpleNamespace(validate_provider_catalog=MagicMock()),
+            'cbodotnetup_legacy':SimpleNamespace(validate_legacy_qualifications=MagicMock()),
+            'cbodotnetup_musl':SimpleNamespace(validate_catalog=MagicMock(),validate_qualifications=gate or MagicMock())}
+
+    def test_separate_musl_feed_preserves_all_glibc_endpoints_and_gates_both_native_phases(self):
+        status,raws=self.musl_fixture();gate=MagicMock();context,verify=self.io(raws)
+        with context,patch.dict(sys.modules,self.musl_modules(gate)),patch.object(SITE,'validate_additional_sdk_qualifications'),tempfile.TemporaryDirectory() as temporary:
+            output=Path(temporary);html=SITE.prepare(output,status)
+            for generation,source in (('v1','catalog-v1.json'),('v2','catalog-v2.json'),('v3','catalog.json'),('v4','catalog-musl.json')):
+                directory=output/'cbodotnetup'/('' if generation=='v1' else generation)
+                self.assertEqual((directory/'catalog.json').read_bytes(),raws[source])
+            self.assertIn('Native musl Alpine3.24.4',html);self.assertIn('cbodotnetup/v4/catalog.json',html)
+            self.assertEqual(verify.call_count,6);self.assertEqual(gate.call_count,2)
+            self.assertEqual([call.kwargs['public'] for call in gate.call_args_list],[False,True])
+            self.assertTrue(all(len(call.args[1])==2 for call in gate.call_args_list))
+
+    def test_musl_missing_native_phase_or_invalid_admission_publishes_no_feed(self):
+        for change in (lambda status:status['nativeQualification'].pop(),
+            lambda status:status['publicNativeVerification'][-1]['observation'].update(architecture='x64')):
+            status,raws=self.musl_fixture();change(status);context,unused=self.io(raws)
+            with context,patch.dict(sys.modules,self.musl_modules()),patch.object(SITE,'validate_additional_sdk_qualifications'),tempfile.TemporaryDirectory() as temporary:
+                output=Path(temporary)/'site'
+                with self.assertRaisesRegex(ValueError,'Both matching native musl'):SITE.prepare(output,status)
+                self.assertFalse(output.exists())
+        status,raws=self.musl_fixture();context,unused=self.io(raws)
+        with context,patch.dict(sys.modules,self.musl_modules(MagicMock(side_effect=ValueError('Musl proof required')))),patch.object(SITE,'validate_additional_sdk_qualifications'),tempfile.TemporaryDirectory() as temporary:
+            output=Path(temporary)/'site'
+            with self.assertRaisesRegex(ValueError,'Musl proof required'):SITE.prepare(output,status)
+            self.assertFalse(output.exists())
+
     def provider_fixture(self):
         from downstream_release import encoded
         status,raws=self.fixture()

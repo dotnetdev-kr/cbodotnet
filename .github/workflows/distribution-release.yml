@@ -70,7 +70,7 @@ env:
 jobs:
   build_installer:
     if: inputs.channel == 'installer' && inputs.source_run_id == '' && inputs.promotion_run_id == ''
-    name: Build SDK-free cbodotnetup on native ${{ matrix.arch }}
+    name: Build SDK-free${{ matrix.libc == 'musl' && ' musl' || '' }} cbodotnetup on native ${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 45
     strategy:
@@ -79,19 +79,32 @@ jobs:
         include:
           - arch: x64
             runner: ubuntu-24.04
+            libc: glibc
+            rid: linux-x64
           - arch: aarch64
             runner: ubuntu-24.04-arm
+            libc: glibc
+            rid: linux-arm64
+          - arch: x64
+            runner: ubuntu-24.04
+            libc: musl
+            rid: linux-musl-x64
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+            libc: musl
+            rid: linux-musl-arm64
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Authenticate the build SDK and publish NativeAOT in the pinned Rocky9 baseline
+      - name: Authenticate the build SDK and publish NativeAOT in the pinned native libc baseline
         env:
           ARCH: ${{ matrix.arch }}
-        run: python3 scripts/cbodotnetup-release.py build --arch "$ARCH" --workspace "$RUNNER_TEMP/cbodotnetup-build"
+          LIBC: ${{ matrix.libc }}
+        run: python3 scripts/cbodotnetup-release.py build --arch "$ARCH" --libc "$LIBC" --workspace "$RUNNER_TEMP/cbodotnetup-build"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: cbodotnetup-native-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          name: cbodotnetup-native-${{ matrix.rid }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/cbodotnetup-build/output
           retention-days: 30
           if-no-files-found: error
@@ -154,7 +167,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variant: [ubuntu-24.04, debian-13, fedora-45, rocky-9.8]
+        variant: [ubuntu-24.04, debian-13, fedora-45, rocky-9.8, alpine-3.24]
         arch: [x64, aarch64]
         include:
           - arch: x64
@@ -228,7 +241,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variant: [ubuntu-24.04, debian-13, fedora-45, rocky-9.8]
+        variant: [ubuntu-24.04, debian-13, fedora-45, rocky-9.8, alpine-3.24]
         arch: [x64, aarch64]
         include:
           - arch: x64
@@ -285,7 +298,7 @@ jobs:
         with:
           pattern: cbodotnetup-public-proof-*-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/installer-public-proof
-      - name: Require eight actual public native job/report ZIP proofs before enabling the feed
+      - name: Require ten actual public native job/report ZIP proofs before enabling the feeds
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 scripts/cbodotnetup-release.py activate --publication "$RUNNER_TEMP/installer-publication/publication.json" --bundle "$RUNNER_TEMP/installer-frozen" --reports "$RUNNER_TEMP/installer-public-proof" --output "$RUNNER_TEMP/cbodotnetup-status.json"

@@ -1,6 +1,5 @@
 using System.Net;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -10,23 +9,25 @@ internal sealed partial class Trust
 {
     internal const string Fingerprint = "D7D154B4B33C19A82B95B13688135410ACD9C0EA";
     internal const string CatalogUrl = "https://dotnetdev.kr/cbodotnet/cbodotnetup/v3/catalog.json";
+    internal const string MuslCatalogUrl = "https://dotnetdev.kr/cbodotnet/cbodotnetup/v4/catalog.json";
     private readonly string cache;
+    private readonly bool musl;
     private string? localCatalogDirectory;
-    internal Trust(string cache) { this.cache = cache; SafeFiles.PrivateDirectory(cache); }
+    internal Trust(string cache, string rid) { this.cache = cache; musl = NativeHost.IsMusl(rid); SafeFiles.PrivateDirectory(cache); }
     [GeneratedRegex(@"^[a-f0-9]{64}$", RegexOptions.CultureInvariant)] private static partial Regex ShaPattern();
     [GeneratedRegex(@"^[1-9][0-9]*\.[0-9]+\.[0-9]+$", RegexOptions.CultureInvariant)] internal static partial Regex VersionPattern();
-    internal static string Rid => RuntimeInformation.ProcessArchitecture switch
-    { Architecture.X64 => "linux-x64", Architecture.Arm64 => "linux-arm64", _ => throw new InvalidOperationException("Only Linux x64 and AArch64 are supported") };
+    internal static string Rid => NativeHost.Rid;
     internal static Target Host()
     {
         SafeFiles.Require(OperatingSystem.IsLinux() && SafeFiles.GetEuid() != 0, "Use cbodotnetup as a regular Linux user; do not run it with sudo");
         var os = File.ReadAllLines("/etc/os-release").Where(s => s.Contains('='))
             .Select(s => s.Split('=', 2)).ToDictionary(p => p[0], p => p[1].Trim('"'));
-        var target = new Target(os.GetValueOrDefault("ID", ""), os.GetValueOrDefault("VERSION_ID", ""), Rid);
-        SafeFiles.Require(new[] { ("ubuntu", "24.04"), ("debian", "13"), ("fedora", "45"), ("rocky", "9.8") }
-            .Contains((target.Os, target.VersionId)), "This operating system/version is not qualified for cbodotnetup");
-        SafeFiles.Require(!Directory.EnumerateFiles("/lib", "ld-musl-*.so.1").Any(), "musl is not supported");
-        return target;
+        var rid = Rid;
+        var alpine = NativeHost.IsMusl(rid);
+        SafeFiles.Require(!alpine || File.Exists(SafeFiles.StatExecutable), "Install the Alpine prerequisites before using cbodotnetup: apk add python3 ca-certificates gpg gpgv coreutils");
+        return NativeHost.Qualify(os.GetValueOrDefault("ID", ""), os.GetValueOrDefault("VERSION_ID", ""), rid,
+            alpine ? File.ReadAllText("/etc/alpine-release") : null,
+            alpine ? File.ReadLines("/lib/apk/db/installed").Where(line => line.StartsWith("P:", StringComparison.Ordinal)).Select(line => line[2..]) : []);
     }
     internal static void AssetValid(Asset asset, long maximum = 1024L * 1024 * 1024)
     {
@@ -43,9 +44,15 @@ internal sealed partial class Trust
     internal static int ArchiveSchema(SdkRelease sdk)
     {
         SafeFiles.Require(sdk is not null && sdk.SdkVersion is not null && VersionPattern().IsMatch(sdk.SdkVersion)
-            && sdk.Revision > 0 && sdk.Rid is "linux-x64" or "linux-arm64", "Malformed SDK archive identity");
+            && sdk.Revision > 0 && NativeHost.IsRid(sdk.Rid), "Malformed SDK archive identity");
         AssetValid(sdk.Archive);
-        var arch = sdk.Rid == "linux-x64" ? "x64" : "aarch64";
+        var arch = NativeHost.Architecture(sdk.Rid);
+        if (NativeHost.IsMusl(sdk.Rid))
+        {
+            SafeFiles.Require(sdk.Archive.Url == $"https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-archive-sdk-{sdk.SdkVersion}-r{sdk.Revision}/cbodotnet-sdk-{sdk.SdkVersion}-linux-musl-{arch}-r{sdk.Revision}.tar.gz",
+                "Musl archive must use the separate immutable native-musl release namespace");
+            return 4;
+        }
         var prefix = $"https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-archive-sdk-{sdk.SdkVersion}-r{sdk.Revision}/cbodotnet-sdk-{sdk.SdkVersion}-linux-{arch}";
         return sdk.Archive.Url == prefix + $"-branded-r{sdk.Revision}.tar.gz" ? 1
             : sdk.Archive.Url == prefix + $"-r{sdk.Revision}.tar.gz" ? 2
@@ -53,7 +60,8 @@ internal sealed partial class Trust
     }
     internal static void Validate(Catalog catalog, DateTimeOffset now, bool fresh = true)
     {
-        SafeFiles.Require(catalog is not null && catalog.SchemaVersion is 1 or 2 or 3 && catalog.Kind == "cbodotnetup-installation-catalog"
+        SafeFiles.Require(catalog is not null && catalog.SchemaVersion is 1 or 2 or 3 or 4 && catalog.Kind == "cbodotnetup-installation-catalog"
+            && catalog.Libc == (catalog.SchemaVersion == 4 ? "musl" : null)
             && catalog.Sequence > 0 && catalog.SigningFingerprint == Fingerprint && catalog.IssuedAt.Offset == TimeSpan.Zero
             && catalog.ExpiresAt.Offset == TimeSpan.Zero && catalog.IssuedAt <= now.AddMinutes(5)
             && catalog.ExpiresAt > catalog.IssuedAt && catalog.ExpiresAt - catalog.IssuedAt <= TimeSpan.FromDays(31)
@@ -64,24 +72,30 @@ internal sealed partial class Trust
         var ids = new HashSet<string>(StringComparer.Ordinal);
         foreach (var sdk in catalog.Sdks)
         {
-            SafeFiles.Require(sdk is not null && sdk.SdkVersion is not null && VersionPattern().IsMatch(sdk.SdkVersion) && sdk.Revision > 0 && sdk.Rid is "linux-x64" or "linux-arm64"
-                && sdk.ArchiveRoot == $"cbodotnet-{sdk.SdkVersion}-linux-{(sdk.Rid == "linux-x64" ? "x64" : "aarch64")}-r{sdk.Revision}"
+            SafeFiles.Require(sdk is not null && sdk.SdkVersion is not null && VersionPattern().IsMatch(sdk.SdkVersion) && sdk.Revision > 0
+                && (catalog.SchemaVersion == 4 ? NativeHost.IsMusl(sdk.Rid) : sdk.Rid is "linux-x64" or "linux-arm64")
+                && sdk.ArchiveRoot == $"cbodotnet-{sdk.SdkVersion}-linux-{(catalog.SchemaVersion == 4 ? "musl-" : "")}{NativeHost.Architecture(sdk.Rid)}-r{sdk.Revision}"
                 && ids.Add(sdk.Id) && sdk.SourceManifestSha256 is not null && ShaPattern().IsMatch(sdk.SourceManifestSha256)
                 && sdk.SourceManifest is not null && sdk.SourceManifest.Sha256 == sdk.SourceManifestSha256
                 && sdk.LicensePaths is not null && sdk.LicensePaths.SequenceEqual(new[] { "LICENSE.txt", "ThirdPartyNotices.txt" })
                 && sdk.SecuritySupport == "community-build-no-additional-security-maintenance"
                 && sdk.Targets is { Length: > 0 } && sdk.Targets.Distinct().Count() == sdk.Targets.Length
-                && sdk.Targets.All(t => t is not null && t.Rid == sdk.Rid && new[] { ("ubuntu", "24.04"), ("debian", "13"), ("fedora", "45"), ("rocky", "9.8") }.Contains((t.Os, t.VersionId)))
+                && sdk.Targets.All(t => t is not null && t.Rid == sdk.Rid && (catalog.SchemaVersion == 4
+                    ? t.Os == "alpine" && t.VersionId == "3.24.4"
+                    : new[] { ("ubuntu", "24.04"), ("debian", "13"), ("fedora", "45"), ("rocky", "9.8") }.Contains((t.Os, t.VersionId))))
                 && sdk.Dependencies is { Length: > 0 } && sdk.Dependencies.All(d => !string.IsNullOrWhiteSpace(d))
                 && sdk.Producer.ValueKind == JsonValueKind.Object,
                 "Malformed, unqualified or duplicate SDK catalog entry");
             AssetValid(sdk.Archive); AssetValid(sdk.SourceManifest, 8 * 1024 * 1024); AssetValid(sdk.Evidence);
-            SafeFiles.Require(ArchiveSchema(sdk) == (catalog.SchemaVersion == 1 ? 1 : 2)
-                && sdk.SourceManifest.Url == $"https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-{sdk.SdkVersion}/release-manifest.json", "Catalog source/archive identity mismatch");
+            SafeFiles.Require(ArchiveSchema(sdk) == (catalog.SchemaVersion == 4 ? 4 : catalog.SchemaVersion == 1 ? 1 : 2)
+                && sdk.SourceManifest.Url == (catalog.SchemaVersion == 4 ? MuslSupport.SourcePrefix + "release-manifest.json"
+                    : $"https://github.com/dotnetdev-kr/cbodotnet/releases/download/sdk-{sdk.SdkVersion}/release-manifest.json"), "Catalog source/archive identity mismatch");
+            if (catalog.SchemaVersion == 4) MuslSupport.Validate(sdk);
         }
         foreach (var tool in catalog.Tools)
         {
-            SafeFiles.Require(tool is not null && tool.Version is not null && Regex.IsMatch(tool.Version, @"^(0|[1-9][0-9]*)\.[0-9]+\.[0-9]+$", RegexOptions.CultureInvariant) && tool.Rid is "linux-x64" or "linux-arm64"
+            SafeFiles.Require(tool is not null && tool.Version is not null && Regex.IsMatch(tool.Version, @"^(0|[1-9][0-9]*)\.[0-9]+\.[0-9]+$", RegexOptions.CultureInvariant)
+                && (catalog.SchemaVersion == 4 ? NativeHost.IsMusl(tool.Rid) && Version.Parse(tool.Version) >= new Version(0, 5, 0) : tool.Rid is "linux-x64" or "linux-arm64")
                 && ids.Add("tool/" + tool.Version + '/' + tool.Rid), "Duplicate or malformed tool identity");
             AssetValid(tool.Binary, 128 * 1024 * 1024);
             AssetValid(tool.Notices, 8 * 1024 * 1024);
@@ -96,8 +110,8 @@ internal sealed partial class Trust
     internal static void ValidateActive(Catalog catalog, DateTimeOffset now, bool fresh = true)
     {
         Validate(catalog, now, fresh);
-        SafeFiles.Require(catalog.SchemaVersion is 2 or 3,
-            "cbodotnetup requires a schema-2 bridge or schema-3 catalog; schema-1 catalogs are only for retained SDK receipts and cbodotnetup 0.1");
+        SafeFiles.Require(catalog.SchemaVersion is 2 or 3 or 4,
+            "cbodotnetup requires a schema-2 bridge, schema-3 glibc catalog or schema-4 musl catalog; schema-1 catalogs are only for retained SDK receipts and cbodotnetup 0.1");
     }
     internal static void Admit(Catalog catalog, SdkRelease sdk, Target host)
     {
@@ -162,7 +176,7 @@ internal sealed partial class Trust
     }
     internal async Task<Catalog> Load(string? file, bool refresh)
     {
-        var selectedCache = File.Exists(Path.Combine(cache, "catalog.json")) ? cache : CacheFor(2);
+        var selectedCache = musl || File.Exists(Path.Combine(cache, "catalog.json")) ? cache : CacheFor(2);
         var incoming = Path.Combine(cache, "incoming-" + Guid.NewGuid().ToString("N"));
         if (refresh || file is not null)
         {
@@ -171,8 +185,9 @@ internal sealed partial class Trust
             {
                 if (file is null)
                 {
-                    File.WriteAllBytes(Path.Combine(incoming, "catalog.json"), await Download(CatalogUrl, 8 * 1024 * 1024));
-                    File.WriteAllBytes(Path.Combine(incoming, "catalog.json.asc"), await Download(CatalogUrl + ".asc", 64 * 1024));
+                    var endpoint = musl ? MuslCatalogUrl : CatalogUrl;
+                    File.WriteAllBytes(Path.Combine(incoming, "catalog.json"), await Download(endpoint, 8 * 1024 * 1024));
+                    File.WriteAllBytes(Path.Combine(incoming, "catalog.json.asc"), await Download(endpoint + ".asc", 64 * 1024));
                 }
                 else
                 {
@@ -183,7 +198,8 @@ internal sealed partial class Trust
                 var data = Path.Combine(incoming, "catalog.json");
                 VerifySignature(data, data + ".asc", incoming);
                 var value = SafeFiles.Read(data, UpJson.Default.Catalog); ValidateActive(value, DateTimeOffset.UtcNow);
-                SafeFiles.Require(file is not null || value.SchemaVersion == 3, "The default endpoint must provide schema-3 admission");
+                SafeFiles.Require(musl ? value.SchemaVersion == 4 : value.SchemaVersion is 2 or 3, "The catalog libc differs from the native installer");
+                SafeFiles.Require(file is not null || value.SchemaVersion == (musl ? 4 : 3), "The default endpoint must provide the native libc catalog generation");
                 Store(value, data); selectedCache = CacheFor(value.SchemaVersion);
                 localCatalogDirectory = file is not null && value.SchemaVersion == 3 ? Path.GetDirectoryName(Path.GetFullPath(file)) : null;
             }
@@ -193,11 +209,12 @@ internal sealed partial class Trust
         SafeFiles.Require(File.Exists(path) && File.Exists(signature), "No authenticated catalog is cached; run list --available online");
         VerifySignature(path, signature, cache);
         var catalog = SafeFiles.Read(path, UpJson.Default.Catalog); ValidateActive(catalog, DateTimeOffset.UtcNow, refresh || file is not null);
+        SafeFiles.Require(musl ? catalog.SchemaVersion == 4 : catalog.SchemaVersion is 2 or 3, "Cached catalog libc differs from the native installer");
         var watermark = SafeFiles.Read(Path.Combine(selectedCache, "high-water.json"), UpJson.Default.HighWater);
         SafeFiles.Require(catalog.Sequence == watermark.Sequence && SafeFiles.Hash(path) == watermark.Sha256, "Cached catalog does not match its high-water record");
         return catalog;
     }
-    internal string CacheFor(int schema) => schema == 3 ? cache : Path.Combine(Path.GetDirectoryName(cache)!, "v2");
+    internal string CacheFor(int schema) => Path.Combine(Path.GetDirectoryName(cache)!, "v" + schema);
     private void Store(Catalog value, string data)
     {
         var directory = CacheFor(value.SchemaVersion); SafeFiles.PrivateDirectory(directory);

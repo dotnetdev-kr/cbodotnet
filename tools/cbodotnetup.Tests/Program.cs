@@ -43,7 +43,7 @@ try
     Check(Trust.CatalogUrl == "https://dotnetdev.kr/cbodotnet/cbodotnetup/v3/catalog.json", "new clients use a separate provider-capable catalog endpoint");
     Reject(() => Trust.Validate(catalogV2 with { SchemaVersion = 1 }, now), "neutral archive cannot enter the v1 catalog");
     Reject(() => Trust.Validate(catalog with { SchemaVersion = 2 }, now), "branded archive cannot enter the v2 catalog");
-    Reject(() => Trust.Validate(catalog with { SchemaVersion = 4 }, now), "unknown catalog schema");
+    Reject(() => Trust.Validate(catalog with { SchemaVersion = 5 }, now), "unknown catalog schema");
     var sdkJson = JsonSerializer.Serialize(sdk, UpJson.Default.SdkRelease);
     Check(!sdkJson.Contains("archiveNaming", StringComparison.Ordinal), "v1 SDK receipt shape has no new naming member");
     var unknownCatalog = JsonNode.Parse(JsonSerializer.Serialize(catalogV2, UpJson.Default.Catalog))!;
@@ -205,7 +205,7 @@ try
     // The test-only constructor replaces I/O, not production catalog trust or CLI options.
     var transaction = Path.Combine(temporary, "transactions"); Directory.CreateDirectory(transaction);
     var executable = Path.Combine(transaction, "cbodotnetup"); var noticePath = executable + ".LICENSE.txt";
-    var oldBytes = System.Text.Encoding.UTF8.GetBytes("old-native-tool"); var newBytes = System.Text.Encoding.UTF8.GetBytes("new-native-tool");
+    var oldBytes = MuslAdmissionTests.Elf("linux-x64", "old-native-tool"); var newBytes = MuslAdmissionTests.Elf("linux-x64", "new-native-tool");
     var oldNotice = System.Text.Encoding.UTF8.GetBytes("original runtime license"); var newNotice = System.Text.Encoding.UTF8.GetBytes("updated runtime license");
     Asset Fixture(string url, byte[] bytes) => new(url, bytes.Length, SafeFiles.Hash(bytes));
     var oldTool = tool with { Binary = Fixture(tool.Binary.Url, oldBytes), Notices = Fixture(tool.Notices.Url, oldNotice) };
@@ -262,6 +262,7 @@ try
     SdkInvocationTests.Run(Check, Reject, temporary);
     ProjectAdmissionTests.Run(Check, temporary, neutralSdk, catalogV2);
     LegacyProviderTests.Run(Check, Reject, temporary, catalogV2, neutralSdk);
+    MuslAdmissionTests.Run(Check, Reject, temporary, neutralSdk, catalogV2);
     Console.WriteLine($"cbodotnetup security tests passed: {passed}");
 }
 finally { SafeFiles.DeleteTree(temporary); }

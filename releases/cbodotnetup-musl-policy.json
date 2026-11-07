@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "kind": "cbodotnetup-musl-sdk-admission",
+  "libc": "musl",
+  "minimumToolVersion": "0.5.0",
+  "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+  "sdkVersion": "10.0.403",
+  "revision": 1,
+  "producerRevision": 1,
+  "sourceManifestSha256": "04b3ff71eec9a508c65bf5c22c13f189def3ba576e55f5593cff7378224c3344",
+  "publication": {
+    "manifestSha256": "ed9206fc690a5c7a19cc1cf52d7b5b94e0542d05f77396c3f59be2d01e3a7240",
+    "verificationManifestSha256": "8be34fa684fa6d4a48fc74a36fe6258d7cd725dfaeb646673b1139a85950e8b3"
+  },
+  "target": {"os": "alpine", "versionId": "3.24.4"},
+  "architectures": {
+    "x64": {"rid": "linux-musl-x64", "cpuBaseline": "x86-64", "elfMachine": 62, "interpreter": "/lib/ld-musl-x86_64.so.1"},
+    "aarch64": {"rid": "linux-musl-arm64", "cpuBaseline": "armv8-a", "elfMachine": 183, "interpreter": "/lib/ld-musl-aarch64.so.1"}
+  },
+  "archives": {
+    "x64": {"name": "cbodotnet-sdk-10.0.403-linux-musl-x64-r1.tar.gz", "size": 223870427, "sha256": "508f52814c4f9c8df9e3437493ed598de0c78bf40e39e3b94fc8858ce3eeb0ce"},
+    "aarch64": {"name": "cbodotnet-sdk-10.0.403-linux-musl-aarch64-r1.tar.gz", "size": 217014909, "sha256": "538a904bf034dccacf28c2653e263a1c554336c7a72e691169eff14ad8b6b39b"}
+  }
+}

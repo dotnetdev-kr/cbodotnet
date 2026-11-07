@@ -43,6 +43,8 @@ LEGACY_BOOTSTRAP = dict(
     size=11478,sha256='534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409')
 CATALOG_ASSETS = ('catalog.json','catalog.json.asc','catalog-v1.json','catalog-v1.json.asc',
                   'catalog-v2.json','catalog-v2.json.asc',
+                  'catalog-musl.json','catalog-musl.json.asc',
+                  'catalog-musl-baseline.json','catalog-musl-baseline.json.asc',
                   'catalog-v1-bootstrap.json','catalog-v1-bootstrap.json.asc',
                   'catalog-v1-expired.json','catalog-v1-expired.json.asc',
                   'catalog-v2-tool-0.2.json','catalog-v2-tool-0.2.json.asc',
@@ -88,6 +90,8 @@ def tool_inputs():
     paths += [POLICY, ROOT/'releases/downstream-signing-key.asc', ROOT/'LICENSE']
     provider_policy=ROOT/'releases/cbodotnetup-provider-policy.json'
     if provider_policy.exists():paths.append(provider_policy)
+    musl_policy=ROOT/'releases/cbodotnetup-musl-policy.json'
+    if musl_policy.exists():paths.append(musl_policy)
     return {p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
 
 
@@ -126,7 +130,8 @@ def public_metadata(url,maximum):
         '/cbodotnet/cbodotnetup/get-cbodotnetup.py',
         '/cbodotnet/cbodotnetup/catalog.json','/cbodotnet/cbodotnetup/catalog.json.asc',
         '/cbodotnet/cbodotnetup/v2/catalog.json','/cbodotnet/cbodotnetup/v2/catalog.json.asc',
-        '/cbodotnet/cbodotnetup/v3/catalog.json','/cbodotnet/cbodotnetup/v3/catalog.json.asc'}
+        '/cbodotnet/cbodotnetup/v3/catalog.json','/cbodotnet/cbodotnetup/v3/catalog.json.asc',
+        '/cbodotnet/cbodotnetup/v4/catalog.json','/cbodotnet/cbodotnetup/v4/catalog.json.asc'}
     require(uri.scheme=='https' and not uri.query and not uri.fragment and (nuget or site),'Untrusted installer public metadata origin/path')
     class NoRedirect(urllib.request.HTTPRedirectHandler):
         def redirect_request(self,*args,**kwargs):raise ValueError('Unexpected installer metadata redirect')
@@ -143,6 +148,9 @@ def public_metadata(url,maximum):
 
 
 def build(args):
+    if getattr(args,'libc','glibc')=='musl':
+        from cbodotnetup_musl_native import build_tool
+        return build_tool(args.arch,args.workspace)
     policy = load(POLICY); arch = args.arch
     require(platform.machine() in ({'x86_64'} if arch == 'x64' else {'aarch64', 'arm64'}), 'Native build architecture mismatch')
     workspace = args.workspace.resolve(); require(not workspace.exists(), 'Fresh build workspace required'); workspace.mkdir(parents=True)
@@ -199,6 +207,9 @@ PY
 
 
 def source_check(args):
+    if getattr(args,'libc','glibc')=='musl':
+        from cbodotnetup_musl_native import source_check as musl_source_check
+        return musl_source_check(args.arch,args.workspace)
     require(platform.machine() in ({'x86_64'} if args.arch=='x64' else {'aarch64','arm64'}),'Native source-test CPU mismatch')
     workspace=args.workspace.resolve();require(not workspace.exists(),'Fresh source-test workspace required');workspace.mkdir(parents=True)
     policy=load(POLICY)
@@ -222,6 +233,9 @@ def feed_smoke(args):
     (workspace/'get-cbodotnetup.py').write_bytes(raw)
     provider_aware='compatibilityCatalogSha256' in status
     generations=(('v3','catalogSha256'),('v2','compatibilityCatalogSha256'),('v1','legacyCatalogSha256')) if provider_aware else (('v2','catalogSha256'),('v1','legacyCatalogSha256'))
+    if 'muslCatalogSha256' in status:generations+=(('v4','muslCatalogSha256'),)
+    musl=getattr(args,'libc','glibc')=='musl'
+    require(not musl or 'muslCatalogSha256' in status,'The musl hosted feed is not publicly qualified')
     for generation,key in generations:
         url='https://dotnetdev.kr/cbodotnet/cbodotnetup/'+(generation+'/' if generation!='v1' else '')+'catalog.json'
         data=public_metadata(url,8*1024**2)
@@ -256,19 +270,36 @@ PY
 '''
     active_generation='v3' if provider_aware else 'v2'
     if provider_aware:script=script.replace('cbodotnetup/cache/v2','cbodotnetup/cache/v3')
-    run(['docker','run','--rm','--user','0','-v',f'{workspace}:/feed',MULTI.BASES['ubuntu-24.04'][args.arch],'sh','-ec',script])
-    result=load(workspace/'result.json');require(result['catalogSha256']==status['catalogSha256'] and result['sequence']==status['catalogSequence'],'Default hosted catalog differs from exact activated version')
+    image=MULTI.BASES['ubuntu-24.04'][args.arch]
+    if musl:
+        import musl_archive
+        active_generation='v4';image=musl_archive.BASES[args.arch]
+        script=script.replace('export DEBIAN_FRONTEND=noninteractive\napt-get update -qq\napt-get install -y --no-install-recommends python3 ca-certificates gnupg gpgv passwd util-linux',
+            'test "$(cat /etc/alpine-release)" = 3.24.4\napk add --no-cache python3 ca-certificates gnupg gpgv coreutils')
+        script=script.replace('useradd --create-home --uid 10001 cbot-feed','adduser -D -u 10001 cbot-feed')
+        script=script.replace('runuser -u cbot-feed -- python3 /feed/get-cbodotnetup.py',"su -s /bin/sh cbot-feed -c 'python3 /feed/get-cbodotnetup.py'")
+        for command in ('--version','list --available','doctor'):
+            script=script.replace('runuser -u cbot-feed -- /home/cbot-feed/.local/bin/cbodotnetup '+command,"su -s /bin/sh cbot-feed -c '/home/cbot-feed/.local/bin/cbodotnetup "+command+"'")
+        script=script.replace('cbodotnetup/cache/'+('v3' if provider_aware else 'v2'),'cbodotnetup-musl/cache/v4')
+    run(['docker','run','--rm','--user','0','-v',f'{workspace}:/feed',image,'sh','-ec',script])
+    expected_sha=status['muslCatalogSha256' if musl else 'catalogSha256']
+    result=load(workspace/'result.json');require(result['catalogSha256']==expected_sha and result['sequence']==status['catalogSequence'],'Default hosted catalog differs from exact activated version')
     require(result['sdkVersions']==sorted({sdk['sdkVersion'] for sdk in load(workspace/('catalog-'+active_generation+'.json'))['sdks']}),
             'Hosted bootstrap did not authenticate every activated SDK series')
     result.update(scope='cbodotnetup-default-public-feed',architecture=args.arch,version=status['version'],catalogSequence=status['catalogSequence'],catalogUrl='https://dotnetdev.kr/cbodotnet/cbodotnetup/'+active_generation+'/catalog.json',legacyCatalogSha256=status['legacyCatalogSha256'],pairedHostedFeeds='passed')
     if provider_aware:result.update(compatibilityCatalogSha256=status['compatibilityCatalogSha256'],providerAwareHostedFeeds='passed')
+    result.update(libc='musl' if musl else 'glibc',baseImage=image)
+    if musl:result.update(muslCatalogSha256=status['muslCatalogSha256'])
     save(workspace/'report.json',result)
 
 
 def catalog(output, builds, *, now=None, sequence=None):
     policy = load(POLICY); now = now or datetime.now(timezone.utc)
     source = source_identity(); sequence = sequence or int(source['runId'])
-    require(set(builds) == {'x64', 'aarch64'}, 'Both native builds are mandatory')
+    musl_builds={key:value for key,value in builds.items() if key.startswith('linux-musl-')}
+    builds={key:value for key,value in builds.items() if not key.startswith('linux-musl-')}
+    builds={({'linux-x64':'x64','linux-arm64':'aarch64'}.get(key,key)):value for key,value in builds.items()}
+    require(set(builds) == {'x64', 'aarch64'}, 'Both native glibc builds are mandatory')
     tools = []
     for arch, directory in builds.items():
         report = load(directory / 'build.json'); rid = 'linux-x64' if arch == 'x64' else 'linux-arm64'
@@ -356,7 +387,82 @@ def catalog(output, builds, *, now=None, sequence=None):
         save(output/'catalog-v3-provider-incompatible.json',dict(value,
             providers=[dict(provider,minimumGlibc='999.0') for provider in providers]))
     verify_catalog_pair(output,tool_version=policy['version'])
+    if stable_version(policy['version'])>=stable_version('0.5.0'):
+        catalog_musl(output,musl_builds,common)
     return value
+
+
+def catalog_musl(output, builds, common):
+    from cbodotnetup_musl import sdk_catalog_record,validate_catalog,validate_tool_report
+    from cbodotnetup_musl_native import build_inputs
+    policy=load(POLICY)
+    require(set(builds)=={'linux-musl-x64','linux-musl-arm64'},'Both native musl builds are mandatory')
+    tools=[]
+    for rid,directory in builds.items():
+        arch='x64' if rid.endswith('-x64') else 'aarch64'
+        report=load(directory/'build.json')
+        validate_tool_report(report,arch,source_inputs=tool_inputs(),version=policy['version'],native_runtime=policy['nativeRuntime'])
+        baseline_report=load(directory/'baseline/provenance.json')
+        validate_tool_report(baseline_report,arch,source_inputs=tool_inputs(),version='0.5.0',native_runtime=policy['nativeRuntime'])
+        require(report['buildInputs']==baseline_report['buildInputs']==build_inputs(arch),
+                'Native musl toolchain source/profile inputs changed')
+        require(baseline_report['source']==report['source'] and baseline_report['sourceInputs']==report['sourceInputs']
+                and report['source']['repository']=='dotnetdev-kr/cbodotnet' and report['source']['workflow']==WORKFLOW,
+                'Musl baseline and current tool must share reviewed source provenance')
+        for artifact in report['artifacts']:
+            actual=descriptor(directory/artifact['path'])
+            require(all(actual[key]==artifact[key] for key in ('name','size','sha256')),'Musl artifact differs from its native build')
+        for version,base in ((policy['version'],directory),('0.5.0',directory/'baseline')):
+            item=descriptor(base/('cbodotnetup-'+rid));notice=descriptor(base/('cbodotnetup-'+rid+'.LICENSE.txt'))
+            tools.append(dict(version=version,rid=rid,binary=dict(url=f'https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v{version}/'+item['name'],**{k:item[k] for k in ('size','sha256')}),
+                notices=dict(url=f'https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-v{version}/'+notice['name'],**{k:notice[k] for k in ('size','sha256')})))
+    previous=previous_musl_catalog()
+    revoked=set(common['revoked'])
+    if previous:
+        require(common['sequence']>previous['sequence'],'A renewed musl catalog must advance the published sequence')
+        revoked.update(previous['revoked'])
+        current={(t['version'],t['rid']):t for t in tools}
+        for tool in previous['tools']:
+            key=(tool['version'],tool['rid'])
+            require(key not in current or current[key]==tool,'A published musl tool identity has conflicting bytes')
+            if key not in current:tools.append(tool)
+    sdks=[sdk_catalog_record(arch) for arch in ('x64','aarch64')]
+    value=dict(common,schemaVersion=4,libc='musl',tools=tools,revoked=sorted(revoked),sdks=sdks,channels={'10.0':'10.0.403-r1'})
+    validate_catalog(value,expected_sdks=sdks)
+    save(output/'catalog-musl.json',value)
+    baseline=dict(value,sequence=value['sequence']-1,tools=[t for t in tools if t['version']=='0.5.0'])
+    validate_catalog(baseline,expected_sdks=sdks)
+    save(output/'catalog-musl-baseline.json',baseline)
+
+
+def verify_musl_pair(bundle):
+    from cbodotnetup_musl import validate_catalog
+    current=load(Path(bundle)/'catalog.json');value=load(Path(bundle)/'catalog-musl.json')
+    validate_catalog(value)
+    require(all(value[key]==current[key] for key in ('kind','sequence','issuedAt','expiresAt','signingFingerprint'))
+            and set(current['revoked'])<=set(value['revoked']),
+            'Separate libc catalogs differ in their trust or freshness')
+    expected=dict(value,sequence=value['sequence']-1,tools=[t for t in value['tools'] if t['version']=='0.5.0'])
+    require(load(Path(bundle)/'catalog-musl-baseline.json')==expected,'Musl baseline differs from the admitted real tool pair')
+    require({(v,r) for v in ('0.5.0',load(POLICY)['version']) for r in ('linux-musl-x64','linux-musl-arm64')}<={(t['version'],t['rid']) for t in value['tools']},'Actual musl tool pair is incomplete')
+    return value
+
+
+def previous_musl_catalog():
+    path=ROOT/'releases/cbodotnetup-status.json'
+    if not path.exists():return None
+    status=load(path)
+    if 'muslCatalogSha256' not in status:return None
+    require(status['status']=='published-postverified','Previous musl installer feed is unqualified')
+    assets={a['name']:a for a in status['catalogRelease']['assets']}
+    with tempfile.TemporaryDirectory(prefix='cbodotnetup-prior-musl-') as temporary:
+        directory=Path(temporary)
+        for name in ('catalog-musl.json','catalog-musl.json.asc'):fetch_asset(assets[name],directory/name)
+        key=directory/'trusted.gpg';run(['gpg','--batch','--yes','--dearmor','--output',key,ROOT/'releases/downstream-signing-key.asc'],capture_output=True)
+        verify_report_signature(directory/'catalog-musl.json',directory/'catalog-musl.json.asc',key,load_status(),WORKFLOW)
+        require(descriptor(directory/'catalog-musl.json')['sha256']==status['muslCatalogSha256'],'Prior musl signed catalog pin differs')
+        from cbodotnetup_musl import validate_catalog
+        return validate_catalog(load(directory/'catalog-musl.json'))
 
 
 def reviewed_sdk_targets(policy):
@@ -555,8 +661,10 @@ def audit_native_packages(builds,output):
         data=public_metadata(url,32*1024**2);databases.append(json.loads(data));descriptors.append(dict(url=url,size=len(data),sha256=hashlib.sha256(data).hexdigest()))
     packages=set()
     for directory in builds.values():
-        value=load(directory/'native-package-inputs.json')
-        packages|={tuple(k.lower().split('/',1)) for k,v in value['libraries'].items() if v['type']=='package'}
+        for inputs in (directory/'native-package-inputs.json',directory/'baseline/native-package-inputs.json'):
+            if inputs.parent.name=='baseline' and not inputs.exists():continue
+            value=load(inputs)
+            packages|={tuple(k.lower().split('/',1)) for k,v in value['libraries'].items() if v['type']=='package'}
     require(packages and any(name=='microsoft.dotnet.ilcompiler' for name,_ in packages),'Actual NativeAOT package inputs are absent')
     for name,version in sorted(packages):
         for database in databases:
@@ -579,6 +687,7 @@ def verify_bundle(bundle):
         key=Path(temporary)/'trusted.gpg'
         run(['gpg','--batch','--yes','--dearmor','--output',key,ROOT/'releases/downstream-signing-key.asc'],capture_output=True)
         current,legacy=verify_catalog_pair(bundle,tool_version=manifest['version'])
+        if stable_version(manifest['version'])>=stable_version('0.5.0'):verify_musl_pair(bundle)
         names=('freeze.json',)+tuple(name for name in CATALOG_ASSETS if name.endswith('.json') and (bundle/name).exists())
         for name in names:
             verify_report_signature(bundle/name,bundle/(name+'.asc'),key,load_status(),WORKFLOW)
@@ -602,15 +711,17 @@ def stage(args):
     output=args.output.resolve();require(not output.exists(),'Fresh signed candidate required');output.mkdir(parents=True)
     builds={};api=GitHubReleases()
     for path in args.received.rglob('build.json'):
-        report=load(path);arch=report['architecture'];require(arch in ('x64','aarch64') and arch not in builds,'Ambiguous native installer build')
+        report=load(path);arch=report['architecture'];rid=report['rid']
+        require(arch in ('x64','aarch64') and rid in ('linux-x64','linux-arm64','linux-musl-x64','linux-musl-arm64') and rid not in builds,'Ambiguous native installer build')
         source=report['source'];run_record=api.api(f'repos/dotnetdev-kr/cbodotnet/actions/runs/{source["runId"]}/attempts/{source["runAttempt"]}')
         require(run_record and run_record['head_sha']==source['commit'] and run_record['path']==WORKFLOW
                 and run_record['head_branch']=='main' and run_record['event']=='workflow_dispatch'
                 and run_record['repository']['full_name']=='dotnetdev-kr/cbodotnet' and run_record['head_repository']['full_name']=='dotnetdev-kr/cbodotnet', 'Native build source is not approved main')
         jobs=api.api(f'repos/dotnetdev-kr/cbodotnet/actions/runs/{source["runId"]}/attempts/{source["runAttempt"]}/jobs?per_page=100')['jobs']
-        native=[j for j in jobs if j['name']=='Build SDK-free cbodotnetup on native '+arch]
+        job_name=('Build SDK-free musl cbodotnetup on native ' if rid.startswith('linux-musl-') else 'Build SDK-free cbodotnetup on native ')+arch
+        native=[j for j in jobs if j['name']==job_name]
         require(len(native)==1 and native[0]['status']=='completed' and native[0]['conclusion']=='success','Native build did not actually succeed')
-        destination=output/'tools'/report['rid'];shutil.copytree(path.parent,destination);builds[arch]=destination
+        destination=output/'tools'/rid;shutil.copytree(path.parent,destination);builds[rid]=destination
     catalog(output,builds)
     audit_native_packages(builds,output/'native-package-audit.json')
     shutil.copyfile(ROOT/'scripts/get-cbodotnetup.py',output/'get-cbodotnetup.py')
@@ -1077,6 +1188,9 @@ def native_matrix_smoke(args):
 
 
 def native(args):
+    if args.variant=='alpine-3.24':
+        from cbodotnetup_musl_native import qualify
+        return qualify(args.bundle,args.arch,args.workspace,public=args.public)
     verify_bundle(args.bundle)
     require(platform.machine() in ({'x86_64'} if args.arch=='x64' else {'aarch64','arm64'}),'Native CPU required')
     workspace=args.workspace.resolve();require(not workspace.exists(),'Fresh native workspace required');workspace.mkdir(parents=True)
@@ -1130,6 +1244,7 @@ def qualified_reports(bundle,directory,*,public=False):
     freeze=verify_bundle(bundle);api=GitHubReleases();reports={};proof=[]
     for path in Path(directory).rglob('report.json'):
         value=load(path);target=(value['variant'],value['architecture'])
+        if target[0]=='alpine-3.24':continue
         require(target not in reports and target[0] in MULTI.TARGETS and target[1] in ('x64','aarch64'),'Duplicate or unreviewed installer target')
         require(value['schemaVersion']==1 and value['scope']=='cbodotnetup-native-installation' and value['status']=='passed'
                 and value.get('baseImage')==QUALIFICATION_BASES[target[0]][target[1]]
@@ -1179,6 +1294,42 @@ def qualified_reports(bundle,directory,*,public=False):
         from cbodotnetup_legacy import validate_legacy_qualifications
         validate_legacy_qualifications(catalog_value,list(reports.values()),tool_version=freeze['version'],
                                        compatibility_catalog=compatibility)
+    if stable_version(freeze['version'])>=stable_version('0.5.0'):
+        proof+=qualified_musl_reports(bundle,directory,public=public)
+    return proof
+
+
+def qualified_musl_reports(bundle,directory,*,public=False):
+    from cbodotnetup_musl_native import validate_qualification_report
+    api=GitHubReleases();proof=[];seen=set()
+    for path in Path(directory).rglob('report.json'):
+        value=load(path)
+        if value.get('variant')!='alpine-3.24':continue
+        arch=value.get('architecture');require(arch in ('x64','aarch64') and arch not in seen,'Ambiguous musl native proof');seen.add(arch)
+        validate_qualification_report(value,bundle,arch,public=public)
+        source=value['orchestration']
+        record=api.api(f'repos/dotnetdev-kr/cbodotnet/actions/runs/{source["runId"]}/attempts/{source["runAttempt"]}')
+        require(source['repository']=='dotnetdev-kr/cbodotnet' and source['workflow']==WORKFLOW
+            and record['head_sha']==source['commit'] and record['path']==WORKFLOW and record['head_branch']=='main'
+            and record['repository']['full_name']=='dotnetdev-kr/cbodotnet' and record['head_repository']['full_name']=='dotnetdev-kr/cbodotnet'
+            and record['event']=='workflow_dispatch','Unapproved musl native workflow')
+        jobs=api.api(f'repos/dotnetdev-kr/cbodotnet/actions/runs/{source["runId"]}/attempts/{source["runAttempt"]}/jobs?per_page=100')['jobs']
+        job_name=('Verify public cbodotnetup on ' if public else 'Qualify cbodotnetup on ')+'alpine-3.24 native '+arch
+        selected=[j for j in jobs if j['name']==job_name]
+        require(len(selected)==1 and selected[0]['status']=='completed' and selected[0]['conclusion']=='success','Actual musl job did not succeed')
+        name=('cbodotnetup-public-proof-' if public else 'cbodotnetup-native-proof-')+'alpine-3.24-'+arch+'-'+source['runId']+'-'+source['runAttempt']
+        artifacts=api.api(f'repos/dotnetdev-kr/cbodotnet/actions/runs/{source["runId"]}/artifacts?per_page=100')
+        selected_artifacts=[a for a in artifacts['artifacts'] if a['name']==name]
+        require(len(selected_artifacts)==1 and artifacts['total_count']<=100,'Musl proof artifact is absent or ambiguous')
+        artifact=selected_artifacts[0]
+        raw=subprocess.check_output(['gh','api',f'repos/dotnetdev-kr/cbodotnet/actions/artifacts/{artifact["id"]}/zip'])
+        require(not artifact['expired'] and len(raw)==artifact['size_in_bytes']<=32*1024**2 and 'sha256:'+hashlib.sha256(raw).hexdigest()==artifact['digest'],'Musl proof ZIP changed')
+        with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+            members=[m for m in archive.infolist() if m.filename=='report.json']
+            require(len(members)==1 and members[0].file_size<=2*1024**2 and archive.read(members[0])==path.read_bytes(),'Musl proof differs from the actual job')
+        proof.append(dict(variant='alpine-3.24',architecture=arch,jobId=selected[0]['id'],jobName=job_name,
+            workflow=source,artifact=dict(id=artifact['id'],size=len(raw),sha256=hashlib.sha256(raw).hexdigest()),report=descriptor(path),observation=value))
+    require(seen=={'x64','aarch64'},'Both actual Alpine musl native reports are mandatory')
     return proof
 
 
@@ -1223,16 +1374,36 @@ def publish(args):
     freeze=verify_bundle(args.bundle);proof=qualified_reports(args.bundle,args.reports)
     output=args.output;require(not output.exists(),'Fresh publication output required');output.mkdir(parents=True)
     tools=output/'tool-assets';tools.mkdir();version=freeze['version'];source=None
-    for arch,rid in (('x64','linux-x64'),('aarch64','linux-arm64')):
+    musl_aware=stable_version(version)>=stable_version('0.5.0')
+    targets=[('x64','linux-x64'),('aarch64','linux-arm64')]
+    if musl_aware:targets += [('x64','linux-musl-x64'),('aarch64','linux-musl-arm64')]
+    for arch,rid in targets:
         directory=args.bundle/'tools'/rid;build_report=load(directory/'build.json')
         if source is None:source=build_report['source']['commit']
         require(build_report['source']['commit']==source,'Both tool binaries must have one exact source commit')
         for name in ('cbodotnetup-'+rid,'cbodotnetup-'+rid+'.LICENSE.txt'):shutil.copyfile(directory/name,tools/name)
-        shutil.copyfile(directory/'build.json',tools/('build-'+arch+'.json'))
+        shutil.copyfile(directory/'build.json',tools/('build-'+(rid if musl_aware else arch)+'.json'))
     shutil.copyfile(ROOT/'LICENSE',tools/'LICENSE')
     source_paths=['tools','LICENSE','releases/cbodotnetup-policy.json','releases/downstream-signing-key.asc','scripts/get-cbodotnetup.py']
     if stable_version(version)>=stable_version('0.4.0'):source_paths.append('releases/cbodotnetup-provider-policy.json')
+    # Musl build provenance includes shared helpers and frozen APK snapshots.
+    # Archive the exact tracked repository so their transitive inputs remain
+    # available alongside the tool sources; local workspaces are never included.
+    if musl_aware:source_paths=[]
     run(['git','archive','--format=tar.gz','--output',tools/'cbodotnetup-source.tar.gz',source,*source_paths])
+    baseline_release=None
+    if musl_aware:
+        baseline=output/'baseline-assets';baseline.mkdir()
+        for arch,rid in targets:
+            if not rid.startswith('linux-musl-'):continue
+            directory=args.bundle/'tools'/rid/'baseline'
+            for name in ('cbodotnetup-'+rid,'cbodotnetup-'+rid+'.LICENSE.txt'):shutil.copyfile(directory/name,baseline/name)
+            shutil.copyfile(directory/'provenance.json',baseline/('build-'+rid+'.json'))
+        for name in ('LICENSE','cbodotnetup-source.tar.gz'):shutil.copyfile(tools/name,baseline/name)
+        baseline_release=upload_release('cbodotnetup-v0.5.0',source,sorted(baseline.iterdir()),'cbodotnetup 0.5.0 - Alpine bootstrap qualification baseline',
+            'Initial real Alpine3.24.4 NativeAOT x64/AArch64 tool binaries, retained for signed bootstrap/self-update/rollback qualification against0.5.1. '
+            'Use the current project-signed default bootstrap to select the latest admitted tool. Built from the same reviewed source as0.5.1 with explicit Version=0.5.0; exact source, native package/ELF inputs and notices are included. '
+            'This baseline does not admit additional SDKs or older Alpine versions. No gcompat/glibc shim is used.')
     tool_release=upload_release('cbodotnetup-v'+version,source,sorted(tools.iterdir()),'cbodotnetup '+version+' - verified Community Build SDK manager',
         'SDK-free NativeAOT installer for qualified Community Build of .NET SDKs. Verify the current project-signed installation catalog and its independently pinned OpenPGP key. '
         'Linux glibc x64/AArch64; Ubuntu24.04, Debian13, Fedora45 and Rocky9.8. Qualified SDKs:10.0.403,9.0.123,8.0.133,7.0.120,6.0.136,5.0.214,3.1.426,3.0.103. '
@@ -1241,6 +1412,7 @@ def publish(args):
         'Version 0.4 adds explicitly opted-in signed user-scoped legacy providers, immutable shared provider objects and per-SDK source/ABI binding. '
         'SDK5/Core3 retain their upstream EOL status. Offline global.json selection and owned CLI/MSBuild binding continue. '
         'Missing SDKs require explicit installation; project and shell files stay unchanged. The versioned schema3 feed admits legacy providers, while schema2 remains modern-only and schema1 keeps 0.1 clients able to self-update. '
+        'Version0.5 adds native musl x64/AArch64 binaries and a separate schema4 feed for Alpine3.24.4/SDK10.0.403-r1 only. No glibc compatibility shim or private legacy provider is used. '
         'Build/source records are retained; current signed catalog qualification is published separately. This release does not replace the latest SDK download.')
     catalog_assets=output/'catalog-assets';catalog_assets.mkdir()
     for name in (*CATALOG_ASSETS,'freeze.json','freeze.json.asc','get-cbodotnetup.py'):
@@ -1252,9 +1424,10 @@ def publish(args):
     release=upload_release('cbodotnetup-catalog-'+str(catalog_value['sequence']),freeze['source']['commit'],sorted(catalog_assets.iterdir()),
         'cbodotnetup signed installation catalog '+str(catalog_value['sequence']),
         'Project-signed installation catalog with bounded freshness, revocation, source/producer pins and immutable SDK/tool hashes. '
-        'All eight native OS/CPU qualification targets passed before this publication. Public bootstrap/native post-verification is recorded before feed activation. '
+        'Every admitted native OS/CPU qualification target passed before this publication. Public bootstrap/native post-verification is recorded before feed activation. '
         'catalog.json is the provider-aware schema3 feed; catalog-v2.json is modern-only schema2 and catalog-v1.json is compatible schema1. '
-        'All bootstrap, expired, revoked, incompatible and previous-tool catalogs are test-only qualification fixtures, not installation feeds. '
+        'catalog-musl.json is the separate schema4 Alpine/musl feed; it never changes the schema1/2/3 glibc projections. '
+        'All bootstrap, baseline, expired, revoked, incompatible and previous-tool catalogs are test-only qualification fixtures, not installation feeds. '
         'AUR publication remains deferred under issue10.')
     publication=dict(schemaVersion=1,kind='cbodotnetup-publication',status='published-public-bytes-verified',
         version=version,source=freeze['source'],toolRelease=tool_release,catalogRelease=release,nativeQualification=proof,
@@ -1263,6 +1436,8 @@ def publish(args):
     if catalog_value['schemaVersion']==3:
         publication.update(compatibilityCatalogSequence=load(args.bundle/'catalog-v2.json')['sequence'],
                            compatibilityCatalogSha256=descriptor(args.bundle/'catalog-v2.json')['sha256'])
+    if musl_aware:publication.update(muslCatalogSequence=load(args.bundle/'catalog-musl.json')['sequence'],
+        muslCatalogSha256=descriptor(args.bundle/'catalog-musl.json')['sha256'],baselineToolRelease=baseline_release)
     save(output/'publication.json',publication)
 
 
@@ -1284,7 +1459,9 @@ def receive_published_builds(args):
     assets={a['name']:a for a in status['catalogRelease']['assets']}
     archive=args.output/'prior-inputs.tar.gz';fetch_asset(assets['cbodotnetup-verification-inputs.tar.gz'],archive)
     extracted=args.output/'prior';sdk_tools().extract_sdk(archive,extracted);verify_bundle(extracted)
-    for arch,rid in (('x64','linux-x64'),('aarch64','linux-arm64')):shutil.copytree(extracted/'tools'/rid,args.output/('native-'+arch))
+    for directory in sorted((extracted/'tools').iterdir()):
+        require(directory.is_dir() and directory.name in ('linux-x64','linux-arm64','linux-musl-x64','linux-musl-arm64'),'Unexpected published tool RID')
+        shutil.copytree(directory,args.output/('native-'+directory.name))
     # Keep only authenticated build inputs for stage(); prevent duplicate build.json discovery.
     shutil.rmtree(extracted);archive.unlink()
 
@@ -1305,6 +1482,10 @@ def activate(args):
                 'Public compatible modern catalog differs')
         status.update(compatibilityCatalogSequence=publication['compatibilityCatalogSequence'],
                       compatibilityCatalogSha256=publication['compatibilityCatalogSha256'])
+    if 'muslCatalogSha256' in publication:
+        require(publication['muslCatalogSha256']==descriptor(args.bundle/'catalog-musl.json')['sha256']
+            and publication['muslCatalogSequence']==publication['catalogSequence'],'Public musl catalog differs')
+        status.update(muslCatalogSequence=publication['muslCatalogSequence'],muslCatalogSha256=publication['muslCatalogSha256'],baselineToolRelease=publication['baselineToolRelease'])
     save(args.output,status)
     api=GitHubReleases();path='releases/cbodotnetup-status.json'
     content=api.api('repos/dotnetdev-kr/cbodotnet/contents/'+path+'?ref=main')
@@ -1319,13 +1500,14 @@ def activate(args):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__); commands=parser.add_subparsers(dest='command',required=True)
-    command=commands.add_parser('build'); command.add_argument('--arch',choices=('x64','aarch64'),required=True); command.add_argument('--workspace',type=Path,required=True)
+    command=commands.add_parser('build'); command.add_argument('--arch',choices=('x64','aarch64'),required=True); command.add_argument('--workspace',type=Path,required=True); command.add_argument('--libc',choices=('glibc','musl'),default='glibc')
     for name in ('source-check','feed-smoke'):
         command=commands.add_parser(name);command.add_argument('--arch',choices=('x64','aarch64'),required=True);command.add_argument('--workspace',type=Path,required=True)
+        command.add_argument('--libc',choices=('glibc','musl'),default='glibc')
     command=commands.add_parser('stage');command.add_argument('--received',type=Path,required=True);command.add_argument('--output',type=Path,required=True)
     for name in ('native','native-install','native-smoke','native-matrix-install','native-matrix-smoke'):
         command=commands.add_parser(name);command.add_argument('--bundle',type=Path,required=True);command.add_argument('--workspace',type=Path,required=True)
-        command.add_argument('--arch',choices=('x64','aarch64'),required=True);command.add_argument('--variant',choices=tuple(MULTI.TARGETS),required=True)
+        command.add_argument('--arch',choices=('x64','aarch64'),required=True);command.add_argument('--variant',choices=(*MULTI.TARGETS,'alpine-3.24'),required=True)
         command.add_argument('--public',action='store_true')
         if name.startswith('native-matrix-'):command.add_argument('--sdk-version',required=True)
     for name in ('publish','activate'):

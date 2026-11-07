@@ -3,9 +3,9 @@ name: cbodotnetup source and security tests
 on:
   push:
     branches: [main]
-    paths: ['tools/**', 'scripts/get-cbodotnetup.py', 'scripts/cbodotnetup*', 'releases/cbodotnetup-policy.json', '.github/workflows/cbodotnetup-source.yml']
+    paths: ['tools/**', 'scripts/get-cbodotnetup.py', 'scripts/cbodotnetup*', 'releases/cbodotnetup*policy.json', 'containers/cbodotnetup-musl*', '.github/workflows/cbodotnetup-source.yml']
   pull_request:
-    paths: ['tools/**', 'scripts/get-cbodotnetup.py', 'scripts/cbodotnetup*', 'releases/cbodotnetup-policy.json', '.github/workflows/cbodotnetup-source.yml']
+    paths: ['tools/**', 'scripts/get-cbodotnetup.py', 'scripts/cbodotnetup*', 'releases/cbodotnetup*policy.json', 'containers/cbodotnetup-musl*', '.github/workflows/cbodotnetup-source.yml']
   workflow_dispatch:
 
 permissions:
@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   native:
-    name: Installer core tests native ${{ matrix.arch }}
+    name: Installer core tests ${{ matrix.libc }} native ${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 20
     strategy:
@@ -26,8 +26,16 @@ jobs:
         include:
           - arch: x64
             runner: ubuntu-24.04
+            libc: glibc
           - arch: aarch64
             runner: ubuntu-24.04-arm
+            libc: glibc
+          - arch: x64
+            runner: ubuntu-24.04
+            libc: musl
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+            libc: musl
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -35,5 +43,6 @@ jobs:
       - name: Run the managed security and file-transaction tests using the authenticated build SDK
         env:
           ARCH: ${{ matrix.arch }}
-        run: python3 scripts/cbodotnetup-release.py source-check --arch "$ARCH" --workspace "$RUNNER_TEMP/installer-source-tests"
+          LIBC: ${{ matrix.libc }}
+        run: python3 scripts/cbodotnetup-release.py source-check --arch "$ARCH" --libc "$LIBC" --workspace "$RUNNER_TEMP/installer-source-tests"
 

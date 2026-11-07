@@ -55,7 +55,7 @@ class InstallerReleaseTests(unittest.TestCase):
 
     def test_new_client_pins_neutral_revision_without_changing_the_old_feed_pin(self):
         policy=UP.load(UP.POLICY)
-        self.assertEqual(policy['version'],'0.4.0')
+        self.assertEqual(policy['version'],'0.5.1')
         self.assertEqual(policy['initialSdkVersions'],['10.0.403','9.0.123','8.0.133','7.0.120','6.0.136','5.0.214','3.1.426','3.0.103'])
         self.assertEqual(policy['archiveRevisions'],{'10.0.403':3,'9.0.123':2,'8.0.133':2,'7.0.120':2,'6.0.136':2,'5.0.214':2,'3.1.426':2,'3.0.103':2})
         self.assertEqual(policy['legacyArchiveRevisions'],{'10.0.403':2})
@@ -64,6 +64,7 @@ class InstallerReleaseTests(unittest.TestCase):
 
     def paired_catalogs(self,directory,*,previous_sequence=80,previous_tools=None,previous_revoked=None,provider_aware=False):
         policy=UP.load(UP.POLICY)
+        if provider_aware:policy=dict(policy,version='0.4.0')
         if not provider_aware:
             versions=policy['modernSdkVersions']
             policy=dict(policy,version='0.3.0',initialSdkVersions=versions,

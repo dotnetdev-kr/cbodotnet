@@ -2,7 +2,9 @@ namespace Community.DotNet.Up;
 
 internal static class Program
 {
-    internal const string CurrentVersion = "0.4.0";
+    internal static readonly string CurrentVersion = System.Reflection.Assembly.GetExecutingAssembly()
+        .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
+        .Cast<System.Reflection.AssemblyInformationalVersionAttribute>().Single().InformationalVersion.Split('+')[0];
     internal static bool RefreshesCatalog(IReadOnlyList<string> values) => values.SequenceEqual(new[] { "list", "--available" })
         || values.FirstOrDefault() is "install" or "update"
         || values.SequenceEqual(new[] { "self", "update" }) || values.SequenceEqual(new[] { "self", "rollback" });
