@@ -121,6 +121,8 @@ def prepare_image_context(profile, context, root=ROOT):
 class Producer:
     def __init__(self, args):
         self.args = args
+        self.diagnostic_ptrace = getattr(args, 'diagnostic_ptrace', False)
+        require(type(self.diagnostic_ptrace) is bool, 'Diagnostic ptrace mode must be an explicit boolean')
         self.id = identity(args.arch)
         self.workspace = ordinary(args.workspace)
         self.output = ordinary(args.output_dir)
@@ -164,7 +166,7 @@ class Producer:
 
     def container(self, command, *, network='host', source=True, image=None, log=None):
         argv = self.engine + ['run', '--rm', '--network=' + network, '--user', str(os.getuid()) + ':' + str(os.getgid()),
-            '--cap-drop=all', '--security-opt=no-new-privileges',
+            *self.container_security_options(source=source),
             '--env', 'HOME=/home/build', '--env', 'DOTNET_CLI_HOME=/home/build',
             '--env', 'DOTNET_CLI_TELEMETRY_OPTOUT=1', '--env', 'DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1',
             '--env', 'DOTNET_GENERATE_ASPNET_CERTIFICATE=false', '--env', 'DOTNET_NOLOGO=1',
@@ -180,6 +182,12 @@ class Producer:
         argv += self.diagnostic_options()
         self.run(argv + [image or self.image] + self.observed_command(command), log=log)
 
+    def container_security_options(self, *, source):
+        options = ['--cap-drop=all', '--security-opt=no-new-privileges']
+        if source and self.diagnostic_ptrace:
+            options.append('--cap-add=SYS_PTRACE')
+        return options
+
     def bootstrap_environment(self):
         architecture = 'ARM64' if self.args.arch == 'aarch64' else 'X64'
         return ['--env', 'DOTNET_ROOT=/vmr/.dotnet', '--env', 'DOTNET_ROOT_' + architecture + '=/vmr/.dotnet',
@@ -188,9 +196,12 @@ class Producer:
     def diagnostic_options(self):
         path = self.reports / 'diagnostics' / ('container-' + str(len(self.commands)).zfill(4))
         path.mkdir(parents=True)
-        return ['--volume', str(path) + ':/diag', '--env', 'MSBUILDDEBUGPATH=/diag', '--env', 'MSBUILDDEBUGCOMM=1',
+        options = ['--volume', str(path) + ':/diag', '--env', 'MSBUILDDEBUGPATH=/diag', '--env', 'MSBUILDDEBUGCOMM=1',
                 '--env', 'DOTNET_DbgEnableMiniDump=1', '--env', 'DOTNET_DbgMiniDumpType=1',
                 '--env', 'DOTNET_DbgMiniDumpName=/diag/dotnet_%e_%p_%t.dmp']
+        if self.diagnostic_ptrace:
+            options += ['--env', 'DOTNET_EnableCrashReport=1', '--env', 'DOTNET_CreateDumpDiagnostics=1']
+        return options
 
     @staticmethod
     def observed_command(command):
@@ -299,6 +310,7 @@ class Producer:
         write(self.reports / 'prepare/identity.json', dict(schemaVersion=1, sdkVersion=SDK,
               targetRid=self.id['rid'], libc='musl', sourceCommit=SOURCE, sharedVmrCommit=SHARED,
               projectCommit=self.project, runId=self.args.run_id, runAttempt=self.args.run_attempt,
+              diagnosticPtrace=self.diagnostic_ptrace,
               buildId=self.args.build_id, imageId=self.image, verificationImageId=self.verify_image,
               bootstrapRoot='/vmr/.dotnet', profile=dict(path=self.profile_path.name,
               **fingerprint(self.profile_path)), nativeArchitecture=platform.machine(), emulation=False))
@@ -329,6 +341,7 @@ class Producer:
                 'The independent scan checkout must be pristine')
         # Container does not mount the warm source writable during the actual scan.
         argv = self.engine + ['run', '--rm', '--network=none', '--user', str(os.getuid()) + ':' + str(os.getgid()),
+                *self.container_security_options(source=True),
                 '--env', 'HOME=/home/build', '--env', 'DOTNET_CLI_TELEMETRY_OPTOUT=1',
                 '--volume', str(self.home) + ':/home/build', '--volume', str(self.source) + ':/vmr:ro',
                 '--volume', str(self.clean) + ':/clean:ro', '--volume', str(ROOT) + ':/project:ro',
@@ -465,6 +478,7 @@ class Producer:
             network='none', source=False, image=self.verify_image, log=self.reports / 'verify/native.log')
 
     def seal(self):
+        require(not self.diagnostic_ptrace, 'Diagnostic ptrace runs may never seal a qualified producer')
         required = ['prepare', 'build', 'scan', 'test', 'collect', 'verify']
         for stage in required:
             require(json.loads((self.reports / 'stages' / (stage + '.json')).read_text())['status'] == 'passed',
@@ -474,6 +488,7 @@ class Producer:
                 for p in sorted(self.output.rglob('*')) if p.is_file() and not p.is_symlink()]
         write(self.output / 'producer-validation.json', dict(schemaVersion=1, status='passed',
               kind='musl-sdk-producer-validation', sdkVersion=SDK, targetRid=self.id['rid'], libc='musl',
+              diagnosticPtrace=False,
               architecture=self.args.arch, projectCommit=self.project, sourceCommit=SOURCE,
               sharedVmrCommit=SHARED, runId=self.args.run_id, runAttempt=self.args.run_attempt,
               allRequiredStages=required, files=rows,
@@ -488,12 +503,25 @@ class Producer:
                        '--workspace', str(self.workspace), '--reports-dir', str(self.reports / 'ci-host')]
             monitor = subprocess.Popen(command)
         try:
-            for name in ['build', 'scan', 'test', 'collect', 'verify']:
+            for name in (['build'] if self.diagnostic_ptrace else ['build', 'scan', 'test', 'collect', 'verify']):
                 self.stage(name, getattr(self, name))
         finally:
-            if monitor is not None:
-                monitor.terminate()
-                require(monitor.wait(timeout=60) == 0, 'Resource monitor failed')
+            try:
+                if monitor is not None:
+                    monitor.terminate()
+                    require(monitor.wait(timeout=60) == 0, 'Resource monitor failed')
+            finally:
+                if self.diagnostic_ptrace:
+                    write(self.output / 'producer-validation.json', dict(schemaVersion=1, status='diagnostic-only',
+                        kind='musl-sdk-producer-diagnostic', diagnosticPtrace=True, productionQualification=False,
+                        sdkVersion=SDK, targetRid=self.id['rid'], libc='musl', architecture=self.args.arch,
+                        projectCommit=self.project, sourceCommit=SOURCE, sharedVmrCommit=SHARED,
+                        runId=self.args.run_id, runAttempt=self.args.run_attempt,
+                        plannedStages=['prepare', 'build'], stages=[load_json(self.reports / 'stages' / (name + '.json'))
+                            for name in ['prepare', 'build'] if (self.reports / 'stages' / (name + '.json')).is_file()],
+                        scope='Source-only crash diagnosis with SYS_PTRACE. No scan/test/collect/consumer qualification or admission.'))
+        if self.diagnostic_ptrace:
+            return
         self.seal()
 
 
@@ -576,6 +604,7 @@ def sdk_elf_inventory(archive, machine, loader):
 def validate(release):
     release = ordinary(release)
     result = load_json(release / 'producer-validation.json')
+    require(result.get('diagnosticPtrace') is False, 'Diagnostic ptrace or unspecified diagnostic mode cannot qualify')
     required_stages = ['prepare', 'build', 'scan', 'test', 'collect', 'verify']
     require(result.get('schemaVersion') == 1 and result.get('status') == 'passed'
             and result.get('kind') == 'musl-sdk-producer-validation' and result.get('libc') == 'musl'
@@ -604,6 +633,7 @@ def validate(release):
         require(dt.datetime.fromisoformat(stages[before]['finishedAtUtc']) <=
                 dt.datetime.fromisoformat(stages[after]['startedAtUtc']), 'Producer stages are out of order')
     prepare = load_json(release / 'reports/prepare/identity.json')
+    require(prepare.get('diagnosticPtrace') is False, 'Diagnostic ptrace source construction cannot qualify')
     sdk = load_json(release / 'producer-sdk.json')
     for record in [prepare, sdk]:
         for key in ['sdkVersion', 'targetRid', 'libc', 'sourceCommit', 'sharedVmrCommit',
@@ -621,6 +651,12 @@ def validate(release):
         source_commands = [c for c in stages[stage_name]['commands'] if '/vmr/.dotnet/dotnet' in c or './build.sh' in c]
         require(source_commands and all(required_bootstrap_environment <= set(c) for c in source_commands),
                 'Source build/scan/test must resolve every native TaskHost to the exact private bootstrap SDK')
+    for stage in stages.values():
+        for command in stage['commands']:
+            if 'run' in command and '--user' in command:
+                require('--cap-drop=all' in command and '--security-opt=no-new-privileges' in command
+                    and '--privileged' not in command and not any(str(value).startswith('--cap-add') for value in command),
+                    'Qualified source and consumer containers must retain dropped capabilities without diagnostic ptrace')
     profile_path = ROOT / 'profiles' / ('dotnet-' + SDK + '-linux-musl-' + result['architecture'] + '.json')
     require(prepare.get('profile', {}).get('path') == profile_path.name
             and all(prepare['profile'].get(k) == v for k, v in fingerprint(profile_path).items()),
@@ -785,6 +821,8 @@ def main():
     for name in ['workspace', 'output-dir']:
         run.add_argument('--' + name, type=Path, required=True)
     run.add_argument('--host-reports', type=Path)
+    run.add_argument('--diagnostic-ptrace', action='store_true',
+                     help='Source-only crash capture; stops after build and is never admissible for qualification')
     for name in ['build-id', 'run-id', 'run-attempt']:
         run.add_argument('--' + name, required=True)
     check = commands.add_parser('validate')

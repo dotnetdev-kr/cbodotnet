@@ -2,6 +2,12 @@ name: Native Alpine musl SDK producer
 
 on:
   workflow_dispatch:
+    inputs:
+      diagnostic_ptrace:
+        description: ARM-only crash capture; source-build SYS_PTRACE, never eligible for release
+        type: boolean
+        required: true
+        default: false
 
 permissions:
   contents: read
@@ -25,13 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - arch: x64
-            dotnet_arch: x64
-            runner: ubuntu-24.04
-          - arch: aarch64
-            dotnet_arch: arm64
-            runner: ubuntu-24.04-arm
+        include: ${{ fromJSON(inputs.diagnostic_ptrace && '[{"arch":"aarch64","dotnet_arch":"arm64","runner":"ubuntu-24.04-arm"}]' || '[{"arch":"x64","dotnet_arch":"x64","runner":"ubuntu-24.04"},{"arch":"aarch64","dotnet_arch":"arm64","runner":"ubuntu-24.04-arm"}]') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -60,13 +60,44 @@ jobs:
             --workspace "$MUSL_WORKSPACE" --reports-dir "$MUSL_HOST_REPORTS" --minimum-free-gib 30
 
       - name: Build original VMR, upstream tests, sources and native Alpine proof
-        timeout-minutes: 300
+        timeout-minutes: ${{ inputs.diagnostic_ptrace && 30 || 300 }}
+        env:
+          DIAGNOSTIC_PTRACE: ${{ inputs.diagnostic_ptrace }}
         run: |
+          extra=()
+          if [[ "$DIAGNOSTIC_PTRACE" == true ]]; then extra+=(--diagnostic-ptrace); fi
           python3 scripts/musl-sdk.py run --arch '${{ matrix.arch }}' \
             --workspace "$MUSL_WORKSPACE" --output-dir "$MUSL_DELIVERY" \
             --host-reports "$MUSL_HOST_REPORTS" --build-id "$MUSL_BUILD_ID" \
-            --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT"
+            --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" "${extra[@]}"
           python3 scripts/musl-sdk.py validate --release-dir "$MUSL_DELIVERY"
+
+      - name: Preserve host failure diagnostics
+        if: failure() && steps.paths.outcome == 'success'
+        run: |
+          set -euo pipefail
+          mkdir -p "$MUSL_DELIVERY/reports/diagnostics/host"
+          # The runner user owns the output; sudo is only needed to read dmesg.
+          # shellcheck disable=SC2024
+          sudo -n dmesg --ctime > "$MUSL_DELIVERY/reports/diagnostics/host/kernel.txt" 2>&1 || true
+          for name in core_pattern core_uses_pid yama/ptrace_scope; do
+            if [[ -r "/proc/sys/kernel/$name" ]]; then
+              printf '%s: ' "$name"
+              cat "/proc/sys/kernel/$name"
+            fi
+          done > "$MUSL_DELIVERY/reports/diagnostics/host/core-policy.txt"
+          python3 - <<'PY'
+          import os,pathlib,shutil,stat
+          source=pathlib.Path(os.environ['MUSL_WORKSPACE'])/'source'
+          target=pathlib.Path(os.environ['MUSL_DELIVERY'])/'reports/diagnostics/host'
+          for path in source.glob('core*'):
+              mode=path.lstat().st_mode
+              if stat.S_ISREG(mode) and path.stat().st_size <= 2*1024**3:
+                  with path.open('rb') as stream:
+                      header=stream.read(64)
+                  if header[:4] == b'\x7fELF' and len(header)==64 and int.from_bytes(header[16:18],'little')==4:
+                      shutil.copyfile(path,target/path.name)
+          PY
 
       - name: Preserve unchanged SDK, corresponding source and complete evidence
         if: always() && steps.paths.outcome == 'success'

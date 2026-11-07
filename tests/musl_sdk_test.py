@@ -7,7 +7,9 @@ from pathlib import Path
 import struct
 import tarfile
 import tempfile
+from types import SimpleNamespace
 import unittest
+from unittest import mock
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -77,12 +79,87 @@ class DeliveryAdmissionTests(unittest.TestCase):
 
     def test_passed_label_without_required_stages_is_rejected(self):
         result = dict(schemaVersion=1, status='passed', kind='musl-sdk-producer-validation',
+                      diagnosticPtrace=False,
                       libc='musl', sdkVersion=M.SDK, sourceCommit=M.SOURCE, sharedVmrCommit=M.SHARED,
                       architecture='x64', targetRid='linux-musl-x64', projectCommit='a' * 40,
                       runId='1', runAttempt='1', allRequiredStages=['build'], files=[self.row])
         (self.root / 'producer-validation.json').write_text(json.dumps(result))
         with self.assertRaisesRegex(ValueError, 'six required'):
             M.validate(self.root)
+
+
+class DiagnosticPtraceTests(unittest.TestCase):
+    def producer(self, root, diagnostic=True):
+        producer = object.__new__(M.Producer)
+        producer.args = SimpleNamespace(arch='aarch64',run_id='123',run_attempt='1',host_reports=None)
+        producer.id = M.identity('aarch64')
+        producer.project = 'a'*40
+        producer.diagnostic_ptrace = diagnostic
+        producer.workspace = root/'workspace'
+        producer.output = root/'delivery'
+        producer.reports = producer.output/'reports'
+        producer.home = root/'home'
+        producer.inputs = root/'inputs'
+        producer.source = root/'source'
+        producer.engine = ['podman']
+        producer.commands = []
+        producer.image = 'isolated-test-image'
+        producer.run = lambda command, **kwargs: producer.commands.append(list(map(str,command)))
+        return producer
+
+    def test_only_opted_in_source_container_gets_effective_ptrace_request(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            producer = self.producer(Path(temporary))
+            producer.container(['source-probe'],source=True)
+            producer.container(['consumer-probe'],source=False)
+            source,consumer = producer.commands
+            self.assertIn('--cap-add=SYS_PTRACE',source)
+            for command in (source,consumer):
+                self.assertIn('--cap-drop=all',command)
+                self.assertIn('--security-opt=no-new-privileges',command)
+            self.assertFalse(any(value.startswith('--cap-add') for value in consumer))
+            producer.diagnostic_ptrace = False
+            producer.container(['ordinary-source'],source=True)
+            self.assertFalse(any(value.startswith('--cap-add') for value in producer.commands[-1]))
+
+    def test_diagnostic_success_and_failure_stop_after_build_and_remain_unqualified(self):
+        for failed in (False,True):
+            with self.subTest(failed=failed),tempfile.TemporaryDirectory() as temporary:
+                producer = self.producer(Path(temporary))
+                producer.prepare = mock.Mock()
+                producer.build = mock.Mock(side_effect=ValueError('controlled build failure') if failed else None)
+                for name in ('scan','test','collect','verify','seal'):
+                    setattr(producer,name,mock.Mock())
+                if failed:
+                    with self.assertRaisesRegex(ValueError,'controlled build failure'):producer.execute()
+                else:
+                    producer.execute()
+                producer.prepare.assert_called_once();producer.build.assert_called_once()
+                for name in ('scan','test','collect','verify','seal'):getattr(producer,name).assert_not_called()
+                result = M.load_json(producer.output/'producer-validation.json')
+                self.assertEqual('diagnostic-only',result['status'])
+                self.assertTrue(result['diagnosticPtrace']);self.assertFalse(result['productionQualification'])
+                self.assertEqual(['prepare','build'],[stage['stage'] for stage in result['stages']])
+                self.assertEqual('failed' if failed else 'passed',result['stages'][-1]['status'])
+                with self.assertRaisesRegex(ValueError,'Diagnostic ptrace'):M.validate(producer.output)
+
+    def test_missing_true_or_nonboolean_mode_and_manual_diagnostic_seal_are_rejected(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);producer=self.producer(root)
+            with self.assertRaisesRegex(ValueError,'never seal'):M.Producer.seal(producer)
+            for marker in ({},{'diagnosticPtrace':True},{'diagnosticPtrace':0},{'diagnosticPtrace':'false'}):
+                (root/'producer-validation.json').write_text(json.dumps(dict(status='passed',**marker)))
+                with self.subTest(marker=marker),self.assertRaisesRegex(ValueError,'Diagnostic ptrace'):
+                    M.validate(root)
+
+    def test_normal_execution_still_runs_every_required_stage_and_seals(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            producer=self.producer(Path(temporary),diagnostic=False)
+            order=[]
+            for name in ('prepare','build','scan','test','collect','verify','seal'):
+                setattr(producer,name,lambda name=name:order.append(name))
+            producer.execute()
+            self.assertEqual(['prepare','build','scan','test','collect','verify','seal'],order)
 
 
 class ActualElfBindingTests(unittest.TestCase):
