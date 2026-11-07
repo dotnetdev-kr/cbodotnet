@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "kind": "musl-release-signing-policy",
+  "repository": "dotnetdev-kr/cbodotnet",
+  "workflow": ".github/workflows/musl-release.yml",
+  "environment": "downstream-release",
+  "evidenceSigners": {
+    "D7D154B4B33C19A82B95B13688135410ACD9C0EA": {
+      "notAfter": "2028-11-03T02:38:19Z",
+      "notBefore": "2026-11-04T00:00:00Z",
+      "state": "active",
+      "workflow": ".github/workflows/musl-release.yml"
+    }
+  },
+  "apkSigner": {
+    "state": "active",
+    "algorithm": "RSA4096",
+    "signatureType": "RSA256",
+    "digest": "SHA256",
+    "publicKeyPath": "releases/cbodotnet-apk-2026.rsa.pub",
+    "publicKeyName": "cbodotnet-apk-2026.rsa.pub",
+    "publicKeySha256": "d464a8e7c173c1a86ad65f92abb1d56fd1f362dbcaf30b4b3929355bc6a49c2d",
+    "spkiDerSha256": "784ae05c3339c239f715cb0b849dead89e6a1b787a8126c738d6997227a63e20",
+    "createdAt": "2026-11-07T06:46:45Z",
+    "publisherNotAfter": "2028-11-07T06:46:45Z",
+    "expirySemantics": "Publisher-enforced rotation cutoff; raw APK keys have no native expiry or remote revocation.",
+    "secret": "APK_SIGNING_KEY",
+    "environment": "downstream-release",
+    "workflow": ".github/workflows/musl-release.yml",
+    "credentialAuthorization": "Explicit owner approval in the issue24 implementation conversation on 2026-11-07"
+  }
+}

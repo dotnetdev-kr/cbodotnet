@@ -1,0 +1,73 @@
+name: Native Alpine APK machinery checks
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/musl*'
+      - 'scripts/cbodotnet-default.sh.in'
+      - 'scripts/cbodotnet-archive-launcher.sh.in'
+      - 'tests/musl*'
+      - 'containers/sdk-alpine-runtime.Containerfile'
+      - '.github/workflows/musl-package-check.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/musl*'
+      - 'scripts/cbodotnet-default.sh.in'
+      - 'scripts/cbodotnet-archive-launcher.sh.in'
+      - 'tests/musl*'
+      - 'containers/sdk-alpine-runtime.Containerfile'
+      - '.github/workflows/musl-package-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: musl-package-check-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native-fixture:
+    name: Native APK fixture (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+            image: alpine:3.24.4@sha256:0f49f331d9212aff11b932863be4eb01cdf962969aa86dab7d1ee21ac6f5f52b
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+            image: alpine:3.24.4@sha256:1829893486be257df5049ab3b7fc95afbd0fc09d89803cbc580bda1ba5386b29
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Validate package helpers with ephemeral fixture credentials
+        run: python3 -B -m unittest discover -s tests -p musl_packages_test.py -v
+      - name: Exercise real apk and abuild on the matching native CPU
+        env:
+          IMAGE: ${{ matrix.image }}
+        run: |
+          set -euo pipefail
+          mkdir "$RUNNER_TEMP/apk-fixture"
+          chmod 0777 "$RUNNER_TEMP/apk-fixture"
+          docker run --rm --volume "$PWD:/repo:ro" --volume "$RUNNER_TEMP/apk-fixture:/work" \
+            --workdir /repo "$IMAGE" sh -ec '
+              # The assembler is unprivileged and uses no sudo/setuid dependency helper.
+              apk add --no-cache apk-tools=3.0.9-r0 abuild=3.17.0-r0 "!abuild-sudo" python3=3.14.10-r1 openssl=3.5.9-r0 dotnet10-sdk=10.0.303-r2
+              adduser -D -u 10001 builder
+              su builder -c "python3 -B scripts/musl_apk_fixture.py build --output /tmp/cbodotnet-apk-fixture"
+              python3 -B scripts/musl_apk_fixture.py lifecycle --build /tmp/cbodotnet-apk-fixture --output /work/package-fixture.json
+            '
+      - name: Retain fixture-only evidence (no private keys or production admission)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: musl-apk-fixture-${{ matrix.arch }}
+          path: ${{ runner.temp }}/apk-fixture/package-fixture.json
+          if-no-files-found: warn
+          retention-days: 14

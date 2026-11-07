@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-11-07T06:29:29.898434+00:00",
+  "scope": "Upstream file availability and lifecycle only; no cbodotnet musl build/runtime qualification",
+  "releases": [
+    {
+      "sdkVersion": "10.0.403",
+      "series": "10.0",
+      "lifecycle": {
+        "supportPhase": "active",
+        "eolDate": "2028-11-14"
+      },
+      "metadata": {
+        "url": "https://builds.dotnet.microsoft.com/dotnet/release-metadata/10.0/releases.json",
+        "size": 1151627,
+        "sha256": "8fa7ae2d46b1f94416d5458c7ed68b0c3cafc5efb8e34d89dea3a98bf0a38b33"
+      },
+      "observedUpstreamSdkFiles": {
+        "linux-musl-arm64": {
+          "name": "dotnet-sdk-linux-musl-arm64.tar.gz",
+          "rid": "linux-musl-arm64",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.403/dotnet-sdk-10.0.403-linux-musl-arm64.tar.gz",
+          "hash": "a5a881429e879f0ff01e84a768dbc022e7fed0f4c2fe4936c0bec134fa184d16b42f98e1e43bc1c0fea5e9ce442fe57efc87bdc04023e337f9b0013c849bc2b1"
+        },
+        "linux-musl-x64": {
+          "name": "dotnet-sdk-linux-musl-x64.tar.gz",
+          "rid": "linux-musl-x64",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.403/dotnet-sdk-10.0.403-linux-musl-x64.tar.gz",
+          "hash": "7c85806aeb15b5c02e282234532ac599f69409e45ba4ef09c13e848441d3a092c4e030efaaecbd271896c4137429c90daf3f44ca9805fa27468cc2323c670ac8"
+        }
+      },
+      "status": "pending",
+      "reason": "Native producer and archive/APK/OCI qualification in progress; no availability claim.",
+      "followUpIssue": 24,
+      "followUpUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/24"
+    },
+    {
+      "sdkVersion": "9.0.123",
+      "series": "9.0",
+      "lifecycle": {
+        "supportPhase": "maintenance",
+        "eolDate": "2026-11-10"
+      },
+      "metadata": {
+        "url": "https://builds.dotnet.microsoft.com/dotnet/release-metadata/9.0/releases.json",
+        "size": 1205168,
+        "sha256": "750d60fd7191b48246096c78c3d7bdf64d57e201ff816fd174fa888b26c45937"
+      },
+      "observedUpstreamSdkFiles": {
+        "linux-musl-x64": {
+          "name": "dotnet-sdk-linux-musl-x64.tar.gz",
+          "rid": "linux-musl-x64",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/9.0.123/dotnet-sdk-9.0.123-linux-musl-x64.tar.gz",
+          "hash": "cc448791a4dde3d0c114f233d6c0e3d0f924145cdd4c4b72bdff4f40c2fae7a7680ec5bec2883e604236e108095e0b4ffd5e9859f14c051bdab4deb9869eb7cd"
+        },
+        "linux-musl-arm64": {
+          "name": "dotnet-sdk-linux-musl-arm64.tar.gz",
+          "rid": "linux-musl-arm64",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/9.0.123/dotnet-sdk-9.0.123-linux-musl-arm64.tar.gz",
+          "hash": "8772b5fd3912cf9568a30a4dab6bdfaf929b6936e78335eac15e366129df1e4d1cd45814bf0f111eadc62a2f481f2188ab4f0c724dd224098e39e4e6c89ccc12"
+        }
+      },
+      "status": "pending",
+      "reason": "Upstream musl files exist for both CPUs; independent producer and current Alpine runtime evidence required.",
+      "followUpIssue": 32,
+      "followUpUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/32"
+    },
+    {
+      "sdkVersion": "8.0.133",
+      "series": "8.0",
+      "lifecycle": {
+        "supportPhase": "maintenance",
+        "eolDate": "2026-11-10"
+      },
+      "metadata": {
+        "url": "https://builds.dotnet.microsoft.com/dotnet/release-metadata/8.0/releases.json",
+        "size": 1664962,
+        "sha256": "e11dbb88706ea3ba9ac4e3b022f1ab9b49e7fcbe6448f63fa6764199b7cca822"
+      },
+      "observedUpstreamSdkFiles": {
+        "linux-musl-x64": {
+          "name": "dotnet-sdk-linux-musl-x64.tar.gz",
+          "rid": "linux-musl-x64",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/8.0.133/dotnet-sdk-8.0.133-linux-musl-x64.tar.gz",
+          "hash": "8a825832a2dab888b94f7cc05959998385ef8ee244def3628cff62feee49902ba4bacd0d7c229063ce6c64c16af9bfd1dcf29f7a6fd7b29b18284a54fac27744"
+        },
+        "linux-musl-arm64": {
+          "name": "dotnet-sdk-linux-musl-arm64.tar.gz",
+          "rid": "linux-musl-arm64",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/8.0.133/dotnet-sdk-8.0.133-linux-musl-arm64.tar.gz",
+          "hash": "64bd84abf1baf1f24f0a1d412c0f61e3ac60b4eedc5312e8630cc1822c83d2c1c11a40b006defc9ad9d4c22a2b39b457b5132ea58fb842d9dde6918876f04cc7"
+        }
+      },
+      "status": "pending",
+      "reason": "Upstream musl files exist for both CPUs; independent producer and current Alpine runtime evidence required.",
+      "followUpIssue": 32,
+      "followUpUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/32"
+    },
+    {
+      "sdkVersion": "7.0.120",
+      "series": "7.0",
+      "lifecycle": {
+        "supportPhase": "eol",
+        "eolDate": "2024-05-14"
+      },
+      "metadata": {
+        "url": "https://builds.dotnet.microsoft.com/dotnet/release-metadata/7.0/releases.json",
+        "size": 1031422,
+        "sha256": "a2d9905158df3ff0de9e6e685e2a6ff024310cead32985958e3cba024ae83f2c"
+      },
+      "observedUpstreamSdkFiles": {
+        "linux-musl-arm64": {
+          "name": "dotnet-sdk-linux-musl-arm64.tar.gz",
+          "rid": "linux-musl-arm64",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/7.0.120/dotnet-sdk-7.0.120-linux-musl-arm64.tar.gz",
+          "hash": "5d3124c3daf1ed1cef0c838e753637af1e52030b36630bbfa7dba176a7eca24fe9e5c4df9eff2170fa96cf63e0055df42f0950b3b5900deb282590e4b612f3fb"
+        },
+        "linux-musl-x64": {
+          "name": "dotnet-sdk-linux-musl-x64.tar.gz",
+          "rid": "linux-musl-x64",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/7.0.120/dotnet-sdk-7.0.120-linux-musl-x64.tar.gz",
+          "hash": "c508ab5310d743f57ea78611ffe354268fe883e7c673ee808daaa6dde30ba454d5d70f8191c49eb52ae4a80c062ed6490ba1d6b752fcc541b0eb7835f4eee87f"
+        }
+      },
+      "status": "pending",
+      "reason": "EOL candidate; source/native producer and current stock SSL/ICU/curl closure have not been reviewed or qualified.",
+      "followUpIssue": 33,
+      "followUpUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/33"
+    },
+    {
+      "sdkVersion": "6.0.136",
+      "series": "6.0",
+      "lifecycle": {
+        "supportPhase": "eol",
+        "eolDate": "2024-11-12"
+      },
+      "metadata": {
+        "url": "https://builds.dotnet.microsoft.com/dotnet/release-metadata/6.0/releases.json",
+        "size": 1579932,
+        "sha256": "28da927628afed3ebe2a86f637e437152af2120761ab11bede22e5de3786d808"
+      },
+      "observedUpstreamSdkFiles": {
+        "linux-musl-arm64": {
+          "name": "dotnet-sdk-linux-musl-arm64.tar.gz",
+          "rid": "linux-musl-arm64",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/6.0.136/dotnet-sdk-6.0.136-linux-musl-arm64.tar.gz",
+          "hash": "2ccb4e58f9dfa0a09dce1687a60ae4911cf8c864abfc7d63cdc113bd228a253f9545d699e8709d1403ff28ce7cf8db0935e4796b05b0aa80eef6ae43d38b8537"
+        },
+        "linux-musl-x64": {
+          "name": "dotnet-sdk-linux-musl-x64.tar.gz",
+          "rid": "linux-musl-x64",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/6.0.136/dotnet-sdk-6.0.136-linux-musl-x64.tar.gz",
+          "hash": "a93ba846501707808c6b8ea51aa763faf82cc215325aa310aa05d084caebd2c40f74048b384624a73988ba418bf72a71b57883c2a05a0a087a112d2c26b4266d"
+        }
+      },
+      "status": "pending",
+      "reason": "EOL candidate; source/native producer and current stock SSL/ICU/curl closure have not been reviewed or qualified.",
+      "followUpIssue": 33,
+      "followUpUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/33"
+    },
+    {
+      "sdkVersion": "5.0.214",
+      "series": "5.0",
+      "lifecycle": {
+        "supportPhase": "eol",
+        "eolDate": "2022-05-10"
+      },
+      "metadata": {
+        "url": "https://builds.dotnet.microsoft.com/dotnet/release-metadata/5.0/releases.json",
+        "size": 774076,
+        "sha256": "97ad3368a4ebad217b8e967288490e77d89e3a6edd12619d38ccfb208fadb0ae"
+      },
+      "observedUpstreamSdkFiles": {
+        "linux-musl-arm64": {
+          "name": "dotnet-sdk-linux-musl-arm64.tar.gz",
+          "rid": "linux-musl-arm64",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/5.0.214/dotnet-sdk-5.0.214-linux-musl-arm64.tar.gz",
+          "hash": "92ce80320a73f742672c99318e66cfaf375876fb8320d053cd64d6b53a9c365bb2774fecbed3714646abf6f3eba72286246013cb8d80fc087b5908fcdfbfeffb"
+        },
+        "linux-musl-x64": {
+          "name": "dotnet-sdk-linux-musl-x64.tar.gz",
+          "rid": "linux-musl-x64",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/5.0.214/dotnet-sdk-5.0.214-linux-musl-x64.tar.gz",
+          "hash": "39261405f6c05216da2fbd6b3aaff1ac1ed4681bb017f0127edbf62935329acf4334ff889fce1273b65fe02d82efe4679dec050c74353717c16e7bbc10c3de24"
+        }
+      },
+      "status": "pending",
+      "reason": "EOL candidate; actual musl legacy SSL/ICU/curl closure and native source producer must be investigated.",
+      "followUpIssue": 34,
+      "followUpUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/34"
+    },
+    {
+      "sdkVersion": "3.1.426",
+      "series": "3.1",
+      "lifecycle": {
+        "supportPhase": "eol",
+        "eolDate": "2022-12-13"
+      },
+      "metadata": {
+        "url": "https://builds.dotnet.microsoft.com/dotnet/release-metadata/3.1/releases.json",
+        "size": 905632,
+        "sha256": "93d97746750f721a8ead10fdf07c578cecbe5661f1b477c7f81db1ddb7f6d5f2"
+      },
+      "observedUpstreamSdkFiles": {
+        "linux-musl-x64": {
+          "name": "dotnet-sdk-linux-musl-x64.tar.gz",
+          "rid": "linux-musl-x64",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/3.1.426/dotnet-sdk-3.1.426-linux-musl-x64.tar.gz",
+          "hash": "2854eaeb79b29fce1ae31f2253adb2d8f199b7d5a988fc8c90130afe3df6668893d87c14a86932254bdbaec64a553d7b996bbd6868ba7858e3a2cb28c5e9576d"
+        }
+      },
+      "status": "blocked",
+      "reason": "Selected upstream SDK metadata has no linux-musl-arm64 SDK input; no native ARM64 musl source/bootstrap route or dependency strategy is qualified. A source port may be possible and needs separate investigation.",
+      "followUpIssue": 35,
+      "followUpUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/35"
+    },
+    {
+      "sdkVersion": "3.0.103",
+      "series": "3.0",
+      "lifecycle": {
+        "supportPhase": "eol",
+        "eolDate": "2020-03-03"
+      },
+      "metadata": {
+        "url": "https://builds.dotnet.microsoft.com/dotnet/release-metadata/3.0/releases.json",
+        "size": 351799,
+        "sha256": "3a81cc1cfe4239b4e37987e63e96cc0f368747888f18bcb643fe1e2c2d8ee5e2"
+      },
+      "observedUpstreamSdkFiles": {
+        "linux-musl-x64": {
+          "name": "dotnet-sdk-linux-musl-x64.tar.gz",
+          "rid": "linux-musl-x64",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/3.0.103/dotnet-sdk-3.0.103-linux-musl-x64.tar.gz",
+          "hash": "79c2c93d5d4f212f4d2c96cf1611d4f93370c075c342186ecacebb10cad301cffe8345e2d97e45a771e165f10e895f6e08d0b2e74b12b04c8e1b4062a2bbd35a"
+        }
+      },
+      "status": "blocked",
+      "reason": "Selected upstream SDK metadata has no linux-musl-arm64 SDK input; no native ARM64 musl source/bootstrap route or dependency strategy is qualified. A source port may be possible and needs separate investigation.",
+      "followUpIssue": 35,
+      "followUpUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/35"
+    }
+  ],
+  "kind": "musl-sdk-series-disposition",
+  "qualificationAllowed": false,
+  "libc": "musl",
+  "initialCandidate": {
+    "sdkVersion": "10.0.403",
+    "alpineBranch": "3.24",
+    "pointRelease": "3.24.4",
+    "architectures": [
+      "x64",
+      "aarch64"
+    ],
+    "status": "pending-native-build-and-delivery-qualification"
+  }
+}

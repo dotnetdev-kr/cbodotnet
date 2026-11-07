@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "kind": "musl-distribution-contract",
+  "repository": "dotnetdev-kr/cbodotnet",
+  "libc": "musl",
+  "architectures": {
+    "x64": {
+      "public": "x64",
+      "rid": "linux-musl-x64",
+      "apk": "x86_64",
+      "oci": "linux/amd64",
+      "elfMachine": "Advanced Micro Devices X86-64",
+      "interpreter": "/lib/ld-musl-x86_64.so.1"
+    },
+    "aarch64": {
+      "public": "aarch64",
+      "rid": "linux-musl-arm64",
+      "apk": "aarch64",
+      "oci": "linux/arm64",
+      "elfMachine": "AArch64",
+      "interpreter": "/lib/ld-musl-aarch64.so.1"
+    }
+  },
+  "installation": {
+    "rootTemplate": "/opt/cbodotnet/{series}",
+    "launcherTemplate": "/usr/bin/cbodotnet-{series}",
+    "packageTemplate": "cbodotnet-sdk-{series}",
+    "commonPackage": "cbodotnet-host",
+    "defaultLauncher": "/usr/bin/cbodotnet",
+    "defaultSelection": "highest-installed-major-minor",
+    "containerCommandDirectory": "/usr/local/bin",
+    "modifySystemDotnet": false,
+    "registerAlternatives": false
+  },
+  "branding": {
+    "displayName": "Community Build of .NET (built by .NET Dev)",
+    "implementation": "distribution-wrapper",
+    "versionStdout": "unchanged-numeric-sdk-version",
+    "versionBrandingStream": "stderr",
+    "informationCommand": "--cbodotnet-info",
+    "modifyQualifiedPayload": false
+  },
+  "producerWorkflow": ".github/workflows/musl-sdk.yml",
+  "releases": {
+    "10.0.403": {
+      "target": "net10-musl",
+      "producerRevisions": [1],
+      "candidateVariants": ["alpine-3.24"],
+      "source": {
+        "sourceCommit": "5a2162bea6845eabc1fc721624a43568c65db3b1",
+        "sharedVmrCommit": "0427b9abbead3fa64c6655eb4290c537397131fa",
+        "bootstrapSdk": "10.0.401",
+        "sharedSdk": "10.0.114-servicing.26522.126",
+        "runtimeVersion": "10.0.14"
+      },
+      "licensePaths": ["LICENSE.txt", "ThirdPartyNotices.txt"],
+      "securitySupport": "community-build-no-additional-security-maintenance"
+    }
+  },
+  "operatingSystems": {
+    "alpine-3.24": {
+      "distribution": "alpine",
+      "branch": "3.24",
+      "pointRelease": "3.24.4",
+      "libc": "musl",
+      "status": "candidate-only",
+      "dependencies": ["musl", "ca-certificates", "libgcc", "libstdc++", "libssl3", "libcrypto3", "icu-libs", "icu-data-full", "tzdata", "krb5-libs", "zlib", "brotli-libs", "lttng-ust"]
+    }
+  },
+  "channels": ["archive", "apk", "oci"],
+  "ociRepository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+  "qualification": {
+    "matchingNativeCpuRequired": true,
+    "completePayloadElfAuditRequired": true,
+    "explicitNonHostTargetClassificationRequired": true,
+    "stockDependenciesOnly": true,
+    "glibcCompatibilityLayerAllowed": false,
+    "nativeAot": "not-qualified",
+    "workloads": "not-qualified",
+    "installerAdmission": "separate-issue-30"
+  },
+  "publicationAllowed": false
+}

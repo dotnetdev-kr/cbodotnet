@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "kind": "qualified-musl-sdk-producers",
+  "repository": "dotnetdev-kr/cbodotnet",
+  "libc": "musl",
+  "builds": []
+}

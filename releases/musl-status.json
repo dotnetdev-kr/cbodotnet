@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "kind": "musl-distribution-availability",
+  "repository": "dotnetdev-kr/cbodotnet",
+  "libc": "musl",
+  "status": "not-published",
+  "publications": [],
+  "installerAdmission": "separate-issue-30"
+}
