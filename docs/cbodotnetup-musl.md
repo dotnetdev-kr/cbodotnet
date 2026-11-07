@@ -67,6 +67,20 @@ APK-managed SDKs and glibc toolchains are preserved. Add the chosen executable
 directory to `PATH` explicitly when desired; [command and recovery instructions](cbodotnetup.md)
 apply to the owned musl namespaces.
 
+SDK commands retain their usual user-profile behavior. SDK10 can create a
+development certificate and MSBuild shared-memory state under
+`~/.dotnet/corefx`. Qualification requires every preexisting profile entry to
+retain its bytes, permissions and link target, and records only the narrowly
+classified new runtime paths as metadata. Other retained user/glibc roots and
+the complete official and APK-managed SDK payloads must remain identical.
+
+System certificate stores can load roots during the first TLS handshake.
+The bootstrap requires certificate and hostname verification and keeps normal
+verified HTTPS downloads; it accepts a secure context whose CA statistics are
+initially empty. This supports Fedora45's stock lazy trust store and signed
+offline bootstrap inputs. Python documents the [lazy loading of capath
+certificates](https://docs.python.org/3.14/library/ssl.html#ssl.SSLContext.get_ca_certs).
+
 ## Build and promotion contract
 
 The [musl admission policy](../releases/cbodotnetup-musl-policy.json) independently

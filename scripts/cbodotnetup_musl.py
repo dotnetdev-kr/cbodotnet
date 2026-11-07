@@ -268,6 +268,7 @@ def validate_qualifications(catalog, observations, *, catalog_sha256, bootstrap_
     validate_catalog(catalog)
     require(isinstance(observations, list) and len(observations) == 2,
             'Both actual native musl installer reports are required')
+    from cbodotnetup_musl_native import validate_runtime_profile_preservation
     seen = set()
     for value in observations:
         arch = value.get('architecture'); target = ARCHITECTURES.get(arch)
@@ -300,4 +301,14 @@ def validate_qualifications(catalog, observations, *, catalog_sha256, bootstrap_
         for name in ('elfAudit', 'toolElfAudit'):
             require(value.get(name, {}).get('status') == 'passed', 'Actual native musl SDK/tool ELF audit is required')
         require(value.get('systemTrustHttps', {}).get('status') == 'passed', 'Native musl system-trust HTTPS evidence is required')
+        profile=value.get('runtimeProfilePreservation')
+        require(isinstance(profile,dict), 'Native musl SDK runtime profile preservation evidence is required')
+        validate_runtime_profile_preservation(profile)
+        profile_root=profile['originalInventory']['.']
+        marker=profile['originalInventory'].get('preservation-only.txt',{})
+        preserved=b'Unrelated retained state; not an executable SDK fixture.\n'
+        require(profile_root.get('type')=='directory' and profile_root.get('uid')==profile_root.get('gid')==10001
+                and marker.get('type')=='file' and marker.get('uid')==marker.get('gid')==10001
+                and marker.get('size')==len(preserved) and marker.get('sha256')==hashlib.sha256(preserved).hexdigest(),
+                'Native musl runtime preservation proof omits the original unrelated state marker')
     return observations

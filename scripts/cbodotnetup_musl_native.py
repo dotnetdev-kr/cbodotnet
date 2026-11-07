@@ -10,12 +10,13 @@ import hashlib
 import importlib.util
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import platform
 import re
 import shlex
 import shutil
 import signal
+import stat
 import subprocess
 import tarfile
 import time
@@ -440,6 +441,99 @@ def baseline_inventories(home, bundle, arch):
     return roots, {str(path): api.snapshot(path) for path in roots}
 
 
+def runtime_profile_inventory(root):
+    """Record profile metadata and hashes; certificate/private-key bytes stay local."""
+    root = Path(root)
+    result = {}
+    for path in [root, *sorted(root.rglob('*'))]:
+        information = path.lstat()
+        item = dict(mode=stat.S_IMODE(information.st_mode), uid=information.st_uid, gid=information.st_gid)
+        if stat.S_ISLNK(information.st_mode):
+            item.update(type='link', target=os.readlink(path))
+        elif stat.S_ISDIR(information.st_mode):
+            item.update(type='directory')
+        elif stat.S_ISREG(information.st_mode):
+            digest = hashlib.sha256()
+            with path.open('rb') as source:
+                while block := source.read(1024 * 1024): digest.update(block)
+            item.update(type='file', size=information.st_size, sha256=digest.hexdigest())
+        else:
+            raise ValueError('Unexpected SDK runtime profile filesystem object')
+        result['.' if path == root else path.relative_to(root).as_posix()] = item
+    return result
+
+
+def validate_profile_inventory(inventory):
+    require(isinstance(inventory, dict) and inventory and '.' in inventory, 'Complete runtime profile inventory is required')
+    for name, item in inventory.items():
+        path = PurePosixPath(name) if isinstance(name, str) else None
+        require(isinstance(name, str) and len(name) <= 2048 and path.as_posix() == name
+            and not path.is_absolute() and not any(part in ('..', '') for part in path.parts)
+            and not any(char in name for char in '\\:\0\r\n') and (name == '.' or '.' not in path.parts),
+            'Unsafe SDK runtime profile inventory path')
+        require(isinstance(item, dict) and item.get('type') in {'directory', 'file', 'link'}
+            and all(type(item.get(key)) is int and item[key] >= 0 for key in ('mode', 'uid', 'gid'))
+            and item['mode'] <= 0o7777, 'Malformed SDK runtime profile metadata')
+        fields = {'type', 'mode', 'uid', 'gid'}
+        if item['type'] == 'file':
+            fields |= {'size', 'sha256'}
+            require(type(item.get('size')) is int and 0 <= item['size'] <= 1024**3
+                and isinstance(item.get('sha256'), str) and re.fullmatch(r'[a-f0-9]{64}', item['sha256']),
+                'Runtime profile file size/hash is missing')
+        elif item['type'] == 'link':
+            fields.add('target')
+            require(isinstance(item.get('target'), str) and 0 < len(item['target']) <= 2048
+                and not any(char in item['target'] for char in '\0\r\n'), 'Runtime profile link metadata is malformed')
+        require(set(item) == fields, 'Unexpected runtime profile metadata field or private contents')
+    require(inventory['.']['type'] == 'directory', 'Runtime profile root must remain a directory')
+    for name in inventory:
+        if name != '.':
+            require(all(inventory.get(str(parent), {}).get('type') == 'directory'
+                for parent in PurePosixPath(name).parents), 'Runtime profile inventory has a missing or linked parent')
+    return inventory
+
+
+def allowed_runtime_addition(name, item):
+    """Only the concrete .NET 10 runtime cache shapes observed in native probes."""
+    if item['uid'] != UID or item['gid'] != UID:
+        return False
+    directories = {'corefx', 'corefx/cryptography', 'corefx/cryptography/x509stores',
+        'corefx/cryptography/x509stores/my', 'corefx/Runtime', 'corefx/Runtime/SharedMemory',
+        'corefx/Runtime/SharedMemory/.dotnet', 'corefx/Runtime/SharedMemory/.dotnet/lockfiles',
+        'corefx/Runtime/SharedMemory/.dotnet/lockfiles/global', 'corefx/Runtime/SharedMemory/.dotnet/shm',
+        'corefx/Runtime/SharedMemory/.dotnet/shm/global'}
+    if item['type'] == 'directory':
+        return name in directories and item['mode'] in {0o700, 0o755, 0o2700, 0o2755}
+    if item['type'] != 'file' or item['mode'] != 0o600:
+        return False
+    return bool(re.fullmatch(r'corefx/cryptography/x509stores/my/[A-F0-9]{40}\.pfx', name)
+        or re.fullmatch(r'corefx/Runtime/SharedMemory/\.dotnet/(?:lockfiles|shm)/global/[A-Za-z0-9_+=-]{1,160}\.server', name))
+
+
+def runtime_profile_preservation(before, after):
+    validate_profile_inventory(before)
+    validate_profile_inventory(after)
+    require(all(after.get(name) == item for name, item in before.items()),
+        'An existing runtime profile byte, mode, owner or link changed')
+    additions = []
+    for name in sorted(set(after) - set(before)):
+        item = after[name]
+        require(allowed_runtime_addition(name, item), 'Unexpected SDK runtime profile addition: ' + name)
+        additions.append(dict(path=name, **item))
+    return dict(schemaVersion=1, kind='sdk-runtime-profile-preservation', status='passed',
+        root='$HOME/.dotnet', allowlistVersion=1, originalInventory=before, finalInventory=after, additions=additions)
+
+
+def validate_runtime_profile_preservation(value):
+    require(isinstance(value, dict) and set(value) == {'schemaVersion', 'kind', 'status', 'root',
+        'allowlistVersion', 'originalInventory', 'finalInventory', 'additions'}, 'Closed runtime profile preservation evidence is required')
+    require(type(value['schemaVersion']) is int and type(value['allowlistVersion']) is int,
+        'Runtime profile evidence versions must be integers')
+    expected = runtime_profile_preservation(value['originalInventory'], value['finalInventory'])
+    require(value == expected, 'Runtime profile classification differs from the complete before/after inventories')
+    return value
+
+
 def install_packages(state):
     """Mutations are confined to a disposable rootful native Alpine container."""
     require(os.geteuid() == 0 and (Path('/.dockerenv').exists() or Path('/run/.containerenv').exists()),
@@ -490,6 +584,7 @@ def container_install(bundle, arch, state, *, public=False):
     sdk = next(row for row in catalog['sdks'] if row['rid'] == ARCHITECTURES[arch]['rid'])
     exact = sdk['sdkVersion'] + '-r' + str(sdk['revision'])
     preserved_roots, preserved = baseline_inventories(home, bundle, arch)
+    runtime_profile_before = runtime_profile_inventory(home / '.dotnet')
     baseline_bootstrap = ['python3', bundle / 'get-cbodotnetup.py', '--catalog-file', baseline_file]
     if not public:
         baseline_bootstrap += ['--binary-file', baseline_binary]
@@ -605,6 +700,7 @@ def container_install(bundle, arch, state, *, public=False):
     save(state / 'installed.json', dict(sdk=sdk, exact=exact, rid=sdk['rid'], payload=str(payload), cli=str(wrapper),
         officialBaseline=official, communityInventory=community, preserved=preserved, preservedRoots=list(map(str, preserved_roots)),
         originalInventory=original_inventory, catalogSha256=descriptor(catalog_file)['sha256'],
+        runtimeProfileBefore=runtime_profile_before,
         freezeSha256=descriptor(bundle / 'freeze.json')['sha256'], bootstrapSha256=descriptor(bundle / 'get-cbodotnetup.py')['sha256'],
         binarySha256=descriptor(binary)['sha256'], bootstrapBinarySource='public-https' if public else 'protected-frozen-candidate',
         migration=dict(status='passed', protocol='actual-musl-0.5.0-self-update-rollback-reupgrade' if public else 'musl-0.5.0-frozen-bootstrap-migration',
@@ -695,8 +791,11 @@ def container_finish(bundle, arch, state):
         and ARCHIVE.tools().snapshot(Path(official['root'])) == official['tree'], 'User installer changed the independent official Alpine SDK')
     require(ARCHIVE.tools().snapshot(Path('/opt/cbodotnet')) == installed['communityInventory'], 'User installer changed the signed Community APK payload')
     package_version(installed['sdk']['sdkVersion'])
-    require(all(ARCHIVE.tools().snapshot(Path(name)) == snapshot for name, snapshot in installed['preserved'].items()),
+    profile_preservation = runtime_profile_preservation(installed['runtimeProfileBefore'], runtime_profile_inventory(home / '.dotnet'))
+    require(all(ARCHIVE.tools().snapshot(Path(name)) == snapshot for name, snapshot in installed['preserved'].items()
+        if Path(name) != home / '.dotnet'),
         'User installer changed retained official/unrelated/glibc state')
+    save(state / 'runtime-profile-preservation.json', profile_preservation)
     report = dict(schemaVersion=1, scope='cbodotnetup-native-installation', status='passed', variant='alpine-3.24',
         architecture=arch, libc='musl', rid=installed['rid'], native=True, baseImage=ARCHIVE.BASES[arch],
         orchestration=release_tools().source_identity(), networkForBuild='none', userId=UID,
@@ -704,7 +803,8 @@ def container_finish(bundle, arch, state):
         officialBaseline={key: value for key, value in official.items() if key != 'tree'},
         officialAfterRemoval=dict(version=official['version'], owner=official['owner'], completeTreePreserved=True),
         packageManagedCommunityIntegrity='unchanged', crossLibcStatePreserved=True,
-        preservedStateScope='Complete inventory of independent official/APK trees and non-executable foreign/unrelated preservation markers; no foreign SDK execution',
+        preservedStateScope='Official/APK SDK trees and foreign/unrelated preservation markers remain exact. Every existing .dotnet entry remains unchanged; separately recorded additions are standard SDK certificate/shared-memory state. No foreign SDK execution.',
+        runtimeProfilePreservation=profile_preservation,
         elfAudit=offline['elfAudit'], toolElfAudit=offline['toolElfAudit'],
         systemTrustHttps=dict(status='passed', url=ARCHIVE.trust_url(arch), outputSha256=hashlib.sha256(trust.encode()).hexdigest()),
         **{key: installed[key] for key in ('catalogSha256', 'freezeSha256', 'bootstrapSha256', 'binarySha256', 'bootstrapBinarySource', 'migration')})
@@ -752,6 +852,7 @@ def validate_qualification_report(value, bundle, arch, public=False):
         and value['systemTrustHttps'].get('url') == ARCHIVE.trust_url(arch)
         and re.fullmatch(r'[a-f0-9]{64}', value['systemTrustHttps'].get('outputSha256', '')),
         'Actual stock-system-trust HTTPS evidence is required')
+    validate_runtime_profile_preservation(value.get('runtimeProfilePreservation'))
     return value
 
 

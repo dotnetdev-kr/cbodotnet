@@ -14,6 +14,7 @@ import struct
 import subprocess
 import ssl
 import tempfile
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -149,8 +150,11 @@ def prerequisites(target=None):
         gnu_stat()
     require(all(Path(path).is_file() and os.access(path,os.X_OK) for path in ('/usr/bin/gpg','/usr/bin/gpgv')),
             'Install GnuPG (gpg and gpgv) before bootstrapping')
-    require(ssl.create_default_context().cert_store_stats()['x509_ca']>0,
-            'Install the system CA certificates before bootstrapping')
+    # Stock capath/provider roots may load only during a TLS handshake. Local
+    # signed offline inputs need no connection; HTTPS still verifies every peer.
+    context=ssl.create_default_context()
+    require(context.verify_mode==ssl.CERT_REQUIRED and context.check_hostname,
+            'HTTPS requires certificate and hostname verification')
 
 
 def admit_tool(catalog,target):
@@ -185,8 +189,13 @@ class Redirect(urllib.request.HTTPRedirectHandler):
 
 def download(url,maximum):
     allowed(url)
-    with urllib.request.build_opener(Redirect()).open(urllib.request.Request(url,headers={'User-Agent':'cbodotnetup-bootstrap/0.5.1','Accept-Encoding':'identity'}),timeout=60) as incoming:
-        data=incoming.read(maximum+1);encoding=incoming.headers.get('Content-Encoding','identity').lower()
+    try:
+        with urllib.request.build_opener(Redirect()).open(urllib.request.Request(url,headers={'User-Agent':'cbodotnetup-bootstrap/0.5.1','Accept-Encoding':'identity'}),timeout=60) as incoming:
+            data=incoming.read(maximum+1);encoding=incoming.headers.get('Content-Encoding','identity').lower()
+    except (ssl.SSLCertVerificationError,urllib.error.URLError) as error:
+        if isinstance(error,ssl.SSLCertVerificationError) or isinstance(getattr(error,'reason',None),ssl.SSLCertVerificationError):
+            raise ValueError('HTTPS certificate verification failed; install or update the system CA certificates (Alpine: apk add ca-certificates; Fedora: dnf install ca-certificates)') from error
+        raise
     require(0<len(data)<=maximum,'Download exceeded its size bound')
     if encoding=='gzip':
         import gzip,io

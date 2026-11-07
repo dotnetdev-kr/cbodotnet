@@ -62,6 +62,11 @@ def catalog_fixture():
 
 def observations(catalog,public=True):
     rows=[]
+    marker=b'Unrelated retained state; not an executable SDK fixture.\n'
+    inventory={'.':dict(type='directory',mode=0o755,uid=10001,gid=10001),
+        'preservation-only.txt':dict(type='file',mode=0o644,uid=10001,gid=10001,size=len(marker),sha256=hashlib.sha256(marker).hexdigest())}
+    profile=dict(schemaVersion=1,kind='sdk-runtime-profile-preservation',status='passed',root='$HOME/.dotnet',allowlistVersion=1,
+        originalInventory=inventory,finalInventory=copy.deepcopy(inventory),additions=[])
     for arch,target in MUSL.ARCHITECTURES.items():
         rid=target['rid'];tool=next(t for t in catalog['tools'] if t['version']=='0.5.1' and t['rid']==rid)
         old=next(t for t in catalog['tools'] if t['version']=='0.5.0' and t['rid']==rid)
@@ -73,7 +78,8 @@ def observations(catalog,public=True):
             packageManagedCommunityIntegrity='unchanged',crossLibcStatePreserved=True,
             migration=dict(status='passed',protocol='actual-musl-0.5.0-self-update-rollback-reupgrade' if public else 'musl-0.5.0-frozen-bootstrap-migration',
                 oldVersion='0.5.0',newVersion='0.5.1',oldBinarySha256=old['binary']['sha256'],sdkRollback='passed',interruptedOwnershipRecovery='passed'),
-            elfAudit=dict(status='passed'),toolElfAudit=dict(status='passed'),systemTrustHttps=dict(status='passed')))
+            elfAudit=dict(status='passed'),toolElfAudit=dict(status='passed'),systemTrustHttps=dict(status='passed'),
+            runtimeProfilePreservation=copy.deepcopy(profile)))
     return rows
 
 
@@ -176,11 +182,30 @@ class MuslInstallerAdmissionTests(unittest.TestCase):
                 changes=[lambda r:r.update(native=False),lambda r:r.update(rid='linux-x64'),
                     lambda r:r['checks'].pop('cross-libc-rejection'),lambda r:r.update(catalogSha256='f'*64),
                     lambda r:r['migration'].update(oldBinarySha256='f'*64),lambda r:r.update(crossLibcStatePreserved=False),
-                    lambda r:r['toolElfAudit'].update(status='failed')]
+                    lambda r:r['toolElfAudit'].update(status='failed'),lambda r:r.pop('runtimeProfilePreservation'),
+                    lambda r:r['runtimeProfilePreservation']['finalInventory']['preservation-only.txt'].update(sha256='f'*64),
+                    lambda r:r['runtimeProfilePreservation'].update(originalInventory={},finalInventory={},additions=[])]
                 for change in changes:
                     bad=copy.deepcopy(values);change(bad[0])
                     with self.subTest(public=public,change=change),self.assertRaises(ValueError):
                         MUSL.validate_qualifications(catalog,bad,catalog_sha256='a'*64,bootstrap_sha256='b'*64,freeze_sha256='c'*64,public=public)
+
+    def test_runtime_profile_additions_are_reclassified_before_the_site_can_admit_a_proof(self):
+        policy,catalog,qualified=catalog_fixture();values=observations(catalog)
+        profile=values[0]['runtimeProfilePreservation']
+        for path in ('corefx','corefx/cryptography','corefx/cryptography/x509stores','corefx/cryptography/x509stores/my'):
+            profile['finalInventory'][path]=dict(type='directory',mode=0o700,uid=10001,gid=10001)
+        pfx='corefx/cryptography/x509stores/my/'+'A'*40+'.pfx'
+        profile['finalInventory'][pfx]=dict(type='file',mode=0o600,uid=10001,gid=10001,size=100,sha256='d'*64)
+        profile['additions']=[dict(path=path,**entry) for path,entry in sorted(profile['finalInventory'].items()) if path not in profile['originalInventory']]
+        with patch.object(MUSL,'load_policy',return_value=policy),patch.object(MUSL.CONTRACT,'load_qualification_catalog',return_value=qualified):
+            MUSL.validate_qualifications(catalog,values,catalog_sha256='a'*64,bootstrap_sha256='b'*64,freeze_sha256='c'*64,public=True)
+            for path,entry in (('sdk/10.0.403/foreign-file',dict(type='file',mode=0o600,uid=10001,gid=10001,size=1,sha256='e'*64)),
+                ('corefx/cryptography/x509stores/my/'+'B'*40+'.pfx',dict(type='link',mode=0o777,uid=10001,gid=10001,target='/etc/passwd'))):
+                bad=copy.deepcopy(values);changed=bad[0]['runtimeProfilePreservation'];changed['finalInventory'][path]=entry
+                changed['additions']=[dict(path=key,**item) for key,item in sorted(changed['finalInventory'].items()) if key not in changed['originalInventory']]
+                with self.subTest(path=path),self.assertRaises(ValueError):
+                    MUSL.validate_qualifications(catalog,bad,catalog_sha256='a'*64,bootstrap_sha256='b'*64,freeze_sha256='c'*64,public=True)
 
 
 if __name__=='__main__':unittest.main()

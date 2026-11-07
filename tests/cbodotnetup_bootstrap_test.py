@@ -82,12 +82,23 @@ class InstallerBootstrapTests(unittest.TestCase):
             (dict(new,revoked=['tool/0.5.0/linux-musl-x64']),musl)):
             with self.subTest(catalog=catalog),self.assertRaises(ValueError):BOOT.admit_tool(catalog,target)
 
-    def test_bootstrap_requires_gpg_and_system_ca_certificates(self):
+    def test_bootstrap_requires_gpg_and_secure_tls_policy_for_lazy_system_trust(self):
         with patch.object(BOOT.Path,'is_file',return_value=False),self.assertRaisesRegex(ValueError,'GnuPG'):BOOT.prerequisites()
         with patch.object(BOOT.Path,'is_file',return_value=True),patch.object(BOOT.os,'access',return_value=True),patch.object(BOOT.ssl,'create_default_context') as context:
-            context.return_value.cert_store_stats.return_value={'x509_ca':0}
-            with self.assertRaisesRegex(ValueError,'CA certificates'):BOOT.prerequisites()
-            context.return_value.cert_store_stats.return_value={'x509_ca':100};BOOT.prerequisites()
+            context.return_value.verify_mode=BOOT.ssl.CERT_REQUIRED;context.return_value.check_hostname=True
+            context.return_value.cert_store_stats.side_effect=AssertionError('Lazy stock CA stores must not be counted before a handshake')
+            with patch.object(BOOT,'download') as download:
+                BOOT.prerequisites();download.assert_not_called()
+            for mode,hostname in ((BOOT.ssl.CERT_NONE,False),(BOOT.ssl.CERT_REQUIRED,False)):
+                context.return_value.verify_mode=mode;context.return_value.check_hostname=hostname
+                with self.subTest(mode=mode,hostname=hostname),self.assertRaisesRegex(ValueError,'certificate and hostname'):BOOT.prerequisites()
+
+    def test_secure_empty_ca_context_is_accepted_for_offline_signed_inputs(self):
+        context=BOOT.ssl.SSLContext(BOOT.ssl.PROTOCOL_TLS_CLIENT)
+        self.assertEqual(context.cert_store_stats()['x509_ca'],0)
+        self.assertEqual(context.verify_mode,BOOT.ssl.CERT_REQUIRED);self.assertTrue(context.check_hostname)
+        with patch.object(BOOT.Path,'is_file',return_value=True),patch.object(BOOT.os,'access',return_value=True),patch.object(BOOT.ssl,'create_default_context',return_value=context),patch.object(BOOT,'download') as download:
+            BOOT.prerequisites();download.assert_not_called()
 
     def test_musl_bootstrap_requires_coreutils_before_creating_state_or_downloading(self):
         target=dict(libc='musl',rid='linux-musl-x64',architecture='x64')
@@ -97,7 +108,18 @@ class InstallerBootstrapTests(unittest.TestCase):
         with patch.object(BOOT.Path,'is_file',return_value=True),patch.object(BOOT.os,'access',return_value=False):
             with self.assertRaisesRegex(ValueError,'apk add coreutils'):BOOT.prerequisites(target)
         with patch.object(BOOT.Path,'is_file',return_value=True),patch.object(BOOT.os,'access',return_value=True),patch.object(BOOT.subprocess,'run',return_value=subprocess.CompletedProcess(['/bin/stat','--version'],0,'stat (GNU coreutils) 9.11\n','')),patch.object(BOOT.ssl,'create_default_context') as context:
-            context.return_value.cert_store_stats.return_value={'x509_ca':100};BOOT.prerequisites(target)
+            context.return_value.verify_mode=BOOT.ssl.CERT_REQUIRED;context.return_value.check_hostname=True;BOOT.prerequisites(target)
+
+    def test_certificate_failures_are_actionable_and_never_retry_without_verification(self):
+        certificate_error=BOOT.ssl.SSLCertVerificationError('certificate verify failed')
+        for error in (certificate_error,BOOT.urllib.error.URLError(certificate_error)):
+            with self.subTest(error=type(error)),patch.object(BOOT.urllib.request,'build_opener') as opener:
+                opener.return_value.open.side_effect=error
+                with self.assertRaisesRegex(ValueError,'HTTPS certificate verification failed.*ca-certificates'):BOOT.download(BOOT.CATALOG,1024)
+                opener.assert_called_once();opener.return_value.open.assert_called_once()
+        with patch.object(BOOT.urllib.request,'build_opener') as opener:
+            opener.return_value.open.side_effect=BOOT.urllib.error.URLError('connection refused')
+            with self.assertRaises(BOOT.urllib.error.URLError):BOOT.download(BOOT.CATALOG,1024)
 
     def test_alpine_gnu_stat_uses_qualified_absolute_fallback_and_rejects_busybox(self):
         with patch.object(BOOT.Path,'is_file',side_effect=lambda:True),patch.object(BOOT.os,'access',side_effect=lambda path,mode:path=='/bin/stat'),patch.object(BOOT.subprocess,'run') as run:
