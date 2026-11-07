@@ -137,8 +137,10 @@ class MuslInstallerAdmissionTests(unittest.TestCase):
         policy=MUSL.load_policy();arch='x64';rid=MUSL.ARCHITECTURES[arch]['rid'];binary='cbodotnetup-'+rid
         profile=json.loads((ROOT/'profiles/dotnet-10.0.403-linux-musl-x64.json').read_bytes())
         digest=hashlib.sha512(b'actual compiler archive').digest()
+        normalized=hashlib.sha512(b'NuGet normalized package contents').digest()
         package=dict(id='microsoft.dotnet.ilcompiler',name='microsoft.dotnet.ilcompiler.10.0.14.nupkg',version='10.0.14',
-            source='https://api.nuget.org/v3/index.json',size=100,sha256='d'*64,sha512=digest.hex(),contentHash=base64.b64encode(digest).decode())
+            source='https://api.nuget.org/v3/index.json',size=100,sha256='d'*64,sha512=digest.hex(),
+            contentHash=base64.b64encode(normalized).decode(),downloadHash=base64.b64encode(digest).decode())
         archive=dict(policy['archives'][arch],url='https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-archive-sdk-10.0.403-r1/'+policy['archives'][arch]['name'])
         report=dict(schemaVersion=1,kind='cbodotnetup-native-build',libc='musl',version='0.5.1',architecture=arch,rid=rid,
             nativeRuntime='10.0.14',container=MUSL.musl_archive.BASES[arch],securityTests='passed',
@@ -152,9 +154,11 @@ class MuslInstallerAdmissionTests(unittest.TestCase):
                 architecture=arch,targetRid=rid,hostElfCount=1,nonHostElfCount=0,stockLibraries=[dict(name='musl')],
                 elfFiles=[dict(path=binary,machine='Advanced Micro Devices X86-64',interpreter='/lib/ld-musl-x86_64.so.1',sha256='e'*64)]))
         MUSL.validate_tool_report(report,arch)
+        self.assertNotEqual(package['contentHash'],package['downloadHash'])
         for change in (lambda r:r['buildInputs'].update({'scripts/cbodotnetup_musl.py':'f'*64}),
             lambda r:r['nativePackages'][0].update(source='https://untrusted.example/v3/index.json'),
-            lambda r:r['nativePackages'][0].update(contentHash='mismatching downloaded package'),
+            lambda r:r['nativePackages'][0].update(contentHash='invalid NuGet content hash'),
+            lambda r:r['nativePackages'][0].update(downloadHash=package['contentHash']),
             lambda r:r['elfAudit']['elfFiles'][0].update(interpreter='/lib64/ld-linux-x86-64.so.2'),
             lambda r:r['toolchain']['indexes'].pop(),lambda r:r['elfAudit'].update(native=False)):
             bad=copy.deepcopy(report);change(bad)

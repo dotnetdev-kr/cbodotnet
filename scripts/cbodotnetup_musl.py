@@ -36,6 +36,12 @@ def sha(value):
     return isinstance(value, str) and re.fullmatch(r'[a-f0-9]{64}', value) is not None
 
 
+def nuget_content_hash(value):
+    """NuGet's normalized package-content SHA512 is distinct from signed ZIP bytes."""
+    if not isinstance(value, str) or re.fullmatch(r'[A-Za-z0-9+/]{86}==', value) is None:return False
+    return base64.b64encode(base64.b64decode(value, validate=True)).decode() == value
+
+
 def load_policy(path=None):
     value = json.loads(ordinary_file(path or POLICY).read_bytes())
     fields = {'schemaVersion', 'kind', 'libc', 'minimumToolVersion', 'signingFingerprint', 'sdkVersion',
@@ -234,7 +240,8 @@ def validate_tool_report(report, arch, *, source_inputs=None, version='0.5.1', n
                 and item.get('name') == item['id'].lower()+'.'+item['version'].lower()+'.nupkg'
                 and type(item.get('size')) is int and 0 < item['size'] <= 1024**3 and sha(item.get('sha256'))
                 and isinstance(item.get('sha512'), str) and re.fullmatch(r'[a-f0-9]{128}', item['sha512'])
-                and item.get('contentHash') == base64.b64encode(bytes.fromhex(item['sha512'])).decode(),
+                and nuget_content_hash(item.get('contentHash'))
+                and item.get('downloadHash') == base64.b64encode(bytes.fromhex(item['sha512'])).decode(),
                 'NativeAOT package identity, immutable origin or actual byte hashes are incomplete')
         identities.add(identity)
     require(('microsoft.dotnet.ilcompiler', native_runtime) in identities

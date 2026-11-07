@@ -25,19 +25,29 @@ class NativePackageInputTests(unittest.TestCase):
             content = b'actual downloaded NativeAOT compiler package fixture'
             archive = package / (name + '.' + version + '.nupkg')
             archive.write_bytes(content)
+            raw_hash = base64.b64encode(hashlib.sha512(content).digest()).decode()
+            content_hash = base64.b64encode(hashlib.sha512(b'unsigned normalized package contents').digest()).decode()
+            (package / (archive.name + '.sha512')).write_text(raw_hash)
             origin = package / '.nupkg.metadata'
-            origin.write_text(json.dumps(dict(source='https://api.nuget.org/v3/index.json')))
-            assets = dict(libraries={name + '/' + version: dict(type='package', sha512=base64.b64encode(hashlib.sha512(content).digest()).decode())})
+            metadata = dict(source='https://api.nuget.org/v3/index.json', contentHash=content_hash)
+            origin.write_text(json.dumps(metadata))
+            assets = dict(libraries={name + '/' + version: dict(type='package', sha512=content_hash)})
             rows = NATIVE.native_packages(cache, assets)
             self.assertEqual(name, rows[0]['id'])
             self.assertEqual(archive.name, rows[0]['name'])
             self.assertEqual(hashlib.sha256(content).hexdigest(), rows[0]['sha256'])
+            self.assertEqual(content_hash, rows[0]['contentHash'])
+            self.assertEqual(raw_hash, rows[0]['downloadHash'])
+            self.assertNotEqual(rows[0]['contentHash'], rows[0]['downloadHash'])
             archive.write_bytes(content + b'tampered')
-            with self.assertRaisesRegex(ValueError, 'contentHash'):
+            with self.assertRaisesRegex(ValueError, 'download hash'):
                 NATIVE.native_packages(cache, assets)
             archive.write_bytes(content)
-            origin.write_text(json.dumps(dict(source='https://unreviewed.example/v3/index.json')))
+            origin.write_text(json.dumps(dict(metadata, source='https://unreviewed.example/v3/index.json')))
             with self.assertRaisesRegex(ValueError, 'origin'):
+                NATIVE.native_packages(cache, assets)
+            origin.write_text(json.dumps(dict(metadata, contentHash=raw_hash)))
+            with self.assertRaisesRegex(ValueError, 'contentHash'):
                 NATIVE.native_packages(cache, assets)
 
     def test_build_pins_native_runtime_and_supports_a_real_distinct_baseline_compile(self):

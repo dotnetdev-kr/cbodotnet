@@ -232,11 +232,20 @@ def native_packages(cache, assets):
         package = ordinary_file(directory / (name + '.' + version + '.nupkg'))
         content = package.read_bytes()
         digest = hashlib.sha512(content).digest()
-        require(record['sha512'] == base64.b64encode(digest).decode(), 'NuGet assets contentHash differs from actual bytes')
-        origin = load(directory / '.nupkg.metadata')['source']
+        metadata = load(directory / '.nupkg.metadata')
+        # NuGet's content hash excludes package signature metadata. The archive
+        # byte hash deliberately differs after author/repository signing.
+        content_hash = record['sha512']
+        require(isinstance(content_hash, str) and re.fullmatch(r'[A-Za-z0-9+/]{86}==', content_hash)
+            and metadata.get('contentHash') == content_hash,
+            'NuGet assets contentHash differs from restored package metadata')
+        download_hash = base64.b64encode(digest).decode()
+        require(ordinary_file(directory / (package.name + '.sha512')).read_text().strip() == download_hash,
+            'NuGet download hash differs from actual archive bytes')
+        origin = metadata['source']
         require(origin == 'https://api.nuget.org/v3/index.json', 'Unreviewed NativeAOT package origin')
         rows.append(dict(id=name, version=version, source=origin, **descriptor(package),
-            sha512=hashlib.sha512(content).hexdigest(), contentHash=record['sha512']))
+            sha512=hashlib.sha512(content).hexdigest(), downloadHash=download_hash, contentHash=content_hash))
     require(rows and any(row['id'] == 'microsoft.dotnet.ilcompiler' for row in rows),
         'Actual NativeAOT compiler packages are required')
     return rows
