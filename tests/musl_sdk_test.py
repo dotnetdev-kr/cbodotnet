@@ -8,6 +8,7 @@ import struct
 import tarfile
 import tempfile
 import unittest
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('musl_sdk_producer', ROOT / 'scripts/musl-sdk.py')
@@ -124,6 +125,22 @@ class ActualElfBindingTests(unittest.TestCase):
 
 
 class ImportedInputObservationTests(unittest.TestCase):
+    def test_actual_root_hook_preserves_embedded_project_xml_and_comments(self):
+        original = b'''\xef\xbb\xbf<Project>
+          <PropertyGroup><Generated><![CDATA[<Project><PropertyGroup /></Project>]]></Generated></PropertyGroup>
+          <!-- An upstream example can also contain </Project> text. -->
+        </Project>\n'''
+        adjusted = M.instrument_input_recording(original)
+        self.assertTrue(adjusted.startswith(b'\xef\xbb\xbf'))
+        root = ET.fromstring(adjusted)
+        self.assertEqual(root.find('PropertyGroup/Generated').text,
+                         '<Project><PropertyGroup /></Project>')
+        self.assertEqual(root[-1].get('Name'), 'RecordCommunityMuslImportedInputs')
+        self.assertEqual(root[-1].get('BeforeTargets'), 'CleanupRepo')
+        self.assertEqual(adjusted.count(b'</Project>'), original.count(b'</Project>'))
+        with self.assertRaisesRegex(ValueError, 'already exists'):
+            M.instrument_input_recording(adjusted)
+
     def test_cleanup_does_not_destroy_recorded_actual_input_hashes_and_origins(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

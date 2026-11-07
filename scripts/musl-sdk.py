@@ -16,6 +16,7 @@ import sys
 import tarfile
 from types import SimpleNamespace
 import urllib.request
+import xml.etree.ElementTree as ET
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parent.parent
@@ -23,6 +24,12 @@ SOURCE = '5a2162bea6845eabc1fc721624a43568c65db3b1'
 SHARED = '0427b9abbead3fa64c6655eb4290c537397131fa'
 SDK = '10.0.403'
 REPOSITORY = 'https://github.com/dotnet/dotnet'
+INPUT_RECORDING_HOOK = '''
+  <Target Name="RecordCommunityMuslImportedInputs" BeforeTargets="CleanupRepo"
+          Condition="Exists('$(RepoArtifactsPackageCache)')">
+    <Exec Command="python3 /project/scripts/musl-sdk-inputs.py --cache &quot;$(RepoArtifactsPackageCache)&quot; --output-dir /delivery/reports/restored-inputs --repository &quot;$(RepositoryName)&quot;" />
+  </Target>
+'''
 
 
 def require(value, message):
@@ -69,6 +76,23 @@ def git(path, *args):
 def identity(arch):
     return {'x64': dict(public='x64', machine='x86_64', image='amd64', rid='linux-musl-x64'),
             'aarch64': dict(public='aarch64', machine='aarch64', image='arm64', rid='linux-musl-arm64')}[arch]
+
+
+def instrument_input_recording(original):
+    """Append to the actual XML root; embedded Project XML belongs to its source text."""
+    root = ET.fromstring(original)
+    require(root.tag == 'Project', 'Unexpected pinned VMR targets XML root')
+    require(not any(target.get('Name') == 'RecordCommunityMuslImportedInputs' for target in root.findall('Target')),
+            'Input recording hook already exists')
+    text = original.decode('utf-8-sig')
+    closing = re.search(r'</Project>\s*\Z', text)
+    require(closing is not None, 'Pinned VMR targets must end at their real Project root')
+    prefix = b'\xef\xbb\xbf' if original.startswith(b'\xef\xbb\xbf') else b''
+    adjusted = prefix + (text[:closing.start()] + INPUT_RECORDING_HOOK + text[closing.start():]).encode('utf-8')
+    parsed = ET.fromstring(adjusted)
+    require(parsed[-1].tag == 'Target' and parsed[-1].get('Name') == 'RecordCommunityMuslImportedInputs'
+            and parsed[-1].get('BeforeTargets') == 'CleanupRepo', 'Input observation hook must be a real root child')
+    return adjusted
 
 
 class Producer:
@@ -213,15 +237,7 @@ class Producer:
         original = targets.read_bytes()
         require(original == subprocess.check_output(['git', '-C', str(self.source), 'show',
                     SOURCE + ':repo-projects/Directory.Build.targets']), 'Pinned VMR targets changed before instrumentation')
-        hook = '''
-  <Target Name="RecordCommunityMuslImportedInputs" BeforeTargets="CleanupRepo"
-          Condition="Exists('$(RepoArtifactsPackageCache)')">
-    <Exec Command="python3 /project/scripts/musl-sdk-inputs.py --cache &quot;$(RepoArtifactsPackageCache)&quot; --output-dir /delivery/reports/restored-inputs --repository &quot;$(RepositoryName)&quot;" />
-  </Target>
-'''
-        text = original.decode('utf-8-sig')
-        require(text.count('</Project>') == 1, 'Unexpected pinned VMR targets root')
-        adjusted = text.replace('</Project>', hook + '</Project>').encode('utf-8')
+        adjusted = instrument_input_recording(original)
         targets.write_bytes(adjusted)
         write(self.reports / 'prepare/input-recording-hook.json', dict(path='repo-projects/Directory.Build.targets',
               sourceCommit=SOURCE, originalSha256=hashlib.sha256(original).hexdigest(),
