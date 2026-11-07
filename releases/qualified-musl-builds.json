@@ -1,7 +1,48 @@
 {
-  "schemaVersion": 1,
+  "builds": [
+    {
+      "architectures": {
+        "aarch64": {
+          "artifactId": "13574576157",
+          "bootstrapSdk": "10.0.401",
+          "libc": "musl",
+          "projectCommit": "bdf6600d487c748788d930c4c26f10d5173802b3",
+          "runAttempt": "1",
+          "runId": "42368648443",
+          "runtimeVersion": "10.0.14",
+          "sharedSdk": "10.0.114-servicing.26522.126",
+          "sharedVmrCommit": "0427b9abbead3fa64c6655eb4290c537397131fa",
+          "sourceCommit": "5a2162bea6845eabc1fc721624a43568c65db3b1",
+          "targetRid": "linux-musl-arm64",
+          "workflow": ".github/workflows/musl-sdk.yml",
+          "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42368648443"
+        },
+        "x64": {
+          "artifactId": "13574850421",
+          "bootstrapSdk": "10.0.401",
+          "libc": "musl",
+          "projectCommit": "bdf6600d487c748788d930c4c26f10d5173802b3",
+          "runAttempt": "1",
+          "runId": "42368648443",
+          "runtimeVersion": "10.0.14",
+          "sharedSdk": "10.0.114-servicing.26522.126",
+          "sharedVmrCommit": "0427b9abbead3fa64c6655eb4290c537397131fa",
+          "sourceCommit": "5a2162bea6845eabc1fc721624a43568c65db3b1",
+          "targetRid": "linux-musl-x64",
+          "workflow": ".github/workflows/musl-sdk.yml",
+          "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42368648443"
+        }
+      },
+      "libc": "musl",
+      "producerRevision": 1,
+      "sdkVersion": "10.0.403",
+      "sourceManifestSha256": "04b3ff71eec9a508c65bf5c22c13f189def3ba576e55f5593cff7378224c3344",
+      "sourceReleaseTag": "musl-sdk-10.0.403-r1",
+      "target": "net10-musl"
+    }
+  ],
   "kind": "qualified-musl-sdk-producers",
-  "repository": "dotnetdev-kr/cbodotnet",
   "libc": "musl",
-  "builds": []
+  "repository": "dotnetdev-kr/cbodotnet",
+  "schemaVersion": 1
 }
