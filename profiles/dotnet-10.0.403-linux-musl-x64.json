@@ -672,6 +672,66 @@
       "o": "lttng-ust",
       "c": "99d1723f7af0cc1fdec1b62a221c85224f0924f8",
       "repository": "main"
+    },
+    {
+      "P": "coreutils",
+      "V": "9.11-r0",
+      "A": "x86_64",
+      "D": "coreutils-env=9.11-r0 coreutils-fmt=9.11-r0 coreutils-sha512sum=9.11-r0 /bin/sh so:libacl.so.1 so:libattr.so.1 so:libc.musl-x86_64.so.1 so:libcrypto.so.3 so:libutmps.so.0.1",
+      "L": "GPL-3.0-or-later",
+      "o": "coreutils",
+      "c": "8e261cdab4fd1bc77881cbff73b9ea962e9bd49f",
+      "repository": "main"
+    },
+    {
+      "P": "findutils",
+      "V": "4.10.0-r1",
+      "A": "x86_64",
+      "D": "so:libc.musl-x86_64.so.1",
+      "L": "GPL-3.0-or-later",
+      "o": "findutils",
+      "c": "1a4e2ce6309586205b7e4c500c7ae287be39ea31",
+      "repository": "main"
+    },
+    {
+      "P": "grep",
+      "V": "3.12-r0",
+      "A": "x86_64",
+      "D": "so:libc.musl-x86_64.so.1 so:libpcre2-8.so.0",
+      "L": "GPL-3.0-or-later",
+      "o": "grep",
+      "c": "4cbb86a7e5760f0f92903377ef35da450df3e1e6",
+      "repository": "main"
+    },
+    {
+      "P": "sed",
+      "V": "4.9-r2",
+      "A": "x86_64",
+      "D": "/bin/sh so:libc.musl-x86_64.so.1",
+      "L": "GPL-3.0-or-later",
+      "o": "sed",
+      "c": "84a227baf001b6e0208e3352b294e4d7a40e93de",
+      "repository": "main"
+    },
+    {
+      "P": "gawk",
+      "V": "5.3.2-r2",
+      "A": "x86_64",
+      "D": "so:libc.musl-x86_64.so.1",
+      "L": "GPL-3.0-or-later",
+      "o": "gawk",
+      "c": "730f2f5bdc97be98b2beee33f55134c622e6189c",
+      "repository": "main"
+    },
+    {
+      "P": "file",
+      "V": "5.47-r2",
+      "A": "x86_64",
+      "D": "so:libc.musl-x86_64.so.1 so:libmagic.so.1",
+      "L": "BSD-2-Clause",
+      "o": "file",
+      "c": "a05d36fa86411cd0ce86d756f818e525d0eee1c3",
+      "repository": "main"
     }
   ],
   "supportScope": "Community qualification candidate on Alpine 3.24.4; not an assertion of Microsoft Alpine 3.24 support."

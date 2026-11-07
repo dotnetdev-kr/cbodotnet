@@ -23,6 +23,12 @@ RUN printf '%s\n' 'https://dl-cdn.alpinelinux.org/alpine/v3.24/main' 'https://dl
         krb5-libs=1.22.2-r1 \
         brotli-libs=1.2.1-r0 \
         lttng-ust=2.14.2-r0 \
+        coreutils=9.11-r0 \
+        findutils=4.10.0-r1 \
+        grep=3.12-r0 \
+        sed=4.9-r2 \
+        gawk=5.3.2-r2 \
+        file=5.47-r2 \
     && apk --cache-dir /cbodotnet-apks add --no-network /cbodotnet-apks/*.apk \
         bash=5.3.9-r1 \
         python3=3.14.10-r1 \
@@ -39,6 +45,12 @@ RUN printf '%s\n' 'https://dl-cdn.alpinelinux.org/alpine/v3.24/main' 'https://dl
         krb5-libs=1.22.2-r1 \
         brotli-libs=1.2.1-r0 \
         lttng-ust=2.14.2-r0 \
+        coreutils=9.11-r0 \
+        findutils=4.10.0-r1 \
+        grep=3.12-r0 \
+        sed=4.9-r2 \
+        gawk=5.3.2-r2 \
+        file=5.47-r2 \
     && apk info -vv > /cbodotnet-apks/installed-packages.txt \
     && test "$(cat /etc/alpine-release)" = 3.24.4 \
     && ! apk info -e gcompat \
