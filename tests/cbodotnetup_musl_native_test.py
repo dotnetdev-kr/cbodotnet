@@ -4,6 +4,7 @@ import copy
 import hashlib
 import json
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -91,6 +92,18 @@ class NativeToolEntrypointTests(unittest.TestCase):
 
 
 class NativeQualificationTests(unittest.TestCase):
+    def test_package_coexistence_probe_preserves_numeric_stdout_and_brand_stderr(self):
+        brand = ARCHIVE.BRANDING['displayName'] + '\n'
+        result = subprocess.CompletedProcess(['/usr/bin/cbodotnet', '--version'], 0, stdout='10.0.403\n', stderr=brand)
+        with mock.patch.object(NATIVE, 'user', return_value=result) as user:
+            self.assertEqual('10.0.403', NATIVE.package_version('10.0.403'))
+            user.assert_called_once_with(['/usr/bin/cbodotnet', '--version'])
+        for stdout, stderr in ((brand + '10.0.403\n', ''), ('10.0.303\n', brand), ('10.0.403\n', '')):
+            with self.subTest(stdout=stdout, stderr=stderr), mock.patch.object(NATIVE, 'user',
+                    return_value=subprocess.CompletedProcess([], 0, stdout=stdout, stderr=stderr)):
+                with self.assertRaisesRegex(ValueError, 'version or branding'):
+                    NATIVE.package_version('10.0.403')
+
     def test_missing_native_security_evidence_or_wrong_public_byte_identity_is_rejected(self):
         with tempfile.TemporaryDirectory() as temporary:
             bundle = Path(temporary)

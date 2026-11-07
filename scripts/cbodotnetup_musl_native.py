@@ -397,6 +397,14 @@ def user(arguments, *, check=True):
     return result
 
 
+def package_version(expected):
+    """The distribution brand belongs on stderr; stdout remains SDK-compatible."""
+    result = user(['/usr/bin/cbodotnet', '--version'])
+    require(result.stdout == expected + '\n' and result.stderr == ARCHIVE.BRANDING['displayName'] + '\n',
+        'Signed APK selector version or branding changed during user-local lifecycle')
+    return result.stdout.strip()
+
+
 def own(path, *, directory=False):
     path = Path(path)
     if directory:
@@ -686,7 +694,7 @@ def container_finish(bundle, arch, state):
         and descriptor(official_path.resolve()) == official['host']
         and ARCHIVE.tools().snapshot(Path(official['root'])) == official['tree'], 'User installer changed the independent official Alpine SDK')
     require(ARCHIVE.tools().snapshot(Path('/opt/cbodotnet')) == installed['communityInventory'], 'User installer changed the signed Community APK payload')
-    require(run(['/usr/bin/cbodotnet', '--version']).strip() == installed['sdk']['sdkVersion'], 'Signed APK selector changed during user-local lifecycle')
+    package_version(installed['sdk']['sdkVersion'])
     require(all(ARCHIVE.tools().snapshot(Path(name)) == snapshot for name, snapshot in installed['preserved'].items()),
         'User installer changed retained official/unrelated/glibc state')
     report = dict(schemaVersion=1, scope='cbodotnetup-native-installation', status='passed', variant='alpine-3.24',

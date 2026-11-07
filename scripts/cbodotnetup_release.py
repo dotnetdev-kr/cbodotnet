@@ -36,8 +36,8 @@ WORKFLOW = '.github/workflows/distribution-release.yml'
 # package/archive build pins intact; this is the installer consumer qualification
 # environment, independently reviewed from the official Fedora 45 image index.
 QUALIFICATION_BASES = {**MULTI.BASES, 'fedora-45': {
-    'x64': 'quay.io/fedora/fedora:45@sha256:79dd6556b8fe1a559051fad5159d4987ead218f1914e7a5bd20350d9ea0f9e52',
-    'aarch64': 'quay.io/fedora/fedora:45@sha256:daf39f8ebfd7624260f632d705c380f6abd4c6b430ee133b2187c6297f1ce444'}}
+    'x64': 'quay.io/fedora/fedora:45@sha256:e736b5d06f96f7560b82d106444cb00eb5dd735f30b2c15e575213a218810e18',
+    'aarch64': 'quay.io/fedora/fedora:45@sha256:3b6688e40d0135e24c94d663ea781a569b0b8f331c0a7e12cb4e4090d8cd0885'}}
 LEGACY_BOOTSTRAP = dict(
     url='https://github.com/dotnetdev-kr/cbodotnet/releases/download/cbodotnetup-catalog-41952285282/get-cbodotnetup.py',
     size=11478,sha256='534b549030a3b24e31c631f2df279730a0e2f7166a0c45114d245d477e184409')
