@@ -1,0 +1,738 @@
+{
+  "schemaVersion": 1,
+  "scope": "musl-localization-development-controls",
+  "observedAt": "2026-11-07T09:35:05Z",
+  "status": "controlled-native-observations-passed",
+  "productionQualification": false,
+  "sourceAdmission": false,
+  "limitation": "Native AArch64 Alpine development controls use rootful Podman locally. They are not a complete VMR build, GitHub runner Docker verification, release qualification, or producer catalog admission.",
+  "failureContext": {
+    "runId": 42357418870,
+    "source": "root coordinator inspection of native producer logs",
+    "reportedFailure": "MSBuild Localization packaging cannot find first expected cs output directory; VSTest packaging similarly lacks culture directories.",
+    "builderObservedIcuData": "icu-data-en-78.1-r0",
+    "runtimeImageIcuData": "icu-data-full=78.1-r0",
+    "gap": "The SDK-free runtime image already requested full ICU data, while the source-build image requested icu-dev without full data and resolved the stripped English-only provider."
+  },
+  "commonEnvironment": {
+    "native": true,
+    "architecture": "aarch64",
+    "libc": "musl",
+    "alpineVersion": "3.24.4",
+    "bootstrapSdk": "10.0.401",
+    "bootstrapRuntime": "10.0.12",
+    "network": "none during all reported controls",
+    "user": "1001:1001 for XLIFF resource-generation controls",
+    "capDrop": "all",
+    "noNewPrivileges": true,
+    "sourceMount": "read-only pinned VMR source",
+    "sdkMount": "read-only unchanged official portable bootstrap SDK",
+    "baseImage": {
+      "name": "localhost/cbodotnet-musl-build-proof:issue24-native-minimal",
+      "id": "f380209cbfefed690274c456c0ae03cfe3257c0bffb37921d5d4e0ba52e9bf04"
+    },
+    "fullDataImage": {
+      "name": "localhost/cbodotnet-culture-control:full",
+      "id": "9c47ea24c9bd7bc15009fcf02beef39a78e1f3f971446b4b5f80a85d370f767f"
+    },
+    "stockPackageChange": {
+      "before": "icu-data-en-78.1-r0",
+      "after": "icu-data-full-78.1-r0",
+      "unchangedCommonPackages": [
+        "icu-78.1-r0",
+        "icu-dev-78.1-r0",
+        "icu-libs-78.1-r0"
+      ],
+      "construction": "The disposable derivative removed the explicitly pinned English-only world selector before apk installed the stock signed full-data package. Production recipes must request full data in their original fetch/install roots."
+    }
+  },
+  "sourceInputs": {
+    "vmrCommit": "5a2162bea6845eabc1fc721624a43568c65db3b1",
+    "sourceManifest": {
+      "name": "src/source-manifest.json",
+      "size": 4952,
+      "sha256": "3e58b863fccb3d347b365a5532ddf2b1eacd230cceddc06474ddce008aab3334"
+    },
+    "repositories": [
+      {
+        "path": "arcade",
+        "remoteUri": "https://github.com/dotnet/arcade",
+        "commitSha": "614293a9b3aa17dda9dc7e69c4dfcd576f59741a"
+      },
+      {
+        "path": "msbuild",
+        "remoteUri": "https://github.com/dotnet/msbuild",
+        "commitSha": "7664dbc52ce33f96c899680fd1bcac85ba059eda"
+      }
+    ],
+    "bootstrapArchive": {
+      "name": ".build/issue24-bootstrap401-fixture/dotnet-sdk-10.0.401-linux-musl-arm64.tar.gz",
+      "size": 232549940,
+      "sha256": "830d3b4b022453b09b9ecdf59b004e6b032a8a4394b275d47dec175e37030782",
+      "sha512": "01ea3f0b673ef1745140754f91a500ecfd37f2342d778995ff4c7df9c9d415211c724c0d02ed73da3bcf858e9074fbadbf6f07f0067b58072bca1cabb31aa88b"
+    },
+    "bootstrapFiles": [
+      {
+        "name": "dotnet",
+        "size": 72680,
+        "sha256": "223e3218077f4c3a59c0763f5ae40708645738a1294c67a6d830fb1789994621"
+      },
+      {
+        "name": "sdk/10.0.401/MSBuild.dll",
+        "size": 745768,
+        "sha256": "e91ba388c057e8031fdc8da8cf30296ad649a0b3e99d2a3e928caa54b6dae42d"
+      },
+      {
+        "name": "sdk/10.0.401/Microsoft.Build.Tasks.Core.dll",
+        "size": 2836776,
+        "sha256": "2f8a214459398f13ef79ed38da85967abd23a2933931a3f2b33e702bbcfa6807"
+      },
+      {
+        "name": "sdk/10.0.401/Microsoft.Build.Framework.dll",
+        "size": 2488104,
+        "sha256": "56fd502f29b1d6acf8c5482b716746ef2087ebc7f7d7493457dc116f5e259135"
+      },
+      {
+        "name": "sdk/10.0.401/Microsoft.Build.Utilities.Core.dll",
+        "size": 580392,
+        "sha256": "36d3cbfd9015e8720a285482248437b8b3b49e5871f6a7f1a1b63f1f9824a56c"
+      },
+      {
+        "name": "sdk/10.0.401/MSBuild.runtimeconfig.json",
+        "size": 331,
+        "sha256": "6d4fe07726774308f0c3efe71b89ae13f227054b446efdaa4f939726c783a5e9"
+      },
+      {
+        "name": "sdk/10.0.401/dotnet.runtimeconfig.json",
+        "size": 331,
+        "sha256": "6d4fe07726774308f0c3efe71b89ae13f227054b446efdaa4f939726c783a5e9"
+      }
+    ],
+    "pinnedOriginalFiles": [
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/EnumerableExtensions.cs",
+        "size": 1100,
+        "sha256": "7a0c0d2eabee96ef1ffb1116979ce35806458bda622b9d9bf9f4503f00117aeb"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/ExponentialRetry.cs",
+        "size": 1174,
+        "sha256": "0efa509e453c6de47957cfc5b186e4b085e62387564e98948036c991092911f1"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Model/Document.cs",
+        "size": 4439,
+        "sha256": "124e73868229ac133f22039bfac05e60b7b3614063fb514b089b91c2b7be5cfb"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Model/JsonDocument.cs",
+        "size": 1391,
+        "sha256": "0431b156524c1e23042e3bea775fd3660ae4f4796e9bdae4b8ed0be3dcc56e42"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Model/ResxDocument.cs",
+        "size": 2597,
+        "sha256": "39f60a11f7334990517393a05eed3f3e0b7f3461cb37c7936adfd3e7d27c2996"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Model/TranslatableDocument.cs",
+        "size": 2338,
+        "sha256": "9785a63c814e94ac734aad596f8ab3cf280dcf4496a4bc9b04171c74a5080c2b"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Model/TranslatableNode.cs",
+        "size": 1231,
+        "sha256": "f48c84371035032c8a3d632882d72a2cc41dddb71e21f41330c209251b827945"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Model/TranslatableXmlDocument.cs",
+        "size": 1559,
+        "sha256": "bfe2dd85adb7f8a54ae9df96bc4ecd03ef5166cf7daf8d6c4d721848a4e18be1"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Model/UnstructuredDocument.cs",
+        "size": 3409,
+        "sha256": "4073af538f437e741457f89c3ce7c9b8789d7ff1f00e03297f7d2bc0e55b3ef3"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Model/VsctDocument.cs",
+        "size": 3313,
+        "sha256": "1d1082a030225b6f242d080b76404ed7fd9fbf816b05c2aaa328d21816dd1dfa"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Model/XDocumentExtensions.cs",
+        "size": 949,
+        "sha256": "d67c0586343b275eceb04fb882845ca317bbc8372adb1b5bd19bd8a10e9e0335"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Model/XElementExtensions.cs",
+        "size": 6566,
+        "sha256": "5fe12e538588e70a48f8eef3980b6eb18c7a9e2dcd4cb0e9cd260936fbee5223"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Model/XamlRuleDocument.cs",
+        "size": 9894,
+        "sha256": "ec0c976ecc0e0608515f60a1b9d36a25917eb1a1e86269753ec1d2b781c22475"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Model/XlfDocument.cs",
+        "size": 12385,
+        "sha256": "d2ee58a4f1314ccb857b922a21f7f8d2525b7fdee73b224e381c283104cdf615"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Model/XlfNames.cs",
+        "size": 805,
+        "sha256": "7821db2b2bde1b0b5c002507a066ee9c3273f8afe4c30ecd2e10f051c41112c7"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Release.cs",
+        "size": 446,
+        "sha256": "752b95fac9e8652779a2a0ff1329ad6d51cfc5d7b41d1cb1d3af17c6f219931b"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/StringExtensions.cs",
+        "size": 1911,
+        "sha256": "8c4297428e522532c3af94e7184d1af9d9485096de53032a4f029763dd0266bf"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Tasks/BuildErrorException.cs",
+        "size": 473,
+        "sha256": "4e24de5ebeb99deda5dd648a22ef823fc84cb123f8265ddeb2fbab3a028dbd78"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Tasks/EnsureAllResourcesTranslated.cs",
+        "size": 1790,
+        "sha256": "58eccaf0dc432d55ff0f6abbd9a4ff2cdce89bbe2d1c0f59085d7bd23db8e268"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Tasks/GatherTranslatedSource.cs",
+        "size": 4168,
+        "sha256": "194daac3b651c193df7dc6a3056cca5cf2e2a0119698cee8096bcba117ae1a19"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Tasks/GatherXlf.cs",
+        "size": 3035,
+        "sha256": "cbdaa7c04180a1c606efc61f28c096c2d7361a2b08532319615d2dd670820ea1"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Tasks/MetadataKey.cs",
+        "size": 1459,
+        "sha256": "4cf8549f3799c4b1959d0abef25ebe883173c5f790c4f45af960ac8b374fecb8"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Tasks/SortXlf.cs",
+        "size": 1455,
+        "sha256": "5013ddd8d681c212e1b87664ffdf35cca595c7b313979f6331b093f6b6cd97ab"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Tasks/TaskItemExtensions.cs",
+        "size": 836,
+        "sha256": "485ee93a8b245b9a0a31a148fdf54bd4e8fded57922e702bd926206128433dbd"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Tasks/TaskLoggingHelperExtensions.cs",
+        "size": 1299,
+        "sha256": "c61eb2a14400ac309ad2909a8ae8d0106ee644fb60a25dd024ae6d19f78ea7fb"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Tasks/TransformTemplates.cs",
+        "size": 5392,
+        "sha256": "249651e280b9a00e9b0e9ca977cbca8e15ba7709531f0af29f7557641cfed2e6"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Tasks/TranslateSource.cs",
+        "size": 1682,
+        "sha256": "0a2eb51b1023626546e9830ad71bd130002dae9d615caccf05159e94ecd043d6"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Tasks/UpdateXlf.cs",
+        "size": 2854,
+        "sha256": "40c67d332875985dd071f88229c4833618a91b9eeb17f60d60c10d3be149af62"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Tasks/XlfTask.cs",
+        "size": 3084,
+        "sha256": "e8c15cb76d3c25b8db8c06a79ba94ae4d261166f6f5542e109fe931e92b4dcde"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Validation.cs",
+        "size": 546,
+        "sha256": "01a102a0f579340dec5501bd24747968f0c7b7e316f1e821c7336344fe6603c0"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Model/xliff-core-1.2-transitional.xsd",
+        "size": 97715,
+        "sha256": "aa87c67897ea94c390a16d4b0753930ed8ece6e2185af2833b50b9987d8241dd"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/Model/xml.xsd",
+        "size": 10315,
+        "sha256": "170ec03fdb424632bd5151813fb7c89df125b555bc9210e9691e9e50055cc9d6"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/build/Microsoft.DotNet.XliffTasks.props",
+        "size": 2623,
+        "sha256": "510f77604f4776b13293463bbb399f526c4143a0cea67d7d7a45137cfa4d4b93"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.XliffTasks/build/Microsoft.DotNet.XliffTasks.targets",
+        "size": 9425,
+        "sha256": "9267daf7f8d48458998630bb602b6e8abc50396095067d7ede5c7ca8a929b836"
+      },
+      {
+        "name": "src/arcade/src/Microsoft.DotNet.Arcade.Sdk/tools/Localization.targets",
+        "size": 2174,
+        "sha256": "43cad73c6f46961ce0fc88a444bf0fdef23b2ad003270468d260a1a86e8efbaf"
+      },
+      {
+        "name": "src/msbuild/src/Build/Resources/Strings.resx",
+        "size": 156337,
+        "sha256": "58bff12e24a2afdc4ebd81545a51b558aefc9177a2853cb97d4c421bfc9a9116"
+      },
+      {
+        "name": "src/msbuild/src/Build/Resources/xlf/Strings.cs.xlf",
+        "size": 242274,
+        "sha256": "68a4a805c88fb36793013f1ea5447c9a8aa1bc12c56af04824724d8a580923c1"
+      },
+      {
+        "name": "src/msbuild/src/Build/Resources/xlf/Strings.de.xlf",
+        "size": 248322,
+        "sha256": "cf5ae48dfd8560bbefb3d696b4f5310c1a7624b82d5a928bc4d22eb746e4ab2a"
+      },
+      {
+        "name": "src/msbuild/src/Build/Resources/xlf/Strings.es.xlf",
+        "size": 245546,
+        "sha256": "3d4b391fcfd7b31d3bce7e6e3e84184d8c3543a289231797b74b365d163ec71d"
+      },
+      {
+        "name": "src/msbuild/src/Build/Resources/xlf/Strings.fr.xlf",
+        "size": 248632,
+        "sha256": "fd369444a1305fb2a41fadf40aaa83efea5f5abc60e893002cca6cb09133d7be"
+      },
+      {
+        "name": "src/msbuild/src/Build/Resources/xlf/Strings.it.xlf",
+        "size": 246649,
+        "sha256": "70c33712f1bcb78e18775635490d133c53cb74adc641fb8a0b002fa3360c6d6e"
+      },
+      {
+        "name": "src/msbuild/src/Build/Resources/xlf/Strings.ja.xlf",
+        "size": 260513,
+        "sha256": "3d29ba329b3662222ac66dbfda010a8c0e2d7fc9b109208c85655622ce8e5354"
+      },
+      {
+        "name": "src/msbuild/src/Build/Resources/xlf/Strings.ko.xlf",
+        "size": 247816,
+        "sha256": "4577e0ae2f3a3e6a4057f578724b309ff7f716a47edd1c0f047362da8987b76a"
+      },
+      {
+        "name": "src/msbuild/src/Build/Resources/xlf/Strings.pl.xlf",
+        "size": 250152,
+        "sha256": "e8ff4dbada1ec7925f5bb33ac8c7bae650c4db7f82a1bc1e95e3e70513a7cc67"
+      },
+      {
+        "name": "src/msbuild/src/Build/Resources/xlf/Strings.pt-BR.xlf",
+        "size": 243176,
+        "sha256": "db6379b118fc5da327edb868b4b119c32ae0e1b7c0c414cbc9af9d8e0e0dd854"
+      },
+      {
+        "name": "src/msbuild/src/Build/Resources/xlf/Strings.ru.xlf",
+        "size": 277538,
+        "sha256": "b25e22721900093c2826e08703ee396f22f98898cc3c5c1254c5dc3509cac10c"
+      },
+      {
+        "name": "src/msbuild/src/Build/Resources/xlf/Strings.tr.xlf",
+        "size": 242793,
+        "sha256": "f91dcef4d9f43d71354e7d4d514a45c7783f4d75a3ef1401e19a9a44bf768b6e"
+      },
+      {
+        "name": "src/msbuild/src/Build/Resources/xlf/Strings.zh-Hans.xlf",
+        "size": 232951,
+        "sha256": "b46f36720fdecf211a240c870a72aa4a476d392ca43f65bf3ba24742113a57e4"
+      },
+      {
+        "name": "src/msbuild/src/Build/Resources/xlf/Strings.zh-Hant.xlf",
+        "size": 231565,
+        "sha256": "d5155a6950211adce92202519ff24eb1e77485ee3b521c258b87d187ae6f6177"
+      },
+      {
+        "name": "src/msbuild/src/Tasks/AssignCulture.cs",
+        "size": 9395,
+        "sha256": "d9b19b9ed99945913b302054ddb51875f3117477f74d066409503cd19ddf82f8"
+      },
+      {
+        "name": "src/msbuild/src/Tasks/Culture.cs",
+        "size": 3638,
+        "sha256": "1f10dc17e8db4e07875af24d41efa0ea0b9e00fa940c1f86c84a7d431c08009e"
+      },
+      {
+        "name": "src/msbuild/src/Tasks/CultureInfoCache.cs",
+        "size": 2820,
+        "sha256": "9aee7087b9349a9bb18a86dc8b7c4e002b20c52ba580105cd6eccaeb644bc676"
+      }
+    ]
+  },
+  "cultureAndAssignCultureControl": {
+    "report": {
+      "name": ".build/issue24-culture-control/result.json",
+      "size": 3007,
+      "sha256": "88ca6aafa002bb4dbb3367e8b6fac8c12fee54e4e7f9501fdfe5d7fe9c64652d"
+    },
+    "fixtureInputs": [
+      {
+        "name": ".build/issue24-culture-control/project/Program.cs",
+        "size": 557,
+        "sha256": "c8189b9e7bba0df6d742b685829581cd9eac058ce0a75afb95a0189ad911c430"
+      },
+      {
+        "name": ".build/issue24-culture-control/project/Probe.csproj",
+        "size": 213,
+        "sha256": "ef19230dc241e2948f575879a0f2bcf618a197b616bc40228159e415a56325ef"
+      },
+      {
+        "name": ".build/issue24-culture-control/project/Assign.proj",
+        "size": 558,
+        "sha256": "076de5665fb9b0871f1bc4969aca870cfa66de2c72b0cfb96076a6b73972eef0"
+      },
+      {
+        "name": ".build/issue24-culture-control/project/NuGet.Config",
+        "size": 73,
+        "sha256": "e497501960554d323eef45860c14474958accd1ae7f3ae6f95b10e4c1d340401"
+      },
+      {
+        "name": ".build/issue24-culture-control/Full.Containerfile",
+        "size": 360,
+        "sha256": "89f4c2ed43977c26d7644db37b21bfb5aef4bb444b4995331cb7ef3e12e0edfc"
+      }
+    ],
+    "observation": {
+      "english": {
+        "cultures": {
+          "allCultureCount": 5,
+          "knownCultures": {
+            "cs": false,
+            "de": false,
+            "en": true,
+            "fr": false,
+            "ko": false,
+            "ja": false,
+            "zh-Hans": false,
+            "pt-BR": false
+          },
+          "nativeNames": {
+            "cs": "Czech",
+            "de": "German",
+            "en": "English",
+            "fr": "French",
+            "ko": "Korean",
+            "ja": "Japanese",
+            "zh-Hans": "Chinese (Simplified)",
+            "pt-BR": "Portuguese (Brazil)"
+          },
+          "currentCulture": ""
+        },
+        "assigned": [
+          "Strings.cs.resx||false",
+          "Strings.de.resx||false",
+          "Strings.en.resx|en|true",
+          "Strings.fr.resx||false",
+          "Strings.ko.resx||false",
+          "Strings.ja.resx||false",
+          "Strings.zh-Hans.resx||false",
+          "Strings.pt-BR.resx||false"
+        ],
+        "icuPackages": [
+          "icu-78.1-r0 - International Components for Unicode library",
+          "icu-data-en-78.1-r0 - Stripped down ICU data with only en_US/GB locale and no legacy charset converters",
+          "icu-dev-78.1-r0 - International Components for Unicode library (development files)",
+          "icu-libs-78.1-r0 - International Components for Unicode library (libraries)"
+        ]
+      },
+      "full": {
+        "cultures": {
+          "allCultureCount": 907,
+          "knownCultures": {
+            "cs": true,
+            "de": true,
+            "en": true,
+            "fr": true,
+            "ko": true,
+            "ja": true,
+            "zh-Hans": true,
+            "pt-BR": true
+          },
+          "nativeNames": {
+            "cs": "čeština",
+            "de": "Deutsch",
+            "en": "English",
+            "fr": "français",
+            "ko": "한국어",
+            "ja": "日本語",
+            "zh-Hans": "中文（简体）",
+            "pt-BR": "português (Brasil)"
+          },
+          "currentCulture": ""
+        },
+        "assigned": [
+          "Strings.cs.resx|cs|true",
+          "Strings.de.resx|de|true",
+          "Strings.en.resx|en|true",
+          "Strings.fr.resx|fr|true",
+          "Strings.ko.resx|ko|true",
+          "Strings.ja.resx|ja|true",
+          "Strings.zh-Hans.resx|zh-Hans|true",
+          "Strings.pt-BR.resx|pt-BR|true"
+        ],
+        "icuPackages": [
+          "icu-78.1-r0 - International Components for Unicode library",
+          "icu-data-full-78.1-r0 - Full ICU data",
+          "icu-dev-78.1-r0 - International Components for Unicode library (development files)",
+          "icu-libs-78.1-r0 - International Components for Unicode library (libraries)"
+        ]
+      }
+    },
+    "interpretation": "Both enumeration and the actual bootstrap MSBuild AssignCulture task change with the ICU data provider. GetCultureInfo without predefinedOnly can return fallback names even with English-only data; that alone is not proof a culture can be assigned for satellite generation."
+  },
+  "pinnedXliffResourceGenerationControl": {
+    "harness": "unchanged pinned Arcade Xliff C# sources compiled using local SDK Microsoft.Build references; exact pinned Xliff/Arcade props/targets imported; actual MSBuild Build/Resources Strings.resx and thirteen translated XLF copied into ignored fixture; package reference replaced by locallycompiled unchanged source assembly only in fixture",
+    "fixtureInputs": [
+      {
+        "name": ".build/issue24-localization-control/task.csproj",
+        "size": 1022,
+        "sha256": "31658e346f248c61f3940dc46ca1230522e2f8a6cefcd852cb66b7bbebd90463"
+      },
+      {
+        "name": ".build/issue24-localization-control/consumer.csproj",
+        "size": 2166,
+        "sha256": "48d1664cbece3596b8dbd98791dd13b4e79129330ff4045c9c8c91c5a05ac45f"
+      },
+      {
+        "name": ".build/issue24-localization-control/run.sh",
+        "size": 1439,
+        "sha256": "237b01daed0524dbbf47c7e21d0cee07d823f98e69f4b0a5095915eed33141de"
+      },
+      {
+        "name": ".build/issue24-localization-control/run-native.py",
+        "size": 2447,
+        "sha256": "acae6c61b4852963feebf7b13b5275e749d9e259a19835a1f469eeac318bab9b"
+      }
+    ],
+    "compiledTaskAssemblySha256": "6fb0d83b1e2ba303afd55b6015ba8a3ad25b967911f1e4eee436c144a4a3cf9b",
+    "languages": [
+      "cs",
+      "de",
+      "es",
+      "fr",
+      "it",
+      "ja",
+      "ko",
+      "pl",
+      "pt-BR",
+      "ru",
+      "tr",
+      "zh-Hans",
+      "zh-Hant"
+    ],
+    "reports": [
+      {
+        "name": ".build/issue24-localization-control/english.json",
+        "size": 2453,
+        "sha256": "1f92013795b84d1bca7bb103dc7ae8f4cca3ca1d7a1c3ce2891af0fc1248a68f"
+      },
+      {
+        "name": ".build/issue24-localization-control/full.json",
+        "size": 8195,
+        "sha256": "3a15c99cf83e06775b082949415b0e53f65ddfc31047acd1169796284d78b46e"
+      },
+      {
+        "name": ".build/issue24-localization-control/english.log",
+        "size": 992,
+        "sha256": "7a3a0aa5655e60faae10cb916080e36fde20fbcf9aa9e76eefc77671c4779a46"
+      },
+      {
+        "name": ".build/issue24-localization-control/full.log",
+        "size": 2744,
+        "sha256": "ad62209a07f8644fde20783458f19ba4ae3a07f09199b89a8c6f6109d26cd1f5"
+      }
+    ],
+    "results": {
+      "english": {
+        "imageId": "f380209cbfefed690274c456c0ae03cfe3257c0bffb37921d5d4e0ba52e9bf04",
+        "workspace": "/tmp/issue24-xliff-ci-english-c2kvncfh",
+        "containerExitCode": 0,
+        "modes": {
+          "false": {
+            "exitCode": 0,
+            "evaluated": {
+              "CI": "false",
+              "UpdateXlfOnBuild": "true",
+              "EnableXlfLocalization": "true",
+              "Translated": "13",
+              "ResourceWithCulture": "0",
+              "Satellite": "0"
+            },
+            "translatedResxCount": 13,
+            "satelliteAssemblyCount": 0,
+            "binlogSha256": "6dba63376bf1daaf2abb9709fde2b9f60b7589e75911050f9c58bed62b2a3249",
+            "logSha256": "91aa45335af410da9fa0785b7c60498671586829242cc081dc574b6268f2f610"
+          },
+          "true": {
+            "exitCode": 0,
+            "evaluated": {
+              "CI": "true",
+              "UpdateXlfOnBuild": "false",
+              "EnableXlfLocalization": "true",
+              "Translated": "13",
+              "ResourceWithCulture": "0",
+              "Satellite": "0"
+            },
+            "translatedResxCount": 13,
+            "satelliteAssemblyCount": 0,
+            "binlogSha256": "d3c22d77ffefa1316950fe443ceb5540ef464b35fa7e7597d74e2960a932bbf8",
+            "logSha256": "2f6927dda05456744214ba7d7e42098688b1c7ad5a9560283a84a722790d816e"
+          }
+        }
+      },
+      "full": {
+        "imageId": "9c47ea24c9bd7bc15009fcf02beef39a78e1f3f971446b4b5f80a85d370f767f",
+        "workspace": "/tmp/issue24-xliff-ci-full-uqrodxxu",
+        "containerExitCode": 0,
+        "modes": {
+          "false": {
+            "exitCode": 0,
+            "evaluated": {
+              "CI": "false",
+              "UpdateXlfOnBuild": "true",
+              "EnableXlfLocalization": "true",
+              "Translated": "13",
+              "ResourceWithCulture": "13",
+              "Satellite": "13"
+            },
+            "translatedResxCount": 13,
+            "satelliteAssemblyCount": 13,
+            "binlogSha256": "90152266b6d79439faf1b46226a23dfc757a1c92b8d1f4b5d9378dc213c72518",
+            "logSha256": "5a9a7fa9bf44817ece9cab5a1c3695ec91adbdfc8015a686fdee927707c9a655"
+          },
+          "true": {
+            "exitCode": 0,
+            "evaluated": {
+              "CI": "true",
+              "UpdateXlfOnBuild": "false",
+              "EnableXlfLocalization": "true",
+              "Translated": "13",
+              "ResourceWithCulture": "13",
+              "Satellite": "13"
+            },
+            "translatedResxCount": 13,
+            "satelliteAssemblyCount": 13,
+            "binlogSha256": "d722e8c28bcbdaf23e25186767810de3b6b8f8e5b41e6bf7b442f359795ba197",
+            "logSha256": "7a2aa9ba6b06517578d649548ddf4a5a112439fab79b43b67c3cf5b77b1adba5"
+          }
+        }
+      }
+    },
+    "fullDataSatelliteAssemblies": [
+      {
+        "path": "bin/Release/net10.0/cs/ActualMSBuildResourceControl.resources.dll",
+        "size": 105472,
+        "sha256": "e1da51e4961f9a2abc8db01e096db925bbf49a86f6b24f63ab6f7e5f2a49823a"
+      },
+      {
+        "path": "bin/Release/net10.0/de/ActualMSBuildResourceControl.resources.dll",
+        "size": 111616,
+        "sha256": "abf45cf5d98e258f5f8b0329a8a40af581083edefe91b51b664df083103cebb9"
+      },
+      {
+        "path": "bin/Release/net10.0/es/ActualMSBuildResourceControl.resources.dll",
+        "size": 109056,
+        "sha256": "75640df4d2e3ea65db2d372b4ecc11189f098df0354340ba895604e5c20193d3"
+      },
+      {
+        "path": "bin/Release/net10.0/fr/ActualMSBuildResourceControl.resources.dll",
+        "size": 112128,
+        "sha256": "ce8fe510d1a03e5bc3a84ea981e9fe6417781d6992aa8eb5737f4b9f2315f8e2"
+      },
+      {
+        "path": "bin/Release/net10.0/it/ActualMSBuildResourceControl.resources.dll",
+        "size": 110080,
+        "sha256": "4d95036294abc4d23766e29558ee932eea29d3d80225a87af6a1359170b4cbfa"
+      },
+      {
+        "path": "bin/Release/net10.0/ja/ActualMSBuildResourceControl.resources.dll",
+        "size": 123904,
+        "sha256": "1ba5ffcb1909cbdad31eadfa885451af8ef0f70e41ff356247d88af1e0d0f73e"
+      },
+      {
+        "path": "bin/Release/net10.0/ko/ActualMSBuildResourceControl.resources.dll",
+        "size": 111104,
+        "sha256": "bb0e3a8d6884814e81ffe9d60f01e2588663347a7b3892cb21faab1183d19082"
+      },
+      {
+        "path": "bin/Release/net10.0/pl/ActualMSBuildResourceControl.resources.dll",
+        "size": 113664,
+        "sha256": "3c5069562f94761ca42ad1d04bd9a052d4c12f263fcc20d3faf22af9431d55b6"
+      },
+      {
+        "path": "bin/Release/net10.0/pt-BR/ActualMSBuildResourceControl.resources.dll",
+        "size": 106496,
+        "sha256": "dc616c455ff13f6d83198ad9725cf1a61cc3d77ed72f2cafcec405bbacf58dc6"
+      },
+      {
+        "path": "bin/Release/net10.0/ru/ActualMSBuildResourceControl.resources.dll",
+        "size": 140800,
+        "sha256": "2075db0a22d6d53fe20c76e19124e6004a493efa2b99fa81a734682ce9d9c8bc"
+      },
+      {
+        "path": "bin/Release/net10.0/tr/ActualMSBuildResourceControl.resources.dll",
+        "size": 105984,
+        "sha256": "6e06dd6ed6d8c93fc6d0ca269c74e3762e1b0bf449506b4ece477f4f86be5d91"
+      },
+      {
+        "path": "bin/Release/net10.0/zh-Hans/ActualMSBuildResourceControl.resources.dll",
+        "size": 96256,
+        "sha256": "e0071f59dc174f2f3e8955984cc51fdbefbbd42c0b5721ce6df6bc528f2c910b"
+      },
+      {
+        "path": "bin/Release/net10.0/zh-Hant/ActualMSBuildResourceControl.resources.dll",
+        "size": 94720,
+        "sha256": "97688901d59955a032ef39d4e537b8984cf87160a06e3e4eda61645bd6132bf6"
+      }
+    ],
+    "fullDataCiTrueFalseSatelliteSha256SetsEqual": true
+  },
+  "sourceInterpretation": {
+    "arcadeLocalizationTargets": "ContinuousIntegrationBuild changes UpdateXlfOnBuild (true for local developer builds; false by default for CI). The translation target remains enabled in either case.",
+    "xliffTargets": "The unchanged task/targets generated thirteen translated .resx files in every mode. Missing culture recognition occurs later in the actual bootstrap SDK resource pipeline.",
+    "msbuildCultureCache": "The pinned NET branch checks CultureInfo.GetCultureInfo(name, predefinedOnly:true); the non-NET branch uses an enumerated culture cache.",
+    "counterfactual": "Changing only stock ICU data restores all thirteen actual satellite DLLs and culture directories with either CI value; CI false/true full-data outputs have identical paths, sizes and SHA256 values.",
+    "boundedConclusion": "Request icu-data-full=78.1-r0 in the original native build-image package closure and add a pre-build localization readiness probe. A new full producer run and all existing admission/consumer gates remain required.",
+    "ciFlagConclusion": "These controls do not support adding --ci as a workaround for the missing culture directories."
+  },
+  "claimChecks": {
+    "actualReportFieldsParsed": true,
+    "cultureCountsEnglish5Full907": true,
+    "bothCiModesExitZero": true,
+    "allModesTranslateThirteenResx": true,
+    "englishBothModesProduceZeroSatellites": true,
+    "fullBothModesProduceThirteenSatellites": true,
+    "fullModeAllThirteenLanguagesPresent": true,
+    "fullCiTrueFalseOutputDescriptorsIdentical": true,
+    "compiledTaskAssemblyIdenticalAcrossImages": true,
+    "sourceAdmissionRemainsFalse": true,
+    "noTrackedSourceOrBootstrapEdits": true,
+    "noTranslationRemovalEmptyDirectoriesOrSkipFlags": true
+  },
+  "primaryPinnedSourceLinks": [
+    {
+      "role": "Arcade localization defaults",
+      "url": "https://github.com/dotnet/arcade/blob/614293a9b3aa17dda9dc7e69c4dfcd576f59741a/src/Microsoft.DotNet.Arcade.Sdk/tools/Localization.targets"
+    },
+    {
+      "role": "XLIFF translation target",
+      "url": "https://github.com/dotnet/arcade/blob/614293a9b3aa17dda9dc7e69c4dfcd576f59741a/src/Microsoft.DotNet.XliffTasks/build/Microsoft.DotNet.XliffTasks.targets"
+    },
+    {
+      "role": "MSBuild culture recognition",
+      "url": "https://github.com/dotnet/msbuild/blob/7664dbc52ce33f96c899680fd1bcac85ba059eda/src/Tasks/CultureInfoCache.cs"
+    }
+  ]
+}

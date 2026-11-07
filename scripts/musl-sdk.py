@@ -25,6 +25,9 @@ ROOT = Path(__file__).resolve().parent.parent
 SOURCE = '5a2162bea6845eabc1fc721624a43568c65db3b1'
 SHARED = '0427b9abbead3fa64c6655eb4290c537397131fa'
 SDK = '10.0.403'
+SOURCE_CULTURES = ('cs', 'de', 'es', 'fr', 'it', 'ja', 'ko', 'pl', 'pt-BR', 'ru', 'tr', 'zh-Hans', 'zh-Hant')
+SOURCE_CULTURE_PROJECT = 'scripts/probe-source-cultures.proj'
+SOURCE_CULTURE_REPORT = 'reports/prepare/source-cultures.json'
 REPOSITORY = 'https://github.com/dotnet/dotnet'
 DOCKER_ENGINE = ['sudo', '-n', '--', 'docker']
 PODMAN_DIAGNOSTIC_ENGINE = ['sudo', '-n', '--', 'podman', '--cgroup-manager=cgroupfs', '--events-backend=file']
@@ -172,6 +175,40 @@ def validate_container_engine(release, prepare, stages, architecture):
             require(command[:len(DOCKER_ENGINE)] == DOCKER_ENGINE, 'Normal producer used another container backend')
             if command[len(DOCKER_ENGINE)] == 'run':
                 validate_default_container_policy(release, command)
+
+
+def validate_source_cultures(report):
+    require(report.get('schemaVersion') == 1 and report.get('kind') == 'native-bootstrap-source-cultures'
+        and report.get('status') == 'observed' and report.get('msbuildRuntimeType') == 'Core'
+        and re.fullmatch(r'18\.9\.11(?:\.[0-9]+)?', report.get('msbuildVersion', ''))
+        and report.get('msbuildToolsPath', '').rstrip('/') == '/vmr/.dotnet/sdk/10.0.401',
+        'Source culture readiness must use the actual exact private native bootstrap MSBuild')
+    rows = report.get('resources', [])
+    require(isinstance(rows, list) and len(rows) == len(SOURCE_CULTURES)
+        and len({row.get('resource') for row in rows}) == len(SOURCE_CULTURES)
+        and {row.get('culture') for row in rows} == set(SOURCE_CULTURES)
+        and all(row.get('withCulture') is True and row == dict(resource='CommunityProbe.' + row['culture'] + '.resx',
+                            culture=row['culture'], withCulture=True) for row in rows),
+        'Full ICU data must let the bootstrap AssignCulture task recognize all 13 source translation cultures')
+    return report
+
+
+def source_culture_proof(release, profile):
+    report_path = release / SOURCE_CULTURE_REPORT
+    observation = validate_source_cultures(load_json(report_path))
+    data = [row for row in profile['buildPackages'] if row['P'] == 'icu-data-full']
+    require(len(data) == 1, 'Full ICU data must be an explicit source-builder input')
+    installed = (release / 'reports/prepare/installed-packages.txt').read_text().splitlines()
+    package = 'icu-data-full-' + data[0]['V']
+    require(any(line == package or line.startswith(package + ' - ') for line in installed)
+        and not any(line.startswith('icu-data-en-') for line in installed),
+        'Actual source builder must install the pinned full ICU provider instead of English-only data')
+    return dict(schemaVersion=1, kind='native-bootstrap-source-culture-proof', status='passed',
+        bootstrapVersion=profile['bootstrap']['version'], bootstrapRid=profile['bootstrap']['rid'],
+        bootstrapSha512=profile['bootstrap']['sha512'], msbuildToolsPath=observation['msbuildToolsPath'],
+        sourceDataPackage=package, cultures=list(SOURCE_CULTURES),
+        project=dict(path=SOURCE_CULTURE_PROJECT, **fingerprint(ROOT / SOURCE_CULTURE_PROJECT)),
+        report=dict(path=SOURCE_CULTURE_REPORT, **fingerprint(report_path)))
 
 
 def instrument_input_recording(original):
@@ -455,6 +492,11 @@ class Producer:
                        log=self.reports / 'prepare/bootstrap-info.log')
         self.container(['/vmr/.dotnet/sdk/10.0.401/MSBuild', '-version'], network='none',
                        log=self.reports / 'prepare/bootstrap-msbuild-apphost.log')
+        if not self.diagnostic_ptrace:
+            self.container(['/vmr/.dotnet/dotnet', 'msbuild', '/project/' + SOURCE_CULTURE_PROJECT,
+                '/p:SourceCultureReport=/delivery/' + SOURCE_CULTURE_REPORT, '/t:ProbeSourceCultures', '/nr:false', '/nologo'],
+                network='none', log=self.reports / 'prepare/source-cultures.log')
+            write(self.reports / 'prepare/source-culture-proof.json', source_culture_proof(self.output, self.profile))
         self.container(['python3', '/project/scripts/fetch-pinned-inputs.py',
                         '--profile', '/project/' + self.profile_path.relative_to(ROOT).as_posix(),
                         '--inputs-dir', '/delivery/pinned-inputs', '--reports-dir', '/delivery/reports/prepare'])
@@ -868,6 +910,12 @@ def validate(release):
                 and required_bootstrap_environment <= set(c) for c in stages['prepare']['commands'])
             and 'MSBuild version' in (release / 'reports/prepare/bootstrap-msbuild-apphost.log').read_text(),
             'Actual native bootstrap apphost startup must pass using the private runtime before compilation')
+    require(any(all(value in command for value in ['/vmr/.dotnet/dotnet', 'msbuild',
+        '/project/' + SOURCE_CULTURE_PROJECT, '/p:SourceCultureReport=/delivery/' + SOURCE_CULTURE_REPORT,
+        '/t:ProbeSourceCultures', '--network=none']) and required_bootstrap_environment <= set(command)
+        for command in stages['prepare']['commands']), 'Actual offline native bootstrap source-culture preflight command is absent')
+    require(load_json(release / 'reports/prepare/source-culture-proof.json') == source_culture_proof(release, profile),
+        'Source culture readiness proof, probe bytes or exact bootstrap/full-ICU binding differs')
     image = load_json(release / 'reports/prepare/build-image.json')
     require(len(image) == 1 and image[0]['Id'] == prepare['imageId']
             and image[0]['Architecture'] == arch['image'] and image[0]['Os'] == 'linux',

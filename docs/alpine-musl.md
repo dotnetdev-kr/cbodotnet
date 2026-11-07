@@ -99,6 +99,11 @@ enforced AppArmor and seccomp policies, dropped capabilities and non-root users.
 Admission binds the actual engine version, kernel, daemon settings and observed
 process security to the retained evidence. Source-only diagnostic runs use a
 separate mode that cannot enter the qualification catalog.
+Producer images pin full ICU data as well as the runtime images. An offline
+bootstrap preflight checks the culture assignment needed for all thirteen
+localized satellite assemblies; the
+[localization control](musl-localization-validation.json) records the native
+English-only/full-data comparison with the original XLIFF sources.
 
 `musl-release.yml` then runs the `producer`, `archive`, `apk` and `oci` phases.
 Consumer promotion reconstructs candidates from the admitted SDK and verifies

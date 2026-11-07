@@ -334,6 +334,16 @@
       "repository": "main"
     },
     {
+      "P": "icu-data-full",
+      "V": "78.1-r0",
+      "A": "x86_64",
+      "D": null,
+      "L": "ICU",
+      "o": "icu",
+      "c": "6755fdb21483ba250d374c3244f0f48bc63447e2",
+      "repository": "main"
+    },
+    {
       "P": "openssl-dev",
       "V": "3.5.9-r0",
       "A": "x86_64",

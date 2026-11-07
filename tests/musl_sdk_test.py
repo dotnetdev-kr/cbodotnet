@@ -295,6 +295,44 @@ class DockerEngineAdmissionTests(unittest.TestCase):
             self.assertEqual(M.PODMAN_DIAGNOSTIC_ENGINE,producer.engine_record['commandPrefix'])
 
 
+class SourceCultureReadinessTests(unittest.TestCase):
+    def observation(self):
+        return dict(schemaVersion=1,kind='native-bootstrap-source-cultures',status='observed',
+            msbuildRuntimeType='Core',msbuildVersion='18.9.11',msbuildToolsPath='/vmr/.dotnet/sdk/10.0.401',
+            resources=[dict(resource='CommunityProbe.'+culture+'.resx',culture=culture,withCulture=True)
+                       for culture in M.SOURCE_CULTURES])
+
+    def test_exact_bootstrap_requires_all_source_cultures_and_real_boolean_assignment(self):
+        original=self.observation();M.validate_source_cultures(original)
+        for field,value in [('msbuildToolsPath','/usr/share/dotnet/sdk/10.0.401'),('msbuildVersion','18.8.0'),
+                            ('msbuildRuntimeType','Full')]:
+            with self.subTest(field=field),self.assertRaises(ValueError):
+                M.validate_source_cultures(dict(original,**{field:value}))
+        for value in (False,'true',None,1,0):
+            changed=json.loads(json.dumps(original));changed['resources'][0]['withCulture']=value
+            with self.subTest(value=value),self.assertRaisesRegex(ValueError,'all 13'):
+                M.validate_source_cultures(changed)
+        changed=json.loads(json.dumps(original));changed['resources'][0]=changed['resources'][1]
+        with self.assertRaisesRegex(ValueError,'all 13'):M.validate_source_cultures(changed)
+
+    def test_probe_report_and_full_icu_provider_are_bound_to_exact_profile_and_bytes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            release=Path(temporary)
+            M.write(release/M.SOURCE_CULTURE_REPORT,self.observation())
+            installed=release/'reports/prepare/installed-packages.txt'
+            installed.write_text('icu-data-full-78.1-r0 - Full ICU data\n')
+            profile=dict(buildPackages=[dict(P='icu-data-full',V='78.1-r0')],
+                bootstrap=dict(version='10.0.401',rid='linux-musl-arm64',sha512='a'*128))
+            proof=M.source_culture_proof(release,profile)
+            self.assertEqual('a'*128,proof['bootstrapSha512'])
+            self.assertEqual(M.fingerprint(M.ROOT/M.SOURCE_CULTURE_PROJECT)['sha256'],proof['project']['sha256'])
+            self.assertEqual(M.fingerprint(release/M.SOURCE_CULTURE_REPORT)['sha256'],proof['report']['sha256'])
+            installed.write_text('icu-data-en-78.1-r0 - English-only ICU data\n')
+            with self.assertRaisesRegex(ValueError,'pinned full ICU'):M.source_culture_proof(release,profile)
+            profile['buildPackages']=[]
+            with self.assertRaisesRegex(ValueError,'explicit source-builder input'):M.source_culture_proof(release,profile)
+
+
 class ActualElfBindingTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()

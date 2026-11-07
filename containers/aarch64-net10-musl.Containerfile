@@ -39,6 +39,7 @@ RUN printf '%s\n' 'https://dl-cdn.alpinelinux.org/alpine/v3.24/main' 'https://dl
         time=1.10-r0 \
         linux-headers=7.0.0-r1 \
         icu-dev=78.1-r0 \
+        icu-data-full=78.1-r0 \
         openssl-dev=3.5.9-r0 \
         zlib-dev=1.4-r0 \
         krb5-libs=1.22.2-r1 \
@@ -87,6 +88,7 @@ RUN printf '%s\n' 'https://dl-cdn.alpinelinux.org/alpine/v3.24/main' 'https://dl
         time=1.10-r0 \
         linux-headers=7.0.0-r1 \
         icu-dev=78.1-r0 \
+        icu-data-full=78.1-r0 \
         openssl-dev=3.5.9-r0 \
         zlib-dev=1.4-r0 \
         krb5-libs=1.22.2-r1 \

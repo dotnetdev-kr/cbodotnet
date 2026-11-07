@@ -1,0 +1,18 @@
+<Project DefaultTargets="ProbeSourceCultures">
+  <!-- Use the bootstrap SDK's real AssignCulture task and its predefined-culture
+       lookup. No packages, source edits, resource generation or network access. -->
+  <ItemGroup>
+    <CultureProbe Include="CommunityProbe.cs.resx;CommunityProbe.de.resx;CommunityProbe.es.resx;CommunityProbe.fr.resx;CommunityProbe.it.resx;CommunityProbe.ja.resx;CommunityProbe.ko.resx;CommunityProbe.pl.resx;CommunityProbe.pt-BR.resx;CommunityProbe.ru.resx;CommunityProbe.tr.resx;CommunityProbe.zh-Hans.resx;CommunityProbe.zh-Hant.resx" />
+  </ItemGroup>
+  <Target Name="ProbeSourceCultures">
+    <Error Condition="'$(SourceCultureReport)' == ''" Text="An explicit source culture report path is required." />
+    <AssignCulture Files="@(CultureProbe)">
+      <Output TaskParameter="AssignedFiles" ItemName="AssignedCultureProbe" />
+    </AssignCulture>
+    <PropertyGroup>
+      <_AssignedCultureJson>@(AssignedCultureProbe->'{&quot;resource&quot;:&quot;%(Identity)&quot;,&quot;culture&quot;:&quot;%(Culture)&quot;,&quot;withCulture&quot;:%(WithCulture)}', ',')</_AssignedCultureJson>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(SourceCultureReport)" Overwrite="true"
+      Lines="{&quot;schemaVersion&quot;:1,&quot;kind&quot;:&quot;native-bootstrap-source-cultures&quot;,&quot;status&quot;:&quot;observed&quot;,&quot;msbuildRuntimeType&quot;:&quot;$(MSBuildRuntimeType)&quot;,&quot;msbuildVersion&quot;:&quot;$(MSBuildVersion)&quot;,&quot;msbuildToolsPath&quot;:&quot;$(MSBuildToolsPath)&quot;,&quot;resources&quot;:[$(_AssignedCultureJson)]}" />
+  </Target>
+</Project>
