@@ -101,14 +101,14 @@ class DiagnosticPtraceTests(unittest.TestCase):
         producer.home = root/'home'
         producer.inputs = root/'inputs'
         producer.source = root/'source'
-        producer.engine = ['podman']
+        producer.engine = M.container_engine(diagnostic)
         producer.commands = []
         producer.image = 'isolated-test-image'
         producer.run = lambda command, **kwargs: producer.commands.append(list(map(str,command)))
         return producer
 
     def test_only_opted_in_source_container_gets_effective_ptrace_request(self):
-        with tempfile.TemporaryDirectory() as temporary:
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(M,'validate_default_container_policy') as policy:
             producer = self.producer(Path(temporary))
             producer.container(['source-probe'],source=True)
             producer.container(['consumer-probe'],source=False)
@@ -120,10 +120,13 @@ class DiagnosticPtraceTests(unittest.TestCase):
                 self.assertIn('--security-opt=no-new-privileges',command)
             self.assertFalse(any(value.startswith('--cap-add') for value in consumer))
             self.assertFalse(any(value.startswith('--security-opt=apparmor=') for value in consumer))
+            policy.assert_not_called()
             producer.diagnostic_ptrace = False
+            producer.engine = M.container_engine(False)
             producer.container(['ordinary-source'],source=True)
             self.assertFalse(any(value.startswith('--cap-add') for value in producer.commands[-1]))
             self.assertFalse(any(value.startswith('--security-opt=apparmor=') for value in producer.commands[-1]))
+            policy.assert_called_once_with(producer.output,producer.commands[-1])
 
     def test_diagnostic_success_and_failure_stop_after_build_and_remain_unqualified(self):
         for failed in (False,True):
@@ -195,6 +198,101 @@ class DiagnosticPtraceTests(unittest.TestCase):
             producer.container = mock.Mock()
             M.Producer.build(producer)
             producer.container.assert_called_once_with(producer.build_command(),log=producer.reports/'build/build.log')
+
+
+class DockerEngineAdmissionTests(unittest.TestCase):
+    def documents(self):
+        version=dict(Client=dict(Version='28.5.1'),Server=dict(Version='28.5.1'))
+        info=dict(SecurityOptions=['name=apparmor','name=seccomp,profile=builtin','name=cgroupns'],
+            Driver='overlay2',CgroupDriver='systemd',ServerVersion='28.5.1',KernelVersion='6.11.0-1018-azure',
+            Architecture='aarch64',OSType='linux',DockerRootDir='/var/lib/docker')
+        return version,info
+
+    def prepared(self, root):
+        version,info=self.documents()
+        engine=M.engine_identity('docker',version,info,M.identity('aarch64'))
+        engine['commandPrefix']=M.DOCKER_ENGINE
+        for action,document in [('version',version),('info',info)]:
+            name='reports/prepare/container-engine-'+action+'.json';path=root/name
+            M.write(path,document)
+            engine[action+'Report']=dict(path=name,**M.fingerprint(path))
+        prepare=dict(containerEngine=engine,nativeKernelVersion=info['KernelVersion'],
+            sourceAppArmorPolicy='engine-default',consumerAppArmorPolicy='engine-default',
+            sourceSeccompPolicy='engine-default',consumerSeccompPolicy='engine-default')
+        stages={'prepare':dict(commands=[M.DOCKER_ENGINE+['version','--format',M.ENGINE_JSON_FORMAT],
+                                        M.DOCKER_ENGINE+['info','--format',M.DOCKER_INFO_FORMAT]])}
+        for index,stage in enumerate(('build','verify'),1):
+            name='container-'+str(index).zfill(4);directory=root/'reports/diagnostics'/name;directory.mkdir(parents=True)
+            (directory/'process-status.txt').write_text('Uid:\t1001\t1001\t1001\t1001\nGid:\t1001\t1001\t1001\t1001\n'
+                +'\n'.join(key+':\t0000000000000000' for key in ('CapInh','CapPrm','CapEff','CapBnd','CapAmb'))
+                +'\nNoNewPrivs:\t1\nSeccomp:\t2\n')
+            (directory/'apparmor-current.txt').write_text('docker-default (enforce)\n')
+            stages[stage]=dict(commands=[M.DOCKER_ENGINE+['run','--rm','--user','1001:1001','--cap-drop=all',
+                '--security-opt=no-new-privileges','--volume','/runner/reports/diagnostics/'+name+':/diag','sha256:'+'a'*64,'true']])
+        return prepare,stages
+
+    def test_normal_docker_and_diagnostic_podman_are_explicit_separate_backends(self):
+        self.assertEqual(['sudo','-n','--','docker'],M.container_engine(False))
+        self.assertEqual(['sudo','-n','--','podman','--cgroup-manager=cgroupfs','--events-backend=file'],M.container_engine(True))
+        version,info=self.documents()
+        self.assertEqual('docker',M.engine_identity('docker',version,info,M.identity('aarch64'))['name'])
+        for change in [lambda d:d.update(Architecture='x86_64'),lambda d:d.update(ServerVersion='99.0.0'),
+                       lambda d:d['SecurityOptions'].append('name=rootless'),
+                       lambda d:d.update(SecurityOptions=['name=seccomp,profile=builtin']),
+                       lambda d:d['SecurityOptions'].append('name=apparmor,profile=/custom-policy')]:
+            altered=json.loads(json.dumps(info));change(altered)
+            with self.assertRaises(ValueError):M.engine_identity('docker',version,altered,M.identity('aarch64'))
+
+    def test_actual_engine_reports_and_both_observed_container_policies_are_required(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);prepare,stages=self.prepared(root)
+            M.validate_container_engine(root,prepare,stages,M.identity('aarch64'))
+            for field,value in [('sourceAppArmorPolicy','unconfined'),('consumerSeccompPolicy','unconfined'),
+                                ('nativeKernelVersion','another-kernel')]:
+                altered=dict(prepare,**{field:value})
+                with self.subTest(field=field),self.assertRaises(ValueError):
+                    M.validate_container_engine(root,altered,stages,M.identity('aarch64'))
+            for stage in ('build','verify'):
+                for extra in ('--cap-add=SYS_PTRACE','--privileged','--security-opt=apparmor=unconfined','--security-opt=seccomp=unconfined'):
+                    altered=json.loads(json.dumps(stages));altered[stage]['commands'][0].insert(5,extra)
+                    with self.subTest(stage=stage,extra=extra),self.assertRaisesRegex(ValueError,'default policies'):
+                        M.validate_container_engine(root,prepare,altered,M.identity('aarch64'))
+            stages['build']['commands'][0][3]='podman'
+            with self.assertRaisesRegex(ValueError,'another container backend'):
+                M.validate_container_engine(root,prepare,stages,M.identity('aarch64'))
+
+    def test_process_evidence_rejects_actual_root_capability_or_lsm_bypass(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);prepare,stages=self.prepared(root)
+            command=stages['verify']['commands'][0]
+            path=root/'reports/diagnostics/container-0002/process-status.txt';raw=path.read_text()
+            for change in [('Uid:\t1001','Uid:\t0'),('CapEff:\t0000000000000000','CapEff:\t0000000000080000'),
+                           ('NoNewPrivs:\t1','NoNewPrivs:\t0'),('Seccomp:\t2','Seccomp:\t0')]:
+                path.write_text(raw.replace(*change))
+                with self.subTest(change=change),self.assertRaisesRegex(ValueError,'Actual Docker process'):
+                    M.validate_default_container_policy(root,command)
+            path.write_text(raw)
+            (path.parent/'apparmor-current.txt').write_text('unconfined\n')
+            with self.assertRaisesRegex(ValueError,'default enforced AppArmor'):
+                M.validate_default_container_policy(root,command)
+
+    def test_raw_version_bytes_and_independent_podman_schema_are_not_relabelled(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);prepare,stages=self.prepared(root)
+            path=root/'reports/prepare/container-engine-version.json';path.write_bytes(path.read_bytes()+b'\n')
+            with self.assertRaisesRegex(ValueError,'report bytes differ'):
+                M.validate_container_engine(root,prepare,stages,M.identity('aarch64'))
+        with tempfile.TemporaryDirectory() as temporary:
+            producer=DiagnosticPtraceTests().producer(Path(temporary))
+            version=dict(Client=dict(Version='3.4.4'))
+            info=dict(host=dict(arch='arm64',kernel='6.18.54.1',cgroupManager='cgroupfs',security=dict(rootless=False)),
+                      store=dict(graphDriverName='overlay'),version=dict(Version='3.4.4'))
+            replies=iter([json.dumps(version),json.dumps(info)])
+            producer.run=lambda *args,**kwargs:next(replies)
+            producer.record_container_engine()
+            self.assertEqual('podman',producer.engine_record['name'])
+            self.assertEqual('3.4.4',producer.engine_record['serverVersion'])
+            self.assertEqual(M.PODMAN_DIAGNOSTIC_ENGINE,producer.engine_record['commandPrefix'])
 
 
 class ActualElfBindingTests(unittest.TestCase):

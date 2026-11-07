@@ -26,6 +26,12 @@ SOURCE = '5a2162bea6845eabc1fc721624a43568c65db3b1'
 SHARED = '0427b9abbead3fa64c6655eb4290c537397131fa'
 SDK = '10.0.403'
 REPOSITORY = 'https://github.com/dotnet/dotnet'
+DOCKER_ENGINE = ['sudo', '-n', '--', 'docker']
+PODMAN_DIAGNOSTIC_ENGINE = ['sudo', '-n', '--', 'podman', '--cgroup-manager=cgroupfs', '--events-backend=file']
+ENGINE_JSON_FORMAT = '{{json .}}'
+DOCKER_INFO_FIELDS = ('SecurityOptions', 'Driver', 'CgroupDriver', 'ServerVersion', 'KernelVersion',
+                      'Architecture', 'OSType', 'DockerRootDir')
+DOCKER_INFO_FORMAT = '{' + ','.join('"' + name + '":{{json .' + name + '}}' for name in DOCKER_INFO_FIELDS) + '}'
 INPUT_RECORDING_HOOK = '''
   <Target Name="RecordCommunityMuslImportedInputs" BeforeTargets="CleanupRepo"
           Condition="Exists('$(RepoArtifactsPackageCache)')">
@@ -78,6 +84,94 @@ def git(path, *args):
 def identity(arch):
     return {'x64': dict(public='x64', machine='x86_64', image='amd64', rid='linux-musl-x64'),
             'aarch64': dict(public='aarch64', machine='aarch64', image='arm64', rid='linux-musl-arm64')}[arch]
+
+
+def container_engine(diagnostic):
+    return list(PODMAN_DIAGNOSTIC_ENGINE if diagnostic else DOCKER_ENGINE)
+
+
+def engine_identity(name, version, info, architecture):
+    """Normalize actual CLI JSON while retaining each engine's native schema."""
+    require(isinstance(version, dict) and isinstance(info, dict), 'Actual engine JSON objects required')
+    client = version.get('Client', {})
+    if name == 'docker':
+        server = version.get('Server', {})
+        options = info.get('SecurityOptions', [])
+        require(isinstance(server, dict) and server.get('Version') == info.get('ServerVersion')
+            and info.get('OSType') == 'linux' and isinstance(options, list)
+            and 'name=apparmor' in options and 'name=seccomp,profile=builtin' in options
+            and not any(value.startswith('name=rootless') or (value.startswith('name=apparmor') and value != 'name=apparmor')
+                        or (value.startswith('name=seccomp') and value != 'name=seccomp,profile=builtin') for value in options),
+            'Normal Docker requires its actual rootful daemon and default AppArmor/seccomp policies')
+        selected = dict(serverVersion=server.get('Version'), architecture=info.get('Architecture'),
+            kernelVersion=info.get('KernelVersion'), driver=info.get('Driver'), cgroupDriver=info.get('CgroupDriver'),
+            securityOptions=options, dockerRootDir=info.get('DockerRootDir'))
+    else:
+        require(name == 'podman', 'Unreviewed native container engine')
+        host = info.get('host', {})
+        require(host.get('security', {}).get('rootless') is False, 'Diagnostic Podman must remain rootful')
+        selected = dict(serverVersion=info.get('version', {}).get('Version'), architecture=host.get('arch'),
+            kernelVersion=host.get('kernel'), driver=info.get('store', {}).get('graphDriverName'),
+            cgroupDriver=host.get('cgroupManager'), securityOptions=host.get('security'), dockerRootDir=None)
+    require(isinstance(client, dict) and all(isinstance(value, str) and 0 < len(value) <= 256
+        for value in (client.get('Version'), selected['serverVersion'], selected['kernelVersion'],
+                      selected['driver'], selected['cgroupDriver']))
+        and selected['architecture'] in {architecture['machine'], architecture['image']},
+        'Actual engine version, native CPU, kernel or storage information is absent')
+    return dict(name=name, rootful=True, clientVersion=client['Version'], **selected)
+
+
+def validate_default_container_policy(release, command):
+    """Check observed process security, not only command-line intent."""
+    require(command[:len(DOCKER_ENGINE)] == DOCKER_ENGINE and command[len(DOCKER_ENGINE)] == 'run'
+        and '--cap-drop=all' in command and '--security-opt=no-new-privileges' in command
+        and not any(value.startswith(('--cap-add', '--privileged')) for value in command)
+        and all(value == '--security-opt=no-new-privileges' for value in command if value.startswith('--security-opt')),
+        'Qualified Docker containers require default policies, dropped capabilities and no diagnostic overrides')
+    require(command.count('--user') == 1, 'One exact non-root Docker user required')
+    user = command[command.index('--user') + 1]
+    require(re.fullmatch(r'[1-9][0-9]*:[1-9][0-9]*', user), 'Qualified Docker user must be non-root')
+    mounts = [value for value in command if value.endswith(':/diag')]
+    require(len(mounts) == 1, 'One actual Docker diagnostic mount required')
+    name = Path(mounts[0][:-len(':/diag')]).name
+    require(re.fullmatch(r'container-[0-9]{4,}', name), 'Unsafe Docker diagnostic evidence path')
+    directory = release / 'reports/diagnostics' / name
+    raw = (directory / 'process-status.txt').read_text()
+    require(len(raw) <= 65536, 'Oversized process security report')
+    status = dict(line.split(':', 1) for line in raw.splitlines() if ':' in line)
+    uid, gid = user.split(':')
+    require(status.get('Uid', '').split() == [uid] * 4 and status.get('Gid', '').split() == [gid] * 4
+        and status.get('NoNewPrivs', '').strip() == '1' and status.get('Seccomp', '').strip() == '2'
+        and all(re.fullmatch(r'0{16}', status.get(key, '').strip()) for key in ('CapInh', 'CapPrm', 'CapEff', 'CapBnd', 'CapAmb')),
+        'Actual Docker process user, dropped capabilities, no-new-privileges or seccomp differs')
+    require((directory / 'apparmor-current.txt').read_text().strip('\0\r\n ') == 'docker-default (enforce)',
+            'Actual Docker process is not confined by its default enforced AppArmor profile')
+
+
+def validate_container_engine(release, prepare, stages, architecture):
+    engine = prepare.get('containerEngine', {})
+    paths = {'versionReport': 'reports/prepare/container-engine-version.json',
+             'infoReport': 'reports/prepare/container-engine-info.json'}
+    actual = {}
+    for field, name in paths.items():
+        path = ordinary(release / name)
+        require(engine.get(field) == dict(path=name, **fingerprint(path)), 'Actual engine report bytes differ')
+        actual[field] = load_json(path)
+    observed = engine_identity('docker', actual['versionReport'], actual['infoReport'], architecture)
+    require(engine == dict(observed, commandPrefix=DOCKER_ENGINE, **{key: engine[key] for key in paths})
+        and prepare.get('nativeKernelVersion') == observed['kernelVersion']
+        and prepare.get('sourceAppArmorPolicy') == prepare.get('consumerAppArmorPolicy') == 'engine-default'
+        and prepare.get('sourceSeccompPolicy') == prepare.get('consumerSeccompPolicy') == 'engine-default',
+        'Producer engine identity or default source/consumer policy differs')
+    commands = [command for stage in stages.values() for command in stage['commands']]
+    for action, formatting in [('version', ENGINE_JSON_FORMAT), ('info', DOCKER_INFO_FORMAT)]:
+        require(DOCKER_ENGINE + [action, '--format', formatting] in stages['prepare']['commands'],
+                'Actual normal Docker version/info command is absent')
+    for command in commands:
+        if any(Path(value).name in {'docker', 'podman'} for value in command[:4]):
+            require(command[:len(DOCKER_ENGINE)] == DOCKER_ENGINE, 'Normal producer used another container backend')
+            if command[len(DOCKER_ENGINE)] == 'run':
+                validate_default_container_policy(release, command)
 
 
 def instrument_input_recording(original):
@@ -189,7 +283,7 @@ class Producer:
         self.image = None
         self.verify_image = None
         self.project = git(ROOT, 'rev-parse', 'HEAD')
-        self.engine = ['sudo', '-n', '--', 'podman', '--cgroup-manager=cgroupfs', '--events-backend=file']
+        self.engine = container_engine(self.diagnostic_ptrace)
         self.commands = []
 
     def run(self, argv, log=None, capture=False):
@@ -226,13 +320,31 @@ class Producer:
         else:
             argv += ['--workdir', '/tmp']
         argv += self.diagnostic_options()
-        self.run(argv + [image or self.image] + self.observed_command(command), log=log)
+        argv += [image or self.image] + self.observed_command(command)
+        self.run(argv, log=log)
+        if not self.diagnostic_ptrace:
+            validate_default_container_policy(self.output, list(map(str, argv)))
 
     def container_security_options(self, *, source):
         options = ['--cap-drop=all', '--security-opt=no-new-privileges']
         if source and self.diagnostic_ptrace:
             options += ['--cap-add=SYS_PTRACE', '--security-opt=apparmor=unconfined']
         return options
+
+    def record_container_engine(self):
+        name = 'podman' if self.diagnostic_ptrace else 'docker'
+        formats = [('version', ENGINE_JSON_FORMAT), ('info', ENGINE_JSON_FORMAT if self.diagnostic_ptrace else DOCKER_INFO_FORMAT)]
+        reports, values = {}, {}
+        for action, formatting in formats:
+            raw = self.run(self.engine + [action, '--format', formatting], capture=True)
+            path = self.reports / 'prepare' / ('container-engine-' + action + '.json')
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with path.open('x', encoding='utf-8') as stream:
+                stream.write(raw + '\n')
+            values[action] = load_json(path)
+            reports[action + 'Report'] = dict(path=path.relative_to(self.output).as_posix(), **fingerprint(path))
+        self.engine_record = dict(engine_identity(name, values['version'], values['info'], self.id),
+                                 commandPrefix=self.engine, **reports)
 
     def bootstrap_environment(self):
         architecture = 'ARM64' if self.args.arch == 'aarch64' else 'X64'
@@ -294,6 +406,7 @@ class Producer:
         self.workspace.mkdir(parents=True, exist_ok=True)
         self.home.mkdir(mode=0o700)
         self.inputs.mkdir()
+        self.record_container_engine()
         prepare_image_context(self.profile, self.image_context)
         self.run(['git', 'clone', '--depth', '1', '--branch', 'v' + SDK, '--', REPOSITORY, str(self.source)],
                  self.reports / 'prepare/source.log')
@@ -366,6 +479,8 @@ class Producer:
               projectCommit=self.project, runId=self.args.run_id, runAttempt=self.args.run_attempt,
               diagnosticPtrace=self.diagnostic_ptrace,
               sourceAppArmorPolicy='unconfined' if self.diagnostic_ptrace else 'engine-default',
+              consumerAppArmorPolicy='engine-default', sourceSeccompPolicy='engine-default', consumerSeccompPolicy='engine-default',
+              nativeKernelVersion=platform.release(), containerEngine=self.engine_record,
               buildId=self.args.build_id, imageId=self.image, verificationImageId=self.verify_image,
               bootstrapRoot='/vmr/.dotnet', profile=dict(path=self.profile_path.name,
               **fingerprint(self.profile_path)), nativeArchitecture=platform.machine(), emulation=False))
@@ -422,6 +537,8 @@ class Producer:
                 '/project/scripts/scan-clean-source.proj', '/p:ScanReportDirectory=/delivery/reports/scan',
                 '/verbosity:minimal', '/nologo', '/bl:/delivery/reports/scan/scan.binlog'])
         self.run(argv, self.reports / 'scan/scan.log')
+        if not self.diagnostic_ptrace:
+            validate_default_container_policy(self.output, list(map(str, argv)))
         report = self.reports / 'scan/NewBinaries.txt'
         require(report.is_file() and not report.read_bytes(), 'The original binary scan must report zero new binaries')
         require(not git(self.clean, 'status', '--porcelain', '--untracked-files=all', '--ignored=matching'),
@@ -708,6 +825,7 @@ def validate(release):
     prepare = load_json(release / 'reports/prepare/identity.json')
     require(prepare.get('diagnosticPtrace') is False, 'Diagnostic ptrace source construction cannot qualify')
     require(prepare.get('sourceAppArmorPolicy') == 'engine-default', 'Diagnostic AppArmor source construction cannot qualify')
+    validate_container_engine(release, prepare, stages, arch)
     sdk = load_json(release / 'producer-sdk.json')
     for record in [prepare, sdk]:
         for key in ['sdkVersion', 'targetRid', 'libc', 'sourceCommit', 'sharedVmrCommit',
