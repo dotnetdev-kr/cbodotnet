@@ -114,6 +114,9 @@ completed channel run/attempt pairs, authenticates their API provenance and six
 unchanged public reports, and publishes a separately signed verification release.
 Only its reviewed status candidate can activate `musl-status.json` and the
 download-site panel. A failed or fixture-only run never becomes a release input.
+The [regression record](musl-regression-validation.json) preserves the existing
+release assets, glibc OCI tags and provider/installer inputs for comparison
+before and after musl publication.
 
 ## Other SDK series
 

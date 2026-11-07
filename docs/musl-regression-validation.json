@@ -1,0 +1,3260 @@
+{
+  "schemaVersion": 1,
+  "kind": "musl-nonmusl-regression-validation",
+  "status": "passed",
+  "repository": "dotnetdev-kr/cbodotnet",
+  "phase": "pre-musl-publication",
+  "auditedAtUtc": "2026-11-07T09:03:46.438257+00:00",
+  "checkoutCommitAtStart": "643c22064b1e92d5b87cdf53ee3d8e37a949d615",
+  "checkoutCommitAtFinish": "643c22064b1e92d5b87cdf53ee3d8e37a949d615",
+  "baseline": {
+    "commit": "97beff72d6b3eba081ce4bbe7446c5dda780b20c",
+    "capturedAtUtc": "2026-11-07T06:25:33.733207+00:00",
+    "releaseCount": 81,
+    "assetCount": 1076,
+    "metadataSnapshotSha256": "6ad55839158863a0265f6c790e555e5c2f35303f07e31035b98d00fcc95732c8",
+    "latestSnapshotSha256": "d2dcf4daa12f057cfd7ac6b6e6a9f47b15c76dc95e8021054b4c257afc825100",
+    "baselineRecordSha256": "5b899eca4ae9b0dfa22ef36134a7bdd038a3370c41afcdf7806d5a5ee7135502",
+    "projectionSha256": "7ff8d6a0433c1446a90e9012cf56eee0c83fb8d249f061f914235384e6e9c217"
+  },
+  "criteria": {
+    "releaseFields": [
+      "id",
+      "tag_name",
+      "name",
+      "body",
+      "target_commitish",
+      "draft",
+      "prerelease",
+      "immutable",
+      "created_at",
+      "updated_at",
+      "published_at",
+      "html_url",
+      "url",
+      "assets_url"
+    ],
+    "assetFields": [
+      "id",
+      "name",
+      "size",
+      "digest",
+      "content_type",
+      "browser_download_url",
+      "url",
+      "state",
+      "label",
+      "created_at",
+      "updated_at"
+    ],
+    "excludedMutableFields": [
+      "assets[].download_count",
+      "author/uploader account profile metadata"
+    ],
+    "baselineReleaseAndAssetIdsMustRemain": true,
+    "latestEndpointMustRemainUnchanged": true,
+    "embeddedAssetsMustMatchSeparatePaginatedAssetEndpoints": true,
+    "canonicalAssetUrlsRequired": true,
+    "protectedCommittedFilesMustEqualBaselineGitBlobBytes": true,
+    "workingtreeTrackedContentMustMatchRepositoryCleanFilters": true,
+    "allNineInitialWorkingtreeRawByteHashesMustRemainUnchanged": true,
+    "additionalReleaseTagsAllowedOnlyWhenNewAndMatchingMuslNamespace": [
+      "musl-sdk-[0-9]+\\.[0-9]+\\.[0-9]+-r[1-9][0-9]*",
+      "distribution-musl-(?:archive|apk|oci)-sdk-[0-9]+\\.[0-9]+\\.[0-9]+-r[1-9][0-9]*",
+      "musl-apk-repo-[0-9]+\\.[0-9]+\\.[0-9]+-alpine324-(?:x64|aarch64)-r[1-9][0-9]*",
+      "verification-musl-sdk-[0-9]+\\.[0-9]+\\.[0-9]+-r[1-9][0-9]*"
+    ]
+  },
+  "observed": {
+    "totalCurrentReleases": 81,
+    "baselineReleasesCompared": 81,
+    "baselineAssetsCompared": 1076,
+    "assetsWithActualRestSha256Digest": 1076,
+    "baselineProjectionSha256": "7ff8d6a0433c1446a90e9012cf56eee0c83fb8d249f061f914235384e6e9c217",
+    "newMuslReleases": [],
+    "releasePages": [
+      {
+        "page": 1,
+        "count": 10,
+        "snapshotSha256": "df92cade854b62961f4814693ef886d39a07a89bfec6a2a6fc687e304b1785bf"
+      },
+      {
+        "page": 2,
+        "count": 10,
+        "snapshotSha256": "a89abb10c75f75d563f9606af672163d4c8d87a730aa5276ddd49b46fe981588"
+      },
+      {
+        "page": 3,
+        "count": 10,
+        "snapshotSha256": "1c60eae41dd83c72ce99e0145973c8768f63082299e88a449d4bc96cf0061c9f"
+      },
+      {
+        "page": 4,
+        "count": 10,
+        "snapshotSha256": "39c4fc7357b4088ee807d09c830c0e2b023928440d2b85332569cbadb56455d5"
+      },
+      {
+        "page": 5,
+        "count": 10,
+        "snapshotSha256": "16abbcd41a92207bbc67207d9a985d0549c069ec3c091321dc71571af3ac3d06"
+      },
+      {
+        "page": 6,
+        "count": 10,
+        "snapshotSha256": "05c36aedacf44707ca40ae8b6f62fc007087ff6c437ad88a3dd82fd6d3839818"
+      },
+      {
+        "page": 7,
+        "count": 10,
+        "snapshotSha256": "f8a14e935c285d1123309a68aa04b5a5a375f95b4c2ca5117f3a0d423269b27f"
+      },
+      {
+        "page": 8,
+        "count": 10,
+        "snapshotSha256": "130412b34a1b7d3ce4cdbe793e81fd64c016f56db1d982011c973138b8c5ad66"
+      },
+      {
+        "page": 9,
+        "count": 1,
+        "snapshotSha256": "6d547043ffe42ebdd952d424f6037444a370d8a34ed6b15875bd8bd52ff5ea22"
+      }
+    ],
+    "separateAssetApiPages": 81,
+    "releaseApiCalls": 91,
+    "metadataSource": "GitHub connector GET public REST release collections, per-release asset collections and latest endpoint"
+  },
+  "latest": {
+    "endpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/latest",
+    "status": "passed",
+    "releaseId": 435402979,
+    "tag": "distribution-archive-sdk-10.0.403-r3",
+    "title": "Community Build of .NET SDK 10.0.403 - Linux archives r3 (built by .NET Dev)",
+    "htmlUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-archive-sdk-10.0.403-r3",
+    "metadataProjectionSha256": "294f2392b7385a88a6bbac99088aaf38c418d94a39ffea49ebb14ecffc14de3e",
+    "connectorSnapshotSha256": "2d0e95b7d6dbb82708583bb6880de76961c44192db36c0d04d1e86e899267569"
+  },
+  "protectedFiles": {
+    "count": 97,
+    "scope": [
+      "all baseline releases/*",
+      "all baseline packaging/aur/*",
+      "baseline tools/cbodotnetup and tests",
+      "baseline cbodotnetup release/provider/installer scripts",
+      "tools/global.json"
+    ],
+    "byteComparison": "Pinned current HEAD Git blobs versus baseline Git blobs are compared byte-for-byte. Current workingtree clean-filter Git object IDs must also equal baseline blob IDs; initial raw workingtree SHA256 pins are compared separately without normalization.",
+    "checkoutFormattingDifferences": [
+      "releases/qualified-builds.json"
+    ],
+    "inventorySha256": "c80a3dbdd5c9b08e129122437239043f32d5e9852e85a3c94aef8e70e2618401",
+    "files": [
+      {
+        "path": "packaging/aur/cbodotnet-compat-curl-rocky8/.SRCINFO",
+        "gitBlobBytes": 1403,
+        "baselineGitBlobSha256": "4eade90b66599b13a7590f30fb95adfeb5471c93f7c5c3ea7f72de832440f30e",
+        "currentCommitGitBlobSha256": "4eade90b66599b13a7590f30fb95adfeb5471c93f7c5c3ea7f72de832440f30e",
+        "baselineBlobObjectId": "ce823533d07bc3142dda2e8e9f4bc8b7c747703c",
+        "workingtreeCleanObjectId": "ce823533d07bc3142dda2e8e9f4bc8b7c747703c",
+        "currentRawSha256": "4eade90b66599b13a7590f30fb95adfeb5471c93f7c5c3ea7f72de832440f30e",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-compat-curl-rocky8/NOTICE.txt",
+        "gitBlobBytes": 690,
+        "baselineGitBlobSha256": "23b2dd419ba857a55652d35e951ca2a98a3cfc11054250932977565192e121ad",
+        "currentCommitGitBlobSha256": "23b2dd419ba857a55652d35e951ca2a98a3cfc11054250932977565192e121ad",
+        "baselineBlobObjectId": "0afd98f8a63cfdae7abbeec3cc5acb8e4f542429",
+        "workingtreeCleanObjectId": "0afd98f8a63cfdae7abbeec3cc5acb8e4f542429",
+        "currentRawSha256": "23b2dd419ba857a55652d35e951ca2a98a3cfc11054250932977565192e121ad",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-compat-curl-rocky8/PKGBUILD",
+        "gitBlobBytes": 2400,
+        "baselineGitBlobSha256": "258c5d8bbcbcf4d20c31220c37120b6c89b278355d7dc421ee1aa2a612c70f8f",
+        "currentCommitGitBlobSha256": "258c5d8bbcbcf4d20c31220c37120b6c89b278355d7dc421ee1aa2a612c70f8f",
+        "baselineBlobObjectId": "a55c25ca02b5feaca414d3f857fa95d010d4d960",
+        "workingtreeCleanObjectId": "a55c25ca02b5feaca414d3f857fa95d010d4d960",
+        "currentRawSha256": "258c5d8bbcbcf4d20c31220c37120b6c89b278355d7dc421ee1aa2a612c70f8f",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-compat-curl-rocky8/provider-manifest.json",
+        "gitBlobBytes": 4486,
+        "baselineGitBlobSha256": "bbdee2b4969c3b708dab32121dd40468e923462e3a0c3fb8652755e3c6cb2ff3",
+        "currentCommitGitBlobSha256": "bbdee2b4969c3b708dab32121dd40468e923462e3a0c3fb8652755e3c6cb2ff3",
+        "baselineBlobObjectId": "7c5c5445e68b87ae9eab22dbebc44978d28411c1",
+        "workingtreeCleanObjectId": "7c5c5445e68b87ae9eab22dbebc44978d28411c1",
+        "currentRawSha256": "bbdee2b4969c3b708dab32121dd40468e923462e3a0c3fb8652755e3c6cb2ff3",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-compat-rocky9/.SRCINFO",
+        "gitBlobBytes": 2121,
+        "baselineGitBlobSha256": "d6ff9f12f6d412ff566c5e3ff2b26829a6498e11306391d2246bc9402f6fc2bb",
+        "currentCommitGitBlobSha256": "d6ff9f12f6d412ff566c5e3ff2b26829a6498e11306391d2246bc9402f6fc2bb",
+        "baselineBlobObjectId": "8890497ee1ce069c4490d8f229e9eb1ce431ed41",
+        "workingtreeCleanObjectId": "8890497ee1ce069c4490d8f229e9eb1ce431ed41",
+        "currentRawSha256": "d6ff9f12f6d412ff566c5e3ff2b26829a6498e11306391d2246bc9402f6fc2bb",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-compat-rocky9/NOTICE.txt",
+        "gitBlobBytes": 780,
+        "baselineGitBlobSha256": "e21192e53847a21ca848dd47434b10b55dc9fd79337cce01b4b48b4b8a8937dd",
+        "currentCommitGitBlobSha256": "e21192e53847a21ca848dd47434b10b55dc9fd79337cce01b4b48b4b8a8937dd",
+        "baselineBlobObjectId": "01e7a3037bc76df1703b6e014b7b2262a85376a2",
+        "workingtreeCleanObjectId": "01e7a3037bc76df1703b6e014b7b2262a85376a2",
+        "currentRawSha256": "e21192e53847a21ca848dd47434b10b55dc9fd79337cce01b4b48b4b8a8937dd",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-compat-rocky9/PKGBUILD",
+        "gitBlobBytes": 5211,
+        "baselineGitBlobSha256": "7e894190fa59d28fe20b6b1fa89d0c80724dc174d86a440e8e1ca9cdde43f61a",
+        "currentCommitGitBlobSha256": "7e894190fa59d28fe20b6b1fa89d0c80724dc174d86a440e8e1ca9cdde43f61a",
+        "baselineBlobObjectId": "8f0ff0c731400ec88abc5292acfb983e49402d2e",
+        "workingtreeCleanObjectId": "8f0ff0c731400ec88abc5292acfb983e49402d2e",
+        "currentRawSha256": "7e894190fa59d28fe20b6b1fa89d0c80724dc174d86a440e8e1ca9cdde43f61a",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-compat-rocky9/openssl.cnf",
+        "gitBlobBytes": 273,
+        "baselineGitBlobSha256": "650bc90ef37e46f7b5c86f969a9f714e342494bc8471db213058fea2816ad37f",
+        "currentCommitGitBlobSha256": "650bc90ef37e46f7b5c86f969a9f714e342494bc8471db213058fea2816ad37f",
+        "baselineBlobObjectId": "c1c0a2c6153680a41f76e913bf1734b13c6428d6",
+        "workingtreeCleanObjectId": "c1c0a2c6153680a41f76e913bf1734b13c6428d6",
+        "currentRawSha256": "650bc90ef37e46f7b5c86f969a9f714e342494bc8471db213058fea2816ad37f",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-compat-rocky9/provider-manifest.json",
+        "gitBlobBytes": 8365,
+        "baselineGitBlobSha256": "19a1f16972f653df3f0d32a0ac483689fc3cbd8486eb197030d2446754d4e430",
+        "currentCommitGitBlobSha256": "19a1f16972f653df3f0d32a0ac483689fc3cbd8486eb197030d2446754d4e430",
+        "baselineBlobObjectId": "5fbebbac8e7412ed9eeb4d1a3c3a863a4ea336b5",
+        "workingtreeCleanObjectId": "5fbebbac8e7412ed9eeb4d1a3c3a863a4ea336b5",
+        "currentRawSha256": "19a1f16972f653df3f0d32a0ac483689fc3cbd8486eb197030d2446754d4e430",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-host/.SRCINFO",
+        "gitBlobBytes": 472,
+        "baselineGitBlobSha256": "e9f131e8407f9dca711cd5dc6b8cb2a276db7966362cac4c5bead9adb80b5c87",
+        "currentCommitGitBlobSha256": "e9f131e8407f9dca711cd5dc6b8cb2a276db7966362cac4c5bead9adb80b5c87",
+        "baselineBlobObjectId": "e460fa605cac169aeda47938b132b9a1d20d1e60",
+        "workingtreeCleanObjectId": "e460fa605cac169aeda47938b132b9a1d20d1e60",
+        "currentRawSha256": "e9f131e8407f9dca711cd5dc6b8cb2a276db7966362cac4c5bead9adb80b5c87",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-host/LICENSE",
+        "gitBlobBytes": 1079,
+        "baselineGitBlobSha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+        "currentCommitGitBlobSha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+        "baselineBlobObjectId": "4b579eae595338b637baebdd6eb19b3dec9a3cfd",
+        "workingtreeCleanObjectId": "4b579eae595338b637baebdd6eb19b3dec9a3cfd",
+        "currentRawSha256": "ce7fde1fc857925da2405095b43d7160b63924736351f2c497f2277f3b90c61b",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-host/PKGBUILD",
+        "gitBlobBytes": 625,
+        "baselineGitBlobSha256": "2deac802d7536974d9201f884c98241b68a892c0502a4c16e3ac06f4e74e92f2",
+        "currentCommitGitBlobSha256": "2deac802d7536974d9201f884c98241b68a892c0502a4c16e3ac06f4e74e92f2",
+        "baselineBlobObjectId": "fec42f535995b70a0ce6a2b6aa39994a386a7249",
+        "workingtreeCleanObjectId": "fec42f535995b70a0ce6a2b6aa39994a386a7249",
+        "currentRawSha256": "2deac802d7536974d9201f884c98241b68a892c0502a4c16e3ac06f4e74e92f2",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-host/cbodotnet",
+        "gitBlobBytes": 1556,
+        "baselineGitBlobSha256": "22d23c82d1c279367d8456bf319faaaa36065d15b2c1c80bf548f06fac2ed805",
+        "currentCommitGitBlobSha256": "22d23c82d1c279367d8456bf319faaaa36065d15b2c1c80bf548f06fac2ed805",
+        "baselineBlobObjectId": "7c9a6f5af466afbd0289427b6a0841136dc6ab12",
+        "workingtreeCleanObjectId": "7c9a6f5af466afbd0289427b6a0841136dc6ab12",
+        "currentRawSha256": "22d23c82d1c279367d8456bf319faaaa36065d15b2c1c80bf548f06fac2ed805",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-10.0-bin/.SRCINFO",
+        "gitBlobBytes": 1622,
+        "baselineGitBlobSha256": "35e9397ec18408b3c722f13d7eebad91f2bf35491cce47d9cf07daac897350de",
+        "currentCommitGitBlobSha256": "35e9397ec18408b3c722f13d7eebad91f2bf35491cce47d9cf07daac897350de",
+        "baselineBlobObjectId": "d6e90ddf0c5d0fc37b6c3575469d1ca0dc08fcb8",
+        "workingtreeCleanObjectId": "d6e90ddf0c5d0fc37b6c3575469d1ca0dc08fcb8",
+        "currentRawSha256": "35e9397ec18408b3c722f13d7eebad91f2bf35491cce47d9cf07daac897350de",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-10.0-bin/PKGBUILD",
+        "gitBlobBytes": 2369,
+        "baselineGitBlobSha256": "35a99082737f16cb318a581babae64d75df80d3d71543f79346cbd2ca9d061bc",
+        "currentCommitGitBlobSha256": "35a99082737f16cb318a581babae64d75df80d3d71543f79346cbd2ca9d061bc",
+        "baselineBlobObjectId": "3ff971bc8cefbad08ae828828af7f9c4fb586c89",
+        "workingtreeCleanObjectId": "3ff971bc8cefbad08ae828828af7f9c4fb586c89",
+        "currentRawSha256": "35a99082737f16cb318a581babae64d75df80d3d71543f79346cbd2ca9d061bc",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-10.0-bin/cbodotnet-10.0",
+        "gitBlobBytes": 3198,
+        "baselineGitBlobSha256": "c09a596e4fcc81c9a7c8f6ae179472229b6aa6771c8ca94211092add9df9c36e",
+        "currentCommitGitBlobSha256": "c09a596e4fcc81c9a7c8f6ae179472229b6aa6771c8ca94211092add9df9c36e",
+        "baselineBlobObjectId": "64a14a7a8ee82dd3e5a0811abd100f616d6bf73b",
+        "workingtreeCleanObjectId": "64a14a7a8ee82dd3e5a0811abd100f616d6bf73b",
+        "currentRawSha256": "c09a596e4fcc81c9a7c8f6ae179472229b6aa6771c8ca94211092add9df9c36e",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-10.0-bin/distribution.json",
+        "gitBlobBytes": 3421,
+        "baselineGitBlobSha256": "497ce67e21749505fe6e54962fa17734f4512762a095fa2e26099d13303f9c85",
+        "currentCommitGitBlobSha256": "497ce67e21749505fe6e54962fa17734f4512762a095fa2e26099d13303f9c85",
+        "baselineBlobObjectId": "6dc81117585d1a7d99cae30ba953c4836986d960",
+        "workingtreeCleanObjectId": "6dc81117585d1a7d99cae30ba953c4836986d960",
+        "currentRawSha256": "497ce67e21749505fe6e54962fa17734f4512762a095fa2e26099d13303f9c85",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-10.0-bin/verify-source.py",
+        "gitBlobBytes": 7184,
+        "baselineGitBlobSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "currentCommitGitBlobSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "baselineBlobObjectId": "af63af8a9fc52e3fe6d6b24dff45bb66c6f62c3c",
+        "workingtreeCleanObjectId": "af63af8a9fc52e3fe6d6b24dff45bb66c6f62c3c",
+        "currentRawSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-3.0-bin/.SRCINFO",
+        "gitBlobBytes": 1750,
+        "baselineGitBlobSha256": "2d538aaaedb56f32f17694fd24ce5bc893a4bb8648de9fc38fc3a3656aa753a7",
+        "currentCommitGitBlobSha256": "2d538aaaedb56f32f17694fd24ce5bc893a4bb8648de9fc38fc3a3656aa753a7",
+        "baselineBlobObjectId": "55d90810756e5f096ad4b52411d20802cb2f88ae",
+        "workingtreeCleanObjectId": "55d90810756e5f096ad4b52411d20802cb2f88ae",
+        "currentRawSha256": "2d538aaaedb56f32f17694fd24ce5bc893a4bb8648de9fc38fc3a3656aa753a7",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-3.0-bin/PKGBUILD",
+        "gitBlobBytes": 2399,
+        "baselineGitBlobSha256": "f5bc9fc0f37539ba15b0e59110b643cd48da890bbf1b804476b29f16489bbf20",
+        "currentCommitGitBlobSha256": "f5bc9fc0f37539ba15b0e59110b643cd48da890bbf1b804476b29f16489bbf20",
+        "baselineBlobObjectId": "0ed2d656f848a1eb2ca6590beec0c9b055f3d99a",
+        "workingtreeCleanObjectId": "0ed2d656f848a1eb2ca6590beec0c9b055f3d99a",
+        "currentRawSha256": "f5bc9fc0f37539ba15b0e59110b643cd48da890bbf1b804476b29f16489bbf20",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-3.0-bin/cbodotnet-3.0",
+        "gitBlobBytes": 8281,
+        "baselineGitBlobSha256": "71a5a72d631e802479f3eaa4864cc50a4be7dedc4cf8a93b02403d82df33c282",
+        "currentCommitGitBlobSha256": "71a5a72d631e802479f3eaa4864cc50a4be7dedc4cf8a93b02403d82df33c282",
+        "baselineBlobObjectId": "6ea8dceaf7a50f4f2e4653a8580a9036cea2e9e5",
+        "workingtreeCleanObjectId": "6ea8dceaf7a50f4f2e4653a8580a9036cea2e9e5",
+        "currentRawSha256": "71a5a72d631e802479f3eaa4864cc50a4be7dedc4cf8a93b02403d82df33c282",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-3.0-bin/distribution.json",
+        "gitBlobBytes": 3941,
+        "baselineGitBlobSha256": "34511a5fb5e68c19e5aa34bcaef23d6eeb90da200fcd18d6ced30fde9444fe59",
+        "currentCommitGitBlobSha256": "34511a5fb5e68c19e5aa34bcaef23d6eeb90da200fcd18d6ced30fde9444fe59",
+        "baselineBlobObjectId": "8901a01ee6d6135f4788f8f411a6102cbd464b48",
+        "workingtreeCleanObjectId": "8901a01ee6d6135f4788f8f411a6102cbd464b48",
+        "currentRawSha256": "34511a5fb5e68c19e5aa34bcaef23d6eeb90da200fcd18d6ced30fde9444fe59",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-3.0-bin/verify-source.py",
+        "gitBlobBytes": 7184,
+        "baselineGitBlobSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "currentCommitGitBlobSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "baselineBlobObjectId": "af63af8a9fc52e3fe6d6b24dff45bb66c6f62c3c",
+        "workingtreeCleanObjectId": "af63af8a9fc52e3fe6d6b24dff45bb66c6f62c3c",
+        "currentRawSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-3.1-bin/.SRCINFO",
+        "gitBlobBytes": 1750,
+        "baselineGitBlobSha256": "d9dd0e95fdca24304c9641b00f03b4593ce4e70bf96d45517bdb16e9c770ed82",
+        "currentCommitGitBlobSha256": "d9dd0e95fdca24304c9641b00f03b4593ce4e70bf96d45517bdb16e9c770ed82",
+        "baselineBlobObjectId": "9a1ce60d29908af5bf91c1eb506bb22428d813de",
+        "workingtreeCleanObjectId": "9a1ce60d29908af5bf91c1eb506bb22428d813de",
+        "currentRawSha256": "d9dd0e95fdca24304c9641b00f03b4593ce4e70bf96d45517bdb16e9c770ed82",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-3.1-bin/PKGBUILD",
+        "gitBlobBytes": 2399,
+        "baselineGitBlobSha256": "ee76daf5e8be20d0e35edbb329548cb3da21e1a530237629e8f4c529298539b2",
+        "currentCommitGitBlobSha256": "ee76daf5e8be20d0e35edbb329548cb3da21e1a530237629e8f4c529298539b2",
+        "baselineBlobObjectId": "2d07e0982f78316ff64b8ec3252740977d1e96f0",
+        "workingtreeCleanObjectId": "2d07e0982f78316ff64b8ec3252740977d1e96f0",
+        "currentRawSha256": "ee76daf5e8be20d0e35edbb329548cb3da21e1a530237629e8f4c529298539b2",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-3.1-bin/cbodotnet-3.1",
+        "gitBlobBytes": 8281,
+        "baselineGitBlobSha256": "2926db594d3945c4192f7c6766f4b20c0009bc019449f0305a6d46313f266fcb",
+        "currentCommitGitBlobSha256": "2926db594d3945c4192f7c6766f4b20c0009bc019449f0305a6d46313f266fcb",
+        "baselineBlobObjectId": "0bb6cda030d031d41bc7d3522519869587092ad6",
+        "workingtreeCleanObjectId": "0bb6cda030d031d41bc7d3522519869587092ad6",
+        "currentRawSha256": "2926db594d3945c4192f7c6766f4b20c0009bc019449f0305a6d46313f266fcb",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-3.1-bin/distribution.json",
+        "gitBlobBytes": 3941,
+        "baselineGitBlobSha256": "4d63b7690181da9263639383c8db2eff3e3b6558232b9c8b620173f200e8aba8",
+        "currentCommitGitBlobSha256": "4d63b7690181da9263639383c8db2eff3e3b6558232b9c8b620173f200e8aba8",
+        "baselineBlobObjectId": "82b9c53254ce39f17fee75b9c11fde4edfa588a1",
+        "workingtreeCleanObjectId": "82b9c53254ce39f17fee75b9c11fde4edfa588a1",
+        "currentRawSha256": "4d63b7690181da9263639383c8db2eff3e3b6558232b9c8b620173f200e8aba8",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-3.1-bin/verify-source.py",
+        "gitBlobBytes": 7184,
+        "baselineGitBlobSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "currentCommitGitBlobSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "baselineBlobObjectId": "af63af8a9fc52e3fe6d6b24dff45bb66c6f62c3c",
+        "workingtreeCleanObjectId": "af63af8a9fc52e3fe6d6b24dff45bb66c6f62c3c",
+        "currentRawSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-5.0-bin/.SRCINFO",
+        "gitBlobBytes": 1660,
+        "baselineGitBlobSha256": "b7717682b7ff26be86aecdb324258e6337cd5bdbee72209e84b07ac2e690cbdc",
+        "currentCommitGitBlobSha256": "b7717682b7ff26be86aecdb324258e6337cd5bdbee72209e84b07ac2e690cbdc",
+        "baselineBlobObjectId": "3bdb98be730787c45e51b3c1f0efadaf4310a1c5",
+        "workingtreeCleanObjectId": "3bdb98be730787c45e51b3c1f0efadaf4310a1c5",
+        "currentRawSha256": "b7717682b7ff26be86aecdb324258e6337cd5bdbee72209e84b07ac2e690cbdc",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-5.0-bin/PKGBUILD",
+        "gitBlobBytes": 2336,
+        "baselineGitBlobSha256": "49fa474c774b1f8f73437a675b9447c2bef7f567484981d9c190b3a997b9005c",
+        "currentCommitGitBlobSha256": "49fa474c774b1f8f73437a675b9447c2bef7f567484981d9c190b3a997b9005c",
+        "baselineBlobObjectId": "fd245cd3dfc8752ecf0767fd90b5af43aea30cc8",
+        "workingtreeCleanObjectId": "fd245cd3dfc8752ecf0767fd90b5af43aea30cc8",
+        "currentRawSha256": "49fa474c774b1f8f73437a675b9447c2bef7f567484981d9c190b3a997b9005c",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-5.0-bin/cbodotnet-5.0",
+        "gitBlobBytes": 7061,
+        "baselineGitBlobSha256": "8f002df45e54d345cae2cde665b55ede9ef303b761407a1a04e7fa946e4be085",
+        "currentCommitGitBlobSha256": "8f002df45e54d345cae2cde665b55ede9ef303b761407a1a04e7fa946e4be085",
+        "baselineBlobObjectId": "0e612623a019ab020edd25289668cfeb56f7275a",
+        "workingtreeCleanObjectId": "0e612623a019ab020edd25289668cfeb56f7275a",
+        "currentRawSha256": "8f002df45e54d345cae2cde665b55ede9ef303b761407a1a04e7fa946e4be085",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-5.0-bin/distribution.json",
+        "gitBlobBytes": 3448,
+        "baselineGitBlobSha256": "4f2173c290ac2d040b95502b9f504d60dcdff0ed9073c5a9c827a189c6ad4997",
+        "currentCommitGitBlobSha256": "4f2173c290ac2d040b95502b9f504d60dcdff0ed9073c5a9c827a189c6ad4997",
+        "baselineBlobObjectId": "ef129c2a8113be3daa08899c15a744bc27d4d651",
+        "workingtreeCleanObjectId": "ef129c2a8113be3daa08899c15a744bc27d4d651",
+        "currentRawSha256": "4f2173c290ac2d040b95502b9f504d60dcdff0ed9073c5a9c827a189c6ad4997",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-5.0-bin/verify-source.py",
+        "gitBlobBytes": 7184,
+        "baselineGitBlobSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "currentCommitGitBlobSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "baselineBlobObjectId": "af63af8a9fc52e3fe6d6b24dff45bb66c6f62c3c",
+        "workingtreeCleanObjectId": "af63af8a9fc52e3fe6d6b24dff45bb66c6f62c3c",
+        "currentRawSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-6.0-bin/.SRCINFO",
+        "gitBlobBytes": 1613,
+        "baselineGitBlobSha256": "f00dab2fffef12c638a79fe99b2d576b328daa5990ca35e3485fe384fccd4eed",
+        "currentCommitGitBlobSha256": "f00dab2fffef12c638a79fe99b2d576b328daa5990ca35e3485fe384fccd4eed",
+        "baselineBlobObjectId": "2a4d525492071bc859d291aa64c5fbb553e8982d",
+        "workingtreeCleanObjectId": "2a4d525492071bc859d291aa64c5fbb553e8982d",
+        "currentRawSha256": "f00dab2fffef12c638a79fe99b2d576b328daa5990ca35e3485fe384fccd4eed",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-6.0-bin/PKGBUILD",
+        "gitBlobBytes": 2298,
+        "baselineGitBlobSha256": "1f55c8418b707fb3f12d4c14fa1a4812eb864d3d1283a0f8cdeec5206b7d7d72",
+        "currentCommitGitBlobSha256": "1f55c8418b707fb3f12d4c14fa1a4812eb864d3d1283a0f8cdeec5206b7d7d72",
+        "baselineBlobObjectId": "b3f7180c2c13c0346cf616ed3f8e922fcd21c8ee",
+        "workingtreeCleanObjectId": "b3f7180c2c13c0346cf616ed3f8e922fcd21c8ee",
+        "currentRawSha256": "1f55c8418b707fb3f12d4c14fa1a4812eb864d3d1283a0f8cdeec5206b7d7d72",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-6.0-bin/cbodotnet-6.0",
+        "gitBlobBytes": 3194,
+        "baselineGitBlobSha256": "f6451c789bf5a43cbb45cfec81cd75e0b2679ff673300230c3a928777bf091df",
+        "currentCommitGitBlobSha256": "f6451c789bf5a43cbb45cfec81cd75e0b2679ff673300230c3a928777bf091df",
+        "baselineBlobObjectId": "c5b90696f5ad4e65be03acf6b5ce7d92299dcb79",
+        "workingtreeCleanObjectId": "c5b90696f5ad4e65be03acf6b5ce7d92299dcb79",
+        "currentRawSha256": "f6451c789bf5a43cbb45cfec81cd75e0b2679ff673300230c3a928777bf091df",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-6.0-bin/distribution.json",
+        "gitBlobBytes": 3386,
+        "baselineGitBlobSha256": "c66e0a7c05a3326d42f882e619155b87b691d1c9d7af417fc54a1743252b77b7",
+        "currentCommitGitBlobSha256": "c66e0a7c05a3326d42f882e619155b87b691d1c9d7af417fc54a1743252b77b7",
+        "baselineBlobObjectId": "852eb354ff814890506828babb38cbece9514164",
+        "workingtreeCleanObjectId": "852eb354ff814890506828babb38cbece9514164",
+        "currentRawSha256": "c66e0a7c05a3326d42f882e619155b87b691d1c9d7af417fc54a1743252b77b7",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-6.0-bin/verify-source.py",
+        "gitBlobBytes": 7184,
+        "baselineGitBlobSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "currentCommitGitBlobSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "baselineBlobObjectId": "af63af8a9fc52e3fe6d6b24dff45bb66c6f62c3c",
+        "workingtreeCleanObjectId": "af63af8a9fc52e3fe6d6b24dff45bb66c6f62c3c",
+        "currentRawSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-7.0-bin/.SRCINFO",
+        "gitBlobBytes": 1613,
+        "baselineGitBlobSha256": "f07f5acb88986f4d9299df13b4d1340ef81690020c8381698ada911c881c0a65",
+        "currentCommitGitBlobSha256": "f07f5acb88986f4d9299df13b4d1340ef81690020c8381698ada911c881c0a65",
+        "baselineBlobObjectId": "ca46404e5fc36e5f062ff6c87679ff05ec979126",
+        "workingtreeCleanObjectId": "ca46404e5fc36e5f062ff6c87679ff05ec979126",
+        "currentRawSha256": "f07f5acb88986f4d9299df13b4d1340ef81690020c8381698ada911c881c0a65",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-7.0-bin/PKGBUILD",
+        "gitBlobBytes": 2298,
+        "baselineGitBlobSha256": "b79b9d8519af417bf296fef4f17d3093552fca63ba30406173144fe3dcae236f",
+        "currentCommitGitBlobSha256": "b79b9d8519af417bf296fef4f17d3093552fca63ba30406173144fe3dcae236f",
+        "baselineBlobObjectId": "1619a4acbb1bcc09aee65abf8f07c13920d90444",
+        "workingtreeCleanObjectId": "1619a4acbb1bcc09aee65abf8f07c13920d90444",
+        "currentRawSha256": "b79b9d8519af417bf296fef4f17d3093552fca63ba30406173144fe3dcae236f",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-7.0-bin/cbodotnet-7.0",
+        "gitBlobBytes": 3194,
+        "baselineGitBlobSha256": "5ae25db6080fa4486b4ec798441b455850c0d530f89ec004ebfa6b3b94a6629e",
+        "currentCommitGitBlobSha256": "5ae25db6080fa4486b4ec798441b455850c0d530f89ec004ebfa6b3b94a6629e",
+        "baselineBlobObjectId": "1bff5dac35c1c1b86553903084003722ca3a13ab",
+        "workingtreeCleanObjectId": "1bff5dac35c1c1b86553903084003722ca3a13ab",
+        "currentRawSha256": "5ae25db6080fa4486b4ec798441b455850c0d530f89ec004ebfa6b3b94a6629e",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-7.0-bin/distribution.json",
+        "gitBlobBytes": 3386,
+        "baselineGitBlobSha256": "c56ae7af7a0859c126cba886b237c2de758f434cb386fdae764659510211c531",
+        "currentCommitGitBlobSha256": "c56ae7af7a0859c126cba886b237c2de758f434cb386fdae764659510211c531",
+        "baselineBlobObjectId": "aa050fcf489914a0d44b04b40b474515abb53de7",
+        "workingtreeCleanObjectId": "aa050fcf489914a0d44b04b40b474515abb53de7",
+        "currentRawSha256": "c56ae7af7a0859c126cba886b237c2de758f434cb386fdae764659510211c531",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-7.0-bin/verify-source.py",
+        "gitBlobBytes": 7184,
+        "baselineGitBlobSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "currentCommitGitBlobSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "baselineBlobObjectId": "af63af8a9fc52e3fe6d6b24dff45bb66c6f62c3c",
+        "workingtreeCleanObjectId": "af63af8a9fc52e3fe6d6b24dff45bb66c6f62c3c",
+        "currentRawSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-8.0-bin/.SRCINFO",
+        "gitBlobBytes": 1613,
+        "baselineGitBlobSha256": "a31462d2a7e1e5999d4b7ae72b70fe1c262d8adb3281b96aeac585a3e818a2b9",
+        "currentCommitGitBlobSha256": "a31462d2a7e1e5999d4b7ae72b70fe1c262d8adb3281b96aeac585a3e818a2b9",
+        "baselineBlobObjectId": "53b32c45c53d58041fb9725f3c2e510ccb80ab93",
+        "workingtreeCleanObjectId": "53b32c45c53d58041fb9725f3c2e510ccb80ab93",
+        "currentRawSha256": "a31462d2a7e1e5999d4b7ae72b70fe1c262d8adb3281b96aeac585a3e818a2b9",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-8.0-bin/PKGBUILD",
+        "gitBlobBytes": 2298,
+        "baselineGitBlobSha256": "55ef39552c1d1d3d3c22dfc7e6a7bbf36f65aa4c5a358ddefc35476b1d514320",
+        "currentCommitGitBlobSha256": "55ef39552c1d1d3d3c22dfc7e6a7bbf36f65aa4c5a358ddefc35476b1d514320",
+        "baselineBlobObjectId": "4af8debc758824154115cc2505f9cdebd7752e03",
+        "workingtreeCleanObjectId": "4af8debc758824154115cc2505f9cdebd7752e03",
+        "currentRawSha256": "55ef39552c1d1d3d3c22dfc7e6a7bbf36f65aa4c5a358ddefc35476b1d514320",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-8.0-bin/cbodotnet-8.0",
+        "gitBlobBytes": 3194,
+        "baselineGitBlobSha256": "670199142b29889c26874f9e5c04f0b0e9192f8cdeff37f6e178e17ece0e02e3",
+        "currentCommitGitBlobSha256": "670199142b29889c26874f9e5c04f0b0e9192f8cdeff37f6e178e17ece0e02e3",
+        "baselineBlobObjectId": "3df424e3826d2528d6472a72e6147b9b35a49969",
+        "workingtreeCleanObjectId": "3df424e3826d2528d6472a72e6147b9b35a49969",
+        "currentRawSha256": "670199142b29889c26874f9e5c04f0b0e9192f8cdeff37f6e178e17ece0e02e3",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-8.0-bin/distribution.json",
+        "gitBlobBytes": 3386,
+        "baselineGitBlobSha256": "ab9bf5a64404184a1c6a86773984c336465f32f5af2523ac7395c9951d504bec",
+        "currentCommitGitBlobSha256": "ab9bf5a64404184a1c6a86773984c336465f32f5af2523ac7395c9951d504bec",
+        "baselineBlobObjectId": "1a66f7aee501d7008c223781a2d4a512b86ea3e7",
+        "workingtreeCleanObjectId": "1a66f7aee501d7008c223781a2d4a512b86ea3e7",
+        "currentRawSha256": "ab9bf5a64404184a1c6a86773984c336465f32f5af2523ac7395c9951d504bec",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-8.0-bin/verify-source.py",
+        "gitBlobBytes": 7184,
+        "baselineGitBlobSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "currentCommitGitBlobSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "baselineBlobObjectId": "af63af8a9fc52e3fe6d6b24dff45bb66c6f62c3c",
+        "workingtreeCleanObjectId": "af63af8a9fc52e3fe6d6b24dff45bb66c6f62c3c",
+        "currentRawSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-9.0-bin/.SRCINFO",
+        "gitBlobBytes": 1613,
+        "baselineGitBlobSha256": "c2d7c4598024beb58ff76b9f9a2a0f6e4d0dead981c2a4c49784c48be532f2a0",
+        "currentCommitGitBlobSha256": "c2d7c4598024beb58ff76b9f9a2a0f6e4d0dead981c2a4c49784c48be532f2a0",
+        "baselineBlobObjectId": "8eeff6a143b5daca60f3f0ec33ed40aea6ffb906",
+        "workingtreeCleanObjectId": "8eeff6a143b5daca60f3f0ec33ed40aea6ffb906",
+        "currentRawSha256": "c2d7c4598024beb58ff76b9f9a2a0f6e4d0dead981c2a4c49784c48be532f2a0",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-9.0-bin/PKGBUILD",
+        "gitBlobBytes": 2351,
+        "baselineGitBlobSha256": "b66f9a7a28f27eced9ec10e4199ef3ae4efc27144f876f897238b980e8598314",
+        "currentCommitGitBlobSha256": "b66f9a7a28f27eced9ec10e4199ef3ae4efc27144f876f897238b980e8598314",
+        "baselineBlobObjectId": "1f9f106e07e7033569af36ac73e6dc85a1f37c0d",
+        "workingtreeCleanObjectId": "1f9f106e07e7033569af36ac73e6dc85a1f37c0d",
+        "currentRawSha256": "b66f9a7a28f27eced9ec10e4199ef3ae4efc27144f876f897238b980e8598314",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-9.0-bin/cbodotnet-9.0",
+        "gitBlobBytes": 3194,
+        "baselineGitBlobSha256": "d4311029a69b9d217357047187a0bf4b771a7de2b217b297f794df5d13e472ee",
+        "currentCommitGitBlobSha256": "d4311029a69b9d217357047187a0bf4b771a7de2b217b297f794df5d13e472ee",
+        "baselineBlobObjectId": "6dea83fa87bbccfa0eec2a0fa0b248d761d2503d",
+        "workingtreeCleanObjectId": "6dea83fa87bbccfa0eec2a0fa0b248d761d2503d",
+        "currentRawSha256": "d4311029a69b9d217357047187a0bf4b771a7de2b217b297f794df5d13e472ee",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-9.0-bin/distribution.json",
+        "gitBlobBytes": 3404,
+        "baselineGitBlobSha256": "4a64f3be5629522bfdf6586dfbd99325f6a7560ed9a858f56aa3dc4259db5a43",
+        "currentCommitGitBlobSha256": "4a64f3be5629522bfdf6586dfbd99325f6a7560ed9a858f56aa3dc4259db5a43",
+        "baselineBlobObjectId": "e4103be6d016c74e42a6a079de2725a3cafa1e8b",
+        "workingtreeCleanObjectId": "e4103be6d016c74e42a6a079de2725a3cafa1e8b",
+        "currentRawSha256": "4a64f3be5629522bfdf6586dfbd99325f6a7560ed9a858f56aa3dc4259db5a43",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "packaging/aur/cbodotnet-sdk-9.0-bin/verify-source.py",
+        "gitBlobBytes": 7184,
+        "baselineGitBlobSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "currentCommitGitBlobSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "baselineBlobObjectId": "af63af8a9fc52e3fe6d6b24dff45bb66c6f62c3c",
+        "workingtreeCleanObjectId": "af63af8a9fc52e3fe6d6b24dff45bb66c6f62c3c",
+        "currentRawSha256": "ce7d7936e3407e22a6934a8f1effecb7be8670ddf1a76559e47319e3f3dabb47",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "releases/additional-sdk-preparation.json",
+        "gitBlobBytes": 150529,
+        "baselineGitBlobSha256": "4bf8291309d5a7d0c8f40e68877837d75a1036aee96efd3815dd92de9a6e75ec",
+        "currentCommitGitBlobSha256": "4bf8291309d5a7d0c8f40e68877837d75a1036aee96efd3815dd92de9a6e75ec",
+        "baselineBlobObjectId": "044a933e7b32fe6e3a0fad7f3d3102036a31f081",
+        "workingtreeCleanObjectId": "044a933e7b32fe6e3a0fad7f3d3102036a31f081",
+        "currentRawSha256": "4bf8291309d5a7d0c8f40e68877837d75a1036aee96efd3815dd92de9a6e75ec",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "releases/archive-status.json",
+        "gitBlobBytes": 3154305,
+        "baselineGitBlobSha256": "d2715be9d8faaf070aab37be7d8201c6ac83864e4d5f01f53c0ce9b1b76ccff2",
+        "currentCommitGitBlobSha256": "d2715be9d8faaf070aab37be7d8201c6ac83864e4d5f01f53c0ce9b1b76ccff2",
+        "baselineBlobObjectId": "6ccbba23bbe2508433b98a9a2ca120338b85d19b",
+        "workingtreeCleanObjectId": "6ccbba23bbe2508433b98a9a2ca120338b85d19b",
+        "currentRawSha256": "d2715be9d8faaf070aab37be7d8201c6ac83864e4d5f01f53c0ce9b1b76ccff2",
+        "initialWorkingtreeSha256": "d2715be9d8faaf070aab37be7d8201c6ac83864e4d5f01f53c0ce9b1b76ccff2",
+        "initialWorkingtreeBytesUnchanged": true,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "releases/cbodotnetup-policy.json",
+        "gitBlobBytes": 2409,
+        "baselineGitBlobSha256": "fae1872b16ff3fec017ce5937cd4074f837c30c00c7c72545a0e2658fd426e23",
+        "currentCommitGitBlobSha256": "fae1872b16ff3fec017ce5937cd4074f837c30c00c7c72545a0e2658fd426e23",
+        "baselineBlobObjectId": "f3d79033789ed28e93d35b4618576fc10f873cae",
+        "workingtreeCleanObjectId": "f3d79033789ed28e93d35b4618576fc10f873cae",
+        "currentRawSha256": "fae1872b16ff3fec017ce5937cd4074f837c30c00c7c72545a0e2658fd426e23",
+        "initialWorkingtreeSha256": "fae1872b16ff3fec017ce5937cd4074f837c30c00c7c72545a0e2658fd426e23",
+        "initialWorkingtreeBytesUnchanged": true,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "releases/cbodotnetup-provider-policy.json",
+        "gitBlobBytes": 7590,
+        "baselineGitBlobSha256": "c62e44e18ee958dae5714dd4a8fc6f61974a284c1b46684d32db8f9c44b765a1",
+        "currentCommitGitBlobSha256": "c62e44e18ee958dae5714dd4a8fc6f61974a284c1b46684d32db8f9c44b765a1",
+        "baselineBlobObjectId": "c13a6acf2619fde97ce28495105aac1fa47adf08",
+        "workingtreeCleanObjectId": "c13a6acf2619fde97ce28495105aac1fa47adf08",
+        "currentRawSha256": "c62e44e18ee958dae5714dd4a8fc6f61974a284c1b46684d32db8f9c44b765a1",
+        "initialWorkingtreeSha256": "c62e44e18ee958dae5714dd4a8fc6f61974a284c1b46684d32db8f9c44b765a1",
+        "initialWorkingtreeBytesUnchanged": true,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "releases/cbodotnetup-status.json",
+        "gitBlobBytes": 3610104,
+        "baselineGitBlobSha256": "80af8160c81b2f6a706091f7e338f67ee1038d06bb69ffb584c04fe66465393c",
+        "currentCommitGitBlobSha256": "80af8160c81b2f6a706091f7e338f67ee1038d06bb69ffb584c04fe66465393c",
+        "baselineBlobObjectId": "0c66e7c40cff1f672003fa5add9652582d737620",
+        "workingtreeCleanObjectId": "0c66e7c40cff1f672003fa5add9652582d737620",
+        "currentRawSha256": "80af8160c81b2f6a706091f7e338f67ee1038d06bb69ffb584c04fe66465393c",
+        "initialWorkingtreeSha256": "80af8160c81b2f6a706091f7e338f67ee1038d06bb69ffb584c04fe66465393c",
+        "initialWorkingtreeBytesUnchanged": true,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "releases/distribution-contract.json",
+        "gitBlobBytes": 11428,
+        "baselineGitBlobSha256": "52305095c63c38a1a018f2a87ed66f32f96a1c3470ffed2edf2a80935d8d2315",
+        "currentCommitGitBlobSha256": "52305095c63c38a1a018f2a87ed66f32f96a1c3470ffed2edf2a80935d8d2315",
+        "baselineBlobObjectId": "e1181866455069464470a16a3d5cc6b1dda42524",
+        "workingtreeCleanObjectId": "e1181866455069464470a16a3d5cc6b1dda42524",
+        "currentRawSha256": "52305095c63c38a1a018f2a87ed66f32f96a1c3470ffed2edf2a80935d8d2315",
+        "initialWorkingtreeSha256": "52305095c63c38a1a018f2a87ed66f32f96a1c3470ffed2edf2a80935d8d2315",
+        "initialWorkingtreeBytesUnchanged": true,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "releases/downstream-signing-key.asc",
+        "gitBlobBytes": 449,
+        "baselineGitBlobSha256": "8853df5deef7791a7980b29b66884119836d8c93102a09b6ceb7f1070c129704",
+        "currentCommitGitBlobSha256": "8853df5deef7791a7980b29b66884119836d8c93102a09b6ceb7f1070c129704",
+        "baselineBlobObjectId": "0f193e45bc2d4a7f2d7b1b40d23694591035c5ab",
+        "workingtreeCleanObjectId": "0f193e45bc2d4a7f2d7b1b40d23694591035c5ab",
+        "currentRawSha256": "8853df5deef7791a7980b29b66884119836d8c93102a09b6ceb7f1070c129704",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "releases/downstream-status.json",
+        "gitBlobBytes": 4032426,
+        "baselineGitBlobSha256": "afd790473ede70ecae1d4da1dd382b3811c6376d9bdc7b1a7be53386a11bd5c0",
+        "currentCommitGitBlobSha256": "afd790473ede70ecae1d4da1dd382b3811c6376d9bdc7b1a7be53386a11bd5c0",
+        "baselineBlobObjectId": "002c06d7d4056f2f495edc5982155af7f122a8fd",
+        "workingtreeCleanObjectId": "002c06d7d4056f2f495edc5982155af7f122a8fd",
+        "currentRawSha256": "afd790473ede70ecae1d4da1dd382b3811c6376d9bdc7b1a7be53386a11bd5c0",
+        "initialWorkingtreeSha256": "afd790473ede70ecae1d4da1dd382b3811c6376d9bdc7b1a7be53386a11bd5c0",
+        "initialWorkingtreeBytesUnchanged": true,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "releases/legacy-compatibility-provider.json",
+        "gitBlobBytes": 12397,
+        "baselineGitBlobSha256": "6fcae0b9ebe497240f99a93d031fc73b57a0f26c9353c199b2faca34e197f776",
+        "currentCommitGitBlobSha256": "6fcae0b9ebe497240f99a93d031fc73b57a0f26c9353c199b2faca34e197f776",
+        "baselineBlobObjectId": "c93d769adffe6eed17c900e5c22600c05f1737f4",
+        "workingtreeCleanObjectId": "c93d769adffe6eed17c900e5c22600c05f1737f4",
+        "currentRawSha256": "6fcae0b9ebe497240f99a93d031fc73b57a0f26c9353c199b2faca34e197f776",
+        "initialWorkingtreeSha256": "6fcae0b9ebe497240f99a93d031fc73b57a0f26c9353c199b2faca34e197f776",
+        "initialWorkingtreeBytesUnchanged": true,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "releases/legacy-curl-provider.json",
+        "gitBlobBytes": 7462,
+        "baselineGitBlobSha256": "f24a14a825101f2f1045d1a1573ff72b08903704729e5574b9e17c1f3186a02c",
+        "currentCommitGitBlobSha256": "f24a14a825101f2f1045d1a1573ff72b08903704729e5574b9e17c1f3186a02c",
+        "baselineBlobObjectId": "aaf61f02ae2b3a96f8aba020dc193c7c9f6a77a1",
+        "workingtreeCleanObjectId": "aaf61f02ae2b3a96f8aba020dc193c7c9f6a77a1",
+        "currentRawSha256": "f24a14a825101f2f1045d1a1573ff72b08903704729e5574b9e17c1f3186a02c",
+        "initialWorkingtreeSha256": "f24a14a825101f2f1045d1a1573ff72b08903704729e5574b9e17c1f3186a02c",
+        "initialWorkingtreeBytesUnchanged": true,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "releases/qualified-builds.json",
+        "gitBlobBytes": 4123,
+        "baselineGitBlobSha256": "3ecb013a54850309486804d92960c76ac353562a1d2063a44e7b2803ebe27452",
+        "currentCommitGitBlobSha256": "3ecb013a54850309486804d92960c76ac353562a1d2063a44e7b2803ebe27452",
+        "baselineBlobObjectId": "6de80d1d11505872fa4a8bf95462595d72eadce8",
+        "workingtreeCleanObjectId": "6de80d1d11505872fa4a8bf95462595d72eadce8",
+        "currentRawSha256": "1394a99cb6836f4f16712dd0a70a5df24df47dfa1e2342bd2c15e8b9bebbced1",
+        "initialWorkingtreeSha256": "1394a99cb6836f4f16712dd0a70a5df24df47dfa1e2342bd2c15e8b9bebbced1",
+        "initialWorkingtreeBytesUnchanged": true,
+        "checkoutRawBytesEqualGitBlob": false,
+        "status": "passed"
+      },
+      {
+        "path": "scripts/cbodotnetup-release.py",
+        "gitBlobBytes": 99,
+        "baselineGitBlobSha256": "2d0862f0e253e326dbba82d18a16312c912deb5206c5582acddb24aa5046b64c",
+        "currentCommitGitBlobSha256": "2d0862f0e253e326dbba82d18a16312c912deb5206c5582acddb24aa5046b64c",
+        "baselineBlobObjectId": "66d884726e3b9e6e335420b2579b2e202c6d4ca3",
+        "workingtreeCleanObjectId": "66d884726e3b9e6e335420b2579b2e202c6d4ca3",
+        "currentRawSha256": "2d0862f0e253e326dbba82d18a16312c912deb5206c5582acddb24aa5046b64c",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "scripts/cbodotnetup_legacy.py",
+        "gitBlobBytes": 49398,
+        "baselineGitBlobSha256": "c00a346c51b61267970576cc2357e59d6848434ea3920104ed417fb60b73a581",
+        "currentCommitGitBlobSha256": "c00a346c51b61267970576cc2357e59d6848434ea3920104ed417fb60b73a581",
+        "baselineBlobObjectId": "e4e2ffd9438bb706fdaacfba47a90e72c5c21843",
+        "workingtreeCleanObjectId": "e4e2ffd9438bb706fdaacfba47a90e72c5c21843",
+        "currentRawSha256": "c00a346c51b61267970576cc2357e59d6848434ea3920104ed417fb60b73a581",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "scripts/cbodotnetup_matrix.py",
+        "gitBlobBytes": 8875,
+        "baselineGitBlobSha256": "19966dfa1d589b02c0fb8df5e0613806ff7fdec3ca27f274c34baa04739809c3",
+        "currentCommitGitBlobSha256": "19966dfa1d589b02c0fb8df5e0613806ff7fdec3ca27f274c34baa04739809c3",
+        "baselineBlobObjectId": "c5ae1b6c4256582e167f7aa812a586c8a62a0f91",
+        "workingtreeCleanObjectId": "c5ae1b6c4256582e167f7aa812a586c8a62a0f91",
+        "currentRawSha256": "19966dfa1d589b02c0fb8df5e0613806ff7fdec3ca27f274c34baa04739809c3",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "scripts/cbodotnetup_project.py",
+        "gitBlobBytes": 27064,
+        "baselineGitBlobSha256": "6e0e9cada96d42ee1387361d4dc23e2bc832784ec1f89b4129ba45620f10a104",
+        "currentCommitGitBlobSha256": "6e0e9cada96d42ee1387361d4dc23e2bc832784ec1f89b4129ba45620f10a104",
+        "baselineBlobObjectId": "eb497fa52a8e00343a23a971a5f828e8401c8d25",
+        "workingtreeCleanObjectId": "eb497fa52a8e00343a23a971a5f828e8401c8d25",
+        "currentRawSha256": "6e0e9cada96d42ee1387361d4dc23e2bc832784ec1f89b4129ba45620f10a104",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "scripts/cbodotnetup_providers.py",
+        "gitBlobBytes": 23378,
+        "baselineGitBlobSha256": "4454bef90aaa08257b42621c6cc8c55e1b6ddafe8460f0a058e092344fad3f02",
+        "currentCommitGitBlobSha256": "4454bef90aaa08257b42621c6cc8c55e1b6ddafe8460f0a058e092344fad3f02",
+        "baselineBlobObjectId": "cff58fce5c4543ec44833796447e8388cee614fc",
+        "workingtreeCleanObjectId": "cff58fce5c4543ec44833796447e8388cee614fc",
+        "currentRawSha256": "4454bef90aaa08257b42621c6cc8c55e1b6ddafe8460f0a058e092344fad3f02",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "scripts/cbodotnetup_release.py",
+        "gitBlobBytes": 104729,
+        "baselineGitBlobSha256": "6cef379a81690b92146fcdf728a0433739fab87f46c248dfc31d1310fdfb1871",
+        "currentCommitGitBlobSha256": "6cef379a81690b92146fcdf728a0433739fab87f46c248dfc31d1310fdfb1871",
+        "baselineBlobObjectId": "60e74db26b9d568af1e2343681b6555cd4b5613f",
+        "workingtreeCleanObjectId": "60e74db26b9d568af1e2343681b6555cd4b5613f",
+        "currentRawSha256": "6cef379a81690b92146fcdf728a0433739fab87f46c248dfc31d1310fdfb1871",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "scripts/cbodotnetup_site.py",
+        "gitBlobBytes": 12380,
+        "baselineGitBlobSha256": "99ca95f4d177945d70c808b7fa73db6f48d3911c34303ec3b73d067ec581e575",
+        "currentCommitGitBlobSha256": "99ca95f4d177945d70c808b7fa73db6f48d3911c34303ec3b73d067ec581e575",
+        "baselineBlobObjectId": "b0d30111c00fba2735571ea5832ca267d5a943a5",
+        "workingtreeCleanObjectId": "b0d30111c00fba2735571ea5832ca267d5a943a5",
+        "currentRawSha256": "99ca95f4d177945d70c808b7fa73db6f48d3911c34303ec3b73d067ec581e575",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "scripts/get-cbodotnetup.py",
+        "gitBlobBytes": 11943,
+        "baselineGitBlobSha256": "f204eca9e81528731a440a95b37d5c403e642f0e0ec9e50c8eaf1ed6e8d1e772",
+        "currentCommitGitBlobSha256": "f204eca9e81528731a440a95b37d5c403e642f0e0ec9e50c8eaf1ed6e8d1e772",
+        "baselineBlobObjectId": "e62bf8f91c401466c2ea791e07e575ca4cff605d",
+        "workingtreeCleanObjectId": "e62bf8f91c401466c2ea791e07e575ca4cff605d",
+        "currentRawSha256": "f204eca9e81528731a440a95b37d5c403e642f0e0ec9e50c8eaf1ed6e8d1e772",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup.Tests/LegacyProviderTests.cs",
+        "gitBlobBytes": 26314,
+        "baselineGitBlobSha256": "7d33f7bdb22b30b72da8fd5c7b9174e21ae9464a1009fa6d100045b8cc0b0ae6",
+        "currentCommitGitBlobSha256": "7d33f7bdb22b30b72da8fd5c7b9174e21ae9464a1009fa6d100045b8cc0b0ae6",
+        "baselineBlobObjectId": "0319aa886559b7d3538b69191442d352f574480e",
+        "workingtreeCleanObjectId": "0319aa886559b7d3538b69191442d352f574480e",
+        "currentRawSha256": "7d33f7bdb22b30b72da8fd5c7b9174e21ae9464a1009fa6d100045b8cc0b0ae6",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup.Tests/Program.cs",
+        "gitBlobBytes": 25820,
+        "baselineGitBlobSha256": "5aa82fd8e20345b3790aade4200718426eaefb8552480df3186430f4eed6448a",
+        "currentCommitGitBlobSha256": "5aa82fd8e20345b3790aade4200718426eaefb8552480df3186430f4eed6448a",
+        "baselineBlobObjectId": "c290d0dd74be28c6a9fc3e20a856d8c024337e75",
+        "workingtreeCleanObjectId": "c290d0dd74be28c6a9fc3e20a856d8c024337e75",
+        "currentRawSha256": "5aa82fd8e20345b3790aade4200718426eaefb8552480df3186430f4eed6448a",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup.Tests/ProjectAdmissionTests.cs",
+        "gitBlobBytes": 4089,
+        "baselineGitBlobSha256": "7d95d99dd58d83524295bbee3866f526655b10c24626d46834105876406da600",
+        "currentCommitGitBlobSha256": "7d95d99dd58d83524295bbee3866f526655b10c24626d46834105876406da600",
+        "baselineBlobObjectId": "44b281caf9a87312ea95220fe5a7d1bade78cd9d",
+        "workingtreeCleanObjectId": "44b281caf9a87312ea95220fe5a7d1bade78cd9d",
+        "currentRawSha256": "7d95d99dd58d83524295bbee3866f526655b10c24626d46834105876406da600",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup.Tests/ProjectSdkResolverTests.cs",
+        "gitBlobBytes": 10985,
+        "baselineGitBlobSha256": "2e3912994669364d26579106661cc84e3f476d013e569a7641ccdcc360527402",
+        "currentCommitGitBlobSha256": "2e3912994669364d26579106661cc84e3f476d013e569a7641ccdcc360527402",
+        "baselineBlobObjectId": "c1075b98ff74be0065feab60cf6d8f4191bd2aad",
+        "workingtreeCleanObjectId": "c1075b98ff74be0065feab60cf6d8f4191bd2aad",
+        "currentRawSha256": "2e3912994669364d26579106661cc84e3f476d013e569a7641ccdcc360527402",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup.Tests/SdkInvocationTests.cs",
+        "gitBlobBytes": 7719,
+        "baselineGitBlobSha256": "39c2e67f58efb3a198f23bf04e2255a3ea87a78fce15b511cb34ac05d5d6c8b4",
+        "currentCommitGitBlobSha256": "39c2e67f58efb3a198f23bf04e2255a3ea87a78fce15b511cb34ac05d5d6c8b4",
+        "baselineBlobObjectId": "3f639e3015f03dc2fa861585091c608883728d4f",
+        "workingtreeCleanObjectId": "3f639e3015f03dc2fa861585091c608883728d4f",
+        "currentRawSha256": "39c2e67f58efb3a198f23bf04e2255a3ea87a78fce15b511cb34ac05d5d6c8b4",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup.Tests/cbodotnetup.Tests.csproj",
+        "gitBlobBytes": 481,
+        "baselineGitBlobSha256": "668264a9e5421e6bfef453a3c9694a02dd3f37241318fac85ccff7d2046d4f1c",
+        "currentCommitGitBlobSha256": "668264a9e5421e6bfef453a3c9694a02dd3f37241318fac85ccff7d2046d4f1c",
+        "baselineBlobObjectId": "aa32b8a2a6452d6b0d3fff33ebf9c838db4096c6",
+        "workingtreeCleanObjectId": "aa32b8a2a6452d6b0d3fff33ebf9c838db4096c6",
+        "currentRawSha256": "668264a9e5421e6bfef453a3c9694a02dd3f37241318fac85ccff7d2046d4f1c",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup.Tests/fixtures/README.md",
+        "gitBlobBytes": 1192,
+        "baselineGitBlobSha256": "7f5a0d53d6db6ec90914142efa0e70eb17b0f496f4174d492e1e79a8575bba25",
+        "currentCommitGitBlobSha256": "7f5a0d53d6db6ec90914142efa0e70eb17b0f496f4174d492e1e79a8575bba25",
+        "baselineBlobObjectId": "4546aa7edf9976d9e1c5ad33889b8c2c49e3dfbb",
+        "workingtreeCleanObjectId": "4546aa7edf9976d9e1c5ad33889b8c2c49e3dfbb",
+        "currentRawSha256": "7f5a0d53d6db6ec90914142efa0e70eb17b0f496f4174d492e1e79a8575bba25",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup.Tests/fixtures/catalog-v1.json",
+        "gitBlobBytes": 6822,
+        "baselineGitBlobSha256": "506689fc4e5b89a395ddd7b21813723686b387697c002cd5d803d737f226a4c9",
+        "currentCommitGitBlobSha256": "506689fc4e5b89a395ddd7b21813723686b387697c002cd5d803d737f226a4c9",
+        "baselineBlobObjectId": "bb79c481672d758bb00d8ebd83812d43ea1a5309",
+        "workingtreeCleanObjectId": "bb79c481672d758bb00d8ebd83812d43ea1a5309",
+        "currentRawSha256": "506689fc4e5b89a395ddd7b21813723686b387697c002cd5d803d737f226a4c9",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup.Tests/fixtures/catalog-v1.json.asc",
+        "gitBlobBytes": 228,
+        "baselineGitBlobSha256": "7a6c62954c4276661ba0ddeabbb2c82059637060223c93d783d49aaf57e28fee",
+        "currentCommitGitBlobSha256": "7a6c62954c4276661ba0ddeabbb2c82059637060223c93d783d49aaf57e28fee",
+        "baselineBlobObjectId": "88eb80f7d87cd38899fd7c76278e2adabfeda65f",
+        "workingtreeCleanObjectId": "88eb80f7d87cd38899fd7c76278e2adabfeda65f",
+        "currentRawSha256": "7a6c62954c4276661ba0ddeabbb2c82059637060223c93d783d49aaf57e28fee",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup.Tests/fixtures/legacy-providers.json",
+        "gitBlobBytes": 46642,
+        "baselineGitBlobSha256": "1b5eb900c9d7c0f7617e4962f085dad287d3b1a8601cfff57314254a4c3c6460",
+        "currentCommitGitBlobSha256": "1b5eb900c9d7c0f7617e4962f085dad287d3b1a8601cfff57314254a4c3c6460",
+        "baselineBlobObjectId": "88f2b917c8b7825ef1f45b5e94d199df640ffd5b",
+        "workingtreeCleanObjectId": "88f2b917c8b7825ef1f45b5e94d199df640ffd5b",
+        "currentRawSha256": "1b5eb900c9d7c0f7617e4962f085dad287d3b1a8601cfff57314254a4c3c6460",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup.Tests/fixtures/project-sdk-reference.json",
+        "gitBlobBytes": 38664,
+        "baselineGitBlobSha256": "7803876a640b5507a96c389395547ea20fc676bce52676abcd548aecc2443e62",
+        "currentCommitGitBlobSha256": "7803876a640b5507a96c389395547ea20fc676bce52676abcd548aecc2443e62",
+        "baselineBlobObjectId": "85ec2554fea7fe2985041e942bbea37bf66b509a",
+        "workingtreeCleanObjectId": "85ec2554fea7fe2985041e942bbea37bf66b509a",
+        "currentRawSha256": "7803876a640b5507a96c389395547ea20fc676bce52676abcd548aecc2443e62",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup.Tests/fixtures/public-signed.json",
+        "gitBlobBytes": 12157,
+        "baselineGitBlobSha256": "2eeb01449769c70b41dac0a81f95795c9052970a067bf7b1e8a2f3d3ca1941fb",
+        "currentCommitGitBlobSha256": "2eeb01449769c70b41dac0a81f95795c9052970a067bf7b1e8a2f3d3ca1941fb",
+        "baselineBlobObjectId": "877584149640e3fd25cd58b08207adb4086b42e1",
+        "workingtreeCleanObjectId": "877584149640e3fd25cd58b08207adb4086b42e1",
+        "currentRawSha256": "2eeb01449769c70b41dac0a81f95795c9052970a067bf7b1e8a2f3d3ca1941fb",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup.Tests/fixtures/public-signed.json.asc",
+        "gitBlobBytes": 228,
+        "baselineGitBlobSha256": "ad738f6010296d63427a64b4fe3ffa460d5a5b65f34e9086b3109acb5a62988d",
+        "currentCommitGitBlobSha256": "ad738f6010296d63427a64b4fe3ffa460d5a5b65f34e9086b3109acb5a62988d",
+        "baselineBlobObjectId": "3d33983785ea693ce6dd42d201bfabdb4d0b26ca",
+        "workingtreeCleanObjectId": "3d33983785ea693ce6dd42d201bfabdb4d0b26ca",
+        "currentRawSha256": "ad738f6010296d63427a64b4fe3ffa460d5a5b65f34e9086b3109acb5a62988d",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup/Manager.cs",
+        "gitBlobBytes": 30743,
+        "baselineGitBlobSha256": "4ac9ea99863e413ae67d002fdbc0b810b88b10366d1222bdb405a82d65d92bb0",
+        "currentCommitGitBlobSha256": "4ac9ea99863e413ae67d002fdbc0b810b88b10366d1222bdb405a82d65d92bb0",
+        "baselineBlobObjectId": "53fae9023bf3eaf18ac207a298c2ee3a4b03e6cf",
+        "workingtreeCleanObjectId": "53fae9023bf3eaf18ac207a298c2ee3a4b03e6cf",
+        "currentRawSha256": "4ac9ea99863e413ae67d002fdbc0b810b88b10366d1222bdb405a82d65d92bb0",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup/Models.cs",
+        "gitBlobBytes": 3429,
+        "baselineGitBlobSha256": "fa36abf79cebb1af3a4b3cbb77c79971251dc26b03afcfc3298f2c4a9cea3095",
+        "currentCommitGitBlobSha256": "fa36abf79cebb1af3a4b3cbb77c79971251dc26b03afcfc3298f2c4a9cea3095",
+        "baselineBlobObjectId": "5af630ae03f831135e2153170ddd1c288a14230f",
+        "workingtreeCleanObjectId": "5af630ae03f831135e2153170ddd1c288a14230f",
+        "currentRawSha256": "fa36abf79cebb1af3a4b3cbb77c79971251dc26b03afcfc3298f2c4a9cea3095",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup/Program.cs",
+        "gitBlobBytes": 6744,
+        "baselineGitBlobSha256": "52bb401c78e07063235e939899351fe5ec791323554f81fc1f6a52fc97ab9426",
+        "currentCommitGitBlobSha256": "52bb401c78e07063235e939899351fe5ec791323554f81fc1f6a52fc97ab9426",
+        "baselineBlobObjectId": "81939951e20fea1633f914f7f1eee0192b0ab88d",
+        "workingtreeCleanObjectId": "81939951e20fea1633f914f7f1eee0192b0ab88d",
+        "currentRawSha256": "52bb401c78e07063235e939899351fe5ec791323554f81fc1f6a52fc97ab9426",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup/ProjectSdkResolver.cs",
+        "gitBlobBytes": 14600,
+        "baselineGitBlobSha256": "2d4a013677a2689bb128fcd24c01f8312258f77e493de162fb910620bf415c44",
+        "currentCommitGitBlobSha256": "2d4a013677a2689bb128fcd24c01f8312258f77e493de162fb910620bf415c44",
+        "baselineBlobObjectId": "2750be2039b074b5967d586af7fa74b60f5deb07",
+        "workingtreeCleanObjectId": "2750be2039b074b5967d586af7fa74b60f5deb07",
+        "currentRawSha256": "2d4a013677a2689bb128fcd24c01f8312258f77e493de162fb910620bf415c44",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup/ProviderEnvironment.cs",
+        "gitBlobBytes": 3148,
+        "baselineGitBlobSha256": "d9b8feb2580bd88ab39c2779b7bfd3cd1ba8a9b36adafe2be8fae40374460d11",
+        "currentCommitGitBlobSha256": "d9b8feb2580bd88ab39c2779b7bfd3cd1ba8a9b36adafe2be8fae40374460d11",
+        "baselineBlobObjectId": "6c29e5c975337d24ba802e0a978be48c2e54a974",
+        "workingtreeCleanObjectId": "6c29e5c975337d24ba802e0a978be48c2e54a974",
+        "currentRawSha256": "d9b8feb2580bd88ab39c2779b7bfd3cd1ba8a9b36adafe2be8fae40374460d11",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup/ProviderStore.cs",
+        "gitBlobBytes": 6856,
+        "baselineGitBlobSha256": "0806a960d7c449179c48307e0f2aef56f04be8a02aa6c65ea5bed882ece2a546",
+        "currentCommitGitBlobSha256": "0806a960d7c449179c48307e0f2aef56f04be8a02aa6c65ea5bed882ece2a546",
+        "baselineBlobObjectId": "8a36c8ae2e16e6ae5cc4a75bc080a5298a1d31ef",
+        "workingtreeCleanObjectId": "8a36c8ae2e16e6ae5cc4a75bc080a5298a1d31ef",
+        "currentRawSha256": "0806a960d7c449179c48307e0f2aef56f04be8a02aa6c65ea5bed882ece2a546",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup/ProviderSupport.cs",
+        "gitBlobBytes": 16577,
+        "baselineGitBlobSha256": "be0812ac15c1a469f327465d86b3991efd6e9becf622301a400aea7ad3457f1e",
+        "currentCommitGitBlobSha256": "be0812ac15c1a469f327465d86b3991efd6e9becf622301a400aea7ad3457f1e",
+        "baselineBlobObjectId": "2203fe5275986dbe47e082ba86e2559db9771802",
+        "workingtreeCleanObjectId": "2203fe5275986dbe47e082ba86e2559db9771802",
+        "currentRawSha256": "be0812ac15c1a469f327465d86b3991efd6e9becf622301a400aea7ad3457f1e",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup/SafeFiles.cs",
+        "gitBlobBytes": 11890,
+        "baselineGitBlobSha256": "13eed6b313c792d03fcca6e8d4a0454012cf64f6d0f6956d14f6410e603dd2d4",
+        "currentCommitGitBlobSha256": "13eed6b313c792d03fcca6e8d4a0454012cf64f6d0f6956d14f6410e603dd2d4",
+        "baselineBlobObjectId": "2615a9af1709edd4af72f483bcb91be30a8f5b18",
+        "workingtreeCleanObjectId": "2615a9af1709edd4af72f483bcb91be30a8f5b18",
+        "currentRawSha256": "13eed6b313c792d03fcca6e8d4a0454012cf64f6d0f6956d14f6410e603dd2d4",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup/SdkInvocation.cs",
+        "gitBlobBytes": 5514,
+        "baselineGitBlobSha256": "6ffd7952b8780e621a40262f64329a4e67b8bd7527dcb34a0528f9bf9fb31068",
+        "currentCommitGitBlobSha256": "6ffd7952b8780e621a40262f64329a4e67b8bd7527dcb34a0528f9bf9fb31068",
+        "baselineBlobObjectId": "9181290402ad2309f44eb279f7de7ac21a2ffa43",
+        "workingtreeCleanObjectId": "9181290402ad2309f44eb279f7de7ac21a2ffa43",
+        "currentRawSha256": "6ffd7952b8780e621a40262f64329a4e67b8bd7527dcb34a0528f9bf9fb31068",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup/Trust.cs",
+        "gitBlobBytes": 20592,
+        "baselineGitBlobSha256": "a56ad40d7978373a6654094260c47df60d899fc6c0e60c7c72b3edbd7f60e27d",
+        "currentCommitGitBlobSha256": "a56ad40d7978373a6654094260c47df60d899fc6c0e60c7c72b3edbd7f60e27d",
+        "baselineBlobObjectId": "ee10b35a8161e3c8946012da9f1c60abef84e458",
+        "workingtreeCleanObjectId": "ee10b35a8161e3c8946012da9f1c60abef84e458",
+        "currentRawSha256": "a56ad40d7978373a6654094260c47df60d899fc6c0e60c7c72b3edbd7f60e27d",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/cbodotnetup/cbodotnetup.csproj",
+        "gitBlobBytes": 980,
+        "baselineGitBlobSha256": "a568cb27e9ea0d9026265f6a3ef11e7a88007b04dd2555ff3f30985794566eeb",
+        "currentCommitGitBlobSha256": "a568cb27e9ea0d9026265f6a3ef11e7a88007b04dd2555ff3f30985794566eeb",
+        "baselineBlobObjectId": "03dbebaffd5c1619b445021268bb79d4f5a7072c",
+        "workingtreeCleanObjectId": "03dbebaffd5c1619b445021268bb79d4f5a7072c",
+        "currentRawSha256": "a568cb27e9ea0d9026265f6a3ef11e7a88007b04dd2555ff3f30985794566eeb",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      },
+      {
+        "path": "tools/global.json",
+        "gitBlobBytes": 109,
+        "baselineGitBlobSha256": "ea832b7db9570fb51750ec78ee59f5980f6c7a3b49d7e681fea6aa3533de794b",
+        "currentCommitGitBlobSha256": "ea832b7db9570fb51750ec78ee59f5980f6c7a3b49d7e681fea6aa3533de794b",
+        "baselineBlobObjectId": "c59154467c8729794594e2fb49357269c9e1c7d4",
+        "workingtreeCleanObjectId": "c59154467c8729794594e2fb49357269c9e1c7d4",
+        "currentRawSha256": "ea832b7db9570fb51750ec78ee59f5980f6c7a3b49d7e681fea6aa3533de794b",
+        "initialWorkingtreeSha256": null,
+        "initialWorkingtreeBytesUnchanged": null,
+        "checkoutRawBytesEqualGitBlob": true,
+        "status": "passed"
+      }
+    ]
+  },
+  "releases": [
+    {
+      "releaseId": 430660558,
+      "tag": "sdk-8.0.133",
+      "assetCount": 8,
+      "status": "passed",
+      "metadataProjectionSha256": "53b8cef4db4d6f21470cd4b3e55430186d550a5debf87df07706437ed4db3579",
+      "assetInventorySha256": "6c69ec03808fcadd83e6de06dd2c325f34feeb37775f6a319866a490b40a3c36",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/430660558/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 8,
+          "snapshotSha256": "8d7859dfd6bf901595964c2b8da3c79992c1619d1b860ab40844eb2f8235a9cc"
+        }
+      ]
+    },
+    {
+      "releaseId": 430660810,
+      "tag": "sdk-9.0.123",
+      "assetCount": 8,
+      "status": "passed",
+      "metadataProjectionSha256": "f1c9e2de9d0d6b4652b9a9ced3d9c22552c474f44384844aba80ffdb2be8ec52",
+      "assetInventorySha256": "e6b8e5dd633978d42221fdb26197fd2d2f4ab6df42983240e20f4c969f05d6ae",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/430660810/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 8,
+          "snapshotSha256": "61123dfdb65f8e310cec8578b1cf6b18c8647e627e1610c1bc7f3265c77b1702"
+        }
+      ]
+    },
+    {
+      "releaseId": 430661100,
+      "tag": "sdk-10.0.403",
+      "assetCount": 8,
+      "status": "passed",
+      "metadataProjectionSha256": "e2bb5e1690c5c8168a627f1e6061c37dd72e405b0ac850cab64c51d801053787",
+      "assetInventorySha256": "84931d4dea015038508d6a5c54cb84a8123f3f1b5c94f4b61835574c9877b7c7",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/430661100/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 8,
+          "snapshotSha256": "23c94739f616b403378a43141fad9d7f4c2a1e2b77fe63b7ca910d245882d006"
+        }
+      ]
+    },
+    {
+      "releaseId": 430661280,
+      "tag": "sdk-5.0.214",
+      "assetCount": 8,
+      "status": "passed",
+      "metadataProjectionSha256": "15878ef19b890bf199f19140dad18ef6c17ff9a3ce96f857720b164cc4c02418",
+      "assetInventorySha256": "5ba9c8cd038286b318f3131398c2c4b0241d0f2c7695ca38ec4d77ec74fb288a",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/430661280/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 8,
+          "snapshotSha256": "4d0b7d08008a2a42a3396504146894aa8e1b938ebf9ed0750527a8009c9a99b0"
+        }
+      ]
+    },
+    {
+      "releaseId": 430661560,
+      "tag": "sdk-7.0.120",
+      "assetCount": 8,
+      "status": "passed",
+      "metadataProjectionSha256": "cd63bb1ea80a47ab1ad7f6715d065edc1d9135f8788035b965b6eb2a1d1ed3f9",
+      "assetInventorySha256": "93abb979406591d9a27749ee9f21acab17972868629a2b4440f683b09e1f55f8",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/430661560/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 8,
+          "snapshotSha256": "194c805c02d447edb7cc57170ab3aeaa3ab3775956cd867b170de3cbedced0f8"
+        }
+      ]
+    },
+    {
+      "releaseId": 430661623,
+      "tag": "sdk-3.1.426",
+      "assetCount": 8,
+      "status": "passed",
+      "metadataProjectionSha256": "3db18a5dc6111add09d80239d265e433882c84b842e09fa31359fdfbf214692f",
+      "assetInventorySha256": "f5a73541a473387874a034e45d5bd5287fe16a576883a8f2701cfc562c291e0b",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/430661623/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 8,
+          "snapshotSha256": "1a53e483ee2523034798cfcbec86de30ece9cd0a803279fa7afa09a26e7ec307"
+        }
+      ]
+    },
+    {
+      "releaseId": 430661640,
+      "tag": "sdk-3.0.103",
+      "assetCount": 8,
+      "status": "passed",
+      "metadataProjectionSha256": "2fb91f79fd5bc69f8d6ec54bbcf44525854deefc5dafe7949582d90e0e892263",
+      "assetInventorySha256": "ead53352b3a0acd1d6c3ed0eba112e36cff15cb737421f0f8f1f9cf6e16256da",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/430661640/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 8,
+          "snapshotSha256": "b936610fa0fa65dd9bdf8643d91d501cf213601ef0a6d2285a680843326daac3"
+        }
+      ]
+    },
+    {
+      "releaseId": 430661771,
+      "tag": "sdk-6.0.136",
+      "assetCount": 8,
+      "status": "passed",
+      "metadataProjectionSha256": "997b08adceff2ec712650cddcb300a9d09c12621ad95367aa4026c582894f343",
+      "assetInventorySha256": "609197276bfde12e85d1a104e1b79b64f8688e559e2b19e53eb0a9230917c8c8",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/430661771/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 8,
+          "snapshotSha256": "90c76a22e3964d435d4462ff7b2e123ad074b7da448b2d9d576947c4d93d617b"
+        }
+      ]
+    },
+    {
+      "releaseId": 433474340,
+      "tag": "distribution-deb-sdk-10.0.403-r1",
+      "assetCount": 17,
+      "status": "passed",
+      "metadataProjectionSha256": "8377853fc7d249a483b8919f947cf5ef6945a46c3bcd15153df701e393f3f3d8",
+      "assetInventorySha256": "275bd0b70752dcfc0e94b60cb92fb02f1af6c5c4ed9f57996035e03146c8d1b9",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/433474340/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 17,
+          "snapshotSha256": "8b436cbae4c87e0dee0085fc0c3abfbe2dadef1d00390a7e9a004a143236209f"
+        }
+      ]
+    },
+    {
+      "releaseId": 433475311,
+      "tag": "distribution-oci-sdk-10.0.403-r1",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "df3720e1c0415c2329647352ffbc49451ee02914ca0ed991afb954f059ac9147",
+      "assetInventorySha256": "341408f2805749c5a3ef165c3e9f3d7ad3997be9bb84f897f5a8af06b50b4b69",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/433475311/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "5ebc85816bad22b9cf77a72e39a26d1ac0a1d0e0cae17030359e6d4f986ba2ac"
+        }
+      ]
+    },
+    {
+      "releaseId": 433588106,
+      "tag": "distribution-rpm-sdk-10.0.403-r1",
+      "assetCount": 19,
+      "status": "passed",
+      "metadataProjectionSha256": "39a110162eb155b4619c2243b56743b8be302ff797d62a5a70d823629c01e17b",
+      "assetInventorySha256": "501625643611c338c1219981b53731f846841d3159701ab3c852f2867508a0ef",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/433588106/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 19,
+          "snapshotSha256": "cd9f09db65a75e0fdbe090b3e4f44599a5a74baec3423cc599b37a4c1566f829"
+        }
+      ]
+    },
+    {
+      "releaseId": 433908756,
+      "tag": "distribution-oci-sdk-10.0.403-r2",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "65e03c53123d6bb7ea20362fb1db185661d18dbc5ddddc7ebb976cbbaac2692c",
+      "assetInventorySha256": "2e14c8763fc4a67c9547ba7e51f9f401e3943f924cd0cf3b20ad8a64d90d704e",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/433908756/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "c4ed1cc8978c5e124ae0584733c1b898affc55ae7336213122b1d88c5a1ab460"
+        }
+      ]
+    },
+    {
+      "releaseId": 434081489,
+      "tag": "distribution-archive-sdk-10.0.403-r1",
+      "assetCount": 11,
+      "status": "passed",
+      "metadataProjectionSha256": "c2e9353899ed7fe542dd8a1efca48f03367124c2a2b763ca772971cdf04b5565",
+      "assetInventorySha256": "c401bfef6dd336b49d9394a5d5d793ebbf7d438e367fe657368544bde2220b00",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434081489/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 11,
+          "snapshotSha256": "8ff9fb19880d20272a31b544ba29c2ab7955f6e9d7d1aa9cebbde0fbd962e1b4"
+        }
+      ]
+    },
+    {
+      "releaseId": 434126249,
+      "tag": "distribution-archive-sdk-10.0.403-r2",
+      "assetCount": 11,
+      "status": "passed",
+      "metadataProjectionSha256": "e47a6a920c50af3450b79e9ef422c40aacf98a320735458ba6cce22b98f17324",
+      "assetInventorySha256": "3f6dc97a2e478694b72119038099165887d014ded150ad4636a50f7cfe5bc1f9",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434126249/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 11,
+          "snapshotSha256": "7d1e567377206a0b443f179e96a3b003d5f9fda8a4c777658fb8d14d4423c05f"
+        }
+      ]
+    },
+    {
+      "releaseId": 434220544,
+      "tag": "distribution-deb-sdk-10.0.403-r3",
+      "assetCount": 17,
+      "status": "passed",
+      "metadataProjectionSha256": "59a1848619c2ce167f6fa6fb80ad300a8d3cacb6b6021e1d67adc7c2c39e0b94",
+      "assetInventorySha256": "90117f6f02f423edb04d5808e7322de80e4eb6a3431a5c4a39098e1181d872a5",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434220544/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 17,
+          "snapshotSha256": "d09f200d2dcd799a3405dabbc0c1f96209965055c331940fc965b14f67608781"
+        }
+      ]
+    },
+    {
+      "releaseId": 434220577,
+      "tag": "repository-deb-ubuntu-24.04-sdk-10.0.403-r3",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "395380eef84eaf2923c46dc19905dfe386140c3eaa064e5330dcd582f16a17a0",
+      "assetInventorySha256": "a7facbca8ae3560df602a6c635e66c278f91040579769d09955746df0b5cc6d8",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434220577/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "78e3f519df6b7d4e9b0adee29ceebacc8a752509eeef106c77499ae90f3bafdd"
+        }
+      ]
+    },
+    {
+      "releaseId": 434220623,
+      "tag": "repository-deb-debian-13-sdk-10.0.403-r3",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "29a2c6a2de46a464f34798a7b33873a6f3e4f781ca367f2e2a5585410db17839",
+      "assetInventorySha256": "2be82ebb4376458a564241f5ab78359715abc74cfbcaaae99aeda4c2e713cb1c",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434220623/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "319cbf02a06db23e847f2921ffe5f8583f3ae21e1b99939577a6234e5235486f"
+        }
+      ]
+    },
+    {
+      "releaseId": 434220640,
+      "tag": "distribution-oci-sdk-10.0.403-r3",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "d78cdbf2ab65f1666760a6c709e6c2864eb3e29e27517240573521e361f0204c",
+      "assetInventorySha256": "e3a9809b37eb2ba9ce2a33c4518659386624b6b9d6b8a7d14793bcf396880136",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434220640/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "2e0f98958456dba1aa793516695d1296afcf5bf2a93d742b89ae96f4355d64e4"
+        }
+      ]
+    },
+    {
+      "releaseId": 434273043,
+      "tag": "distribution-rpm-sdk-10.0.403-r2",
+      "assetCount": 19,
+      "status": "passed",
+      "metadataProjectionSha256": "dcbc7ea66d561d3eaa9cf4147b5f5ce76b66b520590143c6f34c712866977c48",
+      "assetInventorySha256": "02831fc623ff763a606dde8d7a3c77feafd6fd43d76ffb504e521174cbb5430a",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434273043/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 19,
+          "snapshotSha256": "c7330a94cd29ab8a952eee915bcbf42d4b3a6dadf1a76d7e09724872bebd3261"
+        }
+      ]
+    },
+    {
+      "releaseId": 434288224,
+      "tag": "distribution-archive-sdk-9.0.123-r1",
+      "assetCount": 11,
+      "status": "passed",
+      "metadataProjectionSha256": "0c44136a1a1cf63767cd25bc7e5202a943a64fec6c5507a7219474ab126a1d98",
+      "assetInventorySha256": "3c6be19fd12caf501e373157dde70b26f4476c70bf95415a91bbbb919b2b5a78",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434288224/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 11,
+          "snapshotSha256": "7c537757352de83a3007a108cde7239457a1fd0a34b07ef6b7564a1d35d8a759"
+        }
+      ]
+    },
+    {
+      "releaseId": 434294462,
+      "tag": "distribution-archive-sdk-8.0.133-r1",
+      "assetCount": 11,
+      "status": "passed",
+      "metadataProjectionSha256": "4e17d917e0a551fb38577552557c2d56d15b0c5d4b78ac57580d68cafd54c16e",
+      "assetInventorySha256": "af78c0d8b58c8a9f3ddb086cfa63a51f3bac9f4c0a019316e6f70a63c32e26a9",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434294462/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 11,
+          "snapshotSha256": "db2761622a4ffa5ea836ef603a0babe8ecac30bb8b9e9aee5f957a3a4c3fc696"
+        }
+      ]
+    },
+    {
+      "releaseId": 434300060,
+      "tag": "distribution-archive-sdk-7.0.120-r1",
+      "assetCount": 11,
+      "status": "passed",
+      "metadataProjectionSha256": "97e42de8a36894136ce6592da4a1e8c573b22aa77ad6022e7699ff5064113bb6",
+      "assetInventorySha256": "0fcdfa2b066d6e8537ca228122bd8f3b620f8ced1416195097ef5dd61cab480b",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434300060/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 11,
+          "snapshotSha256": "92fcba14694d78fbaa45d6b4ac4d5dc8d6482ccc710ea625fe5abaf6eff0f931"
+        }
+      ]
+    },
+    {
+      "releaseId": 434305708,
+      "tag": "distribution-archive-sdk-6.0.136-r1",
+      "assetCount": 11,
+      "status": "passed",
+      "metadataProjectionSha256": "3a743bcd82e1ba7057fa5cf587405b62fe6a18f9524175f124293a57db057358",
+      "assetInventorySha256": "3f1006c044545b74b947ced29f27ea0827abe1e0390a926bfda4106388302f9e",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434305708/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 11,
+          "snapshotSha256": "9c45490e4fad2fbcd33158d2387660fce0220fd5536b32930ef01c006e64416a"
+        }
+      ]
+    },
+    {
+      "releaseId": 434311607,
+      "tag": "distribution-deb-sdk-9.0.123-r1",
+      "assetCount": 17,
+      "status": "passed",
+      "metadataProjectionSha256": "486762e708ecb53f02db529c418576b576877ba4b1fe67ee8efa50de2c08fe4c",
+      "assetInventorySha256": "040c58f4b586a3ef6694f4fcced1b44038e035bd3801af24bd0e3becc2a3902e",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434311607/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 17,
+          "snapshotSha256": "8119041fb98f548f5ba68db2bfda9463d3d49f71e3e13a07d17ac3a3f886389c"
+        }
+      ]
+    },
+    {
+      "releaseId": 434311631,
+      "tag": "repository-deb-ubuntu-24.04-sdk-9.0.123-r1",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "2eaf8cf07fab8d0bee52e4f171d10cac1606edf648b4d108bdb170ae9956960c",
+      "assetInventorySha256": "3f80ad9fec1ede57fba30db1be3742aed091fd91ff7867506636543fe16eeae7",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434311631/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "1a3cd0dd346b608b93e5aaf6e2aad8b4f64ed337e56ec978d82b30c95c61056b"
+        }
+      ]
+    },
+    {
+      "releaseId": 434311659,
+      "tag": "repository-deb-debian-13-sdk-9.0.123-r1",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "f8c05fdbebd2134b7b17d428638e234377350bd637621cd4efb12149261c2866",
+      "assetInventorySha256": "6bd057ed00d42502fa2191d9300be53d5cdd9a8abbf47af92874d43252fb04e4",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434311659/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "0e8a5c3cfdfe9989de0ea41ba4aa9ef52b2451b87d755711f7ceb8829a4dc00e"
+        }
+      ]
+    },
+    {
+      "releaseId": 434311676,
+      "tag": "distribution-oci-sdk-9.0.123-r1",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "ccf57cde1b0d637c9f6aa7835b1dda9b5c8f7a0e2d03f02eb3ff1cc9baa1da4a",
+      "assetInventorySha256": "b1a498caad938549e22ef824bfa3a41d12092338e2991f13027e0d3115f8e0bc",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434311676/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "86d7986ba59e428e2daf2d764a3779d91b178a1e6bc5fe41b8e394738bc32508"
+        }
+      ]
+    },
+    {
+      "releaseId": 434321539,
+      "tag": "distribution-deb-sdk-8.0.133-r1",
+      "assetCount": 17,
+      "status": "passed",
+      "metadataProjectionSha256": "3a4c8c176b5932245a4f143633b4bf3fd855d5834ba4efb8e2a0e7608b075faa",
+      "assetInventorySha256": "9f2e39c710889cb16364c4fedd0a42269f8b3ad7bc1463f756ed2df3ca43a596",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434321539/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 17,
+          "snapshotSha256": "7edbef12df33e4a2b3fd3bb486cff1536835c0e6696078af7ef3a5eb30be7664"
+        }
+      ]
+    },
+    {
+      "releaseId": 434321556,
+      "tag": "repository-deb-ubuntu-24.04-sdk-8.0.133-r1",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "5fa3fd04a386db06e8fbc3f8286f14453a6709ea231865aa4e7b0263e4a1fbc1",
+      "assetInventorySha256": "32dfc4f2241b5ca684c4f5d30bf91411e9fc59f3dced0f8ece2fb7e86ae848ea",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434321556/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "579ef24e34786561c30a52d1eb9d52489080cbe2440f752c68971e48ef33ad6c"
+        }
+      ]
+    },
+    {
+      "releaseId": 434321573,
+      "tag": "repository-deb-debian-13-sdk-8.0.133-r1",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "f5bb76b1357a38e365ffc708ca970132a19602597f1f3a8d470c64ba88d7057c",
+      "assetInventorySha256": "29c61576e2497eadd6a18f36c8a2f20d85d25d9e218c5ab295e086618cf71b2c",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434321573/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "238d916bd9ba8d49e9297f7f25671c3ec917f521ed1fa81006896bad7a195ef8"
+        }
+      ]
+    },
+    {
+      "releaseId": 434321595,
+      "tag": "distribution-oci-sdk-8.0.133-r1",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "31d7907a04a794df7022f272d8acaeb4c35fcc4d31326b0db0a68353ce4f37ac",
+      "assetInventorySha256": "47dabbe680183a837534f246e32259313e3ce13edacbd69fbe05b879584e383c",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434321595/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "2b38c9d72cc60ca4f9e941a0bcfdc90bff7c361240e7bb0e5ec134645d190c2f"
+        }
+      ]
+    },
+    {
+      "releaseId": 434336708,
+      "tag": "distribution-deb-sdk-7.0.120-r1",
+      "assetCount": 17,
+      "status": "passed",
+      "metadataProjectionSha256": "0e9c5ba6cf67acabcb4ddc4539ecea11472c4b77981e9ce354f4f18f3a677c62",
+      "assetInventorySha256": "e95dd0905d29b5073f93d95e9dd7237bafa46a67546912fd9ec8310f4627b75a",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434336708/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 17,
+          "snapshotSha256": "5910db42e6faa7f2f2a6c7fd05fca081af8f80faa786fb148dd49a504518fd2d"
+        }
+      ]
+    },
+    {
+      "releaseId": 434336731,
+      "tag": "repository-deb-ubuntu-24.04-sdk-7.0.120-r1",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "c224021e4d6a61a938b82f2022b3da6ffe46d404cf2f97612e7f1d0e43ba4898",
+      "assetInventorySha256": "79e179015277a79291fc59cdd5bc087099d3b172cf9609ccc91d883837a2bb9d",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434336731/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "abc8d68354a6a4b9acb0b705d5c8a2be7cecd0e9997a2458e54bea9ddcc9a5a6"
+        }
+      ]
+    },
+    {
+      "releaseId": 434336754,
+      "tag": "repository-deb-debian-13-sdk-7.0.120-r1",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "58143b4e68fdb264afee4a5fcac4c86084bdfaabb87a9e65210358d9d14d13f3",
+      "assetInventorySha256": "acb1812e5e2e0e7e89f1a3f9f3a36375cd716341ed7ab334c1851ec93d2ceea8",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434336754/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "ca42f833a2aa97e3c482d20a827c576817449c8248ea2f73814d035862250323"
+        }
+      ]
+    },
+    {
+      "releaseId": 434336777,
+      "tag": "distribution-oci-sdk-7.0.120-r1",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "18d9b964cb86ddaf1cf5687e14f171b06add6e7f3776a7ee77c0e0cf80d843f4",
+      "assetInventorySha256": "7c13abdde57745fac8800500e65cd0141bcbf3cd247fa71d8b55196b5f6e03c6",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434336777/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "9f427c20b20ded52589b63367e6289e073ff37ee07d2026a7bb810ff7acf33ab"
+        }
+      ]
+    },
+    {
+      "releaseId": 434351236,
+      "tag": "distribution-deb-sdk-6.0.136-r1",
+      "assetCount": 17,
+      "status": "passed",
+      "metadataProjectionSha256": "41e1ced726a1befa54d079a4a5fc54bc65d3f974ed89452e878d90a21bfb26e4",
+      "assetInventorySha256": "e5ca542d15019a8dd59d42a54c21538fe5469ab6d1529b7b5bdafb9838f65285",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434351236/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 17,
+          "snapshotSha256": "617715857a36f60dff848e7ef5c35880140ad20c44f1d1ea0467bbe844aa5b68"
+        }
+      ]
+    },
+    {
+      "releaseId": 434351260,
+      "tag": "repository-deb-ubuntu-24.04-sdk-6.0.136-r1",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "2bd1a3bc625455f3c2d942bf2f7d9783d06b7ca30723d2784411fd727c962b39",
+      "assetInventorySha256": "c0152f095477b9552b52ac4dceccf6594110d3105ebac7ce6ffab4d49bcd94a1",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434351260/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "f401114b6d5c2c88e708b7e75fcc44c014b4190620e13db9e4ba5ca3c6820634"
+        }
+      ]
+    },
+    {
+      "releaseId": 434351280,
+      "tag": "repository-deb-debian-13-sdk-6.0.136-r1",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "7d9a7cecf2f6567685fac8d58e95a8719e65671f8ed9e5d8eaad6bdc04a3f032",
+      "assetInventorySha256": "7d2da83ea7af6d0b68e667f544034d73b28c4c31fe521821aab39f7451812340",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434351280/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "6338a61374ede17d6b7a5f6926a14a7b03306a77702a58439d0d91189afc5e33"
+        }
+      ]
+    },
+    {
+      "releaseId": 434351297,
+      "tag": "distribution-oci-sdk-6.0.136-r1",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "11c3d9b23e97ab5a4dc75717f0598f06282b471ef3939973f2c1ecb90566a137",
+      "assetInventorySha256": "ca4279e1999774fa0e4d7eb9710c5676de4c547674c11baefe34df5b539f249a",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434351297/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "5937b5bf53e64f4de998cc621ca577dd2da91ac87fe1b31a21e9f796d5479572"
+        }
+      ]
+    },
+    {
+      "releaseId": 434364848,
+      "tag": "distribution-rpm-sdk-9.0.123-r1",
+      "assetCount": 19,
+      "status": "passed",
+      "metadataProjectionSha256": "9e807e530e3bd6dc70a5f4bde2f8fbf349d7540b1f838984151c9be5c4b57154",
+      "assetInventorySha256": "1a82f86f58c134a4f736aff5d25fe08b16bdc39bb8b119d3588254cddb142079",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434364848/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 19,
+          "snapshotSha256": "e3aa78bf6abe4addeca98e592487f0b27b517f6a2365daebfd922758de548ce4"
+        }
+      ]
+    },
+    {
+      "releaseId": 434376596,
+      "tag": "distribution-rpm-sdk-8.0.133-r1",
+      "assetCount": 19,
+      "status": "passed",
+      "metadataProjectionSha256": "132025f3f43ce2d4e1413656cc135fcf0357f13fcfb68dcf3705055fe5154f6d",
+      "assetInventorySha256": "c26d10d745a6bdd3a01019e994511c4bf0282d8df39b38c2c31cf781896eddcd",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434376596/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 19,
+          "snapshotSha256": "2be5cee8f51eb6196c2fb3eeaa93cdc61e9014cd0fb7caeb768d13b53840dfaf"
+        }
+      ]
+    },
+    {
+      "releaseId": 434387907,
+      "tag": "distribution-rpm-sdk-7.0.120-r1",
+      "assetCount": 19,
+      "status": "passed",
+      "metadataProjectionSha256": "3c02dc98b65a3e303685245f559314b390c0f197ce129b517cd7026db0a64000",
+      "assetInventorySha256": "531fc0fb4d81e3b51a2a0163fc63f9d3b8a4dba0e86c1548d9c1b93ef35d0502",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434387907/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 19,
+          "snapshotSha256": "73789e6b85216092402c42391a91b636cdb7b241afe1062505dc4ad2b7e6847b"
+        }
+      ]
+    },
+    {
+      "releaseId": 434396254,
+      "tag": "distribution-rpm-sdk-6.0.136-r1",
+      "assetCount": 19,
+      "status": "passed",
+      "metadataProjectionSha256": "0f420d9086fc2843bf5b313ca10c8603a4e473a285c4d1360da35c0e9151206d",
+      "assetInventorySha256": "7c14381501ccb7a2d149b67ae2eb2f40bda41547cbd7ab32a520b4d769a132b5",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434396254/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 19,
+          "snapshotSha256": "02691a99e30f62ca1c9a299ab7ce0e4461b1104d41cd04b26e75c62b8d708481"
+        }
+      ]
+    },
+    {
+      "releaseId": 434413622,
+      "tag": "distribution-archive-sdk-5.0.214-r1",
+      "assetCount": 13,
+      "status": "passed",
+      "metadataProjectionSha256": "9aa16ac68eab47904381f8b81eda3f75628dc1a40b839def0afa305856c38594",
+      "assetInventorySha256": "74333a41149faff5d6666cacbabb0a702868abbacb2817396b4be1a52ff328bf",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434413622/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 13,
+          "snapshotSha256": "a54e2de2c415e5dc50524d9928c76150093ed534bc2f35fb825dacb6584f1b80"
+        }
+      ]
+    },
+    {
+      "releaseId": 434420139,
+      "tag": "distribution-deb-sdk-5.0.214-r1",
+      "assetCount": 17,
+      "status": "passed",
+      "metadataProjectionSha256": "7939af812fd4c16f9a703a431a558b2ac1607bf515a6dfe67e5d1d482652962c",
+      "assetInventorySha256": "f14094281989059f15ef45e4eded524b7223d6295bfa3b1a58b43b2923816812",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434420139/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 17,
+          "snapshotSha256": "08dd8ba0839f4cd5b2d3154fc8901a9ee3cc406dd3e5a0672271a8a795537f76"
+        }
+      ]
+    },
+    {
+      "releaseId": 434420159,
+      "tag": "repository-deb-ubuntu-24.04-sdk-5.0.214-r1",
+      "assetCount": 12,
+      "status": "passed",
+      "metadataProjectionSha256": "1d25ac156b7b9e47b5d831dcdc99f3dea8284ea02772859383ab28c87a7fa523",
+      "assetInventorySha256": "f608456a60b19273e867236e015e91331aeac65b978d911b6c90bd751d111dbb",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434420159/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 12,
+          "snapshotSha256": "5a20f18939089bc88e98a50b027ee65fee2c07ca36a80866e2574241153b767c"
+        }
+      ]
+    },
+    {
+      "releaseId": 434420181,
+      "tag": "repository-deb-debian-13-sdk-5.0.214-r1",
+      "assetCount": 12,
+      "status": "passed",
+      "metadataProjectionSha256": "5c83f5145a370c5283a66e2e39aa5bb5f34d8ca3e4df10f1b6d115c5072f0969",
+      "assetInventorySha256": "ff1c32245692f023d3d8fab9ef37b5aef8e460032b60d6baca4a0e91b6a6e6cf",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434420181/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 12,
+          "snapshotSha256": "07ce5f5940d2c72c7a9df572e3a2aa7156bbd1a3b05900d7012f647543de1371"
+        }
+      ]
+    },
+    {
+      "releaseId": 434420207,
+      "tag": "distribution-oci-sdk-5.0.214-r1",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "2eb0588e469982cac9ce97cd3b47272f0c448bf039b832cb463c3ad7dbc08da1",
+      "assetInventorySha256": "ba3ffc2020c1af7d926ccd59aa1b796005a1e15d274219f7bf6e89fa86f690a1",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434420207/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "373c1aa0aa9257807404170acfe4b74c1791ac31c685e9bb9b69bd11480051da"
+        }
+      ]
+    },
+    {
+      "releaseId": 434530958,
+      "tag": "distribution-deb-sdk-3.0.103-r1",
+      "assetCount": 17,
+      "status": "passed",
+      "metadataProjectionSha256": "b0a60a3f0a88ea0e44086894a86fe206e02b6947168aa1225e7c4e2acf037615",
+      "assetInventorySha256": "9c7e82b9b0512e66573b1eda23f07c961e66c5c0fdea49b57b51148e263fae36",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434530958/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 17,
+          "snapshotSha256": "f94e2ad914f5b20894a6f13eee2bd6d639b89128c1fbbc772aa27ef1802616c2"
+        }
+      ]
+    },
+    {
+      "releaseId": 434530977,
+      "tag": "repository-deb-ubuntu-24.04-sdk-3.0.103-r1",
+      "assetCount": 14,
+      "status": "passed",
+      "metadataProjectionSha256": "c32127f5dc464381ef4413297319a090aabc4cd3c650f35e21fb9845a69e18f0",
+      "assetInventorySha256": "36478770c22211a12edab72cf7764a4d8d6b8fca8b94ca16e0d9d0aefbbcb21f",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434530977/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 14,
+          "snapshotSha256": "84d0e658bfcbaaa36dcebebf4794314b23d0bf86cf6103baa03d8f2fc52461b0"
+        }
+      ]
+    },
+    {
+      "releaseId": 434531001,
+      "tag": "repository-deb-debian-13-sdk-3.0.103-r1",
+      "assetCount": 14,
+      "status": "passed",
+      "metadataProjectionSha256": "4262f56eeccfd4dbb8c36ad1256e9197d14c1bed651e175821215f5f30d63306",
+      "assetInventorySha256": "2e732c50d6e7bd2adbf8c1f8cc6360d984b1f696d7abc0426b7bf63328855530",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434531001/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 14,
+          "snapshotSha256": "ae076bb19f566e1b97cc2541843ef6c25f7e53193d15f7fc16971a93bc214907"
+        }
+      ]
+    },
+    {
+      "releaseId": 434531013,
+      "tag": "distribution-oci-sdk-3.0.103-r1",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "1ff0e2d787e390afc2b59a23d8598511757852fcf8e90263e6b538a4700cfce3",
+      "assetInventorySha256": "5e76999d889b7ee9ceb94a4da526b71a51ad8a6fe67843b471856c1f77c3ec83",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434531013/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "df5f5bb9fa698891de4b4b51623a54d002e8d25b82194dc91a2cfeed96aef2df"
+        }
+      ]
+    },
+    {
+      "releaseId": 434540878,
+      "tag": "distribution-deb-sdk-3.1.426-r1",
+      "assetCount": 17,
+      "status": "passed",
+      "metadataProjectionSha256": "f7d511c8050917b2222dd7092cb3895a7a6acea6faa571f117160a6a529f3fde",
+      "assetInventorySha256": "1f5bcefb3e64ab4445cc6feb32ac78292d6c60e16cb0199c62f42e80d3900213",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434540878/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 17,
+          "snapshotSha256": "7d6624f35a52b51eda80cc3979231bfd0e6855dcf0ee3c2dadcad7598685d7e7"
+        }
+      ]
+    },
+    {
+      "releaseId": 434540895,
+      "tag": "repository-deb-ubuntu-24.04-sdk-3.1.426-r1",
+      "assetCount": 14,
+      "status": "passed",
+      "metadataProjectionSha256": "cc79d681ef5eca9991593762147c35253ff1dc0c57633c7cb6db35b423a202dd",
+      "assetInventorySha256": "a8ba0715f5c7ea41af586df8fc31494571cc030faecd4e5c1e0abfbb4e443a8b",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434540895/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 14,
+          "snapshotSha256": "acbc61d41d63628c870ad9c40def4b9fd27f25b146e1e7e697751544582ff0e9"
+        }
+      ]
+    },
+    {
+      "releaseId": 434540915,
+      "tag": "repository-deb-debian-13-sdk-3.1.426-r1",
+      "assetCount": 14,
+      "status": "passed",
+      "metadataProjectionSha256": "468e5f79df1bc84683cd287834c6e3aa12380883e624576e49c8fd5c2d9546b0",
+      "assetInventorySha256": "d9417f991f517a0f210034075acddefc6ca7d8c98c30e269675f53d155886d80",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434540915/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 14,
+          "snapshotSha256": "6eb0f5e840117071784561addeecd91307848cdd5a2042966fdf56e9c5ffa89e"
+        }
+      ]
+    },
+    {
+      "releaseId": 434540932,
+      "tag": "distribution-oci-sdk-3.1.426-r1",
+      "assetCount": 10,
+      "status": "passed",
+      "metadataProjectionSha256": "00f1018fce42cdc7c09c6458e686e68fa142fe63c5cfe08da8b19d8e42f92efb",
+      "assetInventorySha256": "50a57c59dfd3bf98062556e7eda515e0348aebafbf6bf3acac132686b1c03266",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434540932/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 10,
+          "snapshotSha256": "6a2dd51c3ca662d300278349cfc250669193715d9a19e135cf2660bd54a5a9a6"
+        }
+      ]
+    },
+    {
+      "releaseId": 434550416,
+      "tag": "distribution-rpm-sdk-3.0.103-r1",
+      "assetCount": 35,
+      "status": "passed",
+      "metadataProjectionSha256": "ef8aee69d8b07857090353aeef189dfa02dd83cc2b0611be324a9df6eb4c3981",
+      "assetInventorySha256": "7a6f752d923bbbaec7c3f039c27a735fdab92bdbb49f96330ce3f49db97f2bbb",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434550416/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 35,
+          "snapshotSha256": "04a6fc7d0a9a0ae05d5fafd6663d9dea2278e99f5a9bb47cce6d361d3fb10cb0"
+        }
+      ]
+    },
+    {
+      "releaseId": 434590618,
+      "tag": "distribution-rpm-sdk-3.1.426-r1",
+      "assetCount": 35,
+      "status": "passed",
+      "metadataProjectionSha256": "6caa43224a75405dade6547c686df8d5279ebfa91450d02f3da3604ac631b13a",
+      "assetInventorySha256": "6f9d0b1d8bd1d623eaa878b8b517da4fff6d14452b1f3f032bd001d4a738e64a",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434590618/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 35,
+          "snapshotSha256": "8cf3533cff002dc25b9277b39425ecb6bc1fb789df75bcefcbf96776915c1142"
+        }
+      ]
+    },
+    {
+      "releaseId": 434595886,
+      "tag": "distribution-rpm-sdk-5.0.214-r1",
+      "assetCount": 27,
+      "status": "passed",
+      "metadataProjectionSha256": "bb258990436320b7f4c2e21092b54e56fafa62998be1915c1fc367bc25743480",
+      "assetInventorySha256": "1f5706115799aaa36353fb9d64eb1ff0c81611286ce08569a16cc48de8574d4b",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434595886/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 27,
+          "snapshotSha256": "5c68bbc96a0cfeff805b6969a7dc2c7cc203daeb88453340fe8f25ed6c2a2ec1"
+        }
+      ]
+    },
+    {
+      "releaseId": 434602535,
+      "tag": "distribution-archive-sdk-3.0.103-r1",
+      "assetCount": 15,
+      "status": "passed",
+      "metadataProjectionSha256": "19737033b56644084ed2765c87dee8822625d41c019035607ef8f35f3742179a",
+      "assetInventorySha256": "0b7b1d766a1ec0c6683f110a5b76352439493a397c6a32e2640a2ac9bdff2655",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434602535/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 15,
+          "snapshotSha256": "887e070265d248ba4ae380cb221f0025555b2480692654554f3b9f6c0d58757d"
+        }
+      ]
+    },
+    {
+      "releaseId": 434605723,
+      "tag": "distribution-archive-sdk-3.1.426-r1",
+      "assetCount": 15,
+      "status": "passed",
+      "metadataProjectionSha256": "974aeabb119e921c13edd87774076700523397c1e3e61b5ec986fab4b0f1bc34",
+      "assetInventorySha256": "60ec45af398fdfca5b49de3fefffae41243f25b2142baf2e692ff11c89a462f0",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434605723/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 15,
+          "snapshotSha256": "0f4ca35657d16e28f66d000c7175cc54ddfb5c7e299229ba5b03b1885d3f70d4"
+        }
+      ]
+    },
+    {
+      "releaseId": 434681268,
+      "tag": "cbodotnetup-v0.1.0",
+      "assetCount": 8,
+      "status": "passed",
+      "metadataProjectionSha256": "2edcd703aa0c9d4d9145775ee043d0d7b8fb81d07916aefa28dd2af95a45d53a",
+      "assetInventorySha256": "8f5d641e5d95dff412da78723e2a162107362d2a14c5dbd616988dd71c26f36e",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434681268/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 8,
+          "snapshotSha256": "35883771dc264f3ef0709819fcd30e4f6acfb0856ea68ed92d3bc3f26c836170"
+        }
+      ]
+    },
+    {
+      "releaseId": 434684470,
+      "tag": "cbodotnetup-catalog-41952285282",
+      "assetCount": 7,
+      "status": "passed",
+      "metadataProjectionSha256": "8c14b7a381cc84ad778b9a59dfc4892fb1e3ccac2d2c4225e0104cb44cb9cedc",
+      "assetInventorySha256": "5ec87a3605b8ba695a45b4ecf79d07f8efc8aa57db7c2975730c0c0a89f9d218",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/434684470/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 7,
+          "snapshotSha256": "7e1ce8803f5a5b526fd0b7c4a5c299f5d31b18de9609d79f1f189874fe062554"
+        }
+      ]
+    },
+    {
+      "releaseId": 435292529,
+      "tag": "distribution-archive-sdk-9.0.123-r2",
+      "assetCount": 11,
+      "status": "passed",
+      "metadataProjectionSha256": "172ffe0a58f05ae91d937b2b87f9db49c98901a3315c4bccaf79a94b360c73b0",
+      "assetInventorySha256": "9c6ba2e60291632017ff84ffbaf0c50a3c5c94aab16296565970a658ad80a5ea",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/435292529/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 11,
+          "snapshotSha256": "bd382b6bb7209b4b30d43bc403bff8945b2e3b656c86f47e5d8d92a316730123"
+        }
+      ]
+    },
+    {
+      "releaseId": 435337084,
+      "tag": "distribution-archive-sdk-7.0.120-r2",
+      "assetCount": 11,
+      "status": "passed",
+      "metadataProjectionSha256": "2254193968b7b0327763b155ef9a54bfa0832098f2e53a2f7a89d485bcd51b58",
+      "assetInventorySha256": "e7dbc7a6e0c16e13ca9a0ea8d38421c267e890b19102d64f0434aaa277937c6c",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/435337084/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 11,
+          "snapshotSha256": "6671529f5a74c88b36f73e9d685182257fff794aea154c280b92953a329dacaf"
+        }
+      ]
+    },
+    {
+      "releaseId": 435345800,
+      "tag": "distribution-archive-sdk-6.0.136-r2",
+      "assetCount": 11,
+      "status": "passed",
+      "metadataProjectionSha256": "5167b2908499d26fba8d5ee2b8461eb58196004db94dfbbb743537e5a56be3a8",
+      "assetInventorySha256": "841a6f3e9765b897b01aa42799aa22aecd2669456c13c2b516a4e30b1521287b",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/435345800/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 11,
+          "snapshotSha256": "d060d06049f318b2f0389e26870a7af2a1c9dd43a01617c269c13c63b5bdde15"
+        }
+      ]
+    },
+    {
+      "releaseId": 435365053,
+      "tag": "distribution-archive-sdk-5.0.214-r2",
+      "assetCount": 13,
+      "status": "passed",
+      "metadataProjectionSha256": "68d866b5c9c963979270c97e76c3e5c69ad75c838ea25574a70693888427ae76",
+      "assetInventorySha256": "bf157fdfb1b490622b0c87ed9d7f1ed976a52d7f955a158dfe8b73a124ee0fe0",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/435365053/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 13,
+          "snapshotSha256": "30ba2f60138243b487d64c841b82005eacfb74071892febabd8b33a6a183a4d9"
+        }
+      ]
+    },
+    {
+      "releaseId": 435381641,
+      "tag": "distribution-archive-sdk-3.0.103-r2",
+      "assetCount": 15,
+      "status": "passed",
+      "metadataProjectionSha256": "57de80ed136a57688eaa76fb1a96f16b14841cc848c874d4d21f29f2e8f96d9b",
+      "assetInventorySha256": "6e175026c351f6afff1bd6d75417f8495984f1d85697c13db4651437c130fc82",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/435381641/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 15,
+          "snapshotSha256": "3b6f14458609672dda348753a1cf442e8e8ba8a205abeb559eb9d3fc8e72a992"
+        }
+      ]
+    },
+    {
+      "releaseId": 435402979,
+      "tag": "distribution-archive-sdk-10.0.403-r3",
+      "assetCount": 11,
+      "status": "passed",
+      "metadataProjectionSha256": "294f2392b7385a88a6bbac99088aaf38c418d94a39ffea49ebb14ecffc14de3e",
+      "assetInventorySha256": "bde4d28f8f10113d0338ae3a7b5cdd42ccaa566984674146ddaf12e9443e716a",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/435402979/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 11,
+          "snapshotSha256": "d7806f881e1e928add4f4c801722a8350f386a649a27be76322c9c99c7982097"
+        }
+      ]
+    },
+    {
+      "releaseId": 435410355,
+      "tag": "distribution-archive-sdk-8.0.133-r2",
+      "assetCount": 11,
+      "status": "passed",
+      "metadataProjectionSha256": "319307c300197cf7477ce1b129a35b806204fd03efcf46699c1b55e0da477631",
+      "assetInventorySha256": "5396e52aa44e2d32d09837d5a282fbd6f9dd7c240133aa406533031867fc895c",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/435410355/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 11,
+          "snapshotSha256": "a593b71253c13416aaecbdf3fa0d651c14f87c4aab844772686e7e2d9d9c4b93"
+        }
+      ]
+    },
+    {
+      "releaseId": 435424480,
+      "tag": "distribution-archive-sdk-3.1.426-r2",
+      "assetCount": 15,
+      "status": "passed",
+      "metadataProjectionSha256": "5fcdc78476b1425f05be8850de4377b0108a1b44af991ab70e2c9e43c51bf70c",
+      "assetInventorySha256": "152cf382560e5b08075f04fb7abdea1e4870a5e889f0d4dfa27f2d8570a64187",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/435424480/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 15,
+          "snapshotSha256": "7865472d732158345d5f1ae2d64526bbc5a40dd39248dccc0fe1c235e4454572"
+        }
+      ]
+    },
+    {
+      "releaseId": 436296249,
+      "tag": "cbodotnetup-v0.2.0",
+      "assetCount": 8,
+      "status": "passed",
+      "metadataProjectionSha256": "2896524f651e9653810de30813162ae9f3b87366e59799f5452835e20afb398e",
+      "assetInventorySha256": "5c102f8f1ae81797b5bc15725329ba507e458daf6261973ddf39160948da35f9",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/436296249/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 8,
+          "snapshotSha256": "30742e584c24ef31a7825c028e5ff361fe57d0d73cb263522750641dae58c641"
+        }
+      ]
+    },
+    {
+      "releaseId": 436296623,
+      "tag": "cbodotnetup-catalog-42191278788",
+      "assetCount": 14,
+      "status": "passed",
+      "metadataProjectionSha256": "6b342b1d1821b19aaa77bd941511b98880d2b58d8effb61fe92f19b040f4cde2",
+      "assetInventorySha256": "0186d19578ad75d8a8a2ebc5f99ba2de958fdf6839cbae8c01f180e65727a675",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/436296623/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 14,
+          "snapshotSha256": "5807ba89526d60da60c02632579450528248ab7797b919119560e4a97be67f4c"
+        }
+      ]
+    },
+    {
+      "releaseId": 436435321,
+      "tag": "cbodotnetup-catalog-42211569709",
+      "assetCount": 16,
+      "status": "passed",
+      "metadataProjectionSha256": "3cac0032622d92d2c1d818087ab460279689b0dada49f99e09a2122eb28185ac",
+      "assetInventorySha256": "c8ea346cc8fc3c8d50ec79d43594f218629e98fffbc6fc63adf995430975f0d6",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/436435321/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 16,
+          "snapshotSha256": "f2bdcebda61c074a8f9a8fe6df2bc13731eeebf32c6d78579108ec47384ef3fa"
+        }
+      ]
+    },
+    {
+      "releaseId": 436449496,
+      "tag": "cbodotnetup-catalog-42213550406",
+      "assetCount": 16,
+      "status": "passed",
+      "metadataProjectionSha256": "39087606240e4077a08f3bfc6052df512dc65d686d0bb78f00bca2ca7a7a07d5",
+      "assetInventorySha256": "3a812e191057cdf5330c12d7ae715ede6ce7b0a66b67de60d722644b0600fc77",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/436449496/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 16,
+          "snapshotSha256": "b9bb695c17f5bde0fdcafea554153e7850ea75bc079d064d582e351f954d5d50"
+        }
+      ]
+    },
+    {
+      "releaseId": 436526261,
+      "tag": "cbodotnetup-v0.3.0",
+      "assetCount": 8,
+      "status": "passed",
+      "metadataProjectionSha256": "1d323ee74bca4909ad10e8edefe0bb954798152fbec3ea12a1072d3f6db5163d",
+      "assetInventorySha256": "54196f2567ec0e0e998370bb1fcb374715d283ff785bf0cf57641f7de62f55f5",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/436526261/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 8,
+          "snapshotSha256": "f573e28943dd661173abcf4bbf2053a4b6c50d909865d8952357842ad0100343"
+        }
+      ]
+    },
+    {
+      "releaseId": 436526742,
+      "tag": "cbodotnetup-catalog-42222819193",
+      "assetCount": 18,
+      "status": "passed",
+      "metadataProjectionSha256": "4475635eb8fb63f48b5ad45f72754605a45eb4c31d04221ec9d3ca45a98207a6",
+      "assetInventorySha256": "8d1961995caa12776797f41791b02079e1ed3bea1ebe768777752d5cf6ce7a36",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/436526742/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 18,
+          "snapshotSha256": "e9afccad3cc074a947726917003a6520a6eb31c4a7e10c56cc120f517541bd84"
+        }
+      ]
+    },
+    {
+      "releaseId": 436776047,
+      "tag": "cbodotnetup-v0.4.0",
+      "assetCount": 8,
+      "status": "passed",
+      "metadataProjectionSha256": "9ab8c99ffdbf1795e98fab888c680d5ec6764a3ccb773312aa32804ecfd6881a",
+      "assetInventorySha256": "06bab46fb600e9c5d45d69181698af7e7ace297f549b6dddb11e6d50c0fce18c",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/436776047/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 8,
+          "snapshotSha256": "146c8221b879c7b3a341b34ee75f93e32628aeea9fb04311e1e0631324f63e2e"
+        }
+      ]
+    },
+    {
+      "releaseId": 436776531,
+      "tag": "cbodotnetup-catalog-42256817100",
+      "assetCount": 28,
+      "status": "passed",
+      "metadataProjectionSha256": "223e0de521ec5f769521056b8dab71a4b00c50016366a6dd4fb5e387a5713432",
+      "assetInventorySha256": "170bc4b910f87441efa1a1b77ed5a29f9bb8cb96c88b06562ecddeb360c43274",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/436776531/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 28,
+          "snapshotSha256": "cadea2daee6e61b7971d4ed9b8e7ac7ddb21741b9db174aeb29e3b8a29077236"
+        }
+      ]
+    },
+    {
+      "releaseId": 437133162,
+      "tag": "distribution-archive-sdk-3.1.426-r3",
+      "assetCount": 15,
+      "status": "passed",
+      "metadataProjectionSha256": "084d889babec0dadc419bd7ee191d343e3e8db0178a44124a9688c5f47b93368",
+      "assetInventorySha256": "71273a3c80dd9cdece6f8564d8bf2ba1594cbea9f14d3bf41529fbe9043c4e31",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/437133162/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 15,
+          "snapshotSha256": "a5b468012e09775c6a795dee2e3ea7da9e10ef6bd81ea8604a1e172c4e8a7ea9"
+        }
+      ]
+    },
+    {
+      "releaseId": 437139110,
+      "tag": "distribution-archive-sdk-3.0.103-r3",
+      "assetCount": 15,
+      "status": "passed",
+      "metadataProjectionSha256": "9f3bd85576d5fde02094c2c88cf0801ca0254f97a604079fb25ffa8790966dbe",
+      "assetInventorySha256": "32e1b86119adf9561a1e399a82cb99fae70356838a1b2ecf9ab6529c6df765e8",
+      "assetsEndpoint": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/437139110/assets",
+      "assetPages": [
+        {
+          "page": 1,
+          "count": 15,
+          "snapshotSha256": "4ed9a2358e7a8054cfcff55dbf8e423d2a18044ea88b16d705f4fbd1c13e85f8"
+        }
+      ]
+    }
+  ],
+  "violations": [],
+  "limits": [
+    "Asset payloads were not re-downloaded. Actual REST asset IDs, sizes, SHA256 digest metadata, content types and canonical URLs were compared.",
+    "The bounded REST collection is not an atomic server snapshot; every embedded release asset inventory was independently reconciled with its separate complete assets endpoint response.",
+    "The initial Windows checkout contains pre-existing CRLF transformations for some files. Those raw bytes are not falsely described as equal to LF Git blobs; committed bytes, clean-filter tracked content and all nine captured initial raw SHA256 pins are recorded separately.",
+    "This audit does not qualify musl source builds, runtime behavior, signatures or public installation.",
+    "Re-run after musl publication using fresh REST snapshots; only new explicit musl namespace tags may be excluded. Old releases/assets and latest remain protected."
+  ],
+  "oldGlibcOci": {
+    "status": "passed-before-musl-publication",
+    "capturedAtUtc": "2026-11-07T09:11:58.533499+00:00",
+    "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+    "baselineCommit": "97beff72d6b3eba081ce4bbe7446c5dda780b20c",
+    "statusSource": {
+      "path": "releases/downstream-status.json",
+      "sha256": "afd790473ede70ecae1d4da1dd382b3811c6376d9bdc7b1a7be53386a11bd5c0"
+    },
+    "sdkVersions": [
+      "10.0.403",
+      "3.0.103",
+      "3.1.426",
+      "5.0.214",
+      "6.0.136",
+      "7.0.120",
+      "8.0.133",
+      "9.0.123"
+    ],
+    "sdkVersionCount": 8,
+    "canonicalTagCount": 10,
+    "nativePlatformDescriptorCount": 20,
+    "aliasReferencesDiscovered": [],
+    "aliasDiscoveryScope": "All baseline docs/releases JSON and Markdown containing this GHCR repository, plus every SHA-bound GPG-verified OCI index and per-platform descriptor in published status receipts.",
+    "deferredAliases": "Baseline docs/oci-delivery.md explicitly defer mutable latest, 10.0 and unsuffixed SDK aliases; no published such alias references were discovered or guessed.",
+    "sourceDocuments": [
+      {
+        "path": "docs/distribution-contract.md",
+        "sha256": "177b7e631c23c6a09078675bbe426aa79e1f8f1f7a092c53724a5c33f3796c72",
+        "references": [],
+        "tagObjects": []
+      },
+      {
+        "path": "docs/distribution-publication-validation.json",
+        "sha256": "160a6d27e79d95c11194f95f79b02c8495bdbb46b0077fd0b5bf034f83400663",
+        "references": [],
+        "tagObjects": []
+      },
+      {
+        "path": "docs/oci-delivery.md",
+        "sha256": "b8971ce48d248d041e72045261ad316697529531043589432191bf183a49d2b6",
+        "references": [
+          "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:c9335fa52f22ead1ffd8f5f12fa1e3c406df672dcae1cfeda724087655d37873"
+        ],
+        "tagObjects": []
+      },
+      {
+        "path": "docs/oci-publication-validation.json",
+        "sha256": "2c7bc8cf0d4b8a6a3a43f71f900e526a00c46a758b55c1247a972d61e914033e",
+        "references": [],
+        "tagObjects": [
+          {
+            "path": "/index",
+            "tag": "10.0.403-debian13-r2",
+            "digest": "sha256:c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9"
+          }
+        ]
+      },
+      {
+        "path": "releases/distribution-contract.json",
+        "sha256": "52305095c63c38a1a018f2a87ed66f32f96a1c3470ffed2edf2a80935d8d2315",
+        "references": [],
+        "tagObjects": []
+      },
+      {
+        "path": "releases/downstream-status.json",
+        "sha256": "afd790473ede70ecae1d4da1dd382b3811c6376d9bdc7b1a7be53386a11bd5c0",
+        "references": [],
+        "tagObjects": []
+      }
+    ],
+    "criteria": [
+      "Each signed receipt manifest SHA and OpenPGP signer match the baseline committed status.",
+      "Each actual canonical-tag raw manifest SHA256 equals both Docker-Content-Digest response header and the signed index digest.",
+      "The two native child descriptors and exact raw child/config SHA256 metadata match signed per-CPU descriptors; no image filesystem layers are downloaded.",
+      "Any explicit published tag alias discovered in baseline docs/status must retain its before digest."
+    ],
+    "before": {
+      "inventorySha256": "fc05b59f6b92fffaf339674d57f2461a20c6b7b3339e553a8498bf7017f9011d",
+      "records": [
+        {
+          "releaseTag": "distribution-oci-sdk-10.0.403-r1",
+          "sdkVersion": "10.0.403",
+          "packageRevision": 1,
+          "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+          "tag": "10.0.403-debian13-r1",
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:10.0.403-debian13-r1",
+          "digest": "sha256:11939c01e8cf35aa21a56dd1f2365832cc71012d2a3e3142f9be5e3d1aed897d",
+          "rawManifestSha256": "11939c01e8cf35aa21a56dd1f2365832cc71012d2a3e3142f9be5e3d1aed897d",
+          "rawManifestSize": 685,
+          "mediaType": "application/vnd.docker.distribution.manifest.list.v2+json",
+          "signatureFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r1/distribution-manifest.json",
+          "manifestSha256": "f07ca56b3beb303069f9242c62d3128d968832a016b3e247e1f8cee15b211303",
+          "indexDescriptorUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r1/oci-index.json",
+          "indexDescriptorSha256": "abfeb81aefdae0842e8f4d386bc98cbd9909bd3b2c202a81c42e471a3a0abd64",
+          "platforms": [
+            {
+              "architecture": "aarch64",
+              "platform": "linux/arm64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:1d136e4130eaaf6a04fcec5826473425783d7e68ef307288752b08bbef4bfe28",
+              "manifestDigest": "sha256:1d136e4130eaaf6a04fcec5826473425783d7e68ef307288752b08bbef4bfe28",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:fe89c3c32b16069ff759de96f45ab9ec990d7c4aa24912597b9b090310e3d445",
+              "configSize": 3215,
+              "descriptorAsset": "oci-debian-13-aarch64--oci-arm64.json",
+              "descriptorAssetSha256": "1e11f20072b83c790ccccfe0e47296d0cba1fc21141406d5d93766fe6124c358"
+            },
+            {
+              "architecture": "x64",
+              "platform": "linux/amd64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:352f84beddde2e95b811883679993d4b53c62880d73aa8be38d2196993a573c9",
+              "manifestDigest": "sha256:352f84beddde2e95b811883679993d4b53c62880d73aa8be38d2196993a573c9",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:2986e6e034be43eefb4ce96baf5fa7de222b812604a3cc41175dda217bb63df7",
+              "configSize": 3215,
+              "descriptorAsset": "oci-debian-13-x64--oci-amd64.json",
+              "descriptorAssetSha256": "e35d6e9816ce258870a5474641400c400b2dfe93028a205b0eb5c8f8220977fc"
+            }
+          ],
+          "status": "anonymous-registry-metadata-matches-signed-publication"
+        },
+        {
+          "releaseTag": "distribution-oci-sdk-10.0.403-r2",
+          "sdkVersion": "10.0.403",
+          "packageRevision": 2,
+          "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+          "tag": "10.0.403-debian13-r2",
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:10.0.403-debian13-r2",
+          "digest": "sha256:c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9",
+          "rawManifestSha256": "c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9",
+          "rawManifestSize": 685,
+          "mediaType": "application/vnd.docker.distribution.manifest.list.v2+json",
+          "signatureFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/distribution-manifest.json",
+          "manifestSha256": "75282c76b18da5ba3cd9d0262c9c24594a4266a92a2aba50437b8e2c3f7eacb9",
+          "indexDescriptorUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r2/oci-index.json",
+          "indexDescriptorSha256": "6b71c6f5d41682b026aa8c874bbe94a304ed7a9cf3dc047849614cc9de7091bb",
+          "platforms": [
+            {
+              "architecture": "aarch64",
+              "platform": "linux/arm64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:45139a41544c105840147a5d2b5750fe7ed9df7f5be5cfb93c369529962b537d",
+              "manifestDigest": "sha256:45139a41544c105840147a5d2b5750fe7ed9df7f5be5cfb93c369529962b537d",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:cee5ff3081bd3898b194e893192928a3664bad516d33c551bcb90d1ed535c299",
+              "configSize": 4542,
+              "descriptorAsset": "oci-debian-13-aarch64--oci-arm64.json",
+              "descriptorAssetSha256": "3ea7f2c79697e14449b71c585f532d97e0defe98339dc92f291b7a765c7b0837"
+            },
+            {
+              "architecture": "x64",
+              "platform": "linux/amd64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:ac2d3b3d13ef5b935a6e0eca7e120e72367954ad8c3f3c4c51c13cd615c9ce2d",
+              "manifestDigest": "sha256:ac2d3b3d13ef5b935a6e0eca7e120e72367954ad8c3f3c4c51c13cd615c9ce2d",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:c8066c25e91ef18091de03beaa78b220aa5557bcda772dd83d075fbfb094ddad",
+              "configSize": 4530,
+              "descriptorAsset": "oci-debian-13-x64--oci-amd64.json",
+              "descriptorAssetSha256": "f1ae0d69156e136c0b291192203414385e5009ac929a9bbfea205786e3b4f049"
+            }
+          ],
+          "status": "anonymous-registry-metadata-matches-signed-publication"
+        },
+        {
+          "releaseTag": "distribution-oci-sdk-10.0.403-r3",
+          "sdkVersion": "10.0.403",
+          "packageRevision": 3,
+          "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+          "tag": "10.0.403-debian13-r3",
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:10.0.403-debian13-r3",
+          "digest": "sha256:c9335fa52f22ead1ffd8f5f12fa1e3c406df672dcae1cfeda724087655d37873",
+          "rawManifestSha256": "c9335fa52f22ead1ffd8f5f12fa1e3c406df672dcae1cfeda724087655d37873",
+          "rawManifestSize": 685,
+          "mediaType": "application/vnd.docker.distribution.manifest.list.v2+json",
+          "signatureFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r3/distribution-manifest.json",
+          "manifestSha256": "c45c1b840f0bfe111d661f075a1ddac0cac652fdaf53cae3bd268a184a15fcaa",
+          "indexDescriptorUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-10.0.403-r3/oci-index.json",
+          "indexDescriptorSha256": "a825c1c681092b410d05c209d44d9f41757b2fe347d3b411f0bbf0e3cf3d06f2",
+          "platforms": [
+            {
+              "architecture": "aarch64",
+              "platform": "linux/arm64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:89f176a26c4dfc0c5cb0c26f6b2807d5258959ce54009829652ff1edb7c4514b",
+              "manifestDigest": "sha256:89f176a26c4dfc0c5cb0c26f6b2807d5258959ce54009829652ff1edb7c4514b",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:96d79849afa9e654c20e7c0d4baeba762f0794af672e48ba09579f6f3a27b946",
+              "configSize": 4542,
+              "descriptorAsset": "oci-debian-13-aarch64--oci-arm64.json",
+              "descriptorAssetSha256": "08d125bcf7a1a0aa1cb0505eefcb5f65d5a037c7a98576bcf7d2287b05108528"
+            },
+            {
+              "architecture": "x64",
+              "platform": "linux/amd64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:f258c9a640e684d3cd27ad91836c24055b519bce699b3d9c7ba23bddd07b3646",
+              "manifestDigest": "sha256:f258c9a640e684d3cd27ad91836c24055b519bce699b3d9c7ba23bddd07b3646",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:c36d653b0d95f2d937aaf020390ce43d9e9dfe475a404003f94387d90aae2825",
+              "configSize": 4530,
+              "descriptorAsset": "oci-debian-13-x64--oci-amd64.json",
+              "descriptorAssetSha256": "cc6f003007ec934ac7be6c7dcc7742ca00a8ee185a2a1311d3f9bddade063e95"
+            }
+          ],
+          "status": "anonymous-registry-metadata-matches-signed-publication"
+        },
+        {
+          "releaseTag": "distribution-oci-sdk-3.0.103-r1",
+          "sdkVersion": "3.0.103",
+          "packageRevision": 1,
+          "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+          "tag": "3.0.103-debian13-r1",
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:3.0.103-debian13-r1",
+          "digest": "sha256:92cd3873b0c065ceca0198d7fe86b42bb92e25ec6cf1027d6e988fd27694f31e",
+          "rawManifestSha256": "92cd3873b0c065ceca0198d7fe86b42bb92e25ec6cf1027d6e988fd27694f31e",
+          "rawManifestSize": 685,
+          "mediaType": "application/vnd.docker.distribution.manifest.list.v2+json",
+          "signatureFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-3.0.103-r1/distribution-manifest.json",
+          "manifestSha256": "a041a7119fe8f3615142bc7de59d9981b0713c3f1581c8cc04f2678b05357d7d",
+          "indexDescriptorUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-3.0.103-r1/oci-index.json",
+          "indexDescriptorSha256": "382478e34d27c7aaa6c9d0e749a27b1bed23a98383391f5f70dc3f6ffe782689",
+          "platforms": [
+            {
+              "architecture": "aarch64",
+              "platform": "linux/arm64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:e810695ca5bcc4903b02921860c403e008c9d2c22435814dffeea2d94f754cbb",
+              "manifestDigest": "sha256:e810695ca5bcc4903b02921860c403e008c9d2c22435814dffeea2d94f754cbb",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:7b0ce71397c4f7a6c86f943dbfe1d11618b2c1f34d1b173e4d2e62dd3cb613d4",
+              "configSize": 4654,
+              "descriptorAsset": "oci-debian-13-aarch64--oci-arm64.json",
+              "descriptorAssetSha256": "40dc3b5b98b4079239f217b14afdee4f9d9ebcbcaaf334438f153cd6c487a298"
+            },
+            {
+              "architecture": "x64",
+              "platform": "linux/amd64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:242f530dd59ee91e98ef5b2883831ee107e46024f57dffac6559ee4d75bf7a85",
+              "manifestDigest": "sha256:242f530dd59ee91e98ef5b2883831ee107e46024f57dffac6559ee4d75bf7a85",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:5ad848fe6ca79efa35bb560fcaca51fddcfaaf920c9c2473f60f9ae5367ddd1b",
+              "configSize": 4646,
+              "descriptorAsset": "oci-debian-13-x64--oci-amd64.json",
+              "descriptorAssetSha256": "90d7b2b04cea9741fd3fd289d89da0563dfa1a2ed9ae4795dc0a8b5b535cd537"
+            }
+          ],
+          "status": "anonymous-registry-metadata-matches-signed-publication"
+        },
+        {
+          "releaseTag": "distribution-oci-sdk-3.1.426-r1",
+          "sdkVersion": "3.1.426",
+          "packageRevision": 1,
+          "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+          "tag": "3.1.426-debian13-r1",
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:3.1.426-debian13-r1",
+          "digest": "sha256:b7abc03527fbc8943d395f40585f24fd92c74a321335a4d374a5282873043955",
+          "rawManifestSha256": "b7abc03527fbc8943d395f40585f24fd92c74a321335a4d374a5282873043955",
+          "rawManifestSize": 685,
+          "mediaType": "application/vnd.docker.distribution.manifest.list.v2+json",
+          "signatureFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-3.1.426-r1/distribution-manifest.json",
+          "manifestSha256": "ed299a848c8230b091fd3f58a6696d09d63ed20cbbf5befa1df6eff45da33257",
+          "indexDescriptorUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-3.1.426-r1/oci-index.json",
+          "indexDescriptorSha256": "0261f7e6c40b7ba605a8a49c5133975381b2dac5ba9d392c470fe5697e5e2ea3",
+          "platforms": [
+            {
+              "architecture": "aarch64",
+              "platform": "linux/arm64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:f5c0f20f02ecc621a096b0f26f053ade95db0b016d8567468160142f76d07f9f",
+              "manifestDigest": "sha256:f5c0f20f02ecc621a096b0f26f053ade95db0b016d8567468160142f76d07f9f",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:fb81efaa85f1e6c80288ed9fad4d3840d2799d7a8e00ff0fc7407641d1223617",
+              "configSize": 4662,
+              "descriptorAsset": "oci-debian-13-aarch64--oci-arm64.json",
+              "descriptorAssetSha256": "b8bab4d497a6a36502d02eeff2eedd69b8c295da8e6c821863d639a9b02130f7"
+            },
+            {
+              "architecture": "x64",
+              "platform": "linux/amd64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:b4e188a69411a8689c209df3b1481bab906b87c577fd5b1564bf6d1a8adee437",
+              "manifestDigest": "sha256:b4e188a69411a8689c209df3b1481bab906b87c577fd5b1564bf6d1a8adee437",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:2c2b699793a27d81b46ae840ac6b5c1d01816205b3b7e1c483fa02bf2903a1ed",
+              "configSize": 4648,
+              "descriptorAsset": "oci-debian-13-x64--oci-amd64.json",
+              "descriptorAssetSha256": "dac3b508c804be253c8df704ae55935488ac7deca2df86bc288f4e69c07293ca"
+            }
+          ],
+          "status": "anonymous-registry-metadata-matches-signed-publication"
+        },
+        {
+          "releaseTag": "distribution-oci-sdk-5.0.214-r1",
+          "sdkVersion": "5.0.214",
+          "packageRevision": 1,
+          "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+          "tag": "5.0.214-debian13-r1",
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:5.0.214-debian13-r1",
+          "digest": "sha256:8206e47cbbaa077afc5450a0965571aa884921a22025f2e1d30199399ab0980e",
+          "rawManifestSha256": "8206e47cbbaa077afc5450a0965571aa884921a22025f2e1d30199399ab0980e",
+          "rawManifestSize": 685,
+          "mediaType": "application/vnd.docker.distribution.manifest.list.v2+json",
+          "signatureFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-5.0.214-r1/distribution-manifest.json",
+          "manifestSha256": "c39146aa107554ebd876bf6d9658b9e910e1af4fb9f8afa354371f1b96e46918",
+          "indexDescriptorUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-5.0.214-r1/oci-index.json",
+          "indexDescriptorSha256": "b45928a3945a3f63eb17d9f15aa0914a2a0d2aec136159c0655fa49a8ff878c9",
+          "platforms": [
+            {
+              "architecture": "aarch64",
+              "platform": "linux/arm64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:b8e6cfac085c3571ee004c33e3835dd5dfbcd8cd29761219c75be9c80852ec3c",
+              "manifestDigest": "sha256:b8e6cfac085c3571ee004c33e3835dd5dfbcd8cd29761219c75be9c80852ec3c",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:948ab51f5d93b8b24b88278db7ffe8aecb7c63742b49cfc6b7c2248feed66692",
+              "configSize": 4528,
+              "descriptorAsset": "oci-debian-13-aarch64--oci-arm64.json",
+              "descriptorAssetSha256": "a3b3a0615512dbe6f482550483bfc2f5bda6b4e3dfcef2a2c3e5c695fd061b8b"
+            },
+            {
+              "architecture": "x64",
+              "platform": "linux/amd64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:5ecd2a226ce4af1960e491dc6298a482c8dc40945d1f094b7e9f7dbb8d739caf",
+              "manifestDigest": "sha256:5ecd2a226ce4af1960e491dc6298a482c8dc40945d1f094b7e9f7dbb8d739caf",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:6907f1f98b5be7d3ce8d222334fc4500e763340b3705acf0cf0ae07581497046",
+              "configSize": 4513,
+              "descriptorAsset": "oci-debian-13-x64--oci-amd64.json",
+              "descriptorAssetSha256": "e0490952025aaec29ee6ca74761b222a6609d45da34e79efda789e28e536f60f"
+            }
+          ],
+          "status": "anonymous-registry-metadata-matches-signed-publication"
+        },
+        {
+          "releaseTag": "distribution-oci-sdk-6.0.136-r1",
+          "sdkVersion": "6.0.136",
+          "packageRevision": 1,
+          "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+          "tag": "6.0.136-debian13-r1",
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:6.0.136-debian13-r1",
+          "digest": "sha256:ff06071ac6438da8ae7e5506771f117ac15082b596da8a67a4bc0c785bd50b38",
+          "rawManifestSha256": "ff06071ac6438da8ae7e5506771f117ac15082b596da8a67a4bc0c785bd50b38",
+          "rawManifestSize": 685,
+          "mediaType": "application/vnd.docker.distribution.manifest.list.v2+json",
+          "signatureFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/distribution-manifest.json",
+          "manifestSha256": "393569dcf48659b0b104fbd9ebca9d7f5cb6554a3fc2a1495740ce4672df5398",
+          "indexDescriptorUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-6.0.136-r1/oci-index.json",
+          "indexDescriptorSha256": "12006c43c97322d3ea67d89ad22e568a8c0d57c6ed372c6be0f1d45a7f0d8e0b",
+          "platforms": [
+            {
+              "architecture": "aarch64",
+              "platform": "linux/arm64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:e602dcd88c0b5808eaf8bc9fc25ce2c8688bbaf8778122ac72f010423066b000",
+              "manifestDigest": "sha256:e602dcd88c0b5808eaf8bc9fc25ce2c8688bbaf8778122ac72f010423066b000",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:78f93f2d2207cef4d3ffc7aa79743f13cbd82ad1040f3f1fb813b27594484188",
+              "configSize": 4528,
+              "descriptorAsset": "oci-debian-13-aarch64--oci-arm64.json",
+              "descriptorAssetSha256": "f6dd5f0223914bec90775e2d17238e1eb8033c67e544bedf37dcd9bdcefe4440"
+            },
+            {
+              "architecture": "x64",
+              "platform": "linux/amd64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:dbbb72846130a51b648c05a648549d323dfb6583ff779e62b0b30049caad9006",
+              "manifestDigest": "sha256:dbbb72846130a51b648c05a648549d323dfb6583ff779e62b0b30049caad9006",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:b7a9368071f34149246908531bac3a49c8b9c417d0517beeeee04efc14643e6e",
+              "configSize": 4514,
+              "descriptorAsset": "oci-debian-13-x64--oci-amd64.json",
+              "descriptorAssetSha256": "3c300fbec8b6fcece50bea56327c7f2fddaf1896162a551948a43def4c1b0419"
+            }
+          ],
+          "status": "anonymous-registry-metadata-matches-signed-publication"
+        },
+        {
+          "releaseTag": "distribution-oci-sdk-7.0.120-r1",
+          "sdkVersion": "7.0.120",
+          "packageRevision": 1,
+          "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+          "tag": "7.0.120-debian13-r1",
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:7.0.120-debian13-r1",
+          "digest": "sha256:24f0a58282eeb0b88ae6891216850d4d6dcf5893fed71dd6355ee7bbfbabb113",
+          "rawManifestSha256": "24f0a58282eeb0b88ae6891216850d4d6dcf5893fed71dd6355ee7bbfbabb113",
+          "rawManifestSize": 685,
+          "mediaType": "application/vnd.docker.distribution.manifest.list.v2+json",
+          "signatureFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-7.0.120-r1/distribution-manifest.json",
+          "manifestSha256": "640ccb3f2c1006ff7f6b6c8c2ec693f24618dad17e0c3f3ece3c0fd366914722",
+          "indexDescriptorUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-7.0.120-r1/oci-index.json",
+          "indexDescriptorSha256": "1762a524b18bf5081ca84c2116cb0845dfe35d9a8c42a939ddd943437a407ff1",
+          "platforms": [
+            {
+              "architecture": "aarch64",
+              "platform": "linux/arm64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:c23c6da3c07085cbae7b555fb5ac8f40df29bed71795b00ba37f2916da1b0b08",
+              "manifestDigest": "sha256:c23c6da3c07085cbae7b555fb5ac8f40df29bed71795b00ba37f2916da1b0b08",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:758b7d1e35920747e9e79d555cfdcdc8433f8c0d4c6ebd7afe8c69701b9c1276",
+              "configSize": 4525,
+              "descriptorAsset": "oci-debian-13-aarch64--oci-arm64.json",
+              "descriptorAssetSha256": "3d87bab374a15c272b7d4d05c6826fafb396172e0450add85cd1497383b048a0"
+            },
+            {
+              "architecture": "x64",
+              "platform": "linux/amd64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:f626867587d96c6890e96673abb9c12d2db90e18a6cc4d9573171c61b6915290",
+              "manifestDigest": "sha256:f626867587d96c6890e96673abb9c12d2db90e18a6cc4d9573171c61b6915290",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:b4bc61753219ef72854ffcc7ca9272251298a292e662aee2e8ab484e056dea3b",
+              "configSize": 4516,
+              "descriptorAsset": "oci-debian-13-x64--oci-amd64.json",
+              "descriptorAssetSha256": "3b947dca6008315d25f2db8ac0a7dad35866b42f06bbd3eb31f741969d2d37e7"
+            }
+          ],
+          "status": "anonymous-registry-metadata-matches-signed-publication"
+        },
+        {
+          "releaseTag": "distribution-oci-sdk-8.0.133-r1",
+          "sdkVersion": "8.0.133",
+          "packageRevision": 1,
+          "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+          "tag": "8.0.133-debian13-r1",
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:8.0.133-debian13-r1",
+          "digest": "sha256:07c6e4a5072f3a3839065d43dc39bdbfb5e92b47895225be9851d7ef4274f742",
+          "rawManifestSha256": "07c6e4a5072f3a3839065d43dc39bdbfb5e92b47895225be9851d7ef4274f742",
+          "rawManifestSize": 685,
+          "mediaType": "application/vnd.docker.distribution.manifest.list.v2+json",
+          "signatureFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-8.0.133-r1/distribution-manifest.json",
+          "manifestSha256": "dbc6a334633f30b45b7c7029655d15704d9880c96e6594530082f61415dc628f",
+          "indexDescriptorUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-8.0.133-r1/oci-index.json",
+          "indexDescriptorSha256": "6cbb63c4dbe7d9297a8c7f7b6e55f11e84b275711fbbd84e1a89b2ac91c60e6c",
+          "platforms": [
+            {
+              "architecture": "aarch64",
+              "platform": "linux/arm64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:9257f389c1ad38bc8476802e1e61744b256fc3bc27eb82d7f479393d317802ab",
+              "manifestDigest": "sha256:9257f389c1ad38bc8476802e1e61744b256fc3bc27eb82d7f479393d317802ab",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:a05de96b0b4cc9732cd3d3478d4692cef810094c9f563713eb35602af0eeb378",
+              "configSize": 4524,
+              "descriptorAsset": "oci-debian-13-aarch64--oci-arm64.json",
+              "descriptorAssetSha256": "3569a737f334eeacebf62095b9b24077beb2f985c147695162c0c60ec6409e86"
+            },
+            {
+              "architecture": "x64",
+              "platform": "linux/amd64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:e9f7126fba15f50e3639602c4f395d39db9c7f8e12dd96bb06fa3f37229ce59a",
+              "manifestDigest": "sha256:e9f7126fba15f50e3639602c4f395d39db9c7f8e12dd96bb06fa3f37229ce59a",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:3e6e5a1b084306eea72a34aad4d3808eb3e7ef43685b50385c9cfadc379031ef",
+              "configSize": 4516,
+              "descriptorAsset": "oci-debian-13-x64--oci-amd64.json",
+              "descriptorAssetSha256": "52e2092a100e61f7862633b2d11c74412c0990b5a9ed6b82af31e3ea82a26232"
+            }
+          ],
+          "status": "anonymous-registry-metadata-matches-signed-publication"
+        },
+        {
+          "releaseTag": "distribution-oci-sdk-9.0.123-r1",
+          "sdkVersion": "9.0.123",
+          "packageRevision": 1,
+          "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+          "tag": "9.0.123-debian13-r1",
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:9.0.123-debian13-r1",
+          "digest": "sha256:5f00d60bdc025c58c1f093169451a76ac0a63b203346a364277482029af4baf5",
+          "rawManifestSha256": "5f00d60bdc025c58c1f093169451a76ac0a63b203346a364277482029af4baf5",
+          "rawManifestSize": 685,
+          "mediaType": "application/vnd.docker.distribution.manifest.list.v2+json",
+          "signatureFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+          "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-9.0.123-r1/distribution-manifest.json",
+          "manifestSha256": "0e18f6dbf5d2b929c005aca286d561c9f9806933628546b3e9953a0ba8b78333",
+          "indexDescriptorUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-oci-sdk-9.0.123-r1/oci-index.json",
+          "indexDescriptorSha256": "d10719661b3aa84869bf71cd2a9016d066cc4ba79c5e35c3decbdd1b5749a6d9",
+          "platforms": [
+            {
+              "architecture": "aarch64",
+              "platform": "linux/arm64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:d35241387b31e3b0be0fc797b569d2b1a2ffb4a96cd656eb94d867165d33bbb9",
+              "manifestDigest": "sha256:d35241387b31e3b0be0fc797b569d2b1a2ffb4a96cd656eb94d867165d33bbb9",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:630546de7f05c8824061345192750ac6077241588717cac9d331904648030f70",
+              "configSize": 4526,
+              "descriptorAsset": "oci-debian-13-aarch64--oci-arm64.json",
+              "descriptorAssetSha256": "c528dd0c4fe9838210d49c0bca61f391f17571d4c437b0ff6bdd43929e02f3d8"
+            },
+            {
+              "architecture": "x64",
+              "platform": "linux/amd64",
+              "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk@sha256:4b0f39ab6817a046be2c2119d6dd6960b2ef58c2d302a4670cb8f96bad171a80",
+              "manifestDigest": "sha256:4b0f39ab6817a046be2c2119d6dd6960b2ef58c2d302a4670cb8f96bad171a80",
+              "manifestSize": 1160,
+              "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+              "configDigest": "sha256:fe0e72423b761b7a16b3738756c580dacc10f816e629abaa12f090618921c21f",
+              "configSize": 4516,
+              "descriptorAsset": "oci-debian-13-x64--oci-amd64.json",
+              "descriptorAssetSha256": "db2c27a1763c418099eac75527df52e25cdbd216615d06ca3e934ab0e4badbda"
+            }
+          ],
+          "status": "anonymous-registry-metadata-matches-signed-publication"
+        }
+      ]
+    },
+    "afterMuslPublication": {
+      "status": "pending-new-musl-publication",
+      "required": true,
+      "criteria": "Re-read all before canonical tags, aliases and child/config digests anonymously after new musl publication; require exact same old raw digest/size and signed descriptor bindings."
+    },
+    "transport": {
+      "anonymous": true,
+      "registryMethods": [
+        "GET"
+      ],
+      "githubMethods": [
+        "GET"
+      ],
+      "imageOrLayerDownloads": 0,
+      "registryWrites": 0,
+      "notes": "Only bounded JSON registry manifests/configs and small signed release metadata were fetched. No Docker image pull/run/build or authenticated registry login was used."
+    }
+  }
+}
