@@ -59,6 +59,7 @@ jobs:
         run: |
           set -euo pipefail
           read -r MAIN_SHA COMMUNITY_SHA < <(python3 -c 'import json,os; p=json.load(open("profiles/dotnet-10.0.403-linux-musl-"+os.environ["ARCH"]+".json")); print(p["apkIndexes"]["main"]["sha256"],p["apkIndexes"]["community"]["sha256"])')
+          export MAIN_SHA COMMUNITY_SHA
           docker run --rm --volume "$PWD:/repo:ro" --env ARCH --env MAIN_SHA --env COMMUNITY_SHA "$IMAGE" sh -ec '
             mkdir /tmp/frozen-cache
             apk --cache-dir /tmp/frozen-cache update
