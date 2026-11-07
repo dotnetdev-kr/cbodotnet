@@ -400,9 +400,14 @@ class CatalogTests(unittest.TestCase):
             empty_status = {"schemaVersion": 1, "repository": REPOSITORY, "status": "fixture",
                             "channels": {name: {"status": "not-published", "publications": []}
                                          for name in ("deb", "oci", "rpm", "aur")}}
+            empty_musl_status = {"schemaVersion": 1, "kind": "musl-distribution-availability",
+                                 "repository": REPOSITORY, "libc": "musl", "status": "not-published",
+                                 "publications": [], "installerAdmission": "separate-issue-30"}
             with mock.patch("distribution_site.prepare_site", return_value=empty_status), \
                  mock.patch("consumer_archive_site.archive_rows", return_value=[]), \
-                 mock.patch("cbodotnetup_site.prepare", return_value=""):
+                 mock.patch("cbodotnetup_site.prepare", return_value=""), \
+                 mock.patch("musl_site.load_status", return_value=empty_musl_status), \
+                 mock.patch("musl_site.get_bytes", side_effect=AssertionError("Unexpected musl metadata fetch")):
                 CATALOG.write_site(catalog, template, output)
             self.assertEqual(image, (output / "assets/social-card.jpg").read_bytes())
             self.assertEqual(catalog, json.loads((output / "releases.json").read_text(encoding="utf-8")))
@@ -410,6 +415,10 @@ class CatalogTests(unittest.TestCase):
             self.assertEqual({"deb", "oci", "rpm", "aur"}, set(availability["channels"]))
             self.assertTrue(all(row["publications"] == [] for row in availability["channels"].values()))
             self.assertNotIn("evidenceSigners", availability)
+            musl_availability = json.loads((output / "musl-status.json").read_text(encoding="utf-8"))
+            self.assertEqual("musl-download-catalog", musl_availability["kind"])
+            self.assertEqual("not-published", musl_availability["status"])
+            self.assertEqual([], musl_availability["publications"])
             self.assertTrue((output / ".nojekyll").is_file())
             document = (output / "index.html").read_text(encoding="utf-8")
             self.assertIn('property="og:image" content="https://dotnetdev.kr/cbodotnet/assets/social-card.jpg"', document)
