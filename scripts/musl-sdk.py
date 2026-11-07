@@ -386,7 +386,24 @@ class Producer:
                 'CLR_CC=/usr/bin/clang-20', 'CLR_CXX=/usr/bin/clang++-20'] + args
 
     def build(self):
-        self.container(self.build_command(), log=self.reports / 'build/build.log')
+        if not self.diagnostic_ptrace:
+            self.container(self.build_command(), log=self.reports / 'build/build.log')
+            return
+        # Exercise both observed crash contexts without compiling the full SDK.
+        # Keep the original traversal graph, task host, concurrency and allowlist.
+        self.container(self.build_command() + ['/p:Build=false', '/p:Publish=false'],
+                       log=self.reports / 'build/diagnostic-restore.log')
+        self.container(self.build_command() + ['--projects', '/vmr/eng/init-detect-binaries.proj',
+            '/p:Publish=false', '/p:BinariesReportDir=/delivery/reports/build/diagnostic-binaries'],
+            log=self.reports / 'build/build.log')
+        report = self.reports / 'build/diagnostic-binaries/NewBinaries.txt'
+        require(report.is_file() and not report.read_bytes(),
+                'Diagnostic original upstream scan must report zero new binaries')
+        write(self.reports / 'build/diagnostic-controls.json', dict(schemaVersion=1,
+            status='diagnostic-only', productionQualification=False, fullGraphRestore='passed',
+            originalTaskHostScan='passed', zeroNewBinaries=True,
+            report=dict(path='reports/build/diagnostic-binaries/NewBinaries.txt', **fingerprint(report)),
+            fullSdkCompilation=False, sourceAppArmorPolicy='unconfined'))
 
     def scan(self):
         self.clean = self.workspace / 'clean-source'
@@ -575,7 +592,7 @@ class Producer:
                         runId=self.args.run_id, runAttempt=self.args.run_attempt,
                         plannedStages=['prepare', 'build'], stages=[load_json(self.reports / 'stages' / (name + '.json'))
                             for name in ['prepare', 'build'] if (self.reports / 'stages' / (name + '.json')).is_file()],
-                        scope='Source-only crash diagnosis with SYS_PTRACE and AppArmor unconfined. No scan/test/collect/consumer qualification or admission.'))
+                        scope='Source-only full-graph restore and original TaskHost scan control with SYS_PTRACE and AppArmor unconfined. No full SDK compilation/test/collect/consumer qualification or admission.'))
         if self.diagnostic_ptrace:
             return
         self.seal()

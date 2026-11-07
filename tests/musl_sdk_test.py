@@ -91,7 +91,7 @@ class DeliveryAdmissionTests(unittest.TestCase):
 class DiagnosticPtraceTests(unittest.TestCase):
     def producer(self, root, diagnostic=True):
         producer = object.__new__(M.Producer)
-        producer.args = SimpleNamespace(arch='aarch64',run_id='123',run_attempt='1',host_reports=None)
+        producer.args = SimpleNamespace(arch='aarch64',run_id='123',run_attempt='1',host_reports=None,build_id='20261107.8')
         producer.id = M.identity('aarch64')
         producer.project = 'a'*40
         producer.diagnostic_ptrace = diagnostic
@@ -164,6 +164,37 @@ class DiagnosticPtraceTests(unittest.TestCase):
                 setattr(producer,name,lambda name=name:order.append(name))
             producer.execute()
             self.assertEqual(['prepare','build','scan','test','collect','verify','seal'],order)
+
+    def test_diagnostic_build_exercises_restore_and_original_scan_without_full_sdk_compilation(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            producer = self.producer(Path(temporary))
+            calls = []
+            def container(command, **options):
+                calls.append((command, options))
+                if '--projects' in command:
+                    target = producer.reports/'build/diagnostic-binaries/NewBinaries.txt'
+                    target.parent.mkdir(parents=True)
+                    target.write_bytes(b'')
+            producer.container = container
+            M.Producer.build(producer)
+            self.assertEqual(2,len(calls))
+            restore,scan = [command for command,options in calls]
+            self.assertEqual(producer.build_command()+['/p:Build=false','/p:Publish=false'],restore)
+            self.assertIn('--projects',scan)
+            self.assertIn('/vmr/eng/init-detect-binaries.proj',scan)
+            self.assertIn('/p:Publish=false',scan)
+            self.assertNotIn('/p:Build=false',scan)
+            for command in (restore,scan):
+                self.assertIn('/m:2',command)
+                self.assertFalse(any('SkipBinaryScan' in value or 'nodeReuse' in value for value in command))
+            result = M.load_json(producer.reports/'build/diagnostic-controls.json')
+            self.assertTrue(result['zeroNewBinaries'])
+            self.assertFalse(result['fullSdkCompilation'])
+            self.assertFalse(result['productionQualification'])
+            producer = self.producer(Path(temporary)/'normal',diagnostic=False)
+            producer.container = mock.Mock()
+            M.Producer.build(producer)
+            producer.container.assert_called_once_with(producer.build_command(),log=producer.reports/'build/build.log')
 
 
 class ActualElfBindingTests(unittest.TestCase):
