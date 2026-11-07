@@ -13,7 +13,7 @@ import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from musl_release import (ROOT, extract_artifact, extract_delivery, validate_artifact,
-    validate_run, validate_source_stage, validate_apk_signer, validate_publication_metadata)
+    validate_run, validate_source_stage, validate_apk_signer, validate_publication_metadata, verify_release_tag)
 from musl_contract_test import fixture
 import musl_archive
 import musl_contract
@@ -91,6 +91,19 @@ class MuslOriginTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'exact PEM'):
                 validate_apk_signer(altered)
 
+    def test_real_lightweight_and_annotated_release_tags_bind_the_commit(self):
+        tag='musl-sdk-10.0.403-r1'; target='a'*40; annotation='b'*40
+        api=mock.Mock()
+        api.api.return_value=dict(ref='refs/tags/'+tag,object=dict(type='commit',sha=target))
+        self.assertEqual(verify_release_tag(api,tag,target),target)
+        api.api.return_value=dict(ref='refs/tags/'+tag,object=dict(type='commit',sha='c'*40))
+        with self.assertRaisesRegex(ValueError,'another commit'): verify_release_tag(api,tag,target)
+        api.api.side_effect=[dict(ref='refs/tags/'+tag,object=dict(type='tag',sha=annotation)),
+            dict(sha=annotation,object=dict(type='commit',sha=target))]
+        self.assertEqual(verify_release_tag(api,tag,target),target)
+        api.api.side_effect=None; api.api.return_value=None
+        self.assertIsNone(verify_release_tag(api,tag,target,allow_pending_draft=True))
+
 
 class PublicEvidenceTest(unittest.TestCase):
     def setUp(self):
@@ -108,13 +121,15 @@ class PublicEvidenceTest(unittest.TestCase):
             self.manifest['assets'].extend([artifact,pre_report])
             plan = dict(identity,targetRid=target['rid'],producer=self.catalog['builds'][0]['architectures'][arch])
             self.manifest['records'].append(dict(architecture=arch,targetRid=target['rid'],artifactAsset=artifact['name'],
-                qualificationReportAsset=pre_report['name'],build=dict(plan=plan)))
+                qualificationReportAsset=pre_report['name'],build=dict(plan=plan,artifact=artifact)))
             report_identity = {key:value for key,value in identity.items() if key!='channel'}
             report = dict(status='passed',native=True,architecture=arch,targetRid=target['rid'],libc='musl',
-                identity=dict(report_identity,targetRid=target['rid']),networkForBuild='none',
+                identity=dict(report_identity,targetRid=target['rid']),networkForBuild='none',artifact=artifact,
                 checks=dict.fromkeys(musl_archive.REPORT_CHECKS,'passed'),
                 functionalChecks=dict.fromkeys(musl_archive.FUNCTIONAL_CHECKS,'passed'),
-                publicVerification=dict(status='passed',anonymous=True,artifactSha256=artifact['sha256']),
+                publicVerification=dict(status='passed',anonymous=True,artifactSha256=artifact['sha256'],
+                    manifestSha256='d'*64,manifestUrl=base+'distribution-manifest.json',
+                    signingFingerprint=self.manifest['signingFingerprint'],url=base+artifact['name']),
                 userSpaces=[dict(variant='alpine-3.24',alpineVersion='3.24.4',uid=10001,gid=10001,
                     elfAudit=dict(status='passed',native=True,libc='musl',architecture=arch,targetRid=target['rid'],
                         hostElfCount=1,stockLibraries=[dict(name='musl')]),systemTrustHttps=dict(status='passed'))])
@@ -124,6 +139,7 @@ class PublicEvidenceTest(unittest.TestCase):
             tag=tag,releaseUrl=f'https://github.com/{musl_contract.REPOSITORY}/releases/tag/{tag}',
             manifestUrl=base+'distribution-manifest.json',signatureUrl=base+'distribution-manifest.json.asc',
             signingFingerprint=self.manifest['signingFingerprint'],
+            manifestSha256='d'*64,
             assets=[dict(row,url=base+row['name']) for row in self.manifest['assets']],postVerification=dict(reports=public))
         self.verification = dict(schemaVersion=1,kind='musl-public-verification',repository=musl_contract.REPOSITORY,
             entries=[copy.deepcopy(self.receipt)])

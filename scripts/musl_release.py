@@ -10,13 +10,14 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import time
 import zipfile
 
 from downstream_release import descriptor, encoded, ordinary_file, verify_report_signature
 from downstream_publish import GitHubReleases, verify_remote_assets
 from musl_contract import (ARCHITECTURES, REPOSITORY, SOURCE, KINDS, require,
     producer_asset_name, producer_tag, validate_producer_manifest, validate_producer_release,
-    load_qualification_catalog, distribution_tag)
+    load_qualification_catalog, distribution_tag, oci_tag)
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = '.github/workflows/musl-release.yml'
@@ -128,6 +129,38 @@ def validate_apk_signer(public_key, private_key=None, *, now=None):
     return policy
 
 
+def verify_release_tag(api, tag, expected_commit, *, allow_pending_draft=False):
+    """Resolve the real tag ref, including annotated tags, to its exact commit."""
+    require(isinstance(tag,str) and re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._+-]{0,220}',tag)
+            and isinstance(expected_commit,str) and re.fullmatch(r'[a-f0-9]{40}',expected_commit),
+            'An exact safe release tag and full expected commit are required')
+    ref = None
+    for attempt in range(4):
+        ref = api.api(f'repos/{REPOSITORY}/git/ref/tags/{tag}')
+        if ref is not None or allow_pending_draft:
+            break
+        if attempt < 3:
+            time.sleep(2**attempt)
+    if ref is None and allow_pending_draft:
+        return None
+    require(isinstance(ref,dict) and ref.get('ref')=='refs/tags/'+tag, 'Published musl tag ref is absent or redirected')
+    target = ref.get('object',{}); seen = set()
+    for _ in range(5):
+        sha = target.get('sha')
+        require(isinstance(sha,str) and re.fullmatch(r'[a-f0-9]{40}',sha) and sha not in seen,
+                'Malformed or cyclic annotated musl tag')
+        seen.add(sha)
+        if target.get('type')=='commit':
+            require(sha==expected_commit, 'Actual musl tag ref points to another commit')
+            return sha
+        require(target.get('type')=='tag', 'Musl release tag must resolve to a commit')
+        annotated = api.api(f'repos/{REPOSITORY}/git/tags/{sha}')
+        require(isinstance(annotated,dict) and annotated.get('sha')==sha,
+                'Annotated musl tag object differs from its ref')
+        target = annotated.get('object',{})
+    raise ValueError('Annotated musl release tag exceeds its depth limit')
+
+
 def validate_publication_metadata(manifest, receipt, reports, *, verification_manifest=None):
     """Require signed delivery identity plus signed final two-CPU public evidence.
 
@@ -214,21 +247,90 @@ def validate_publication_metadata(manifest, receipt, reports, *, verification_ma
                 and spaces[0].get('gid') == (1654 if channel == 'oci' else 10001),
                 'Public musl report must identify the exact non-root Alpine qualification user space')
         elf = spaces[0].get('elfAudit', {})
-        require(elf.get('status') == 'passed' and elf.get('native') is True and elf.get('libc') == 'musl'
+        require(elf.get('status') == 'passed' and elf.get('native') is (False if channel=='oci' else True) and elf.get('libc') == 'musl'
                 and elf.get('architecture') == arch and elf.get('targetRid') == ARCHITECTURES[arch]['rid']
                 and type(elf.get('hostElfCount')) is int and elf['hostElfCount'] > 0
                 and isinstance(elf.get('stockLibraries'), list) and elf['stockLibraries']
                 and spaces[0].get('systemTrustHttps', {}).get('status') == 'passed',
                 'Public musl report lacks native ELF stock-library closure or system-trust HTTPS')
+        if channel=='oci':
+            execution=spaces[0].get('nativeImageExecution',{})
+            require(execution.get('status')=='passed' and execution.get('native') is True
+                    and execution.get('architecture')==arch and execution.get('targetRid')==ARCHITECTURES[arch]['rid']
+                    and execution.get('loader')==ARCHITECTURES[arch]['interpreter']
+                    and execution.get('imageId')==report.get('imageId')
+                    and re.fullmatch(r'sha256:[a-f0-9]{64}',execution.get('imageId',''))
+                    and re.fullmatch(r'[a-f0-9]{64}',execution.get('loaderOutputSha256','')),
+                    'OCI static closure must be accompanied by actual native image loader execution')
+            dynamic=[item for item in elf.get('elfFiles',[]) if item.get('disposition')=='host-runtime-or-tool'
+                     and item.get('elfType') in {'DYN','EXEC'}]
+            require(dynamic and execution.get('dynamicElfCount')==len(dynamic), 'OCI must probe every dynamic host ELF with its actual loader')
+            providers=execution.get('stockLibraries',[])
+            require(isinstance(providers,list) and providers
+                    and sorted(item.get('sha256','') for item in providers)==sorted(item.get('sha256','') for item in elf['stockLibraries'])
+                    and all(isinstance(item.get('path'),str) and item['path'].startswith(('/lib/','/usr/lib/','/usr/local/lib/'))
+                        and item.get('apkOwner','').startswith(item['path']+' is owned by ')
+                        and 'cbodotnet-' not in item['apkOwner'] for item in providers),
+                    'OCI must recheck actual stock APK library ownership and bytes inside the image')
+            ownership=spaces[0].get('ownership',{})
+            require(ownership.get('status')=='passed' and ownership.get('uid')==ownership.get('gid')==0
+                    and ownership.get('setIdOrWorldWritableEntries')==0 and ownership.get('sdkEntries',0)>0,
+                    'OCI SDK and command ownership must be preserved as immutable root-owned files')
         public_bytes = report.get('publicVerification', {})
         require(public_bytes.get('anonymous') is True and public_bytes.get('status') == 'passed',
                 'Public musl report must prove anonymous actual artifact retrieval')
+        require(public_bytes.get('manifestSha256') == receipt.get('manifestSha256')
+                and public_bytes.get('manifestUrl') == receipt['manifestUrl']
+                and public_bytes.get('signingFingerprint') == receipt['signingFingerprint'],
+                'Public execution was not bound to this exact signed musl release manifest')
         artifact = indexed[row['artifactAsset']]
         require(public_bytes.get('artifactSha256') == artifact['sha256'], 'Public retrieval differs from signed artifact bytes')
         if channel == 'archive':
+            require(report.get('artifact')==row['build']['artifact'], 'Public archive report artifact differs from signed build')
+            require(public_bytes.get('url') == base+row['artifactAsset'],
+                    'Public archive execution used another release asset URL')
             require(set(musl_archive.REPORT_CHECKS) <= set(report.get('checks',{}))
                     and all(report['checks'][check] == 'passed' for check in musl_archive.REPORT_CHECKS),
                     'Public archive report lacks a required native qualification check')
+        elif channel=='apk':
+            from musl_package_native import APK_CHECKS
+            require(APK_CHECKS <= set(report.get('checks',{}))
+                    and all(report['checks'][check]=='passed' for check in APK_CHECKS), 'A required public APK qualification check is absent')
+            repository=row.get('repository',{})
+            repo_base=(f'https://github.com/{REPOSITORY}/releases/download/musl-apk-repo-'
+                +identity['sdkVersion']+'-alpine324-'+arch+'-r'+str(identity['packageRevision'])+'/')
+            require(repository.get('url')==repo_base
+                    and public_bytes.get('indexUrl')==repo_base+'APKINDEX.tar.gz'
+                    and public_bytes.get('indexSha256')==repository.get('indexSha256')
+                    and public_bytes.get('sourceUrl')==repo_base+report.get('artifact',{}).get('name','')
+                    and report.get('artifact',{}).get('sha256')==artifact['sha256'],
+                    'Public APK execution differs from the signed immutable HTTPS repository')
+            declared=repository.get('packages',[])
+            actual=report.get('publicBytes',{}).get('packages',[])
+            require(len(declared)==len(actual)==2
+                    and sorted((item.get('name'),item.get('size'),item.get('sha256'),item.get('url')) for item in declared)
+                      ==sorted((item.get('name'),item.get('size'),item.get('sha256'),item.get('url')) for item in actual),
+                    'Public APK install must retrieve both exact signed SDK and shared-host packages')
+        else:
+            from musl_package_native import APK_CHECKS
+            checks=(APK_CHECKS-{'package-signature','index-signature','package-index-binding','negative-signature-tests'}) | {
+                'oci-config','native-image-loader','native-stock-provider-ownership','root-owned-sdk','no-source-build-tools','clean-runtime-environment'}
+            require(checks <= set(report.get('checks',{})) and all(report['checks'][check]=='passed' for check in checks),
+                    'A required public OCI qualification check is absent')
+            index=manifest.get('ociIndex',{})
+            platforms=index.get('platforms',{})
+            require(index.get('repository')=='ghcr.io/'+REPOSITORY+'-sdk'
+                    and index.get('tag')==oci_tag(identity['sdkVersion'],identity['packageRevision'])
+                    and re.fullmatch(r'sha256:[a-f0-9]{64}',index.get('digest',''))
+                    and isinstance(platforms,dict) and set(platforms)==set(ARCHITECTURES), 'Signed Alpine OCI index is incomplete')
+            platform=platforms[arch]
+            require(platform.get('platform')==ARCHITECTURES[arch]['oci']
+                    and re.fullmatch(r'sha256:[a-f0-9]{64}',platform.get('digest',''))
+                    and report.get('imageDigest')==public_bytes.get('imageDigest')==platform['digest']
+                    and report.get('imageId')==public_bytes.get('imageConfigDigest')==platform.get('configDigest')
+                    and public_bytes.get('indexDigest')==index['digest']
+                    and public_bytes.get('descriptorUrl')==base+row['artifactAsset'],
+                    'Actual anonymous OCI image/config/index digests differ from the signed platform matrix')
     require(isinstance(verification_manifest, dict)
             and verification_manifest.get('schemaVersion') == 1
             and verification_manifest.get('kind') == 'musl-public-verification'
@@ -454,6 +556,7 @@ def publish_producer(directory, *, gh='gh'):
     require(release.get('tag_name') == tag and release.get('name') == title and release.get('body') == body
             and release.get('target_commitish') == commit and release.get('prerelease') is False,
             'Existing musl source release does not have this exact immutable identity')
+    verify_release_tag(api,tag,commit,allow_pending_draft=release.get('draft') is True)
     by_name = {row['name']: row for row in release.get('assets', [])}
     require(len(by_name) == len(release.get('assets', [])) and set(by_name) <= set(expected),
             'Existing musl source release contains unexpected or duplicate assets')
@@ -470,6 +573,7 @@ def publish_producer(directory, *, gh='gh'):
     if release['draft']:
         release = api.publish(release)
     release = api.get(release)
+    verify_release_tag(api,tag,commit)
     validate_producer_release(release, (directory/'release-manifest.json').read_bytes(), (directory/'SHA256SUMS').read_bytes())
     verify_remote_assets(release, expected, api, public=True)
     return dict(schemaVersion=1, kind='musl-producer-publication', status='published-postverified',

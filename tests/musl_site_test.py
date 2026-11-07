@@ -41,7 +41,8 @@ def fixture(channel='archive'):
                                    for item in (artifact, qualification))
         record = dict(architecture=arch, targetRid=target['rid'], artifactAsset=artifact['name'],
             qualificationReportAsset=qualification['name'], build=dict(plan=dict(identity,
-                targetRid=target['rid'], producer=source['architectures'][arch]['provenance'])))
+                targetRid=target['rid'], producer=source['architectures'][arch]['provenance']),
+                artifact={key:artifact[key] for key in ('name','size','sha256')}))
         if channel == 'apk':
             record['repository'] = dict(url=f'https://github.com/{SITE.REPOSITORY}/releases/download/musl-apk-repo-{version}-alpine324-{arch}-r1/')
         manifest['records'].append(record)
@@ -56,6 +57,7 @@ def fixture(channel='archive'):
                     hostElfCount=10, stockLibraries=[dict(name='libc.musl.so.1', sha256='b'*64)]),
                 systemTrustHttps=dict(status='passed'))],
             publicVerification=dict(anonymous=True, status='passed', artifactSha256=artifact['sha256']))
+        report['artifact']={key:artifact[key] for key in ('name','size','sha256')}
         raw = json.dumps(report).encode()
         item = asset('public-' + channel + '-' + arch + '.json', raw, verification_tag)
         public.append(dict(architecture=arch, report=item, rawJsonSize=item['size'], rawJsonSha256=item['sha256']))
@@ -65,6 +67,13 @@ def fixture(channel='archive'):
     raw = json.dumps(manifest).encode()
     manifest_asset = asset('distribution-manifest.json', raw)
     asset('distribution-manifest.json.asc', b'fixture-signature')
+    for row in public:
+        report=json.loads(objects[row['report']['url']])
+        selected=next(item for item in manifest['records'] if item['architecture']==row['architecture'])
+        report['publicVerification'].update(manifestSha256=manifest_asset['sha256'],manifestUrl=manifest_asset['url'],
+            signingFingerprint=SIGNER,url=SITE.asset_url(tag,selected['artifactAsset']))
+        item=asset(row['report']['name'],json.dumps(report).encode(),verification_tag)
+        row.update(report=item,rawJsonSize=item['size'],rawJsonSha256=item['sha256'])
     receipt = dict(schemaVersion=1, kind='musl-distribution-publication-receipt', status='published-postverified',
         identity=copy.deepcopy(identity), tag=tag, releaseUrl=f'https://github.com/{SITE.REPOSITORY}/releases/tag/{tag}',
         manifestUrl=manifest_asset['url'], signatureUrl=SITE.asset_url(tag, 'distribution-manifest.json.asc'),
@@ -108,6 +117,10 @@ class MuslSiteTests(unittest.TestCase):
             self.assertEqual('not-published', feed['status'])
             self.assertEqual(b'unchanged glibc feed', old.read_bytes())
             self.assertEqual('musl-download-catalog', json.loads((root / 'musl-status.json').read_bytes())['kind'])
+            key_policy = json.loads((root / 'apk-signing-key.json').read_bytes())
+            self.assertEqual(key_policy['publicKeySha256'], hashlib.sha256(
+                (root / key_policy['publicKeyName']).read_bytes()).hexdigest())
+            self.assertNotIn('secret', key_policy)
 
     def test_complete_signed_source_and_final_receipt_bind_both_public_native_reports(self):
         manifest, receipt, status, objects, catalog = fixture()

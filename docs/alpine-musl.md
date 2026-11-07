@@ -35,6 +35,78 @@ Workloads and NativeAOT are not qualified by the base SDK tests. cbodotnetup
 bootstrap and musl SDK admission belong to
 [#30](https://github.com/dotnetdev-kr/cbodotnet/issues/30).
 
+## Installation after publication
+
+Use these commands only after the download site's Alpine section and the
+signed public verification record identify this exact revision as available.
+The current candidate does not establish availability. APK signatures and
+OpenPGP publication signatures use separate keys; see the
+[APK signing and rotation policy](alpine-apk-signing.md).
+
+For Alpine APK installation, download the project key over HTTPS, check its
+reviewed SHA-256, and install it into the system APK trust store. The same public
+key and a machine-readable fingerprint are published on the download site as
+`cbodotnet-apk-2026.rsa.pub` and `apk-signing-key.json`.
+
+```sh
+apk add --no-cache curl ca-certificates
+curl -fL https://dotnetdev.kr/cbodotnet/cbodotnet-apk-2026.rsa.pub -o cbodotnet-apk-2026.rsa.pub
+printf '%s\n' 'd464a8e7c173c1a86ad65f92abb1d56fd1f362dbcaf30b4b3929355bc6a49c2d  cbodotnet-apk-2026.rsa.pub' | sha256sum -c -
+install -m 0644 cbodotnet-apk-2026.rsa.pub /etc/apk/keys/cbodotnet-apk-2026.rsa.pub
+case "$(apk --print-arch)" in
+  x86_64) arch=x64 ;;
+  aarch64) arch=aarch64 ;;
+  *) echo 'This CPU is not qualified' >&2; exit 1 ;;
+esac
+repository="https://github.com/dotnetdev-kr/cbodotnet/releases/download/musl-apk-repo-10.0.403-alpine324-${arch}-r1/APKINDEX.tar.gz"
+apk add --repository "$repository" cbodotnet-sdk-10.0=10.0.403-r1
+cbodotnet --info
+```
+
+Key installation and APK transactions require root; application builds run as
+an ordinary user. The SDK installs under `/opt/cbodotnet/10.0`, provides
+`cbodotnet-10.0` and the shared `cbodotnet` selector, and preserves a separately
+installed official `dotnet`. Repeating the explicit APK command pins the same
+immutable revision. `apk del cbodotnet-sdk-10.0` removes that SDK; remove
+`cbodotnet-host` separately when no Community SDK needs the selector.
+
+The archive includes its own launcher and SDK tree and follows the signed
+[consumer archive verification procedure](consumer-archives.md). Choose the
+explicit `linux-musl-x64` or `linux-musl-aarch64` asset shown in the Alpine
+section. Its manifest binds the qualified source, SDK bytes and licenses.
+
+The OCI variant uses the explicit tag
+`ghcr.io/dotnetdev-kr/cbodotnet-sdk:10.0.403-alpine324-musl-r1`.
+Use the signed `oci-index.json` digest from the Alpine section to pin the
+two-platform image. It defaults to the unprivileged `app` user (UID/GID 1654),
+and `cbodotnet-10.0`, `cbodotnet` and `dotnet` all execute the Community CLI.
+The image uses stock musl dependencies, full ICU data, the timezone database
+and system CA roots. Native source-build toolchains and workspaces are excluded.
+
+## Release gates
+
+`musl-sdk.yml` builds the original pinned VMR independently on native x64 and
+AArch64. Build and SDK-free verification images consume preserved, stock-signed
+[APK index snapshots](../inputs/alpine-3.24.4/index-snapshots.json); every actual
+package transaction and source/bootstrap input is retained in evidence.
+The unmodified upstream binary scanner, upstream tests, corresponding sources,
+ELF dependency audit and native SDK verification must all pass.
+
+`musl-release.yml` then runs the `producer`, `archive`, `apk` and `oci` phases.
+Consumer promotion reconstructs candidates from the admitted SDK and verifies
+the actual GitHub artifact ZIP digest and native job identity before signing.
+The APK signer changes only the signature envelope; original compressed control
+and payload bytes remain bound to native qualification and lifecycle proof.
+OCI publication binds both real platform manifests and configs to an immutable
+musl index without changing historical glibc tags.
+
+Each channel repeats installation and execution from actual anonymous public
+bytes on both native CPUs. The final `verification` phase receives the three
+completed channel run/attempt pairs, authenticates their API provenance and six
+unchanged public reports, and publishes a separately signed verification release.
+Only its reviewed status candidate can activate `musl-status.json` and the
+download-site panel. A failed or fixture-only run never becomes a release input.
+
 ## Other SDK series
 
 The [machine-readable assessment](../releases/musl-sdk-assessment.json) records

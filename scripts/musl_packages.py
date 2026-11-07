@@ -337,6 +337,25 @@ package() {{
 '''
 
 
+def stage_source_archive(tree,destination):
+    """Canonical abuild source input, independent of work path and wall clock."""
+    tree=Path(tree).absolute()
+    destination=Path(destination).absolute()
+    require(tree.is_dir() and not any(p.is_symlink() for p in [tree,*tree.parents])
+        and not destination.exists() and destination.parent.is_dir()
+        and not any(p.is_symlink() for p in destination.parents),'Fresh ordinary APK source paths required')
+    def canonical(row):
+        row.uid=row.gid=0
+        row.uname=row.gname=''
+        row.mtime=int(SOURCE_DATE_EPOCH)
+        row.pax_headers={}
+        return row
+    with destination.open('xb') as raw,gzip.GzipFile(filename='',fileobj=raw,mode='wb',compresslevel=9,mtime=int(SOURCE_DATE_EPOCH)) as compressed:
+        with tarfile.open(fileobj=compressed,mode='w',format=tarfile.PAX_FORMAT) as archive:
+            archive.add(tree,arcname='rootfs',filter=canonical)
+    return destination
+
+
 def build_apk(plan, archive, output, private_key, public_key, fixture=False):
     """Run unprivileged abuild in an already provisioned, isolated Alpine builder."""
     series, arch = validate_plan(plan, 'apk')
@@ -380,8 +399,7 @@ def build_apk(plan, archive, output, private_key, public_key, fixture=False):
         work = output / 'aports' / 'cbodotnet' / kind
         work.mkdir(parents=True)
         source = work / 'payload.tar.gz'
-        with tarfile.open(source, 'w:gz', format=tarfile.PAX_FORMAT) as tar:
-            tar.add(tree, arcname='rootfs')
+        stage_source_archive(tree,source)
         with source.open('rb') as stream:
             source_digest = stream_digest(stream, 'sha512')
         (work / 'APKBUILD').write_text(recipe(plan, kind, source_digest), encoding='utf-8')
@@ -403,8 +421,10 @@ def build_apk(plan, archive, output, private_key, public_key, fixture=False):
     require(sdk_tools().snapshot(rootfs / plan['package']['root'].lstrip('/')) == payload, 'APK build changed SDK input')
     result = dict(schemaVersion=1, channel='apk', libc='musl', plan=plan, packages=packages,
         commandInventory=commands, payloadPreserved=True, publicationQualified=False,
-        credentialPurpose='ephemeral-fixture' if fixture else 'protected-publication-candidate', signingKey=identity,
+        credentialPurpose='ephemeral-fixture' if fixture else 'native-candidate', signingKey=identity,
         repository=verify_index(repository / 'APKINDEX.tar.gz', public, packages))
+    shutil.copyfile(public,output/public.name)
+    result['publicKeyAsset']=descriptor(output/public.name)
     write_json(output / 'package-build.json', result)
     return result
 
@@ -456,6 +476,17 @@ def build_oci_context(plan, archive, output, base_image):
         'kr.dotnetdev.cbodotnet.manifest.sha256': plan['sourceManifestSha256'],
         'kr.dotnetdev.cbodotnet.license.path': plan['package']['root'] + '/LICENSE.txt',
         'kr.dotnetdev.cbodotnet.notices.path': plan['package']['root'] + '/ThirdPartyNotices.txt'}
+    release_url='https://github.com/'+REPOSITORY+'/releases/tag/'+plan['sourceReleaseTag']
+    asset_url='https://github.com/'+REPOSITORY+'/releases/download/'+plan['sourceReleaseTag']+'/'
+    labels.update({'org.opencontainers.image.url': release_url,
+        'org.opencontainers.image.documentation': 'https://github.com/'+REPOSITORY+'/blob/main/docs/alpine-musl.md',
+        'kr.dotnetdev.cbodotnet.sdk.url': asset_url+plan['sdk']['name'],
+        'kr.dotnetdev.cbodotnet.manifest.url': asset_url+'release-manifest.json',
+        'kr.dotnetdev.cbodotnet.package.revision': str(plan['packageRevision'])})
+    for kind in ('source','evidence'):
+        if kind in plan:
+            labels['kr.dotnetdev.cbodotnet.'+kind+'.url']=asset_url+plan[kind]['name']
+            labels['kr.dotnetdev.cbodotnet.'+kind+'.sha256']=plan[kind]['sha256']
     from musl_archive import RUNTIME_PACKAGES
     dependencies = [name + '=' + RUNTIME_PACKAGES[name] for name in plan['dependencies']]
     result = dict(schemaVersion=1, channel='oci', libc='musl', plan=plan, baseImage=base_image,

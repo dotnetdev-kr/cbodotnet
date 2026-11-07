@@ -205,6 +205,16 @@ class MuslPackagesTests(unittest.TestCase):
         self.assertEqual('https://github.com/dotnetdev-kr/cbodotnet/releases/download/musl-apk-repo-10.0.403-alpine324-x64-r1/APKINDEX.tar.gz',
                          APK.repository_url('10.0.403','x64',1))
 
+    def test_source_archive_is_reproducible_across_work_paths_and_mtimes(self):
+        archives=[]
+        for label,mtime in [('first',1),('second',1800000000)]:
+            tree=self.directory/label
+            tree.mkdir()
+            (tree/'unchanged').write_bytes(b'qualified bytes')
+            os.utime(tree/'unchanged',(mtime,mtime))
+            archives.append(APK.stage_source_archive(tree,self.directory/(label+'.tar.gz')))
+        self.assertEqual(archives[0].read_bytes(),archives[1].read_bytes())
+
     def test_oci_context_uses_only_reviewed_cpu_digest_and_all_three_aliases(self):
         plan, archive = self.plan('oci')
         with self.assertRaisesRegex(ValueError, 'CPU pin'):

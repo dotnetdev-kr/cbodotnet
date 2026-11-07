@@ -563,6 +563,43 @@ def installed(build_directory, architecture, workspace, target_policy=None):
     return dict(status='passed', scope='musl-consumer-archive-offline')
 
 
+def validate_offline_report(report, build, architecture, *, elf_audit=None):
+    """Check the installed-worker protocol before promoting its runtime results."""
+    plan = build['plan']
+    require(plan_architecture(plan) == architecture and isinstance(report, dict)
+        and report.get('schemaVersion') == 1 and report.get('scope') == 'musl-consumer-archive-offline'
+        and report.get('status') == 'passed' and report.get('native') is True
+        and report.get('architecture') == architecture and report.get('libc') == 'musl'
+        and report.get('targetRid') == plan['targetRid'] and report.get('identity') == identity(plan)
+        and report.get('archive') == build['artifact'] and report.get('networkForBuild') == 'none'
+        and report.get('uid') == report.get('gid') == 10001,
+        'Offline musl worker report does not bind the exact archive/source/native user/network')
+    for name, expected in (('checks', REPORT_CHECKS - {'system-trust-https'}), ('functionalChecks', FUNCTIONAL_CHECKS)):
+        observed = report.get(name, {})
+        require(isinstance(observed, dict) and expected <= set(observed)
+                and all(observed[key] == 'passed' for key in expected), 'Offline musl worker omitted a mandatory passed check')
+    payload = '/qualification/relocated musl archive/payload'
+    require(report.get('payload') == payload and report.get('cli') == '/qualification/relocated musl archive/cbodotnet'
+        and report.get('trustProbe') == '/qualification/system-trust/bin/Debug/net10.0/Trust.dll',
+        'Offline musl worker attempted to route an unreviewed runtime/probe command')
+    commands = report.get('commands', [])
+    require(isinstance(commands, list) and len(commands) == 3
+        and {row.get('command') for row in commands} == {'dotnet', 'cbodotnet', 'cbodotnet-' + '.'.join(plan['sdkVersion'].split('.')[:2])}
+        and all(row.get('targetRid') == plan['targetRid'] and row.get('sdkRoot') == payload for row in commands),
+        'Offline musl command aliases do not bind the exact source/root/RID')
+    dependencies = report.get('dependencies', [])
+    require(isinstance(dependencies, list) and all(name + '-' + version in dependencies for name, version in RUNTIME_PACKAGES.items()),
+        'Offline musl stock runtime package pins differ')
+    ca = report.get('caBundle', {})
+    require(type(ca.get('size')) is int and 0 < ca['size'] <= 8 * 1024**2
+        and re.fullmatch(r'[a-f0-9]{64}', ca.get('sha256', '')), 'Offline musl system CA bundle evidence is absent')
+    if elf_audit is not None:
+        raw = encoded(elf_audit)
+        require(report.get('elfAudit') == dict(name='elf-audit.json', size=len(raw), sha256=hashlib.sha256(raw).hexdigest()),
+                'Offline musl ELF audit bytes differ from the retained full audit')
+    return report
+
+
 def native(build_directory, architecture, workspace, target_policy=None):
     require(platform.system() == 'Linux' and platform.machine() == ('x86_64' if architecture == 'x64' else 'aarch64'),
             'A matching native Linux Docker host is mandatory')
@@ -594,6 +631,8 @@ def native(build_directory, architecture, workspace, target_policy=None):
     run([*common, '--network=none', image, 'python3', 'scripts/musl_archive.py', 'installed', '--build', '/build',
         '--arch', architecture, '--workspace', '/qualification', '--target-policy', '/qualification/target-policy.json'])
     offline = json.loads(ordinary_file(workspace / 'offline-report.json').read_bytes())
+    elf = json.loads(ordinary_file(workspace / 'elf-audit.json').read_bytes())
+    validate_offline_report(offline, build, architecture, elf_audit=elf)
     trust = run([*common, '--network=default', '-e', 'HOME=/home/cbot-musl', '-e', 'DOTNET_CLI_HOME=/home/cbot-musl/cli',
         image, offline['cli'], offline['trustProbe']])
     require('system-trust-https-passed' in trust and re.search(r'system-root-count=[1-9][0-9]+', trust),
@@ -604,7 +643,7 @@ def native(build_directory, architecture, workspace, target_policy=None):
         artifact=build['artifact'], checks=dict.fromkeys(REPORT_CHECKS, 'passed'), functionalChecks=offline['functionalChecks'],
         userSpaces=[dict(variant='alpine-3.24', alpineVersion='3.24.4', base=BASES[architecture], imageId=image_info['Id'],
             uid=10001, gid=10001, status='passed', offline=offline,
-            elfAudit=json.loads(ordinary_file(workspace / 'elf-audit.json').read_bytes()),
+            elfAudit=elf,
             systemTrustHttps=dict(status='passed', network='default-only-after-offline-build',
                 url=trust_url(architecture), outputSha256=hashlib.sha256(trust.encode()).hexdigest()))])
     (workspace / 'report.json').write_bytes(encoded(report))

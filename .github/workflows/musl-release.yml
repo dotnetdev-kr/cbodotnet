@@ -9,7 +9,7 @@ on:
         required: true
         default: producer
         type: choice
-        options: [producer, archive]
+        options: [producer, archive, apk, oci, verification]
       producer_run_id:
         description: Exact successful two-CPU native musl SDK producer run
         required: false
@@ -25,6 +25,11 @@ on:
         required: true
         default: false
         type: boolean
+      verification_runs:
+        description: 'Final proof sources as JSON: {"archive":[run,attempt],"apk":[run,attempt],"oci":[run,attempt]}'
+        required: false
+        default: '{}'
+        type: string
       revision:
         description: Immutable consumer packaging revision
         required: true
@@ -131,6 +136,537 @@ jobs:
         with:
           name: musl-native-archive-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/musl-archive-candidate/*
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 30
+
+  freeze_archive:
+    needs: native_archive
+    if: inputs.channel == 'archive' && inputs.publish == true && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    name: Authenticate and sign the complete native musl archive matrix
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    environment: downstream-release
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Import the existing protected project signer
+        env:
+          DOWNSTREAM_SIGNING_KEY: ${{ secrets.DOWNSTREAM_SIGNING_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$DOWNSTREAM_SIGNING_KEY"
+          install -d -m 0700 "$RUNNER_TEMP/musl-gnupg"
+          printf 'GNUPGHOME=%s\n' "$RUNNER_TEMP/musl-gnupg" >> "$GITHUB_ENV"
+          printf '%s' "$DOWNSTREAM_SIGNING_KEY" | gpg --homedir "$RUNNER_TEMP/musl-gnupg" --batch --import
+          gpg --batch --dearmor --output "$RUNNER_TEMP/musl-trusted.gpg" releases/downstream-signing-key.asc
+      - name: Reconstruct qualified archives and authenticate actual native artifact ZIPs before signing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REVISION: ${{ inputs.revision }}
+        run: |
+          python3 scripts/musl_promotion.py freeze-archive --run-id "$GITHUB_RUN_ID" \
+            --attempt "$GITHUB_RUN_ATTEMPT" --revision "$REVISION" \
+            --output "$RUNNER_TEMP/musl-archive-frozen" --keyring "$RUNNER_TEMP/musl-trusted.gpg" \
+            --gnupg-home "$GNUPGHOME"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: musl-archive-frozen-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/musl-archive-frozen/*
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 30
+      - name: Remove temporary private signer material
+        if: always()
+        run: |
+          gpgconf --homedir "$RUNNER_TEMP/musl-gnupg" --kill all || true
+          python3 -c 'import os,shutil; from pathlib import Path; p=Path(os.environ["RUNNER_TEMP"])/"musl-gnupg"; assert p.parent==Path(os.environ["RUNNER_TEMP"]) and p.name=="musl-gnupg"; shutil.rmtree(p,ignore_errors=True)'
+
+  publish_archive:
+    needs: freeze_archive
+    if: inputs.channel == 'archive' && inputs.publish == true && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    name: Publish immutable signed musl archives
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    environment: downstream-release
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: musl-archive-frozen-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/musl-archive-frozen
+      - name: Verify the frozen signature and publish without replacing any release bytes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gpg --batch --dearmor --output "$RUNNER_TEMP/musl-trusted.gpg" releases/downstream-signing-key.asc
+          python3 scripts/musl_promotion.py publish --bundle "$RUNNER_TEMP/musl-archive-frozen" \
+            --output "$RUNNER_TEMP/musl-archive-publication.json" --keyring "$RUNNER_TEMP/musl-trusted.gpg"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: musl-archive-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/musl-archive-publication.json
+          if-no-files-found: error
+          retention-days: 30
+
+  postverify_archive:
+    needs: publish_archive
+    if: inputs.channel == 'archive' && inputs.publish == true && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    name: Verify public musl archive native ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Fetch anonymous actual release bytes and repeat native non-root offline qualification
+        env:
+          ARCH: ${{ matrix.arch }}
+          REVISION: ${{ inputs.revision }}
+        run: |
+          python3 scripts/musl_distribution.py public-archive --arch "$ARCH" --revision "$REVISION" \
+            --workspace "$RUNNER_TEMP/musl-public-work" --output "$RUNNER_TEMP/musl-public-report"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: musl-public-archive-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/musl-public-report/public-report.json
+          if-no-files-found: error
+          retention-days: 30
+
+  native_apk:
+    if: inputs.channel == 'apk' && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    name: Qualify musl APK native ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Qualify the actual admitted SDK on a matching native Alpine CPU
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARCH: ${{ matrix.arch }}
+          REVISION: ${{ inputs.revision }}
+        run: |
+          python3 scripts/musl_distribution.py apk-candidate --arch "$ARCH" --revision "$REVISION" \
+            --workspace "$RUNNER_TEMP/musl-apk-work" --output "$RUNNER_TEMP/musl-apk-candidate"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: musl-native-apk-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/musl-apk-candidate/candidate.tar.gz
+            ${{ runner.temp }}/musl-apk-candidate/candidate.json
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 30
+
+  freeze_apk:
+    needs: native_apk
+    if: inputs.channel == 'apk' && inputs.publish == true && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    environment: downstream-release
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Import the protected project evidence signer
+        env:
+          DOWNSTREAM_SIGNING_KEY: ${{ secrets.DOWNSTREAM_SIGNING_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$DOWNSTREAM_SIGNING_KEY"
+          install -d -m 0700 "$RUNNER_TEMP/musl-gnupg"
+          printf 'GNUPGHOME=%s\n' "$RUNNER_TEMP/musl-gnupg" >> "$GITHUB_ENV"
+          printf '%s' "$DOWNSTREAM_SIGNING_KEY" | gpg --homedir "$RUNNER_TEMP/musl-gnupg" --batch --import
+          gpg --batch --dearmor --output "$RUNNER_TEMP/musl-trusted.gpg" releases/downstream-signing-key.asc
+      - name: Import the owner-approved protected APK signer
+        env:
+          APK_SIGNING_KEY: ${{ secrets.APK_SIGNING_KEY }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          key=Path(os.environ['RUNNER_TEMP'])/'musl-apk-private.rsa'
+          raw=os.environ['APK_SIGNING_KEY'].encode()
+          assert raw and not key.exists()
+          fd=os.open(key,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+          with os.fdopen(fd,'wb') as stream: stream.write(raw)
+          PY
+      - name: Authenticate exact native artifacts and freeze signed immutable bytes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REVISION: ${{ inputs.revision }}
+        run: |
+          python3 scripts/musl_apk_promotion.py freeze-apk --run-id "$GITHUB_RUN_ID" \
+            --attempt "$GITHUB_RUN_ATTEMPT" --revision "$REVISION" \
+            --output "$RUNNER_TEMP/musl-apk-frozen" --keyring "$RUNNER_TEMP/musl-trusted.gpg" \
+            --gnupg-home "$GNUPGHOME" \
+            --apk-private-key "$RUNNER_TEMP/musl-apk-private.rsa" --apk-public-key releases/cbodotnet-apk-2026.rsa.pub
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: musl-apk-frozen-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/musl-apk-frozen/*
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 30
+      - name: Remove temporary private signer material
+        if: always()
+        run: |
+          gpgconf --homedir "$RUNNER_TEMP/musl-gnupg" --kill all || true
+          python3 -c 'import os,shutil; from pathlib import Path; base=Path(os.environ["RUNNER_TEMP"]); p=base/"musl-gnupg"; assert p.parent==base and p.name=="musl-gnupg"; shutil.rmtree(p,ignore_errors=True); k=base/"musl-apk-private.rsa"; assert k.parent==base; k.unlink(missing_ok=True)'
+
+  publish_apk:
+    needs: freeze_apk
+    if: inputs.channel == 'apk' && inputs.publish == true && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    environment: downstream-release
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: musl-apk-frozen-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/musl-apk-frozen
+      - name: Publish exact signed bytes without replacing existing tags or assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gpg --batch --dearmor --output "$RUNNER_TEMP/musl-trusted.gpg" releases/downstream-signing-key.asc
+          python3 scripts/musl_apk_promotion.py publish --bundle "$RUNNER_TEMP/musl-apk-frozen" \
+            --keyring "$RUNNER_TEMP/musl-trusted.gpg" --output "$RUNNER_TEMP/musl-apk-publication.json"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: musl-apk-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/musl-apk-publication.json
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 30
+
+  postverify_apk:
+    needs: publish_apk
+    if: inputs.channel == 'apk' && inputs.publish == true && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    name: Verify public musl apk native ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install and execute actual public bytes anonymously on the matching native CPU
+        env:
+          ARCH: ${{ matrix.arch }}
+          REVISION: ${{ inputs.revision }}
+        run: |
+          python3 scripts/musl_distribution.py public-apk --arch "$ARCH" --revision "$REVISION" \
+            --workspace "$RUNNER_TEMP/musl-public-work" --output "$RUNNER_TEMP/musl-public-report"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: musl-public-apk-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/musl-public-report/public-report.json
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 30
+
+  native_oci:
+    if: inputs.channel == 'oci' && inputs.publish == true && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    name: Qualify musl OCI native ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Authenticate only this trusted musl registry publishing job
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          install -d -m 0700 "$RUNNER_TEMP/musl-docker-config"
+          printf 'DOCKER_CONFIG=%s\n' "$RUNNER_TEMP/musl-docker-config" >> "$GITHUB_ENV"
+          printf '%s' "$GHCR_TOKEN" | docker --config "$RUNNER_TEMP/musl-docker-config" login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+      - name: Qualify the actual admitted SDK on a matching native Alpine CPU
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          ARCH: ${{ matrix.arch }}
+          REVISION: ${{ inputs.revision }}
+        run: |
+          python3 scripts/musl_oci_delivery.py native-candidate --arch "$ARCH" --revision "$REVISION" \
+            --workspace "$RUNNER_TEMP/musl-oci-work" --output "$RUNNER_TEMP/musl-oci-candidate" --push-staging
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: musl-native-oci-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/musl-oci-candidate/oci-candidate.json
+            ${{ runner.temp }}/musl-oci-candidate/package-build.json
+            ${{ runner.temp }}/musl-oci-candidate/qualification-report.json
+            ${{ runner.temp }}/musl-oci-candidate/payload-inventory.json
+            ${{ runner.temp }}/musl-oci-candidate/command-inventory.json
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 30
+      - name: Remove temporary registry credentials
+        if: always()
+        run: |
+          python3 -c 'import os,shutil; from pathlib import Path; base=Path(os.environ["RUNNER_TEMP"]); p=base/"musl-docker-config"; assert p.parent==base and p.name=="musl-docker-config"; shutil.rmtree(p,ignore_errors=True)'
+
+  freeze_oci:
+    needs: native_oci
+    if: inputs.channel == 'oci' && inputs.publish == true && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    environment: downstream-release
+    permissions:
+      contents: read
+      actions: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Import the protected project evidence signer
+        env:
+          DOWNSTREAM_SIGNING_KEY: ${{ secrets.DOWNSTREAM_SIGNING_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$DOWNSTREAM_SIGNING_KEY"
+          install -d -m 0700 "$RUNNER_TEMP/musl-gnupg"
+          printf 'GNUPGHOME=%s\n' "$RUNNER_TEMP/musl-gnupg" >> "$GITHUB_ENV"
+          printf '%s' "$DOWNSTREAM_SIGNING_KEY" | gpg --homedir "$RUNNER_TEMP/musl-gnupg" --batch --import
+          gpg --batch --dearmor --output "$RUNNER_TEMP/musl-trusted.gpg" releases/downstream-signing-key.asc
+      - name: Authenticate exact native artifacts and freeze signed immutable bytes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          REVISION: ${{ inputs.revision }}
+        run: |
+          python3 scripts/musl_oci_delivery.py freeze-oci --run-id "$GITHUB_RUN_ID" \
+            --attempt "$GITHUB_RUN_ATTEMPT" --revision "$REVISION" \
+            --output "$RUNNER_TEMP/musl-oci-frozen" --keyring "$RUNNER_TEMP/musl-trusted.gpg" \
+            --gnupg-home "$GNUPGHOME"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: musl-oci-frozen-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/musl-oci-frozen/*
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 30
+      - name: Remove temporary private signer material
+        if: always()
+        run: |
+          gpgconf --homedir "$RUNNER_TEMP/musl-gnupg" --kill all || true
+          python3 -c 'import os,shutil; from pathlib import Path; base=Path(os.environ["RUNNER_TEMP"]); p=base/"musl-gnupg"; assert p.parent==base and p.name=="musl-gnupg"; shutil.rmtree(p,ignore_errors=True); k=base/"musl-apk-private.rsa"; assert k.parent==base; k.unlink(missing_ok=True)'
+
+  publish_oci:
+    needs: freeze_oci
+    if: inputs.channel == 'oci' && inputs.publish == true && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    environment: downstream-release
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: musl-oci-frozen-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/musl-oci-frozen
+      - name: Publish exact signed bytes without replacing existing tags or assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gpg --batch --dearmor --output "$RUNNER_TEMP/musl-trusted.gpg" releases/downstream-signing-key.asc
+          python3 scripts/musl_oci_delivery.py publish-oci --bundle "$RUNNER_TEMP/musl-oci-frozen" \
+            --keyring "$RUNNER_TEMP/musl-trusted.gpg" --output "$RUNNER_TEMP/musl-oci-publication.json"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: musl-oci-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/musl-oci-publication.json
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 30
+
+  postverify_oci:
+    needs: publish_oci
+    if: inputs.channel == 'oci' && inputs.publish == true && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    name: Verify public musl oci native ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install and execute actual public bytes anonymously on the matching native CPU
+        env:
+          ARCH: ${{ matrix.arch }}
+          REVISION: ${{ inputs.revision }}
+        run: |
+          python3 scripts/musl_oci_delivery.py public-oci --arch "$ARCH" --revision "$REVISION" \
+            --workspace "$RUNNER_TEMP/musl-public-work" --output "$RUNNER_TEMP/musl-public-report"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: musl-public-oci-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/musl-public-report/public-report.json
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 30
+
+  freeze_verification:
+    if: inputs.channel == 'verification' && inputs.publish == true && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    environment: downstream-release
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Import the protected project evidence signer
+        env:
+          DOWNSTREAM_SIGNING_KEY: ${{ secrets.DOWNSTREAM_SIGNING_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$DOWNSTREAM_SIGNING_KEY"
+          install -d -m 0700 "$RUNNER_TEMP/musl-gnupg"
+          printf 'GNUPGHOME=%s\n' "$RUNNER_TEMP/musl-gnupg" >> "$GITHUB_ENV"
+          printf '%s' "$DOWNSTREAM_SIGNING_KEY" | gpg --homedir "$RUNNER_TEMP/musl-gnupg" --batch --import
+          gpg --batch --dearmor --output "$RUNNER_TEMP/musl-trusted.gpg" releases/downstream-signing-key.asc
+      - name: Authenticate six unchanged native public reports and three channel publications
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERIFICATION_RUNS: ${{ inputs.verification_runs }}
+          REVISION: ${{ inputs.revision }}
+        run: |
+          python3 - <<'PY'
+          import json,os,subprocess
+          sources=json.loads(os.environ['VERIFICATION_RUNS'])
+          assert set(sources)=={'archive','apk','oci'}
+          args=['python3','scripts/musl_verification.py','freeze','--revision',os.environ['REVISION'],
+                '--output',os.environ['RUNNER_TEMP']+'/musl-verification-frozen',
+                '--keyring',os.environ['RUNNER_TEMP']+'/musl-trusted.gpg','--gnupg-home',os.environ['GNUPGHOME']]
+          for channel in ('archive','apk','oci'):
+              row=sources[channel]
+              assert isinstance(row,list) and len(row)==2 and all(type(value) is int and value>0 for value in row)
+              args+=['--'+channel+'-run-id',str(row[0]),'--'+channel+'-attempt',str(row[1])]
+          subprocess.run(args,check=True)
+          PY
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: musl-verification-frozen-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/musl-verification-frozen/*
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 30
+      - name: Remove temporary private signer material
+        if: always()
+        run: |
+          gpgconf --homedir "$RUNNER_TEMP/musl-gnupg" --kill all || true
+          python3 -c 'import os,shutil; from pathlib import Path; base=Path(os.environ["RUNNER_TEMP"]); p=base/"musl-gnupg"; assert p.parent==base and p.name=="musl-gnupg"; shutil.rmtree(p,ignore_errors=True); k=base/"musl-apk-private.rsa"; assert k.parent==base; k.unlink(missing_ok=True)'
+
+  publish_verification:
+    needs: freeze_verification
+    if: inputs.channel == 'verification' && inputs.publish == true && github.repository == 'dotnetdev-kr/cbodotnet' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    environment: downstream-release
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: musl-verification-frozen-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/musl-verification-frozen
+      - name: Publish signed public verification and retain the separately reviewed availability candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gpg --batch --dearmor --output "$RUNNER_TEMP/musl-trusted.gpg" releases/downstream-signing-key.asc
+          python3 scripts/musl_verification.py publish --bundle "$RUNNER_TEMP/musl-verification-frozen" \
+            --keyring "$RUNNER_TEMP/musl-trusted.gpg" --output "$RUNNER_TEMP/musl-status-candidate.json"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: musl-status-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/musl-status-candidate.json
           compression-level: 0
           if-no-files-found: error
           retention-days: 30

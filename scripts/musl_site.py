@@ -239,4 +239,15 @@ def prepare(output=None, *, status=None, fetch=None, keyring=None, authenticator
         output = Path(output)
         output.mkdir(parents=True, exist_ok=True)
         (output / 'musl-status.json').write_text(json.dumps(feed, indent=2) + '\n', encoding='utf-8')
+        # A published trust anchor remains downloadable after rotation so users
+        # can authenticate historical APKs. Availability still requires proof.
+        policy = decoded(ordinary_file(ROOT / 'releases/musl-signing-policy.json').read_bytes())['apkSigner']
+        key = ordinary_file(ROOT / policy['publicKeyPath']).read_bytes()
+        require(hashlib.sha256(key).hexdigest() == policy['publicKeySha256']
+                and policy['publicKeyName'] == 'cbodotnet-apk-2026.rsa.pub',
+                'Download-site APK public key differs from the reviewed trust anchor')
+        (output / policy['publicKeyName']).write_bytes(key)
+        public_policy = {name: policy[name] for name in ('publicKeyName', 'publicKeySha256', 'spkiDerSha256',
+            'algorithm', 'signatureType', 'digest', 'createdAt', 'publisherNotAfter', 'expirySemantics', 'state')}
+        (output / 'apk-signing-key.json').write_text(json.dumps(public_policy, indent=2) + '\n', encoding='utf-8')
     return render(rows), feed
