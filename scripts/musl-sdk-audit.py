@@ -27,15 +27,23 @@ def audit(archive, arch):
             'The ELF audit requires an unprivileged matching native CPU')
     require(Path(loader).is_file() and not Path('/lib/ld-linux-x86-64.so.2').exists()
             and not Path('/lib/ld-linux-aarch64.so.1').exists(), 'A pristine musl loader is required')
-    rows = []
+    rows, violations, links, static_archives = [], [], [], []
     with tempfile.TemporaryDirectory(prefix='cbodotnet-musl-audit-') as temporary:
         root = Path(temporary) / 'sdk'
         root.mkdir()
         with tarfile.open(archive, 'r:gz') as stream:
             stream.extractall(root, filter='data')
         for path in sorted(root.rglob('*')):
-            if not path.is_file() or path.is_symlink():
+            if path.is_symlink():
+                links.append(dict(path=path.relative_to(root).as_posix(), target=os.readlink(path)))
                 continue
+            if not path.is_file():
+                continue
+            if path.suffix == '.a':
+                with path.open('rb') as source:
+                    static_archives.append(dict(path=path.relative_to(root).as_posix(),
+                        sha256=hashlib.file_digest(source, 'sha256').hexdigest(),
+                        disposition='Retained unchanged; embedded objects and NativeAOT are not qualified.'))
             with path.open('rb') as incoming:
                 magic = incoming.read(4)
             if magic != b'\x7fELF':
@@ -49,33 +57,37 @@ def audit(archive, arch):
             code, versions = command(['readelf', '-VW', str(path)])
             require(code == 0, 'Cannot inspect ELF symbol versions')
             actual = re.search(r'Machine:\s*(.+)', header)
-            require(actual is not None and actual.group(1).strip() == elf_machine,
-                    'Foreign-machine ELF needs explicit target-pack qualification: ' + str(path.relative_to(root)))
+            native = actual is not None and actual.group(1).strip() == elf_machine
+            if not native:
+                violations.append('Foreign-machine ELF needs explicit qualification: ' + str(path.relative_to(root)))
             kind = re.search(r'Type:\s*(\S+)', header).group(1)
             interpreters = re.findall(r'Requesting program interpreter:\s*([^\]]+)', program)
-            require(interpreters in ([], [loader]), 'Non-musl/unknown ELF interpreter: ' + str(path.relative_to(root)))
+            if interpreters not in ([], [loader]):
+                violations.append('Non-musl/unknown ELF interpreter: ' + str(path.relative_to(root)))
             needed = re.findall(r'\(NEEDED\).*?\[([^\]]+)\]', dynamic)
-            require(not re.search(r'\bGLIBC_[0-9]', versions) and not any(
-                    name == 'libc.so.6' or name.startswith('ld-linux') for name in needed),
-                    'glibc ELF dependency/version requirement: ' + str(path.relative_to(root)))
+            if re.search(r'\bGLIBC_[0-9]', versions) or any(
+                    name == 'libc.so.6' or name.startswith('ld-linux') for name in needed):
+                violations.append('glibc ELF dependency/version requirement: ' + str(path.relative_to(root)))
             closure = ''
-            if kind in ('EXEC', 'DYN') and (needed or interpreters):
+            if native and kind in ('EXEC', 'DYN') and (needed or interpreters):
                 code, closure = command(['ldd', str(path)])
-                require(code == 0 and not re.search(r'not found|Error loading|Error relocating|symbol not found',
-                                                   closure, re.IGNORECASE),
-                        'Unresolved native ELF dependency: ' + str(path.relative_to(root)) + '\n' + closure)
+                if code != 0 or re.search(r'not found|Error loading|Error relocating|symbol not found',
+                                          closure, re.IGNORECASE):
+                    violations.append('Unresolved native ELF dependency/symbol: ' + str(path.relative_to(root)) + '\n' + closure)
             rows.append(dict(path=path.relative_to(root).as_posix(), elfType=kind,
                         machine=actual.group(1).strip(), interpreter=interpreters[0] if interpreters else None,
-                        needed=needed, dependencyClosure=closure, classification='native-host',
+                        needed=needed, dependencyClosure=closure,
+                        classification='native-host' if native else 'unqualified-foreign',
                         sha256=hashlib.file_digest(path.open('rb'), 'sha256').hexdigest()))
-        require(len(rows) >= 10 and any(r['path'] == 'dotnet' and r['interpreter'] == loader for r in rows)
+        if not (len(rows) >= 10 and any(r['path'] == 'dotnet' and r['interpreter'] == loader for r in rows)
                 and any(r['path'].endswith('/libcoreclr.so') for r in rows)
-                and any(r['path'].endswith('/libhostfxr.so') for r in rows),
-                'Complete SDK host/runtime ELF evidence is required')
-    return dict(schemaVersion=1, status='passed', libc='musl', architecture=arch, loader=loader,
+                and any(r['path'].endswith('/libhostfxr.so') for r in rows)):
+            violations.append('Complete SDK host/runtime ELF evidence is required')
+    return dict(schemaVersion=1, status='failed' if violations else 'passed', libc='musl', architecture=arch, loader=loader,
                 nativeArchitecture=platform.machine(), uid=os.getuid(), emulation=False,
-                elfCount=len(rows), foreignTargetExceptions=[], files=rows,
-                scope='All extracted ELF files audited; no foreign-target or glibc exceptions admitted.')
+                elfCount=len(rows), foreignTargetExceptions=[], files=rows, violations=violations,
+                symlinks=links, staticArchives=static_archives,
+                scope='All extracted regular ELF files audited; links and static archives inventoried. Embedded objects/ZIPs, NativeAOT and workloads are not qualified. No foreign/glibc exceptions admitted.')
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -88,6 +100,7 @@ def main():
     with args.output.open('x', encoding='utf-8') as out:
         json.dump(report, out, indent=2)
         out.write('\n')
+    require(report['status'] == 'passed', 'Native ELF audit failed; complete inventory/errors preserved in ' + str(args.output))
 
 if __name__ == '__main__':
     try:

@@ -6,10 +6,11 @@ import hashlib
 import importlib.util
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import platform
 import re
 import shutil
+import struct
 import subprocess
 import sys
 import tarfile
@@ -206,6 +207,26 @@ class Producer:
         shutil.copytree(self.output / 'pinned-inputs/nuget', self.inputs / 'nuget')
         self.container(['python3', '/project/scripts/configure-feeds.py', '--source-dir', '/vmr',
                         '--reports-dir', '/delivery/reports/build'])
+        # Pinned VMR cleans each inner repo's artifacts/.packages directory. Record
+        # package bytes and origins before that existing cleanup target runs.
+        targets = self.source / 'repo-projects/Directory.Build.targets'
+        original = targets.read_bytes()
+        require(original == subprocess.check_output(['git', '-C', str(self.source), 'show',
+                    SOURCE + ':repo-projects/Directory.Build.targets']), 'Pinned VMR targets changed before instrumentation')
+        hook = '''
+  <Target Name="RecordCommunityMuslImportedInputs" BeforeTargets="CleanupRepo"
+          Condition="Exists('$(RepoArtifactsPackageCache)')">
+    <Exec Command="python3 /project/scripts/musl-sdk-inputs.py --cache &quot;$(RepoArtifactsPackageCache)&quot; --output-dir /delivery/reports/restored-inputs --repository &quot;$(RepositoryName)&quot;" />
+  </Target>
+'''
+        text = original.decode('utf-8-sig')
+        require(text.count('</Project>') == 1, 'Unexpected pinned VMR targets root')
+        adjusted = text.replace('</Project>', hook + '</Project>').encode('utf-8')
+        targets.write_bytes(adjusted)
+        write(self.reports / 'prepare/input-recording-hook.json', dict(path='repo-projects/Directory.Build.targets',
+              sourceCommit=SOURCE, originalSha256=hashlib.sha256(original).hexdigest(),
+              adjustedSha256=hashlib.sha256(adjusted).hexdigest(), beforeTarget='CleanupRepo',
+              scope='Observe actual NuGet input bytes before existing cleanup; package versions and component sources unchanged.'))
         write(self.reports / 'prepare/identity.json', dict(schemaVersion=1, sdkVersion=SDK,
               targetRid=self.id['rid'], libc='musl', sourceCommit=SOURCE, sharedVmrCommit=SHARED,
               projectCommit=self.project, runId=self.args.run_id, runAttempt=self.args.run_attempt,
@@ -290,21 +311,36 @@ class Producer:
         shared_source = module('musl_shared_source', 'ci-net10-shared-source.py')
         shared_identity = shared_source.checkout_identity(self.shared, SHARED)
         imported = []
-        for package in sorted((self.home / '.nuget/packages').rglob('*.nupkg')):
-            require(not package.is_symlink(), 'A restored package is redirected')
-            metadata_path = package.parent / '.nupkg.metadata'
-            metadata = json.loads(metadata_path.read_text()) if metadata_path.is_file() else {}
-            imported.append(dict(path=package.relative_to(self.home).as_posix(),
-                                 source=metadata.get('source'), **fingerprint(package)))
+        recorded = sorted((self.reports / 'restored-inputs').glob('*.json'))
+        require(recorded, 'Actual inner repository NuGet caches must be recorded before cleanup')
+        for path in recorded:
+            record = load_json(path)
+            require(record.get('schemaVersion') == 1 and record.get('packages'), 'Invalid pre-cleanup input record')
+            imported.extend(dict(repository=record['repository'], cache=record['cache'], **row)
+                            for row in record['packages'])
+        caches = [self.home / '.nuget/packages', self.source / '.packages',
+                  *sorted((self.source / 'src').glob('*/artifacts/.packages'))]
+        for cache in caches:
+            for package in sorted(cache.rglob('*.nupkg')):
+                require(not package.is_symlink(), 'A restored package is redirected')
+                metadata_path = package.parent / '.nupkg.metadata'
+                metadata = json.loads(metadata_path.read_text()) if metadata_path.is_file() else {}
+                imported.append(dict(cache=str(cache), path=package.relative_to(cache).as_posix(),
+                                     source=metadata.get('source'), **fingerprint(package)))
         require(imported, 'Actual restored upstream input inventory is required')
         write(self.reports / 'restored-inputs.json', dict(schemaVersion=1, packages=imported,
               scope='Actual restored package bytes and NuGet recorded origins; these are imported inputs.'))
+        (self.reports / 'ci-inputs').mkdir(parents=True, exist_ok=True)
+        shutil.copytree(self.reports / 'restored-inputs', self.reports / 'ci-inputs/restored-inputs')
+        shutil.copyfile(self.reports / 'prepare/input-recording-hook.json',
+                        self.reports / 'ci-inputs/input-recording-hook.json')
         roots = self.reports / 'source-roots.json'
         write(roots, dict(schemaVersion=1, roots=[
             dict(name='vmr', path=str(self.source), kind='git', expectedCommit=SOURCE, role='built-sdk-vmr-source'),
             dict(name='shared-vmr', path=str(self.shared), kind='git', expectedCommit=SHARED,
                  role='source-for-reused-shared-input')]))
         packer = module('musl_source_packer', 'package-used-source.py')
+        (self.reports / 'ci').mkdir(parents=True, exist_ok=True)
         packer.pack(SimpleNamespace(project_root=ROOT, project_commit=self.project, output_dir=self.output / 'sources',
             roots_json=roots, sdk_version=SDK, target_rid=self.id['rid'], run_id=self.args.run_id,
             run_attempt=self.args.run_attempt))
@@ -379,21 +415,234 @@ class Producer:
         self.seal()
 
 
-def validate(release):
-    release = ordinary(release)
-    result = json.loads((release / 'producer-validation.json').read_text())
-    require(result['schemaVersion'] == 1 and result['status'] == 'passed' and result['libc'] == 'musl'
-            and result['sdkVersion'] == SDK and result['sourceCommit'] == SOURCE
-            and result['sharedVmrCommit'] == SHARED, 'Unexpected producer validation identity')
-    require(result['targetRid'] == identity(result['architecture'])['rid'], 'Producer libc/RID mismatch')
-    expected = {row['path']: row for row in result['files']}
-    actual = {p.relative_to(release).as_posix() for p in release.rglob('*') if p.is_file() and not p.is_symlink()}
+def load_json(path):
+    def unique(pairs):
+        result = {}
+        for key, value in pairs:
+            require(key not in result, 'Duplicate JSON key: ' + key)
+            result[key] = value
+        return result
+    return json.loads(path.read_text(encoding='utf-8'), object_pairs_hook=unique)
+
+
+def delivery_index(release, rows):
+    """Bind a complete ordinary tree without interpreting untrusted paths."""
+    require(isinstance(rows, list) and rows, 'A nonempty delivery inventory is required')
+    expected = {}
+    for row in rows:
+        name = row.get('path')
+        require(isinstance(name, str) and name and '\\' not in name and '\0' not in name,
+                'A portable relative delivery path is required')
+        path = PurePosixPath(name)
+        require(not path.is_absolute() and path.as_posix() == name
+                and all(part not in ('.', '..') for part in path.parts)
+                and ':' not in name and name not in expected and name != 'producer-validation.json',
+                'Unsafe/duplicate delivery path: ' + name)
+        ordinary(release.joinpath(*path.parts))
+        expected[name] = row
+    tree = list(release.rglob('*'))
+    require(not any(p.is_symlink() or not (p.is_file() or p.is_dir()) for p in tree),
+            'Delivery must contain ordinary files/directories without symlinks')
+    actual = {p.relative_to(release).as_posix() for p in tree if p.is_file()}
     require(actual == set(expected) | {'producer-validation.json'}, 'Unbound/missing delivery files')
     for name, row in expected.items():
-        require(not (release / name).is_symlink()
-                and all(row[key] == value for key, value in fingerprint(release / name).items()),
+        require(all(row.get(key) == value for key, value in fingerprint(release / name).items()),
                 'Bound producer bytes changed: ' + name)
-    print('Native musl producer evidence and all bytes verified.')
+    return expected
+
+
+def sdk_elf_inventory(archive, machine, loader):
+    """Independently bind native ELF headers/interpreters and all bytes to the SDK TAR."""
+    result = {}
+    with tarfile.open(archive, 'r:gz') as stream:
+        for entry in stream:
+            if not (entry.isfile() or entry.islnk()):
+                continue
+            incoming = stream.extractfile(entry)
+            header = incoming.read(64)
+            if header[:4] != b'\x7fELF':
+                continue
+            name = entry.name.removeprefix('./')
+            require(name not in result and len(header) == 64 and header[4:6] == b'\x02\x01',
+                    'Duplicate/invalid/non-ELF64 native archive entry')
+            require(entry.size <= 512 * 1024 * 1024, 'Oversized native ELF archive entry')
+            body = header + incoming.read(512 * 1024 * 1024 + 1)
+            require((entry.islnk() or len(body) == entry.size) and len(body) <= 512 * 1024 * 1024
+                    and struct.unpack_from('<H', body, 18)[0] == machine,
+                    'Foreign-machine/truncated actual SDK ELF: ' + name)
+            offset = struct.unpack_from('<Q', body, 32)[0]
+            width, count = struct.unpack_from('<HH', body, 54)
+            require((count == 0 or width >= 56) and offset + width * count <= len(body),
+                    'Invalid ELF program header table: ' + name)
+            interpreters = []
+            for index in range(count):
+                position = offset + width * index
+                if struct.unpack_from('<I', body, position)[0] != 3:
+                    continue
+                start = struct.unpack_from('<Q', body, position + 8)[0]
+                length = struct.unpack_from('<Q', body, position + 32)[0]
+                require(0 < length <= 4096 and start + length <= len(body), 'Invalid ELF interpreter')
+                value = body[start:start + length]
+                require(value.endswith(b'\0'), 'Non-terminated ELF interpreter')
+                interpreters.append(value[:-1].decode('utf-8'))
+            require(interpreters in ([], [loader]), 'Non-musl actual SDK ELF interpreter: ' + name)
+            result[name] = dict(sha256=hashlib.sha256(body).hexdigest(),
+                                interpreter=interpreters[0] if interpreters else None)
+    return result
+
+
+def validate(release):
+    release = ordinary(release)
+    result = load_json(release / 'producer-validation.json')
+    required_stages = ['prepare', 'build', 'scan', 'test', 'collect', 'verify']
+    require(result.get('schemaVersion') == 1 and result.get('status') == 'passed'
+            and result.get('kind') == 'musl-sdk-producer-validation' and result.get('libc') == 'musl'
+            and result.get('sdkVersion') == SDK and result.get('sourceCommit') == SOURCE
+            and result.get('sharedVmrCommit') == SHARED, 'Unexpected producer validation identity')
+    require(result.get('architecture') in ('x64', 'aarch64'), 'Unexpected producer architecture')
+    arch = identity(result['architecture'])
+    require(result.get('targetRid') == arch['rid'], 'Producer libc/RID mismatch')
+    require(re.fullmatch(r'[a-f0-9]{40}', result.get('projectCommit', ''))
+            and all(re.fullmatch(r'[1-9][0-9]*', result.get(k, '')) for k in ['runId', 'runAttempt']),
+            'Invalid producer project/run identity')
+    require(result.get('allRequiredStages') == required_stages, 'All six required producer stages are mandatory')
+    delivery_index(release, result.get('files'))
+    stages = {}
+    for name in required_stages:
+        stage = load_json(release / 'reports/stages' / (name + '.json'))
+        require(stage.get('stage') == name and stage.get('status') == 'passed'
+                and isinstance(stage.get('commands'), list) and (stage['commands'] or name == 'collect'),
+                'Required actual stage did not pass: ' + name)
+        start = dt.datetime.fromisoformat(stage['startedAtUtc'])
+        finish = dt.datetime.fromisoformat(stage['finishedAtUtc'])
+        require(start.tzinfo is not None and finish.tzinfo is not None and finish >= start,
+                'Invalid stage timestamps: ' + name)
+        stages[name] = stage
+    for before, after in zip(required_stages, required_stages[1:]):
+        require(dt.datetime.fromisoformat(stages[before]['finishedAtUtc']) <=
+                dt.datetime.fromisoformat(stages[after]['startedAtUtc']), 'Producer stages are out of order')
+    prepare = load_json(release / 'reports/prepare/identity.json')
+    sdk = load_json(release / 'producer-sdk.json')
+    for record in [prepare, sdk]:
+        for key in ['sdkVersion', 'targetRid', 'libc', 'sourceCommit', 'sharedVmrCommit',
+                    'projectCommit', 'runId', 'runAttempt']:
+            require(record.get(key) == result[key], 'Producer identity differs: ' + key)
+    require(prepare.get('nativeArchitecture') == arch['machine'] and prepare.get('emulation') is False
+            and sdk.get('architecture') == result['architecture'] and sdk.get('kind') == 'musl-sdk-build'
+            and sdk.get('producerRevision') == 1 and prepare.get('imageId') == sdk.get('imageId'),
+            'Native architecture/image/SDK construction identity differs')
+    profile_path = ROOT / 'profiles' / ('dotnet-' + SDK + '-linux-musl-' + result['architecture'] + '.json')
+    require(prepare.get('profile', {}).get('path') == profile_path.name
+            and all(prepare['profile'].get(k) == v for k, v in fingerprint(profile_path).items()),
+            'The producer must use the reviewed pinned native musl profile')
+    profile = load_json(profile_path)
+    require(profile['source']['commit'] == SOURCE and profile['target'] == dict(rid=arch['rid'], libc='musl')
+            and profile['build']['sourceOnly'] is False and profile['build']['crossBuild'] is False,
+            'Unexpected producer profile route')
+    bootstrap = load_json(release / 'reports/prepare/bootstrap.json')
+    require(all(bootstrap.get(k) == v for k, v in profile['bootstrap'].items())
+            and isinstance(bootstrap.get('bytes'), int) and bootstrap['bytes'] > 100000000
+            and re.fullmatch('[a-f0-9]{64}', bootstrap.get('sha256', '')),
+            'The exact original musl bootstrap identity and byte hashes are required')
+    image = load_json(release / 'reports/prepare/build-image.json')
+    require(len(image) == 1 and image[0]['Id'] == prepare['imageId']
+            and image[0]['Architecture'] == arch['image'] and image[0]['Os'] == 'linux',
+            'Actual native build image differs')
+    scan = release / 'reports/scan/NewBinaries.txt'
+    require(scan.is_file() and not scan.read_bytes(), 'Original upstream binary scan did not report zero new binaries')
+    require(any('/project/scripts/scan-clean-source.proj' in c and '--network=none' in c
+                and any(str(a).endswith(':/clean:ro') for a in c) for c in stages['scan']['commands']),
+            'The original scan must run on a separate read-only source checkout without network')
+    tests = module('musl_validated_upstream', 'ci-net10-evidence.py').parse_tests(
+        release / 'reports/test/common.trx', release / 'reports/test/scenarios.xml')
+    require(load_json(release / 'reports/test/upstream-summary.json') == tests,
+            'Upstream test summary differs from the actual pinned test results')
+    source = load_json(release / 'sources/source-manifest.json')
+    roots = {r['name']: r for r in source['roots']}
+    require(roots.get('vmr', {}).get('commit') == SOURCE
+            and roots.get('vmr', {}).get('role') == 'built-sdk-vmr-source'
+            and roots.get('shared-vmr', {}).get('commit') == SHARED
+            and roots.get('shared-vmr', {}).get('role') == 'source-for-reused-shared-input',
+            'Both complete corresponding source trees and their construction roles are required')
+    module('musl_validated_sources', 'package-used-source.py').verify(SimpleNamespace(
+        release_dir=release, expected_project_commit=result['projectCommit'], expected_run_id=result['runId'],
+        expected_run_attempt=result['runAttempt'], expected_target_rid=arch['rid']))
+    name = sdk.get('sdk', {}).get('name', '')
+    require(name == 'cbodotnet-sdk-' + SDK + '-linux-musl-' + result['architecture'] +
+            '-build.' + result['runId'] + '.tar.gz', 'Unexpected SDK archive identity')
+    fp = fingerprint(release / name)
+    require(all(sdk['sdk'].get(k) == v for k, v in fp.items()), 'Original SDK archive byte binding differs')
+    with tarfile.open(release / name, 'r:gz') as archive:
+        for framework in ['Microsoft.NETCore.App', 'Microsoft.AspNetCore.App']:
+            marker = 'shared/' + framework + '/10.0.14/.version'
+            entries = [m for m in archive.getmembers() if m.name.lstrip('./') == marker]
+            require(len(entries) == 1 and entries[0].size <= 4096,
+                    'Missing/ambiguous actual shared framework version marker')
+            require(archive.extractfile(entries[0]).read(4097).decode('utf-8-sig').strip().splitlines()
+                    == [SHARED, '10.0.14'], 'Imported musl frameworks do not match corresponding sources')
+    construction = load_json(release / 'reports/construction.json')
+    require(construction.get('sourceOnly') is False and construction.get('sdkSource') == SOURCE
+            and construction.get('sharedSource', {}).get('commit') == SHARED
+            and construction.get('runtimeVersion') == '10.0.14'
+            and construction.get('bootstrapSdk') == '10.0.401'
+            and construction.get('sharedSdkPackage') == '10.0.114-servicing.26522.126',
+            'Rebuilt/imported component provenance must remain explicit')
+    imported = load_json(release / 'reports/restored-inputs.json').get('packages')
+    require(isinstance(imported, list) and imported and all(
+            p.get('bytes', 0) > 0 and re.fullmatch('[a-f0-9]{64}', p.get('sha256', ''))
+            and re.fullmatch('[a-f0-9]{128}', p.get('sha512', '')) for p in imported),
+            'Actual restored upstream input hashes are required')
+    hook = load_json(release / 'reports/prepare/input-recording-hook.json')
+    require(hook.get('sourceCommit') == SOURCE and hook.get('beforeTarget') == 'CleanupRepo'
+            and hook.get('path') == 'repo-projects/Directory.Build.targets',
+            'Actual inner-repository NuGet inputs must be recorded before upstream cleanup')
+    input_records = sorted((release / 'reports/restored-inputs').glob('*.json'))
+    require(input_records, 'Pre-cleanup repository input records are missing')
+    imported_keys = {(p.get('repository'), p['cache'], p['path'], p['sha256']) for p in imported}
+    for path in input_records:
+        record = load_json(path)
+        require(record.get('schemaVersion') == 1 and record.get('packages')
+                and all((record['repository'], record['cache'], p['path'], p['sha256'])
+                        in imported_keys for p in record['packages'])
+                and path.read_bytes() == (release / 'reports/ci-inputs/restored-inputs' / path.name).read_bytes(),
+                'Pre-cleanup input inventory must be retained, source-packaged and aggregated unchanged')
+    with (release / 'sources' / source['index']['path']).open(encoding='utf-8') as index:
+        target_records = [json.loads(line) for line in index if 'vmr/repo-projects/Directory.Build.targets' in line]
+    require(len(target_records) == 1 and target_records[0]['path'] == 'vmr/repo-projects/Directory.Build.targets'
+            and target_records[0]['sha256'] == hook.get('adjustedSha256'),
+            'The retained actual VMR source must contain the recorded pre-cleanup observation hook')
+    smoke = load_json(release / 'reports/verify/sdk/verification.json')
+    required_checks = ['consoleDllExecution', 'consoleApphostExecution', 'rsaSha256SignAndVerify',
+                       'cryptographicRandomBytes', 'frFrDecimalFormatting', 'aspNetCoreLoopbackHttp']
+    require(smoke.get('verificationStatus') == 'passed' and smoke.get('smokeStatus') == 'passed'
+            and smoke.get('sdkVersion') == SDK and smoke.get('reportedRid') == arch['rid']
+            and smoke.get('hostArchitecture') == arch['machine']
+            and all(smoke.get('functionalChecks', {}).get(k) == 'passed' for k in required_checks)
+            and smoke.get('archive', {}).get('sha256') == fp['sha256']
+            and smoke.get('archive', {}).get('sdkContentMatched') is True,
+            'Actual console/apphost/HTTP/crypto/ICU tests must bind the unchanged musl SDK bytes')
+    elf = load_json(release / 'reports/verify/elf.json')
+    loader = '/lib/ld-musl-' + arch['machine'] + '.so.1'
+    require(elf.get('status') == 'passed' and elf.get('libc') == 'musl'
+            and elf.get('architecture') == result['architecture'] and elf.get('loader') == loader
+            and elf.get('nativeArchitecture') == arch['machine'] and elf.get('uid', 0) > 0
+            and elf.get('emulation') is False and elf.get('foreignTargetExceptions') == []
+            and elf.get('elfCount', 0) == len(elf.get('files', [])) and elf['elfCount'] >= 10,
+            'Complete native musl ELF audit evidence is mandatory')
+    require(all(r.get('classification') == 'native-host' and r.get('interpreter') in (None, loader)
+                and not any(n == 'libc.so.6' or n.startswith('ld-linux') for n in r.get('needed', []))
+                and not re.search(r'not found|Error loading|Error relocating|symbol not found',
+                                  r.get('dependencyClosure', ''), re.IGNORECASE) for r in elf['files']),
+            'Unqualified glibc/foreign/unresolved ELF is forbidden')
+    actual_elf = sdk_elf_inventory(release / name, 62 if result['architecture'] == 'x64' else 183, loader)
+    bound_elf = {r['path']: r for r in elf['files']}
+    require(len(bound_elf) == len(elf['files']) and set(bound_elf) == set(actual_elf)
+            and all(all(bound_elf[p].get(k) == v for k, v in row.items()) for p, row in actual_elf.items()),
+            'The complete native ELF audit must bind the actual SDK archive payload')
+    require(any('--network=none' in c and '/tmp' in c for c in stages['verify']['commands']),
+            'The native runtime qualification must run offline in a fresh SDK-free container')
+    print('Native musl producer identity, actual tests, corresponding sources and every bound byte verified.')
+    return result
 
 
 def main():
