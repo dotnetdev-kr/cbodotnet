@@ -13,7 +13,9 @@ import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from musl_release import (ROOT, extract_artifact, extract_delivery, validate_artifact,
-    validate_run, validate_source_stage, validate_apk_signer, validate_publication_metadata, verify_release_tag)
+    validate_run, validate_source_stage, validate_apk_signer, validate_publication_metadata, verify_release_tag,
+    producer_checksum_bytes)
+from downstream_release import descriptor, encoded
 from musl_contract_test import fixture
 import musl_archive
 import musl_contract
@@ -77,6 +79,28 @@ class MuslOriginTest(unittest.TestCase):
             sdk = root/manifest['architectures']['aarch64']['sdk']['name']
             sdk.write_bytes(b'altered second CPU SDK')
             with self.assertRaisesRegex(ValueError, 'bytes changed'):
+                validate_source_stage(root)
+
+    def test_eight_file_stage_survives_sorted_json_without_changing_checksum_bytes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            _, manifest, _, checksums, _, payloads = fixture()
+            for name, data in payloads.items():
+                (root/name).write_bytes(data)
+            (root/'release-manifest.json').write_bytes(encoded(manifest))
+            loaded = json.loads((root/'release-manifest.json').read_bytes())
+            self.assertEqual(list(loaded['architectures']), ['aarch64', 'x64'])
+            self.assertEqual(list(musl_contract.ARCHITECTURES), ['x64', 'aarch64'])
+            self.assertEqual(producer_checksum_bytes(loaded), checksums)
+            validated, assets = validate_source_stage(root)
+            self.assertEqual(validated, manifest)
+            self.assertEqual(len(assets), 8)
+            self.assertEqual((root/'SHA256SUMS').read_bytes(), checksums)
+            tampered = b'0'*64 + checksums[64:]
+            (root/'SHA256SUMS').write_bytes(tampered)
+            manifest['checksums'] = descriptor(root/'SHA256SUMS')
+            (root/'release-manifest.json').write_bytes(encoded(manifest))
+            with self.assertRaisesRegex(ValueError, 'checksums differ'):
                 validate_source_stage(root)
 
     def test_approved_apk_key_has_a_publisher_cutoff_and_rejects_changed_pem(self):

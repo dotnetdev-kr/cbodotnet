@@ -433,6 +433,13 @@ def _source_module():
     return module
 
 
+def producer_checksum_bytes(manifest):
+    """Keep source checksums in declared CPU/kind order across JSON round trips."""
+    entries = (manifest['architectures'][arch] for arch in ARCHITECTURES)
+    return ''.join(f'{entry[kind]["sha256"]}  {entry[kind]["name"]}\n'
+        for entry in entries for kind in KINDS).encode('ascii')
+
+
 def stage_producer(received_directory, output):
     """Freeze a closed two-CPU source release from independently rechecked bytes."""
     from types import SimpleNamespace
@@ -493,8 +500,7 @@ def stage_producer(received_directory, output):
             artifactId=str(row['artifact']['id']), workflow=PRODUCER_WORKFLOW,
             workflowUrl=f'https://github.com/{REPOSITORY}/actions/runs/{run["id"]}', libc='musl', targetRid=target['rid'], **SOURCE)
         manifest['architectures'][arch] = entry
-    checksum_bytes = ''.join(f'{entry[kind]["sha256"]}  {entry[kind]["name"]}\n'
-        for entry in manifest['architectures'].values() for kind in KINDS).encode('ascii')
+    checksum_bytes = producer_checksum_bytes(manifest)
     (output/'SHA256SUMS').write_bytes(checksum_bytes)
     manifest['checksums'] = descriptor(output/'SHA256SUMS')
     validate_producer_manifest(manifest)
@@ -516,8 +522,7 @@ def validate_source_stage(directory):
     for name, wanted in expected.items():
         require(descriptor(directory/name) == wanted, 'Musl producer stage bytes changed: '+name)
     sums = ordinary_file(directory/'SHA256SUMS').read_bytes()
-    checksum_bytes = ''.join(f'{entry[kind]["sha256"]}  {entry[kind]["name"]}\n'
-        for entry in manifest['architectures'].values() for kind in KINDS).encode('ascii')
+    checksum_bytes = producer_checksum_bytes(manifest)
     require(sums == checksum_bytes, 'Musl producer checksums differ from closed SDK/source/evidence inventory')
     commits = {entry['provenance']['projectCommit'] for entry in manifest['architectures'].values()}
     require(len(commits) == 1, 'Musl producer stage mixes orchestration commits')
