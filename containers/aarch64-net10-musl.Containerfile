@@ -37,7 +37,7 @@ RUN printf '%s\n' 'https://dl-cdn.alpinelinux.org/alpine/v3.24/main' 'https://dl
         icu-dev=78.1-r0 \
         openssl-dev=3.5.9-r0 \
         zlib-dev=1.4-r0 \
-        krb5-dev=1.22.2-r1 \
+        krb5-libs=1.22.2-r1 \
         libunwind-dev=1.8.3-r0 \
         lttng-ust-dev=2.14.2-r0 \
         libedit-dev=20260508.3.1-r1 \
@@ -55,7 +55,7 @@ RUN printf '%s\n' 'https://dl-cdn.alpinelinux.org/alpine/v3.24/main' 'https://dl
         bison=3.8.2-r3 \
         flex=2.6.4-r8 \
         libxml2-dev=2.13.9-r2 \
-    && apk --cache-dir /cbodotnet-apks add --no-network \
+    && apk --cache-dir /cbodotnet-apks add --no-network /cbodotnet-apks/*.apk \
         bash=5.3.9-r1 \
         build-base=0.5-r4 \
         clang20=20.1.8-r3 \
@@ -85,7 +85,7 @@ RUN printf '%s\n' 'https://dl-cdn.alpinelinux.org/alpine/v3.24/main' 'https://dl
         icu-dev=78.1-r0 \
         openssl-dev=3.5.9-r0 \
         zlib-dev=1.4-r0 \
-        krb5-dev=1.22.2-r1 \
+        krb5-libs=1.22.2-r1 \
         libunwind-dev=1.8.3-r0 \
         lttng-ust-dev=2.14.2-r0 \
         libedit-dev=20260508.3.1-r1 \

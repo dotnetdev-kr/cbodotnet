@@ -207,9 +207,10 @@ footer p { margin: 0; }
 <p class="archive-note">Archives provide <code>cbodotnet</code>, <code>cbodotnet-X.Y</code> and a local <code>dotnet</code> command. Distribution libraries are still required. SDK 5.0 and .NET Core 3.x need separate compatibility companions; find their downloads under each release&rsquo;s details.</p>
 </section>
 {{DOWNSTREAM_CHANNELS}}
+{{MUSL_DISTRIBUTIONS}}
 <section class="project-notes" aria-labelledby="about-title">
 <h2 id="about-title">About these builds</h2>
-<p>Community builds for glibc Linux, independently of the upstream support lifecycle. These builds do not include Microsoft support or restore security support for older .NET releases. Check the verified operating systems and dependency requirements for your chosen SDK.</p>
+<p>Community builds for the Linux targets listed above, independently of the upstream support lifecycle. These builds do not include Microsoft support or restore security support for older .NET releases. Check the verified operating systems and dependency requirements for your chosen SDK.</p>
 <p>Public commands identify themselves as <strong>Community Build of .NET (built by .NET Dev)</strong> and retain the numeric SDK version. Packages provide <code>cbodotnet-X.Y</code> and <code>cbodotnet</code>; the shared command selects the highest installed SDK series. See the <a href="{{REPOSITORY_URL}}/blob/main/docs/cli-branding.md">CLI identity policy</a> and <a href="downstream-status.json">verified distribution status</a>.</p>
 <details><summary>Build and publication status</summary>
 <div class="status" aria-label="CI/CD workflow status">

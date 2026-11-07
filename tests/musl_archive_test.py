@@ -112,12 +112,14 @@ class MuslArchiveTests(unittest.TestCase):
         plan = self.plan()
         script = ARCHIVE.full_smoke_script(plan, Path('/payload'), Path('/cli'), Path('/work'))
         for required in ('ThaiBuddhistCalendar', 'UmAlQuraCalendar', 'Korean collation', 'Asia/Seoul',
-                         'Europe/Paris', 'SslProtocols.Tls12', '<clear />', 'build --no-restore'):
+                         'Europe/Paris', 'OptionalCalendars', 'GetYear(calendarDate)!=1447',
+                         'SslProtocols.Tls12', '<clear />', 'build --no-restore'):
             self.assertIn(required, script)
         trust = ARCHIVE.trust_probe_script(plan, Path('/payload'), Path('/cli'), Path('/work'))
         self.assertIn('X509Store(StoreName.Root,StoreLocation.LocalMachine)', trust)
         self.assertIn('/x86_64/APKINDEX.tar.gz', trust)
         self.assertNotIn('ServerCertificateCustomValidationCallback', trust)
+        self.assertIn('user="app"', ARCHIVE.full_smoke_script(plan, Path('/payload'), Path('/cli'), Path('/work'), expected_user='app'))
 
 
 class MuslElfAuditTests(unittest.TestCase):
@@ -227,6 +229,16 @@ class MuslElfAuditTests(unittest.TestCase):
     def test_native_guard_prevents_test_fixture_evidence_from_claiming_native_success(self):
         with self.assertRaisesRegex(ValueError, 'actual Alpine root'):
             ARCHIVE.audit_elf(self.payload, 'x64', system_root=self.system, native=True)
+
+    def test_exported_absolute_soname_links_and_runpaths_are_anchored_to_image_root(self):
+        target = self.write(self.system / 'usr/lib/libfixture.so.1.2')
+        self.records[str(target)] = self.record()
+        (self.system / 'usr/lib/libfixture.so.1').symlink_to('/usr/lib/libfixture.so.1.2')
+        self.records[str(self.host)].update(needed=['libfixture.so.1'], runpaths=['/usr/lib'])
+        report = self.audit()
+        dependency = report['elfFiles'][0]['dependencies'][0]
+        self.assertEqual(str(target), dependency['resolved'])
+        self.assertTrue(dependency['resolved'].startswith(str(self.system)))
 
 
 if __name__ == '__main__':

@@ -20,6 +20,9 @@ def command(args):
     return result.returncode, result.stdout
 
 def audit(archive, arch):
+    # Shared with final archive qualification: provider-attributed symbol versions,
+    # stock-APK ownership and transitive DT_NEEDED closure have one implementation.
+    from musl_archive import audit_elf, inspect_elf
     machine, elf_machine, loader = {
         'x64': ('x86_64', 'Advanced Micro Devices X86-64', '/lib/ld-musl-x86_64.so.1'),
         'aarch64': ('aarch64', 'AArch64', '/lib/ld-musl-aarch64.so.1')}[arch]
@@ -28,57 +31,46 @@ def audit(archive, arch):
     require(Path(loader).is_file() and not Path('/lib/ld-linux-x86-64.so.2').exists()
             and not Path('/lib/ld-linux-aarch64.so.1').exists(), 'A pristine musl loader is required')
     rows, violations, links, static_archives = [], [], [], []
+    qualified = None
     with tempfile.TemporaryDirectory(prefix='cbodotnet-musl-audit-') as temporary:
         root = Path(temporary) / 'sdk'
         root.mkdir()
         with tarfile.open(archive, 'r:gz') as stream:
             stream.extractall(root, filter='data')
+        # Preserve complete discovery even when a later dependency disposition fails.
         for path in sorted(root.rglob('*')):
+            relative = path.relative_to(root).as_posix()
             if path.is_symlink():
-                links.append(dict(path=path.relative_to(root).as_posix(), target=os.readlink(path)))
+                links.append(dict(path=relative, target=os.readlink(path)))
                 continue
             if not path.is_file():
                 continue
-            if path.suffix == '.a':
-                with path.open('rb') as source:
-                    static_archives.append(dict(path=path.relative_to(root).as_posix(),
-                        sha256=hashlib.file_digest(source, 'sha256').hexdigest(),
+            with path.open('rb') as stream:
+                magic = stream.read(8)
+            if magic.startswith(b'!<arch>\n'):
+                with path.open('rb') as stream:
+                    static_archives.append(dict(path=relative,
+                        sha256=hashlib.file_digest(stream, 'sha256').hexdigest(),
                         disposition='Retained unchanged; embedded objects and NativeAOT are not qualified.'))
-            with path.open('rb') as incoming:
-                magic = incoming.read(4)
-            if magic != b'\x7fELF':
+            if not magic.startswith(b'\x7fELF'):
                 continue
-            code, header = command(['readelf', '-hW', str(path)])
-            require(code == 0, 'Cannot inspect ELF header: ' + str(path))
-            code, program = command(['readelf', '-lW', str(path)])
-            require(code == 0, 'Cannot inspect ELF program headers')
-            code, dynamic = command(['readelf', '-dW', str(path)])
-            require(code == 0, 'Cannot inspect ELF dependencies')
-            code, versions = command(['readelf', '-VW', str(path)])
-            require(code == 0, 'Cannot inspect ELF symbol versions')
-            actual = re.search(r'Machine:\s*(.+)', header)
-            native = actual is not None and actual.group(1).strip() == elf_machine
-            if not native:
-                violations.append('Foreign-machine ELF needs explicit qualification: ' + str(path.relative_to(root)))
-            kind = re.search(r'Type:\s*(\S+)', header).group(1)
-            interpreters = re.findall(r'Requesting program interpreter:\s*([^\]]+)', program)
-            if interpreters not in ([], [loader]):
-                violations.append('Non-musl/unknown ELF interpreter: ' + str(path.relative_to(root)))
-            needed = re.findall(r'\(NEEDED\).*?\[([^\]]+)\]', dynamic)
-            if re.search(r'\bGLIBC_[0-9]', versions) or any(
-                    name == 'libc.so.6' or name.startswith('ld-linux') for name in needed):
-                violations.append('glibc ELF dependency/version requirement: ' + str(path.relative_to(root)))
-            closure = ''
-            if native and kind in ('EXEC', 'DYN') and (needed or interpreters):
-                code, closure = command(['ldd', str(path)])
-                if code != 0 or re.search(r'not found|Error loading|Error relocating|symbol not found',
-                                          closure, re.IGNORECASE):
-                    violations.append('Unresolved native ELF dependency/symbol: ' + str(path.relative_to(root)) + '\n' + closure)
-            rows.append(dict(path=path.relative_to(root).as_posix(), elfType=kind,
-                        machine=actual.group(1).strip(), interpreter=interpreters[0] if interpreters else None,
-                        needed=needed, dependencyClosure=closure,
-                        classification='native-host' if native else 'unqualified-foreign',
-                        sha256=hashlib.file_digest(path.open('rb'), 'sha256').hexdigest()))
+            observed = inspect_elf(path)
+            with path.open('rb') as stream:
+                digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+            rows.append(dict(path=relative, sha256=digest, **observed,
+                             classification='native-host' if observed['machine'] == elf_machine else 'unqualified-foreign'))
+        try:
+            qualified = audit_elf(root, arch)
+        except Exception as error:
+            violations.append(str(error))
+        else:
+            by_path = {row['path']: row for row in qualified['elfFiles']}
+            require(set(by_path) == {row['path'] for row in rows}, 'Shared ELF qualification inventory differs')
+            for row in rows:
+                actual = by_path[row['path']]
+                require(actual['sha256'] == row['sha256'], 'SDK bytes changed during native closure audit')
+                row['dependencies'] = actual['dependencies']
+                row['reviewedAbiVersionLabels'] = actual['reviewedAbiVersionLabels']
         if not (len(rows) >= 10 and any(r['path'] == 'dotnet' and r['interpreter'] == loader for r in rows)
                 and any(r['path'].endswith('/libcoreclr.so') for r in rows)
                 and any(r['path'].endswith('/libhostfxr.so') for r in rows)):
@@ -86,8 +78,8 @@ def audit(archive, arch):
     return dict(schemaVersion=1, status='failed' if violations else 'passed', libc='musl', architecture=arch, loader=loader,
                 nativeArchitecture=platform.machine(), uid=os.getuid(), emulation=False,
                 elfCount=len(rows), foreignTargetExceptions=[], files=rows, violations=violations,
-                symlinks=links, staticArchives=static_archives,
-                scope='All extracted regular ELF files audited; links and static archives inventoried. Embedded objects/ZIPs, NativeAOT and workloads are not qualified. No foreign/glibc exceptions admitted.')
+                symlinks=links, staticArchives=static_archives, closure=qualified,
+                scope='Every regular ELF and transitive DT_NEEDED provider audited; stock GCC unwind ABI labels require exact provider definitions/APK ownership. Links/static archives inventoried; embedded objects/ZIPs/NativeAOT/workloads unqualified.')
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)

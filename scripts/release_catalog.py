@@ -297,7 +297,7 @@ def build_catalog(releases, fetch_asset, repository, generated_at=None):
             datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"), "releases": records}
 
 
-def render_html(catalog, template, downstream_status=None, consumer_archives=None, installer_markup=''):
+def render_html(catalog, template, downstream_status=None, consumer_archives=None, installer_markup='', musl_markup=''):
     from distribution_site import render_channels
     escape = html.escape
 
@@ -348,6 +348,8 @@ def render_html(catalog, template, downstream_status=None, consumer_archives=Non
                     "{{INSTALLER_PANEL}}": installer_markup or '<p>The SDK manager is not available yet. Choose an archive or a verified package below.</p>',
                     "{{DOWNSTREAM_CHANNELS}}": render_channels(downstream_status or {}),
                     "{{REPOSITORY_URL}}": "https://github.com/" + escape(catalog["repository"], quote=True)}
+    if '{{MUSL_DISTRIBUTIONS}}' in template or musl_markup:
+        replacements['{{MUSL_DISTRIBUTIONS}}'] = musl_markup
     for key, value in replacements.items():
         require(template.count(key) >= 1, "Missing site template placeholder: " + key)
         template = template.replace(key, value)
@@ -368,8 +370,10 @@ def write_site(catalog, template_path, output_dir):
     consumers = archive_rows()
     from cbodotnetup_site import prepare as prepare_installer
     installer_markup = prepare_installer(output_dir)
+    from musl_site import prepare as prepare_musl
+    musl_markup, _ = prepare_musl(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / "index.html").write_text(render_html(catalog, template_path.read_text(encoding="utf-8"), public_status, consumers, installer_markup), encoding="utf-8")
+    (output_dir / "index.html").write_text(render_html(catalog, template_path.read_text(encoding="utf-8"), public_status, consumers, installer_markup, musl_markup), encoding="utf-8")
     (output_dir / 'archive-status.json').write_text(json.dumps(dict(schemaVersion=1, repository=catalog['repository'],
         status='published-postverified' if consumers else 'not-published', archives=consumers), indent=2) + '\n', encoding='utf-8')
     (output_dir / "releases.json").write_text(json.dumps(catalog, indent=2) + "\n", encoding="utf-8")

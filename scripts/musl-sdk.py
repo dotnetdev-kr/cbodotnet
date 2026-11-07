@@ -634,6 +634,36 @@ def validate(release):
                 and not re.search(r'not found|Error loading|Error relocating|symbol not found',
                                   r.get('dependencyClosure', ''), re.IGNORECASE) for r in elf['files']),
             'Unqualified glibc/foreign/unresolved ELF is forbidden')
+    closure = elf.get('closure')
+    require(isinstance(closure, dict) and closure.get('scope') == 'musl-complete-payload-elf-closure'
+            and closure.get('status') == 'passed' and closure.get('native') is True
+            and closure.get('architecture') == result['architecture'] and closure.get('libc') == 'musl'
+            and closure.get('targetRid') == arch['rid'] and closure.get('nonHostElfCount') == 0
+            and closure.get('hostElfCount') == elf['elfCount']
+            and len(closure.get('elfFiles', [])) == elf['elfCount']
+            and closure.get('stockLibraries'), 'Complete native stock-APK transitive dependency closure is mandatory')
+    for provider in closure['stockLibraries']:
+        require(provider.get('apkOwner') and re.fullmatch('[a-f0-9]{64}', provider.get('sha256', '')),
+                'Every system dependency must identify its actual stock APK owner and bytes')
+    gcc_providers = [p for p in closure['stockLibraries'] if p.get('apkOwner', '').endswith(
+        ' is owned by libgcc-' + next(p['V'] for p in profile['runtimePackages'] if p['P'] == 'libgcc'))]
+    closure_files = {r['path']: r for r in closure['elfFiles']}
+    discovered_files = {r['path']: r for r in elf['files']}
+    require(len(closure_files) == elf['elfCount'] and set(closure_files) == set(discovered_files)
+            and all(all(row.get(key) == discovered_files[path].get(key)
+                        for key in ['sha256', 'interpreter', 'machine', 'needed', 'versionNeeds'])
+                    for path, row in closure_files.items()),
+            'Qualified native dependency closure must bind the complete discovered SDK ELF inventory')
+    sys.path.insert(0, str(ROOT / 'scripts'))
+    import musl_archive
+    for row in closure['elfFiles']:
+        # This attribution parser is pure: it never treats arbitrary GLIBC labels
+        # as musl-compatible and the native proof separately binds the provider.
+        labels = musl_archive.reviewed_gcc_abi_labels(row)
+        require(labels == row.get('reviewedAbiVersionLabels'), 'Unreviewed ELF ABI version label')
+        if labels:
+            require(any('GLIBC_2.0' in provider.get('versionDefinitions', []) for provider in gcc_providers),
+                    'Reviewed GCC unwind label lacks its exact stock libgcc definition/owner')
     actual_elf = sdk_elf_inventory(release / name, 62 if result['architecture'] == 'x64' else 183, loader)
     bound_elf = {r['path']: r for r in elf['files']}
     require(len(bound_elf) == len(elf['files']) and set(bound_elf) == set(actual_elf)

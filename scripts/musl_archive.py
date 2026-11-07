@@ -256,6 +256,38 @@ def target_classifications(policy, payload, architecture):
     return classified
 
 
+def resolve_system_path(candidate, root):
+    """Resolve exported image links inside their virtual root, never the host /lib."""
+    root, candidate = Path(root), Path(candidate)
+    require(root == candidate or root in candidate.parents, 'System library candidate is outside its reviewed root')
+    pending = list(candidate.relative_to(root).parts)
+    resolved, links = root, 0
+    while pending:
+        part = pending.pop(0)
+        if part == '.':
+            continue
+        if part == '..':
+            require(resolved != root, 'Exported system library link escapes its root')
+            resolved = resolved.parent
+            continue
+        path = resolved / part
+        if path.is_symlink():
+            links += 1
+            require(links <= 40, 'Exported system library link cycle')
+            target = PurePosixPath(os.readlink(path))
+            require(not any(char in str(target) for char in '\\\0\r\n'), 'Unsafe exported library link target')
+            if target.is_absolute():
+                resolved = root
+                pending = list(target.parts[1:]) + pending
+            else:
+                pending = list(target.parts) + pending
+        else:
+            if not path.exists():
+                return None
+            resolved = path
+    return resolved if resolved.is_file() else None
+
+
 def audit_elf(payload, architecture, target_policy=None, *, system_root=Path('/'), native=True):
     """Inspect every regular ELF; resolve host DT_NEEDED transitively to stock APKs."""
     require(architecture in ARCHITECTURES, 'Unknown musl audit architecture')
@@ -285,9 +317,12 @@ def audit_elf(payload, architecture, target_policy=None, *, system_root=Path('/'
             require(item and '\x00' not in item, 'Empty or unsafe ELF runpath')
             expanded = item.replace('${ORIGIN}', str(path.parent)).replace('$ORIGIN', str(path.parent))
             require('$' not in expanded and expanded.startswith('/'), 'Unreviewed ELF loader token or relative runpath')
-            directory = Path(expanded).resolve()
-            require(directory == payload or payload in directory.parents
-                    or directory in {system_root / 'lib', system_root / 'usr/lib'}, 'ELF runpath escapes reviewed roots')
+            virtual = Path(expanded)
+            if virtual in {Path('/lib'), Path('/usr/lib'), Path('/usr/local/lib')}:
+                directory = system_root / virtual.relative_to('/')
+            else:
+                directory = virtual.resolve()
+                require(directory == payload or payload in directory.parents, 'ELF runpath escapes reviewed roots')
             result.append(directory)
         return result + [system_root / 'lib', system_root / 'usr/local/lib', system_root / 'usr/lib']
 
@@ -295,7 +330,17 @@ def audit_elf(payload, architecture, target_policy=None, *, system_root=Path('/'
         dependencies = []
         for needed in record['needed']:
             candidates = [directory / needed for directory in search_directories(record, path)]
-            resolved = next((item.resolve(strict=True) for item in candidates if item.is_file()), None)
+            resolved = None
+            for item in candidates:
+                if item == payload or payload in item.parents:
+                    target = item.resolve(strict=False)
+                    require(payload in target.parents, 'Payload native library link escapes its root')
+                    if target.is_file():
+                        resolved = target
+                else:
+                    resolved = resolve_system_path(item, system_root)
+                if resolved is not None:
+                    break
             require(resolved is not None, 'Unresolved native ELF dependency: ' + needed + ' from ' + str(path))
             own = resolved == payload or payload in resolved.parents
             require(own or any(base == resolved or base in resolved.parents
@@ -369,18 +414,23 @@ def audit_elf(payload, architecture, target_policy=None, *, system_root=Path('/'
         nonHostElfCount=sum(row['disposition'] == 'non-host-target-pack' for row in rows))
 
 
-def full_smoke_script(plan, payload, cli, workdir):
+def full_smoke_script(plan, payload, cli, workdir, *, expected_user='cbot-musl'):
     """Real DLL/apphost, ASP.NET, RSA, TLS, full ICU and timezone checks offline."""
     from sdk_runtime import smoke_script
-    script = smoke_script(plan['sdkVersion'], str(payload), 'cbot-musl', cli=str(cli), workdir=str(workdir))
+    require(isinstance(expected_user, str) and re.fullmatch(r'[a-z_][a-z0-9_-]*', expected_user),
+            'An explicit ordinary non-root smoke-test user is required')
+    script = smoke_script(plan['sdkVersion'], str(payload), expected_user, cli=str(cli), workdir=str(workdir))
     additional = '''
   var cultureNames=new[]{"fr-FR","ko-KR","ar-SA","th-TH","ja-JP"};
   foreach(var name in cultureNames) {
    var culture=CultureInfo.GetCultureInfo(name);
    if(culture.Name!=name || culture.DateTimeFormat.MonthNames[0].Length==0) throw new Exception("Full ICU culture "+name);
   }
-  if(!(CultureInfo.GetCultureInfo("th-TH").DateTimeFormat.Calendar is ThaiBuddhistCalendar)) throw new Exception("Thai calendar");
-  if(!(CultureInfo.GetCultureInfo("ar-SA").DateTimeFormat.Calendar is UmAlQuraCalendar)) throw new Exception("Arabic calendar");
+  var calendarDate=new DateTime(2026,1,1);
+  if(!CultureInfo.GetCultureInfo("th-TH").OptionalCalendars.Any(calendar=>calendar is ThaiBuddhistCalendar)
+   || new ThaiBuddhistCalendar().GetYear(calendarDate)!=2569) throw new Exception("Thai calendar");
+  if(!CultureInfo.GetCultureInfo("ar-SA").OptionalCalendars.Any(calendar=>calendar is UmAlQuraCalendar)
+   || new UmAlQuraCalendar().GetYear(calendarDate)!=1447) throw new Exception("Arabic calendar");
   if(CultureInfo.GetCultureInfo("ko-KR").CompareInfo.Compare("가","나")>=0) throw new Exception("Korean collation");
   var instant=new DateTimeOffset(2026,1,1,0,0,0,TimeSpan.Zero);
   if(TimeZoneInfo.FindSystemTimeZoneById("Asia/Seoul").GetUtcOffset(instant)!=TimeSpan.FromHours(9)

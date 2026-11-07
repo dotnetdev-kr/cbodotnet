@@ -17,6 +17,12 @@ on:
       - scripts/distribution_site.py
       - scripts/cbodotnetup_site.py
       - releases/cbodotnetup-status.json
+      - releases/musl-status.json
+      - releases/musl-signing-policy.json
+      - releases/cbodotnet-apk-2026.rsa.pub
+      - scripts/musl_site.py
+      - scripts/musl_release.py
+      - scripts/musl_contract.py
       - .github/workflows/pages.yml
 
 permissions:
