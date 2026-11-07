@@ -95,6 +95,29 @@ def instrument_input_recording(original):
     return adjusted
 
 
+def prepare_image_context(profile, context, root=ROOT):
+    """Copy only the reviewed stock indexes and seeder into the build context."""
+    context.mkdir()
+    snapshots = context / 'apk-snapshots'
+    snapshots.mkdir()
+    for repository in ('main', 'community'):
+        record = profile['apkIndexes'][repository]
+        name = record['snapshotPath']
+        path = PurePosixPath(name)
+        require(isinstance(name, str) and name == path.as_posix() and not path.is_absolute()
+                and '..' not in path.parts and '\\' not in name and ':' not in name,
+                'Unsafe repository-relative APK index snapshot path')
+        source = root / path
+        require(not any(p.is_symlink() for p in [source, *source.parents]) and source.is_file(),
+                'APK index snapshots must be ordinary checked-in files')
+        require(fingerprint(source)['sha256'] == record['sha256'],
+                'Pinned APK index snapshot SHA256 mismatch: ' + repository)
+        shutil.copyfile(source, snapshots / (repository + '-APKINDEX.tar.gz'))
+    seeder = root / 'scripts/seed-musl-apk-cache.sh'
+    require(seeder.is_file() and not seeder.is_symlink(), 'An ordinary APK snapshot seeder is required')
+    shutil.copyfile(seeder, context / 'seed-apk-cache.sh')
+
+
 class Producer:
     def __init__(self, args):
         self.args = args
@@ -113,6 +136,7 @@ class Producer:
         self.shared = self.workspace / 'shared-source'
         self.home = self.workspace / 'home'
         self.inputs = self.workspace / 'inputs'
+        self.image_context = self.workspace / 'image-context'
         self.reports = self.output / 'reports'
         self.image = None
         self.verify_image = None
@@ -149,10 +173,36 @@ class Producer:
             '--volume', str(ROOT) + ':/project:ro', '--volume', str(self.output) + ':/delivery',
             '--volume', str(self.inputs) + ':/inputs:ro', '--volume', str(self.home) + ':/home/build']
         if source:
+            argv += self.bootstrap_environment()
             argv += ['--volume', str(self.source) + ':/vmr', '--workdir', '/vmr']
         else:
             argv += ['--workdir', '/tmp']
-        self.run(argv + [image or self.image] + command, log=log)
+        argv += self.diagnostic_options()
+        self.run(argv + [image or self.image] + self.observed_command(command), log=log)
+
+    def bootstrap_environment(self):
+        architecture = 'ARM64' if self.args.arch == 'aarch64' else 'X64'
+        return ['--env', 'DOTNET_ROOT=/vmr/.dotnet', '--env', 'DOTNET_ROOT_' + architecture + '=/vmr/.dotnet',
+                '--env', 'DOTNET_HOST_PATH=/vmr/.dotnet/dotnet']
+
+    def diagnostic_options(self):
+        path = self.reports / 'diagnostics' / ('container-' + str(len(self.commands)).zfill(4))
+        path.mkdir(parents=True)
+        return ['--volume', str(path) + ':/diag', '--env', 'MSBUILDDEBUGPATH=/diag', '--env', 'MSBUILDDEBUGCOMM=1',
+                '--env', 'DOTNET_DbgEnableMiniDump=1', '--env', 'DOTNET_DbgMiniDumpType=1',
+                '--env', 'DOTNET_DbgMiniDumpName=/diag/dotnet_%e_%p_%t.dmp']
+
+    @staticmethod
+    def observed_command(command):
+        # Keep /tmp short for Unix sockets; only failure diagnostics use the mount.
+        script = ('if [ -r /sys/fs/cgroup/memory.events ]; then '
+                  'cat /sys/fs/cgroup/memory.events > /diag/memory-before.events; fi; '
+                  'cat /proc/self/limits > /diag/process-limits.txt; '
+                  '"$@"; result=$?; '
+                  'if [ -r /sys/fs/cgroup/memory.events ]; then '
+                  'cat /sys/fs/cgroup/memory.events > /diag/memory-after.events; fi; '
+                  'printf "%s\\n" "$result" > /diag/exit-code.txt; exit "$result"')
+        return ['sh', '-c', script, 'musl-sdk-observed-command', *command]
 
     def stage(self, name, action):
         target = self.reports / 'stages' / (name + '.json')
@@ -179,7 +229,7 @@ class Producer:
         self.workspace.mkdir(parents=True, exist_ok=True)
         self.home.mkdir(mode=0o700)
         self.inputs.mkdir()
-        (self.workspace / 'empty-context').mkdir()
+        prepare_image_context(self.profile, self.image_context)
         self.run(['git', 'clone', '--depth', '1', '--branch', 'v' + SDK, '--', REPOSITORY, str(self.source)],
                  self.reports / 'prepare/source.log')
         require(git(self.source, 'rev-parse', 'HEAD') == SOURCE, 'The fetched VMR tag changed')
@@ -194,13 +244,14 @@ class Producer:
         recipe = ROOT / 'containers' / (self.args.arch + '-net10-musl.Containerfile')
         tag = 'localhost/cbodotnet-musl-build:' + self.args.run_id + '-' + self.args.arch
         self.run(self.engine + ['build', '--network=host', '--file', str(recipe), '--tag', tag,
-                               str(self.workspace / 'empty-context')],
+                               str(self.image_context)],
                  self.reports / 'prepare/image-build.log')
         inspect = json.loads(self.run(self.engine + ['image', 'inspect', tag], capture=True))
         require(len(inspect) == 1 and inspect[0]['Architecture'] == self.id['image']
                 and inspect[0]['Os'] == 'linux', 'A matching native image is required')
         self.image = inspect[0]['Id']
         write(self.reports / 'prepare/build-image.json', inspect)
+        self.prepare_runtime_image()
         self.container(['sh', '-ec', 'cp -a /cbodotnet-apks /delivery/reports/prepare/apks; '
                         'apk --version > /delivery/reports/prepare/apk-version.txt; '
                         'apk info -vv > /delivery/reports/prepare/installed-packages.txt; '
@@ -224,6 +275,8 @@ class Producer:
         write(self.reports / 'prepare/bootstrap.json', dict(bootstrap, **fp))
         self.container(['/vmr/.dotnet/dotnet', '--info'], network='none',
                        log=self.reports / 'prepare/bootstrap-info.log')
+        self.container(['/vmr/.dotnet/sdk/10.0.401/MSBuild', '-version'], network='none',
+                       log=self.reports / 'prepare/bootstrap-msbuild-apphost.log')
         self.container(['python3', '/project/scripts/fetch-pinned-inputs.py',
                         '--profile', '/project/' + self.profile_path.relative_to(ROOT).as_posix(),
                         '--inputs-dir', '/delivery/pinned-inputs', '--reports-dir', '/delivery/reports/prepare'])
@@ -246,7 +299,8 @@ class Producer:
         write(self.reports / 'prepare/identity.json', dict(schemaVersion=1, sdkVersion=SDK,
               targetRid=self.id['rid'], libc='musl', sourceCommit=SOURCE, sharedVmrCommit=SHARED,
               projectCommit=self.project, runId=self.args.run_id, runAttempt=self.args.run_attempt,
-              buildId=self.args.build_id, imageId=self.image, profile=dict(path=self.profile_path.name,
+              buildId=self.args.build_id, imageId=self.image, verificationImageId=self.verify_image,
+              bootstrapRoot='/vmr/.dotnet', profile=dict(path=self.profile_path.name,
               **fingerprint(self.profile_path)), nativeArchitecture=platform.machine(), emulation=False))
         if self.args.host_reports:
             shutil.copytree(ordinary(self.args.host_reports), self.reports / 'ci-host')
@@ -278,9 +332,10 @@ class Producer:
                 '--env', 'HOME=/home/build', '--env', 'DOTNET_CLI_TELEMETRY_OPTOUT=1',
                 '--volume', str(self.home) + ':/home/build', '--volume', str(self.source) + ':/vmr:ro',
                 '--volume', str(self.clean) + ':/clean:ro', '--volume', str(ROOT) + ':/project:ro',
-                '--volume', str(self.output) + ':/delivery', self.image, '/vmr/.dotnet/dotnet', 'msbuild',
+                '--volume', str(self.output) + ':/delivery'] + self.bootstrap_environment() + self.diagnostic_options()
+        argv += [self.image] + self.observed_command(['/vmr/.dotnet/dotnet', 'msbuild',
                 '/project/scripts/scan-clean-source.proj', '/p:ScanReportDirectory=/delivery/reports/scan',
-                '/verbosity:minimal', '/nologo', '/bl:/delivery/reports/scan/scan.binlog']
+                '/verbosity:minimal', '/nologo', '/bl:/delivery/reports/scan/scan.binlog'])
         self.run(argv, self.reports / 'scan/scan.log')
         report = self.reports / 'scan/NewBinaries.txt'
         require(report.is_file() and not report.read_bytes(), 'The original binary scan must report zero new binaries')
@@ -377,17 +432,28 @@ class Producer:
               runId=self.args.run_id, runAttempt=self.args.run_attempt, producerRevision=1,
               sdk=dict(name=self.archive.name, **fp), imageId=self.image))
 
-    def verify(self):
-        # Brand/alias/APK/OCI qualification is separate; this checks the unchanged producer SDK.
+    def prepare_runtime_image(self):
+        # Freeze both authenticated APK transactions before the long compilation.
         recipe = ROOT / 'containers' / (self.args.arch + '-net10-musl-runtime.Containerfile')
         tag = 'localhost/cbodotnet-musl-verify:' + self.args.run_id + '-' + self.args.arch
         self.run(self.engine + ['build', '--network=host', '--file', str(recipe), '--tag', tag,
-                               str(self.workspace / 'empty-context')],
-                 self.reports / 'verify/image-build.log')
+                               str(self.image_context)],
+                 self.reports / 'prepare/runtime-image-build.log')
         inspect = json.loads(self.run(self.engine + ['image', 'inspect', tag], capture=True))
         require(len(inspect) == 1 and inspect[0]['Architecture'] == self.id['image'], 'Wrong verification image architecture')
         self.verify_image = inspect[0]['Id']
         write(self.reports / 'verify/image.json', inspect)
+        self.container(['sh', '-ec', '! command -v dotnet; ! apk info -e gcompat; ! apk info -e libc6-compat; '
+            'test "$(cat /etc/alpine-release)" = 3.24.4; '
+            'cp -a /cbodotnet-apks /delivery/reports/prepare/runtime-apks; '
+            'apk info -vv > /delivery/reports/prepare/runtime-installed-packages.txt; '
+            'cp -a /etc/apk/keys /delivery/reports/prepare/runtime-apk-keys'],
+            network='none', source=False, image=self.verify_image,
+            log=self.reports / 'prepare/runtime-image-inventory.log')
+
+    def verify(self):
+        # The SDK-free image is already frozen; verification cannot refresh repositories.
+        require(self.verify_image is not None, 'The runtime image must be frozen in prepare')
         arch = 'arm64' if self.args.arch == 'aarch64' else 'x64'
         self.container(['sh', '-ec', '! command -v dotnet; ! apk info -e gcompat; ! apk info -e libc6-compat; '
             'test "$(cat /etc/alpine-release)" = 3.24.4; '
@@ -547,6 +613,14 @@ def validate(release):
             and sdk.get('architecture') == result['architecture'] and sdk.get('kind') == 'musl-sdk-build'
             and sdk.get('producerRevision') == 1 and prepare.get('imageId') == sdk.get('imageId'),
             'Native architecture/image/SDK construction identity differs')
+    require(prepare.get('bootstrapRoot') == '/vmr/.dotnet', 'The private bootstrap root must remain explicit')
+    architecture_variable = 'ARM64' if result['architecture'] == 'aarch64' else 'X64'
+    required_bootstrap_environment = {'DOTNET_ROOT=/vmr/.dotnet',
+        'DOTNET_ROOT_' + architecture_variable + '=/vmr/.dotnet', 'DOTNET_HOST_PATH=/vmr/.dotnet/dotnet'}
+    for stage_name in ['build', 'scan', 'test']:
+        source_commands = [c for c in stages[stage_name]['commands'] if '/vmr/.dotnet/dotnet' in c or './build.sh' in c]
+        require(source_commands and all(required_bootstrap_environment <= set(c) for c in source_commands),
+                'Source build/scan/test must resolve every native TaskHost to the exact private bootstrap SDK')
     profile_path = ROOT / 'profiles' / ('dotnet-' + SDK + '-linux-musl-' + result['architecture'] + '.json')
     require(prepare.get('profile', {}).get('path') == profile_path.name
             and all(prepare['profile'].get(k) == v for k, v in fingerprint(profile_path).items()),
@@ -560,10 +634,22 @@ def validate(release):
             and isinstance(bootstrap.get('bytes'), int) and bootstrap['bytes'] > 100000000
             and re.fullmatch('[a-f0-9]{64}', bootstrap.get('sha256', '')),
             'The exact original musl bootstrap identity and byte hashes are required')
+    require(any('/vmr/.dotnet/sdk/10.0.401/MSBuild' in c and '-version' in c
+                and required_bootstrap_environment <= set(c) for c in stages['prepare']['commands'])
+            and 'MSBuild version' in (release / 'reports/prepare/bootstrap-msbuild-apphost.log').read_text(),
+            'Actual native bootstrap apphost startup must pass using the private runtime before compilation')
     image = load_json(release / 'reports/prepare/build-image.json')
     require(len(image) == 1 and image[0]['Id'] == prepare['imageId']
             and image[0]['Architecture'] == arch['image'] and image[0]['Os'] == 'linux',
             'Actual native build image differs')
+    verification_image = load_json(release / 'reports/verify/image.json')
+    require(len(verification_image) == 1 and verification_image[0]['Id'] == prepare.get('verificationImageId')
+            and verification_image[0]['Architecture'] == arch['image'] and verification_image[0]['Os'] == 'linux',
+            'The exact native SDK-free verification image must be frozen in prepare')
+    require(any(prepare['verificationImageId'] in c and '--network=none' in c
+                and not (required_bootstrap_environment & set(c)) for c in stages['verify']['commands'])
+            and not any('build' in c and '--file' in c for c in stages['verify']['commands']),
+            'Final SDK verification must use the frozen image without bootstrap ROOT or a new APK transaction')
     scan = release / 'reports/scan/NewBinaries.txt'
     require(scan.is_file() and not scan.read_bytes(), 'Original upstream binary scan did not report zero new binaries')
     require(any('/project/scripts/scan-clean-source.proj' in c and '--network=none' in c

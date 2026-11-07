@@ -54,11 +54,13 @@
   "apkIndexes": {
     "main": {
       "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/APKINDEX.tar.gz",
-      "sha256": "f976c7888999de04ae70250f872ad85bdc52309d2a5e06597a77f634f912d895"
+      "sha256": "f976c7888999de04ae70250f872ad85bdc52309d2a5e06597a77f634f912d895",
+      "snapshotPath": "inputs/alpine-3.24.4/x64/main-APKINDEX.tar.gz"
     },
     "community": {
       "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/community/x86_64/APKINDEX.tar.gz",
-      "sha256": "072b5bd71bf3b1a21da3cc3232f6370a3936945c0644d973420e62c58a7453f8"
+      "sha256": "072b5bd71bf3b1a21da3cc3232f6370a3936945c0644d973420e62c58a7453f8",
+      "snapshotPath": "inputs/alpine-3.24.4/x64/community-APKINDEX.tar.gz"
     }
   },
   "buildPackages": [

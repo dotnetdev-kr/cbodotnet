@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'scripts/musl*'
+      - 'scripts/seed-musl-apk-cache.sh'
+      - 'inputs/alpine-3.24.4/**'
       - 'scripts/cbodotnet-default.sh.in'
       - 'scripts/cbodotnet-archive-launcher.sh.in'
       - 'tests/musl*'
@@ -13,6 +15,8 @@ on:
     branches: [main]
     paths:
       - 'scripts/musl*'
+      - 'scripts/seed-musl-apk-cache.sh'
+      - 'inputs/alpine-3.24.4/**'
       - 'scripts/cbodotnet-default.sh.in'
       - 'scripts/cbodotnet-archive-launcher.sh.in'
       - 'tests/musl*'
@@ -48,6 +52,27 @@ jobs:
           persist-credentials: false
       - name: Validate package helpers with ephemeral fixture credentials
         run: python3 -B -m unittest discover -s tests -p musl_packages_test.py -v
+      - name: Authenticate frozen repository metadata on the matching native CPU
+        env:
+          IMAGE: ${{ matrix.image }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          read -r MAIN_SHA COMMUNITY_SHA < <(python3 -c 'import json,os; p=json.load(open("profiles/dotnet-10.0.403-linux-musl-"+os.environ["ARCH"]+".json")); print(p["apkIndexes"]["main"]["sha256"],p["apkIndexes"]["community"]["sha256"])')
+          docker run --rm --volume "$PWD:/repo:ro" --env ARCH --env MAIN_SHA --env COMMUNITY_SHA "$IMAGE" sh -ec '
+            mkdir /tmp/frozen-cache
+            apk --cache-dir /tmp/frozen-cache update
+            sh /repo/scripts/seed-musl-apk-cache.sh /tmp/frozen-cache "/repo/inputs/alpine-3.24.4/$ARCH" "$MAIN_SHA" "$COMMUNITY_SHA"
+            apk --cache-dir /tmp/frozen-cache --no-network search --exact musl
+            # A changed signature envelope must fail before selecting packages.
+            mkdir /tmp/changed
+            cp /repo/inputs/alpine-3.24.4/"$ARCH"/* /tmp/changed/
+            printf changed >> /tmp/changed/main-APKINDEX.tar.gz
+            if sh /repo/scripts/seed-musl-apk-cache.sh /tmp/frozen-cache /tmp/changed "$MAIN_SHA" "$COMMUNITY_SHA"; then
+              echo "Changed metadata was accepted" >&2
+              exit 1
+            fi
+          '
       - name: Exercise real apk and abuild on the matching native CPU
         env:
           IMAGE: ${{ matrix.image }}

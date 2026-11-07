@@ -162,6 +162,33 @@ class ImportedInputObservationTests(unittest.TestCase):
             self.assertEqual(next(output.glob('*.json')).read_bytes(), original)
 
 
+class FrozenApkInputTests(unittest.TestCase):
+    def test_exact_stock_snapshots_are_copied_and_changed_bytes_rejected(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / 'scripts').mkdir()
+            (root / 'scripts/seed-musl-apk-cache.sh').write_bytes(b'#!/bin/sh\nexit 0\n')
+            (root / 'inputs').mkdir()
+            profile = {'apkIndexes': {}}
+            for repository in ('main', 'community'):
+                path = root / 'inputs' / (repository + '.tar.gz')
+                path.write_bytes((repository + ' stock signed bytes').encode())
+                profile['apkIndexes'][repository] = dict(snapshotPath='inputs/' + path.name,
+                    sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+            context = root / 'context'
+            M.prepare_image_context(profile, context, root)
+            self.assertEqual(sorted(p.name for p in context.iterdir()), ['apk-snapshots', 'seed-apk-cache.sh'])
+            for repository in ('main', 'community'):
+                self.assertEqual((context / 'apk-snapshots' / (repository + '-APKINDEX.tar.gz')).read_bytes(),
+                                 (root / profile['apkIndexes'][repository]['snapshotPath']).read_bytes())
+            (root / 'inputs/main.tar.gz').write_bytes(b'changed upstream bytes')
+            with self.assertRaisesRegex(ValueError, 'SHA256 mismatch'):
+                M.prepare_image_context(profile, root / 'changed-context', root)
+            profile['apkIndexes']['main']['snapshotPath'] = '../outside'
+            with self.assertRaisesRegex(ValueError, 'Unsafe'):
+                M.prepare_image_context(profile, root / 'unsafe-context', root)
+
+
 if __name__ == '__main__':
     unittest.main()
 

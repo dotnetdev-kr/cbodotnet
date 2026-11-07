@@ -1,9 +1,13 @@
 FROM docker.io/library/alpine@sha256:0f49f331d9212aff11b932863be4eb01cdf962969aa86dab7d1ee21ac6f5f52b
 
+COPY apk-snapshots/ /cbodotnet-pinned-indexes/
+COPY seed-apk-cache.sh /cbodotnet-seed-apk-cache.sh
+
 # Native Alpine transaction. Keep authenticated original indexes and package bytes.
 RUN printf '%s\n' 'https://dl-cdn.alpinelinux.org/alpine/v3.24/main' 'https://dl-cdn.alpinelinux.org/alpine/v3.24/community' > /etc/apk/repositories \
     && mkdir /cbodotnet-apks \
     && apk --cache-dir /cbodotnet-apks update \
+    && sh /cbodotnet-seed-apk-cache.sh /cbodotnet-apks /cbodotnet-pinned-indexes f976c7888999de04ae70250f872ad85bdc52309d2a5e06597a77f634f912d895 072b5bd71bf3b1a21da3cc3232f6370a3936945c0644d973420e62c58a7453f8 \
     && sha256sum /cbodotnet-apks/APKINDEX* > /cbodotnet-apks/index-sha256.txt \
     && grep -q 'f976c7888999de04ae70250f872ad85bdc52309d2a5e06597a77f634f912d895' /cbodotnet-apks/index-sha256.txt \
     && grep -q '072b5bd71bf3b1a21da3cc3232f6370a3936945c0644d973420e62c58a7453f8' /cbodotnet-apks/index-sha256.txt \
