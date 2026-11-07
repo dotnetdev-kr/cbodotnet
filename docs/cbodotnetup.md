@@ -6,6 +6,11 @@ Fedora45 and Rocky Linux9.8. It preserves official `dotnet`, official
 `dotnetup` state and package-managed `/opt/cbodotnet` installations. NativeAOT
 bootstrap does not require an installed .NET SDK.
 
+The 0.5.1 line also provides [native Alpine3.24.4 bootstrap and SDK installation](cbodotnetup-musl.md)
+on x64/AArch64. This separate musl catalog admits SDK10.0.403 revision1 only,
+with distinct state and no legacy providers. Other SDK series and Alpine
+versions require separate qualification.
+
 The 0.4 tool line adds explicitly opted-in
 [private legacy providers](cbodotnetup-legacy-providers.md) for SDK5.0.214,
 Core3.1.426 and Core3.0.103. It retains
@@ -29,7 +34,7 @@ with earlier validation records, remain below.
 
 ## SDK admission and lifecycle
 
-The 0.4 contract includes the neutral archive revisions below. The active
+The glibc contract includes the neutral archive revisions below. The active
 signed catalog determines which exact SDK/OS/CPU cells are available. The
 modern SDKs retain the [#27 installer evidence](cbodotnetup-modern-sdk-validation.json);
 legacy additions require their own [#29 validation](cbodotnetup-legacy-validation.json).
@@ -51,7 +56,7 @@ and [3.0.103 r3](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribu
 archives use the root-variable-only wrapper correction from
 [#31](https://github.com/dotnetdev-kr/cbodotnet/issues/31). That archive contract
 has its own five-OS matrix, including Ubuntu22.04, and does not change the
-current four-OS installer matrix. The 0.4 tool remains on the authenticated
+current four-OS glibc installer matrix. The glibc tool remains on the authenticated
 Core3 r2 archives and supplies the complete verified provider environment to
 their payload hosts. Admitting another archive revision requires a separate
 installer policy/catalog change and qualification; it is not inferred from
@@ -110,11 +115,13 @@ a separate work item.
 
 ## Bootstrap
 
-Install Python3, GnuPG, CA certificates and the [SDK's OS dependencies](../releases/distribution-contract.json)
+Install Python3, GnuPG, CA certificates and the [glibc SDK's OS dependencies](../releases/distribution-contract.json)
 using your OS package manager. These are explicit prerequisites; the installer
 does not provision system packages or replace host libraries. Legacy consent
 allows only the separately authenticated private companions described below.
 Do not use `sudo` to run the bootstrap or the installed manager.
+Alpine additionally requires GNU `stat` from `coreutils`; its exact runtime
+packages and musl admission are listed in the [Alpine guide](cbodotnetup-musl.md).
 
 Download and review `get-cbodotnetup.py` from the verified download site or an
 independently trusted repository commit. Compare its embedded public key and
@@ -142,6 +149,9 @@ python3 get-cbodotnetup.py --catalog-file ./catalog.json --binary-file ./cbodotn
 
 Offline bootstrap still requires a fresh project-signed catalog. It never
 accepts a custom trust key, unsigned metadata or a mismatching binary.
+For Alpine, obtain the schema4 catalog and matching `linux-musl-x64` or
+`linux-musl-arm64` binary. Certificate and hostname verification remains
+enabled for every HTTPS download, including stock lazy CA stores.
 
 ## Commands and paths
 
@@ -166,12 +176,15 @@ cbodotnetup self update
 cbodotnetup self rollback
 ```
 
-The root is `$XDG_DATA_HOME/cbodotnetup`, defaulting to
+The glibc root is `$XDG_DATA_HOME/cbodotnetup`, defaulting to
 `$HOME/.local/share/cbodotnetup`; `CBODOTNETUP_HOME` can select a dedicated
 absolute user-owned root. `shell enable` creates only owned `cbodotnet` and
 `cbodotnet-X.Y` links in `<root>/bin` and prints that directory for explicit PATH
 configuration. It never creates a user-local `dotnet` alias. Exact `run` works
-without PATH changes. In versions 0.3 and later, the common alias and `run --` use the
+without PATH changes. Musl defaults to `$HOME/.local/share/cbodotnetup-musl`
+and keeps aliases in `<root>/bin-v4`, with separate SDK, selection, staging
+and catalog namespaces. The examples for SDK9 and legacy providers above
+apply to the glibc catalog. In versions 0.3 and later, the common alias and `run --` use the
 nearest cwd/ancestor `global.json` SDK request; without one they preserve the
 highest installed Community SDK series and active revision. Explicit `run`
 versions and versioned aliases take precedence. See the
@@ -234,13 +247,15 @@ installer inputs or alter their update/rollback contract.
 
 ## Catalog migration and compatibility
 
-Three signed feeds preserve clients that validate unknown fields strictly:
+Three glibc feeds and a separate musl feed preserve clients that validate
+unknown fields strictly:
 
 | Client line | Feed below `https://dotnetdev.kr/cbodotnet/cbodotnetup/` | Trust cache | SDK namespace |
 | --- | --- | --- | --- |
 | 0.1 | `catalog.json` (schema1) | `<root>/cache/` | `toolchains/`: SDK10 archive r2 |
 | 0.2 / 0.3 | `v2/catalog.json` (schema2) | `<root>/cache/v2/` | `toolchains-v2/`: modern SDKs |
-| 0.4 | `v3/catalog.json` (schema3) | `<root>/cache/v3/` | Existing modern namespace plus legacy `toolchains-v3/` |
+| 0.4 / 0.5 glibc | `v3/catalog.json` (schema3) | `<root>/cache/v3/` | Existing modern namespace plus legacy `toolchains-v3/` |
+| 0.5 musl | `v4/catalog.json` (schema4) | `<root>/cache/v4/` | `toolchains-v4/`: Alpine3.24.4 SDK10 archive r1 |
 
 The schema3 feed hash-binds its separately signed `catalog-v2.json`
 compatibility projection. Modern SDK records and receipts remain unchanged,
@@ -249,7 +264,9 @@ and new modern installations retain that exact schema2 admission. An older
 their provider references live only in `toolchains-v3/`; immutable shared
 companions live separately in `providers/`. Older clients ignore those roots.
 The schema1 feed retains SDK10 revision2 with its original filename. All three
-feeds retain compatible authenticated tool upgrade records. No historical
+glibc feeds retain compatible authenticated tool upgrade records. The musl
+feed retains only native musl tools, including the real 0.5.0 recovery baseline.
+No historical
 release asset is renamed or replaced, and trial SDKs are not admitted.
 
 Existing 0.1.0 users can upgrade with `cbodotnetup self update`, then run
@@ -259,13 +276,17 @@ for explicit SDK rollback. SDK availability still requires individual OS/CPU
 qualification; the new catalog format does not admit additional SDK series,
 legacy providers or musl by itself.
 
-All client generations share the owner marker, operation lock and selection
+All glibc client generations share the owner marker, operation lock and selection
 state, while their signed cache/high-water records remain separate. The 0.4
 client verifies all three SDK namespaces without rewriting older receipts.
 A shared selection naming an unseen revision falls back to a compatible
 installed revision visible to the old client. Retain SDK10 revision2 if recovery
 with 0.1.0 must include SDK execution; retain a modern installation for recovery
 with 0.2/0.3. Those older tools cannot manage legacy provider installations.
+Musl uses its own `selection-v4.json`, `staging-v4` and `bin-v4`, including
+when an explicitly selected owned parent is shared with glibc state. The
+bootstrap refuses to replace another libc's executable; choose a separate
+`--install-dir` to retain both.
 
 After a 0.3 self-update, 0.4 can use an authenticated modern-only schema2 cache
 offline until a schema3 cache has been established. `list --available` explicitly
@@ -338,6 +359,30 @@ resolve failures before expiry. Native runtime changes require a new tool
 version. Catalog maintenance and native runtime updates remain project responsibilities;
 distribution does not create an upstream security-support promise for EOL SDKs.
 See the [implementation and trust design](cbodotnetup-design.md).
+
+## 0.5 native Alpine qualification
+
+The [issue-30 validation record](cbodotnetup-musl-validation.json) binds
+[cbodotnetup 0.5.1](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-v0.5.1)
+to the [successful native publication workflow](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42387946152).
+All ten OS/CPU targets passed both candidate and anonymous public phases:
+64 current glibc SDK cells and two Alpine3.24.4/SDK10.0.403-r1 cells per phase,
+plus the retained schema1 SDK10-r2 upgrade/recovery path on all eight glibc
+targets. Musl public tests bootstrap the actual 0.5.0 binary, self-update to
+0.5.1, roll back and re-upgrade while preserving installed SDK state.
+
+The [default hosted-feed workflow](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42391018043)
+passed SDK-free bootstrap on both libc families and CPUs. Independent
+anonymous downloads matched the signed immutable bootstrap and schema1–4
+catalog bytes and signatures. The native source suite passed 511 checks in
+each of four CPU/libc environments; repository CI ran 1,079 Python tests,
+with 1,074 passes and five environment-specific skips.
+
+The new releases preserve all 88 older release records and 1,140 older assets,
+including their identities, hashes, titles and bodies. The latest SDK download
+remains SDK10.0.403 archive r3. See the [Alpine installation guide](cbodotnetup-musl.md)
+for exact prerequisites, separate state, the single admitted musl SDK revision,
+runtime-profile preservation and workload qualification limits.
 
 ## 0.4 legacy-provider qualification
 

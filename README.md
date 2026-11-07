@@ -38,7 +38,7 @@ retains the source pins and dependency decisions for SDKs 9, 8, 7, 6, 5 and Core
 3.1/3.0. Current availability comes from the signed publication receipts and
 delivery matrix above. The [cbodotnetup per-user SDK manager](docs/cbodotnetup.md)
 provides a signed, SDK-free bootstrap on the same four Ubuntu/Debian/Fedora/Rocky
-versions and both native CPUs. The 0.4.0 release supports **SDK10.0.403,
+versions and both native CPUs. The 0.5.1 release supports **SDK10.0.403,
 9.0.123, 8.0.133, 7.0.120, 6.0.136, 5.0.214, Core3.1.426 and Core3.0.103**.
 Legacy installations require explicit `--with-legacy-providers` consent for
 [verified private companions](docs/cbodotnetup-legacy-providers.md); no system
@@ -49,6 +49,9 @@ using owned installed SDKs; explicit versions and versioned aliases take
 precedence. The [activated installer status](releases/cbodotnetup-status.json)
 and download site identify the released tool and qualified SDK/OS/CPU cells;
 installer admission remains separate from package qualification.
+Native [Alpine3.24.4 installation](docs/cbodotnetup-musl.md) separately admits
+SDK10.0.403 revision1 on x64/AArch64, using musl NativeAOT binaries and its own
+signed catalog and user-state namespace.
 
 The package contract provides `cbodotnet-X.Y` and a common `cbodotnet` command
 selecting the highest installed SDK series. OCI images expose
@@ -102,7 +105,7 @@ Other bands and new major versions remain visible as `pending-adapter`; missing 
 
 `linux-arm64` and `linux-x64` are generic **glibc** package targets. Native checks cover Ubuntu 22.04, Ubuntu 24.04 and Debian 13 user spaces. Kernel, system-library and optional component requirements still apply; these results do not cover musl/Alpine or every Linux distribution.
 
-SDK 10.0.403 also has separately qualified [Alpine 3.24.4 archives, signed APK repositories and OCI images](docs/alpine-musl.md) for native x64 and AArch64. The guide lists installation commands, signed public verification and the remaining SDK-series follow-ups. cbodotnetup musl support is tracked separately in [#30](https://github.com/dotnetdev-kr/cbodotnet/issues/30).
+SDK 10.0.403 also has separately qualified [Alpine 3.24.4 archives, signed APK repositories and OCI images](docs/alpine-musl.md) for native x64 and AArch64. The guide lists installation commands, signed public verification and the remaining SDK-series follow-ups. The [native cbodotnetup guide](docs/cbodotnetup-musl.md) covers the separately qualified installer.
 
 Branded .NET 5 and Core 3.x distributions use a separately authenticated
 [OpenSSL/ICU provider](docs/legacy-compatibility-provider.md); Core 3 additionally

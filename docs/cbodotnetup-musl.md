@@ -7,6 +7,11 @@ Other SDK series and Alpine versions require their own native evidence.
 The active [signed availability record](../releases/cbodotnetup-status.json)
 determines whether this feed is available.
 
+The [0.5.1 release](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/cbodotnetup-v0.5.1)
+passed both native CPU targets and anonymous public installation. The
+[validation record](cbodotnetup-musl-validation.json) retains actual job,
+artifact, source, signature, hosted-feed and preservation evidence.
+
 ## Bootstrap on an SDK-free host
 
 Install the prerequisites from the signed Alpine repositories:

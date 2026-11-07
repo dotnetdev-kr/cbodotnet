@@ -16,7 +16,7 @@ availability comes from the OpenPGP-authenticated final proof and
 `qualificationAllowed: false`. These guards do not describe the published
 revision as unavailable.
 
-Existing glibc archives, distribution metadata and cbodotnetup 0.4.0 feeds retain
+Existing glibc archives, distribution metadata and historical cbodotnetup feeds retain
 their existing identities. The new producer tag prefix is `musl-sdk-`, consumer
 tags start with `distribution-musl-`, and archives use
 `cbodotnet-sdk-<version>-linux-musl-<x64|aarch64>-r<revision>.tar.gz`.
@@ -58,8 +58,9 @@ Foreign target packs require explicit path/RID dispositions. Compatibility
 layers, glibc loaders and the existing Rocky providers cannot establish native
 musl compatibility.
 
-Workloads and NativeAOT are not qualified by the base SDK tests. cbodotnetup
-bootstrap and musl SDK admission belong to
+Workloads and NativeAOT application compilation require separate qualification.
+The [native cbodotnetup manager](cbodotnetup-musl.md) has its own NativeAOT,
+SDK-free bootstrap, trust and SDK admission gates under
 [#30](https://github.com/dotnetdev-kr/cbodotnet/issues/30).
 
 ## Installation
