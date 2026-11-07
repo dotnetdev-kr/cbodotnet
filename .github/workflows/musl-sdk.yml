@@ -74,6 +74,9 @@ jobs:
 
       - name: Preserve host failure diagnostics
         if: failure() && steps.paths.outcome == 'success'
+        env:
+          MUSL_ARCH: ${{ matrix.arch }}
+          DIAGNOSTIC_PTRACE: ${{ inputs.diagnostic_ptrace }}
         run: |
           set -euo pipefail
           mkdir -p "$MUSL_DELIVERY/reports/diagnostics/host"
@@ -87,7 +90,9 @@ jobs:
             fi
           done > "$MUSL_DELIVERY/reports/diagnostics/host/core-policy.txt"
           python3 - <<'PY'
-          import os,pathlib,shutil,stat
+          import importlib.util,json,os,pathlib,shutil,stat,sys
+          sys.path.insert(0,'scripts')
+          from downstream_release import descriptor,encoded,ordinary_file
           source=pathlib.Path(os.environ['MUSL_WORKSPACE'])/'source'
           target=pathlib.Path(os.environ['MUSL_DELIVERY'])/'reports/diagnostics/host'
           for path in source.glob('core*'):
@@ -97,6 +102,31 @@ jobs:
                       header=stream.read(64)
                   if header[:4] == b'\x7fELF' and len(header)==64 and int.from_bytes(header[16:18],'little')==4:
                       shutil.copyfile(path,target/path.name)
+          # Keep a successfully compiled SDK available for debugging later test
+          # failures. This failed run remains ineligible for source admission.
+          build=target.parents[1]/'stages/build.json'
+          capture=dict(schemaVersion=1,kind='unqualified-sdk-failure-input',productionQualification=False,
+              sourceAdmission=False,status='not-available',runId=os.environ['GITHUB_RUN_ID'],
+              runAttempt=os.environ['GITHUB_RUN_ATTEMPT'],projectCommit=os.environ['GITHUB_SHA'])
+          if os.environ['DIAGNOSTIC_PTRACE'] != 'true' and build.is_file() and json.loads(build.read_bytes()).get('status')=='passed':
+              try:
+                  arch=os.environ['MUSL_ARCH']
+                  rid='linux-musl-'+('arm64' if arch=='aarch64' else 'x64')
+                  spec=importlib.util.spec_from_file_location('failed_sdk_selector','scripts/collect-artifacts.py')
+                  collector=importlib.util.module_from_spec(spec); spec.loader.exec_module(collector)
+                  sdk,candidates,_=collector.select_sdk(source,'10.0.403',rid,exact_name=True)
+                  sdk=ordinary_file(sdk)
+                  if sdk.stat().st_size>=2*1024**3: raise ValueError('Diagnostic SDK exceeds its size bound')
+                  directory=target/'unqualified-sdk'; directory.mkdir()
+                  destination=directory/('unqualified-sdk-'+arch+'.tar.gz')
+                  shutil.copyfile(sdk,destination)
+                  actual=collector.digest_file(destination)
+                  if not all(all(row[key]==actual[key] for key in ('bytes','sha256','sha512')) for row in candidates):
+                      raise ValueError('Diagnostic SDK copy differs from the compiled archive')
+                  capture.update(status='retained-for-development-only',targetRid=rid,artifact=descriptor(destination))
+              except Exception as error:
+                  capture['reason']=str(error)
+          (target/'unqualified-sdk.json').write_bytes(encoded(capture))
           PY
 
       - name: Preserve unchanged SDK, corresponding source and complete evidence

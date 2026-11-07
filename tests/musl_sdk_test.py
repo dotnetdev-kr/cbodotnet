@@ -333,6 +333,50 @@ class SourceCultureReadinessTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'explicit source-builder input'):M.source_culture_proof(release,profile)
 
 
+class NativeScenarioRoutingTests(unittest.TestCase):
+    def invocation(self, arch):
+        producer=object.__new__(M.Producer)
+        producer.args=SimpleNamespace(arch=arch,build_id='20261107.11')
+        producer.id=M.identity(arch)
+        return producer
+
+    def test_compile_os_is_unchanged_and_native_tests_select_original_musl_graph(self):
+        for arch in ('x64','aarch64'):
+            with self.subTest(arch=arch):
+                producer=self.invocation(arch)
+                build=producer.build_command();tests=producer.build_command(True)
+                self.assertEqual('linux',build[build.index('--os')+1])
+                self.assertEqual('linux-musl',tests[tests.index('--os')+1])
+                self.assertEqual(producer.id['rid'],tests[tests.index('--rid')+1])
+                observed=M.Producer.observed_command(tests)
+                M.validate_native_test_invocation([observed],arch,producer.args.build_id)
+
+    def test_glibc_host_alias_or_forced_guards_source_mode_and_extra_test_filters_are_rejected(self):
+        producer=self.invocation('aarch64');original=producer.build_command(True)
+        changes=[]
+        for flag,value in [('--os','linux'),('--rid','linux-arm64')]:
+            altered=list(original);altered[altered.index(flag)+1]=value;changes.append(altered)
+        for extra in ('/p:_RunScenarioTests=true','/p:__PortableTargetOS=linux','/p:DotNetBuildSourceOnly=true',
+                      '/p:SkipScenarioTests=true','--ci','--filter'):
+            changes.append(original+[extra])
+        for altered in changes:
+            with self.subTest(command=altered),self.assertRaisesRegex(ValueError,'native linux-musl OS/RID'):
+                M.validate_native_test_invocation([M.Producer.observed_command(altered)],'aarch64',producer.args.build_id)
+
+    def test_missing_scenarios_preserves_actual_common_report_bytes_without_passing(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);producer=self.invocation('aarch64')
+            producer.source=root/'source';producer.reports=root/'reports'
+            (producer.reports/'test').mkdir(parents=True)
+            common=producer.source/'artifacts/TestResults/Release/Microsoft.DotNet.Tests.trx'
+            common.parent.mkdir(parents=True);common.write_bytes(b'unchanged raw upstream report fixture')
+            producer.container=mock.Mock()
+            with self.assertRaisesRegex(ValueError,'Exactly one fresh scenario'):
+                M.Producer.test(producer)
+            self.assertEqual(common.read_bytes(),(producer.reports/'test/common.trx').read_bytes())
+            self.assertFalse((producer.reports/'test/upstream-summary.json').exists())
+
+
 class ActualElfBindingTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()

@@ -211,6 +211,25 @@ def source_culture_proof(release, profile):
         report=dict(path=SOURCE_CULTURE_REPORT, **fingerprint(report_path)))
 
 
+def validate_native_test_invocation(commands, architecture, build_id):
+    """Require upstream native musl routing without overriding its test guards."""
+    matches = [command for command in commands if './build.sh' in command]
+    require(len(matches) == 1 and matches[0].count('musl-sdk-observed-command') == 1,
+            'One observed original upstream native test invocation is required')
+    command = matches[0]
+    actual = command[command.index('musl-sdk-observed-command') + 1:]
+    arch = 'arm64' if architecture == 'aarch64' else 'x64'
+    expected = ['env', '-u', 'ROOTFS_DIR', '-u', 'CLR_CC', '-u', 'CLR_CXX',
+        'CC=/usr/bin/clang-20', 'CXX=/usr/bin/clang++-20',
+        'CLR_CC=/usr/bin/clang-20', 'CLR_CXX=/usr/bin/clang++-20',
+        './build.sh', '--configuration', 'Release', '--arch', arch, '--os', 'linux-musl',
+        '--rid', identity(architecture)['rid'], '--branding', 'release', '--official-build-id', build_id,
+        '--clean-while-building', '--binaryLog', '/p:PortableBuild=true', '/p:CrossBuild=false', '/m:2',
+        '--test', '/p:BinariesReportFile=/delivery/reports/scan/NewBinaries.txt']
+    require(actual == expected,
+        'Upstream tests must use native linux-musl OS/RID with unchanged source mode, guards, filters and concurrency')
+
+
 def instrument_input_recording(original):
     """Append to the actual XML root; embedded Project XML belongs to its source text."""
     root = ET.fromstring(original)
@@ -531,7 +550,7 @@ class Producer:
 
     def build_command(self, test=False):
         arch = 'arm64' if self.args.arch == 'aarch64' else 'x64'
-        args = ['./build.sh', '--configuration', 'Release', '--arch', arch, '--os', 'linux',
+        args = ['./build.sh', '--configuration', 'Release', '--arch', arch, '--os', 'linux-musl' if test else 'linux',
                 '--rid', self.id['rid'], '--branding', 'release', '--official-build-id',
                 self.args.build_id, '--clean-while-building', '--binaryLog',
                 '/p:PortableBuild=true', '/p:CrossBuild=false', '/m:2']
@@ -595,14 +614,16 @@ class Producer:
                         '--reports-dir', '/delivery/reports/test/scenario-report-fence'])
         self.container(self.build_command(True), log=self.reports / 'test/test.log')
         common = self.source / 'artifacts/TestResults/Release/Microsoft.DotNet.Tests.trx'
+        if common.is_file() and not common.is_symlink():
+            shutil.copyfile(common, self.reports / 'test/common.trx')
         scenarios = list((self.source / 'artifacts/TestResults/Release/scenario-tests').glob('*.xml'))
+        if len(scenarios) == 1 and scenarios[0].is_file() and not scenarios[0].is_symlink():
+            shutil.copyfile(scenarios[0], self.reports / 'test/scenarios.xml')
         require(len(scenarios) == 1, 'Exactly one fresh scenario suite result is required')
         # This pure parser enforces the pinned 13 common / 36 scenario test identities,
         # including the only two accepted upstream skips. It has no libc assumptions.
         tests = module('musl_upstream_tests', 'ci-net10-evidence.py').parse_tests(common, scenarios[0])
         write(self.reports / 'test/upstream-summary.json', tests)
-        shutil.copyfile(common, self.reports / 'test/common.trx')
-        shutil.copyfile(scenarios[0], self.reports / 'test/scenarios.xml')
 
     def collect(self):
         collector = module('musl_existing_collector', 'collect-artifacts.py')
@@ -935,6 +956,7 @@ def validate(release):
             'The original scan must run on a separate read-only source checkout without network')
     tests = module('musl_validated_upstream', 'ci-net10-evidence.py').parse_tests(
         release / 'reports/test/common.trx', release / 'reports/test/scenarios.xml')
+    validate_native_test_invocation(stages['test']['commands'], result['architecture'], prepare['buildId'])
     require(load_json(release / 'reports/test/upstream-summary.json') == tests,
             'Upstream test summary differs from the actual pinned test results')
     source = load_json(release / 'sources/source-manifest.json')

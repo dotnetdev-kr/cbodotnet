@@ -1,0 +1,594 @@
+{
+  "schemaVersion": 1,
+  "scope": "musl-test-routing-development-validation",
+  "observedAt": "2026-11-07T10:30:21Z",
+  "status": "native-development-controller-and-scenario-xml-passed",
+  "productionQualification": false,
+  "sourceAdmission": false,
+  "limitations": [
+    "The full VMR producer remains unadmitted until its own fresh native common13 and scenario36 reports and all other gates pass.",
+    "Local rootful Podman AArch64 development controls do not prove GitHub runner Docker execution.",
+    "The actual scenario control builds the original component with its pinned published Arcade SDK instead of unavailable live-built VMR package artifacts.",
+    "The parser protocol combines this development scenario XML with an authentic old glibc common TRX from another run. It is not combined musl producer evidence."
+  ],
+  "failureContext": {
+    "reportedProducerJobId": 128368641053,
+    "observationSource": "Root coordinator inspection of source10 producer logs",
+    "reportedBehavior": "Full SDK build and clean original scanner completed; common13 tests passed; no scenario XML was produced because the original test graph omitted its scenario and SDK-extraction references.",
+    "originalInvocationMismatch": {
+      "testTargetOS": "linux",
+      "actualHostPortableOS": "linux-musl",
+      "rid": "linux-musl-x64"
+    },
+    "sourceOfSkip": "Pinned test/tests.proj compares the actual host portable OS with TargetOS when not in source-only mode. CrossBuild is not the direct condition."
+  },
+  "minimalCorrection": {
+    "compilationTargetOS": "linux",
+    "testOnlyTargetOS": "linux-musl",
+    "unchanged": [
+      "target RID linux-musl-{x64|arm64}",
+      "PortableBuild=true",
+      "CrossBuild=false",
+      "source-only mode remains disabled",
+      "CI flag unchanged",
+      "original test filters and allowed skips",
+      "original scanner and test-report parser",
+      "original pinned report-completion fence"
+    ],
+    "reason": "Use the actual musl target OS for the test traversal, following pinned upstream targetProperties. No internal test guard override or host-variable substitution is necessary."
+  },
+  "nativeGraphControl": {
+    "architecture": "aarch64",
+    "alpineVersion": "3.24.4",
+    "libc": "musl",
+    "bootstrapSdk": "10.0.401",
+    "hostDetection": {
+      "__DistroRid": "alpine.3.24.4-arm64",
+      "__PortableTargetOS": "linux-musl"
+    },
+    "network": "none",
+    "sourceMountedReadOnly": true,
+    "oldOS": {
+      "Properties": {
+        "_RunScenarioTests": "false",
+        "BuildOS": "linux",
+        "BuildArchitecture": "arm64",
+        "TargetArchitecture": "arm64",
+        "TargetOS": "linux",
+        "__PortableTargetOS": "linux-musl",
+        "PortableTargetRid": "linux-musl-arm64",
+        "TargetRid": "linux-musl-arm64",
+        "DotNetBuildSourceOnly": "",
+        "CrossBuild": "false"
+      },
+      "Items": {
+        "ProjectReference": [
+          {
+            "Identity": "Microsoft.DotNet.Tests\\Microsoft.DotNet.Tests.csproj",
+            "ReferenceOutputAssembly": "false",
+            "SkipGetTargetFrameworkProperties": "true",
+            "Targets": "",
+            "OutputItemType": "",
+            "ReferenceSourceTarget": "ProjectReference",
+            "FullPath": "/vmr/test/Microsoft.DotNet.Tests/Microsoft.DotNet.Tests.csproj",
+            "RootDir": "/",
+            "Filename": "Microsoft.DotNet.Tests",
+            "Extension": ".csproj",
+            "RelativeDir": "Microsoft.DotNet.Tests/",
+            "Directory": "vmr/test/Microsoft.DotNet.Tests/",
+            "RecursiveDir": "",
+            "ModifiedTime": "",
+            "CreatedTime": "",
+            "AccessedTime": "",
+            "DefiningProjectFullPath": "/vmr/test/tests.proj",
+            "DefiningProjectDirectory": "/vmr/test/",
+            "DefiningProjectName": "tests",
+            "DefiningProjectExtension": ".proj"
+          }
+        ]
+      }
+    },
+    "correctedTestOS": {
+      "Properties": {
+        "_RunScenarioTests": "true",
+        "BuildOS": "linux",
+        "BuildArchitecture": "arm64",
+        "TargetArchitecture": "arm64",
+        "TargetOS": "linux-musl",
+        "__PortableTargetOS": "linux-musl",
+        "PortableTargetRid": "linux-musl-arm64",
+        "TargetRid": "linux-musl-arm64",
+        "DotNetBuildSourceOnly": "",
+        "CrossBuild": "false"
+      },
+      "Items": {
+        "ProjectReference": [
+          {
+            "Identity": "Microsoft.DotNet.Tests\\Microsoft.DotNet.Tests.csproj",
+            "ReferenceOutputAssembly": "false",
+            "SkipGetTargetFrameworkProperties": "true",
+            "Targets": "",
+            "OutputItemType": "",
+            "ReferenceSourceTarget": "ProjectReference",
+            "FullPath": "/vmr/test/Microsoft.DotNet.Tests/Microsoft.DotNet.Tests.csproj",
+            "RootDir": "/",
+            "Filename": "Microsoft.DotNet.Tests",
+            "Extension": ".csproj",
+            "RelativeDir": "Microsoft.DotNet.Tests/",
+            "Directory": "vmr/test/Microsoft.DotNet.Tests/",
+            "RecursiveDir": "",
+            "ModifiedTime": "",
+            "CreatedTime": "",
+            "AccessedTime": "",
+            "DefiningProjectFullPath": "/vmr/test/tests.proj",
+            "DefiningProjectDirectory": "/vmr/test/",
+            "DefiningProjectName": "tests",
+            "DefiningProjectExtension": ".proj"
+          },
+          {
+            "Identity": "/vmr/eng/extract-sdk-archive.proj",
+            "ReferenceOutputAssembly": "false",
+            "SkipGetTargetFrameworkProperties": "true",
+            "Targets": "",
+            "OutputItemType": "",
+            "ReferenceSourceTarget": "ProjectReference",
+            "BuildInParallel": "false",
+            "FullPath": "/vmr/eng/extract-sdk-archive.proj",
+            "RootDir": "/",
+            "Filename": "extract-sdk-archive",
+            "Extension": ".proj",
+            "RelativeDir": "/vmr/eng/",
+            "Directory": "vmr/eng/",
+            "RecursiveDir": "",
+            "ModifiedTime": "2026-11-07 08:03:59.5895069",
+            "CreatedTime": "2026-11-07 08:03:59.5895069",
+            "AccessedTime": "2026-11-07 08:03:59.5895069",
+            "DefiningProjectFullPath": "/vmr/test/tests.proj",
+            "DefiningProjectDirectory": "/vmr/test/",
+            "DefiningProjectName": "tests",
+            "DefiningProjectExtension": ".proj"
+          },
+          {
+            "Identity": "/vmr/repo-projects/scenario-tests.proj",
+            "ReferenceOutputAssembly": "false",
+            "SkipGetTargetFrameworkProperties": "true",
+            "Targets": "",
+            "OutputItemType": "",
+            "ReferenceSourceTarget": "ProjectReference",
+            "BuildInParallel": "false",
+            "FullPath": "/vmr/repo-projects/scenario-tests.proj",
+            "RootDir": "/",
+            "Filename": "scenario-tests",
+            "Extension": ".proj",
+            "RelativeDir": "/vmr/repo-projects/",
+            "Directory": "vmr/repo-projects/",
+            "RecursiveDir": "",
+            "ModifiedTime": "2026-11-07 08:03:59.6022237",
+            "CreatedTime": "2026-11-07 08:03:59.6022237",
+            "AccessedTime": "2026-11-07 09:22:48.4843497",
+            "DefiningProjectFullPath": "/vmr/test/tests.proj",
+            "DefiningProjectDirectory": "/vmr/test/",
+            "DefiningProjectName": "tests",
+            "DefiningProjectExtension": ".proj"
+          }
+        ]
+      }
+    },
+    "wrapperProperties": {
+      "BuildOS": "linux",
+      "TargetOS": "linux-musl",
+      "TargetRid": "linux-musl-arm64",
+      "PortableTargetRid": "linux-musl-arm64",
+      "CommonArgs": " --productBuild --fromVMR --configuration Release --verbosity minimal /p:TargetRid=linux-musl-arm64 /p:OfficialBuildId=20261107.110 /p:DotNetPackageVersionPropsPath=/work/artifacts/obj/PackageVersions/PackageVersions.scenario-tests.props /p:SourceBuiltAssetsDir=/work/artifacts/assets/Release/ /p:SourceBuiltAssetManifestsDir=/work/artifacts/obj/manifests/Release/scenario-tests/ /p:RepositoryName=scenario-tests /p:RepositoryUrl=https://github.com/dotnet/dotnet /p:TargetArchitecture=arm64 /p:TargetOS=linux-musl /p:SourceBuiltShippingPackagesDir=/work/artifacts/packages/Release/Shipping/scenario-tests/ /p:SourceBuiltNonShippingPackagesDir=/work/artifacts/packages/Release/NonShipping/scenario-tests/ /p:SourceBuiltPdbArtifactsDir=/work/artifacts/SymStore/Release/scenario-tests/ /p:SourceBuiltArtifactsBasePath=/vmr/ /p:UsingToolMicrosoftNetCompilers=false /p:PortableBuild=true /p:PortableTargetRid=linux-musl-arm64",
+      "TestArgs": " /bl:/work/artifacts/log/Release/scenario-tests/Test.binlog /p:TestBinlogDir=\"/work/artifacts/log/Release/scenario-tests\" /p:TestDotNetRoot=\"/work/artifacts/obj/extracted-dotnet-sdk\"",
+      "DotNetSdkExtractDir": "/work/artifacts/obj/extracted-dotnet-sdk/",
+      "ArtifactsTestResultsDir": "/work/artifacts/TestResults/Release/",
+      "ArtifactsLogRepoDir": "/work/artifacts/log/Release/scenario-tests/",
+      "BuildActions": "--restore --build --pack --publish",
+      "TestActions": "--test",
+      "BuildScript": "/vmr/src/scenario-tests/eng/common/build.sh",
+      "SkipScenarioTestsDependencies": "",
+      "UseBootstrapArcade": ""
+    },
+    "preparedOriginalTargetProperties": {
+      "BuildOS": "linux",
+      "TargetOS": "linux-musl",
+      "TargetRid": "linux-musl-arm64",
+      "PortableTargetRid": "linux-musl-arm64",
+      "SourceBuiltSdkVersion": "10.0.403",
+      "SourceBuiltRuntimeVersion": "10.0.14",
+      "TestArgs": " /bl:/work/artifacts/log/Release/scenario-tests/Test.binlog /p:TestBinlogDir=\"/work/artifacts/log/Release/scenario-tests\" /p:TestDotNetRoot=\"/sdk-under-test\" /p:TestSdkVersion=10.0.403 /p:TestFxVersion=10.0.14",
+      "ScenarioTestsAdditionalArgs": "--xml /work/artifacts/TestResults/Release/scenario-tests/2026-11-07_10_18_30.xml --target-rid linux-musl-arm64 --portable-rid linux-musl-arm64 --no-cleanup --no-traits Category=MultiTFM --no-traits Category=RequiresNonTargetRidPackages",
+      "ScenarioTestsResultsDir": "/work/artifacts/TestResults/Release/scenario-tests/",
+      "TestXmlOutputPath": "/work/artifacts/TestResults/Release/scenario-tests/2026-11-07_10_18_30.xml"
+    },
+    "preparedTargetLimitation": "PrepareScenarioTestsInputs alone validates paths and SDK/runtime input discovery. It does not execute tests. An explicit already existing portable SDK fixture supplies its SDK paths.",
+    "rawEvidence": [
+      {
+        "name": ".build/issue24-test-routing-control/graph-linux.json",
+        "size": 1303,
+        "sha256": "5502b2ad55c78e3f7b60f8ab07ccc50dcec974d7e1b84a260f92fc95fd141849"
+      },
+      {
+        "name": ".build/issue24-test-routing-control/graph-linux-musl.json",
+        "size": 3172,
+        "sha256": "07bbae373a5da256ec7f6a16412f6cfdba5ef74c9131c4828dd118f5eb6328af"
+      },
+      {
+        "name": ".build/issue24-test-routing-control/scenario-wrapper.json",
+        "size": 3043,
+        "sha256": "bcdd987b8b3917c617009a46569999dda1a429cbff0b98ac43dbc50ba49aece8"
+      },
+      {
+        "name": ".build/issue24-test-routing-control/prepared-inputs.json",
+        "size": 2419,
+        "sha256": "7eaaf5b6c1011b145f629ea9561fe6a14df471ee3164e48a5dc67a92f6c624c7"
+      },
+      {
+        "name": ".build/issue24-test-routing-control/run.log",
+        "size": 7574,
+        "sha256": "efa36cdaf0f2959fee15cc080ac58a4a56038d38cda97ac3d807ff3b9ddf6833"
+      },
+      {
+        "name": ".build/issue24-test-routing-control/prepared-inputs.log",
+        "size": 2419,
+        "sha256": "7eaaf5b6c1011b145f629ea9561fe6a14df471ee3164e48a5dc67a92f6c624c7"
+      }
+    ]
+  },
+  "actualOriginalScenarioControl": {
+    "native": true,
+    "architecture": "aarch64",
+    "libc": "musl",
+    "engine": "local rootful Podman",
+    "sourceCommit": "5a2162bea6845eabc1fc721624a43568c65db3b1",
+    "bootstrapCompilerSdk": "10.0.401",
+    "sdkUnderTest": "10.0.403",
+    "runtimeUnderTest": "10.0.14",
+    "fixtureArchive": {
+      "name": ".build/issue24-portable-fixture/dotnet-sdk-10.0.403-linux-musl-arm64.tar.gz",
+      "size": 232533103,
+      "sha256": "6ca08ba2e90bd11a772ef550113fd95671ae9ea2a67e0f07442b6d7cb1fec5f5"
+    },
+    "workspace": "/tmp/issue24-scenario-execution-08yjsfth",
+    "sourceLayout": "An isolated sparse Git working copy borrows original read-only VMR objects, preserves the exact pinned HEAD, and applies only the approved original report-completion fence before compiling.",
+    "compilation": "Original Microsoft.DotNet.ScenarioTests.SdkTemplateTests.csproj and unmodified tests/traits; original component pinned published Arcade SDK dependencies restored normally.",
+    "actualTestTarget": "Original src/scenario-tests/src/Directory.Build.targets Test target executes the compiled original runner against the raw SDK fixture.",
+    "runnerArguments": {
+      "targetRid": "linux-musl-arm64",
+      "portableRid": "linux-musl-arm64",
+      "sdkVersion": "10.0.403",
+      "fxVersion": "10.0.14",
+      "upstreamNoTraits": [
+        "Category=MultiTFM",
+        "Category=RequiresNonTargetRidPackages"
+      ],
+      "noCleanup": true
+    },
+    "reportFence": {
+      "receipt": {
+        "name": "work/reports/scenario-report-fence/scenario-report-fence.json",
+        "size": 1308,
+        "sha256": "fd12c7b21c4491cae0d4fc53a1902ffe61a7e329400721f4a7550ca989bb5257"
+      },
+      "original": {
+        "bytes": 16694,
+        "sha256": "9a46196a2ba04f54fc7f8b20ae779112b9e6f7aaf494bd2397f54376e2b07137",
+        "sha512": "e709cacc76ed7b4a6b1cd90fcb50153a1e5f388359b28b5e33e5a4411422800ed6e4f99c4ef444def3fc54c9d13bfe167aaa5eb9ed757d0ebf71e2c78ec8fc0b"
+      },
+      "patched": {
+        "bytes": 17902,
+        "sha256": "a5f99138b492844e7af25363e7b54323f48b08b219589d281a63f69d478c29ed",
+        "sha512": "a7f13b8d907b6492bcd8164ca60770a7ad3d0f607660a76b3b7dd3c35eb478990b2b23410bbf1ce286d583425c0df11e2013b7f6c207810d2395874204536194"
+      },
+      "helper": {
+        "bytes": 7209,
+        "sha256": "a63db0278fbbf480b0ac8c556fc8dc917f9d608609bffa168d646c28cb6859fa",
+        "sha512": "55e8606275a4bf6009c2965b18c657b6a73a65f9d4ca8d7f2b12622dfbb198dd6db0d810c063418084b426a8423597f44ab854d83e6d785c88ede00d7cce1c66"
+      },
+      "compiledSourceMatchesPatchedReceipt": true
+    },
+    "initialWrapperControl": {
+      "rawExecution": {
+        "name": ".build/issue24-test-routing-control/actual-scenarios-execution.json",
+        "size": 1205,
+        "sha256": "de97f452722d7367bdd44f1b7774527d6cdd53d1f734213eeb9755f3b3629d6e"
+      },
+      "actualXml": {
+        "name": "work/reports/scenario-tests/fresh.xml",
+        "size": 6644213,
+        "sha256": "42bcfb47fe6217923c1ed0a186393ce8691e339d903ed97d20e55143a401c815"
+      },
+      "outerWrapperExitCode": 127,
+      "scenarioSummary": {
+        "total": 36,
+        "passed": 34,
+        "failed": 0,
+        "skipped": 2,
+        "errors": 0
+      },
+      "harnessError": "The development shell script was edited while Bash was reading the bind-mounted file to provide the output directory normally made by PrepareScenarioTestsInputs; the changed file offset introduced an invalid shell fragment after the real test command. Its outer exit code is not accepted as a passing controller.",
+      "retainedForTransparency": true
+    },
+    "cleanRepeat": {
+      "rawExecution": {
+        "name": ".build/issue24-test-routing-control/actual-scenarios-repeat.json",
+        "size": 2628,
+        "sha256": "c26d22e087b7a84cb89403032c403d5aa71e486eac886c0144e52d488d68d17e"
+      },
+      "actualCommand": [
+        "podman",
+        "--log-level=error",
+        "--cgroup-manager=cgroupfs",
+        "run",
+        "--rm",
+        "--network=host",
+        "--cap-drop=all",
+        "--security-opt=no-new-privileges",
+        "--user=1001:1001",
+        "--workdir=/vmr/src/scenario-tests",
+        "-v",
+        "/tmp/issue24-scenario-execution-08yjsfth/source:/vmr:rw",
+        "-v",
+        "/tmp/issue24-vmr-diagnostic-5a2162b/.git/objects:/tmp/issue24-vmr-diagnostic-5a2162b/.git/objects:ro",
+        "-v",
+        "/tmp/issue24-init-context-default/sdk:/sdk:ro",
+        "-v",
+        "/tmp/issue24-scenario-execution-08yjsfth/sdk-under-test:/sdk-under-test:ro",
+        "-v",
+        "/tmp/issue24-scenario-execution-08yjsfth/work:/work:rw",
+        "--env",
+        "HOME=/work/home",
+        "--env",
+        "DOTNET_CLI_HOME=/work/home",
+        "--env",
+        "NUGET_PACKAGES=/work/packages",
+        "--env",
+        "DOTNET_ROOT=/sdk",
+        "--env",
+        "DOTNET_ROOT_ARM64=/sdk",
+        "--env",
+        "DOTNET_HOST_PATH=/sdk/dotnet",
+        "--env",
+        "DOTNET_NOLOGO=1",
+        "--env",
+        "DOTNET_CLI_TELEMETRY_OPTOUT=1",
+        "--env",
+        "DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1",
+        "--env",
+        "DOTNET_PROCESSOR_COUNT=2",
+        "--env",
+        "DOTNET_GENERATE_ASPNET_CERTIFICATE=false",
+        "--env",
+        "AdditionalTestArgs=--xml /work/reports/repeat/scenario-tests/fresh.xml --target-rid linux-musl-arm64 --portable-rid linux-musl-arm64 --no-cleanup --no-traits Category=MultiTFM --no-traits Category=RequiresNonTargetRidPackages",
+        "localhost/cbodotnet-culture-control:full",
+        "timeout",
+        "270",
+        "/sdk/dotnet",
+        "/sdk/sdk/10.0.401/MSBuild.dll",
+        "src/Microsoft.DotNet.ScenarioTests.SdkTemplateTests/Microsoft.DotNet.ScenarioTests.SdkTemplateTests.csproj",
+        "/t:Test",
+        "/p:Configuration=Release",
+        "/p:TargetArchitecture=arm64",
+        "/p:TargetOS=linux-musl",
+        "/p:TargetRid=linux-musl-arm64",
+        "/p:PortableTargetRid=linux-musl-arm64",
+        "/p:PortableBuild=true",
+        "/p:CrossBuild=false",
+        "/p:UsingToolMicrosoftNetCompilers=false",
+        "/p:DotNetBuild=true",
+        "/p:DotNetBuildFromVMR=true",
+        "/p:ArtifactsDir=/work/artifacts/",
+        "/p:TestDotNetRoot=/sdk-under-test/",
+        "/p:TestSdkVersion=10.0.403",
+        "/p:TestFxVersion=10.0.14",
+        "/p:TestBinlogDir=/work/reports/repeat/scenario-binlogs/",
+        "/nr:false",
+        "/bl:/work/reports/repeat/test.binlog",
+        "/v:minimal"
+      ],
+      "actualContainerAndMSBuildExitCode": 0,
+      "elapsedSeconds": 164.1788638199796,
+      "reportAbsentBefore": true,
+      "executionMethod": "The container runs timeout and the original MSBuild Test target directly, without the development shell wrapper.",
+      "actualXml": {
+        "name": "work/reports/repeat/scenario-tests/fresh.xml",
+        "size": 6639924,
+        "sha256": "0ad0c52e7dfd655415a078d0bfa07d96e0e027d61e23305d219ed4845cf82d74"
+      },
+      "actualXmlAssemblyAttributes": {
+        "name": "Microsoft.DotNet.ScenarioTests.SdkTemplateTests.dll",
+        "environment": "64-bit .NET .NET 10.0 [collection-per-class, parallel (2 threads)]",
+        "test-framework": "xUnit.net 2.9.3.0",
+        "run-date": "2026-11-07",
+        "run-time": "10:26:59",
+        "total": "36",
+        "passed": "34",
+        "failed": "0",
+        "skipped": "2",
+        "time": "162.857",
+        "errors": "0"
+      },
+      "actualLog": {
+        "name": "work/reports/repeat/test.log",
+        "size": 715,
+        "sha256": "fc532221574edc54f9e2222e407a7d1570146ab2f0978b7edaef0f84690a9d01"
+      },
+      "actualBinlog": {
+        "name": "work/reports/repeat/test.binlog",
+        "size": 372092,
+        "sha256": "e0adc54e8e47a663392c05b6b6aca0c5f18b2c94c54e27881d09cb984d4dd11b"
+      },
+      "scenarios": {
+        "total": 36,
+        "passed": 34,
+        "failed": 0,
+        "skipped": 2,
+        "errors": 0,
+        "skippedMethods": [
+          "VerifyAspireTemplate",
+          "VerifyWorkloadCmd"
+        ]
+      }
+    },
+    "compiledRunner": {
+      "name": "work/artifacts/bin/Microsoft.DotNet.ScenarioTests.SdkTemplateTests/Release/net10.0/Microsoft.DotNet.ScenarioTests.SdkTemplateTests.dll",
+      "size": 66048,
+      "sha256": "a3e35f6a61e996993e4f828fa7d7459a68c9505b814a9f56f61e928325a6fb54"
+    }
+  },
+  "unchangedParserProtocol": {
+    "scope": "mixed-run-development-protocol-only",
+    "productionQualification": false,
+    "source10Evidence": false,
+    "parser": {
+      "name": "scripts/ci-net10-evidence.py",
+      "size": 47975,
+      "sha256": "e0b9c234f0745458d70afabddffdedc75621d663d4005079a103b74e8e58c42f"
+    },
+    "commonInput": {
+      "name": ".build/issue24-test-routing-control/legacy-common.trx",
+      "size": 19484,
+      "sha256": "8d359e139eb02a229e835500cbf5e9a9bdef155c674aa998785fa6e6d32d6910"
+    },
+    "commonOriginReceipt": {
+      "name": ".build/issue24-test-routing-control/legacy-common-origin.json",
+      "size": 738,
+      "sha256": "c5c0733391569b77d306adba9e9480dd8da7f35b1ba6466444187a91672e70bc"
+    },
+    "commonOrigin": {
+      "status": "authentic-previous-glibc-protocol-input",
+      "productionQualification": false,
+      "source10Evidence": false,
+      "originalRunId": "41211183670",
+      "originalRunAttempt": "1",
+      "sourceCommit": "5a2162bea6845eabc1fc721624a43568c65db3b1",
+      "originalLibc": "glibc",
+      "originalArchitecture": "aarch64",
+      "evidenceArchive": "glibc-sdk10-evidence-not-musl.tar.gz",
+      "evidenceArchiveSha256": "97843567a562a42fed38f7b89bc3026496b39017f46f524f11c6073039025309",
+      "member": "reports/test/upstream-results/common.trx",
+      "outputSha256": "8d359e139eb02a229e835500cbf5e9a9bdef155c674aa998785fa6e6d32d6910",
+      "outputBytes": 19484,
+      "purpose": "Mixed-run development parser protocol only; never native musl or source10 qualification"
+    },
+    "scenarioInput": {
+      "name": "work/reports/repeat/scenario-tests/fresh.xml",
+      "size": 6639924,
+      "sha256": "0ad0c52e7dfd655415a078d0bfa07d96e0e027d61e23305d219ed4845cf82d74"
+    },
+    "result": {
+      "common": {
+        "total": 13,
+        "passed": 13,
+        "failed": 0
+      },
+      "scenarios": {
+        "total": 36,
+        "passed": 34,
+        "failed": 0,
+        "skipped": 2,
+        "errors": 0,
+        "skippedMethods": [
+          "VerifyAspireTemplate",
+          "VerifyWorkloadCmd"
+        ]
+      }
+    }
+  },
+  "pinnedSourceInputs": [
+    {
+      "name": "test/tests.proj",
+      "size": 4582,
+      "sha256": "25be28634e08b8da31a221736ceb0f5ea51d2feaeec6d9eaa660b3611b0010cd"
+    },
+    {
+      "name": "build.sh",
+      "size": 14265,
+      "sha256": "181ff980f932fa5bb012a37eee766deb89a0f9e4970f7fdbd4858b43ea42196f"
+    },
+    {
+      "name": "eng/RuntimeIdentifier.props",
+      "size": 5232,
+      "sha256": "4f0fe29bf0a76d862088656c22738a5121453b50e52d81d1554a968d259213db"
+    },
+    {
+      "name": "eng/common/native/init-distro-rid.sh",
+      "size": 3808,
+      "sha256": "b4860299a52fc2ce820a87ae8da7dc32000a25e796f6055683c3f5eb46d685be"
+    },
+    {
+      "name": "repo-projects/scenario-tests.proj",
+      "size": 4692,
+      "sha256": "ff9abc20a5ded7aa938227f22b46e08c3c857171e7ebf588ad055d49679c1cd1"
+    },
+    {
+      "name": "repo-projects/Directory.Build.targets",
+      "size": 59654,
+      "sha256": "3bd2462ac432dd380e8dd81e8c758a21bbfe75157187390410a4352afb372890"
+    },
+    {
+      "name": "eng/pipelines/templates/stages/vmr-verticals.yml",
+      "size": 31073,
+      "sha256": "ef3081525b103c1468e64e3409433f58e9504415e28755e6ad51f6870487b566"
+    },
+    {
+      "name": "eng/pipelines/templates/jobs/vmr-build.yml",
+      "size": 36491,
+      "sha256": "603ab4e1084cca4b0e816342252f6fb910d05be96aa28b71f4c7d69811bb0e29"
+    },
+    {
+      "name": "src/scenario-tests/src/Directory.Build.targets",
+      "size": 2552,
+      "sha256": "38ccfb66731673be81ba4a14a241d4edca1db6df8df0c746fc700bc95a4b3373"
+    },
+    {
+      "name": "src/scenario-tests/src/Microsoft.DotNet.ScenarioTests.Common/Program.cs",
+      "size": 16694,
+      "sha256": "9a46196a2ba04f54fc7f8b20ae779112b9e6f7aaf494bd2397f54376e2b07137"
+    },
+    {
+      "name": "src/scenario-tests/src/Microsoft.DotNet.ScenarioTests.SdkTemplateTests/Microsoft.DotNet.ScenarioTests.SdkTemplateTests.csproj",
+      "size": 334,
+      "sha256": "5776fe3fa76e69114395e8c9efa88de2e190db0e4b49678276c7d746301c3ea5"
+    },
+    {
+      "name": "src/scenario-tests/global.json",
+      "size": 275,
+      "sha256": "c201cfdd4de38aa5c3a02c9da326454939cfaeb914809ba8debf4c15ddbad07c"
+    }
+  ],
+  "primaryPinnedSourceLinks": [
+    {
+      "role": "Original scenario eligibility predicate",
+      "url": "https://github.com/dotnet/dotnet/blob/5a2162bea6845eabc1fc721624a43568c65db3b1/test/tests.proj#L14"
+    },
+    {
+      "role": "Upstream musl target OS convention",
+      "url": "https://github.com/dotnet/dotnet/blob/5a2162bea6845eabc1fc721624a43568c65db3b1/eng/pipelines/templates/stages/vmr-verticals.yml#L518"
+    },
+    {
+      "role": "Target OS forwarding",
+      "url": "https://github.com/dotnet/dotnet/blob/5a2162bea6845eabc1fc721624a43568c65db3b1/eng/pipelines/templates/jobs/vmr-build.yml#L282"
+    },
+    {
+      "role": "Original tests reuse target properties",
+      "url": "https://github.com/dotnet/dotnet/blob/5a2162bea6845eabc1fc721624a43568c65db3b1/eng/pipelines/templates/jobs/vmr-build.yml#L741"
+    }
+  ],
+  "claimChecks": {
+    "originalNativeHostDetectionUsed": true,
+    "oldOSOmitsScenarioReferences": true,
+    "correctedTestOSIncludesCommonExtractionAndScenarioReferences": true,
+    "ridAndNativeCrossBuildStateUnchanged": true,
+    "originalPreparationProducesScenarioXmlPathAndExpectedSdkVersions": true,
+    "actualOriginalScenarioRunnerAndReportFenceExecuted": true,
+    "cleanRepeatActualControllerExitZero": true,
+    "cleanRepeatFreshRealXmlWritten": true,
+    "strictOriginalParserAcceptsAllThirtySixIdentities": true,
+    "onlyOriginalWorkloadAndAspireSkipsAccepted": true,
+    "firstWrapperErrorRetained": true,
+    "legacyCommonInputNotMisrepresentedAsSource10": true,
+    "productionQualificationAndSourceAdmissionFalse": true
+  }
+}

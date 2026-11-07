@@ -104,6 +104,11 @@ bootstrap preflight checks the culture assignment needed for all thirteen
 localized satellite assemblies; the
 [localization control](musl-localization-validation.json) records the native
 English-only/full-data comparison with the original XLIFF sources.
+The [test-routing control](musl-test-routing-validation.json) records the
+upstream Alpine convention: SDK compilation retains its Linux base OS and
+explicit musl RID, while the original test harness receives portable OS
+`linux-musl` to select the native scenario graph. The original test identities,
+traits and accepted skips are retained.
 
 `musl-release.yml` then runs the `producer`, `archive`, `apk` and `oci` phases.
 Consumer promotion reconstructs candidates from the admitted SDK and verifies
