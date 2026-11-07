@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "observedAt": "2026-11-07T06:29:29.898434+00:00",
-  "scope": "Upstream file availability and lifecycle only; no cbodotnet musl build/runtime qualification",
+  "scope": "Upstream file availability and lifecycle observed at observedAt, with independently verified current delivery disposition; informational only and not an admission authorization",
   "releases": [
     {
       "sdkVersion": "10.0.403",
@@ -29,10 +29,53 @@
           "hash": "7c85806aeb15b5c02e282234532ac599f69409e45ba4ef09c13e848441d3a092c4e030efaaecbd271896c4137429c90daf3f44ca9805fa27468cc2323c670ac8"
         }
       },
-      "status": "pending",
-      "reason": "Native producer and archive/APK/OCI qualification in progress; no availability claim.",
+      "status": "published-postverified",
+      "reason": "SDK 10.0.403 r1 is published and anonymously post-verified on native x64 and AArch64 Alpine 3.24.4 for archive, APK and OCI; the final signed verification binds all six public reports. NativeAOT, workloads and cbodotnetup musl admission remain separate.",
       "followUpIssue": 24,
-      "followUpUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/24"
+      "followUpUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/24",
+      "qualificationEvidence": {
+        "scope": "Alpine 3.24.4 native x64/AArch64 archive, APK and OCI r1 only",
+        "architectures": [
+          "x64",
+          "aarch64"
+        ],
+        "channels": [
+          "archive",
+          "apk",
+          "oci"
+        ],
+        "packageRevision": 1,
+        "sourceReleaseTag": "musl-sdk-10.0.403-r1",
+        "sourceManifestSha256": "04b3ff71eec9a508c65bf5c22c13f189def3ba576e55f5593cff7378224c3344",
+        "verificationReleaseTag": "verification-musl-sdk-10.0.403-r1",
+        "verificationManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/verification-musl-sdk-10.0.403-r1/verification-manifest.json",
+        "verificationManifestSha256": "8be34fa684fa6d4a48fc74a36fe6258d7cd725dfaeb646673b1139a85950e8b3",
+        "verificationWorkflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42377669287",
+        "workflowRuns": {
+          "producer": [
+            42368648443,
+            1
+          ],
+          "archive": [
+            42376221830,
+            1
+          ],
+          "apk": [
+            42376232763,
+            1
+          ],
+          "oci": [
+            42376246499,
+            1
+          ],
+          "verification": [
+            42377669287,
+            1
+          ]
+        },
+        "installerAdmission": "separate-issue-30",
+        "nativeAotAndWorkloads": "not-qualified"
+      }
     },
     {
       "sdkVersion": "9.0.123",
@@ -251,6 +294,6 @@
       "x64",
       "aarch64"
     ],
-    "status": "pending-native-build-and-delivery-qualification"
+    "status": "published-postverified"
   }
 }

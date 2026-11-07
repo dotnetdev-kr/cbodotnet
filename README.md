@@ -102,6 +102,8 @@ Other bands and new major versions remain visible as `pending-adapter`; missing 
 
 `linux-arm64` and `linux-x64` are generic **glibc** package targets. Native checks cover Ubuntu 22.04, Ubuntu 24.04 and Debian 13 user spaces. Kernel, system-library and optional component requirements still apply; these results do not cover musl/Alpine or every Linux distribution.
 
+SDK 10.0.403 also has separately qualified [Alpine 3.24.4 archives, signed APK repositories and OCI images](docs/alpine-musl.md) for native x64 and AArch64. The guide lists installation commands, signed public verification and the remaining SDK-series follow-ups. cbodotnetup musl support is tracked separately in [#30](https://github.com/dotnetdev-kr/cbodotnet/issues/30).
+
 Branded .NET 5 and Core 3.x distributions use a separately authenticated
 [OpenSSL/ICU provider](docs/legacy-compatibility-provider.md); Core 3 additionally
 uses a separate [native HTTP provider](docs/legacy-curl-provider.md). These

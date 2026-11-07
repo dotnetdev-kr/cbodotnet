@@ -1,9 +1,13 @@
 # Alpine APK signing and repository design
 
-This is the reviewed candidate design for issue #24. A generated APK, an upstream
-SDK fixture, or a passing packaging test does not authorize publication. Native
-musl producer admission, both CPU consumer receipts, the approved permanent APK
-key, protected publication, and anonymous verification are separate gates.
+SDK 10.0.403 APK revision 1 is published for native x64 and AArch64 on Alpine
+3.24.4. The [APK publication workflow](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42376232763)
+completed native qualification, lifecycle tests, protected permanent signing,
+and anonymous public installations on both CPUs. The
+[signed APK aggregate](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-musl-apk-sdk-10.0.403-r1)
+and [final six-report verification](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/verification-musl-sdk-10.0.403-r1)
+bind this delivery to its [qualified source producer](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42368648443).
+A generated APK or a development fixture alone still cannot authorize publication.
 
 Alpine's [current stable branch](https://alpinelinux.org/releases/) is 3.24;
 3.24.4 was released on November 5, 2026. The implementation pins its actual
@@ -50,6 +54,11 @@ The SHA-256 fingerprint of the public key's DER SubjectPublicKeyInfo is
 `784ae05c3339c239f715cb0b849dead89e6a1b787a8126c738d6997227a63e20`.
 The SHA-256 of the exact published PEM file is
 `d464a8e7c173c1a86ad65f92abb1d56fd1f362dbcaf30b4b3929355bc6a49c2d`.
+The immutable [800-byte PEM public key](https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-10.0.403-r1/cbodotnet-apk-2026.rsa.pub)
+is bound by the signed APK aggregate. The published package/index signature
+member is `.SIGN.RSA256.cbodotnet-apk-2026.rsa.pub`. See the
+[installation commands](alpine-musl.md#installation) for checksum verification,
+trust-store installation and the exact revision-pinned repository URL.
 The reviewed [`musl-signing-policy.json`](../releases/musl-signing-policy.json)
 binds both values, the filename, secret, environment, workflow, creation date
 and publisher cutoff.
@@ -103,8 +112,11 @@ canonical `cbodotnet-sdk-X.Y-V-rN.apk`, `cbodotnet-host-1.0.0-r1.apk`, and
 With apk-tools 3, an explicit [`ndx` repository URL](https://github.com/alpinelinux/apk-tools/blob/v3.0.8/doc/apk-repositories.5.scd)
 points directly at `.../APKINDEX.tar.gz`, and packages resolve beside it. This
 avoids copying large SDK packages into GitHub Pages or inventing unsupported
-package URLs. Anonymous HTTPS downloads and real installs must prove this route
-before it is advertised.
+package URLs. Revision 1 has passed anonymous HTTPS downloads and real installs
+from the [x64](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/musl-apk-repo-10.0.403-alpine324-x64-r1)
+and [AArch64](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/musl-apk-repo-10.0.403-alpine324-aarch64-r1)
+repositories. Each repository contains its signed index, SDK package, shared
+host package and the approved public key.
 
 The Alpine OCI variant keeps a distinct `V-alpine324-musl-rN` tag and a signed
 two-platform index. Its pinned base and qualified SDK are unchanged by packaging.

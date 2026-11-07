@@ -3,10 +3,27 @@
   "kind": "musl-nonmusl-regression-validation",
   "status": "passed",
   "repository": "dotnetdev-kr/cbodotnet",
-  "phase": "pre-musl-publication",
-  "auditedAtUtc": "2026-11-07T09:03:46.438257+00:00",
-  "checkoutCommitAtStart": "643c22064b1e92d5b87cdf53ee3d8e37a949d615",
-  "checkoutCommitAtFinish": "643c22064b1e92d5b87cdf53ee3d8e37a949d615",
+  "phase": "post-musl-publication",
+  "auditedAtUtc": "2026-11-07T13:43:26.648589+00:00",
+  "checkoutCommitAtStart": "6a40ed3ae3b9bb15175226447ddcb27a59ac4d1b",
+  "checkoutCommitAtFinish": "6a40ed3ae3b9bb15175226447ddcb27a59ac4d1b",
+  "afterSnapshot": {
+    "receiverCompleteSha256": "578910c3b82e3a333bb8e1bd14da607de2a759ad12ce28c0e795260bf53fa8f1",
+    "startedAtUtc": "2026-11-07T13:40:44.713Z",
+    "finishedAtUtc": "2026-11-07T13:42:42.706Z",
+    "checkoutCommitAtStart": "6a40ed3ae3b9bb15175226447ddcb27a59ac4d1b",
+    "checkoutCommitAtFinish": "6a40ed3ae3b9bb15175226447ddcb27a59ac4d1b",
+    "requiredStableMuslTags": [
+      "musl-sdk-10.0.403-r1",
+      "distribution-musl-archive-sdk-10.0.403-r1",
+      "distribution-musl-apk-sdk-10.0.403-r1",
+      "distribution-musl-oci-sdk-10.0.403-r1",
+      "musl-apk-repo-10.0.403-alpine324-x64-r1",
+      "musl-apk-repo-10.0.403-alpine324-aarch64-r1",
+      "verification-musl-sdk-10.0.403-r1"
+    ],
+    "frozenBeforeReportSha256": "f6df949fc1271917e02bfa0da10699d41cb793121cb30e79a522e123d7f7af5d"
+  },
   "baseline": {
     "commit": "97beff72d6b3eba081ce4bbe7446c5dda780b20c",
     "capturedAtUtc": "2026-11-07T06:25:33.733207+00:00",
@@ -66,57 +83,86 @@
     ]
   },
   "observed": {
-    "totalCurrentReleases": 81,
+    "totalCurrentReleases": 88,
     "baselineReleasesCompared": 81,
     "baselineAssetsCompared": 1076,
     "assetsWithActualRestSha256Digest": 1076,
     "baselineProjectionSha256": "7ff8d6a0433c1446a90e9012cf56eee0c83fb8d249f061f914235384e6e9c217",
-    "newMuslReleases": [],
+    "newMuslReleases": [
+      {
+        "id": 437598159,
+        "tag": "verification-musl-sdk-10.0.403-r1"
+      },
+      {
+        "id": 437582976,
+        "tag": "musl-sdk-10.0.403-r1"
+      },
+      {
+        "id": 437594505,
+        "tag": "musl-apk-repo-10.0.403-alpine324-x64-r1"
+      },
+      {
+        "id": 437594240,
+        "tag": "musl-apk-repo-10.0.403-alpine324-aarch64-r1"
+      },
+      {
+        "id": 437589521,
+        "tag": "distribution-musl-oci-sdk-10.0.403-r1"
+      },
+      {
+        "id": 437589835,
+        "tag": "distribution-musl-archive-sdk-10.0.403-r1"
+      },
+      {
+        "id": 437594750,
+        "tag": "distribution-musl-apk-sdk-10.0.403-r1"
+      }
+    ],
     "releasePages": [
       {
         "page": 1,
         "count": 10,
-        "snapshotSha256": "df92cade854b62961f4814693ef886d39a07a89bfec6a2a6fc687e304b1785bf"
+        "snapshotSha256": "f9bd1b470fe8b35b7efbf608f91c2406b8676a53816e497fd443c7448837e5e4"
       },
       {
         "page": 2,
         "count": 10,
-        "snapshotSha256": "a89abb10c75f75d563f9606af672163d4c8d87a730aa5276ddd49b46fe981588"
+        "snapshotSha256": "b4fee602c7f78963c2301e57a7080df5314a47a911050b61f377811a1a945ab9"
       },
       {
         "page": 3,
         "count": 10,
-        "snapshotSha256": "1c60eae41dd83c72ce99e0145973c8768f63082299e88a449d4bc96cf0061c9f"
+        "snapshotSha256": "7e03ea868a1ff81fd30d214dce1273788979e8d3f2fe94c57ac60160b670ec76"
       },
       {
         "page": 4,
         "count": 10,
-        "snapshotSha256": "39c4fc7357b4088ee807d09c830c0e2b023928440d2b85332569cbadb56455d5"
+        "snapshotSha256": "6397b3af6d6c3dc6ac8fdccf675956df6fb91b7672829cc19f3145501a8a13e0"
       },
       {
         "page": 5,
         "count": 10,
-        "snapshotSha256": "16abbcd41a92207bbc67207d9a985d0549c069ec3c091321dc71571af3ac3d06"
+        "snapshotSha256": "277fdd930e2903fd37931179b32e8af5cee20427ec4e5b2f570ba6b34602becf"
       },
       {
         "page": 6,
         "count": 10,
-        "snapshotSha256": "05c36aedacf44707ca40ae8b6f62fc007087ff6c437ad88a3dd82fd6d3839818"
+        "snapshotSha256": "8d8374cb82a11f077ed59b768ffc7c5cf919ec5c40f1eccbba78a7ab1947bdd8"
       },
       {
         "page": 7,
         "count": 10,
-        "snapshotSha256": "f8a14e935c285d1123309a68aa04b5a5a375f95b4c2ca5117f3a0d423269b27f"
+        "snapshotSha256": "0c691286e0f6f8af421c375e27006469d07d992331cc9619547e388385522718"
       },
       {
         "page": 8,
         "count": 10,
-        "snapshotSha256": "130412b34a1b7d3ce4cdbe793e81fd64c016f56db1d982011c973138b8c5ad66"
+        "snapshotSha256": "508d8194e308b12631e8a91156eba646423867f2cfb2b87b618b20255bafad72"
       },
       {
         "page": 9,
-        "count": 1,
-        "snapshotSha256": "6d547043ffe42ebdd952d424f6037444a370d8a34ed6b15875bd8bd52ff5ea22"
+        "count": 8,
+        "snapshotSha256": "c7dd6e9106880ef174fe3f170af869a1b2504e139799a0fc7009ba63b2624a5f"
       }
     ],
     "separateAssetApiPages": 81,
@@ -131,7 +177,7 @@
     "title": "Community Build of .NET SDK 10.0.403 - Linux archives r3 (built by .NET Dev)",
     "htmlUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-archive-sdk-10.0.403-r3",
     "metadataProjectionSha256": "294f2392b7385a88a6bbac99088aaf38c418d94a39ffea49ebb14ecffc14de3e",
-    "connectorSnapshotSha256": "2d0e95b7d6dbb82708583bb6880de76961c44192db36c0d04d1e86e899267569"
+    "connectorSnapshotSha256": "f42db5833c51b8a8d903831bab0af5200cde7a3d0f167113f8b3f3460836dba5"
   },
   "protectedFiles": {
     "count": 97,
@@ -1424,7 +1470,7 @@
         {
           "page": 1,
           "count": 8,
-          "snapshotSha256": "8d7859dfd6bf901595964c2b8da3c79992c1619d1b860ab40844eb2f8235a9cc"
+          "snapshotSha256": "a824151452d9201b70bccdd84f80005d0df6c07e8e494e9efa484bc9f969a02f"
         }
       ]
     },
@@ -1440,7 +1486,7 @@
         {
           "page": 1,
           "count": 8,
-          "snapshotSha256": "61123dfdb65f8e310cec8578b1cf6b18c8647e627e1610c1bc7f3265c77b1702"
+          "snapshotSha256": "632ef9880c70760ee608bc85b521ce07db3aeee9688d275418951d3b55f77fbd"
         }
       ]
     },
@@ -1456,7 +1502,7 @@
         {
           "page": 1,
           "count": 8,
-          "snapshotSha256": "23c94739f616b403378a43141fad9d7f4c2a1e2b77fe63b7ca910d245882d006"
+          "snapshotSha256": "e7b7b5cd55a48a1ce872b2d823dc10bad5ddba582a6163bad25bcd1abc1c607e"
         }
       ]
     },
@@ -1472,7 +1518,7 @@
         {
           "page": 1,
           "count": 8,
-          "snapshotSha256": "4d0b7d08008a2a42a3396504146894aa8e1b938ebf9ed0750527a8009c9a99b0"
+          "snapshotSha256": "d3526aeb1f8f9759f3effb3447a9688eedbeb96f3fd0bee80d0657013f55ef9a"
         }
       ]
     },
@@ -1488,7 +1534,7 @@
         {
           "page": 1,
           "count": 8,
-          "snapshotSha256": "194c805c02d447edb7cc57170ab3aeaa3ab3775956cd867b170de3cbedced0f8"
+          "snapshotSha256": "07699cee4960c53487fea09f1f5c977438f670f7ae121c0965ebc9e89507fc5f"
         }
       ]
     },
@@ -1504,7 +1550,7 @@
         {
           "page": 1,
           "count": 8,
-          "snapshotSha256": "1a53e483ee2523034798cfcbec86de30ece9cd0a803279fa7afa09a26e7ec307"
+          "snapshotSha256": "021576e34d6e6387ddefff969001cc2998b993ce242d4bf15dce38c1e884e173"
         }
       ]
     },
@@ -1520,7 +1566,7 @@
         {
           "page": 1,
           "count": 8,
-          "snapshotSha256": "b936610fa0fa65dd9bdf8643d91d501cf213601ef0a6d2285a680843326daac3"
+          "snapshotSha256": "43c06be30f35ecd2223d4ab6ca495052be9bfa2e6b06e6f45e43585494389f89"
         }
       ]
     },
@@ -1536,7 +1582,7 @@
         {
           "page": 1,
           "count": 8,
-          "snapshotSha256": "90c76a22e3964d435d4462ff7b2e123ad074b7da448b2d9d576947c4d93d617b"
+          "snapshotSha256": "30b4c5efa96a26430e4dcdbf6272427cc156679b7710420d79d1cde2675ee8b6"
         }
       ]
     },
@@ -1552,7 +1598,7 @@
         {
           "page": 1,
           "count": 17,
-          "snapshotSha256": "8b436cbae4c87e0dee0085fc0c3abfbe2dadef1d00390a7e9a004a143236209f"
+          "snapshotSha256": "1f5ace4b66c7c8a7b7ea215c1d4829418b28fc5b8a51f08a2a75a1b665b405bf"
         }
       ]
     },
@@ -1568,7 +1614,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "5ebc85816bad22b9cf77a72e39a26d1ac0a1d0e0cae17030359e6d4f986ba2ac"
+          "snapshotSha256": "d15bc054014535cf6c1e8a72af9c0e4f575173ba1971936f951ef35103e9539e"
         }
       ]
     },
@@ -1584,7 +1630,7 @@
         {
           "page": 1,
           "count": 19,
-          "snapshotSha256": "cd9f09db65a75e0fdbe090b3e4f44599a5a74baec3423cc599b37a4c1566f829"
+          "snapshotSha256": "5a8be79b48f4902a403caff19d5d900d28d8c5bac193fd89a379da2c0f00c764"
         }
       ]
     },
@@ -1600,7 +1646,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "c4ed1cc8978c5e124ae0584733c1b898affc55ae7336213122b1d88c5a1ab460"
+          "snapshotSha256": "7f0e577b5b85dbee685203b2fc7ec1ad7f4aa71a55fa1907a8cb6c7e4de914a5"
         }
       ]
     },
@@ -1616,7 +1662,7 @@
         {
           "page": 1,
           "count": 11,
-          "snapshotSha256": "8ff9fb19880d20272a31b544ba29c2ab7955f6e9d7d1aa9cebbde0fbd962e1b4"
+          "snapshotSha256": "1f420d64cd635123d8f0306d288a3d12d2017fec8985e065ecb27e31d4d0918e"
         }
       ]
     },
@@ -1632,7 +1678,7 @@
         {
           "page": 1,
           "count": 11,
-          "snapshotSha256": "7d1e567377206a0b443f179e96a3b003d5f9fda8a4c777658fb8d14d4423c05f"
+          "snapshotSha256": "7b77367f911f076e59b305f0db604c09d115655cc2bf461d33a5bcc278552b18"
         }
       ]
     },
@@ -1648,7 +1694,7 @@
         {
           "page": 1,
           "count": 17,
-          "snapshotSha256": "d09f200d2dcd799a3405dabbc0c1f96209965055c331940fc965b14f67608781"
+          "snapshotSha256": "d6abf48cc89200f329ba24e8a6f3dc9c085b338f27df2b53e21d5816a6ed8bcb"
         }
       ]
     },
@@ -1664,7 +1710,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "78e3f519df6b7d4e9b0adee29ceebacc8a752509eeef106c77499ae90f3bafdd"
+          "snapshotSha256": "b3cc1e136eb3b096566ffa3bffc79b05261dfa4a8461868d49c64fe5da40a0d3"
         }
       ]
     },
@@ -1680,7 +1726,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "319cbf02a06db23e847f2921ffe5f8583f3ae21e1b99939577a6234e5235486f"
+          "snapshotSha256": "3878342e40cbc26728dd9ea190f8fd092ce0feb11bc6668c0c8c6308b541dad3"
         }
       ]
     },
@@ -1696,7 +1742,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "2e0f98958456dba1aa793516695d1296afcf5bf2a93d742b89ae96f4355d64e4"
+          "snapshotSha256": "8ae53d007d95cae177f38c40f589295c37730b3e7e073f0e90bf4faf05dffa92"
         }
       ]
     },
@@ -1712,7 +1758,7 @@
         {
           "page": 1,
           "count": 19,
-          "snapshotSha256": "c7330a94cd29ab8a952eee915bcbf42d4b3a6dadf1a76d7e09724872bebd3261"
+          "snapshotSha256": "e5093f13b3dedb3862a1c01d155bb1738730ab18f061f1de1a06d6342a38518b"
         }
       ]
     },
@@ -1728,7 +1774,7 @@
         {
           "page": 1,
           "count": 11,
-          "snapshotSha256": "7c537757352de83a3007a108cde7239457a1fd0a34b07ef6b7564a1d35d8a759"
+          "snapshotSha256": "2b762c7cf01e44643509cf3f09462705ee33500a0c1df64d407931e694c43491"
         }
       ]
     },
@@ -1744,7 +1790,7 @@
         {
           "page": 1,
           "count": 11,
-          "snapshotSha256": "db2761622a4ffa5ea836ef603a0babe8ecac30bb8b9e9aee5f957a3a4c3fc696"
+          "snapshotSha256": "8f0b541a08b27e51b435a454da047ae2890ee44ca518edeb5ac236f92cee3e42"
         }
       ]
     },
@@ -1760,7 +1806,7 @@
         {
           "page": 1,
           "count": 11,
-          "snapshotSha256": "92fcba14694d78fbaa45d6b4ac4d5dc8d6482ccc710ea625fe5abaf6eff0f931"
+          "snapshotSha256": "7fbf3545b0ea905fab07ec48b855726ada9f08d301afb4b8920d8696a2f635ef"
         }
       ]
     },
@@ -1776,7 +1822,7 @@
         {
           "page": 1,
           "count": 11,
-          "snapshotSha256": "9c45490e4fad2fbcd33158d2387660fce0220fd5536b32930ef01c006e64416a"
+          "snapshotSha256": "dfeadf9f90ee5194805fcc3512abf0a201543bb06f54b251b5b5bdca7d387780"
         }
       ]
     },
@@ -1792,7 +1838,7 @@
         {
           "page": 1,
           "count": 17,
-          "snapshotSha256": "8119041fb98f548f5ba68db2bfda9463d3d49f71e3e13a07d17ac3a3f886389c"
+          "snapshotSha256": "c300c17fd5d9f0a49638d312f6a7fd9cf361d903248ccd4f29a354a3bc09ba39"
         }
       ]
     },
@@ -1808,7 +1854,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "1a3cd0dd346b608b93e5aaf6e2aad8b4f64ed337e56ec978d82b30c95c61056b"
+          "snapshotSha256": "537be56fa72e05214bfc0f4200ce224a241ffb97ecc310baf9f1dbe338c20474"
         }
       ]
     },
@@ -1824,7 +1870,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "0e8a5c3cfdfe9989de0ea41ba4aa9ef52b2451b87d755711f7ceb8829a4dc00e"
+          "snapshotSha256": "7d80be49368eb9a8e0ae0856587e1822b211c5cf1f7bf68755961fd961f0bcd7"
         }
       ]
     },
@@ -1840,7 +1886,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "86d7986ba59e428e2daf2d764a3779d91b178a1e6bc5fe41b8e394738bc32508"
+          "snapshotSha256": "525170747b499f85384d981b681d3584c510f4357c2eb9700e271e8ccf650c31"
         }
       ]
     },
@@ -1856,7 +1902,7 @@
         {
           "page": 1,
           "count": 17,
-          "snapshotSha256": "7edbef12df33e4a2b3fd3bb486cff1536835c0e6696078af7ef3a5eb30be7664"
+          "snapshotSha256": "5943182590054acd626fc299518cf4c304bab01348e84da0b17f2d850593844b"
         }
       ]
     },
@@ -1872,7 +1918,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "579ef24e34786561c30a52d1eb9d52489080cbe2440f752c68971e48ef33ad6c"
+          "snapshotSha256": "ba700f6b496d41d3b2f8a2649b4c1ffcd4b3faa7b885294bc063ff24601c4b6d"
         }
       ]
     },
@@ -1888,7 +1934,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "238d916bd9ba8d49e9297f7f25671c3ec917f521ed1fa81006896bad7a195ef8"
+          "snapshotSha256": "16748cc66622f9af93460ab7cb3499f152537974d3c54513705f8ea51a0d3daf"
         }
       ]
     },
@@ -1904,7 +1950,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "2b38c9d72cc60ca4f9e941a0bcfdc90bff7c361240e7bb0e5ec134645d190c2f"
+          "snapshotSha256": "7050d50f5caaaf548eb5c094d01ca9b2763ff1e7a24f3e31ec1e31735c285fd3"
         }
       ]
     },
@@ -1920,7 +1966,7 @@
         {
           "page": 1,
           "count": 17,
-          "snapshotSha256": "5910db42e6faa7f2f2a6c7fd05fca081af8f80faa786fb148dd49a504518fd2d"
+          "snapshotSha256": "83e89252f476dcd1d233d35221bc1c8fd3b9fb12a703feedc25be771fa9c20a2"
         }
       ]
     },
@@ -1936,7 +1982,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "abc8d68354a6a4b9acb0b705d5c8a2be7cecd0e9997a2458e54bea9ddcc9a5a6"
+          "snapshotSha256": "973f846575f2904da9bd9b4da3f14b324b362849cf090193fc912214825be0fe"
         }
       ]
     },
@@ -1952,7 +1998,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "ca42f833a2aa97e3c482d20a827c576817449c8248ea2f73814d035862250323"
+          "snapshotSha256": "141a473cbf0c5c9670b651130accee4a7e074d54df5304e69c53721544b9fd09"
         }
       ]
     },
@@ -1968,7 +2014,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "9f427c20b20ded52589b63367e6289e073ff37ee07d2026a7bb810ff7acf33ab"
+          "snapshotSha256": "d5fd250cfd4425bb17ec1e32153b47e01152b2e08c607b29f1a2372e34545607"
         }
       ]
     },
@@ -1984,7 +2030,7 @@
         {
           "page": 1,
           "count": 17,
-          "snapshotSha256": "617715857a36f60dff848e7ef5c35880140ad20c44f1d1ea0467bbe844aa5b68"
+          "snapshotSha256": "b58800528dbf1a1817f08fbdcc479a0a50c8464f99b15f795a5f752d3b5311f0"
         }
       ]
     },
@@ -2000,7 +2046,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "f401114b6d5c2c88e708b7e75fcc44c014b4190620e13db9e4ba5ca3c6820634"
+          "snapshotSha256": "ae923b2d0b22bf68a0d51d019debb170bdec10115dc544d365d2f72e43d616a6"
         }
       ]
     },
@@ -2016,7 +2062,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "6338a61374ede17d6b7a5f6926a14a7b03306a77702a58439d0d91189afc5e33"
+          "snapshotSha256": "5275eec91d3cf8f0cdbb4912e973b1b5b5b7b573848d4e17a0c68eadc7c55e01"
         }
       ]
     },
@@ -2032,7 +2078,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "5937b5bf53e64f4de998cc621ca577dd2da91ac87fe1b31a21e9f796d5479572"
+          "snapshotSha256": "274489805343f7c3505368d87c7463d25cf096cf4bc8eed6e7b5146844366855"
         }
       ]
     },
@@ -2048,7 +2094,7 @@
         {
           "page": 1,
           "count": 19,
-          "snapshotSha256": "e3aa78bf6abe4addeca98e592487f0b27b517f6a2365daebfd922758de548ce4"
+          "snapshotSha256": "84c298953ef9861cd4591efb23bddf41fa10fdc2c71a298ef9cca16c13db74be"
         }
       ]
     },
@@ -2064,7 +2110,7 @@
         {
           "page": 1,
           "count": 19,
-          "snapshotSha256": "2be5cee8f51eb6196c2fb3eeaa93cdc61e9014cd0fb7caeb768d13b53840dfaf"
+          "snapshotSha256": "21669faf8abf6558a08867f0410e4f1d2165de3d16ecbfa7ad847ae466de424d"
         }
       ]
     },
@@ -2080,7 +2126,7 @@
         {
           "page": 1,
           "count": 19,
-          "snapshotSha256": "73789e6b85216092402c42391a91b636cdb7b241afe1062505dc4ad2b7e6847b"
+          "snapshotSha256": "41a0c96391478b0d9539bfff27e14eb2b5634fe06d14810845ee4381cd33541f"
         }
       ]
     },
@@ -2096,7 +2142,7 @@
         {
           "page": 1,
           "count": 19,
-          "snapshotSha256": "02691a99e30f62ca1c9a299ab7ce0e4461b1104d41cd04b26e75c62b8d708481"
+          "snapshotSha256": "9119bbc890b9250e2810ed3296c108370d4c773ec3686ea3e795656a71122ad5"
         }
       ]
     },
@@ -2112,7 +2158,7 @@
         {
           "page": 1,
           "count": 13,
-          "snapshotSha256": "a54e2de2c415e5dc50524d9928c76150093ed534bc2f35fb825dacb6584f1b80"
+          "snapshotSha256": "3f47e6ba73b260017f6cb8a44b1fc11af1876a07cc2c6d231f09bcc0d970bd3e"
         }
       ]
     },
@@ -2128,7 +2174,7 @@
         {
           "page": 1,
           "count": 17,
-          "snapshotSha256": "08dd8ba0839f4cd5b2d3154fc8901a9ee3cc406dd3e5a0672271a8a795537f76"
+          "snapshotSha256": "8d814ceed7cbdc7306d997db70399a5ebc8f9a9e846168896681763ae31f8a6f"
         }
       ]
     },
@@ -2144,7 +2190,7 @@
         {
           "page": 1,
           "count": 12,
-          "snapshotSha256": "5a20f18939089bc88e98a50b027ee65fee2c07ca36a80866e2574241153b767c"
+          "snapshotSha256": "7ad390fe984a10e3a104034e9c23be35b292628c4336a359d72523e0fed312a1"
         }
       ]
     },
@@ -2160,7 +2206,7 @@
         {
           "page": 1,
           "count": 12,
-          "snapshotSha256": "07ce5f5940d2c72c7a9df572e3a2aa7156bbd1a3b05900d7012f647543de1371"
+          "snapshotSha256": "a715941a92012b708599f9ea47624ca1b24bb042f022c84e888d3ba010871814"
         }
       ]
     },
@@ -2176,7 +2222,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "373c1aa0aa9257807404170acfe4b74c1791ac31c685e9bb9b69bd11480051da"
+          "snapshotSha256": "49867aec1cf7f03e41c9ecd0681d455d7faf56134cfc572ab0bf8b727dc65656"
         }
       ]
     },
@@ -2192,7 +2238,7 @@
         {
           "page": 1,
           "count": 17,
-          "snapshotSha256": "f94e2ad914f5b20894a6f13eee2bd6d639b89128c1fbbc772aa27ef1802616c2"
+          "snapshotSha256": "497aeaf52e65d15d1f79f97e09f3d667c15aabdf467ad1515029d7cc76cfe9bb"
         }
       ]
     },
@@ -2208,7 +2254,7 @@
         {
           "page": 1,
           "count": 14,
-          "snapshotSha256": "84d0e658bfcbaaa36dcebebf4794314b23d0bf86cf6103baa03d8f2fc52461b0"
+          "snapshotSha256": "1938a86105f4fcb187916ea2e16bbd5d56cddf44d17025fd8c4d85fa4a2db260"
         }
       ]
     },
@@ -2224,7 +2270,7 @@
         {
           "page": 1,
           "count": 14,
-          "snapshotSha256": "ae076bb19f566e1b97cc2541843ef6c25f7e53193d15f7fc16971a93bc214907"
+          "snapshotSha256": "068356c5307da41607f9c7a6922a3eb5fc4fec13bc3392d0699aa2c9407d6786"
         }
       ]
     },
@@ -2240,7 +2286,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "df5f5bb9fa698891de4b4b51623a54d002e8d25b82194dc91a2cfeed96aef2df"
+          "snapshotSha256": "7950813a38a3280f12d026e308e3d9b3af747df41865ddbfa4fec5bb430559d4"
         }
       ]
     },
@@ -2256,7 +2302,7 @@
         {
           "page": 1,
           "count": 17,
-          "snapshotSha256": "7d6624f35a52b51eda80cc3979231bfd0e6855dcf0ee3c2dadcad7598685d7e7"
+          "snapshotSha256": "c5cc0e6f1e51af47f3751d38f042b5f4c5485c1eff8e391ff92c1f5122e355aa"
         }
       ]
     },
@@ -2272,7 +2318,7 @@
         {
           "page": 1,
           "count": 14,
-          "snapshotSha256": "acbc61d41d63628c870ad9c40def4b9fd27f25b146e1e7e697751544582ff0e9"
+          "snapshotSha256": "8aba09aa522ef18b42e9d46b78393a7157ac063deb4b9c43094e974f2bcf5df1"
         }
       ]
     },
@@ -2288,7 +2334,7 @@
         {
           "page": 1,
           "count": 14,
-          "snapshotSha256": "6eb0f5e840117071784561addeecd91307848cdd5a2042966fdf56e9c5ffa89e"
+          "snapshotSha256": "cb83954157dae07f2400ef5dcd9390121e15ddd05d878dc717bbab9c828a1c32"
         }
       ]
     },
@@ -2304,7 +2350,7 @@
         {
           "page": 1,
           "count": 10,
-          "snapshotSha256": "6a2dd51c3ca662d300278349cfc250669193715d9a19e135cf2660bd54a5a9a6"
+          "snapshotSha256": "5ba3f1e2548c87bd9b2230b74a60733ddefb409198c39c57bcccb88fa830ec16"
         }
       ]
     },
@@ -2320,7 +2366,7 @@
         {
           "page": 1,
           "count": 35,
-          "snapshotSha256": "04a6fc7d0a9a0ae05d5fafd6663d9dea2278e99f5a9bb47cce6d361d3fb10cb0"
+          "snapshotSha256": "6c471a0442e6e8ff5a0d6cbeeddc9f12a7a0c4d3713849004598c7a4b1f968cb"
         }
       ]
     },
@@ -2336,7 +2382,7 @@
         {
           "page": 1,
           "count": 35,
-          "snapshotSha256": "8cf3533cff002dc25b9277b39425ecb6bc1fb789df75bcefcbf96776915c1142"
+          "snapshotSha256": "278218dae710d83f88a5fc7edc60eeaced577e413933e1d0097d587a87298691"
         }
       ]
     },
@@ -2352,7 +2398,7 @@
         {
           "page": 1,
           "count": 27,
-          "snapshotSha256": "5c68bbc96a0cfeff805b6969a7dc2c7cc203daeb88453340fe8f25ed6c2a2ec1"
+          "snapshotSha256": "9636d452d3b80d176434ecc5e0a5ad3d772bae710912ffa8270fdc362156c49a"
         }
       ]
     },
@@ -2368,7 +2414,7 @@
         {
           "page": 1,
           "count": 15,
-          "snapshotSha256": "887e070265d248ba4ae380cb221f0025555b2480692654554f3b9f6c0d58757d"
+          "snapshotSha256": "b7a7ada5f59aadd65415049a531b7c094f4e9c705d922230e92716436da8f62a"
         }
       ]
     },
@@ -2384,7 +2430,7 @@
         {
           "page": 1,
           "count": 15,
-          "snapshotSha256": "0f4ca35657d16e28f66d000c7175cc54ddfb5c7e299229ba5b03b1885d3f70d4"
+          "snapshotSha256": "55e6e27d52dcd6930b8da015dcd3c34ffc0ceecba4db032eecb2c497171b0b6a"
         }
       ]
     },
@@ -2432,7 +2478,7 @@
         {
           "page": 1,
           "count": 11,
-          "snapshotSha256": "bd382b6bb7209b4b30d43bc403bff8945b2e3b656c86f47e5d8d92a316730123"
+          "snapshotSha256": "8fa518707441478342d3a6ea06fbf339aaf4c356fd842ed693c9cc5ae6d6b8cd"
         }
       ]
     },
@@ -2448,7 +2494,7 @@
         {
           "page": 1,
           "count": 11,
-          "snapshotSha256": "6671529f5a74c88b36f73e9d685182257fff794aea154c280b92953a329dacaf"
+          "snapshotSha256": "07fe0347453559106f0a615d0c4560dc031bda9dfe6c0b7af6cab2ba4534bde7"
         }
       ]
     },
@@ -2464,7 +2510,7 @@
         {
           "page": 1,
           "count": 11,
-          "snapshotSha256": "d060d06049f318b2f0389e26870a7af2a1c9dd43a01617c269c13c63b5bdde15"
+          "snapshotSha256": "bb69c596bd753ffd0037a8ccab50c2f94c56622e4d79ab9d5585337999fa261a"
         }
       ]
     },
@@ -2480,7 +2526,7 @@
         {
           "page": 1,
           "count": 13,
-          "snapshotSha256": "30ba2f60138243b487d64c841b82005eacfb74071892febabd8b33a6a183a4d9"
+          "snapshotSha256": "66de2886f55dce89dc193adf97614a287112816a50c53d1753852bdccf9bee41"
         }
       ]
     },
@@ -2496,7 +2542,7 @@
         {
           "page": 1,
           "count": 15,
-          "snapshotSha256": "3b6f14458609672dda348753a1cf442e8e8ba8a205abeb559eb9d3fc8e72a992"
+          "snapshotSha256": "9d28d95b3a16bf9ccc97de14ebb579d548c25a69f5a6bd84f8e32d94f0ccdb73"
         }
       ]
     },
@@ -2512,7 +2558,7 @@
         {
           "page": 1,
           "count": 11,
-          "snapshotSha256": "d7806f881e1e928add4f4c801722a8350f386a649a27be76322c9c99c7982097"
+          "snapshotSha256": "2de34887f9f4b9a6fc2137c8baa6b2dcc9383bf7e63cd59207523ba1f4ae2332"
         }
       ]
     },
@@ -2528,7 +2574,7 @@
         {
           "page": 1,
           "count": 11,
-          "snapshotSha256": "a593b71253c13416aaecbdf3fa0d651c14f87c4aab844772686e7e2d9d9c4b93"
+          "snapshotSha256": "261d90cea58cdfca381181c08eeb819a48192fd5d2bfe1e64f139c267fc26ad1"
         }
       ]
     },
@@ -2544,7 +2590,7 @@
         {
           "page": 1,
           "count": 15,
-          "snapshotSha256": "7865472d732158345d5f1ae2d64526bbc5a40dd39248dccc0fe1c235e4454572"
+          "snapshotSha256": "98bdf5c9f393148bc6a97e176d54b7abb8ba1ba3b5d054645d53cf47bc4e8a2b"
         }
       ]
     },
@@ -2672,7 +2718,7 @@
         {
           "page": 1,
           "count": 28,
-          "snapshotSha256": "cadea2daee6e61b7971d4ed9b8e7ac7ddb21741b9db174aeb29e3b8a29077236"
+          "snapshotSha256": "e12657f0c80faa461adb08ee95891584ab8fadbeff2d24092e065ddc537b9095"
         }
       ]
     },
@@ -2688,7 +2734,7 @@
         {
           "page": 1,
           "count": 15,
-          "snapshotSha256": "a5b468012e09775c6a795dee2e3ea7da9e10ef6bd81ea8604a1e172c4e8a7ea9"
+          "snapshotSha256": "3f48f066b4d36fd573d7f551b6f87d33c713f496dbebd9739e4d83837a39ad9b"
         }
       ]
     },
@@ -2704,7 +2750,7 @@
         {
           "page": 1,
           "count": 15,
-          "snapshotSha256": "4ed9a2358e7a8054cfcff55dbf8e423d2a18044ea88b16d705f4fbd1c13e85f8"
+          "snapshotSha256": "13436cc5d71af7d0a35cab70bdf80b5738cb0ac97035915acb80d14209f5d2fc"
         }
       ]
     }
@@ -2715,10 +2761,10 @@
     "The bounded REST collection is not an atomic server snapshot; every embedded release asset inventory was independently reconciled with its separate complete assets endpoint response.",
     "The initial Windows checkout contains pre-existing CRLF transformations for some files. Those raw bytes are not falsely described as equal to LF Git blobs; committed bytes, clean-filter tracked content and all nine captured initial raw SHA256 pins are recorded separately.",
     "This audit does not qualify musl source builds, runtime behavior, signatures or public installation.",
-    "Re-run after musl publication using fresh REST snapshots; only new explicit musl namespace tags may be excluded. Old releases/assets and latest remain protected."
+    "This post-publication checkpoint uses fresh connected REST snapshots and excludes only new explicit musl namespace tags. Old releases/assets and latest remain protected."
   ],
   "oldGlibcOci": {
-    "status": "passed-before-musl-publication",
+    "status": "passed-before-and-after-musl-publication",
     "capturedAtUtc": "2026-11-07T09:11:58.533499+00:00",
     "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
     "baselineCommit": "97beff72d6b3eba081ce4bbe7446c5dda780b20c",
@@ -3240,9 +3286,454 @@
       ]
     },
     "afterMuslPublication": {
-      "status": "pending-new-musl-publication",
-      "required": true,
-      "criteria": "Re-read all before canonical tags, aliases and child/config digests anonymously after new musl publication; require exact same old raw digest/size and signed descriptor bindings."
+      "status": "passed",
+      "checkedAtUtc": "2026-11-07T13:43:52.859170+00:00",
+      "anonymous": true,
+      "registryMethods": [
+        "GET"
+      ],
+      "imageOrLayerDownloads": 0,
+      "registryWrites": 0,
+      "preservedBeforeInventorySha256": "fc05b59f6b92fffaf339674d57f2461a20c6b7b3339e553a8498bf7017f9011d",
+      "canonicalTags": 10,
+      "nativePlatforms": 20,
+      "aliases": 0,
+      "records": [
+        {
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:10.0.403-debian13-r1",
+          "digest": "sha256:11939c01e8cf35aa21a56dd1f2365832cc71012d2a3e3142f9be5e3d1aed897d",
+          "rawManifestSize": 685,
+          "rawManifestSha256": "11939c01e8cf35aa21a56dd1f2365832cc71012d2a3e3142f9be5e3d1aed897d",
+          "nativePlatforms": 2,
+          "status": "unchanged"
+        },
+        {
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:10.0.403-debian13-r2",
+          "digest": "sha256:c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9",
+          "rawManifestSize": 685,
+          "rawManifestSha256": "c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9",
+          "nativePlatforms": 2,
+          "status": "unchanged"
+        },
+        {
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:10.0.403-debian13-r3",
+          "digest": "sha256:c9335fa52f22ead1ffd8f5f12fa1e3c406df672dcae1cfeda724087655d37873",
+          "rawManifestSize": 685,
+          "rawManifestSha256": "c9335fa52f22ead1ffd8f5f12fa1e3c406df672dcae1cfeda724087655d37873",
+          "nativePlatforms": 2,
+          "status": "unchanged"
+        },
+        {
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:3.0.103-debian13-r1",
+          "digest": "sha256:92cd3873b0c065ceca0198d7fe86b42bb92e25ec6cf1027d6e988fd27694f31e",
+          "rawManifestSize": 685,
+          "rawManifestSha256": "92cd3873b0c065ceca0198d7fe86b42bb92e25ec6cf1027d6e988fd27694f31e",
+          "nativePlatforms": 2,
+          "status": "unchanged"
+        },
+        {
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:3.1.426-debian13-r1",
+          "digest": "sha256:b7abc03527fbc8943d395f40585f24fd92c74a321335a4d374a5282873043955",
+          "rawManifestSize": 685,
+          "rawManifestSha256": "b7abc03527fbc8943d395f40585f24fd92c74a321335a4d374a5282873043955",
+          "nativePlatforms": 2,
+          "status": "unchanged"
+        },
+        {
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:5.0.214-debian13-r1",
+          "digest": "sha256:8206e47cbbaa077afc5450a0965571aa884921a22025f2e1d30199399ab0980e",
+          "rawManifestSize": 685,
+          "rawManifestSha256": "8206e47cbbaa077afc5450a0965571aa884921a22025f2e1d30199399ab0980e",
+          "nativePlatforms": 2,
+          "status": "unchanged"
+        },
+        {
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:6.0.136-debian13-r1",
+          "digest": "sha256:ff06071ac6438da8ae7e5506771f117ac15082b596da8a67a4bc0c785bd50b38",
+          "rawManifestSize": 685,
+          "rawManifestSha256": "ff06071ac6438da8ae7e5506771f117ac15082b596da8a67a4bc0c785bd50b38",
+          "nativePlatforms": 2,
+          "status": "unchanged"
+        },
+        {
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:7.0.120-debian13-r1",
+          "digest": "sha256:24f0a58282eeb0b88ae6891216850d4d6dcf5893fed71dd6355ee7bbfbabb113",
+          "rawManifestSize": 685,
+          "rawManifestSha256": "24f0a58282eeb0b88ae6891216850d4d6dcf5893fed71dd6355ee7bbfbabb113",
+          "nativePlatforms": 2,
+          "status": "unchanged"
+        },
+        {
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:8.0.133-debian13-r1",
+          "digest": "sha256:07c6e4a5072f3a3839065d43dc39bdbfb5e92b47895225be9851d7ef4274f742",
+          "rawManifestSize": 685,
+          "rawManifestSha256": "07c6e4a5072f3a3839065d43dc39bdbfb5e92b47895225be9851d7ef4274f742",
+          "nativePlatforms": 2,
+          "status": "unchanged"
+        },
+        {
+          "reference": "ghcr.io/dotnetdev-kr/cbodotnet-sdk:9.0.123-debian13-r1",
+          "digest": "sha256:5f00d60bdc025c58c1f093169451a76ac0a63b203346a364277482029af4baf5",
+          "rawManifestSize": 685,
+          "rawManifestSha256": "5f00d60bdc025c58c1f093169451a76ac0a63b203346a364277482029af4baf5",
+          "nativePlatforms": 2,
+          "status": "unchanged"
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "path": "manifests/10.0.403-debian13-r2",
+          "digest": "sha256:c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9",
+          "size": 685,
+          "snapshot": "sha256-c945ebf6da10c3c2ccefef91062df0832597260d8b2efb7e97ea9bf2c522afd9.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/10.0.403-debian13-r1",
+          "digest": "sha256:11939c01e8cf35aa21a56dd1f2365832cc71012d2a3e3142f9be5e3d1aed897d",
+          "size": 685,
+          "snapshot": "sha256-11939c01e8cf35aa21a56dd1f2365832cc71012d2a3e3142f9be5e3d1aed897d.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/3.0.103-debian13-r1",
+          "digest": "sha256:92cd3873b0c065ceca0198d7fe86b42bb92e25ec6cf1027d6e988fd27694f31e",
+          "size": 685,
+          "snapshot": "sha256-92cd3873b0c065ceca0198d7fe86b42bb92e25ec6cf1027d6e988fd27694f31e.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/10.0.403-debian13-r3",
+          "digest": "sha256:c9335fa52f22ead1ffd8f5f12fa1e3c406df672dcae1cfeda724087655d37873",
+          "size": 685,
+          "snapshot": "sha256-c9335fa52f22ead1ffd8f5f12fa1e3c406df672dcae1cfeda724087655d37873.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:45139a41544c105840147a5d2b5750fe7ed9df7f5be5cfb93c369529962b537d",
+          "digest": "sha256:45139a41544c105840147a5d2b5750fe7ed9df7f5be5cfb93c369529962b537d",
+          "size": 1160,
+          "snapshot": "sha256-45139a41544c105840147a5d2b5750fe7ed9df7f5be5cfb93c369529962b537d.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:1d136e4130eaaf6a04fcec5826473425783d7e68ef307288752b08bbef4bfe28",
+          "digest": "sha256:1d136e4130eaaf6a04fcec5826473425783d7e68ef307288752b08bbef4bfe28",
+          "size": 1160,
+          "snapshot": "sha256-1d136e4130eaaf6a04fcec5826473425783d7e68ef307288752b08bbef4bfe28.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:e810695ca5bcc4903b02921860c403e008c9d2c22435814dffeea2d94f754cbb",
+          "digest": "sha256:e810695ca5bcc4903b02921860c403e008c9d2c22435814dffeea2d94f754cbb",
+          "size": 1160,
+          "snapshot": "sha256-e810695ca5bcc4903b02921860c403e008c9d2c22435814dffeea2d94f754cbb.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:89f176a26c4dfc0c5cb0c26f6b2807d5258959ce54009829652ff1edb7c4514b",
+          "digest": "sha256:89f176a26c4dfc0c5cb0c26f6b2807d5258959ce54009829652ff1edb7c4514b",
+          "size": 1160,
+          "snapshot": "sha256-89f176a26c4dfc0c5cb0c26f6b2807d5258959ce54009829652ff1edb7c4514b.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:fe89c3c32b16069ff759de96f45ab9ec990d7c4aa24912597b9b090310e3d445",
+          "digest": "sha256:fe89c3c32b16069ff759de96f45ab9ec990d7c4aa24912597b9b090310e3d445",
+          "size": 3215,
+          "snapshot": "sha256-fe89c3c32b16069ff759de96f45ab9ec990d7c4aa24912597b9b090310e3d445.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:cee5ff3081bd3898b194e893192928a3664bad516d33c551bcb90d1ed535c299",
+          "digest": "sha256:cee5ff3081bd3898b194e893192928a3664bad516d33c551bcb90d1ed535c299",
+          "size": 4542,
+          "snapshot": "sha256-cee5ff3081bd3898b194e893192928a3664bad516d33c551bcb90d1ed535c299.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:7b0ce71397c4f7a6c86f943dbfe1d11618b2c1f34d1b173e4d2e62dd3cb613d4",
+          "digest": "sha256:7b0ce71397c4f7a6c86f943dbfe1d11618b2c1f34d1b173e4d2e62dd3cb613d4",
+          "size": 4654,
+          "snapshot": "sha256-7b0ce71397c4f7a6c86f943dbfe1d11618b2c1f34d1b173e4d2e62dd3cb613d4.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:96d79849afa9e654c20e7c0d4baeba762f0794af672e48ba09579f6f3a27b946",
+          "digest": "sha256:96d79849afa9e654c20e7c0d4baeba762f0794af672e48ba09579f6f3a27b946",
+          "size": 4542,
+          "snapshot": "sha256-96d79849afa9e654c20e7c0d4baeba762f0794af672e48ba09579f6f3a27b946.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:ac2d3b3d13ef5b935a6e0eca7e120e72367954ad8c3f3c4c51c13cd615c9ce2d",
+          "digest": "sha256:ac2d3b3d13ef5b935a6e0eca7e120e72367954ad8c3f3c4c51c13cd615c9ce2d",
+          "size": 1160,
+          "snapshot": "sha256-ac2d3b3d13ef5b935a6e0eca7e120e72367954ad8c3f3c4c51c13cd615c9ce2d.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:242f530dd59ee91e98ef5b2883831ee107e46024f57dffac6559ee4d75bf7a85",
+          "digest": "sha256:242f530dd59ee91e98ef5b2883831ee107e46024f57dffac6559ee4d75bf7a85",
+          "size": 1160,
+          "snapshot": "sha256-242f530dd59ee91e98ef5b2883831ee107e46024f57dffac6559ee4d75bf7a85.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:352f84beddde2e95b811883679993d4b53c62880d73aa8be38d2196993a573c9",
+          "digest": "sha256:352f84beddde2e95b811883679993d4b53c62880d73aa8be38d2196993a573c9",
+          "size": 1160,
+          "snapshot": "sha256-352f84beddde2e95b811883679993d4b53c62880d73aa8be38d2196993a573c9.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:f258c9a640e684d3cd27ad91836c24055b519bce699b3d9c7ba23bddd07b3646",
+          "digest": "sha256:f258c9a640e684d3cd27ad91836c24055b519bce699b3d9c7ba23bddd07b3646",
+          "size": 1160,
+          "snapshot": "sha256-f258c9a640e684d3cd27ad91836c24055b519bce699b3d9c7ba23bddd07b3646.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:2986e6e034be43eefb4ce96baf5fa7de222b812604a3cc41175dda217bb63df7",
+          "digest": "sha256:2986e6e034be43eefb4ce96baf5fa7de222b812604a3cc41175dda217bb63df7",
+          "size": 3215,
+          "snapshot": "sha256-2986e6e034be43eefb4ce96baf5fa7de222b812604a3cc41175dda217bb63df7.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:5ad848fe6ca79efa35bb560fcaca51fddcfaaf920c9c2473f60f9ae5367ddd1b",
+          "digest": "sha256:5ad848fe6ca79efa35bb560fcaca51fddcfaaf920c9c2473f60f9ae5367ddd1b",
+          "size": 4646,
+          "snapshot": "sha256-5ad848fe6ca79efa35bb560fcaca51fddcfaaf920c9c2473f60f9ae5367ddd1b.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:c36d653b0d95f2d937aaf020390ce43d9e9dfe475a404003f94387d90aae2825",
+          "digest": "sha256:c36d653b0d95f2d937aaf020390ce43d9e9dfe475a404003f94387d90aae2825",
+          "size": 4530,
+          "snapshot": "sha256-c36d653b0d95f2d937aaf020390ce43d9e9dfe475a404003f94387d90aae2825.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:c8066c25e91ef18091de03beaa78b220aa5557bcda772dd83d075fbfb094ddad",
+          "digest": "sha256:c8066c25e91ef18091de03beaa78b220aa5557bcda772dd83d075fbfb094ddad",
+          "size": 4530,
+          "snapshot": "sha256-c8066c25e91ef18091de03beaa78b220aa5557bcda772dd83d075fbfb094ddad.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/5.0.214-debian13-r1",
+          "digest": "sha256:8206e47cbbaa077afc5450a0965571aa884921a22025f2e1d30199399ab0980e",
+          "size": 685,
+          "snapshot": "sha256-8206e47cbbaa077afc5450a0965571aa884921a22025f2e1d30199399ab0980e.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/3.1.426-debian13-r1",
+          "digest": "sha256:b7abc03527fbc8943d395f40585f24fd92c74a321335a4d374a5282873043955",
+          "size": 685,
+          "snapshot": "sha256-b7abc03527fbc8943d395f40585f24fd92c74a321335a4d374a5282873043955.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/6.0.136-debian13-r1",
+          "digest": "sha256:ff06071ac6438da8ae7e5506771f117ac15082b596da8a67a4bc0c785bd50b38",
+          "size": 685,
+          "snapshot": "sha256-ff06071ac6438da8ae7e5506771f117ac15082b596da8a67a4bc0c785bd50b38.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/7.0.120-debian13-r1",
+          "digest": "sha256:24f0a58282eeb0b88ae6891216850d4d6dcf5893fed71dd6355ee7bbfbabb113",
+          "size": 685,
+          "snapshot": "sha256-24f0a58282eeb0b88ae6891216850d4d6dcf5893fed71dd6355ee7bbfbabb113.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:f5c0f20f02ecc621a096b0f26f053ade95db0b016d8567468160142f76d07f9f",
+          "digest": "sha256:f5c0f20f02ecc621a096b0f26f053ade95db0b016d8567468160142f76d07f9f",
+          "size": 1160,
+          "snapshot": "sha256-f5c0f20f02ecc621a096b0f26f053ade95db0b016d8567468160142f76d07f9f.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:b8e6cfac085c3571ee004c33e3835dd5dfbcd8cd29761219c75be9c80852ec3c",
+          "digest": "sha256:b8e6cfac085c3571ee004c33e3835dd5dfbcd8cd29761219c75be9c80852ec3c",
+          "size": 1160,
+          "snapshot": "sha256-b8e6cfac085c3571ee004c33e3835dd5dfbcd8cd29761219c75be9c80852ec3c.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:e602dcd88c0b5808eaf8bc9fc25ce2c8688bbaf8778122ac72f010423066b000",
+          "digest": "sha256:e602dcd88c0b5808eaf8bc9fc25ce2c8688bbaf8778122ac72f010423066b000",
+          "size": 1160,
+          "snapshot": "sha256-e602dcd88c0b5808eaf8bc9fc25ce2c8688bbaf8778122ac72f010423066b000.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:c23c6da3c07085cbae7b555fb5ac8f40df29bed71795b00ba37f2916da1b0b08",
+          "digest": "sha256:c23c6da3c07085cbae7b555fb5ac8f40df29bed71795b00ba37f2916da1b0b08",
+          "size": 1160,
+          "snapshot": "sha256-c23c6da3c07085cbae7b555fb5ac8f40df29bed71795b00ba37f2916da1b0b08.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:78f93f2d2207cef4d3ffc7aa79743f13cbd82ad1040f3f1fb813b27594484188",
+          "digest": "sha256:78f93f2d2207cef4d3ffc7aa79743f13cbd82ad1040f3f1fb813b27594484188",
+          "size": 4528,
+          "snapshot": "sha256-78f93f2d2207cef4d3ffc7aa79743f13cbd82ad1040f3f1fb813b27594484188.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:948ab51f5d93b8b24b88278db7ffe8aecb7c63742b49cfc6b7c2248feed66692",
+          "digest": "sha256:948ab51f5d93b8b24b88278db7ffe8aecb7c63742b49cfc6b7c2248feed66692",
+          "size": 4528,
+          "snapshot": "sha256-948ab51f5d93b8b24b88278db7ffe8aecb7c63742b49cfc6b7c2248feed66692.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:fb81efaa85f1e6c80288ed9fad4d3840d2799d7a8e00ff0fc7407641d1223617",
+          "digest": "sha256:fb81efaa85f1e6c80288ed9fad4d3840d2799d7a8e00ff0fc7407641d1223617",
+          "size": 4662,
+          "snapshot": "sha256-fb81efaa85f1e6c80288ed9fad4d3840d2799d7a8e00ff0fc7407641d1223617.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:758b7d1e35920747e9e79d555cfdcdc8433f8c0d4c6ebd7afe8c69701b9c1276",
+          "digest": "sha256:758b7d1e35920747e9e79d555cfdcdc8433f8c0d4c6ebd7afe8c69701b9c1276",
+          "size": 4525,
+          "snapshot": "sha256-758b7d1e35920747e9e79d555cfdcdc8433f8c0d4c6ebd7afe8c69701b9c1276.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:dbbb72846130a51b648c05a648549d323dfb6583ff779e62b0b30049caad9006",
+          "digest": "sha256:dbbb72846130a51b648c05a648549d323dfb6583ff779e62b0b30049caad9006",
+          "size": 1160,
+          "snapshot": "sha256-dbbb72846130a51b648c05a648549d323dfb6583ff779e62b0b30049caad9006.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:5ecd2a226ce4af1960e491dc6298a482c8dc40945d1f094b7e9f7dbb8d739caf",
+          "digest": "sha256:5ecd2a226ce4af1960e491dc6298a482c8dc40945d1f094b7e9f7dbb8d739caf",
+          "size": 1160,
+          "snapshot": "sha256-5ecd2a226ce4af1960e491dc6298a482c8dc40945d1f094b7e9f7dbb8d739caf.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:b4e188a69411a8689c209df3b1481bab906b87c577fd5b1564bf6d1a8adee437",
+          "digest": "sha256:b4e188a69411a8689c209df3b1481bab906b87c577fd5b1564bf6d1a8adee437",
+          "size": 1160,
+          "snapshot": "sha256-b4e188a69411a8689c209df3b1481bab906b87c577fd5b1564bf6d1a8adee437.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:f626867587d96c6890e96673abb9c12d2db90e18a6cc4d9573171c61b6915290",
+          "digest": "sha256:f626867587d96c6890e96673abb9c12d2db90e18a6cc4d9573171c61b6915290",
+          "size": 1160,
+          "snapshot": "sha256-f626867587d96c6890e96673abb9c12d2db90e18a6cc4d9573171c61b6915290.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:b7a9368071f34149246908531bac3a49c8b9c417d0517beeeee04efc14643e6e",
+          "digest": "sha256:b7a9368071f34149246908531bac3a49c8b9c417d0517beeeee04efc14643e6e",
+          "size": 4514,
+          "snapshot": "sha256-b7a9368071f34149246908531bac3a49c8b9c417d0517beeeee04efc14643e6e.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:2c2b699793a27d81b46ae840ac6b5c1d01816205b3b7e1c483fa02bf2903a1ed",
+          "digest": "sha256:2c2b699793a27d81b46ae840ac6b5c1d01816205b3b7e1c483fa02bf2903a1ed",
+          "size": 4648,
+          "snapshot": "sha256-2c2b699793a27d81b46ae840ac6b5c1d01816205b3b7e1c483fa02bf2903a1ed.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/8.0.133-debian13-r1",
+          "digest": "sha256:07c6e4a5072f3a3839065d43dc39bdbfb5e92b47895225be9851d7ef4274f742",
+          "size": 685,
+          "snapshot": "sha256-07c6e4a5072f3a3839065d43dc39bdbfb5e92b47895225be9851d7ef4274f742.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:9257f389c1ad38bc8476802e1e61744b256fc3bc27eb82d7f479393d317802ab",
+          "digest": "sha256:9257f389c1ad38bc8476802e1e61744b256fc3bc27eb82d7f479393d317802ab",
+          "size": 1160,
+          "snapshot": "sha256-9257f389c1ad38bc8476802e1e61744b256fc3bc27eb82d7f479393d317802ab.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/9.0.123-debian13-r1",
+          "digest": "sha256:5f00d60bdc025c58c1f093169451a76ac0a63b203346a364277482029af4baf5",
+          "size": 685,
+          "snapshot": "sha256-5f00d60bdc025c58c1f093169451a76ac0a63b203346a364277482029af4baf5.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:b4bc61753219ef72854ffcc7ca9272251298a292e662aee2e8ab484e056dea3b",
+          "digest": "sha256:b4bc61753219ef72854ffcc7ca9272251298a292e662aee2e8ab484e056dea3b",
+          "size": 4516,
+          "snapshot": "sha256-b4bc61753219ef72854ffcc7ca9272251298a292e662aee2e8ab484e056dea3b.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:6907f1f98b5be7d3ce8d222334fc4500e763340b3705acf0cf0ae07581497046",
+          "digest": "sha256:6907f1f98b5be7d3ce8d222334fc4500e763340b3705acf0cf0ae07581497046",
+          "size": 4513,
+          "snapshot": "sha256-6907f1f98b5be7d3ce8d222334fc4500e763340b3705acf0cf0ae07581497046.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:d35241387b31e3b0be0fc797b569d2b1a2ffb4a96cd656eb94d867165d33bbb9",
+          "digest": "sha256:d35241387b31e3b0be0fc797b569d2b1a2ffb4a96cd656eb94d867165d33bbb9",
+          "size": 1160,
+          "snapshot": "sha256-d35241387b31e3b0be0fc797b569d2b1a2ffb4a96cd656eb94d867165d33bbb9.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:a05de96b0b4cc9732cd3d3478d4692cef810094c9f563713eb35602af0eeb378",
+          "digest": "sha256:a05de96b0b4cc9732cd3d3478d4692cef810094c9f563713eb35602af0eeb378",
+          "size": 4524,
+          "snapshot": "sha256-a05de96b0b4cc9732cd3d3478d4692cef810094c9f563713eb35602af0eeb378.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:630546de7f05c8824061345192750ac6077241588717cac9d331904648030f70",
+          "digest": "sha256:630546de7f05c8824061345192750ac6077241588717cac9d331904648030f70",
+          "size": 4526,
+          "snapshot": "sha256-630546de7f05c8824061345192750ac6077241588717cac9d331904648030f70.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:e9f7126fba15f50e3639602c4f395d39db9c7f8e12dd96bb06fa3f37229ce59a",
+          "digest": "sha256:e9f7126fba15f50e3639602c4f395d39db9c7f8e12dd96bb06fa3f37229ce59a",
+          "size": 1160,
+          "snapshot": "sha256-e9f7126fba15f50e3639602c4f395d39db9c7f8e12dd96bb06fa3f37229ce59a.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "manifests/sha256:4b0f39ab6817a046be2c2119d6dd6960b2ef58c2d302a4670cb8f96bad171a80",
+          "digest": "sha256:4b0f39ab6817a046be2c2119d6dd6960b2ef58c2d302a4670cb8f96bad171a80",
+          "size": 1160,
+          "snapshot": "sha256-4b0f39ab6817a046be2c2119d6dd6960b2ef58c2d302a4670cb8f96bad171a80.manifest.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:3e6e5a1b084306eea72a34aad4d3808eb3e7ef43685b50385c9cfadc379031ef",
+          "digest": "sha256:3e6e5a1b084306eea72a34aad4d3808eb3e7ef43685b50385c9cfadc379031ef",
+          "size": 4516,
+          "snapshot": "sha256-3e6e5a1b084306eea72a34aad4d3808eb3e7ef43685b50385c9cfadc379031ef.config.json"
+        },
+        {
+          "method": "GET",
+          "path": "blobs/sha256:fe0e72423b761b7a16b3738756c580dacc10f816e629abaa12f090618921c21f",
+          "digest": "sha256:fe0e72423b761b7a16b3738756c580dacc10f816e629abaa12f090618921c21f",
+          "size": 4516,
+          "snapshot": "sha256-fe0e72423b761b7a16b3738756c580dacc10f816e629abaa12f090618921c21f.config.json"
+        }
+      ],
+      "beforeReportSha256": "f6df949fc1271917e02bfa0da10699d41cb793121cb30e79a522e123d7f7af5d",
+      "metadataDirectory": "regression-validation-oci-metadata"
     },
     "transport": {
       "anonymous": true,

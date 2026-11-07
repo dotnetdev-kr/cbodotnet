@@ -122,8 +122,10 @@ distribution's package licenses.
 Each listed consumer image covers its exact SDK on the recorded Debian 13 glibc
 base. Archive execution on another user space does not qualify that space as an
 image base. The SDK 5 and Core 3 images use the separately authenticated legacy
-providers recorded in the delivery matrix. Musl/Alpine, runtime-only and
-ASP.NET-only image variants require independent qualification.
+providers recorded in the delivery matrix. SDK 10.0.403 also has a separately
+qualified [Alpine 3.24.4 musl variant](alpine-musl.md), with its own native producer,
+explicit registry tag, multi-platform digest and signed public verification.
+Runtime-only and ASP.NET-only image variants require independent qualification.
 Continued Community Build availability does not extend Microsoft's security
 maintenance or promise vulnerability remediation after upstream end of support.
 The [contract](distribution-contract.md) records those support boundaries.

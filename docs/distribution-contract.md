@@ -208,8 +208,10 @@ native SDKs.
 
 Ubuntu 22.04 has archive evidence, but is not an initial package target.
 Every target requires its own reviewed, explicit matrix; generic glibc execution
-is insufficient. Musl/Alpine is excluded until a
-separately qualified musl SDK exists. Reject unlisted channel/OS/version/SDK
+is insufficient. This v2 matrix describes glibc targets. Native Alpine 3.24.4
+SDK 10.0.403 uses the [separate musl contract](../releases/musl-distribution-contract.json),
+qualified source catalog and [Alpine installation/verification guide](alpine-musl.md).
+Reject unlisted channel/OS/version/SDK
 combinations with an unsupported-target error. There is no force-publication
 option in contract v2. Adding a target requires reviewed mapping changes and its
 own downstream evidence before promotion.

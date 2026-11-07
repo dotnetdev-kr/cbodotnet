@@ -720,7 +720,7 @@
     "avoids": "No scanner/allowlist/test/ELF gate relaxation, SDK patch, global host LSM/sysctl change, or product availability follows from these diagnostics."
   },
   "normalDocker": {
-    "state": "pending-actual-normal-producer-evidence",
+    "state": "qualified-native-producer-and-public-consumers",
     "intendedPolicy": {
       "engine": "rootful Docker",
       "apparmor": "engine-default",
@@ -733,6 +733,56 @@
       "Actual source and SDK-free worker process AppArmor/NoNewPrivs/capability/seccomp status",
       "Both native CPUs, unchanged VMR source, all six producer stages and independent public consumer qualification"
     ],
-    "sourceAdmission": false
+    "sourceAdmission": true,
+    "source": {
+      "sdkVersion": "10.0.403",
+      "runId": 42368648443,
+      "runAttempt": 1,
+      "projectCommit": "bdf6600d487c748788d930c4c26f10d5173802b3",
+      "releaseTag": "musl-sdk-10.0.403-r1",
+      "manifestSha256": "04b3ff71eec9a508c65bf5c22c13f189def3ba576e55f5593cff7378224c3344",
+      "admissionCommit": "6a40ed3ae3b9bb15175226447ddcb27a59ac4d1b",
+      "correspondingSourceFiles": 264848,
+      "originalTestsPerCpu": { "commonPassed": 13, "scenarios": 36, "scenarioPassed": 34, "reviewedUpstreamSkips": 2 },
+      "architectures": {
+        "x64": { "jobId": 128391985856, "artifactId": 13574850421 },
+        "aarch64": { "jobId": 128391986041, "artifactId": 13574576157 }
+      }
+    },
+    "independentSourcePublication": {
+      "runId": 42374671778,
+      "runAttempt": 1,
+      "projectCommit": "816c820980a0d99c573f75276c31b68d32ff52e8",
+      "stageJobId": 128409718398,
+      "publishJobId": 128411745542,
+      "hostEvidenceArtifact": {
+        "id": 13574998333,
+        "size": 3914,
+        "sha256": "9ef9b1eac67bc813c316baf25082af005cbaaaef4ea516823aaf74cfaad5101c"
+      },
+      "engine": { "name": "Docker", "clientVersion": "28.0.4", "serverVersion": "28.0.4", "kernelVersion": "7.0.0-1017-azure" },
+      "observedProcessPolicy": {
+        "recordsPerArchitecture": 12,
+        "uid": 1001,
+        "gid": 1001,
+        "capabilities": "all-five-fields-zero",
+        "noNewPrivs": 1,
+        "seccomp": 2,
+        "appArmor": "docker-default (enforce)"
+      }
+    },
+    "publicConsumerQualification": {
+      "runId": 42377669287,
+      "runAttempt": 1,
+      "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/verification-musl-sdk-10.0.403-r1/verification-manifest.json",
+      "manifestSha256": "8be34fa684fa6d4a48fc74a36fe6258d7cd725dfaeb646673b1139a85950e8b3",
+      "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+      "anonymousNativeReports": 6,
+      "channels": { "archive": 42376221830, "apk": 42376232763, "oci": 42376246499 },
+      "architectures": ["x64", "aarch64"],
+      "nativeAot": "not-qualified",
+      "workloads": "not-qualified",
+      "installerAdmission": "separate-issue-30"
+    }
   }
 }
