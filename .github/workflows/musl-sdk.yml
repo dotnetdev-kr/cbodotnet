@@ -1,0 +1,108 @@
+name: Native Alpine musl SDK producer
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
+concurrency:
+  group: musl-sdk-${{ github.repository }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: Native Alpine 3.24.4 ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            dotnet_arch: x64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            dotnet_arch: arm64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Require trusted exact workflow and fresh run identity
+        id: paths
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REPOSITORY" == dotnetdev-kr/cbodotnet && "$GITHUB_REF" == refs/heads/main ]]
+          [[ "$GITHUB_WORKFLOW_SHA" == "$GITHUB_SHA" && $(git rev-parse HEAD) == "$GITHUB_SHA" ]]
+          [[ "$GITHUB_RUN_ID" =~ ^[1-9][0-9]*$ && "$GITHUB_RUN_ATTEMPT" =~ ^[1-9][0-9]*$ ]]
+          {
+            echo "MUSL_WORKSPACE=$RUNNER_TEMP/musl-work-${{ matrix.arch }}-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+            echo "MUSL_DELIVERY=$RUNNER_TEMP/musl-delivery-${{ matrix.arch }}-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+            echo "MUSL_HOST_REPORTS=$RUNNER_TEMP/musl-host-${{ matrix.arch }}-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+            echo "MUSL_BUNDLE=$RUNNER_TEMP/musl-bundle-${{ matrix.arch }}-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+            echo "MUSL_BUILD_ID=$(date -u +%Y%m%d).$GITHUB_RUN_NUMBER"
+          } >> "$GITHUB_ENV"
+
+      - name: Prepare native SDK-free host tools and capacity
+        timeout-minutes: 25
+        run: |
+          bash scripts/ci-net10-host.sh prepare --arch '${{ matrix.dotnet_arch }}' \
+            --workspace "$MUSL_WORKSPACE" --reports-dir "$MUSL_HOST_REPORTS" --minimum-free-gib 30
+
+      - name: Build original VMR, upstream tests, sources and native Alpine proof
+        timeout-minutes: 300
+        run: |
+          python3 scripts/musl-sdk.py run --arch '${{ matrix.arch }}' \
+            --workspace "$MUSL_WORKSPACE" --output-dir "$MUSL_DELIVERY" \
+            --host-reports "$MUSL_HOST_REPORTS" --build-id "$MUSL_BUILD_ID" \
+            --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT"
+          python3 scripts/musl-sdk.py validate --release-dir "$MUSL_DELIVERY"
+
+      - name: Preserve unchanged SDK, corresponding source and complete evidence
+        if: always() && steps.paths.outcome == 'success'
+        env:
+          MUSL_ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$MUSL_DELIVERY" "$MUSL_BUNDLE"
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, tarfile
+          root = pathlib.Path(os.environ['MUSL_DELIVERY'])
+          destination = pathlib.Path(os.environ['MUSL_BUNDLE'])
+          if any(p.is_symlink() for p in root.rglob('*')):
+              raise SystemExit('No external symlink is allowed in a producer delivery')
+          archive = destination / 'delivery.tar.gz'
+          with tarfile.open(archive, 'w:gz', compresslevel=1) as stream:
+              stream.add(root, arcname='delivery', recursive=True)
+          digest = hashlib.file_digest(archive.open('rb'), 'sha256').hexdigest()
+          (destination / 'delivery.tar.gz.sha256').write_text(digest + '  delivery.tar.gz\n')
+          validation = root / 'producer-validation.json'
+          passed = validation.is_file() and json.loads(validation.read_text()).get('status') == 'passed'
+          record = dict(schemaVersion=1, kind='musl-sdk-producer-transport',
+              status='passed' if passed else 'failed', sdkVersion='10.0.403', libc='musl',
+              architecture=os.environ['MUSL_ARCH'], projectCommit=os.environ['GITHUB_SHA'],
+              repository=os.environ['GITHUB_REPOSITORY'], runId=os.environ['GITHUB_RUN_ID'],
+              runAttempt=os.environ['GITHUB_RUN_ATTEMPT'], workflow='.github/workflows/musl-sdk.yml',
+              bundle=dict(name=archive.name, size=archive.stat().st_size, sha256=digest))
+          (destination / 'delivery.json').write_text(json.dumps(record, indent=2) + '\n')
+          PY
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always() && steps.paths.outcome == 'success'
+        with:
+          name: sdk-musl-net10-${{ matrix.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.MUSL_BUNDLE }}/*
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 14
+          overwrite: false
