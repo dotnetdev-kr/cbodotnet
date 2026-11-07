@@ -97,7 +97,8 @@ def audit_context(api, environ=None):
     workflow_policy(raw)
     return dict(repository=REPOSITORY, workflow=WORKFLOW, commit=commit,
                 runId=env['GITHUB_RUN_ID'], runAttempt=env['GITHUB_RUN_ATTEMPT'],
-                workflowSha256=hashlib.sha256(raw).hexdigest(), permissions=dict(contents='read', actions='read'))
+                workflowSha256=hashlib.sha256(raw).hexdigest(), permissions=dict(contents='read', actions='read'),
+                currentApiRun=record, actualStatus=record.get('status'), actualConclusion=record.get('conclusion'))
 
 
 def validate_origin(run, run_id, attempt, *, workflow=PRODUCER_WORKFLOW, failed=True, commit=None):
@@ -109,9 +110,14 @@ def validate_origin(run, run_id, attempt, *, workflow=PRODUCER_WORKFLOW, failed=
             and run.get('head_repository', {}).get('full_name') == REPOSITORY
             and re.fullmatch('[a-f0-9]{40}', run.get('head_sha', ''))
             and (commit is None or run['head_sha'] == commit), 'Exact trusted main workflow origin required')
-    require((failed and run.get('status') == 'completed' and run.get('conclusion') == 'failure')
-            or (not failed and run.get('status') == 'in_progress' and run.get('conclusion') is None),
-            'Development audit requires a completed failed source and its exact active audit run')
+    valid_lifecycle = ((failed and run.get('status') == 'completed' and run.get('conclusion') == 'failure')
+            or (not failed and run.get('status') in {'queued', 'in_progress'} and run.get('conclusion') is None))
+    if not valid_lifecycle:
+        error = ValueError('Development audit requires a completed failed source and its exact active audit run; '
+            f'actual status={run.get("status")!r}, conclusion={run.get("conclusion")!r}, failedSource={failed!r}')
+        error.api_context = dict(role='failed-source' if failed else 'current-audit', actualRun=run,
+                                 actualStatus=run.get('status'), actualConclusion=run.get('conclusion'))
+        raise error
     return run['head_sha']
 
 
@@ -264,6 +270,8 @@ def failure_report(output, args, error):
         devOnly=True, sourceAdmission=False, productionQualification=False, publicationAllowed=False,
         architecture=args.arch, requestedSourceRunId=args.run_id, requestedSourceAttempt=args.attempt,
         originValidationCompleted=False, error=dict(type=type(error).__name__, reason=str(error)[-16000:]))
+    if hasattr(error, 'api_context'):
+        report['apiContext'] = error.api_context
     with output.open('xb') as stream:
         stream.write(encoded(report))
 

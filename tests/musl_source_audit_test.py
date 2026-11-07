@@ -23,6 +23,19 @@ class SourceAuditTests(unittest.TestCase):
         for field,value in [('conclusion','success'),('status','in_progress'),('event','pull_request'),('head_branch','feature'),('path',M.WORKFLOW),('run_attempt',2)]:
             with self.subTest(field=field),self.assertRaises(ValueError):M.validate_origin(dict(self.run,**{field:value}),123,1)
 
+    def test_current_audit_can_be_queued_without_relaxing_failed_source_origin(self):
+        current=dict(self.run,path=M.WORKFLOW,conclusion=None)
+        for status in ['queued','in_progress']:
+            run=dict(current,status=status)
+            self.assertEqual(M.validate_origin(run,123,1,workflow=M.WORKFLOW,failed=False,commit='a'*40),'a'*40)
+            with self.assertRaises(ValueError):M.validate_origin(run,123,1)
+        for status,conclusion in [('completed','failure'),('completed','success'),('queued','failure'),('waiting',None)]:
+            with self.subTest(status=status,conclusion=conclusion),self.assertRaises(ValueError) as caught:
+                M.validate_origin(dict(current,status=status,conclusion=conclusion),123,1,workflow=M.WORKFLOW,failed=False)
+            self.assertIn('actual status=',str(caught.exception))
+            self.assertEqual(caught.exception.api_context['actualStatus'],status)
+            self.assertEqual(caught.exception.api_context['actualConclusion'],conclusion)
+
     def test_both_failed_real_native_cpu_jobs_required(self):
         jobs=[]
         for i,(arch,label) in enumerate(M.RUNNERS.items()):
@@ -115,6 +128,19 @@ class SourceAuditTests(unittest.TestCase):
             self.assertEqual(data['error']['reason'],'Actual API origin rejected')
             before=output.read_bytes();M.failure_report(output,args,ValueError('later'))
             self.assertEqual(output.read_bytes(),before)
+
+    def test_current_lifecycle_failure_report_preserves_actual_api_state(self):
+        run=dict(self.run,path=M.WORKFLOW,status='waiting',conclusion=None)
+        with self.assertRaises(ValueError) as caught:
+            M.validate_origin(run,123,1,workflow=M.WORKFLOW,failed=False)
+        with tempfile.TemporaryDirectory() as temporary:
+            output=Path(temporary)/'result.json';args=SimpleNamespace(arch='x64',run_id=123,attempt=1)
+            M.failure_report(output,args,caught.exception)
+            data=json.loads(output.read_text())
+            self.assertEqual(data['apiContext']['actualRun'],run)
+            self.assertEqual(data['apiContext']['actualStatus'],'waiting')
+            self.assertIsNone(data['apiContext']['actualConclusion'])
+            self.assertEqual(data['apiContext']['role'],'current-audit')
 
 
 if __name__=='__main__':unittest.main()
