@@ -1,0 +1,231 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdk5-fresh-arm64-tooling-and-source-correspondence-checkpoint",
+  "sdkVersion": "5.0.214",
+  "architecture": "aarch64",
+  "sdkSourceCommit": "3fdf76c35026e311b7edc245d4b3d9e812fe532e",
+  "nugetSourceCommit": "d525b0e670f3b6cbd5c73a35f04730a9f658c852",
+  "originalSDKProductProjects": 25,
+  "excludedOriginalSDKTestProjects": 31,
+  "originalSmokeSuiteExclusions": [],
+  "actualSdkCscTasks": 214,
+  "actualSourceCrossgenTasks": 111,
+  "originalSmokeCasesPassed": 68,
+  "genuineNugetVersion": "5.9.1-rc.8",
+  "nugetPackages": 19,
+  "nugetManagedPackageMembers": 76,
+  "actualNugetCscTasks": 54,
+  "allNugetManagedMembersByteExactActualCsc": true,
+  "archive": {
+    "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-normal-native-v6/final-sdk.tar.gz",
+    "bytes": 130237336,
+    "sha256": "2c2fd723fce7e8d2fe9ab802f92a6fa17c46e34ea106f3391d238584d9c5fe5c",
+    "sha512": "16497c795a1f8a55ef7061b2ecd677f7523c7370d4cd2966e6fed3149aa7055e5b1adee58213dacec2c7b76a3f4407cd8c56d5b304d5d3524b378135dfb2bc6d"
+  },
+  "protectedNormalProducerQualified": false,
+  "completeSourceClosure": false,
+  "x64ExecutionPerformed": false,
+  "qualificationAllowed": false,
+  "sourceAdmissionAllowed": false,
+  "releaseAvailabilityAllowed": false,
+  "receipts": [
+    {
+      "path": "patches/net5-musl/0008-select-source-built-crossgen-and-jit.patch",
+      "bytes": 2515,
+      "sha256": "b762e32412e8284895b5467372621cf3cff4ae6318afbc30337d3830dec3a3a0",
+      "sha512": "840bec3c680bf13df056af80ee213402d1ea9e1b24ee582064a883264c611b8836eff1227860c16f1584cd3f4476baa4f917e3af5f75d10a9f2b44f9f4bb386d"
+    },
+    {
+      "path": "patches/net5-musl/0009-preserve-original-nuget-unmerged-pack-matrix.patch",
+      "bytes": 1478,
+      "sha256": "7820689e72944f2c608810ad59a93b27c1ddd8459830907a63358dc5c683f286",
+      "sha512": "bde02a324ac8b3d16d4f58f64ccdb8216a8245d4646036cbc361775f868943e8932937cc37704ef1fca4cc28cba566875b70d5dedafc5248ccdaa208541753d0"
+    },
+    {
+      "path": "scripts/musl-legacy5-nuget.py",
+      "bytes": 10147,
+      "sha256": "6feb8048a3449c8656f96bed91d8cef1671418aea19c185799636e3b30f4e217",
+      "sha512": "ff2d4c8afd51f5ad462770d2034a3d1c9b3d14f7a442b3b0eb1799e9e30b5392500845cc5b09f1e26f9e75d33d744b92dcdc26f166595978cbdf6a5f5712a8f8"
+    },
+    {
+      "path": "scripts/musl_legacy5_nuget_graph.py",
+      "bytes": 8709,
+      "sha256": "022c60ac43b365141b538f11db2bc56221d297c7d61c7796aa84446cd5b57844",
+      "sha512": "7db12dbf362d6a7b3056e23e9df2a3666275d4ee7c4a612ddc9a7c871b1e0683861bfc9b5049f4de772fdf73fa0ab073e62e4ac68ae63abb5a403f4051ad092e"
+    },
+    {
+      "path": ".build/sdk5-normal-worker-root-review-v1.json",
+      "bytes": 33475,
+      "sha256": "23aafa6f413c180821f654ca01e18423cadaa2a7c6000950191188e9dc2b82d1",
+      "sha512": "36bdfec619246eaa20c4f51ae26902392448ee4787b894716a7b5f35c16569600b3802a37004b568e1390279c00106b4633862168e5b445dd96225a6c8ac377b"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/sdk5-normal-tooling-v1/restore-v3/derived-product-solution/origin.json",
+      "bytes": 48057,
+      "sha256": "e6eab2ba8a1d22d21528c99220e107696a557f140cc0eda242a7118e4f1bb31f",
+      "sha512": "5b844a45fdcad70c617329d3a692c684fd00965a39f450f6b50ebcc2a56e1f7ec27ac71f5d32ebffab17b5dc5d2b6897c6a7c7596f6e2233a79494fea44ee7f4"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/sdk5-normal-tooling-v1/build-v1/invocation.json",
+      "bytes": 2514,
+      "sha256": "1d03868605356a7db81a942eeef76083d79a7c0f626f39f9467a12aaa957d30a",
+      "sha512": "47e2b4cd00e894362944e56c47f5db5bcb598374e1a57800ba1657ce0615a716011b1eca31bbd737a20149a7c5e8a598b8cb76a41b90967e1b8a24a887656975"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/sdk5-normal-tooling-v1/build-v1/execution.json",
+      "bytes": 128,
+      "sha256": "7ec0cc36b6f41b2b89e4e519c236077e50c8b23e5c8730aef76bcefc4b29e15c",
+      "sha512": "0623455629867555f0464fa24788cb416da15c38690fc1278323b7b3cd48bf9717eac138311fd58442b7049e6ca1987d5318220102259423f3001f53222d1a34"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/sdk5-normal-tooling-v1/build-v1/sdk-replay-status.json",
+      "bytes": 3095,
+      "sha256": "a0e4cf15a617607ac025e88a8102d35a0a54284a7659df696b2c4d993b430ce2",
+      "sha512": "bc0338712e08937bd64aa9df62fde07277610103f3ca4bbf3b33f0fbdd302e1a46516685454818743d5115c82f09259ef0843ec21122f06fd32d422becc8a75b"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/sdk5-normal-tooling-v1/build-v1/sdk-replay-review.json",
+      "bytes": 610,
+      "sha256": "ef0b07a8d7576452d5afac1657ad29c103279bba87c9eb0b72c11e55828e5f72",
+      "sha512": "dcd018ccdcc6756f0669fbe541f51d7871d599c53a24ee54874245c1afe4affa0ad9762b5afbe77208956ce452b29ffe6fc6bec6eb01f7da794ec24fd7c8c62c"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/sdk5-normal-tooling-v1/build-v1/managed-compiler-inputs/compiler-inputs.json",
+      "bytes": 1470317,
+      "sha256": "953733462e88695512e6927cc48041255a87d9189de19a834f9d8a0ded840164",
+      "sha512": "54a0cc4ded3e3ab2d2e5665de402be04fd2fd2e0786d2b383825402eff95adce1c5536eca8831773d9905cc96ee70d5e71dcaf83208916d92ae2c88be220bdee"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-normal-native-v6/invocation.json",
+      "bytes": 5179,
+      "sha256": "b3b516c07d7672a2d9cf2989992dfea72e43d5c26458639740fe0e58c3b49237",
+      "sha512": "7c6ef10d56b49eac1942cbc0fe4f2b9ca2a374783261183e58e77c748ec4f9790b1afeacb01df88117f394aa64af058b6cd6b52d3934a6344d42c493d9794e8b"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-normal-native-v6/execution.json",
+      "bytes": 171,
+      "sha256": "0c22275549e3a02c8c37b315a61055a2d28860d3f72f70108efecd323adfabf2",
+      "sha512": "9336607f67850ee0a06b90c7f1ca56c8ede4696271092d16dea74b94ba27e0f28697a4ff2c0193232d5e250dcd85025bf457751b7b761603bbd320745bf26cfa"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-normal-native-v6/archive.json",
+      "bytes": 524,
+      "sha256": "8930a766305994d65afee2d03fd325f0f9a97ef15822b3691be850e5f087ad5b",
+      "sha512": "964bea101b194acba6de8cb75408b8746273c9196df7ce73432b7d98ee61e97eac51a7c401fce4fe30e7fc641f788c13d12edfa12ca76f30f393bf649a2e430e"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-normal-native-v6/archive-inventory.json",
+      "bytes": 973297,
+      "sha256": "abd4d9fbdd4cfbcb34382fb03ab2db0414599f587a5b5f2b4d987da9813b5804",
+      "sha512": "a7a49c9df9b6fad4c3e3b13a69cc14a9a871c61499f16c3e6ceb4d018bf911f9923f03b6d232659f9795b619e7819384ef866aea23ab3dfcc58fea0b34315d2f"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-normal-native-v6/installer-replay-status.json",
+      "bytes": 2552,
+      "sha256": "e512342b2e34408925574a96dc1e40d90325d491d1392af07cb12fff4305ac5f",
+      "sha512": "7ad7fd088fdf61375c59b818f4cccb3f08d8530aab9ade95275519cc99b6187c5fb367619aa75c9383fd714a1636719b881a0ff63667c9cbcd9c3ea4ae4fb70d"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-normal-native-v6/installer-replay-review.json",
+      "bytes": 519,
+      "sha256": "793880195d2ec3347954654085193e21f990f7dcaef354db46045447e06007fe",
+      "sha512": "e454a8a6cfc321e5b65aaf357ae8c6b713d48b2eac70e4d6e318ad587b26ec0ebd4ff05e1c187333a35bc971ab44933825f7dd0dd801fe15fb79f3cd5f2d191a"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-normal-native-v6/source-crossgen-task-bindings.json",
+      "bytes": 253613,
+      "sha256": "1252ef2d966c588d918697c7e28b6dfc6adc235649ce256e4dc54bd97cb42f14",
+      "sha512": "67e341a199467e59c35973b26ceb9dddbeb787750a0985fe0884df8f90e1561a9a544235fdf6d70cb91dace5adbf72cadbef6f033fb61999c168b215e9518414"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-normal-native-v6/archive-consumer-invocation-v6.json",
+      "bytes": 9028,
+      "sha256": "96b4d8767c3867241447611c876a3a5fe3ff3ba014773eb0f8d1edffe1c8bc0d",
+      "sha512": "1291e510acf79df725dbfe7c8604ea084333c1a562bf9f23ebe1ad92a6469097fef2491b4cde2772f31fa6a523b2ba57420c0cc8c166fec5e83518e0882120d4"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-normal-native-v6/archive-consumer-results-v6.json",
+      "bytes": 1031,
+      "sha256": "a755147010d737d90f68d8c39d60f9d8693dfb13cc21dbd6db2ee75fdb5d9f97",
+      "sha512": "45e8a96a566acbc464d65ad8d3a7eb4fc841d5928d8329024fb7397df31c3f8a2a8938d5b4c6ef8bc240590eb7abc4dd19cbab8422fbab0a713c8587af58f6b7"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-normal-native-v6/archive-consumers-v6/original68/summary.json",
+      "bytes": 596,
+      "sha256": "09b4fce984ddb55ef2dff5b4b1d73ec74b4042fc28d8b880e2f01ace4cacd4ac",
+      "sha512": "b4b34885f448584801f55a6036477414dd6a70c2680d50c3defaa209f477f10a1da625664d160094e8a42a243c3673faac817a5459555c553eac3a611f19efb1"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-normal-native-v6/archive-consumers-v6/runtime-semantics/results.json",
+      "bytes": 9956,
+      "sha256": "87546511e2c0467dc3f6bdba00c46c81ba7fc29e05c6276e418aebd281d45d49",
+      "sha512": "0c4ddf08379784fc62171413e079701ab31f6b982452e7f69dc880445d4bea689fc74471b5838af43df8f2f5fe019c07b704b522e5345de25711415a8b6ac56d"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-normal-native-v6/archive-consumers-v6/archive-lttng/results.json",
+      "bytes": 6035,
+      "sha256": "20894e844194ed859a8cb3c0f76d067cecd60637bd7db5d26556b6dc763a1279",
+      "sha512": "ee1f131cb24143c14d2529c15ad9b50f15baffec4e7dc5571adff29f088e17c61cd8de25781ce10be2e4e12642ca426160f57df29ad8905b400365b6bdd9aafa"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/sdk5-own-components-v1/nuget-build-v8/invocation.json",
+      "bytes": 2396,
+      "sha256": "7f3aa7805b8461d52455f83b125e68b7988a9a2e07f1013ee9b349cfb9415613",
+      "sha512": "c2b775714dfbb4e06bbef7b7272090bc26935a42d97e92385de0b42e9cdd436bd4e04d0ab51f17f34d5c8db32d585570e2b8622bba1609826702fd0c17df301c"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/sdk5-own-components-v1/nuget-build-v8/execution.json",
+      "bytes": 127,
+      "sha256": "0e88380c9de9122e1d94bf0e73625254d26c9def8ce9c5ef8074984c39614920",
+      "sha512": "db9d512dec42995c03b83750a7e17b9d13538f7f3c1778ac6eced3ea57120d16ed7a3e95802b3e56f01f291e2df0d52e982d4a3d26b0c2b84df92bbfd55f742a"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/sdk5-own-components-v1/nuget-build-v8/fresh-precompiler-materialization.json",
+      "bytes": 64872,
+      "sha256": "1a1034d4f25a04141fbc0bd8cdf54d8ad1682fd7a1dff0aee9a27ef81cca535a",
+      "sha512": "b04a458c7451ab99cc60d709824c5ada81093c2584ed7c9e196902892d449ddb57fa35aebdb70946a47baad0e0027be9146003f87075d62ca1b679fd655bfe88"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/sdk5-own-components-v1/nuget-build-v8/build/results.json",
+      "bytes": 30827,
+      "sha256": "18157ceb1c077368f69d6551b308afe4a4ef794106df7d85029ad66e12ac4714",
+      "sha512": "5be5cf2bb768277fcece3e64e0649050fd47ebeadeb43ebfad78c870175bf2fe0bfc5063ca4991500f8f1e14471d2bc4d6f6152289bb1887794ae322269c0519"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/sdk5-own-components-v1/nuget-build-v8/build/original-raw-git-tree.json",
+      "bytes": 1082,
+      "sha256": "8747fc8844565ae2b258ac475ecd4628db8359e856233a93cc13950f4f44637b",
+      "sha512": "136567b9cab7f94ce6c5f6d1226fd0f055e6da228fa13bac5c0ad8f79765590ab191a6477d3ec37538747acfd5505a897da2bdda45b1db872052e6fd70fd5a2d"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/sdk5-own-components-v1/nuget-build-v8/build/derived-xplat-graph/origin.json",
+      "bytes": 19341,
+      "sha256": "37695005447ed461e0ff34f726ab174aebee142ad40e9c6dc7cb97009e1df3c1",
+      "sha512": "0c5dc2f91ae23cd6bbd343eb4fd82b657c3821bd772d98f8cc6b69e9cd9fae483101d90976f39afe1da7e8d13f6cbed5d7c944bc252edb1b31608de43328d49b"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/sdk5-own-components-v1/nuget-build-v8/build/nuget-replay-status.json",
+      "bytes": 2135,
+      "sha256": "e7ee48047b0c258d19cd5ada2a03d5a5e694771d9e222593ece768e13a49307b",
+      "sha512": "0ce7ec8685e0325529a51a0a91c327c30eec5196dc544838b7c3f5131c89a80b68326fd799ed5bcad30996160bda0c7446c6f6d075d267eb2ba2b7099506f739"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/sdk5-own-components-v1/nuget-build-v8/build/nuget-replay-review.json",
+      "bytes": 575,
+      "sha256": "979e25094c0d39196c77c31f0e7f49d73e353b64050c45bf1022cf7d5d59687c",
+      "sha512": "4aa08b72be081fb2ada9a953cc45f7a3d1f6b91fd166650abec686da776de22859ce84fdb0e0954344e3149228f153eb0864b1c6b99008ef2abbef9550570b1b"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/sdk5-own-components-v1/nuget-build-v8/build/nuget-package-compiler-bindings.json",
+      "bytes": 66610,
+      "sha256": "25017d2e53213de904e7a8fae053a5019776f77c7f47c887bc2a834291c55813",
+      "sha512": "4f310afebc7737117ab9e8be514176239ed46bba0067acdc589314874f8fbc2cf351357e836e6c00d9cb60c13391448547a284baefd39cd9ffb6d5726f8d90f0"
+    },
+    {
+      "path": ".build/musl-legacy-assessment-20261108/sdk5-own-components-v1/nuget-build-v8/build/managed-compiler-inputs/compiler-inputs.json",
+      "bytes": 2991180,
+      "sha256": "1a482fd63379d48d225fa211a700714599e0a397de4bf6e034c5ea6d4afc6b77",
+      "sha512": "5f3671217096fddf4d78cec586a026536d490dfbbab7ba3b3a1bfc6d2c285d2c4f5dd1f15b5c33446553f3690c6e3343d61401b53e64d81165ac864ab519e725"
+    }
+  ]
+}

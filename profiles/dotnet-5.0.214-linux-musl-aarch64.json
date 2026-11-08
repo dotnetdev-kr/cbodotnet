@@ -406,5 +406,34 @@
         "sha512": "58b7e2b50746181a427a288469479a118a00d6d79b18ac8359c0ec7cb34acaf5a570d7b4f91a92a51a3b4c94932d06b0aaf8585abc6637aa2b93109411f730a9"
       }
     ]
+  },
+  "freshToolingDiagnosticEvidence": {
+    "kind": "sdk5-fresh-arm64-tooling-and-source-correspondence-checkpoint",
+    "architecture": "aarch64",
+    "sdkVersion": "5.0.214",
+    "sdkCscTasks": 214,
+    "sourceCrossgenTasks": 111,
+    "originalTemplateCases": 68,
+    "nugetVersion": "5.9.1-rc.8",
+    "nugetCscTasks": 54,
+    "nugetPackages": 19,
+    "nugetManagedPackageMembers": 76,
+    "normalProducerQualified": false,
+    "sourceClosureComplete": false,
+    "qualificationAllowed": false,
+    "sourceAdmissionAllowed": false,
+    "releaseAvailabilityAllowed": false,
+    "document": {
+      "path": "docs/musl-sdk5-fresh-tooling.md",
+      "bytes": 5780,
+      "sha256": "79730f573879ec53408c830164fa7ddc4804702bb0958033b6a3046885af63cc",
+      "sha512": "cd335bfae7992ee4207b3fcff436fed656055a6aa0a364624cb28ef7bb104b22f6e9bca7da3b97f2460b89f59c5d676a9de6aed521f19fd6b03706454971437c"
+    },
+    "receipts": {
+      "path": "docs/musl-sdk5-fresh-tooling.json",
+      "bytes": 13734,
+      "sha256": "53d71ec4aafd96f5417c9b4fd5034e816dabdc6753e77b663cffba5f72040bfa",
+      "sha512": "1515fe28c1392846a1217bea34551367ed1fbd4686f63f27605f853bc282c71ec804ea971b27088bcfad1a3177b95b99c0009a98025e60c34ab170de655b6378"
+    }
   }
 }
