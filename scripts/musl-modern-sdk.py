@@ -30,6 +30,10 @@ P = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(P)
 require, fingerprint, write, load_json, git, ordinary = P.require, P.fingerprint, P.write, P.load_json, P.git, P.ordinary
 STAGES = ['prepare', 'build', 'scan', 'test', 'collect', 'verify']
+NET8_PSB = dict(url='https://builds.dotnet.microsoft.com/source-built-artifacts/assets/'
+    'Private.SourceBuilt.Artifacts.8.0.131-servicing.26422.1.centos.9-x64.tar.gz', bytes=728976053,
+    sha256='e39d2656832923af11d00a2bd32a10326ab84a0dfd20307a8491d8af3f9e720c',
+    sha512='07164022578785da51138e1201973163579da27fbe6e99645257ac39dcf68a1532a3646005b20e098e6fee90c8cb47c4a1b82dbc58ec73b6ca2a991e3a12c83a')
 
 
 def module(name, filename):
@@ -51,6 +55,29 @@ def inventory_cache(cache):
         metadata = load_json(metadata_path) if metadata_path.is_file() else {}
         rows.append(dict(path=path.relative_to(cache).as_posix(), source=metadata.get('source'), **fingerprint(path)))
     return rows
+
+
+def net8_source_built_artifacts_url(props):
+    root = ET.parse(props).getroot()
+    require(root.tag in ('Project', '{http://schemas.microsoft.com/developer/msbuild/2003}Project'),
+            'Pinned NET8 versions XML root differs')
+    urls = [node.text for node in root.iter()
+            if node.tag.rsplit('}', 1)[-1] == 'PrivateSourceBuiltArtifactsUrl']
+    expected = NET8_PSB['url']
+    require(urls == [expected], 'Pinned NET8 PSB URL differs')
+    return urls[0]
+
+
+def net8_psb_record(path):
+    record = dict(url=NET8_PSB['url'], **fingerprint(path))
+    require(record == NET8_PSB, 'Reviewed NET8 PSB input bytes differ')
+    return record
+
+
+def validate_net8_psb_records(release):
+    for name in ('original-psb.json', 'actual-prep-psb.json'):
+        require(load_json(release / 'reports/prepare' / name) == NET8_PSB,
+                'Reviewed NET8 PSB download/prep input identity differs')
 
 
 def serviced_package(path, source, package):
@@ -283,20 +310,17 @@ class Producer(P.Producer):
         configure_feeds(self.source, self.reports / 'prepare/feeds', self.sdk)
         if self.route['sourceOnly']:
             # Download/preserve the pristine PSB before original prep replaces it.
-            props = ET.parse(self.source / 'eng/Versions.props')
-            urls = [node.text for node in props.iter() if node.tag == 'PrivateSourceBuiltArtifactsUrl']
-            require(len(urls) == 1 and urls[0].endswith(
-                'Private.SourceBuilt.Artifacts.8.0.131-servicing.26422.1.centos.9-x64.tar.gz'), 'Pinned NET8 PSB URL differs')
+            url = net8_source_built_artifacts_url(self.source / 'eng/Versions.props')
             original = self.inputs / 'original-psb.tar.gz'
-            with urllib.request.urlopen(urls[0], timeout=120) as incoming, original.open('xb') as target:
+            with urllib.request.urlopen(url, timeout=120) as incoming, original.open('xb') as target:
                 shutil.copyfileobj(incoming, target, 1024 * 1024)
-            write(self.reports / 'prepare/original-psb.json', dict(url=urls[0], **fingerprint(original)))
+            write(self.reports / 'prepare/original-psb.json', net8_psb_record(original))
             # prep skips transformation when an archive already exists; leave its
             # destination absent and verify its download equals the preserved input.
             sidecar = self.inputs / 'actual-prep-psb.tar.gz'
             finished = threading.Event()
             def retain_prep_download():
-                path = self.source / 'prereqs/packages/archive' / urls[0].rsplit('/', 1)[-1]
+                path = self.source / 'prereqs/packages/archive' / url.rsplit('/', 1)[-1]
                 while not finished.wait(.02):
                     try:
                         os.link(path, sidecar)
@@ -312,7 +336,7 @@ class Producer(P.Producer):
                 watcher.join()
             require(sidecar.is_file() and fingerprint(sidecar) == fingerprint(original),
                     'The original prep PSB download differs from its preserved pristine upstream input')
-            write(self.reports / 'prepare/actual-prep-psb.json', dict(url=urls[0], **fingerprint(sidecar)))
+            write(self.reports / 'prepare/actual-prep-psb.json', net8_psb_record(sidecar))
             transformed = self.source / 'prereqs/packages/archive/Private.SourceBuilt.Artifacts.Bootstrap.tar.gz'
             require(transformed.is_file(), 'Original NET8 prep did not produce the bootstrap PSB')
             write(self.reports / 'prepare/transformed-psb.json', dict(path=transformed.relative_to(self.source).as_posix(),
@@ -684,6 +708,8 @@ def validate(release):
     require(prepare.get('profile') == dict(path=profile_path.name, **fingerprint(profile_path)), 'Reviewed profile bytes differ')
     bootstrap = load_json(release / 'reports/prepare/bootstrap.json')
     require(all(bootstrap.get(k) == v for k, v in profile['bootstrap'].items()), 'Original native bootstrap input differs')
+    if route['sourceOnly']:
+        validate_net8_psb_records(release)
     patches = load_json(release / 'reports/prepare/source-patches.json')
     require(patches.get('sourceCommit') == route['source'] and patches.get('patches') == profile['build']['patches']
             and patches.get('packageAuditEnabled') is True, 'Reviewed source patch/audit disposition differs')

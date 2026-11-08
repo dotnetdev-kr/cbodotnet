@@ -105,6 +105,50 @@ class NativeRoutes(unittest.TestCase):
 
 
 class SourceAndArchiveSafety(unittest.TestCase):
+    def test_net8_original_and_actual_prep_bytes_are_both_pinned(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            release = Path(temporary)
+            prepare = release / 'reports/prepare'
+            prepare.mkdir(parents=True)
+            for name in ('original-psb.json', 'actual-prep-psb.json'):
+                (prepare / name).write_text(json.dumps(M.NET8_PSB))
+            M.validate_net8_psb_records(release)
+            fp = {key: M.NET8_PSB[key] for key in ('bytes', 'sha256', 'sha512')}
+            with mock.patch.object(M, 'fingerprint', return_value=fp):
+                self.assertEqual(M.NET8_PSB, M.net8_psb_record(release / 'input.tar.gz'))
+            for changed in (dict(M.NET8_PSB, bytes=M.NET8_PSB['bytes'] - 1),
+                            dict(M.NET8_PSB, sha512='0' * 128), dict(M.NET8_PSB, sha256='0' * 64),
+                            dict(M.NET8_PSB, unreviewed=True)):
+                for name in ('original-psb.json', 'actual-prep-psb.json'):
+                    (prepare / name).write_text(json.dumps(changed))
+                    with self.assertRaisesRegex(ValueError, 'PSB download/prep'):
+                        M.validate_net8_psb_records(release)
+                    (prepare / name).write_text(json.dumps(M.NET8_PSB))
+            with mock.patch.object(M, 'fingerprint', return_value=dict(fp, sha512='0' * 128)):
+                with self.assertRaisesRegex(ValueError, 'PSB input bytes'):
+                    M.net8_psb_record(release / 'input.tar.gz')
+
+    def test_net8_psb_selector_accepts_original_msbuild_namespace_and_exact_url_only(self):
+        expected = ('https://builds.dotnet.microsoft.com/source-built-artifacts/assets/'
+                    'Private.SourceBuilt.Artifacts.8.0.131-servicing.26422.1.centos.9-x64.tar.gz')
+        # The pinned NET8 eng/Versions.props uses this MSBuild namespace;
+        # ElementTree's raw tag is consequently not the unqualified name.
+        document = ('<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">'
+                    '<PropertyGroup><PrivateSourceBuiltArtifactsUrl>' + expected + '</PrivateSourceBuiltArtifactsUrl>'
+                    '</PropertyGroup></Project>')
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / 'Versions.props'
+            path.write_text(document)
+            self.assertEqual(expected, M.net8_source_built_artifacts_url(path))
+            for changed in (document.replace('https://builds.dotnet.microsoft.com', 'https://example.com'),
+                            document.replace('8.0.131-servicing.26422.1', '8.0.132-servicing.26422.1'),
+                            document.replace('</PropertyGroup>', '<PrivateSourceBuiltArtifactsUrl>' + expected
+                                             + '</PrivateSourceBuiltArtifactsUrl></PropertyGroup>'),
+                            document.replace('PrivateSourceBuiltArtifactsUrl', 'PrivateSourceBuiltSdkUrl')):
+                path.write_text(changed)
+                with self.assertRaisesRegex(ValueError, 'Pinned NET8 PSB URL differs'):
+                    M.net8_source_built_artifacts_url(path)
+
     def test_serviced_package_rejects_wrong_corresponding_source_license_or_bytes(self):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / 'package.nupkg'
