@@ -15,7 +15,7 @@ def require(value, message):
 def policy():
     document = json.loads(Path(__file__).with_name('musl-legacy-sdk7-component-sources.json').read_bytes())
     require(document['schemaVersion'] == 1 and document['sdkVersion'] == '7.0.120'
-            and len(document['sources']) == 22, 'Closed SDK7 component source registry required')
+            and len(document['sources']) == 24, 'Closed SDK7 component source registry required')
     names, commits = set(), set()
     for row in document['sources']:
         require(set(row) == {'name', 'repository', 'commit', 'role'}

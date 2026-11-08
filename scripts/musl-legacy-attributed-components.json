@@ -1,0 +1,795 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "7.0.120",
+  "kind": "closed-original-package-and-declared-component-source-policy",
+  "sources": {
+    "linker": {
+      "commit": "19fa656d35252ccf926e6a6d783b16a2f094aaef",
+      "tree": "2bfee5e4661bedf62343509de8c69863a1dd1a8d",
+      "files": {
+        ".gitmodules": {
+          "bytes": 84,
+          "sha256": "d52212d25d10322163c584212bdfcbfb3e7e94f6f1e79e3894c745771adfe0bd",
+          "sha512": "f9b4c0ac4946b5b30cc5d52c6c39ec6f015a01ab2a83b39cd10a713ce8b1ab7e63bb02b2f13ba198811d490e15cfe20c6e754df381e60b9675d37df23cbe4488",
+          "gitBlob": "380a6f5827ca57345a31f48617b9f7074c53656a"
+        },
+        "Directory.Build.props": {
+          "bytes": 2366,
+          "sha256": "8dc2f65ad31f9df80343d810d63c39e06dbb4eb796d95d8bb2c5960ec102b8c4",
+          "sha512": "1a719f0cb5b8d921db769ec2f232c873c571a0df6d4ed48d8192d2fd001188df75ce6760a9227c8a4b92ad27ec84a8cccfc3f7ad0adce6974ec67c5473b5f4c6",
+          "gitBlob": "62047707d44c9a6985cc3a22798e1bbb96acf899"
+        },
+        "eng/Versions.props": {
+          "bytes": 2281,
+          "sha256": "132ba428ac244bc040798bfc919d8c548ed4cce2a3121dd9e060d831f5493519",
+          "sha512": "1a85f0098e4c2ee6321ac35f6680061d76be510453c37ac6c7ba3faaa96153f3f87c49d4c0328deac76f2340608e9940066dc6b8d16bba1ec6e62b7cd4c38676",
+          "gitBlob": "6ecac03832e4a6367d5066185ed2230de3c60c12"
+        },
+        "src/ILLink.Tasks/ILLink.Tasks.csproj": {
+          "bytes": 4401,
+          "sha256": "b20e2178e15265a6553e979caa749a2302fa367de6de8681252ad533dd01ca72",
+          "sha512": "48b60a5c140ef7bddf82e50648a339dac228bf95b93da852d44d605f433fa4a22056bced04dc80f40c7729fecffb6bfb3fb5e48ffeb3eadbaa5a190b0d333f20",
+          "gitBlob": "bce6899a86c0c3872bc02e554e28929b52ed9ace"
+        },
+        "LICENSE.txt": {
+          "bytes": 1115,
+          "sha256": "ae48df11a335dc1a615f4f938b69cba73bcf4485c4f97af49b38efb0f216353b",
+          "sha512": "6510254503f741df06fbf015890b24cc49592ff3e7945114db6a8fa57a6bc9acb1655980339be6ab0bdec0617efde3e65816c3074612d5f8da2ca60f8bf3b0e8",
+          "gitBlob": "a616ed188dfce68ee308f674350ad242d8588c2b"
+        },
+        "THIRD-PARTY-NOTICES.TXT": {
+          "bytes": 3713,
+          "sha256": "5de9f6e18b52bddb284c7d199589ae04b2a2ea22ae84a327a17e2a6ce48f0e0e",
+          "sha512": "1748414239e55c08449b83dc36964228ef854b334c85c03ff3e4c6ced22c0af1f864bbf080b59a3e05e6d09f77182304032de8c71f206a824f62741ab9fc11f8",
+          "gitBlob": "7cf550392c9859f71a45f95a937ddfa41d0b2920"
+        }
+      }
+    },
+    "cecil": {
+      "commit": "1840b7410d37a613e684b6f9650e39e2d4950bbb",
+      "tree": "4f08afae52d40c673d8c84d7c3cbcf9a07455a53",
+      "files": {
+        "ProjectInfo.cs": {
+          "bytes": 490,
+          "sha256": "9f721b550a8bbdfe5f2a2d3001fe4c194b1502e5b5b2ebcedc2602670b564e17",
+          "sha512": "08a665cde3f59dfefea3602fb977e76bac70d84dccda6938f647c9290c1becd5f6c0cefda0d9e071a29299fc576d4da3e17ebd99c11b9a9bbc4fd464bc32caa8",
+          "gitBlob": "fe891346c1481cfb9f1ecf078e0cdb799b442959"
+        },
+        "Mono.Cecil.csproj": {
+          "bytes": 574,
+          "sha256": "e789d87eb4c2d888cfab2603c6084af6c70a1e53189479b01dd1a50178ca7716",
+          "sha512": "43f2dce8673f0778761bce43da0b61809740ec8dc376e7d137789a334abb0f840047b787680c63bea34531823dbc6eb9211ad9f6a7f109459bf2103061080b3e",
+          "gitBlob": "d3745519aa13899f8437199386945692604609c6"
+        },
+        "Directory.Build.props": {
+          "bytes": 1615,
+          "sha256": "8a630df469377b8fabd6c8bce01630d7ff22b8227dd586e7538b9785854be0c8",
+          "sha512": "6d0aaefd370adaad64f11c641eb69b412fae3447fa7160738fc30efa27349e35978508bd9b46354ca2d1dabb6581f39ec648651a8bb14bc103fa350e3b40e948",
+          "gitBlob": "06f38c4ce1a8a48e54ebaa908ff30edb91e92926"
+        },
+        "symbols/pdb/Mono.Cecil.Pdb.csproj": {
+          "bytes": 555,
+          "sha256": "4235089e6e881c1dcf2f6e7f9bd6a147c318de37c09445dc917717788ec70b33",
+          "sha512": "0164d8faad6b45dca0d1d5963fd6a30b62a6d96f5c796b3da26b0b8fd9a1d33998238fb5a337866d62576f85fa48ce64e0a7418bae3d0e49f2a6697ace246bd0",
+          "gitBlob": "8e7d08ca76a65115a159d9082467d3c49f4b6884"
+        },
+        "LICENSE.txt": {
+          "bytes": 1098,
+          "sha256": "13d58ecbed676511c0c4c4009bff107025e50007ff5e7901dc562700ec62509e",
+          "sha512": "a5d2e9dbe1fd2040b3796b40844b82011c876e3917ae32070b11158e4e01e91e89a5f2b2b842c3e7080ea060aba16ed0ee74c131a9327fb238efdf405a52be6a",
+          "gitBlob": "afd0ae6818ed67ef4fef7edeb7e9580b9ef27bf8"
+        }
+      }
+    },
+    "locator": {
+      "commit": "47281c3de1c87a43ab946725d011b9dca4b6434a",
+      "tree": "4e335eb9269553063e136d76ef1be1c4d600dbef",
+      "files": {
+        "src/MSBuildLocator/Microsoft.Build.Locator.csproj": {
+          "bytes": 1885,
+          "sha256": "830d2a6e1081b2b07d7b69ce665fc090e3735c18a325938fa28374c2c7c495ca",
+          "sha512": "7db35ad0fca940f03298ad05ae35c3bc23ab0545117a149ab92d7cdb55bd7ecb77cac60b5bea20f1467ab4f0f76508393cd8ffc0959bdb53aa46d32b6a4336c0",
+          "gitBlob": "712f67c2c92bdd886ddf1a96851662bcac0fb925"
+        },
+        "src/MSBuildLocator/Properties/AssemblyInfo.cs": {
+          "bytes": 590,
+          "sha256": "81965d5b15b74255852db7866ea0b70b780f1918a736867a3d65898f46bfecb2",
+          "sha512": "d011fb3a68ba215b88def08ad621f945b6526aa2637144c879900b58175e342fd4975ac22aa5a65843e7f09bd479de3012521584ac7fc75b7caa292aa7dcaaf2",
+          "gitBlob": "074d5ee66551660c52a3a53aedfb20f648999ae9"
+        },
+        "Directory.Build.props": {
+          "bytes": 1603,
+          "sha256": "1a36c0d0b76d6d7b769a1a9a43c031f85c896075e2b17c2886bfce8eddf01504",
+          "sha512": "31e736ff0a2073a45b1bb50557db4f34b38e09c2fe30639379817bcc929487bb9f546fa4bcc5e798fdda109c9c68ec9fc9b9883cbcb84965e2fa41d9aa93cc5d",
+          "gitBlob": "27bc1a1f3f55641fe7eaf46f04b66d7e4050fb4d"
+        },
+        "version.json": {
+          "bytes": 117,
+          "sha256": "80d1f18d55e34b29a99abf478dc49f1f752be66a82497570f0bf2297bee79cdb",
+          "sha512": "2d20f032c6dfafb9c280d00274c72716dc1841f71fcd04731af3bc266e0877184d76a3ac716d09a1cca7de8c6d2b3fd2240f86a7757dc9b53d8aeb9d873497b0",
+          "gitBlob": "0ed112f496b8faaa1c9c7ec7881b629de8bdef0f"
+        },
+        "LICENSE": {
+          "bytes": 1183,
+          "sha256": "990b71168a54194e2c0414bedfc3702b62cd0ae57a06240d874eb95ea8a81f69",
+          "sha512": "52c218f85624a3dd483805fb997c6c56a3ef2095f79945b4fae2872378a4c2775940d3ecc7bd1cf889bb9f09c7a2e55ab50bf69cc9c7cc9e95c4457bc548d19f",
+          "gitBlob": "db8bf3a56b40b52a41cc97a362bb857960c54ecb"
+        }
+      }
+    },
+    "runtime": {
+      "commit": "cf258a14b70ad9069470a108f13765e0e5988f51",
+      "tree": "6e56ba41176cabda581f7b5d62f70ab3ba083209",
+      "files": {
+        "src/libraries/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.il": {
+          "bytes": 20648,
+          "sha256": "072c569247614f2f013b32e7515ffec1398c5cae77c9e120c9a28ba045823d3f",
+          "sha512": "3cb03fe2bd0c9932ab59745a21fabac3556651914b218c616470848a7a2cb7f8c6d65a0e1b4aed6c31bbdb719c9736d2d1b4677a971521e1ec08a3ad2e5dd473",
+          "gitBlob": "ded3c717cb77151ed818b243cd97cc05f01310a2"
+        },
+        "src/libraries/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.ilproj": {
+          "bytes": 4248,
+          "sha256": "8d38315fe17d25da97a65d0b4a7c23343114cad17e07c6180169afaa10032b61",
+          "sha512": "06c88dc96f13e378a77d28a9fabfdd72b025cbbc9726b60ef01bdf67781b5718ef71a3b09706c505a93b430acc20e186d6051acd24bd65b930ae3efb1f28bcbe",
+          "gitBlob": "07e9ef8eac8f2a7907f33384d58b0886f67ce864"
+        },
+        "src/libraries/System.Runtime.CompilerServices.Unsafe/pkg/System.Runtime.CompilerServices.Unsafe.pkgproj": {
+          "bytes": 1351,
+          "sha256": "caf61bb6328636d4ccb0ad759c38e95f392f84034ee26b8b7dbca691dce946ab",
+          "sha512": "43c98836bf4adfab5c0fd4ac57b5b9197fe715ae64f84fa41c395357877c89fbb69db75ada5af5d3f4d679aaaca876df4be24c76e912eec22c9bd25fe3bb0376",
+          "gitBlob": "d46b21c27009b86dde5c82039dc697cb0e246939"
+        },
+        "LICENSE.TXT": {
+          "bytes": 1116,
+          "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+          "sha512": "27f511fefea2390347bb7ea63f7795a26780ad43eca80d717c92c70a434d28fdf136c4b902750b52813ed9cf0d3c51af206062323a0496459461d985a34ac5c7",
+          "gitBlob": "984713a49622a96da110443c15477613bc12656b"
+        },
+        "THIRD-PARTY-NOTICES.TXT": {
+          "bytes": 43395,
+          "sha256": "723c221df67cb638f983d38e01c30a8975a8c184d2351bb874b5b1e05e01d4fc",
+          "sha512": "e1cc3c282cd54e302ff7099e8255aac3a960e01a55ccd35b8b63b971c79fa3195f2d815b20c87f561e830d67781263aa5fcb4d7985ba417db4fbc112b6e4eef1",
+          "gitBlob": "111dcf586ab5f2592b8a887e75576d9ccdec47dc"
+        }
+      }
+    },
+    "elfie": {
+      "commit": "00e6d739f5df03510ad2ef60b2afc1bfe50601b0",
+      "tree": "3a205aa90730c92ff68f491333328973d44bd06d",
+      "files": {
+        ".gitattributes": {
+          "bytes": 2518,
+          "sha256": "45a7cbb7d9942ba7ffce0b20bc8dbe2d1196533bc6e4bd245871d77fb1eedfdc",
+          "sha512": "8b3114aac168b2271e8c091056d51519d62716285f98cdaae75e289b72bea0e5028bf31d167f6d5b4ab19a23591e616775ac7ec9c439debb9d537576a3b45eb1",
+          "gitBlob": "1ff0c423042b46cb1d617b81efb715defbe8054d"
+        },
+        "Directory.Build.props": {
+          "bytes": 106,
+          "sha256": "669f1ad10712d4e8fb684cf2054b276b4b93be7fec8b1819c4e6813446981cc5",
+          "sha512": "ca9b535e1298eff81d8b966c5aeeb80a9cde27e92522b844c5f130af1aba022c8884d6d92e30959f7acc4529264bbc31b4c843602e003322687dc12df097594d",
+          "gitBlob": "a2c907aecd46faabbd6ef019237c9bf7284df016"
+        },
+        "Elfie/Elfie/Elfie.csproj": {
+          "bytes": 2406,
+          "sha256": "d977a9746878252b894d219256af57c6e6b641f1f0a8cb2292ebea182985efa6",
+          "sha512": "d065f1f4426c43a87d055f0505489ed2d729fa491764d3cd16efcbc2e17170cd13b7e0cc019fa7948af4be6823076150341d7759425cc281237dbb1fe6cf76da",
+          "gitBlob": "de36de4698743efae366ce92b30f4f495ec48b8e"
+        },
+        "Elfie/Elfie.build.props": {
+          "bytes": 273,
+          "sha256": "ff95a38355f95979d18cf84cf17d9b82de0e1d6e1f6d912c6ed15516244310fa",
+          "sha512": "bbc16b254c9ebbed850f9110a96e53aba6a8f7bf6a1d8c69590a2ee924f48b3f6fd155acecea986bed55b21d6624090b8b9954e1588858571a8f30775b526ea7",
+          "gitBlob": "ddbb0e46ca993fe59ef298caf81a07b329ed4c24"
+        },
+        "Elfie/Shared/VersionConstants.cs": {
+          "bytes": 483,
+          "sha256": "b3202aabc47659ebb831308017a413507e12fe95e1e061aeda606a163c1b211b",
+          "sha512": "3094d745fc668bbcff22f11fc68f36611ca2b4f2202b2a77dadc6924b5eb908f6a5337361299d9249b531da6c73ec6c5cb3492467ad5a9f0c9615f7ab3528ab8",
+          "gitBlob": "e929416b0a463140110a28fe72fbe9331cdd85b3"
+        },
+        "Elfie/Shared/SharedAssemblyInfo.cs": {
+          "bytes": 1478,
+          "sha256": "f3c3d9497392f9b4bec0962408dc17e43f8e2ad5450250491eb4393bdfe41bc1",
+          "sha512": "59e9a240fe28af0e5397abb00cc1e87e84170cd542a2f18da37f5aa93a16736177ab7e5b987783f1a0a5a65569cfb186b50618ce981685daa648f4344a085bb9",
+          "gitBlob": "0616a12d8196e637dbbe34c82102ac93805eeeec"
+        },
+        "Elfie/BuildAndTestElfie.cmd": {
+          "bytes": 2959,
+          "sha256": "e30d79cc84b549571dbe98a73a02860417b80edaf0a19bca782a7ab005dee17d",
+          "sha512": "c20e51e3fa8de499add336ae04cac53ac4fc89d8f04073423c180826909c9ecc80507b1231c71a2f6339b438dbe9edf502d6cf69d4874e2bcef09d27315b1007",
+          "gitBlob": "d43e864b31a82c33ed49e45d84ade8dea1c293e9"
+        },
+        "Elfie/35MSSharedLib1024.snk": {
+          "bytes": 160,
+          "sha256": "6fe03f0bbe162b4b24d9f9ba0b07204d8325f15533f9b276b58a4e0db0b24cd1",
+          "sha512": "9b4169b690d1fa69b29fe56d81e4c9e05c1076979922de50973738ea6590d15b236c3672f391b1265e88baf932f6da73602a1014978085af86b45f9dbd27778f",
+          "gitBlob": "695f1b38774e839e5b90059bfb7f32df1dff4223"
+        },
+        "LICENSE.txt": {
+          "bytes": 1094,
+          "sha256": "18647d26bc4c4d892a5fd29de1264d10906b3124cafa98313300ff300441c7f0",
+          "sha512": "593941428fcef035d65494cf4674614c1d3788c4c550d2ad91f847f5a6cc847c2285f066f10a4bc6935b087383e2ec5508f8a296031a2b077745dd7f2190a2c4",
+          "gitBlob": "56e51b1c06b5c4dead2b36c916acd983c347966e"
+        }
+      }
+    }
+  },
+  "packages": {
+    "4ebaac39fd6f96593fd368dffdaf811690c84a05bf58bc3913674770c7edd025": {
+      "bytes": 1122520,
+      "sha256": "4ebaac39fd6f96593fd368dffdaf811690c84a05bf58bc3913674770c7edd025",
+      "sha512": "0c2eba33c5add64b7022d8e6ef634873ca3c19ec88a9ec3df5c464997778256fa5efe848123bdb45aa47a1dd0622f986e798ab5303554c619d5b339aff7c4751",
+      "nuspec": {
+        "bytes": 977,
+        "sha256": "1148da689bc27a914bfc9178cf4a35a2fcf80aedfb111280f35c84cd662e72f9",
+        "sha512": "f951a9580a3b902389f052a62834c66f8f1faf993a3073a6f9a68dc1f980f043797157b9de5c47d5bade19401f5b3d64e6fa09df3e5c24f51c042362b9d47927",
+        "path": "Microsoft.NET.ILLink.Tasks.nuspec"
+      }
+    },
+    "3dd3dd8373ba0fc1305d998b1568fbf9e661b36f9d1da3580e80a813734e2148": {
+      "bytes": 65071,
+      "sha256": "3dd3dd8373ba0fc1305d998b1568fbf9e661b36f9d1da3580e80a813734e2148",
+      "sha512": "43e2dbae0beba68d88ec7c4a150d875d6e59df289af2f4f27ea6de590503bfb69c37b7d819ca75cd526e53a67bf0b6c00303eb72e3950e00eb803240742add6a",
+      "nuspec": {
+        "bytes": 1167,
+        "sha256": "43cfaeeeedd6517c4373cad6e2307c1feee27d2cf2862137ccbba80539cfa868",
+        "sha512": "953cbe34deda2ee61fcf97ae1c93c9e1db0da06712b06e9272760ab7b84359068cabffdb108e7d881ad4e69a96db7303fe1344c12a4570d1c682b05627f6d43e",
+        "path": "Microsoft.Build.Locator.nuspec"
+      }
+    },
+    "13ff8f95e82f599e7d7b94e2dd3bca2412dadea0a70ca9a2efe0dc9cea35b9f8": {
+      "bytes": 155504,
+      "sha256": "13ff8f95e82f599e7d7b94e2dd3bca2412dadea0a70ca9a2efe0dc9cea35b9f8",
+      "sha512": "391444d600aa3613a24f142e26160e179ff0a2cee18cdb9e0c7a0d9a78fddce06abaca3e038b85b04a4268ff60f21258a66b2988622dab3c49febff64db9d0f0",
+      "nuspec": {
+        "bytes": 1469,
+        "sha256": "150e85e586fc472b46f0d2e40385602febba39a7ae93871e87c7986912edf061",
+        "sha512": "82da188c4602f6fd37c6a95618a00cf2f5f74873ffc93c76f0b216576559a74e0936f46da2d7fe38cf2100f6ecb2b5062e1bd6041ad53400143024ed75c001b0",
+        "path": "Microsoft.CodeAnalysis.Elfie.nuspec"
+      }
+    }
+  },
+  "unsafeCanonicalPackage": {
+    "bytes": 130329,
+    "sha256": "9de0114a92cf5333f110a849470a01ce13f12be70a222b4bc7b58162772c620a",
+    "sha512": "23226c503b06abecee5a9604a6e4dd3dabcdf921f55d6aa6dad2bab1ca12a001c7866af5a6de01cc9b4ace54e5c8ee1d5c2fd29dd9dfd7eda3ed86f9b35fa59f",
+    "nuspec": {
+      "bytes": 2220,
+      "sha256": "68c07407b0499332db66423e6f415e5417bfd781e2ef03215f66030d9dfabb17",
+      "sha512": "909851d240049408117a2505cba3d07fb25d899355bb2c177231a37f3447a97b41cb0638eff83761709e6f34646f903ea912581f048faa9b87453a5796b672aa",
+      "path": "System.Runtime.CompilerServices.Unsafe.nuspec"
+    },
+    "member": "lib/net45/System.Runtime.CompilerServices.Unsafe.dll"
+  },
+  "products": {
+    "sdk/7.0.120/Sdks/Microsoft.NET.ILLink.Tasks/tools/net472/System.Runtime.CompilerServices.Unsafe.dll": {
+      "packageSha256": "4ebaac39fd6f96593fd368dffdaf811690c84a05bf58bc3913674770c7edd025",
+      "packageMember": "tools/net472/System.Runtime.CompilerServices.Unsafe.dll",
+      "fingerprint": {
+        "bytes": 16768,
+        "sha256": "3cadcb6b8a7335141c7c357a1d77af1ff49b59b872df494f5025580191d1c0d5",
+        "sha512": "066984c83de975df03eee1c2b5150c6b9b2e852d9caf90cfd956e9f0f7bd5a956b96ea961b26f7cd14c089bc8a27f868b225167020c5eb6318f66e58113efa37"
+      },
+      "metadata": {
+        "assemblyName": "System.Runtime.CompilerServices.Unsafe",
+        "assemblyVersion": "5.0.0.0",
+        "culture": "",
+        "publicKeyToken": "b03f5f7f11d50a3a",
+        "attributes": {
+          "System.Reflection.AssemblyFileVersionAttribute": [
+            "5.0.20.51904"
+          ],
+          "System.Reflection.AssemblyInformationalVersionAttribute": [
+            "5.0.0"
+          ],
+          "System.Reflection.AssemblyMetadataAttribute": [
+            ".NETFrameworkAssembly",
+            "",
+            "Serviceable",
+            "True"
+          ],
+          "System.Reflection.AssemblyCopyrightAttribute": [
+            "\u00a9 Microsoft Corporation.  All rights reserved."
+          ],
+          "System.Reflection.AssemblyCompanyAttribute": [
+            "Microsoft Corporation"
+          ]
+        },
+        "references": [
+          {
+            "name": "mscorlib",
+            "version": "4.0.0.0"
+          }
+        ],
+        "definitionCounts": {
+          "types": 4,
+          "methods": 40,
+          "fields": 0,
+          "exportedTypes": 0,
+          "files": 0,
+          "resources": 0
+        },
+        "cliFlags": 9,
+        "entryPoint": 0,
+        "managedNativeHeaderBytes": 0
+      },
+      "source": "runtime",
+      "basis": "exact-upstream-package-and-publisher-source"
+    },
+    "sdk/7.0.120/Sdks/Microsoft.NET.ILLink.Tasks/tools/net472/Mono.Cecil.dll": {
+      "packageSha256": "4ebaac39fd6f96593fd368dffdaf811690c84a05bf58bc3913674770c7edd025",
+      "packageMember": "tools/net472/Mono.Cecil.dll",
+      "fingerprint": {
+        "bytes": 421848,
+        "sha256": "499811639953f5b7c33be9a6bedf7bd9b094f7fa6603039b52452e2bf56a94d5",
+        "sha512": "f3bc618a8c23550039e7a4cd4273f191fe6c194e57788f16416b352de19c506d3953070dcb537fbf619bdfc0df1be05fe0df5bbb99ba318d69586cc4cabd25e1"
+      },
+      "metadata": {
+        "assemblyName": "Mono.Cecil",
+        "assemblyVersion": "0.11.4.0",
+        "culture": "",
+        "publicKeyToken": "50cebf1cceb9d05e",
+        "attributes": {
+          "System.Reflection.AssemblyCopyrightAttribute": [
+            "Copyright \u00a9 2008 - 2018 Jb Evain"
+          ],
+          "System.Reflection.AssemblyFileVersionAttribute": [
+            "0.11.4.0"
+          ],
+          "System.Reflection.AssemblyInformationalVersionAttribute": [
+            "0.11.4.0"
+          ]
+        },
+        "references": [
+          {
+            "name": "netstandard",
+            "version": "2.0.0.0"
+          }
+        ],
+        "definitionCounts": {
+          "types": 352,
+          "methods": 3142,
+          "fields": 1949,
+          "exportedTypes": 0,
+          "files": 0,
+          "resources": 0
+        },
+        "cliFlags": 9,
+        "entryPoint": 0,
+        "managedNativeHeaderBytes": 0
+      },
+      "source": "cecil",
+      "basis": "publisher-declared-original-source-gitlink"
+    },
+    "sdk/7.0.120/Sdks/Microsoft.NET.ILLink.Tasks/tools/net7.0/Mono.Cecil.dll": {
+      "packageSha256": "4ebaac39fd6f96593fd368dffdaf811690c84a05bf58bc3913674770c7edd025",
+      "packageMember": "tools/net472/Mono.Cecil.dll",
+      "fingerprint": {
+        "bytes": 421848,
+        "sha256": "499811639953f5b7c33be9a6bedf7bd9b094f7fa6603039b52452e2bf56a94d5",
+        "sha512": "f3bc618a8c23550039e7a4cd4273f191fe6c194e57788f16416b352de19c506d3953070dcb537fbf619bdfc0df1be05fe0df5bbb99ba318d69586cc4cabd25e1"
+      },
+      "metadata": {
+        "assemblyName": "Mono.Cecil",
+        "assemblyVersion": "0.11.4.0",
+        "culture": "",
+        "publicKeyToken": "50cebf1cceb9d05e",
+        "attributes": {
+          "System.Reflection.AssemblyCopyrightAttribute": [
+            "Copyright \u00a9 2008 - 2018 Jb Evain"
+          ],
+          "System.Reflection.AssemblyFileVersionAttribute": [
+            "0.11.4.0"
+          ],
+          "System.Reflection.AssemblyInformationalVersionAttribute": [
+            "0.11.4.0"
+          ]
+        },
+        "references": [
+          {
+            "name": "netstandard",
+            "version": "2.0.0.0"
+          }
+        ],
+        "definitionCounts": {
+          "types": 352,
+          "methods": 3142,
+          "fields": 1949,
+          "exportedTypes": 0,
+          "files": 0,
+          "resources": 0
+        },
+        "cliFlags": 9,
+        "entryPoint": 0,
+        "managedNativeHeaderBytes": 0
+      },
+      "source": "cecil",
+      "basis": "publisher-declared-original-source-gitlink"
+    },
+    "sdk/7.0.120/Sdks/Microsoft.NET.ILLink.Tasks/tools/net7.0/Mono.Cecil.Pdb.dll": {
+      "packageSha256": "4ebaac39fd6f96593fd368dffdaf811690c84a05bf58bc3913674770c7edd025",
+      "packageMember": "tools/net7.0/Mono.Cecil.Pdb.dll",
+      "fingerprint": {
+        "bytes": 104408,
+        "sha256": "3cde623038347f2a3ae5bc7c16a7fa1305b6cbceab7506bbd0142c0276f78909",
+        "sha512": "78f506efe2136afc6764ac696225466e357d5b0f945f550e2a07e4d3ce8ec681e2ce20ffe03d23cf166448f8af6d05d07b99b77b609c2c014a46e6ee35a336d6"
+      },
+      "metadata": {
+        "assemblyName": "Mono.Cecil.Pdb",
+        "assemblyVersion": "0.11.4.0",
+        "culture": "",
+        "publicKeyToken": "50cebf1cceb9d05e",
+        "attributes": {
+          "System.Reflection.AssemblyCopyrightAttribute": [
+            "Copyright \u00a9 2008 - 2018 Jb Evain"
+          ],
+          "System.Reflection.AssemblyFileVersionAttribute": [
+            "0.11.4.0"
+          ],
+          "System.Reflection.AssemblyInformationalVersionAttribute": [
+            "0.11.4.0"
+          ]
+        },
+        "references": [
+          {
+            "name": "netstandard",
+            "version": "2.0.0.0"
+          },
+          {
+            "name": "Mono.Cecil",
+            "version": "0.11.4.0"
+          }
+        ],
+        "definitionCounts": {
+          "types": 246,
+          "methods": 467,
+          "fields": 1316,
+          "exportedTypes": 0,
+          "files": 0,
+          "resources": 0
+        },
+        "cliFlags": 9,
+        "entryPoint": 0,
+        "managedNativeHeaderBytes": 0
+      },
+      "source": "cecil",
+      "basis": "publisher-declared-original-source-gitlink"
+    },
+    "sdk/7.0.120/DotnetTools/dotnet-format/Microsoft.Build.Locator.dll": {
+      "packageSha256": "3dd3dd8373ba0fc1305d998b1568fbf9e661b36f9d1da3580e80a813734e2148",
+      "packageMember": "lib/netcoreapp2.0/Microsoft.Build.Locator.dll",
+      "fingerprint": {
+        "bytes": 32136,
+        "sha256": "7e2b19acc60d98de5fed582000caab14dedbbf5c433efedbb9f955011eadb651",
+        "sha512": "7561c967f4bbfe4862f553d8ec824e589b0d635bba347d6e41d4b923af57b79e6c1c399b9ee78b2bccda9a71df4ff503bd9c85dc1f5323d3f27f1a0f8cf0fee4"
+      },
+      "metadata": {
+        "assemblyName": "Microsoft.Build.Locator",
+        "assemblyVersion": "1.0.0.0",
+        "culture": "",
+        "publicKeyToken": "9dff12846e04bfbd",
+        "attributes": {
+          "System.Reflection.AssemblyFileVersionAttribute": [
+            "1.4.1.10311"
+          ],
+          "System.Reflection.AssemblyInformationalVersionAttribute": [
+            "1.4.1+g47281c3de1"
+          ],
+          "System.Reflection.AssemblyCompanyAttribute": [
+            "Microsoft"
+          ],
+          "System.Reflection.AssemblyCopyrightAttribute": [
+            "\u00a9 Microsoft Corporation. All rights reserved."
+          ]
+        },
+        "references": [
+          {
+            "name": "System.Runtime",
+            "version": "4.2.0.0"
+          },
+          {
+            "name": "System.Text.RegularExpressions",
+            "version": "4.2.0.0"
+          },
+          {
+            "name": "System.Diagnostics.Debug",
+            "version": "4.1.0.0"
+          },
+          {
+            "name": "System.Collections",
+            "version": "4.1.0.0"
+          },
+          {
+            "name": "System.Diagnostics.Process",
+            "version": "4.2.0.0"
+          },
+          {
+            "name": "System.Runtime.Loader",
+            "version": "4.0.2.0"
+          },
+          {
+            "name": "System.Runtime.Extensions",
+            "version": "4.2.0.0"
+          },
+          {
+            "name": "System.IO.FileSystem",
+            "version": "4.1.0.0"
+          },
+          {
+            "name": "System.Linq",
+            "version": "4.2.0.0"
+          },
+          {
+            "name": "System.Collections.Specialized",
+            "version": "4.1.0.0"
+          },
+          {
+            "name": "System.Threading",
+            "version": "4.1.0.0"
+          }
+        ],
+        "definitionCounts": {
+          "types": 15,
+          "methods": 74,
+          "fields": 57,
+          "exportedTypes": 0,
+          "files": 0,
+          "resources": 0
+        },
+        "cliFlags": 9,
+        "entryPoint": 0,
+        "managedNativeHeaderBytes": 0
+      },
+      "source": "locator",
+      "basis": "exact-upstream-package-and-embedded-short-commit"
+    },
+    "sdk/7.0.120/DotnetTools/dotnet-watch/7.0.120-ci/tools/net7.0/any/Microsoft.Build.Locator.dll": {
+      "packageSha256": "3dd3dd8373ba0fc1305d998b1568fbf9e661b36f9d1da3580e80a813734e2148",
+      "packageMember": "lib/netcoreapp2.0/Microsoft.Build.Locator.dll",
+      "fingerprint": {
+        "bytes": 32136,
+        "sha256": "7e2b19acc60d98de5fed582000caab14dedbbf5c433efedbb9f955011eadb651",
+        "sha512": "7561c967f4bbfe4862f553d8ec824e589b0d635bba347d6e41d4b923af57b79e6c1c399b9ee78b2bccda9a71df4ff503bd9c85dc1f5323d3f27f1a0f8cf0fee4"
+      },
+      "metadata": {
+        "assemblyName": "Microsoft.Build.Locator",
+        "assemblyVersion": "1.0.0.0",
+        "culture": "",
+        "publicKeyToken": "9dff12846e04bfbd",
+        "attributes": {
+          "System.Reflection.AssemblyFileVersionAttribute": [
+            "1.4.1.10311"
+          ],
+          "System.Reflection.AssemblyInformationalVersionAttribute": [
+            "1.4.1+g47281c3de1"
+          ],
+          "System.Reflection.AssemblyCompanyAttribute": [
+            "Microsoft"
+          ],
+          "System.Reflection.AssemblyCopyrightAttribute": [
+            "\u00a9 Microsoft Corporation. All rights reserved."
+          ]
+        },
+        "references": [
+          {
+            "name": "System.Runtime",
+            "version": "4.2.0.0"
+          },
+          {
+            "name": "System.Text.RegularExpressions",
+            "version": "4.2.0.0"
+          },
+          {
+            "name": "System.Diagnostics.Debug",
+            "version": "4.1.0.0"
+          },
+          {
+            "name": "System.Collections",
+            "version": "4.1.0.0"
+          },
+          {
+            "name": "System.Diagnostics.Process",
+            "version": "4.2.0.0"
+          },
+          {
+            "name": "System.Runtime.Loader",
+            "version": "4.0.2.0"
+          },
+          {
+            "name": "System.Runtime.Extensions",
+            "version": "4.2.0.0"
+          },
+          {
+            "name": "System.IO.FileSystem",
+            "version": "4.1.0.0"
+          },
+          {
+            "name": "System.Linq",
+            "version": "4.2.0.0"
+          },
+          {
+            "name": "System.Collections.Specialized",
+            "version": "4.1.0.0"
+          },
+          {
+            "name": "System.Threading",
+            "version": "4.1.0.0"
+          }
+        ],
+        "definitionCounts": {
+          "types": 15,
+          "methods": 74,
+          "fields": 57,
+          "exportedTypes": 0,
+          "files": 0,
+          "resources": 0
+        },
+        "cliFlags": 9,
+        "entryPoint": 0,
+        "managedNativeHeaderBytes": 0
+      },
+      "source": "locator",
+      "basis": "exact-upstream-package-and-embedded-short-commit"
+    },
+    "sdk/7.0.120/DotnetTools/dotnet-format/Microsoft.CodeAnalysis.Elfie.dll": {
+      "packageSha256": "13ff8f95e82f599e7d7b94e2dd3bca2412dadea0a70ca9a2efe0dc9cea35b9f8",
+      "packageMember": "lib/netstandard2.0/Microsoft.CodeAnalysis.Elfie.dll",
+      "fingerprint": {
+        "bytes": 145840,
+        "sha256": "8ec0e18ac570157b3863f70035b644925d89996ad901f31ef918d2b0f7428941",
+        "sha512": "f31642279cacf14c49aa3085e00645240b2e8b9f0006e105623a1a7af44b32a0ce0a7b9c7a93e4ab8dc6d802434c0652adddc2ae118dc32d798b1be6c3f1481e"
+      },
+      "metadata": {
+        "assemblyName": "Microsoft.CodeAnalysis.Elfie",
+        "assemblyVersion": "1.0.0.0",
+        "culture": "",
+        "publicKeyToken": "31bf3856ad364e35",
+        "attributes": {
+          "System.Reflection.AssemblyFileVersionAttribute": [
+            "1.0.0.16"
+          ],
+          "System.Reflection.AssemblyInformationalVersionAttribute": [
+            "1.0.0"
+          ],
+          "System.Reflection.AssemblyCompanyAttribute": [
+            ""
+          ],
+          "System.Reflection.AssemblyCopyrightAttribute": [
+            "Microsoft 2016"
+          ]
+        },
+        "references": [
+          {
+            "name": "netstandard",
+            "version": "2.0.0.0"
+          },
+          {
+            "name": "System.Security.Principal.Windows",
+            "version": "4.1.1.0"
+          },
+          {
+            "name": "System.Data.DataSetExtensions",
+            "version": "4.0.0.0"
+          },
+          {
+            "name": "System.Configuration.ConfigurationManager",
+            "version": "4.0.1.0"
+          }
+        ],
+        "definitionCounts": {
+          "types": 115,
+          "methods": 1038,
+          "fields": 380,
+          "exportedTypes": 0,
+          "files": 0,
+          "resources": 1
+        },
+        "cliFlags": 9,
+        "entryPoint": 0,
+        "managedNativeHeaderBytes": 0
+      },
+      "source": "elfie",
+      "basis": "reviewed-original-publisher-release-source-and-complete-code-comparison"
+    },
+    "sdk/7.0.120/DotnetTools/dotnet-watch/7.0.120-ci/tools/net7.0/any/Microsoft.CodeAnalysis.Elfie.dll": {
+      "packageSha256": "13ff8f95e82f599e7d7b94e2dd3bca2412dadea0a70ca9a2efe0dc9cea35b9f8",
+      "packageMember": "lib/netstandard2.0/Microsoft.CodeAnalysis.Elfie.dll",
+      "fingerprint": {
+        "bytes": 145840,
+        "sha256": "8ec0e18ac570157b3863f70035b644925d89996ad901f31ef918d2b0f7428941",
+        "sha512": "f31642279cacf14c49aa3085e00645240b2e8b9f0006e105623a1a7af44b32a0ce0a7b9c7a93e4ab8dc6d802434c0652adddc2ae118dc32d798b1be6c3f1481e"
+      },
+      "metadata": {
+        "assemblyName": "Microsoft.CodeAnalysis.Elfie",
+        "assemblyVersion": "1.0.0.0",
+        "culture": "",
+        "publicKeyToken": "31bf3856ad364e35",
+        "attributes": {
+          "System.Reflection.AssemblyFileVersionAttribute": [
+            "1.0.0.16"
+          ],
+          "System.Reflection.AssemblyInformationalVersionAttribute": [
+            "1.0.0"
+          ],
+          "System.Reflection.AssemblyCompanyAttribute": [
+            ""
+          ],
+          "System.Reflection.AssemblyCopyrightAttribute": [
+            "Microsoft 2016"
+          ]
+        },
+        "references": [
+          {
+            "name": "netstandard",
+            "version": "2.0.0.0"
+          },
+          {
+            "name": "System.Security.Principal.Windows",
+            "version": "4.1.1.0"
+          },
+          {
+            "name": "System.Data.DataSetExtensions",
+            "version": "4.0.0.0"
+          },
+          {
+            "name": "System.Configuration.ConfigurationManager",
+            "version": "4.0.1.0"
+          }
+        ],
+        "definitionCounts": {
+          "types": 115,
+          "methods": 1038,
+          "fields": 380,
+          "exportedTypes": 0,
+          "files": 0,
+          "resources": 1
+        },
+        "cliFlags": 9,
+        "entryPoint": 0,
+        "managedNativeHeaderBytes": 0
+      },
+      "source": "elfie",
+      "basis": "reviewed-original-publisher-release-source-and-complete-code-comparison"
+    }
+  },
+  "localBuildClaimed": false,
+  "byteIdenticalCompilationClaimed": false,
+  "publicCecilPackageUsedAsBinaryOrigin": false,
+  "packageSourceExceptions": {
+    "13ff8f95e82f599e7d7b94e2dd3bca2412dadea0a70ca9a2efe0dc9cea35b9f8": {
+      "source": "elfie",
+      "basis": "original-publisher-project-version-and-independently-reviewed-source-recompilation",
+      "originalRepositoryMetadataAbsent": true
+    }
+  },
+  "elfieCorrespondenceReview": {
+    "sourceCommit": "00e6d739f5df03510ad2ef60b2afc1bfe50601b0",
+    "comparisonReport": {
+      "bytes": 1863,
+      "sha256": "1834eeb548a04c3fc21188b0798e214e44f8266c6867037a29b161a5ff4e06a7",
+      "sha512": "120dd0e97a21b49b57fa075b86c95c131e1ca7d5a19924590157d816d97ea3b94eda0f5e7bf83f2c816729adc569a5b54566094233257f842feba788408a2944"
+    },
+    "normalizedFacts": 2779,
+    "normalizedMethodBodies": 963,
+    "normalizedInstructions": 20474,
+    "resources": 1,
+    "zeroDifferences": true,
+    "rebuiltAssemblySha256": "ca670ba7c8e885a7a07723a82133d72968bb858d55e2d8b4d234f3fe564e7d02",
+    "reconstructionSettings": {
+      "originalRecipe": "Elfie/BuildAndTestElfie.cmd",
+      "configuration": "Release",
+      "originalTargetFramework": "netstandard2.0",
+      "defineConstants": "DELAY_SIGNED",
+      "signAssembly": true,
+      "delaySign": true,
+      "publicKeyFile": "Elfie/35MSSharedLib1024.snk",
+      "windowsCrLfCheckout": true,
+      "originalSdkGeneratedFrameworkDisplayName": ""
+    },
+    "scope": "All declarations/signatures, attributes, constants/marshal/RVA data, resources, normalized IL operands/locals/exception regions; PE layout/signing/debug/MVID and metadata row order are excluded. InitLocals is relevant only when locals exist.",
+    "sourceEdited": false,
+    "versionOverridden": false,
+    "shippingReplacement": false,
+    "byteIdenticalCompilationClaimed": false
+  }
+}
