@@ -632,6 +632,8 @@ class Producer(P.Producer):
             record['scope'] = 'Complete pristine pinned NET9 source Git-kind/header inventory, alongside the original standalone BinaryToolKit validation.'
         write(self.reports / 'scan/pinned-source-inventory.json', record)
         if not self.route['sourceOnly']:
+            net9_scan = module('original_net9_binary_scan', 'musl_net9_binary_scan.py')
+            net9_scan.prepare(self.output)
             argv = self.engine + ['run', '--rm', '--network=none', '--user', str(os.getuid()) + ':' + str(os.getgid()),
                 *self.container_security_options(source=True), '--env', 'HOME=/home/build',
                 '--volume', str(self.home) + ':/home/build', '--volume', str(self.source) + ':/vmr:ro',
@@ -642,8 +644,7 @@ class Producer(P.Producer):
                 '-o', '/delivery/reports/scan', '-ab', '/clean/eng/allowed-vmr-binaries.txt', '-l', 'Debug'])
             self.run(argv, self.reports / 'scan/scan.log')
             P.validate_default_container_policy(self.output, list(map(str, argv)))
-            report = self.reports / 'scan/NewBinaries.txt'
-            require(report.is_file() and not report.read_bytes(), 'Original NET9 upstream binary scan failed')
+            net9_scan.record(self.output, self.clean, list(map(str, argv)), 0)
         require(not git(self.clean, 'status', '--porcelain', '--untracked-files=all', '--ignored=matching'),
                 'Independent source audit changed its pristine checkout')
 
@@ -1003,10 +1004,8 @@ def validate(release):
     require(len(entries) == scan['fileCount'] and packer.baseline_tree(entries) == scan['sourceTree'],
             'Complete independent source inventory must reconstruct the retained original Git tree')
     if sdk.startswith('9.'):
-        require((release / 'reports/scan/NewBinaries.txt').read_bytes() == b''
-                and any('/vmr/artifacts/bin/BinaryToolKit/Release/BinaryToolKit.dll' in c and '--network=none' in c
-                        and '/clean' in c and 'validate' in c for c in stages['scan']['commands']),
-                'Original NET9 clean-source binary validation must pass independently offline')
+        module('independent_net9_binary_scan', 'musl_net9_binary_scan.py').validate(
+            release, stages['scan']['commands'], entries)
     smoke = load_json(release / 'reports/verify/sdk/verification.json')
     require(smoke.get('verificationStatus') == 'passed' and smoke.get('smokeStatus') == 'passed'
             and smoke.get('sdkVersion') == sdk and smoke.get('reportedRid') == identity['rid']
