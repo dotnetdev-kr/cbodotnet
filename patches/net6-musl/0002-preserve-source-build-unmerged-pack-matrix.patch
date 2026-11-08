@@ -1,0 +1,24 @@
+--- a/src/NuGet.Core/NuGet.Build.Tasks.Pack/NuGet.Build.Tasks.Pack.csproj
++++ b/src/NuGet.Core/NuGet.Build.Tasks.Pack/NuGet.Build.Tasks.Pack.csproj
+@@ -175,18 +175,18 @@
+   <Target Name="CreatePackNupkg">
+     <PropertyGroup>
+       <!-- Build from source can't use ILMerge. -->
+-      <ILMergeSubpath Condition="'$(IsBuildOnlyXPLATProjects)' != 'true'">ilmerge\</ILMergeSubpath>
++      <ILMergeSubpath Condition="'$(IsBuildOnlyXPLATProjects)' != 'true' AND '$(DotNetBuildFromSource)' != 'true'">ilmerge\</ILMergeSubpath>
+       <PackagePathDir Condition="'$(TargetFramework)' == '$(NETFXTargetFramework)' AND '$(IsBuildOnlyXPLATProjects)' != 'true'">Desktop/</PackagePathDir>
+       <PackagePathDir Condition="'$(TargetFramework)' == '$(NetStandardVersion)'">CoreCLR/</PackagePathDir>
+     </PropertyGroup>
+     <ItemGroup>
+-      <TfmSpecificPackageFile Include="$(OutputPath)\$(ILMergeSubpath)NuGet.Build.Tasks.Pack.dll" Condition="'$(IsBuildOnlyXPLATProjects)' != 'true'">
++      <TfmSpecificPackageFile Include="$(OutputPath)\$(ILMergeSubpath)NuGet.Build.Tasks.Pack.dll" Condition="'$(IsBuildOnlyXPLATProjects)' != 'true' AND '$(DotNetBuildFromSource)' != 'true'">
+         <PackagePath>$(PackagePathDir)</PackagePath>
+       </TfmSpecificPackageFile>
+       <TfmSpecificPackageFile Include="$(OutputPath)\$(ILMergeSubpath)**\NuGet*.resources.dll">
+         <PackagePath>$(PackagePathDir)</PackagePath>
+       </TfmSpecificPackageFile>
+-      <TfmSpecificPackageFile Include="$(OutputPath)\$(ILMergeSubpath)NuGet*.dll" Condition="'$(IsBuildOnlyXPLATProjects)' == 'true'">
++      <TfmSpecificPackageFile Include="$(OutputPath)\$(ILMergeSubpath)NuGet*.dll" Condition="'$(IsBuildOnlyXPLATProjects)' == 'true' OR '$(DotNetBuildFromSource)' == 'true'">
+         <PackagePath>$(PackagePathDir)</PackagePath>
+       </TfmSpecificPackageFile>
+     </ItemGroup>    
