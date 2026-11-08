@@ -81,6 +81,15 @@ class MuslContractTests(unittest.TestCase):
         self.assertEqual(self.manifest, MUSL.validate_producer_release(self.release, self.raw, self.checksums))
         self.assertEqual(self.manifest, MUSL.require_qualified_producer(self.raw, catalog=self.catalog))
 
+    def test_legacy_candidate_route_cannot_admit_itself_or_enter_glibc_catalog(self):
+        release, manifest, raw, checksums, _, _ = fixture('7.0.120')
+        self.assertEqual(manifest, MUSL.validate_producer_release(release, raw, checksums))
+        with self.assertRaisesRegex(ValueError, 'not qualified|not independently qualified|reviewed qualification'):
+            MUSL.require_qualified_producer(raw)
+        catalog = GLIBC.build_catalog([release], lambda *args: self.fail('Legacy musl source reached glibc discovery'),
+                                      MUSL.REPOSITORY, generated_at='2026-11-08T00:00:00Z')
+        self.assertEqual([], catalog['releases'])
+
     def test_glibc_identity_cannot_enter_a_musl_manifest(self):
         for field, value in (('libc', 'glibc'), ('targetRid', 'linux-x64')):
             changed = copy.deepcopy(self.manifest)

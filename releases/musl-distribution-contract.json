@@ -106,6 +106,22 @@
         "ThirdPartyNotices.txt"
       ],
       "securitySupport": "community-build-no-additional-security-maintenance"
+    },
+    "7.0.120": {
+      "target": "net7-musl",
+      "producerWorkflow": ".github/workflows/musl-sdk-expand.yml",
+      "producerRevisions": [1],
+      "candidateVariants": ["alpine-3.24"],
+      "source": {
+        "sourceCommit": "25b977658c06fd0217ec0bc0714398bb9d0a7bb0",
+        "sdkSourceCommit": "a06803c09702777c6550fede13c8bdc52d780191",
+        "bootstrapSdk": "7.0.118",
+        "runtimeVersion": "7.0.20",
+        "runtimeSourceCommit": "0fb6ac59fb1edbe4ed3ad62661df0eb7eacd7903",
+        "aspnetSourceCommit": "d9ba962869d1b1c410ea476b02de2f8e27eec762"
+      },
+      "licensePaths": ["LICENSE.txt", "ThirdPartyNotices.txt"],
+      "securitySupport": "community-build-no-additional-security-maintenance"
     }
   },
   "operatingSystems": {

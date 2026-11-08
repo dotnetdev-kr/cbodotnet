@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "79d56b02b69a582cd90428878a5e9411ab7538f5",
+  "version": "17.4.1-dev",
+  "sourceGraph": "TestPlatform_BuildFromSource.sln",
+  "originalSourceBuildCoreHostScope": true,
+  "fullMonoNetFrameworkTestHostProvided": false,
+  "files": {
+    "scripts/build.sh": {
+      "bytes": 22001,
+      "sha256": "6faac6a9bee7725c1eef6e6ca68fcd4a8ac12b0bff3eb682c308be4019c2d7d9",
+      "gitBlob": "16c852dc12d45bbad4078e749a177b7b96a1c55c"
+    },
+    "scripts/build.ps1": {
+      "bytes": 74836,
+      "sha256": "c7f308d91404f099c41e41f14ceb550196b54e30357bf5674df98be8f2d8348d",
+      "gitBlob": "c9c14ea90f8f24d8fe9edf03efae7e569c83a22f"
+    },
+    "src/testhost/testhost.csproj": {
+      "bytes": 4040,
+      "sha256": "07a3eb3d84bbc18f6190dc2421841f3743466f31f547055066001133f8d02264",
+      "gitBlob": "48148f8c1f833ac2cffbda2c74c7364dd3c9e8e8"
+    },
+    "src/testhost.x86/testhost.x86.csproj": {
+      "bytes": 3610,
+      "sha256": "6bbd2e9799c6869f05972ceb3c9415159be9ad2fc73b1a9b564bdcf294df0a1b",
+      "gitBlob": "cc055cc44c379fcffe9ac06eb1da0cf3134fd507"
+    },
+    "src/package/package/package.csproj": {
+      "bytes": 4571,
+      "sha256": "a084e4c40ae554ee06e28f05a26320a4ae6cc7c39428c48632c8ea1b88dc4d7c",
+      "gitBlob": "082b9160b00c332f183dbef0e199df43e99b23d4"
+    },
+    "src/package/external/external.csproj": {
+      "bytes": 5380,
+      "sha256": "0f9b104c05719317ab263ec0ba62cd36e51c690588af6080bde76023d92dddc8",
+      "gitBlob": "87b21021e92c1b5b3f92646fe712a35af22cd979"
+    },
+    "src/package/nuspec/TestPlatform.CLI.nuspec": {
+      "bytes": 1628,
+      "sha256": "fbe0cb742b1c586359410a624eff6c19ff3ee37ef782a71f8a16bcf14622b86f",
+      "gitBlob": "a503721967b5e5db9848b3f985872f095ef15007"
+    },
+    "TestPlatform_BuildFromSource.sln": {
+      "bytes": 31500,
+      "sha256": "d50da640a85407af3504c68bf5495b6931ceb9ade4cc6373be73fa458108ed1a",
+      "gitBlob": "119f72a3373cd461decc79870190595eda12cd85"
+    },
+    "src/package/nuspec/TestPlatform.Build.nuspec": {
+      "bytes": 1516,
+      "sha256": "028b009ef341b5b1f29be0793e90d6db0a36c0096ae749d65fd90c786a472ce5",
+      "gitBlob": "b1fa93aa3a70ddfc89857f243e55bc755c0b0028"
+    },
+    "src/package/nuspec/Microsoft.TestPlatform.CLI.csproj": {
+      "bytes": 882,
+      "sha256": "782594b0be5fca9f925588f476a451bae617301b50f566e4cee8b4399551b575",
+      "gitBlob": "df5819e8dd56f3d2302cbb509798248583f6ee84"
+    },
+    "src/package/nuspec/Microsoft.TestPlatform.Build.csproj": {
+      "bytes": 878,
+      "sha256": "ebc23493e799a531cb25f9add0414fbcff0ec7054cb2dcf59cf7ad389b09c6fc",
+      "gitBlob": "909ce2c73ce1eb8eb3b2f6c3ba7058f1d9e89d98"
+    },
+    "scripts/build/TestPlatform.Settings.targets": {
+      "bytes": 7413,
+      "sha256": "180cc7458ce0af1fb6e46dd77c4a7a90c4871db9704c7242046d3b33bca64a8b",
+      "gitBlob": "eb8f571d4dbc4d02cf7a1d8762f9eb7c12a9709d"
+    },
+    "src/package/licenses/LICENSE_NET.txt": {
+      "bytes": 9062,
+      "sha256": "eb6370966273e1dc5a801c093e68d5999b33858c28031f453ac4a6467d5380df",
+      "gitBlob": "5b03e9dce1e59a2cbbd0f323ece4cfff1835881f"
+    },
+    "src/package/ThirdPartyNotices.txt": {
+      "bytes": 3111,
+      "sha256": "e23128ca98e5c42cf4cfa47c08a1fd3d212036a3a1cb877b161ae5c975e3c9b6",
+      "gitBlob": "4c85ae8285f5420a6778cc364fefa69d2d45adf4"
+    }
+  }
+}
