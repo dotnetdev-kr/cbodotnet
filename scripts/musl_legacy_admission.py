@@ -1714,23 +1714,9 @@ def validate_native_generated_source(release, directory, results, manifest, sour
         match = re.fullmatch(r'([^:=]+):[^=]+=(.*)', line)
         require(match is not None and match[1] not in cache, 'Malformed or duplicate native CMake cache field')
         cache[match[1]] = match[2]
-    require(cache.get('CMAKE_BUILD_TYPE') == 'Release' and cache.get('CMAKE_HOME_DIRECTORY') == source + '/src/coreclr'
-            and cache.get('CMAKE_EXPORT_COMPILE_COMMANDS') == 'ON'
-            and cache.get('CLR_CMAKE_TARGET_ARCH') in (None, 'arm64' if results['architecture'] == 'aarch64' else 'x64'),
-            'Native compiler cache does not describe the original optimized target graph')
+    validate_native_cache(cache, source, results['architecture'])
     compile_commands = load(directory / 'compile_commands.json')
-    require(isinstance(compile_commands, list) and 100 <= len(compile_commands) <= 20000,
-            'Complete original CoreCLR native compilation command matrix required')
-    for row in compile_commands:
-        require(set(row) == {'directory', 'command', 'file', 'output'} and row['directory'].startswith(source + '/artifacts/obj/')
-                and row['file'].startswith((source + '/src/', source + '/artifacts/obj/')),
-                'A native compiler command refers to an unrelated source or build directory')
-        args = shlex.split(row['command'])
-        require('-c' in args and '-o' in args
-                and ('-O0' not in args or row['file'] == source + '/src/coreclr/ilasm/prebuilt/asmparse.cpp')
-                and any(flag in args for flag in ('-O2', '-O3', '-Os'))
-                and args[args.index('-c') + 1] == row['file'] and args[args.index('-o') + 1] == row['output'],
-                'Original native Release compile command lost its source, output or optimization')
+    validate_native_compile_commands(compile_commands, source, obj)
     header = (generated / 'runtime_version.h').read_text()
     require('#define RuntimeProductVersion ' + results['runtimeVersion'] in header
             and results['sourceCommit'] in (generated / '_version.c').read_text()
@@ -1738,6 +1724,38 @@ def validate_native_generated_source(release, directory, results, manifest, sour
             and isinstance(results.get('buildId'), str) and re.fullmatch(r'[0-9]{8}\.[1-9][0-9]*', results['buildId'])
             and re.fullmatch(r'7\.0\.[0-9]+\.[0-9]+', results.get('nativeFileVersion', '')),
             'Original upstream native product, assembly, source and community file versions required')
+
+
+def validate_native_cache(cache, source, architecture):
+    # The pinned upstream CoreCLR CMake graph uppercases its build type.
+    require(cache.get('CMAKE_BUILD_TYPE') == 'RELEASE' and cache.get('CMAKE_HOME_DIRECTORY') == source + '/src/coreclr'
+            and cache.get('CMAKE_EXPORT_COMPILE_COMMANDS') == 'ON'
+            and cache.get('CLR_CMAKE_TARGET_ARCH') in (None, 'arm64' if architecture == 'aarch64' else 'x64'),
+            'Native compiler cache does not describe the original optimized target graph')
+
+
+def validate_native_compile_commands(compile_commands, source, obj):
+    require(isinstance(compile_commands, list) and 100 <= len(compile_commands) <= 20000,
+            'Complete original CoreCLR native compilation command matrix required')
+    for row in compile_commands:
+        require(set(row) == {'directory', 'command', 'file', 'output'} and row['directory'].startswith(source + '/artifacts/obj/')
+                and row['directory'] == posixpath.normpath(row['directory'])
+                and row['file'].startswith((source + '/src/', source + '/artifacts/obj/'))
+                and row['file'] == posixpath.normpath(row['file']),
+                'A native compiler command refers to an unrelated source or build directory')
+        args = shlex.split(row['command'])
+        require(args.count('-c') == args.count('-o') == 1
+                and args.index('-c') + 1 < len(args) and args.index('-o') + 1 < len(args)
+                and ('-O0' not in args or row['file'] == source + '/src/coreclr/ilasm/prebuilt/asmparse.cpp')
+                and any(flag in args for flag in ('-O2', '-O3', '-Os'))
+                and args[args.index('-c') + 1] == row['file'],
+                'Original native Release compile command lost its source, output or optimization')
+        # CMake records -o relative to the command's directory, while its export
+        # output is relative to the top binary directory (or already absolute).
+        compiled = posixpath.normpath(posixpath.join(row['directory'], args[args.index('-o') + 1]))
+        exported = posixpath.normpath(posixpath.join(obj, row['output']))
+        require(compiled == exported and compiled.startswith(source + '/artifacts/obj/'),
+                'Actual native compiler output differs from its exported CMake output')
 
 
 def validate_native_build_boundary(release, record, prepare, stages, manifest, source, bootstrap):

@@ -398,6 +398,36 @@ class ElfDataBoundary(unittest.TestCase):
 
 
 class NativeSourceBoundary(unittest.TestCase):
+    def test_original_uppercase_native_release_cache_keeps_target_and_optimization_contract(self):
+        cache = dict(CMAKE_BUILD_TYPE='RELEASE', CMAKE_HOME_DIRECTORY='/runtime/src/coreclr',
+            CMAKE_EXPORT_COMPILE_COMMANDS='ON', CLR_CMAKE_TARGET_ARCH='arm64')
+        M.validate_native_cache(cache, '/runtime', 'aarch64')
+        for key, value in [('CMAKE_BUILD_TYPE', 'DEBUG'), ('CMAKE_BUILD_TYPE', 'Release'),
+                           ('CMAKE_HOME_DIRECTORY', '/unrelated/src/coreclr'),
+                           ('CMAKE_EXPORT_COMPILE_COMMANDS', 'OFF'), ('CLR_CMAKE_TARGET_ARCH', 'x64')]:
+            with self.subTest(key=key, value=value), self.assertRaises(ValueError):
+                M.validate_native_cache(dict(cache, **{key: value}), '/runtime', 'aarch64')
+
+    def test_native_compile_output_is_bound_across_cmake_relative_path_bases(self):
+        obj = '/runtime/artifacts/obj/coreclr/Linux.arm64.Release'
+        row = dict(directory=obj + '/vm', file='/runtime/src/coreclr/vm/threads.cpp',
+            command='clang++ -O3 -o CMakeFiles/vm.dir/threads.cpp.o -c /runtime/src/coreclr/vm/threads.cpp',
+            output='vm/CMakeFiles/vm.dir/threads.cpp.o')
+        rows = [copy.deepcopy(row) for _ in range(100)]
+        M.validate_native_compile_commands(rows, '/runtime', obj)
+        external = dict(directory='/runtime/artifacts/obj/external/libunwind', file='/runtime/src/native/external/libunwind/src/os-linux.c',
+            command='clang -O3 -o CMakeFiles/libunwind.dir/os-linux.c.o -c /runtime/src/native/external/libunwind/src/os-linux.c',
+            output='/runtime/artifacts/obj/external/libunwind/CMakeFiles/libunwind.dir/os-linux.c.o')
+        M.validate_native_compile_commands(rows + [external], '/runtime', obj)
+        for changes in [dict(output='vm/CMakeFiles/vm.dir/unrelated.cpp.o'),
+                        dict(output='../../../../../../tmp/threads.cpp.o'),
+                        dict(directory='/unrelated/build'), dict(file='/unrelated/threads.cpp'),
+                        dict(command=row['command'].replace('-O3', '-O0')),
+                        dict(command=row['command'].replace('-O3', '')),
+                        dict(command=row['command'] + ' -o CMakeFiles/vm.dir/hidden.cpp.o')]:
+            with self.subTest(changes=changes), self.assertRaises(ValueError):
+                M.validate_native_compile_commands(rows + [dict(row, **changes)], '/runtime', obj)
+
     def test_exact_reviewed_patch_result_recovers_the_original_git_blob(self):
         pristine = b'first\nold\nthird\nfourth\nlast\n'
         actual = b'first\nnew\nadded\nthird\nfourth\nlast\n'
