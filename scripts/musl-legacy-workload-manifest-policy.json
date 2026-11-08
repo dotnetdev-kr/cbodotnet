@@ -1,0 +1,717 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "7.0.120",
+  "kind": "reviewed-readable-workload-manifest-inputs",
+  "scope": "Exactly eight immutable source-only package inputs and sixteen unchanged emitted JSON/MSBuild XML files. No workload binaries are accepted or workload support claimed. Readable emitted files are the complete source actually shipped; unavailable publisher Git history is not relabeled as a verified source checkout.",
+  "sourceRoot": "workload-manifest-data",
+  "sourceRole": "readable-workload-manifest-source-inputs",
+  "packages": [
+    {
+      "key": "android",
+      "id": "Microsoft.NET.Sdk.Android.Manifest-7.0.100",
+      "version": "33.0.4+sha.8f1d9a4",
+      "fingerprint": {
+        "bytes": 22514,
+        "sha256": "ca33f41f613a6aa56558c11ad6017e5f9c4c692f16e013f9dd52e56ae3c68f2c",
+        "sha512": "b9d85a273bcfd3fd07e0bb79ffe25e3a1846c26225b31d1ce68ec8210b80201c65a287fbb980864abd840ae173631cfca95caaf8f93cb5eaf8a9fa90850ea4b1"
+      },
+      "declaredRepository": null,
+      "sourceAvailability": "root-tracked-source-observed-submodule-usage-review-pending",
+      "entries": [
+        {
+          "member": "_rels/.rels",
+          "kind": "package-xml-metadata",
+          "bytes": 536,
+          "sha256": "8bcf947f07ba4e4c68ec25a0bea02f00000411bcff2f5f94b1f41d66146d69a1",
+          "sha512": "1076701db6fb90627371f43ad5c227203fa9644e0a8e49078ce37de559340bbab98ef3259489bc11465ec0d6377321d691d7d68416b47c0580e450ea5447612a"
+        },
+        {
+          "member": "Microsoft.NET.Sdk.Android.Manifest-7.0.100.nuspec",
+          "kind": "package-xml-metadata",
+          "bytes": 811,
+          "sha256": "217c5ec241d3eebe95296b3cda1c85bb34e453a0b1d167e073a23912d4e48448",
+          "sha512": "740d11cdf57f6e3316e3505243c95ce202a7ec959fd986d5f4d75bb64cf9acfecd34101c3d56b5cfead4a884b389b29b8a230a68b99f92b6812fe2f091dcc03b"
+        },
+        {
+          "member": "LICENSE",
+          "kind": "license-text",
+          "bytes": 22507,
+          "sha256": "517803fb706b94aad31dada97f70c1651592634a203d472fd88f1f3fbfe6f4da",
+          "sha512": "58009e04fa35a7a1e9b55926d03a3e4bd8804fd2ad7eb2e943de4314f203c80b1de5e8460cc88b2011a694955166353626427dd029e8a7cd8a7e1a0402457196"
+        },
+        {
+          "member": "data/WorkloadManifest.json",
+          "kind": "readable-jsonc-source",
+          "bytes": 2343,
+          "sha256": "ecfbfaa3d84b2da7aef75787fa83daea1d9340e49e765358ff550bff0b4de938",
+          "sha512": "801ce65e59c06ab980f1ffbee4f2d282b8f0df9eaf3f3692bc863b1b7c13886f902a5370795133e3d7116dc64b8decde687b933a89bb3b98a24c0b4ed9ce1074"
+        },
+        {
+          "member": "data/WorkloadManifest.targets",
+          "kind": "readable-msbuild-source",
+          "bytes": 988,
+          "sha256": "b36df51c74c2404a328205f0838cd4926864523728f520b8735c341985cac0da",
+          "sha512": "4451a5e99e7e69573a2f536aba6974d351276c0452575fa4fcba0eb5f32f5de76ccf0900178f2c778da2e29886a4ecdd9328bdbaffc13c8b96fdc6bc9ea8568f"
+        },
+        {
+          "member": "[Content_Types].xml",
+          "kind": "package-xml-metadata",
+          "bytes": 601,
+          "sha256": "3993b49a90fcd6de59cc2b412737389ae663013056b2db514940ad7126fe27d6",
+          "sha512": "fe30edd40fc6dff49db8a367f8bd7507dbac36973ede2c4a04c0e50b3699327bdc2115c4849e103dfa5208e4a18bc9ff56d6a12df6ec073334f89aab48f2f20d"
+        },
+        {
+          "member": "package/services/metadata/core-properties/064e44fa08d448a9be938223b4f7370b.psmdcp",
+          "kind": "package-xml-metadata",
+          "bytes": 743,
+          "sha256": "bc79040f8d940fb560f058fa176943b6829980b56bf3ee4f05e8080580043860",
+          "sha512": "e6c0ef2c9cd93df0a3ced48e357e53f5806113caa3d209e0c1f340d1a249ec2c721369ac15b28d16714dc6b1f3f91d69a99a10ffa44dbbe49861cd7be2ef234f"
+        },
+        {
+          "member": ".signature.p7s",
+          "kind": "unshipped-original-package-cms-signature",
+          "bytes": 11402,
+          "sha256": "25d1f42bea71de240393ed34ac669822f1fed868455089cf09f62b147c880efe",
+          "sha512": "23ed3e17984b513c60396d29d6d371a61f4de3639cdd3fd71306981f169e4a5ea341881e4eb0a0f71cf638b9faf68a92d76cbc0fcd595d5aa50f53c733dcaf13"
+        }
+      ],
+      "layout": [
+        {
+          "path": "sdk-manifests/7.0.100/microsoft.net.sdk.android/WorkloadManifest.json",
+          "member": "data/WorkloadManifest.json",
+          "bytes": 2343,
+          "sha256": "ecfbfaa3d84b2da7aef75787fa83daea1d9340e49e765358ff550bff0b4de938",
+          "sha512": "801ce65e59c06ab980f1ffbee4f2d282b8f0df9eaf3f3692bc863b1b7c13886f902a5370795133e3d7116dc64b8decde687b933a89bb3b98a24c0b4ed9ce1074"
+        },
+        {
+          "path": "sdk-manifests/7.0.100/microsoft.net.sdk.android/WorkloadManifest.targets",
+          "member": "data/WorkloadManifest.targets",
+          "bytes": 988,
+          "sha256": "b36df51c74c2404a328205f0838cd4926864523728f520b8735c341985cac0da",
+          "sha512": "4451a5e99e7e69573a2f536aba6974d351276c0452575fa4fcba0eb5f32f5de76ccf0900178f2c778da2e29886a4ecdd9328bdbaffc13c8b96fdc6bc9ea8568f"
+        }
+      ]
+    },
+    {
+      "key": "ios",
+      "id": "Microsoft.NET.Sdk.iOS.Manifest-7.0.100",
+      "version": "16.0.1478+sha.7e129d764",
+      "fingerprint": {
+        "bytes": 16226,
+        "sha256": "a2e07dcceea6846ebfff8fc3b880641b99e6ef0317394263a4edd5be75f24f06",
+        "sha512": "829c26589b74bc4b4f0d2da2b5e4ec247c28b16b6b022b5594d28f58fc99c4e08d18cd9696b3e5fa0e55342ec3f2915ecccb6dc5b5a78296bc453cbe98ad6e02"
+      },
+      "declaredRepository": null,
+      "sourceAvailability": "root-tracked-source-observed-submodule-usage-review-pending",
+      "entries": [
+        {
+          "member": "_rels/.rels",
+          "kind": "package-xml-metadata",
+          "bytes": 532,
+          "sha256": "6faf224c5a360f464e6a0d929deb46093e0d432c42545a779cb88f93032d4725",
+          "sha512": "f3d049ae569a5169915fc1e3b0439f741a3ee00fab20b7bd5b5d6f57048777a1172737894139d5d4b6e1e9bf456f3811b86557856997b917fbdb2a399e1ff41d"
+        },
+        {
+          "member": "Microsoft.NET.Sdk.iOS.Manifest-7.0.100.nuspec",
+          "kind": "package-xml-metadata",
+          "bytes": 764,
+          "sha256": "4b5813bc5207db0213a6dea491686bfd5cff4d480043410a5de3421dd6f3d4d9",
+          "sha512": "811e9e3efcb43cbba02fb2ab9381065fbaad7b6e3f1219e34c8d92135bb8c6a2726083692cbd276bba6ce03f4cf8409b4223d899f4c4a95f8ef0ac1671394182"
+        },
+        {
+          "member": "LICENSE",
+          "kind": "license-text",
+          "bytes": 6434,
+          "sha256": "2ad5be3c5907b028a63e6ac9983dc88349c9a7dcabc6f531389a555b5c8628e6",
+          "sha512": "5c1725974e5588073d94178ac9766167f61bbf06fa1df2700dae2e2ffba499124097fca5e392872e86e2a221e2bbcf82a8bc547ce146f24a1d0da2c24f1dbb49"
+        },
+        {
+          "member": "data/WorkloadManifest.json",
+          "kind": "readable-jsonc-source",
+          "bytes": 2179,
+          "sha256": "8c21e40364215f23e592ebfc7ec588134d3d70bfee7fe643f8c4fa7778e054a4",
+          "sha512": "27a629e75524f61c283a98cb91ce6ae24abc997a75d287e54b44c0b7b5cc51de1c641afdca632bbe79b71bb81ac91a98199022fa0ff99cb5f6b2e1f43bc22b0e"
+        },
+        {
+          "member": "data/WorkloadManifest.targets",
+          "kind": "readable-msbuild-source",
+          "bytes": 1445,
+          "sha256": "2ac6adc7274c08fd9cb5dba06aaa8396f89a4ad026444a9e975c0a97f9d961cf",
+          "sha512": "8afece40730e4c6b43eb0538fb83d3b310d179dc672e88932c9c0b8e45cf3ece74c499667f6647c4f71a2f26d734c94b5b4c66ccd73d423672c702cf3913f188"
+        },
+        {
+          "member": "[Content_Types].xml",
+          "kind": "package-xml-metadata",
+          "bytes": 601,
+          "sha256": "3993b49a90fcd6de59cc2b412737389ae663013056b2db514940ad7126fe27d6",
+          "sha512": "fe30edd40fc6dff49db8a367f8bd7507dbac36973ede2c4a04c0e50b3699327bdc2115c4849e103dfa5208e4a18bc9ff56d6a12df6ec073334f89aab48f2f20d"
+        },
+        {
+          "member": "package/services/metadata/core-properties/82bdf545582f4789b97d0a3fe3a3cfad.psmdcp",
+          "kind": "package-xml-metadata",
+          "bytes": 695,
+          "sha256": "2e02c99dff41e66243881797ee1019792c4d626e79b0f9db359be62092af3040",
+          "sha512": "06ea9fa4c4856f702d35535e5374111bacf74dfa18144db0877ea06517cba0c07658706617f4e0a23683a3ac3d5398c223ddc330db5ee85e6c8f62ce0e67d6ee"
+        },
+        {
+          "member": ".signature.p7s",
+          "kind": "unshipped-original-package-cms-signature",
+          "bytes": 11402,
+          "sha256": "86c4431581fbb09c8750d5c37e158f4e598b0440037e7f54b07bd84452e91101",
+          "sha512": "262acc98ddcdcd1c2b992fdb8bd270564bad71042821903c0d891df2c826d53d5e46fa4d6249dbd0706b81d8eada917aa5cc8f2d5536de589f393df039ecae03"
+        }
+      ],
+      "layout": [
+        {
+          "path": "sdk-manifests/7.0.100/microsoft.net.sdk.ios/WorkloadManifest.json",
+          "member": "data/WorkloadManifest.json",
+          "bytes": 2179,
+          "sha256": "8c21e40364215f23e592ebfc7ec588134d3d70bfee7fe643f8c4fa7778e054a4",
+          "sha512": "27a629e75524f61c283a98cb91ce6ae24abc997a75d287e54b44c0b7b5cc51de1c641afdca632bbe79b71bb81ac91a98199022fa0ff99cb5f6b2e1f43bc22b0e"
+        },
+        {
+          "path": "sdk-manifests/7.0.100/microsoft.net.sdk.ios/WorkloadManifest.targets",
+          "member": "data/WorkloadManifest.targets",
+          "bytes": 1445,
+          "sha256": "2ac6adc7274c08fd9cb5dba06aaa8396f89a4ad026444a9e975c0a97f9d961cf",
+          "sha512": "8afece40730e4c6b43eb0538fb83d3b310d179dc672e88932c9c0b8e45cf3ece74c499667f6647c4f71a2f26d734c94b5b4c66ccd73d423672c702cf3913f188"
+        }
+      ]
+    },
+    {
+      "key": "tvos",
+      "id": "Microsoft.NET.Sdk.tvOS.Manifest-7.0.100",
+      "version": "16.0.1478+sha.7e129d764",
+      "fingerprint": {
+        "bytes": 16122,
+        "sha256": "78f9e8e46b087861afa871ea327a03b7aa3f437909566606448e9e54a563ace9",
+        "sha512": "e4c440dc0310f863070c89595bd00fd2e553cc2f9decbdeca1f996fe7eb3879c00ceb8757b38e491853500822d36d6747702745297b374c0641038c0e4fef266"
+      },
+      "declaredRepository": null,
+      "sourceAvailability": "root-tracked-source-observed-submodule-usage-review-pending",
+      "entries": [
+        {
+          "member": "_rels/.rels",
+          "kind": "package-xml-metadata",
+          "bytes": 533,
+          "sha256": "cf3ab84e581ddbaec8624245fe62b3e1cea8e8c2b7d370e86a01cb09f4db5892",
+          "sha512": "ee511d175f2259e3f722225bbfaaf713b1bc81ebcd144146709d92c31cc954953c9e108633fa9371e4e4dc231915f5f096473653fb9296d6484af79f4f0076c6"
+        },
+        {
+          "member": "Microsoft.NET.Sdk.tvOS.Manifest-7.0.100.nuspec",
+          "kind": "package-xml-metadata",
+          "bytes": 766,
+          "sha256": "ab3f451a19d1fc84988b70b0f63f04a3697c6b14124f6bb2931d07e4a3bf2fca",
+          "sha512": "871160bda971ad7c7ee1c5b05af68036ff3272e52f6b8047ac1c43bbc30dde4c86ecd53fb8183e3f5ccf215cc1f255fcc90029ce26d55f16be903aa2585cf1d3"
+        },
+        {
+          "member": "data/WorkloadManifest.targets",
+          "kind": "readable-msbuild-source",
+          "bytes": 1011,
+          "sha256": "cb9bb024862f56b5421061e9ae001b54e55e03f2796f65953f4de45f7d2703ec",
+          "sha512": "2d45e05a650c01fb2907778b6ffe36ec70ad4d4402857b4fefb3467c810206b1f629f0029447934f445545877023069132268470957104933946aa6ffe70ce99"
+        },
+        {
+          "member": "LICENSE",
+          "kind": "license-text",
+          "bytes": 6434,
+          "sha256": "2ad5be3c5907b028a63e6ac9983dc88349c9a7dcabc6f531389a555b5c8628e6",
+          "sha512": "5c1725974e5588073d94178ac9766167f61bbf06fa1df2700dae2e2ffba499124097fca5e392872e86e2a221e2bbcf82a8bc547ce146f24a1d0da2c24f1dbb49"
+        },
+        {
+          "member": "data/WorkloadManifest.json",
+          "kind": "readable-jsonc-source",
+          "bytes": 1335,
+          "sha256": "98091c243e22139623142e4afce3e0fa5aa91f787dd77dcf70834ef639ffe976",
+          "sha512": "20549eda9805f05e46b830cd9b923afa8bb28056248402035693ab56cbc7721d4534bdbd73d8bf2aedf43b58431fb987a4c06242262f7147bfddbe6eeb2ab261"
+        },
+        {
+          "member": "[Content_Types].xml",
+          "kind": "package-xml-metadata",
+          "bytes": 601,
+          "sha256": "2f5a8b3cf22c0dc40121131907b7b2237b454b862b9debc651e4f056fd517933",
+          "sha512": "8f40700dbc1bf8da789a9d500ddc0344579826207277ab598113fa7c4eb0edabbcecff8548eaf59ba836ad5cefde88f6c124fc461af7c99c41bf55e567b21210"
+        },
+        {
+          "member": "package/services/metadata/core-properties/cb8306beda644b29a6c7092be9592288.psmdcp",
+          "kind": "package-xml-metadata",
+          "bytes": 697,
+          "sha256": "a65905544cf57fa675adfa9fa39ed1f2f96d75c409e94cd956310adaf2ca51b5",
+          "sha512": "90c88d5f304f2c4772de5dbf0d425038f16b7892888e1c3ec5bfa66e38bfb5f91433533163f182420c5b288da857fd25f077f4de1080434a29bff2c1c377d0b3"
+        },
+        {
+          "member": ".signature.p7s",
+          "kind": "unshipped-original-package-cms-signature",
+          "bytes": 11403,
+          "sha256": "3aae55f23a2cae603b4c1334631899b8254b60b9ee935d0608711be9b17e76ea",
+          "sha512": "067e6a791d081a3ae016e4268c3720e058f8b77ae3b337f69069db4a65bc75059803ebf7896b27afa0a24603f8c3aa03a48572515a07da9025331b877f7244b4"
+        }
+      ],
+      "layout": [
+        {
+          "path": "sdk-manifests/7.0.100/microsoft.net.sdk.tvos/WorkloadManifest.json",
+          "member": "data/WorkloadManifest.json",
+          "bytes": 1335,
+          "sha256": "98091c243e22139623142e4afce3e0fa5aa91f787dd77dcf70834ef639ffe976",
+          "sha512": "20549eda9805f05e46b830cd9b923afa8bb28056248402035693ab56cbc7721d4534bdbd73d8bf2aedf43b58431fb987a4c06242262f7147bfddbe6eeb2ab261"
+        },
+        {
+          "path": "sdk-manifests/7.0.100/microsoft.net.sdk.tvos/WorkloadManifest.targets",
+          "member": "data/WorkloadManifest.targets",
+          "bytes": 1011,
+          "sha256": "cb9bb024862f56b5421061e9ae001b54e55e03f2796f65953f4de45f7d2703ec",
+          "sha512": "2d45e05a650c01fb2907778b6ffe36ec70ad4d4402857b4fefb3467c810206b1f629f0029447934f445545877023069132268470957104933946aa6ffe70ce99"
+        }
+      ]
+    },
+    {
+      "key": "maccatalyst",
+      "id": "Microsoft.NET.Sdk.MacCatalyst.Manifest-7.0.100",
+      "version": "15.4.2372+sha.754abbf6a",
+      "fingerprint": {
+        "bytes": 16168,
+        "sha256": "97defaf20964ed0ce52300081d842d8bb5a0d22a7a30a7d79c5e6ad476b0f5b9",
+        "sha512": "86ff88b03e24ee1cafb5f5ad82cd81b1965c634ed050b070400643bedce0cd5b214467ff3d6f06e394c575ad70135dabe9d2976ef0ed92cfec5bfcbcf193e689"
+      },
+      "declaredRepository": null,
+      "sourceAvailability": "root-tracked-source-observed-submodule-usage-review-pending",
+      "entries": [
+        {
+          "member": "_rels/.rels",
+          "kind": "package-xml-metadata",
+          "bytes": 540,
+          "sha256": "285309e4701c988495a7ff3d48ebc7a7e9d45bdbeb822fc486d2731526e977eb",
+          "sha512": "7d1a0032c928b10eb5b658b971ea5c0a1cb67c13c1dd2f9559e6ff6f59ce863ee7ca4c2de06f34e2f1aaa08da800d4684ccf4427102ff5fc15730bccf658d124"
+        },
+        {
+          "member": "Microsoft.NET.Sdk.MacCatalyst.Manifest-7.0.100.nuspec",
+          "kind": "package-xml-metadata",
+          "bytes": 780,
+          "sha256": "a0dc587512eb7308386d415a5a3f802b54b6dcc0e04d67f240a477683c723785",
+          "sha512": "c8b20f586e1a5e6e1f552552fb974fa0dc1b568ac5d66800b76a89d09c6987df8472e83909843f1e62d688d9cc7ba8b86a9f117305b48c4543ffa59e240ad648"
+        },
+        {
+          "member": "LICENSE",
+          "kind": "license-text",
+          "bytes": 6434,
+          "sha256": "2ad5be3c5907b028a63e6ac9983dc88349c9a7dcabc6f531389a555b5c8628e6",
+          "sha512": "5c1725974e5588073d94178ac9766167f61bbf06fa1df2700dae2e2ffba499124097fca5e392872e86e2a221e2bbcf82a8bc547ce146f24a1d0da2c24f1dbb49"
+        },
+        {
+          "member": "data/WorkloadManifest.json",
+          "kind": "readable-jsonc-source",
+          "bytes": 1323,
+          "sha256": "8c6e5ba5b302a18aec437da4cb8c03d6e7f16887593f770da96d3f9137ae44cd",
+          "sha512": "ca6d6f3ebdb02cc492b90241794901fda9119aaacc512f75ac08af7d7a33e4aba64a0efc5d2011bf95bbacdc146e3d8eb300f504601094d8f1f30db3e73d32ad"
+        },
+        {
+          "member": "data/WorkloadManifest.targets",
+          "kind": "readable-msbuild-source",
+          "bytes": 1040,
+          "sha256": "a158043407e9edad36f8615aea53ea5410910e7041470c8701ba36f47710e5dd",
+          "sha512": "f48c7e501826703020d825a05e97546a247c6f43b56b736909158370ae2a7f92e0fd260b517470e50b7172b73a2c496aa892addb944dc8ac7c1f09c9ed91794c"
+        },
+        {
+          "member": "[Content_Types].xml",
+          "kind": "package-xml-metadata",
+          "bytes": 601,
+          "sha256": "3993b49a90fcd6de59cc2b412737389ae663013056b2db514940ad7126fe27d6",
+          "sha512": "fe30edd40fc6dff49db8a367f8bd7507dbac36973ede2c4a04c0e50b3699327bdc2115c4849e103dfa5208e4a18bc9ff56d6a12df6ec073334f89aab48f2f20d"
+        },
+        {
+          "member": "package/services/metadata/core-properties/5da8c11498e84a08b6781aec61d0f6a2.psmdcp",
+          "kind": "package-xml-metadata",
+          "bytes": 711,
+          "sha256": "cad9ae268d842b0d01bed37857ab8962dfb7ab66856ea69740df98751f62522f",
+          "sha512": "b19476bce4c9a85d847873c55c1c547e2451d8efcabe8a07c041f797a4bdedd8af832c1c74b6d285b43f13c8841b4fbc8655065e1fa3adeec2ff0a3b2043b7d1"
+        },
+        {
+          "member": ".signature.p7s",
+          "kind": "unshipped-original-package-cms-signature",
+          "bytes": 11403,
+          "sha256": "495b1fde535e64a65df6484c3514da84ef230e5f164382f7e2f3f0c10111cb9b",
+          "sha512": "d329dccd9d2705b3da54f8aff03eba0c0710279f0aa6848863d16903ad3a1b2b590ac76d45b2577fd021706419f4ba8e8ff8eb459d89f16817dbecb31a458bd1"
+        }
+      ],
+      "layout": [
+        {
+          "path": "sdk-manifests/7.0.100/microsoft.net.sdk.maccatalyst/WorkloadManifest.json",
+          "member": "data/WorkloadManifest.json",
+          "bytes": 1323,
+          "sha256": "8c6e5ba5b302a18aec437da4cb8c03d6e7f16887593f770da96d3f9137ae44cd",
+          "sha512": "ca6d6f3ebdb02cc492b90241794901fda9119aaacc512f75ac08af7d7a33e4aba64a0efc5d2011bf95bbacdc146e3d8eb300f504601094d8f1f30db3e73d32ad"
+        },
+        {
+          "path": "sdk-manifests/7.0.100/microsoft.net.sdk.maccatalyst/WorkloadManifest.targets",
+          "member": "data/WorkloadManifest.targets",
+          "bytes": 1040,
+          "sha256": "a158043407e9edad36f8615aea53ea5410910e7041470c8701ba36f47710e5dd",
+          "sha512": "f48c7e501826703020d825a05e97546a247c6f43b56b736909158370ae2a7f92e0fd260b517470e50b7172b73a2c496aa892addb944dc8ac7c1f09c9ed91794c"
+        }
+      ]
+    },
+    {
+      "key": "macos",
+      "id": "Microsoft.NET.Sdk.macOS.Manifest-7.0.100",
+      "version": "12.3.2372+sha.754abbf6a",
+      "fingerprint": {
+        "bytes": 16121,
+        "sha256": "365f2f9c4e744d1e7bba1a3d1bdd4c3b16be85393e227587d4678cc9a53b625d",
+        "sha512": "cb8c3d60cf374afcdce74bde19c574cf55f785e2ed95c24387b316f71fcc34d80d43a19b1fc0567d0d78e872c3e105f2af410713eb849068035f7242c001e306"
+      },
+      "declaredRepository": null,
+      "sourceAvailability": "root-tracked-source-observed-submodule-usage-review-pending",
+      "entries": [
+        {
+          "member": "_rels/.rels",
+          "kind": "package-xml-metadata",
+          "bytes": 534,
+          "sha256": "9b59275273512867edd6d53ec72e990f74b8e45373a0d9653acc1068d25e062e",
+          "sha512": "d8dc9cff202bace23bfb077c7bd5cbb686fadbb77eb899584c1129dc5299b1c3c9e473a56e1cb5c9e7f4230cbe029163b160c28ceeac750d8f8a76e5b0da2f10"
+        },
+        {
+          "member": "Microsoft.NET.Sdk.macOS.Manifest-7.0.100.nuspec",
+          "kind": "package-xml-metadata",
+          "bytes": 768,
+          "sha256": "f3823f1d41c0fd4fe0de589aeceaf21b2c3c8b4e85c7c64c2e916ff996fc88f8",
+          "sha512": "f5b1322ce65d7517a317986c4e8d5c65344a173554072a427fff3eee69a0eccc35601326d5960310e41aae6520d8b7718793b69e41efab3c4f19bc650782294e"
+        },
+        {
+          "member": "data/WorkloadManifest.targets",
+          "kind": "readable-msbuild-source",
+          "bytes": 1015,
+          "sha256": "7ecfd1b81dc4c07f42b5f96a7fa5cfeefc198626353f67ca56968cea32917d59",
+          "sha512": "12622a6f244e5fab17b021b37b0c5d94b13c9f334aeb8807a45f75cd68d610ec53fe19ee6e9028f8cc894602e4621ff87f9a779fa84660f4b102251efe75275e"
+        },
+        {
+          "member": "LICENSE",
+          "kind": "license-text",
+          "bytes": 6434,
+          "sha256": "2ad5be3c5907b028a63e6ac9983dc88349c9a7dcabc6f531389a555b5c8628e6",
+          "sha512": "5c1725974e5588073d94178ac9766167f61bbf06fa1df2700dae2e2ffba499124097fca5e392872e86e2a221e2bbcf82a8bc547ce146f24a1d0da2c24f1dbb49"
+        },
+        {
+          "member": "data/WorkloadManifest.json",
+          "kind": "readable-jsonc-source",
+          "bytes": 1191,
+          "sha256": "3f86125a91d79bb445ab2b0cd5359b416f002792c5410c54acd213a1800cdeba",
+          "sha512": "fe6cf72264e074d5f723dfc88cf6122d9a24e03f1647c21b8aa7f1afbaed3aa162fd65c578873179b842bd23b506ed2c1367dd7b2362358cfd859cfb05592879"
+        },
+        {
+          "member": "[Content_Types].xml",
+          "kind": "package-xml-metadata",
+          "bytes": 601,
+          "sha256": "2f5a8b3cf22c0dc40121131907b7b2237b454b862b9debc651e4f056fd517933",
+          "sha512": "8f40700dbc1bf8da789a9d500ddc0344579826207277ab598113fa7c4eb0edabbcecff8548eaf59ba836ad5cefde88f6c124fc461af7c99c41bf55e567b21210"
+        },
+        {
+          "member": "package/services/metadata/core-properties/bbe2ebbc1f83469b979da90076828a4a.psmdcp",
+          "kind": "package-xml-metadata",
+          "bytes": 699,
+          "sha256": "ca512c361e4300868705ceedc2b3d4c936d1824eef4ea9e36387b212ef06e969",
+          "sha512": "9153618e91b768283544bd9be367f206276448bf481e30bcfa4f86ef6711e043895b2fc50e22d73c12f975d21696947a6d730d583c3619c8580defeba1d7fd66"
+        },
+        {
+          "member": ".signature.p7s",
+          "kind": "unshipped-original-package-cms-signature",
+          "bytes": 11402,
+          "sha256": "3019f618e8ca0ebd871d960117e7df568b4f93794ab1b6e59632ebcb6a37625e",
+          "sha512": "1b05ef88d8d34e430a71ad3a1f4ed0c008e5be884687b2e154c3fc40d1b74be9d953972a81ae077214d9d09a887770c4b565f403e76ed60fa6fcd67b6e0791b8"
+        }
+      ],
+      "layout": [
+        {
+          "path": "sdk-manifests/7.0.100/microsoft.net.sdk.macos/WorkloadManifest.json",
+          "member": "data/WorkloadManifest.json",
+          "bytes": 1191,
+          "sha256": "3f86125a91d79bb445ab2b0cd5359b416f002792c5410c54acd213a1800cdeba",
+          "sha512": "fe6cf72264e074d5f723dfc88cf6122d9a24e03f1647c21b8aa7f1afbaed3aa162fd65c578873179b842bd23b506ed2c1367dd7b2362358cfd859cfb05592879"
+        },
+        {
+          "path": "sdk-manifests/7.0.100/microsoft.net.sdk.macos/WorkloadManifest.targets",
+          "member": "data/WorkloadManifest.targets",
+          "bytes": 1015,
+          "sha256": "7ecfd1b81dc4c07f42b5f96a7fa5cfeefc198626353f67ca56968cea32917d59",
+          "sha512": "12622a6f244e5fab17b021b37b0c5d94b13c9f334aeb8807a45f75cd68d610ec53fe19ee6e9028f8cc894602e4621ff87f9a779fa84660f4b102251efe75275e"
+        }
+      ]
+    },
+    {
+      "key": "maui",
+      "id": "Microsoft.NET.Sdk.Maui.Manifest-7.0.100",
+      "version": "7.0.49+49-sha.e5c8224dc-azdo.6889018",
+      "fingerprint": {
+        "bytes": 15171,
+        "sha256": "de4a0aa1920d53181330e207f3186f25cb6b80fb95b02d2988ccf4c6209c8222",
+        "sha512": "95d80c6be064487874f8f5e521a6ecf73729b78a7137005e4ddc9f34dd838b21e628e9af07384e88434b3ccf0094f5a89ab129d11abbc74f0c87383b277428c3"
+      },
+      "declaredRepository": {
+        "type": "git",
+        "url": "https://github.com/dotnet/maui.git",
+        "commit": "e5c8224dc180c45cdce125452d127ad3e98311bb"
+      },
+      "sourceAvailability": "root-tracked-source-observed-submodule-usage-review-pending",
+      "entries": [
+        {
+          "member": "_rels/.rels",
+          "kind": "package-xml-metadata",
+          "bytes": 533,
+          "sha256": "d886ca038401be53010933d2fc94fd42cea74c8d151e19598a8450d28385b08c",
+          "sha512": "3e62c8b3e629dd3bbcda8d4bb5291da0796fbdb10e80f145ee5e06229fc85bf4e4952db6f17a0954935efa31370031fa4adb062f6ae5c72b963129e159b66851"
+        },
+        {
+          "member": "Microsoft.NET.Sdk.Maui.Manifest-7.0.100.nuspec",
+          "kind": "package-xml-metadata",
+          "bytes": 882,
+          "sha256": "0efa67386d74d55977b538f2f93ca8a72a4875331200c36f23efba2a933ddd68",
+          "sha512": "17856b29ba7664dd160fda23cc902ec4a75416c7a67d30da7db91be787fb7b65a8f9629e33e8c192da140a5226754865db1fbd7b0ae139f311b745bde5351216"
+        },
+        {
+          "member": "data/WorkloadManifest.json",
+          "kind": "readable-jsonc-source",
+          "bytes": 8736,
+          "sha256": "8a6db2c250f09a58284d7d9de4e152c431bff96eab7bc6df75c0e131a06132bc",
+          "sha512": "4ad51f7607b203477e9bc6b330e519c37fd6f385305779e4eb3b180fdded123ec2a2bc052991bafc81f9564f2b1d2984fa30905f5c1ae46a5681c9e09e64ce79"
+        },
+        {
+          "member": "data/WorkloadManifest.targets",
+          "kind": "readable-msbuild-source",
+          "bytes": 1991,
+          "sha256": "de9315da26a459dab491bd1d82184c9816d43e53aace650e3e844b1fb55e8d86",
+          "sha512": "10e05c7bdba904e16d81c8b46ff943415e4cd9b3e1db2bf5549469addd249acec007ca2f882082d8e91920aa727de8d1088f64584a6467c83b852133e2cf4dbd"
+        },
+        {
+          "member": "[Content_Types].xml",
+          "kind": "package-xml-metadata",
+          "bytes": 533,
+          "sha256": "ce59806adfb2ecd5311d0635097c16e6d74247fd5b1d511743b86cc174f87924",
+          "sha512": "0e040108a1f63f8c1867c68dbfa9c9a95b6facaa44a39b0b5401d67b10f67bdfcaa70177c3de18f2e43b987638af57f984db8edafdb9003b97b86bd05629081e"
+        },
+        {
+          "member": "package/services/metadata/core-properties/ff9104bd50d7479bb9404567aa1809c0.psmdcp",
+          "kind": "package-xml-metadata",
+          "bytes": 689,
+          "sha256": "d244b574b96692c3206ead8a4cdbfaa2af5485e54e1aa50c05d801bd3fe3c68d",
+          "sha512": "305a859eeb919ac1e5f8d7dc11bbe776ea14810315f0a084d84df6bc46c526996f8724bac83bf7d17af5682883801e50a0720d96a836a86809b6413809b984de"
+        },
+        {
+          "member": ".signature.p7s",
+          "kind": "unshipped-original-package-cms-signature",
+          "bytes": 11403,
+          "sha256": "b148894dbf3b093718816044f4acd09cf4d74012ae36a80ca1130d70c0f79e94",
+          "sha512": "a463a46af662ba0af00be4ed59feee2ef86cb066a8b529932da585e0a9c040ebf9c1b981c57fc7b251ec22c972b21f2b7372e0c3855b3cad04d73d5c56b8e931"
+        }
+      ],
+      "layout": [
+        {
+          "path": "sdk-manifests/7.0.100/microsoft.net.sdk.maui/WorkloadManifest.json",
+          "member": "data/WorkloadManifest.json",
+          "bytes": 8736,
+          "sha256": "8a6db2c250f09a58284d7d9de4e152c431bff96eab7bc6df75c0e131a06132bc",
+          "sha512": "4ad51f7607b203477e9bc6b330e519c37fd6f385305779e4eb3b180fdded123ec2a2bc052991bafc81f9564f2b1d2984fa30905f5c1ae46a5681c9e09e64ce79"
+        },
+        {
+          "path": "sdk-manifests/7.0.100/microsoft.net.sdk.maui/WorkloadManifest.targets",
+          "member": "data/WorkloadManifest.targets",
+          "bytes": 1991,
+          "sha256": "de9315da26a459dab491bd1d82184c9816d43e53aace650e3e844b1fb55e8d86",
+          "sha512": "10e05c7bdba904e16d81c8b46ff943415e4cd9b3e1db2bf5549469addd249acec007ca2f882082d8e91920aa727de8d1088f64584a6467c83b852133e2cf4dbd"
+        }
+      ]
+    },
+    {
+      "key": "emsdk6",
+      "id": "Microsoft.NET.Workload.Emscripten.net6.Manifest-7.0.100",
+      "version": "7.0.20",
+      "fingerprint": {
+        "bytes": 35475,
+        "sha256": "da4271fde3fed111d4e384f799db4be1201c729d039636cc33b0dc5265c251a8",
+        "sha512": "569a0d2eb664f4acf35677e25e2706324da60953857c5c0c40dca325259f061f6b2037460fee0dcca0a54f14350d2f821df05f73ea167f92a59e6198e99177c6"
+      },
+      "declaredRepository": {
+        "type": "git",
+        "url": "https://github.com/dotnet/emsdk",
+        "commit": "11486e0d6f0dea31262e037b94cce768e106939c"
+      },
+      "sourceAvailability": "declared-commit-unavailable-public-git-and-official-api",
+      "entries": [
+        {
+          "member": "_rels/.rels",
+          "kind": "package-xml-metadata",
+          "bytes": 549,
+          "sha256": "74e6cec057f00398393f16b7bd11268a30dbf47757c6573e882448a5f87949ab",
+          "sha512": "a9a10eace0c18e45dd4b68a5b403ef7e2e84612bc17d96b01f311eac05ed337f3e60b815f49ca488f800c61fa9fd3de78ed70aa998b7f3f0922c56e919c2956c"
+        },
+        {
+          "member": "Microsoft.NET.Workload.Emscripten.net6.Manifest-7.0.100.nuspec",
+          "kind": "package-xml-metadata",
+          "bytes": 1095,
+          "sha256": "a3d20b19d8f69dcf8e44223d990c8aa4cbbe2442c6096edc521dc496d266cb87",
+          "sha512": "e1a6136769b43745168ab51f2d4bbd5ba041060a545c9a009a64166557ba83352b2968afca5e126fc28207143ee6a67fa2c1f2f22599f4fab1955ece16e27ef0"
+        },
+        {
+          "member": "data/WorkloadManifest.json",
+          "kind": "readable-jsonc-source",
+          "bytes": 1993,
+          "sha256": "8fc65a0c3d1d7f1bda8dbe3a44d3b43b9e56c128428691230f2db3855eb884c7",
+          "sha512": "ea3362c53371a2bef652c434018d026a6057ca67f6b05fd479f4ef16654698e205181997554fa4ce3a2bcde563edaaaa8657fe5ab1f02de4a90177949ea0c800"
+        },
+        {
+          "member": "data/WorkloadManifest.targets",
+          "kind": "readable-msbuild-source",
+          "bytes": 583,
+          "sha256": "1651788174ab4269484476a9a31574ff772d36f3fbbedf5e3fa6de959e894adc",
+          "sha512": "1d0c94a0118b6c0773da39db3c5890d0eaf667c97e92a011456d65a8bbcfc0a593eb5b99d06f9f6963ee4b5a76fd59dcdb562339b686b165739db57030108e85"
+        },
+        {
+          "member": "Icon.png",
+          "kind": "unshipped-package-icon",
+          "bytes": 7006,
+          "sha256": "3356b59b6d9c24db3a22398c0fb3430724052fe75ae5e8430ee8ede2fb713356",
+          "sha512": "12d5aa8bea27ad6a1118bee3b1185dbb952197dfa4465e141d3b51090364db7d7ab7c2add6463a0adc318410faf1c3783c69b35e08cba0285571c59c0c7aab25"
+        },
+        {
+          "member": "LICENSE",
+          "kind": "license-text",
+          "bytes": 1353,
+          "sha256": "23762ddd795cff9624cce2a044d7c3c180baecdcab6d9a9bde36a98e3db5b864",
+          "sha512": "c89873b2747694d0d0092be72cedf6a09e54257df5da55cf2664c63ca96cecda1949a555b70ed6347511fab2bf1c96a488f5d20f416c6e69a901943d8fce2084"
+        },
+        {
+          "member": "[Content_Types].xml",
+          "kind": "package-xml-metadata",
+          "bytes": 664,
+          "sha256": "1e553cbdeff3ec849bb1e51a4e55648021d9a2369a5f686379a2b78f64e4a3c4",
+          "sha512": "b3b14e1b3064f613a4c6aaf1a0d5756d27f3bd804caaf1525d689c782b94de100fab47b489cd4b47b53d19064e9b5986c095166212ebdd3624f1d16305080a1d"
+        },
+        {
+          "member": "package/services/metadata/core-properties/9652d1445c5040beb129ea765ef1d9c6.psmdcp",
+          "kind": "package-xml-metadata",
+          "bytes": 736,
+          "sha256": "b43ad264f6a53844bd8dd027dceb0032388deadfdc0e30115e8ea1928a1d0730",
+          "sha512": "ca201c7633642b726ab91a36b1d7ff6d6801298fc817000ffe87735b7764856d986bdf23540ce354abb0dc4c9ba0073ac8f5ae983b742c967ed1a2a569ab6d4d"
+        },
+        {
+          "member": ".signature.p7s",
+          "kind": "unshipped-original-package-cms-signature",
+          "bytes": 25628,
+          "sha256": "0f2713a540a2eee2ac5e32ef997a855a9c69ccabbd45581daecd19401f723d99",
+          "sha512": "2da870f9a3f24c12283f289ff8a0d12df7fa5190aa1e4a32fce528ba787900331615f5cfa3165f3aa4cf17bc1d7e92dbd230c76cb9feb2450cc9f7c8e741bd8e"
+        }
+      ],
+      "layout": [
+        {
+          "path": "sdk-manifests/7.0.100/microsoft.net.workload.emscripten.net6/WorkloadManifest.json",
+          "member": "data/WorkloadManifest.json",
+          "bytes": 1993,
+          "sha256": "8fc65a0c3d1d7f1bda8dbe3a44d3b43b9e56c128428691230f2db3855eb884c7",
+          "sha512": "ea3362c53371a2bef652c434018d026a6057ca67f6b05fd479f4ef16654698e205181997554fa4ce3a2bcde563edaaaa8657fe5ab1f02de4a90177949ea0c800"
+        },
+        {
+          "path": "sdk-manifests/7.0.100/microsoft.net.workload.emscripten.net6/WorkloadManifest.targets",
+          "member": "data/WorkloadManifest.targets",
+          "bytes": 583,
+          "sha256": "1651788174ab4269484476a9a31574ff772d36f3fbbedf5e3fa6de959e894adc",
+          "sha512": "1d0c94a0118b6c0773da39db3c5890d0eaf667c97e92a011456d65a8bbcfc0a593eb5b99d06f9f6963ee4b5a76fd59dcdb562339b686b165739db57030108e85"
+        }
+      ]
+    },
+    {
+      "key": "emsdk7",
+      "id": "Microsoft.NET.Workload.Emscripten.net7.Manifest-7.0.100",
+      "version": "7.0.20",
+      "fingerprint": {
+        "bytes": 35780,
+        "sha256": "1aa029245ebc6584b13c04880f56af4574108743b63d2cc3c28abf574ce94f7d",
+        "sha512": "0608458a381ba69d314ae8c200962c4a18bbdcdb18e4ce37e65d924a13816d2ca43cec172cef7b7355a7b32914d780a8d1383661e12bbaa0a94cc028d212a6f7"
+      },
+      "declaredRepository": {
+        "type": "git",
+        "url": "https://github.com/dotnet/emsdk",
+        "commit": "11486e0d6f0dea31262e037b94cce768e106939c"
+      },
+      "sourceAvailability": "declared-commit-unavailable-public-git-and-official-api",
+      "entries": [
+        {
+          "member": "_rels/.rels",
+          "kind": "package-xml-metadata",
+          "bytes": 549,
+          "sha256": "4006c972405221106fa93f98e62d1d868b7f7c5362f5918d5951a22a8ca4b047",
+          "sha512": "79aabda9de619dd4eea8a1a1e00f8ba73d500c5e45a0403da5ca49f5c93daec675ad9bb76d35755652e793ae660d2997b9bb9f0af098ecda8f8b65e2c97eea19"
+        },
+        {
+          "member": "Microsoft.NET.Workload.Emscripten.net7.Manifest-7.0.100.nuspec",
+          "kind": "package-xml-metadata",
+          "bytes": 1095,
+          "sha256": "36ace4c2e50d4f244cb6958b724dcc88019bcc1d884bbe2ab0156e51aeccc846",
+          "sha512": "6ced08df87cd7db9b70522f53219db6bbb133a959a11bd39157ed83eb29bd1d3a4a8d620c367ed92afe487fba33cda62961d00dc680a2aede0deb1d7f8a4ce20"
+        },
+        {
+          "member": "data/WorkloadManifest.json",
+          "kind": "readable-jsonc-source",
+          "bytes": 2584,
+          "sha256": "ad74a77d9ae3f6a2ca59890562297ecdca707f4480ff0b3c00b93296ef31b4bf",
+          "sha512": "a75fbc5eed075e86c6a25e5530f4b058d3b5d2259c1892c6aab71071a178be509296633c62da3487add707d502f2a0570cb0a64942169c18ccc8a2dee5debb78"
+        },
+        {
+          "member": "data/WorkloadManifest.targets",
+          "kind": "readable-msbuild-source",
+          "bytes": 2146,
+          "sha256": "2e7a1188a507136b4f6656109985b09929670b78b6e4d8248c101d6d3237ae70",
+          "sha512": "3bd59423f31e6c6139e265ed000922f2fb6245179927e767ae1037cd9570ed19465619c0d87ba600bd85d54ecc275997669b9e9dd7b536faf94a942a66d6f24f"
+        },
+        {
+          "member": "Icon.png",
+          "kind": "unshipped-package-icon",
+          "bytes": 7006,
+          "sha256": "3356b59b6d9c24db3a22398c0fb3430724052fe75ae5e8430ee8ede2fb713356",
+          "sha512": "12d5aa8bea27ad6a1118bee3b1185dbb952197dfa4465e141d3b51090364db7d7ab7c2add6463a0adc318410faf1c3783c69b35e08cba0285571c59c0c7aab25"
+        },
+        {
+          "member": "LICENSE",
+          "kind": "license-text",
+          "bytes": 1353,
+          "sha256": "23762ddd795cff9624cce2a044d7c3c180baecdcab6d9a9bde36a98e3db5b864",
+          "sha512": "c89873b2747694d0d0092be72cedf6a09e54257df5da55cf2664c63ca96cecda1949a555b70ed6347511fab2bf1c96a488f5d20f416c6e69a901943d8fce2084"
+        },
+        {
+          "member": "[Content_Types].xml",
+          "kind": "package-xml-metadata",
+          "bytes": 664,
+          "sha256": "1e553cbdeff3ec849bb1e51a4e55648021d9a2369a5f686379a2b78f64e4a3c4",
+          "sha512": "b3b14e1b3064f613a4c6aaf1a0d5756d27f3bd804caaf1525d689c782b94de100fab47b489cd4b47b53d19064e9b5986c095166212ebdd3624f1d16305080a1d"
+        },
+        {
+          "member": "package/services/metadata/core-properties/6d40ce3221d64e56a0a08bb920d4c3ab.psmdcp",
+          "kind": "package-xml-metadata",
+          "bytes": 736,
+          "sha256": "bd3bf4ef2ed0ba091fc9ff9bb5caf0667e2900a66ca47025ee039ee4343dabb9",
+          "sha512": "b73555a6b362911a6c6d077fc8d0d1dffe913b20574ad05aa1db5bda289620b0e21a4b3b7b818c39427300a8704272f1231f0129b354a813ec18fd6eb368ea39"
+        },
+        {
+          "member": ".signature.p7s",
+          "kind": "unshipped-original-package-cms-signature",
+          "bytes": 25630,
+          "sha256": "330fefbc94c79e664eb2b99404749a4804c37ee4d222eb5f40f194ec51f779e5",
+          "sha512": "68ec7cd9f75be02235c064d73f6d251cca3efb196469e4600a06159d6324333408e1e963c6e97558da08b7fa69d435bc7e2bda78ce5c4c4d10650194b7bb2687"
+        }
+      ],
+      "layout": [
+        {
+          "path": "sdk-manifests/7.0.100/microsoft.net.workload.emscripten.net7/WorkloadManifest.json",
+          "member": "data/WorkloadManifest.json",
+          "bytes": 2584,
+          "sha256": "ad74a77d9ae3f6a2ca59890562297ecdca707f4480ff0b3c00b93296ef31b4bf",
+          "sha512": "a75fbc5eed075e86c6a25e5530f4b058d3b5d2259c1892c6aab71071a178be509296633c62da3487add707d502f2a0570cb0a64942169c18ccc8a2dee5debb78"
+        },
+        {
+          "path": "sdk-manifests/7.0.100/microsoft.net.workload.emscripten.net7/WorkloadManifest.targets",
+          "member": "data/WorkloadManifest.targets",
+          "bytes": 2146,
+          "sha256": "2e7a1188a507136b4f6656109985b09929670b78b6e4d8248c101d6d3237ae70",
+          "sha512": "3bd59423f31e6c6139e265ed000922f2fb6245179927e767ae1037cd9570ed19465619c0d87ba600bd85d54ecc275997669b9e9dd7b536faf94a942a66d6f24f"
+        }
+      ]
+    }
+  ]
+}
