@@ -1,0 +1,1078 @@
+{
+  "schemaVersion": 1,
+  "issue": 35,
+  "date": "2026-11-08",
+  "status": "bounded-native-source-components-and-certificate-proof",
+  "qualification": false,
+  "releaseAdmission": false,
+  "sourceSdkProduct": false,
+  "completeUsedSourceAudit": false,
+  "nativeArchitecturesQualified": [],
+  "nativeArchitectureProbed": "aarch64",
+  "stableBaselineCommit": "9e3f061",
+  "stableBaselineFilesUnchanged": true,
+  "implementation": [
+    {
+      "path": "scripts/core3-musl-source-probe.py",
+      "bytes": 13831,
+      "sha256": "2431f763322344b91307ada226755564df3d705ae8d18c8e320836a736d689c7"
+    },
+    {
+      "path": "profiles/experimental/core3-musl-source.json",
+      "bytes": 2867,
+      "sha256": "0bf4ecfca39e3b25312cc391545e36c24c2045d367e6b391586a7c73d8c9431c"
+    },
+    {
+      "path": "scripts/musl-negative-certificates.cs",
+      "bytes": 8255,
+      "sha256": "3c88ee9eab40b2e096b96c73316e8af8f3a58ea11b40fa72a84d6c5a4de647cc"
+    }
+  ],
+  "sharedAuditor": {
+    "path": "scripts/musl_archive.py",
+    "bytes": 43570,
+    "sha256": "b216041e536491d8afc851938c31fd3163aff201ec24abba0a56e196b003014d"
+  },
+  "containers": {
+    "worker": "94ff1d9ff574e99b27d367d9ef1854476f5b92cab47e6d84aab74e06e0774dd9",
+    "minimalConsumer": "2bf31f6f286274c456ef35482b34665714feaef8e66b7da6bc187653efddaa33",
+    "engine": "Local native ARM64 rootful Podman in D-backed WSL; not final GHA Docker-default qualification"
+  },
+  "proofs": {
+    "runs": {
+      "reusable-package": {
+        "mode": "source-package",
+        "allRequestedCommandsPassed": true,
+        "nativeClosureStatus": "passed",
+        "normalReadyToRunEnabled": false,
+        "results": ".build/core3-musl-source-phase/reusable-package/results.json"
+      },
+      "reusable-negative": {
+        "mode": "negative",
+        "allRequestedCommandsPassed": true,
+        "nativeClosureStatus": "passed",
+        "normalReadyToRunEnabled": false,
+        "results": ".build/core3-musl-source-phase/reusable-negative/results.json"
+      },
+      "reusable-negative-consumer": {
+        "mode": "negative-consumer",
+        "allRequestedCommandsPassed": true,
+        "nativeClosureStatus": "passed",
+        "normalReadyToRunEnabled": true,
+        "results": ".build/core3-musl-source-phase/reusable-negative-consumer/results.json"
+      },
+      "reusable-components": {
+        "mode": "source-components",
+        "allRequestedCommandsPassed": true,
+        "nativeClosureStatus": "passed",
+        "normalReadyToRunEnabled": false,
+        "results": ".build/core3-musl-source-phase/reusable-components/results.json"
+      }
+    },
+    "sourceComponentPackage": {
+      "path": "source-outputs/sdk31/artifacts/packages/Release/NonShipping/Microsoft.NET.Sdk.3.1.426-servicing.22566.17.nupkg",
+      "bytes": 2055292,
+      "sha256": "523f226ca5a579888f2c99b7554af29ec7c5fa3d98eb8b7b9e665fdc16dab6d1",
+      "identicalBootstrapPath": null,
+      "entries": [
+        {
+          "path": "_rels/.rels",
+          "bytes": 507,
+          "sha256": "a58bb070a05aa4e27068f81f97a767cfa1b6c46ace364c7c24144ff7d7e7acbd",
+          "elf": false
+        },
+        {
+          "path": "Microsoft.NET.Sdk.nuspec",
+          "bytes": 1706,
+          "sha256": "c9a997d85f4c93b61a4cc5108c020fe78356db408060586eee40875093bd0506",
+          "elf": false
+        },
+        {
+          "path": "Sdk/Sdk.AfterCommon.targets",
+          "bytes": 611,
+          "sha256": "25bd7e052ba046efa087d97a9d95e0a0bc39e93a532250beefd2db3529bef617",
+          "elf": false
+        },
+        {
+          "path": "Sdk/Sdk.BeforeCommon.targets",
+          "bytes": 625,
+          "sha256": "551b2deb9465610204d69be87de88e7e803dca83a503796ec9c0030310eb7d8a",
+          "elf": false
+        },
+        {
+          "path": "Sdk/Sdk.props",
+          "bytes": 1914,
+          "sha256": "9e7618df09c8344c0b5a2276c9d84c4a7b1bb7aebb5aeba458ad20336fc63f84",
+          "elf": false
+        },
+        {
+          "path": "Sdk/Sdk.targets",
+          "bytes": 3652,
+          "sha256": "4bb69ec088e16b48e14be97c528f87d019510a2f7357110fae2894ecc4121105",
+          "elf": false
+        },
+        {
+          "path": "targets/GenerateDeps/GenerateDeps.proj",
+          "bytes": 3396,
+          "sha256": "822fa6362a9eb6091fd92fdbd7dc3d649b22728a983a6df2c47c4f020539a77b",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.ComposeStore.targets",
+          "bytes": 20676,
+          "sha256": "999d412ceb689414b5e429dd3deeb43efd22f9cc1c826523db721cf55d4eba93",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.ConflictResolution.targets",
+          "bytes": 4663,
+          "sha256": "cc1be6226455a0e936b6dbe3a1bb732f04b21942c97f921ac234e046b10022e0",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.CrossGen.targets",
+          "bytes": 15724,
+          "sha256": "04899c75b62fbedc4caf09d5ca7c08f1bd1affa2aba91a747ce82b3aaa87b489",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.DefaultAssemblyInfo.targets",
+          "bytes": 1284,
+          "sha256": "0593fad6050ec2d06f46c1bb053f3954ce93a42ba2ae51801d74861415909c02",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.DefaultOutputPaths.targets",
+          "bytes": 3332,
+          "sha256": "f59f1f2d47b8481c9a6cc32b33b30c9d4bb4fa0693b03c5a0dbd76b72e5818b6",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.DefaultPackageConflictOverrides.targets",
+          "bytes": 10627,
+          "sha256": "b74420e156dfb9f4bfab8b6e67b5231790e488d56ae9e06136d92925d9b7cf03",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.DesignerSupport.targets",
+          "bytes": 6037,
+          "sha256": "a6538a6e0af1908b7b5fdef50622214af7a3ccdeff45324d45b95b52ba3f942a",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.DisableStandardFrameworkResolution.targets",
+          "bytes": 963,
+          "sha256": "e3039d3bf2fe520d9ab7a5b38d9a4d04823d0653891fb1e1be922ac6ef838714",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.GenerateAssemblyInfo.targets",
+          "bytes": 10688,
+          "sha256": "a875fc5938b7874ad25ba4fd17120df099fe32f0288082ff065e08d54bd8b77f",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.GenerateSupportedRuntime.targets",
+          "bytes": 2798,
+          "sha256": "abfb2a1102797342aafbe019f1a6b36c2d789a98f9c642bc89416a9c72160c06",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.ILLink.targets",
+          "bytes": 6742,
+          "sha256": "e23dedd864648c5379348ab0e069e388ee352a40ee434839f996453b15f28d70",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.NuGetOfflineCache.targets",
+          "bytes": 1727,
+          "sha256": "95ef970ff193b3138e1c204e5b987ae6bbde873c36baf062fa34f253ec156f06",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.ObsoleteReferences.targets",
+          "bytes": 1703,
+          "sha256": "39edebe465572be739491bc8d9cedd451cdf84a7db7cba44426ecbfc168c1942",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.PackProjectTool.props",
+          "bytes": 812,
+          "sha256": "63f13c6956aabc20655306b8b432d269a76a00fc7c2ed287ff42c8b04e627762",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.PackProjectTool.targets",
+          "bytes": 946,
+          "sha256": "3f093f2c6aff089aade8ca40d82cbe92536be5f68a42d0fc7760b28ce496d1d0",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.PackStubs.targets",
+          "bytes": 986,
+          "sha256": "13a34ccf7708021a4afa2f70f29a293126cba87f8f06d50b4c6d5be33f9c94ec",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.PackTool.props",
+          "bytes": 787,
+          "sha256": "fc28f32b4accd2b177b657e9e5dece72a191da2a1e066a02a51bdd2814d3d99a",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.PackTool.targets",
+          "bytes": 9377,
+          "sha256": "bf2e76ea1b6fd844bf9c3a061c0c98f8915043924bba8e237119794bb4b91ef7",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.PreserveCompilationContext.targets",
+          "bytes": 4740,
+          "sha256": "88fcbd1479b63548a8afc0dcfef8f8b9b2a050a092c0ae036b5937c43164fc55",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Publish.targets",
+          "bytes": 55121,
+          "sha256": "8715156f6de88c96edfdc1fe79b75c39600c6d007c3056b437f7f8755f90fbac",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.RuntimeIdentifierInference.targets",
+          "bytes": 12402,
+          "sha256": "4657eac41b95fbf28793c2dbf885ddded57c3dec1c5b2b9e0eb7711d5f393014",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Sdk.BeforeCommon.targets",
+          "bytes": 11985,
+          "sha256": "18eb00ae948433275cdb3a8d4c4cdd1bac30e9a033dd662416531ffd599ae821",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Sdk.BeforeCommonCrossTargeting.targets",
+          "bytes": 847,
+          "sha256": "827814a940430119e42bdfbc9d07e981f3395b0538ea909e1e33c5b75980d344",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Sdk.Common.targets",
+          "bytes": 6277,
+          "sha256": "5cfcc8744c099c62fa4760731bc531f798440348e1bb8c51c1cf23f943b8525e",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Sdk.CrossTargeting.targets",
+          "bytes": 4967,
+          "sha256": "6b0d2b68a3b80934730d273c6cb66987498b76504577978be856a166e9b80769",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Sdk.CSharp.props",
+          "bytes": 1189,
+          "sha256": "1fb1f33ce156a4daf94629b1e80197f1392df279db9148e447bbc3132498d904",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Sdk.CSharp.targets",
+          "bytes": 2252,
+          "sha256": "93b6854eceee74efacef455ae1b38f78846a5934851543ded670587ea7dbc393",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Sdk.DefaultItems.props",
+          "bytes": 5104,
+          "sha256": "40ddf61fb1f9d31de15e2a75b4066df7af45b678c7c169418b80487274df81e5",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Sdk.DefaultItems.targets",
+          "bytes": 21618,
+          "sha256": "4113f50561cf5dca416713f0ab448394c676061fbaf0d42d3ff05db7894277cd",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Sdk.FrameworkReferenceResolution.targets",
+          "bytes": 18455,
+          "sha256": "dbb4921a4d130842d787b2f6794fbd46fe20ead0de85f0395cdbebc568af0f86",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Sdk.FSharp.props",
+          "bytes": 2248,
+          "sha256": "c0e7a5a6f39abc76a13bcad3d8f433a4763ffff097460e1b764defa436df1533",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Sdk.FSharp.targets",
+          "bytes": 2290,
+          "sha256": "7f9dfe58ed3dc79506139756cd3a8c8a27efece0db876b9ecfa72b8227b5ee91",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Sdk.FSharpTargetsShim.targets",
+          "bytes": 4590,
+          "sha256": "0d613768e276cb36c1b47c0872c328139482310e0139cbee7644cb9fbd372acf",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Sdk.ImportPublishProfile.targets",
+          "bytes": 2894,
+          "sha256": "a691ac127e3f048d116f0088908caa4a7b413e7580a1e8e283a3889885d4b2b1",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Sdk.props",
+          "bytes": 7136,
+          "sha256": "97ec135c7d3e4a0e2ec0e51a11a12f2ce2461ea184ef8616a3182c33207929ac",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Sdk.targets",
+          "bytes": 49631,
+          "sha256": "72f2505834986f03524f1b9b67d98504344b1c12c2c4430e7dda539a304346c9",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Sdk.VisualBasic.props",
+          "bytes": 1735,
+          "sha256": "b20187237e3c6da00512c06cc63c517366f61b8a151dcdf28160e9ba5b809266",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.Sdk.VisualBasic.targets",
+          "bytes": 7200,
+          "sha256": "7ed237f6c492d65b05c4724dd82bcd2ef709e361c584caab90077521b8611860",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.SupportedTargetFrameworks.props",
+          "bytes": 4742,
+          "sha256": "edf489a5e9a0c82ba9ddd0f3da5de9d61e670aa9cd0200b029c4c32947b2938e",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.NET.TargetFrameworkInference.targets",
+          "bytes": 11270,
+          "sha256": "796a53a36adb0be2875214c7a0891d60f8a109d503c6c39e2cfb19c512aa24cc",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.PackageDependencyResolution.targets",
+          "bytes": 25598,
+          "sha256": "e5e24d5ca959550663c9216c0465f914acd51843f9dc75345c64e60db804805c",
+          "elf": false
+        },
+        {
+          "path": "targets/Microsoft.PackageDependencyResolutionStubs.targets",
+          "bytes": 1202,
+          "sha256": "fbc336e330a7c33eb858083c5afe66026342f5e3417be3b9f06dbbcd312eec42",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/cs/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 29696,
+          "sha256": "71e8695336f691d472a2075d4423a10ca681f335c140be5a88911a403a54a9fa",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/de/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 31232,
+          "sha256": "abfaa3d0b13961ae5bd83a388c6dc804edc47bf6c0d023e73e158a1f0df0c93b",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/es/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 30720,
+          "sha256": "25e5b96c6ac5f7acb8e8bf53afcf2f6c6acb01947a59a7d5da0e0cd5c303b8d6",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/fr/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 31744,
+          "sha256": "a59ec9b46806db4af69b37dd4333271adf6ca05fe7fa907399926c40195c54c8",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/it/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 31232,
+          "sha256": "4eabd35fd5c67469e0f064b621d3f942d9f58c2abf4f46c4f6c168f825998c17",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/ja/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 35328,
+          "sha256": "6f371416a16deaf60496859b5ac9a1896a999ac12a03b942ca02799018c7c215",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/ko/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 32256,
+          "sha256": "9531d3bcc3754da5c1052a99bd3d573f869d607912d346101db74e1cd3998621",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/Microsoft.DotNet.PlatformAbstractions.dll",
+          "bytes": 24600,
+          "sha256": "857fa5e662f9b14417cc5179b6f2e7a435c39e58f5a2c01616d0431b8072ea3a",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/Microsoft.Extensions.DependencyModel.dll",
+          "bytes": 62488,
+          "sha256": "729fa6177990200e8021f0166f479e30dc8054952cc8dfc3f3b9b819c344e6bd",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/Microsoft.NET.Build.Tasks.dll",
+          "bytes": 314880,
+          "sha256": "e988573e2e459ba5457ecca187573986c8cc2bb1ea4108dadf4b9594ee4b57b3",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/Microsoft.NET.Build.Tasks.dll.config",
+          "bytes": 430,
+          "sha256": "f4bf36b6d3d5740601ff5edb11c87a52417f340d8e3bbe60b20e213fc6bc1add",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/Microsoft.NET.HostModel.dll",
+          "bytes": 39824,
+          "sha256": "be876d9f53ad634fad4a61afd7e4aef99dbca8fe276bbf746d31270dbbe83163",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/Newtonsoft.Json.dll",
+          "bytes": 526336,
+          "sha256": "575e30f98e4ea42c9e516edc8bbb29ad8b50b173a3e6b36b5ba39e133cce9406",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/NuGet.Common.dll",
+          "bytes": 102808,
+          "sha256": "7ed08edcb8139bc3492ad031901c507108818eebfc3ae5731693fee12a4df28b",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/NuGet.Configuration.dll",
+          "bytes": 142768,
+          "sha256": "8e690c1c9895810080291d92eb41c6b50f8d95c9c4e11eb48c3ae2af3e486cbe",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/NuGet.DependencyResolver.Core.dll",
+          "bytes": 75680,
+          "sha256": "13d0f61e42e69a05b4de7f893a7c36dfdcecd6640759a7627395e8b07c8ec153",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/NuGet.Frameworks.dll",
+          "bytes": 104856,
+          "sha256": "302016f08aefeac28a7b3d29119cdc81b0808a92dbae3f5641080b0d9cb71546",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/NuGet.LibraryModel.dll",
+          "bytes": 46496,
+          "sha256": "202595f4f1b1232b15cdf6971ebf00a34b3f0cc876a743c37bec8224493ad274",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/NuGet.Packaging.dll",
+          "bytes": 631200,
+          "sha256": "a34834155df6f337741c09f0f4d287896377f526db5d81e65739583cba0f2e97",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/NuGet.ProjectModel.dll",
+          "bytes": 187296,
+          "sha256": "b64f85b867605ac9db326445629f2408333309039b07566f464fd45237d9b988",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/NuGet.Protocol.dll",
+          "bytes": 739744,
+          "sha256": "15d7d4a189ec8b25b607834356f22024cba362063f6590c2101abc93f1898fe2",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/NuGet.Versioning.dll",
+          "bytes": 48032,
+          "sha256": "508117b02f8ec06c8940b0c181fd19340b8056818a3a17b202267e118ac7afbd",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/pl/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 32256,
+          "sha256": "814120ede84e43e6f4d4cd39ceb3004bd3cf44f310d48bd64b5bebd00a8746eb",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/pt-BR/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 30208,
+          "sha256": "8cb6cd47c92db94cbb7680c499e542b46452042ed3a137cf7639e58dba5ca265",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/ru/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 39424,
+          "sha256": "3a1b8e39cc6bf786964f23c1e5ea81e329038208a40f623f6e8c9f72ac28a80e",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/System.Collections.Immutable.dll",
+          "bytes": 180624,
+          "sha256": "a411a3e3aac75d3211d8a58810b5fe13329e9d0be62cc62c61fb1b3351e11fbd",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/System.Reflection.Metadata.dll",
+          "bytes": 451976,
+          "sha256": "4952eb4ad75bdf549fc17fd992dabbffbb7a3c8943982c0cbc27b1931cd00deb",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/tr/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 30208,
+          "sha256": "132b09801f90550ae94fcfea0813ceedb3c3d23906164dc7486f48911c794d09",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/zh-Hans/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 27136,
+          "sha256": "a55e336f7607e8b0caa23e3760ebc33a024b7efd5081ba9b0a663886bf37dda4",
+          "elf": false
+        },
+        {
+          "path": "tools/net472/zh-Hant/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 27648,
+          "sha256": "174f78ea53db74d20ef79674fb7c5fd2ae20f5d7da3c1f0bcfd7d1649bf756ce",
+          "elf": false
+        },
+        {
+          "path": "tools/netcoreapp2.1/cs/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 29696,
+          "sha256": "db3995eb2d24a3f95ad266d1a90b42ff90265748715b5cb665a163f652ac5f09",
+          "elf": false
+        },
+        {
+          "path": "tools/netcoreapp2.1/de/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 31232,
+          "sha256": "fedc1fde704d3332d8f677bb78b81966f67a67923d40972d5824e134f9aa5d02",
+          "elf": false
+        },
+        {
+          "path": "tools/netcoreapp2.1/es/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 30720,
+          "sha256": "7f6a0b6334ee0b430515ceee223c952f1ef0c3a5d53144fc0a7c092de6801173",
+          "elf": false
+        },
+        {
+          "path": "tools/netcoreapp2.1/fr/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 31744,
+          "sha256": "2d8446ab96ee6a0952e905f3ccbaf1a1fd15798039518322d67ee9cf0dced941",
+          "elf": false
+        },
+        {
+          "path": "tools/netcoreapp2.1/it/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 31232,
+          "sha256": "742658db32d7b44e3d4377c9a578588cbcc9c2837368d8a5e91f9a56138802d2",
+          "elf": false
+        },
+        {
+          "path": "tools/netcoreapp2.1/ja/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 35328,
+          "sha256": "d90282f1faa0bd5dc4acefcf846312d62e2fb9a04bfb7d7ad139f8cd46a7c796",
+          "elf": false
+        },
+        {
+          "path": "tools/netcoreapp2.1/ko/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 32256,
+          "sha256": "a2584c77feac79f7b5fc6df10c4eb637890ef1dc63c45e3d25e7fec786b83384",
+          "elf": false
+        },
+        {
+          "path": "tools/netcoreapp2.1/Microsoft.NET.Build.Tasks.dll",
+          "bytes": 316416,
+          "sha256": "b0d3982cc4091f32d113f87421a73f009f4ec9b494f3da9e82acd6f9a6678248",
+          "elf": false
+        },
+        {
+          "path": "tools/netcoreapp2.1/pl/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 32256,
+          "sha256": "1dd0c2c2b773bdd72e16dad4ecb51e527ec1b87dee7279f5e8c95c72b7fad261",
+          "elf": false
+        },
+        {
+          "path": "tools/netcoreapp2.1/pt-BR/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 30208,
+          "sha256": "885ae0a0bc27ff076423695df4661d649e557f7541999cdd49b4976c43b11915",
+          "elf": false
+        },
+        {
+          "path": "tools/netcoreapp2.1/ru/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 39424,
+          "sha256": "4bad77899c161a6c711ac1731bd77fc7a7f42a6c6038a92adbfb1dfea831070e",
+          "elf": false
+        },
+        {
+          "path": "tools/netcoreapp2.1/tr/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 30208,
+          "sha256": "0fc77412f2c27bfda5dd6c69f802c4c1210ec3c6eff0125b168664936d608211",
+          "elf": false
+        },
+        {
+          "path": "tools/netcoreapp2.1/zh-Hans/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 27136,
+          "sha256": "244ca3a21868251c52c8e7bfb59913a85ade43409d05c3f59024498f89ace2fd",
+          "elf": false
+        },
+        {
+          "path": "tools/netcoreapp2.1/zh-Hant/Microsoft.NET.Build.Tasks.resources.dll",
+          "bytes": 27648,
+          "sha256": "c80f37055ba1e7f39fe8840e9ca5d556e8524ae9f81afcaf9106e9a8be682053",
+          "elf": false
+        },
+        {
+          "path": "Icon.png",
+          "bytes": 7006,
+          "sha256": "3356b59b6d9c24db3a22398c0fb3430724052fe75ae5e8430ee8ede2fb713356",
+          "elf": false
+        },
+        {
+          "path": "[Content_Types].xml",
+          "bytes": 779,
+          "sha256": "07b6bc84c8c27f1e53718c2e5a54f51fae324dbfa441aacfdd39eec445a92151",
+          "elf": false
+        },
+        {
+          "path": "package/services/metadata/core-properties/8a6ba594a0144518bf95abd6ed02e904.psmdcp",
+          "bytes": 682,
+          "sha256": "dfde8b29097d75e2f9d4dd693c1d2ab5bb67a6da186d16c55b26a50564751442",
+          "elf": false
+        }
+      ]
+    },
+    "sourceGeneratedBundledVersions": {
+      "path": "source-outputs/core-sdk31/artifacts/bin/redist/Release/dotnet/sdk/3.1.426/Microsoft.NETCoreSdk.BundledVersions.props",
+      "bytes": 12555,
+      "sha256": "834895cfd875963252096532e018a7c382b4f48839b58e91d80c723e1894131d",
+      "identicalBootstrapPath": null
+    },
+    "packageEntries": 96,
+    "packageContainsElf": false,
+    "certificateCases": [
+      "trusted localhost control connects using default SslStream validation",
+      "untrusted self-signed rejects",
+      "expired rejects",
+      "wrong hostname rejects",
+      "invalid CA chain rejects and reports managed InvalidBasicConstraints",
+      "invalid CA TLS rejects"
+    ],
+    "normalReadyToRunEnabledInRuntimeOnlyCertificateProbe": true,
+    "certificateFixtureHasPermissiveCallback": false,
+    "certificateTrust": "Fresh ephemeral HOME; only temporary CurrentUser Root/CA public test certificates; cleanup in finally; no host/system trust writes; network=none, loopback only"
+  },
+  "sourcePackageByteHashes": {
+    "receipt": ".build/core3-musl-source-phase/reusable-package/source-package-byte-hashes.json",
+    "retainedNuGetCount": 238,
+    "restoredForeignElfCount": 9,
+    "restoredToolPathElfCount": 0,
+    "classification": "Restored foreign x64 OpenSSL runtime assets are inventoried. They are neither native ARM64 tool selections nor shipped in the source component package; no broad foreign-ELF execution claim is inferred from restore."
+  },
+  "bootstrap": {
+    "sdk": "3.1.425",
+    "runtime": "official linux-musl-arm64 3.1.32",
+    "importedSdkPurpose": "PE/data-only private bootstrap; every original SDK ELF excluded; private ReadyToRun=0 only",
+    "privateBundledRid": "linux-arm64 to linux-musl-arm64, exact original/adapted byte hashes pinned",
+    "sourceGlobalJsonModified": false,
+    "sourceGlobalPins": "SDK/core-sdk3.1.425 + Arcade1.0.0-beta.22558.6",
+    "sourceCompileProperties": "NETCoreSdkRuntimeIdentifier=linux-musl-arm64; ToolsRID=linux-musl-arm64; DotNetBuildFromSource=true",
+    "packageModeDiagnosticMetadata": "Explicit GitCommitHash=exact commit; GitCommitCount=0 for archive-only diagnostic, not release provenance; SDK component suffix servicing.22566.17; normal optimization remains a final producer gate"
+  },
+  "archiveDistinction": {
+    "pristineSourceInputs": "SDK/core-sdk original full pinned source archives; CLI/toolset/MSBuild separately downloaded exact full commit archives. Component global.json pins remain original.",
+    "publishedUsedSourceArchive": "Retained source-only glibc release archive SHA25610e235b2... inspected for full source/license coverage. It includes prior producer adaptations: for example MSBuild global SDK422, while pristine upstream at same commit requests420. No compiled glibc output or prior adapted source was used as a compiled input in this checkpoint."
+  },
+  "pendingFullGraph": {
+    "completeSdkToolsetLayout": false,
+    "fullCoreClrJitCrossgenSourceBuild": false,
+    "sourceBuiltCompilerMsbuildNugetAndOtherToolsetDependencies": false,
+    "actualNextDependency": "Source-build exact MSBuild16.7.3 and its compatible Arcade toolset, then CLI/toolset and full core-sdk GenerateLayout using local source-built inputs.",
+    "failedBoundedAttempts": [
+      "Original CLI defaults request unpublished Microsoft.Build16.7.0-preview-20265-03; approximate matches were rejected by NU1603, never accepted as outputs.",
+      "Authoritative source-build coherent Microsoft.Build16.7.3 is also absent from configured public feeds; source compilation is required.",
+      "Pristine six-project MSBuild.SourceBuild solution restored its project dependency graph but Build failed resolving exact Arcade1.0.0-beta.21065.4. The source-build Arcade override/source bootstrap route remains work to do."
+    ],
+    "diagnosticOverrides": "CLI/toolset original tools SDK424 and pristine MSBuild420 were preserved; exploratory direct commands explicitly used private425. Coherent MSBuild16.7.3 comes from pinned source-build Version.Details.xml, not an approximate package upgrade. One exact retired dotnet-core index was mapped to official dotnet-public with version pins unchanged.",
+    "architectureBlockerEstablished": false,
+    "scope": "Concrete dependency work; neither EOL nor absent published SDK is treated as proof a port cannot be built."
+  },
+  "remainingGates": [
+    "Complete genuine SDK/core-sdk/toolset source producer and full used-source/license audit",
+    "Full native runtime/JIT/crossgen and ASP.NET producer graph",
+    "Normal optimization and native apphost in final SDK",
+    "Native x64 and ARM64 final Docker-default GHA producer/consumer qualification",
+    "Core3.0 and x64 certificate negative-case qualification",
+    "Archive/APK/signing/OCI/public/installer admission"
+  ],
+  "retainedInputs": [
+    {
+      "path": ".build/core3-musl-source-phase/bootstrap-sdk425.tar.gz",
+      "bytes": 123420296,
+      "sha256": "9ab32b375adc00abb0d984243a6b5fe583983813f7f419d380b5106b21a158b8"
+    },
+    {
+      "path": ".build/core3-musl-investigation/product-runtime.tar.gz",
+      "bytes": 30448634,
+      "sha256": "412851a6693958432488629c9fb84ce75981aadc8264494d9c5966e29dea3304"
+    },
+    {
+      "path": ".build/core3-musl-investigation/sdk31.tar.gz",
+      "bytes": 744139,
+      "sha256": "5609b7399f486be1249b188d96eab5399537b6409a60dd1cf62492c32e53d40b"
+    },
+    {
+      "path": ".build/core3-musl-investigation/core-sdk31.tar.gz",
+      "bytes": 256933,
+      "sha256": "bddadfc3d00fa511e6a5df9eacc62cb77cd84fd2d7ead194078982ea85ffcfa8"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/cli31.tar.gz",
+      "bytes": 1163498,
+      "sha256": "59c8e27934fecd00bdde4f2daf041b82fea576b63952f5977a045606a848a977"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/toolset31.tar.gz",
+      "bytes": 157163,
+      "sha256": "3f07469641879679c1102350dae0b6f4dcca4153403162b2ab44ff58f75b0f8a"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/msbuild31.tar.gz",
+      "bytes": 6979495,
+      "sha256": "5c981e60f639198122c15d7fce5d2d06268405a6c41c539a5b8721f817742dd6"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/arcade-sdk31.tar.gz",
+      "bytes": 10190242,
+      "sha256": "1d8f00ef6afc2c78d19babe37afd33e743d4254e6794731346102b2b7ee13f50"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/arcade-cli31.tar.gz",
+      "bytes": 10192891,
+      "sha256": "a328fb165a8e1fdff99b72776ecaa871d1d32e048806dce1f44a6ee190fcbefb"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/arcade-toolset31.tar.gz",
+      "bytes": 10192927,
+      "sha256": "eb899d771412d723f8f836a86ba7e53da3879976b3bc46d70cd510e704152c15"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/retained-glibc31-source-only.tar.gz",
+      "bytes": 292507261,
+      "sha256": "10e235b2c3d08f844aafbcbc6abd9a163fbc13dcc80ea3cd44853f777ec024a1"
+    }
+  ],
+  "evidence": [
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/elf-closure.json",
+      "bytes": 60363,
+      "sha256": "0cc2f6af25059320115f9f6dd03d0a4a2f1f3946bee8864801776bb0390e053a"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/private-bootstrap.json",
+      "bytes": 449852,
+      "sha256": "cf51b5ff682273a5449f7ee75bba6d1b39b122af11d34c096257b34fab7974ae"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/results.json",
+      "bytes": 7996,
+      "sha256": "f3096554d110d89e754f15efe0dc7f495b601e52dd094998526dcda1ab5f34d9"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/source-outputs.json",
+      "bytes": 24337,
+      "sha256": "cf1316aed6847c8d45316ef4c1fd7bd6ac3ff62fe9bac967206db3259c7b13ad"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/source-package-byte-hashes.json",
+      "bytes": 120796,
+      "sha256": "7e247fb2d8972078c023f21ee4862d92c790ad9ea2616e20ce109d3d988bcde3"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/bootstrap-info.log",
+      "bytes": 723,
+      "sha256": "a133d222e49d075e83f55ae8e4486870c95bf1261301d58987397dc074e184d7"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/sdk31-restore.log",
+      "bytes": 2542,
+      "sha256": "aff2068598bc7273ef607a4e74336277e5a8d3e673139354af4dc44013cbc7a1"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/sdk31-source-build.log",
+      "bytes": 2958,
+      "sha256": "fb8001e16c79c475c48b3c58621ec3a1aa00f58036a32ca382189f4d2599dcce"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/core-sdk31-restore.log",
+      "bytes": 2597,
+      "sha256": "97408baf179862915dc8f5a0fbb0052e2775a3b2c83bf3cf4fdb7ca550efe9a2"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/core-sdk31-source-build.log",
+      "bytes": 2732,
+      "sha256": "34d893b725cf283c2a8df03585f323ed2478338e93ffe99d3968fa5869a00923"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/evaluated-properties.txt",
+      "bytes": 632,
+      "sha256": "19cac534d246900df119858c8670ba4196d8a4772844ba5de1d6410021dd90d1"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/record-properties.targets",
+      "bytes": 424,
+      "sha256": "8d9d7147be087ac60a0d0a9ccfd335164458cfd6fc7333be186617d02fa66626"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-negative/elf-closure.json",
+      "bytes": 60363,
+      "sha256": "3737ddbc8cc25790ed37eda60e153bd5e526ef597b941d0eb4369943a178fa3d"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-negative/private-bootstrap.json",
+      "bytes": 449852,
+      "sha256": "cf51b5ff682273a5449f7ee75bba6d1b39b122af11d34c096257b34fab7974ae"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-negative/results.json",
+      "bytes": 1870,
+      "sha256": "c4faa8c6123f77b0d1b176386b93640b5ae255083870cb4fd8917a7ad029e896"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-negative/source-package-byte-hashes.json",
+      "bytes": 87,
+      "sha256": "f5af06d9f412b30b5ee7a52a03312c0b4f791df67a547b286b277c37e7ea8a8b"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-negative/bootstrap-info.log",
+      "bytes": 723,
+      "sha256": "9f632f234eabf65628f6674147160ebda2383af8de1d1905abf7ce178f515f59"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-negative/compile-negative.log",
+      "bytes": 421,
+      "sha256": "7f715d5f7005b41c6d9b962f9d8ca4d136d7f077d173704a356e8b6260c599ae"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-negative/negative-worker-execution.log",
+      "bytes": 1000,
+      "sha256": "62ed981c54141e73932e74bc71b9b84213485918db2ddb703679e50ad0fb6778"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-negative-consumer/application-inputs.json",
+      "bytes": 565,
+      "sha256": "84a0e55922d13d3195cc354ece5b54f875d1dadf61d83b014911259a7caba773"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-negative-consumer/elf-closure.json",
+      "bytes": 60285,
+      "sha256": "be78affc3ad8d7918ca065f66192e5db8a28b57c44a5fdd4eabafdbf8f148634"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-negative-consumer/results.json",
+      "bytes": 1267,
+      "sha256": "5255252caacc65eb79f13fdf90c53d9b19dd1722ff841335598fd3ec9cce8c63"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-negative-consumer/runtime-info.log",
+      "bytes": 582,
+      "sha256": "6b749b1c7da2f3f85e5dff5da3b258da8b3b214bf275a2d62e69cb7f24b9ead6"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-negative-consumer/negative-certificates.log",
+      "bytes": 927,
+      "sha256": "72dc61dbee59bb8a72aab178ff2eff6da4b1fb3797a49ad4dc4245d05cee248c"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-components/elf-closure.json",
+      "bytes": 60363,
+      "sha256": "2c14d8fb4a29277994db176ca350598de7950d0caf3d45d193c70e0272982d8b"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-components/private-bootstrap.json",
+      "bytes": 449852,
+      "sha256": "cf51b5ff682273a5449f7ee75bba6d1b39b122af11d34c096257b34fab7974ae"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-components/results.json",
+      "bytes": 6283,
+      "sha256": "5c62276461246ded50c931e0aa83b7bca0a99b52eff19c54a69c66174f27c1df"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-components/source-outputs.json",
+      "bytes": 1425,
+      "sha256": "5e15b4044568fd89447b7e16314a7eaa369529e83dd5ae77195c532bda7b242a"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-components/source-package-byte-hashes.json",
+      "bytes": 103463,
+      "sha256": "921da1f8cf595a917bfaa53a2cf7934dd0923af2c8d1b6032d814c48fdd6a92f"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-components/bootstrap-info.log",
+      "bytes": 723,
+      "sha256": "7261d049a3ea20b94de98d2f049c8c860458889046328fd2486abc593e79feda"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-components/sdk31-restore.log",
+      "bytes": 1859,
+      "sha256": "af9a8d6a2d87c2efce410174bdf7009d82ce09647d873bf793f0c042b08541a6"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-components/sdk31-source-build.log",
+      "bytes": 1844,
+      "sha256": "685719fb69da26f46ffbdf6bd5bd9e4b385963bd75913dede4a8aaaf6dcca4ad"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-components/core-sdk31-restore.log",
+      "bytes": 1817,
+      "sha256": "226abdf61d46baf7cbeb78c4b3bcbfb5e36f89516ac5371c42207880e611ad4a"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-components/core-sdk31-source-build.log",
+      "bytes": 1795,
+      "sha256": "a6b1ac2debd5aaa4b7390ba3b82fc2714b0a3c6bfb0a3b2fc5da752e0efc4485"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-components/evaluated-properties.txt",
+      "bytes": 394,
+      "sha256": "729d33e6ea004f6658e298ea7953157113de63b43b73d48ba99e27d0f63c9057"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-components/record-properties.targets",
+      "bytes": 427,
+      "sha256": "e49e1ee15362b239d4bb3a4c900f7fb46b883578bc5a6aa6ef5cd9b94ed1cbea"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/source-outputs/sdk31/artifacts/bin/Release/Sdks/Microsoft.NET.Sdk/tools/netcoreapp2.1/Microsoft.NET.Build.Tasks.dll",
+      "bytes": 316416,
+      "sha256": "b0d3982cc4091f32d113f87421a73f009f4ec9b494f3da9e82acd6f9a6678248"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/source-outputs/sdk31/artifacts/bin/Release/Sdks/Microsoft.NET.Sdk/tools/net472/Microsoft.NET.Build.Tasks.dll",
+      "bytes": 314880,
+      "sha256": "e988573e2e459ba5457ecca187573986c8cc2bb1ea4108dadf4b9594ee4b57b3"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/source-outputs/sdk31/artifacts/packages/Release/NonShipping/Microsoft.NET.Sdk.3.1.426-servicing.22566.17.nupkg",
+      "bytes": 2055292,
+      "sha256": "523f226ca5a579888f2c99b7554af29ec7c5fa3d98eb8b7b9e665fdc16dab6d1"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/source-outputs/sdk31/artifacts/obj/Release/Sdks/Microsoft.NET.Sdk/tools/Release/netcoreapp2.1/Microsoft.NET.Build.Tasks.dll",
+      "bytes": 316416,
+      "sha256": "b0d3982cc4091f32d113f87421a73f009f4ec9b494f3da9e82acd6f9a6678248"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/source-outputs/sdk31/artifacts/obj/Release/Sdks/Microsoft.NET.Sdk/tools/Release/net472/Microsoft.NET.Build.Tasks.dll",
+      "bytes": 314880,
+      "sha256": "e988573e2e459ba5457ecca187573986c8cc2bb1ea4108dadf4b9594ee4b57b3"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/source-outputs/core-sdk31/artifacts/bin/redist/Release/dotnet/sdk/3.1.426/Microsoft.NETCoreSdk.BundledVersions.props",
+      "bytes": 12555,
+      "sha256": "834895cfd875963252096532e018a7c382b4f48839b58e91d80c723e1894131d"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/source-outputs/core-sdk31/artifacts/tasks/bin/core-sdk-tasks/Release/netcoreapp3.1/core-sdk-tasks.dll",
+      "bytes": 68608,
+      "sha256": "0d7663d872f22c2c8444e8192478a612b903375b2479d1f1948a8092e54cbebf"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/reusable-package/source-outputs/core-sdk31/artifacts/tasks/obj/core-sdk-tasks/Release/netcoreapp3.1/core-sdk-tasks.dll",
+      "bytes": 68608,
+      "sha256": "0d7663d872f22c2c8444e8192478a612b903375b2479d1f1948a8092e54cbebf"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/bootstrap425-input.json",
+      "bytes": 485,
+      "sha256": "5a6eed48ed60e6caba8317ea762986d70ecbe11fc71385544783fe7a6f745e93"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/toolset-source-inputs.json",
+      "bytes": 766,
+      "sha256": "229397456315903de9a71fcd490acdefd17ca4b272b50305af742e98fffead31"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/managed-dependency-source-inputs.json",
+      "bytes": 3281,
+      "sha256": "57afafba977af9582d830f8201635398ae0292f9b025f21b454c04a2726bed37"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/retained-source-inventory.json",
+      "bytes": 25697576,
+      "sha256": "835d7d4f58c88dd0dabb7b8b6aebfa0d1b0bb9193a91908faf51ab60bb107853"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/graph-one/results.json",
+      "bytes": 10721,
+      "sha256": "f9fae9cc48ab051d573e8d7aa4a6f3740a4cb0a34250506c3123e302ce180c76"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/graph-one/cli31-restore.log",
+      "bytes": 6027,
+      "sha256": "c2a9a84bacc921d0ca9899845c98b3d2638cb790cecd93c503f227b4bde84658"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/graph-one/toolset31-restore.log",
+      "bytes": 6005,
+      "sha256": "d9a0ad5973ab66f0a47f4bbfc006e7e71ff43ad44bc230b9d1515330b0f65e8a"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/coherent-two/coherent-dependency-override.json",
+      "bytes": 532,
+      "sha256": "4ab65ea2e53a77997ab860905fd812564bd42bfa8bb449fcdf5b4f9d76d13c17"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/coherent-two/results.json",
+      "bytes": 10551,
+      "sha256": "c4deb9bf4dc0ee8b84dc8bfdfaa9471eefe87c6439d3add1db84093cf395caff"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/coherent-two/cli31-restore.log",
+      "bytes": 6149,
+      "sha256": "c91e23ad633b6800b438f7f83b86fbf5890bafbbfb067103cd842a43fe48316e"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/msbuild-four/coherent-dependency-override.json",
+      "bytes": 532,
+      "sha256": "4ab65ea2e53a77997ab860905fd812564bd42bfa8bb449fcdf5b4f9d76d13c17"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/msbuild-four/private-retired-feed-transport.json",
+      "bytes": 413,
+      "sha256": "e9af757a4efaedf5c64f329dc0ad7471e592b30137dd7e930f954266c04c715e"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/msbuild-four/results.json",
+      "bytes": 7200,
+      "sha256": "3225a40ed864b9908542f477ae131be8393ae0285c7d4e032eff4202d1d2bb08"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/msbuild-four/cli31-restore.log",
+      "bytes": 3067,
+      "sha256": "05b3cc8858e723f11a33ab22a7ffb0410966e5d66ee72292cc74448f8a5051a6"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/msbuild-four/msbuild31-restore.log",
+      "bytes": 5079,
+      "sha256": "79bc257155466fa15dea153fc8dc2cc47eb0d1f4eed7395bc8a24c276bddf8af"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/msbuild-four/msbuild31-source-build.log",
+      "bytes": 7350,
+      "sha256": "423ef527fc9f743025936e6af9ec3d525784ad9f1b5908973383d4418991e65e"
+    }
+  ]
+}

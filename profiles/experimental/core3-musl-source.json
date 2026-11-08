@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "kind": "core31-musl-source-component-experiment",
+  "issue": 35,
+  "qualification": false,
+  "releaseAdmission": false,
+  "nativeArchitecture": "aarch64",
+  "alpine": "3.24.4",
+  "bootstrapSdk": {
+    "version": "3.1.425",
+    "name": "bootstrap-sdk425.tar.gz",
+    "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/3.1.425/dotnet-sdk-3.1.425-linux-arm64.tar.gz",
+    "bytes": 123420296,
+    "sha256": "9ab32b375adc00abb0d984243a6b5fe583983813f7f419d380b5106b21a158b8",
+    "sha512": "f3c18acc094c19f3887f6598c34c9a2e1cfa94055f77aa4deae7e51e8d760ca87af7185cc9ed102e08f04d35f9a558894f04f7a44fa56b91232ccc895f4e5a5c"
+  },
+  "bootstrapRuntime": {
+    "version": "3.1.32",
+    "name": "product-runtime.tar.gz",
+    "url": "https://builds.dotnet.microsoft.com/dotnet/Runtime/3.1.32/dotnet-runtime-3.1.32-linux-musl-arm64.tar.gz",
+    "bytes": 30448634,
+    "sha256": "412851a6693958432488629c9fb84ce75981aadc8264494d9c5966e29dea3304",
+    "sha512": "c6699ddb9297340c2c9539fcc9eeb8b898397c26f2ca2f6162605bbbf54e3e8957148d93ef353f79ceb76c37ccfd8f7648383be64b6112de757312689de3cebf"
+  },
+  "privateBootstrapRidMetadata": {
+    "originalSha256": "ebb6c9cdfec0c2e15b336e39ea3176e9ee319bcb907cd419d699825525de544c",
+    "adaptedSha256": "1792caa3a2da9b9657fd5563e213fb573020b63e03adf93cf23ed5fed9e73136",
+    "property": "NETCoreSdkRuntimeIdentifier",
+    "original": "linux-arm64",
+    "adapted": "linux-musl-arm64"
+  },
+  "nativeCandidates": {
+    "crypto": {"relativePath": "candidate-native/corefx31-OpenSsl.so", "bytes": 174896, "sha256": "5df3466968f54e76e5832f29d66800b794ea3032b2365c2683cf257800cffd38"},
+    "trace": {"relativePath": "candidate-native/coreclr31-traceptprovider.so", "bytes": 881704, "sha256": "2e9c1d3acc1bd91b49f4881cc190542c4246c2aaaa72ee4d7a7812b665485ed1"}
+  },
+  "sourceInputs": [
+    {"name": "sdk31", "repository": "https://github.com/dotnet/sdk", "commit": "eb0cfa780959c0c63217a7d8225dc260e7f6ce65", "bytes": 744139, "sha256": "5609b7399f486be1249b188d96eab5399537b6409a60dd1cf62492c32e53d40b"},
+    {"name": "core-sdk31", "repository": "https://github.com/dotnet/core-sdk", "commit": "e81f6c85654f91c5eab0cb78386db4b32df63b4b", "bytes": 256933, "sha256": "bddadfc3d00fa511e6a5df9eacc62cb77cd84fd2d7ead194078982ea85ffcfa8"}
+  ],
+  "originalComponentGlobalPins": {"dotnet": "3.1.425", "arcade": "1.0.0-beta.22558.6", "arcadeSourceCommit": "7120a7d1b74dcbce97e34dded2c9e9011639b175"},
+  "negativeFixture": {"path": "scripts/musl-negative-certificates.cs", "sha256": "3c88ee9eab40b2e096b96c73316e8af8f3a58ea11b40fa72a84d6c5a4de647cc"},
+  "scope": "Imported PE/data is only a private bootstrap; every SDK ELF is excluded and ReadyToRun is disabled only in that bootstrap. Outputs are source component experiments, never a complete SDK product. Native two-CPU producer and consumer qualification remain required."
+}
