@@ -1,0 +1,1497 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdk6-closed-original-package-embedded-source-policy",
+  "sdkVersion": "6.0.136",
+  "packages": {
+    "187c670f53e56f7d862565564afd18e752a0b656fe71d2a03985416194a0545e": {
+      "id": "Microsoft.Win32.SystemEvents",
+      "version": "4.7.0",
+      "fingerprint": {
+        "bytes": 148460,
+        "sha256": "187c670f53e56f7d862565564afd18e752a0b656fe71d2a03985416194a0545e",
+        "sha512": "3dc95211fd597cbeb7b8498e79d58c8dc373767d129252f1858f223fe9228bef56c4dd48e613694581fd197e8c1ec428ec8788a451b9c248e2073c7603c994d4"
+      },
+      "nuspec": {
+        "path": "Microsoft.Win32.SystemEvents.nuspec",
+        "bytes": 1979,
+        "sha256": "5458fce1dc28afb234d8a37f3e914bc68338e624e30686c6788ee4f1c9563c5e",
+        "sha512": "bf8c196bee11efc2a3f1ee06e69ebb9877341bfe9cfebe8cce1384966e66eb0113f4404e8b0e2d6fbffe1059a91f653f3243a1b5dcea077cf5d5bb52c4790c05"
+      },
+      "originalRepository": null,
+      "sourceCommits": [
+        "0f7f38c4fd323b26da10cce95f857f77f0f09b48"
+      ],
+      "originalLicenseDeclaration": {
+        "license": "MIT",
+        "licenseUrl": "https://licenses.nuget.org/MIT",
+        "requireLicenseAcceptance": "false"
+      },
+      "notices": {
+        "LICENSE.TXT": {
+          "bytes": 1139,
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+          "sha512": "430f0a57ff6be9cb03316eb7312b70f5a2eb44175edacac242a9fd329257ae52c03de8add8a957cd3a336f99fd638eb89d8d3d1338525d5be21d8f4e22f86f97"
+        },
+        "THIRD-PARTY-NOTICES.TXT": {
+          "bytes": 18886,
+          "sha256": "388c07f579998286e5df706a2e68bf6e01100187ccb0ff0310e26c3383f7b2b2",
+          "sha512": "e67294112b0def51bdf508130bd9fa35a998f3fd834bca0073b3aa6ef3febba30700756226491a577cd54455dd1600fa23d863351be1913096c8d2e00d3ad7ab"
+        }
+      },
+      "members": {
+        "lib/netstandard2.0/Microsoft.Win32.SystemEvents.dll": {
+          "fingerprint": {
+            "bytes": 23112,
+            "sha256": "e7a3165fb182ba25be3b410fce4528d238fa4ff9a1a5507ac7e50542d692daa1",
+            "sha512": "2497d654ce138f5db0116ceb60e84e8c53467f9b05b3f0819c49bcddd8d7b467b4206a26879912e01a42fffdf915a93d623180e06dcdc804bb51a470535dce89"
+          },
+          "embeddedSource": {
+            "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "Microsoft.Win32.SystemEvents",
+          "assemblyVersion": "4.0.2.0"
+        },
+        "runtimes/win/lib/netcoreapp3.0/Microsoft.Win32.SystemEvents.dll": {
+          "fingerprint": {
+            "bytes": 50248,
+            "sha256": "1d5bbfb227f20e866cf25f649a059b61c3f35336f69ebd19b8ede7b6e14a7414",
+            "sha512": "5ed13debf26f120c80c09df572571b3bb05fcabee7b1c7d945d2d767b13a2fe1c5861cad4fa1fea1658357fb025f9237f7ae2de510db120cff6ef4041d5f6707"
+          },
+          "embeddedSource": {
+            "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "Microsoft.Win32.SystemEvents",
+          "assemblyVersion": "4.0.2.0"
+        }
+      }
+    },
+    "c96f86bd0ada9d179aa8fc39645bfe9928c1c90e72d6944b974e492047f7b585": {
+      "id": "System.Windows.Extensions",
+      "version": "4.7.0",
+      "fingerprint": {
+        "bytes": 96529,
+        "sha256": "c96f86bd0ada9d179aa8fc39645bfe9928c1c90e72d6944b974e492047f7b585",
+        "sha512": "f7bc7cafc5f542a11457a27fdb96ab8a8c8d06851df6d8bc3ac40c2038abc71907feb64ad9ec27ca940d6e51b316f04d2dc3d24cf1b2b5173cde9e20b6aa0709"
+      },
+      "nuspec": {
+        "path": "System.Windows.Extensions.nuspec",
+        "bytes": 1370,
+        "sha256": "ae16b9005c77f81c2670760598207129b6c9214295fc81f55445e7f955137d4a",
+        "sha512": "9f74ee2db6794d61b2e63890bef5fd86f1915fc8743340558382d6387dffb1822a176a862916bb527f936041a6d1da2372a30f9a728034a84d786964c10424e8"
+      },
+      "originalRepository": null,
+      "sourceCommits": [
+        "0f7f38c4fd323b26da10cce95f857f77f0f09b48"
+      ],
+      "originalLicenseDeclaration": {
+        "license": "MIT",
+        "licenseUrl": "https://licenses.nuget.org/MIT",
+        "requireLicenseAcceptance": "false"
+      },
+      "notices": {
+        "LICENSE.TXT": {
+          "bytes": 1139,
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+          "sha512": "430f0a57ff6be9cb03316eb7312b70f5a2eb44175edacac242a9fd329257ae52c03de8add8a957cd3a336f99fd638eb89d8d3d1338525d5be21d8f4e22f86f97"
+        },
+        "THIRD-PARTY-NOTICES.TXT": {
+          "bytes": 18886,
+          "sha256": "388c07f579998286e5df706a2e68bf6e01100187ccb0ff0310e26c3383f7b2b2",
+          "sha512": "e67294112b0def51bdf508130bd9fa35a998f3fd834bca0073b3aa6ef3febba30700756226491a577cd54455dd1600fa23d863351be1913096c8d2e00d3ad7ab"
+        }
+      },
+      "members": {
+        "lib/netcoreapp3.0/System.Windows.Extensions.dll": {
+          "fingerprint": {
+            "bytes": 25976,
+            "sha256": "abbe8146fa3f638ee9f5aaae85182d72de7807c9f0a06311ef14eb4e5f3cb3b0",
+            "sha512": "90c6091172c6606336f9da42c5ce5f825d698ab493224e4f9adde905474719957b13e42640338d323018652d6b46ef22e6ed006a450ad50c285ba2b56d6c69d9"
+          },
+          "embeddedSource": {
+            "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "System.Windows.Extensions",
+          "assemblyVersion": "4.0.1.0"
+        },
+        "runtimes/win/lib/netcoreapp3.0/System.Windows.Extensions.dll": {
+          "fingerprint": {
+            "bytes": 56184,
+            "sha256": "b0b15ee123d24a220dc3446c96a6273e2fdade71d1f352bf06217bde57778b24",
+            "sha512": "4ed8fb355723824c6e608b38d397c215142d508c80e5000df854200de8f89b44eb4afe5829ea40f7706a6149527dbd8c748ff3af9172d9a20b24958dd94e6484"
+          },
+          "embeddedSource": {
+            "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "System.Windows.Extensions",
+          "assemblyVersion": "4.0.1.0"
+        }
+      }
+    },
+    "12b00f4114e48d1b2271afa1d66005c4c65b13846b47d9c7d3f541f66482cc46": {
+      "id": "System.Resources.Extensions",
+      "version": "4.6.0",
+      "fingerprint": {
+        "bytes": 63640,
+        "sha256": "12b00f4114e48d1b2271afa1d66005c4c65b13846b47d9c7d3f541f66482cc46",
+        "sha512": "7d1e3e6a84e7f7e4bdd996079cdbee765fff91c445ac2a6d204258836b2d7ef66ddc02f5d1b1081c3bddbf4e8ade8048448f48f33a4a57a24b51094edfb58431"
+      },
+      "nuspec": {
+        "path": "System.Resources.Extensions.nuspec",
+        "bytes": 1734,
+        "sha256": "d8580d4a396a7501c4240074b8a1a8aea5394b4a2537ebaf47e3d605d0912e68",
+        "sha512": "a416e087b8f62b1eba7c323c915284529fc773005db566079a497cbe7f3a5dcbd1151ee7957fbbd2f13be40b0c335fa68989da6a1e4c866dc66f3b6c99eed9fd"
+      },
+      "originalRepository": null,
+      "sourceCommits": [
+        "4ac4c0367003fe3973a3648eb0715ddb0e3bbcea"
+      ],
+      "originalLicenseDeclaration": {
+        "license": null,
+        "licenseUrl": "https://github.com/dotnet/corefx/blob/master/LICENSE.TXT",
+        "requireLicenseAcceptance": "false"
+      },
+      "notices": {
+        "LICENSE.TXT": {
+          "bytes": 1139,
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+          "sha512": "430f0a57ff6be9cb03316eb7312b70f5a2eb44175edacac242a9fd329257ae52c03de8add8a957cd3a336f99fd638eb89d8d3d1338525d5be21d8f4e22f86f97"
+        },
+        "THIRD-PARTY-NOTICES.TXT": {
+          "bytes": 18886,
+          "sha256": "388c07f579998286e5df706a2e68bf6e01100187ccb0ff0310e26c3383f7b2b2",
+          "sha512": "e67294112b0def51bdf508130bd9fa35a998f3fd834bca0073b3aa6ef3febba30700756226491a577cd54455dd1600fa23d863351be1913096c8d2e00d3ad7ab"
+        }
+      },
+      "members": {
+        "lib/netstandard2.0/System.Resources.Extensions.dll": {
+          "fingerprint": {
+            "bytes": 54136,
+            "sha256": "92a3eff77affaafde3561282f1c0e082fa6c191a549f2526d6b682085ce6b0a3",
+            "sha512": "afcc7b67dd170a9f5a2f516257b42556ce9d72f8da9402e5134a9317126741c76ca332661ed46762f40cf0986d81632598913ae01069009813a741af7c15c85f"
+          },
+          "embeddedSource": {
+            "sourceCommit": "4ac4c0367003fe3973a3648eb0715ddb0e3bbcea",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "System.Resources.Extensions",
+          "assemblyVersion": "4.0.0.0"
+        }
+      }
+    },
+    "7597ece6adc88f55b578909f623c48da8fb8d5a4a2169680ba0a681026823ae8": {
+      "id": "System.Security.Cryptography.ProtectedData",
+      "version": "4.7.0",
+      "fingerprint": {
+        "bytes": 174838,
+        "sha256": "7597ece6adc88f55b578909f623c48da8fb8d5a4a2169680ba0a681026823ae8",
+        "sha512": "a55ae6196de1e659228213282b1e5b640c8d8337281f914287960bb2057b14aa8e2efa623f789453beae9accbbc8cd6e88022bf9571667f0cd9cc329c2ce3e37"
+      },
+      "nuspec": {
+        "path": "System.Security.Cryptography.ProtectedData.nuspec",
+        "bytes": 2376,
+        "sha256": "b6e7a6dae6a4adeee12a1c7c8d28df8cecd14ff25ffd98ba91d6a3b63d86adef",
+        "sha512": "d1569cd1bd96216cfe1be862f0f2eeb8c435257e7ea9cf917a1b8ba901ed9627b2d63ec82a5e941b1ec551c8ecf395a5318ee13d910a152afaeceed2596e4f9b"
+      },
+      "originalRepository": null,
+      "sourceCommits": [
+        "0f7f38c4fd323b26da10cce95f857f77f0f09b48"
+      ],
+      "originalLicenseDeclaration": {
+        "license": "MIT",
+        "licenseUrl": "https://licenses.nuget.org/MIT",
+        "requireLicenseAcceptance": "false"
+      },
+      "notices": {
+        "LICENSE.TXT": {
+          "bytes": 1139,
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+          "sha512": "430f0a57ff6be9cb03316eb7312b70f5a2eb44175edacac242a9fd329257ae52c03de8add8a957cd3a336f99fd638eb89d8d3d1338525d5be21d8f4e22f86f97"
+        },
+        "THIRD-PARTY-NOTICES.TXT": {
+          "bytes": 18886,
+          "sha256": "388c07f579998286e5df706a2e68bf6e01100187ccb0ff0310e26c3383f7b2b2",
+          "sha512": "e67294112b0def51bdf508130bd9fa35a998f3fd834bca0073b3aa6ef3febba30700756226491a577cd54455dd1600fa23d863351be1913096c8d2e00d3ad7ab"
+        }
+      },
+      "members": {
+        "lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll": {
+          "fingerprint": {
+            "bytes": 17784,
+            "sha256": "8604f8d2e3e932710b634730b29a245c896ceadfd64a62001e582e9171532f13",
+            "sha512": "add27cc766ab6ab8ad93774aa2d8d8ad9fb2c754afb2171544bcf7271d89e7c70dbefbecff82986a6f1c0f53bd20ff0910fb038b37683c916e1dc092f3bb877a"
+          },
+          "embeddedSource": {
+            "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "System.Security.Cryptography.ProtectedData",
+          "assemblyVersion": "4.0.5.0"
+        },
+        "runtimes/win/lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll": {
+          "fingerprint": {
+            "bytes": 25464,
+            "sha256": "a2c267a61ee145d69128220c10b3ddd451a137273126ef7b4bd306059e1727af",
+            "sha512": "9a811203ac66805ba80e09ab63b868291cb3764d0581c09bd19bedd234144ee5050aea1bbda51981505264e35df2af58f9bf2e9a80dc71f18aa7215d5524ca67"
+          },
+          "embeddedSource": {
+            "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "System.Security.Cryptography.ProtectedData",
+          "assemblyVersion": "4.0.5.0"
+        }
+      }
+    },
+    "ad88e9fd499a808e1950b535a1c89afc0897c4b34bf2e84c57c2c11784055b5d": {
+      "id": "System.Configuration.ConfigurationManager",
+      "version": "4.7.0",
+      "fingerprint": {
+        "bytes": 431122,
+        "sha256": "ad88e9fd499a808e1950b535a1c89afc0897c4b34bf2e84c57c2c11784055b5d",
+        "sha512": "0047bbc7777fa368f0a6f352bf994b44bccb1bef81ef7037065eb976977cffe99e6c964407a7d30961f3a8213dd52cf44a81f47b6fc7d698ea5d54444618f6af"
+      },
+      "nuspec": {
+        "path": "System.Configuration.ConfigurationManager.nuspec",
+        "bytes": 2943,
+        "sha256": "3bee06d820470b8e0d195a88cda398bdd1d6851c02b504ec04c94e1e0dcbdf98",
+        "sha512": "e041a850bf72bed9740a3badeec4f869c15b10246c1aa1f270044de59049e27549c8666ac40df0dee424a2c87ad6bafd1bec58727e284d3f6dc1a13ab91644cb"
+      },
+      "originalRepository": null,
+      "sourceCommits": [
+        "0f7f38c4fd323b26da10cce95f857f77f0f09b48"
+      ],
+      "originalLicenseDeclaration": {
+        "license": "MIT",
+        "licenseUrl": "https://licenses.nuget.org/MIT",
+        "requireLicenseAcceptance": "false"
+      },
+      "notices": {
+        "LICENSE.TXT": {
+          "bytes": 1139,
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+          "sha512": "430f0a57ff6be9cb03316eb7312b70f5a2eb44175edacac242a9fd329257ae52c03de8add8a957cd3a336f99fd638eb89d8d3d1338525d5be21d8f4e22f86f97"
+        },
+        "THIRD-PARTY-NOTICES.TXT": {
+          "bytes": 18886,
+          "sha256": "388c07f579998286e5df706a2e68bf6e01100187ccb0ff0310e26c3383f7b2b2",
+          "sha512": "e67294112b0def51bdf508130bd9fa35a998f3fd834bca0073b3aa6ef3febba30700756226491a577cd54455dd1600fa23d863351be1913096c8d2e00d3ad7ab"
+        }
+      },
+      "members": {
+        "lib/netstandard2.0/System.Configuration.ConfigurationManager.dll": {
+          "fingerprint": {
+            "bytes": 375912,
+            "sha256": "4668f89524fcb4d71950e0ad7e0d56e5e5db2c70e395ad49f7db6a8164cc50d6",
+            "sha512": "37b143c9ff3d06d87b07bd2118a22b48f7da590e5ae0c03d40a9b9bbbe45a184f091a23fb6cb7cf0ff8ba68e06815078d8e0738caa4529666e2c98c6f7f057a0"
+          },
+          "embeddedSource": {
+            "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "System.Configuration.ConfigurationManager",
+          "assemblyVersion": "4.0.3.0"
+        }
+      }
+    },
+    "0f7a86fb101eefc9591ef95ca3d8072b64c400cdfbd24d3d73af92422f3bdc79": {
+      "id": "System.Drawing.Common",
+      "version": "4.7.0",
+      "fingerprint": {
+        "bytes": 1241693,
+        "sha256": "0f7a86fb101eefc9591ef95ca3d8072b64c400cdfbd24d3d73af92422f3bdc79",
+        "sha512": "5ca48fb9622fbe9c7c52e93902879af730c356bb276b65570d774f8786c59d75e6ad993ce2af477f9611a8e97967c12373afd0a8cb8a9f1d6e63505da4bed334"
+      },
+      "nuspec": {
+        "path": "System.Drawing.Common.nuspec",
+        "bytes": 2418,
+        "sha256": "24279ac87923b0955f7bf8325b640fd4dd5024b665788f5449300696ef6220f3",
+        "sha512": "ee505be204daf7d55bbd113026517ae266040e2c91c6503dfa98ab6d32bafbd1a06c80b18bff0373b8daf6b8b14b4ec37152a92104a04628579a3741940768ce"
+      },
+      "originalRepository": null,
+      "sourceCommits": [
+        "02b11eeee1fbc5f3ef43a1452fe07efd25fa1715",
+        "0f7f38c4fd323b26da10cce95f857f77f0f09b48"
+      ],
+      "originalLicenseDeclaration": {
+        "license": "MIT",
+        "licenseUrl": "https://licenses.nuget.org/MIT",
+        "requireLicenseAcceptance": "false"
+      },
+      "notices": {
+        "LICENSE.TXT": {
+          "bytes": 1139,
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+          "sha512": "430f0a57ff6be9cb03316eb7312b70f5a2eb44175edacac242a9fd329257ae52c03de8add8a957cd3a336f99fd638eb89d8d3d1338525d5be21d8f4e22f86f97"
+        },
+        "THIRD-PARTY-NOTICES.TXT": {
+          "bytes": 18886,
+          "sha256": "388c07f579998286e5df706a2e68bf6e01100187ccb0ff0310e26c3383f7b2b2",
+          "sha512": "e67294112b0def51bdf508130bd9fa35a998f3fd834bca0073b3aa6ef3febba30700756226491a577cd54455dd1600fa23d863351be1913096c8d2e00d3ad7ab"
+        }
+      },
+      "members": {
+        "lib/netstandard2.0/System.Drawing.Common.dll": {
+          "fingerprint": {
+            "bytes": 143408,
+            "sha256": "13efece14e17b7f885afff8377b652a975c038964a8273805b80b9afb38f7077",
+            "sha512": "8730619094eceb6d84cbe4552b5ea4b0aaf6389312c7f4efeb95efe3f14abe13ea4efb5c8e5d201a632690d2bdcede363abcf2a5d46ecac946a330d0dda45f87"
+          },
+          "embeddedSource": {
+            "sourceCommit": "02b11eeee1fbc5f3ef43a1452fe07efd25fa1715",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "System.Drawing.Common",
+          "assemblyVersion": "4.0.0.1"
+        },
+        "runtimes/unix/lib/netcoreapp3.0/System.Drawing.Common.dll": {
+          "fingerprint": {
+            "bytes": 372840,
+            "sha256": "000b09d998b23159ab9e7ef87c7cb09aad8c9cfb366f4ae69dfca50af5a166c0",
+            "sha512": "d76aec9d5da8c78598e6fce3d7f849714a3bfea105943a9516113ea338589caab546aa786b0d5292a2cfb50a5a63255236d5f3384fab47d52f8bcfb5f167d1ff"
+          },
+          "embeddedSource": {
+            "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "System.Drawing.Common",
+          "assemblyVersion": "4.0.2.0"
+        },
+        "runtimes/win/lib/netcoreapp3.0/System.Drawing.Common.dll": {
+          "fingerprint": {
+            "bytes": 414280,
+            "sha256": "df409de7822ebe4871aadef1f8e4a553406395c8d692704037781777ba650300",
+            "sha512": "f1497bb0cb39a325923bd13314a8c8125b06978bd2d6bdb7387f4e838d27ad0e735461c8bc2584e421e9c9e8da2aaedc6757cad6f6678ec5bced41a81e8d0e34"
+          },
+          "embeddedSource": {
+            "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "System.Drawing.Common",
+          "assemblyVersion": "4.0.2.0"
+        }
+      }
+    },
+    "04681730b522e6bc559a60a18c885c5d4c62b098ef94d4e85e5c9a21b531c38d": {
+      "id": "System.Security.Permissions",
+      "version": "4.7.0",
+      "fingerprint": {
+        "bytes": 540570,
+        "sha256": "04681730b522e6bc559a60a18c885c5d4c62b098ef94d4e85e5c9a21b531c38d",
+        "sha512": "9c86c3b424218d618d3028cd4e16e2b93140ee4e082d989a4b234941eb2822e5db9cd42165157e1de7a476482a94b947bc16ad9603888b3a926f63579733b684"
+      },
+      "nuspec": {
+        "path": "System.Security.Permissions.nuspec",
+        "bytes": 2734,
+        "sha256": "f633e62098af8b52865337e3b5b6373c95702296522773c5687d8a9af48d773e",
+        "sha512": "987e795165f0e21c716bf272128d43507a1dc2dc595c87f94a4d9a2f4712bd29d36cff40b17dbf2aae79e1771d3ca808c63227c4ef6fb22f293aa33729d8a67d"
+      },
+      "originalRepository": null,
+      "sourceCommits": [
+        "0f7f38c4fd323b26da10cce95f857f77f0f09b48"
+      ],
+      "originalLicenseDeclaration": {
+        "license": "MIT",
+        "licenseUrl": "https://licenses.nuget.org/MIT",
+        "requireLicenseAcceptance": "false"
+      },
+      "notices": {
+        "LICENSE.TXT": {
+          "bytes": 1139,
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+          "sha512": "430f0a57ff6be9cb03316eb7312b70f5a2eb44175edacac242a9fd329257ae52c03de8add8a957cd3a336f99fd638eb89d8d3d1338525d5be21d8f4e22f86f97"
+        },
+        "THIRD-PARTY-NOTICES.TXT": {
+          "bytes": 18886,
+          "sha256": "388c07f579998286e5df706a2e68bf6e01100187ccb0ff0310e26c3383f7b2b2",
+          "sha512": "e67294112b0def51bdf508130bd9fa35a998f3fd834bca0073b3aa6ef3febba30700756226491a577cd54455dd1600fa23d863351be1913096c8d2e00d3ad7ab"
+        }
+      },
+      "members": {
+        "lib/netcoreapp3.0/System.Security.Permissions.dll": {
+          "fingerprint": {
+            "bytes": 92536,
+            "sha256": "74ef3b67960a9b569fed9ac457157769dbfe433b0f4fa13c52167c2246bfed71",
+            "sha512": "bacdf908ad5a92577eb12ef3a7342b8d4dac67c5d8fdeeeae044677d0d35db64caf9878c1f1b96f30549849af3351588aa5271c1c6d2b6003658554e553d4911"
+          },
+          "embeddedSource": {
+            "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "System.Security.Permissions",
+          "assemblyVersion": "4.0.3.0"
+        }
+      }
+    },
+    "2f5c72b2927ca4324d54f60a97e14c19fe19c26d2d96ab40c9008d5baa53ebfd": {
+      "id": "System.CodeDom",
+      "version": "4.4.0",
+      "fingerprint": {
+        "bytes": 213263,
+        "sha256": "2f5c72b2927ca4324d54f60a97e14c19fe19c26d2d96ab40c9008d5baa53ebfd",
+        "sha512": "13f96f49f3053ed35f94081d33a02e3d4f096d976a752a06a54eba1bb4ab76e0aa76b1723df95aaaa57880dd9dd21ac2069bbdd876a8aa950fe5dfa0f48b5cc7"
+      },
+      "nuspec": {
+        "path": "System.CodeDom.nuspec",
+        "bytes": 2011,
+        "sha256": "6a26304c88e9f6e4c28f9483c566e633161392df7f9c9946a364a9cc1eca16cf",
+        "sha512": "2b28991f1cde86b697ab33b9049a6197a97b471977d2c1dbb6877a23ad118547760e3933f968ff3cc52c6150e7d9a3c6b8d890c03587686368d4f83b4a1c621b"
+      },
+      "originalRepository": null,
+      "sourceCommits": [
+        "8321c729934c0f8be754953439b88e6e1c120c24"
+      ],
+      "originalLicenseDeclaration": {
+        "license": null,
+        "licenseUrl": "https://github.com/dotnet/corefx/blob/master/LICENSE.TXT",
+        "requireLicenseAcceptance": "false"
+      },
+      "notices": {
+        "LICENSE.TXT": {
+          "bytes": 1139,
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+          "sha512": "430f0a57ff6be9cb03316eb7312b70f5a2eb44175edacac242a9fd329257ae52c03de8add8a957cd3a336f99fd638eb89d8d3d1338525d5be21d8f4e22f86f97"
+        },
+        "THIRD-PARTY-NOTICES.TXT": {
+          "bytes": 11591,
+          "sha256": "0ef4dce1f4e8965f19a3b8b2f984f337d5c35e5aaf7f8a36b95aec66c301963a",
+          "sha512": "9a2aecc110a842c6dc9bc3462c3af9efadc978011885147cab3ad93b9285fdd1f36f8df13c516ab084403612d0f0502017135094dd488016cce6bdfc7387b8cf"
+        }
+      },
+      "members": {
+        "lib/netstandard2.0/System.CodeDom.dll": {
+          "fingerprint": {
+            "bytes": 187224,
+            "sha256": "5aec78c69334fc1cd1c926f4a9c857260dd2e03ff1739e96def1d68296b86b8b",
+            "sha512": "541210c8e0e91d1c5584192d071515e51cc8e537cd34f1430d24de29743a4792fba5acfb10d6339eafc197f57391b8582f327b7f670d4f7fc3ec8a1a018c5ba8"
+          },
+          "embeddedSource": {
+            "sourceCommit": "8321c729934c0f8be754953439b88e6e1c120c24",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "System.CodeDom",
+          "assemblyVersion": "4.0.0.0"
+        }
+      }
+    },
+    "3eb87644f79bcffb3c0331dbdac3c7837265f2cdf58a7bfd93e431776f77c9ba": {
+      "id": "NETStandard.Library",
+      "version": "2.0.3",
+      "fingerprint": {
+        "bytes": 3146139,
+        "sha256": "3eb87644f79bcffb3c0331dbdac3c7837265f2cdf58a7bfd93e431776f77c9ba",
+        "sha512": "e78f0cea69c14895b1b089644077dbce8631a626055d96522f4d29e061d8bfc3e48aa1419e74faf265b998612c03f721f5f0cef4690f824150a5689764dee601"
+      },
+      "nuspec": {
+        "path": "NETStandard.Library.nuspec",
+        "bytes": 26257,
+        "sha256": "be3eb47978bc0dcff6109c6706bfee6315792dcb83dc6c59998f9ccc4e1ab270",
+        "sha512": "3426127c530e6c7a7e07813a4a1d77ba187d48f817f9354012e7db30bc89c3eb06ec5e21d8f329a426e2f0b694cd1f45aeb9f7c230f172fc49203b8bec3dd7bb"
+      },
+      "originalRepository": null,
+      "sourceCommits": [
+        "18a36291e48808fa7ef2d00a764ceb1ec95645a5"
+      ],
+      "originalLicenseDeclaration": {
+        "license": null,
+        "licenseUrl": "https://github.com/dotnet/standard/blob/master/LICENSE.TXT",
+        "requireLicenseAcceptance": "false"
+      },
+      "notices": {
+        "LICENSE.TXT": {
+          "bytes": 1115,
+          "sha256": "fc95de1436a321aadbfafd21f8a8506a2f4678bfc003bd806d6b59d3088efadc",
+          "sha512": "125390b28a72ec0b42710d23967a5fb5e1425c74a8cd1fc939eb76cdb439ac0f9463b77320ab089c8c336e122d47a7fae9c57cd8c79fa61a4b1716f7bb3bf3ee"
+        },
+        "THIRD-PARTY-NOTICES.TXT": {
+          "bytes": 1617,
+          "sha256": "0684b2349427ee28e392ae8914645832e59731dba8a38a984f72b3fb8769c76b",
+          "sha512": "cfba61d008f30f76886b10275ff1f91c896472fab551e333a3d67ed15885c3dfe83cce7b3db603871ea2be95c7d16f975fa895495491686a7ec5f948b5873353"
+        }
+      },
+      "members": {
+        "build/netstandard2.0/ref/netstandard.dll": {
+          "fingerprint": {
+            "bytes": 1319560,
+            "sha256": "1799854d01a89d141fecc4c4548b01e51fa57118c9b18eac66a752f3bbe98c02",
+            "sha512": "5e28a8a625b18c46aa3e3536891148f63a0011d71c0d7c53353931ede59d46e75748519e3dc76e09980c11e8c324fe657a40a2f87af1548663f43564bb03c57c"
+          },
+          "embeddedSource": {
+            "sourceCommit": "18a36291e48808fa7ef2d00a764ceb1ec95645a5",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "netstandard",
+          "assemblyVersion": "2.0.0.0"
+        },
+        "build/netstandard2.0/ref/mscorlib.dll": {
+          "fingerprint": {
+            "bytes": 54408,
+            "sha256": "76b21520c37d7181c6857198c09ee896dea574c7d907b2f4c65b2d705b1f5d71",
+            "sha512": "73f38e61b963570f71422ab3f399bbe4e19b013b1bf418a184061bc9c53c175ec075b1600e83dcc02b22685999285a7013d40e4992118d10ea59e5f8023a6956"
+          },
+          "embeddedSource": {
+            "sourceCommit": "18a36291e48808fa7ef2d00a764ceb1ec95645a5",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "mscorlib",
+          "assemblyVersion": "4.0.0.0"
+        }
+      }
+    },
+    "a9d49320581fda1b4f4be6212c68c01a22cdf228026099c20a8eabefcf90f9cf": {
+      "id": "System.Numerics.Vectors",
+      "version": "4.5.0",
+      "fingerprint": {
+        "bytes": 382792,
+        "sha256": "a9d49320581fda1b4f4be6212c68c01a22cdf228026099c20a8eabefcf90f9cf",
+        "sha512": "9c04ec0530f608aaf801837a791b33857e2ca6d2265a6049c01fd4e972825967e709cad3070f174829b7400f608e9a641d3afc3a45d4636d4c47dd43dd0657b3"
+      },
+      "nuspec": {
+        "path": "System.Numerics.Vectors.nuspec",
+        "bytes": 2558,
+        "sha256": "e88aa01f9c9f763f66d643fc093eb3fa885141847f61fac13c2a9ad7a60a29e9",
+        "sha512": "bd2f77ee799e0a0a9aaae55395fa5dcdfb06b0b9f0e168dd74f7e6edad5c272108ba05c995d33c2c61e1376be4dae1ae8242fcf26ddbcf11ba45b1ac8dfb42f8"
+      },
+      "originalRepository": null,
+      "sourceCommits": [
+        "30ab651fcb4354552bd4891619a0bdd81e0ebdbf"
+      ],
+      "originalLicenseDeclaration": {
+        "license": null,
+        "licenseUrl": "https://github.com/dotnet/corefx/blob/master/LICENSE.TXT",
+        "requireLicenseAcceptance": "false"
+      },
+      "notices": {
+        "LICENSE.TXT": {
+          "bytes": 1139,
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+          "sha512": "430f0a57ff6be9cb03316eb7312b70f5a2eb44175edacac242a9fd329257ae52c03de8add8a957cd3a336f99fd638eb89d8d3d1338525d5be21d8f4e22f86f97"
+        },
+        "THIRD-PARTY-NOTICES.TXT": {
+          "bytes": 15835,
+          "sha256": "7864a01e2fdef7e8fdf81b906efb1466f083206affea7ba7e6dadea429754765",
+          "sha512": "b022b1a2b0eb5001f49066ec1326567536e2bd92108b873c024824836a05d268e7727166bfa03073e564039ccfa1f5b3074c6c922f476b683dac19affc367963"
+        }
+      },
+      "members": {
+        "lib/net46/System.Numerics.Vectors.dll": {
+          "fingerprint": {
+            "bytes": 115856,
+            "sha256": "1d3ef8698281e7cf7371d1554afef5872b39f96c26da772210a33da041ba1183",
+            "sha512": "0b14a039ca67982794a2bb69974ef04a7fbee3686d7364f8f4db70ea6259d29640cbb83d5b544d92fa1d3676c7619cd580ff45671a2bb4753ed8b383597c6da8"
+          },
+          "embeddedSource": {
+            "sourceCommit": "30ab651fcb4354552bd4891619a0bdd81e0ebdbf",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "System.Numerics.Vectors",
+          "assemblyVersion": "4.1.4.0"
+        }
+      }
+    },
+    "c30b3dd2c7e2f4cee4b823d692fd42118309b42ab1f5007f923d329a5b0d6b12": {
+      "id": "System.Buffers",
+      "version": "4.5.1",
+      "fingerprint": {
+        "bytes": 93737,
+        "sha256": "c30b3dd2c7e2f4cee4b823d692fd42118309b42ab1f5007f923d329a5b0d6b12",
+        "sha512": "80da6158e55b9bcf7e0b5e6379b9cf45a632914f037b53c5bf5609576e3cd7821f7861956b73d74470d2d0c2e56dd235a5ef4ca6ffe7e192b820dc2d023aaff2"
+      },
+      "nuspec": {
+        "path": "System.Buffers.nuspec",
+        "bytes": 2319,
+        "sha256": "353a5c2810bfb22de50b87616f426d4d2c8aac2040802c68e2caadedbfe66b8e",
+        "sha512": "debc9e8c90523a7f76eb7800e04cbc7204787b53e6bc6b9ca8ce52f3f6b334e5ec2f775ba9881e9934eec23494f593e6857ea3980c35fc23895880912895e0a3"
+      },
+      "originalRepository": null,
+      "sourceCommits": [
+        "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f"
+      ],
+      "originalLicenseDeclaration": {
+        "license": null,
+        "licenseUrl": "https://github.com/dotnet/corefx/blob/master/LICENSE.TXT",
+        "requireLicenseAcceptance": "false"
+      },
+      "notices": {
+        "LICENSE.TXT": {
+          "bytes": 1139,
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+          "sha512": "430f0a57ff6be9cb03316eb7312b70f5a2eb44175edacac242a9fd329257ae52c03de8add8a957cd3a336f99fd638eb89d8d3d1338525d5be21d8f4e22f86f97"
+        },
+        "THIRD-PARTY-NOTICES.TXT": {
+          "bytes": 15835,
+          "sha256": "7864a01e2fdef7e8fdf81b906efb1466f083206affea7ba7e6dadea429754765",
+          "sha512": "b022b1a2b0eb5001f49066ec1326567536e2bd92108b873c024824836a05d268e7727166bfa03073e564039ccfa1f5b3074c6c922f476b683dac19affc367963"
+        }
+      },
+      "members": {
+        "lib/net461/System.Buffers.dll": {
+          "fingerprint": {
+            "bytes": 20856,
+            "sha256": "accccfbe45d9f08ffeed9916e37b33e98c65be012cfff6e7fa7b67210ce1fefb",
+            "sha512": "5fc7fee5c25cb2eee19737068968e00a00961c257271b420f594e5a0da0559502d04ee6ba2d8d2aad77f3769622f6743a5ee8dae23f8f993f33fb09ed8db2741"
+          },
+          "embeddedSource": {
+            "sourceCommit": "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "System.Buffers",
+          "assemblyVersion": "4.0.3.0"
+        }
+      }
+    },
+    "a304a963cc0796c5179f9c6b7d8022bbce3b2fa7c029eb6196f631f7b462d678": {
+      "id": "System.Threading.Tasks.Extensions",
+      "version": "4.5.4",
+      "fingerprint": {
+        "bytes": 89582,
+        "sha256": "a304a963cc0796c5179f9c6b7d8022bbce3b2fa7c029eb6196f631f7b462d678",
+        "sha512": "68052086e77d3c7198737a3da163d67740b7c44f93250c39659b3bf21b6547a9abf64cbf40481f5c78f24361af3aaf47d52d188b371554a0928a7f7665c1fc14"
+      },
+      "nuspec": {
+        "path": "System.Threading.Tasks.Extensions.nuspec",
+        "bytes": 3039,
+        "sha256": "942bd07aa8206c8a2b4923dfe013fd617b28d89130eebabc802d86491bf2fc6f",
+        "sha512": "8d6d95541519d8d731d2e422016b85d7c636e6aa96a190540a407508d656898080f97d342f5e51d558cf9decdf291507b1050e227c784a3d5a6a2c009f455551"
+      },
+      "originalRepository": null,
+      "sourceCommits": [
+        "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f"
+      ],
+      "originalLicenseDeclaration": {
+        "license": null,
+        "licenseUrl": "https://github.com/dotnet/corefx/blob/master/LICENSE.TXT",
+        "requireLicenseAcceptance": "false"
+      },
+      "notices": {
+        "LICENSE.TXT": {
+          "bytes": 1139,
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+          "sha512": "430f0a57ff6be9cb03316eb7312b70f5a2eb44175edacac242a9fd329257ae52c03de8add8a957cd3a336f99fd638eb89d8d3d1338525d5be21d8f4e22f86f97"
+        },
+        "THIRD-PARTY-NOTICES.TXT": {
+          "bytes": 15835,
+          "sha256": "7864a01e2fdef7e8fdf81b906efb1466f083206affea7ba7e6dadea429754765",
+          "sha512": "b022b1a2b0eb5001f49066ec1326567536e2bd92108b873c024824836a05d268e7727166bfa03073e564039ccfa1f5b3074c6c922f476b683dac19affc367963"
+        }
+      },
+      "members": {
+        "lib/net461/System.Threading.Tasks.Extensions.dll": {
+          "fingerprint": {
+            "bytes": 25984,
+            "sha256": "4f81ffd0dc7204db75afc35ea4291769b07c440592f28894260eea76626a23c6",
+            "sha512": "da7ab8c0100e7d074f0e680b28d241940733860dfbdc5b8c78428b76e807f27e44d1c5ec95ee80c0b5098e8c5d5da4d48bce86800164f9734a05035220c3ff11"
+          },
+          "embeddedSource": {
+            "sourceCommit": "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "System.Threading.Tasks.Extensions",
+          "assemblyVersion": "4.2.0.1"
+        }
+      }
+    },
+    "dec0847f33b8823e4260672d97d657411461c00ada3107ec7bbcb32a845eeb91": {
+      "id": "System.Memory",
+      "version": "4.5.4",
+      "fingerprint": {
+        "bytes": 205467,
+        "sha256": "dec0847f33b8823e4260672d97d657411461c00ada3107ec7bbcb32a845eeb91",
+        "sha512": "8ece5491eb0fe332bc190f40cf76b3beee0c5f996325034861be221fdb0ff02fd59e4f7020b3c4a1f29a457f76ff76c4c95d46d38555e4f48c7a3bf172d87966"
+      },
+      "nuspec": {
+        "path": "System.Memory.nuspec",
+        "bytes": 5381,
+        "sha256": "b58115244a5d8817c65017d55b2d3a4ede57feb1a0f55ab4a70493a23460ea89",
+        "sha512": "26c0ab853ae2427b5d5ed5ca06f338a935172d17fa4c2edc94f77da74ed68121117921468f10733425767fdfd2bbbd25beab640ef9b51a4f501d10b895ba9e7f"
+      },
+      "originalRepository": null,
+      "sourceCommits": [
+        "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f"
+      ],
+      "originalLicenseDeclaration": {
+        "license": null,
+        "licenseUrl": "https://github.com/dotnet/corefx/blob/master/LICENSE.TXT",
+        "requireLicenseAcceptance": "false"
+      },
+      "notices": {
+        "LICENSE.TXT": {
+          "bytes": 1139,
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+          "sha512": "430f0a57ff6be9cb03316eb7312b70f5a2eb44175edacac242a9fd329257ae52c03de8add8a957cd3a336f99fd638eb89d8d3d1338525d5be21d8f4e22f86f97"
+        },
+        "THIRD-PARTY-NOTICES.TXT": {
+          "bytes": 15835,
+          "sha256": "7864a01e2fdef7e8fdf81b906efb1466f083206affea7ba7e6dadea429754765",
+          "sha512": "b022b1a2b0eb5001f49066ec1326567536e2bd92108b873c024824836a05d268e7727166bfa03073e564039ccfa1f5b3074c6c922f476b683dac19affc367963"
+        }
+      },
+      "members": {
+        "lib/net461/System.Memory.dll": {
+          "fingerprint": {
+            "bytes": 141184,
+            "sha256": "8e76318e8b06692abf7dab1169d27d15557f7f0a34d36af6463eff0fe21213c7",
+            "sha512": "293d8c709bc68d2c980a0df423741ce06d05ff757077e63986d34cb6459f9623a024d12ef35a280f50d3d516d98abe193213b9ca71bfde2a9fe8753b1a6de2f0"
+          },
+          "embeddedSource": {
+            "sourceCommit": "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "System.Memory",
+          "assemblyVersion": "4.0.1.1"
+        }
+      }
+    },
+    "9e21fa9767d4e76bc0cee065c1d40cc34384a114bfec4d70e6c981168a926802": {
+      "id": "System.ValueTuple",
+      "version": "4.5.0",
+      "fingerprint": {
+        "bytes": 204904,
+        "sha256": "9e21fa9767d4e76bc0cee065c1d40cc34384a114bfec4d70e6c981168a926802",
+        "sha512": "fa00ebb5045d12c51274f64411c551981beceb1266a8606a4731063109b95ea1f15939197bf3d2ba899db61e593dc39bfce876908bba34286823525093ae3d8e"
+      },
+      "nuspec": {
+        "path": "System.ValueTuple.nuspec",
+        "bytes": 2789,
+        "sha256": "1a18b7bd0ae23a29017093fbffa3773aa91f7626449dd590a8c6dfbb5a0e8c68",
+        "sha512": "c4e7198b2ad1a5d56c1ae6f17c42349251c95aebed4b72f91734962abc0478d1361abf941263e9a2c2cd55440cfe0773dac423710222e09c6eb57e3b8a88e993"
+      },
+      "originalRepository": null,
+      "sourceCommits": [
+        "30ab651fcb4354552bd4891619a0bdd81e0ebdbf"
+      ],
+      "originalLicenseDeclaration": {
+        "license": null,
+        "licenseUrl": "https://github.com/dotnet/corefx/blob/master/LICENSE.TXT",
+        "requireLicenseAcceptance": "false"
+      },
+      "notices": {
+        "LICENSE.TXT": {
+          "bytes": 1139,
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+          "sha512": "430f0a57ff6be9cb03316eb7312b70f5a2eb44175edacac242a9fd329257ae52c03de8add8a957cd3a336f99fd638eb89d8d3d1338525d5be21d8f4e22f86f97"
+        },
+        "THIRD-PARTY-NOTICES.TXT": {
+          "bytes": 15835,
+          "sha256": "7864a01e2fdef7e8fdf81b906efb1466f083206affea7ba7e6dadea429754765",
+          "sha512": "b022b1a2b0eb5001f49066ec1326567536e2bd92108b873c024824836a05d268e7727166bfa03073e564039ccfa1f5b3074c6c922f476b683dac19affc367963"
+        }
+      },
+      "members": {
+        "lib/net47/System.ValueTuple.dll": {
+          "fingerprint": {
+            "bytes": 25232,
+            "sha256": "e905d102585b22c6df04f219af5cbdbfa7bc165979e9788b62df6dcc165e10f4",
+            "sha512": "6b223ce7f580a40a8864a762e3d5cccf1d34a554847787551e8a5d4d05d7f7a5f116f2de8a1c793f327a64d23570228c6e3648a541dd52f93d58f8f243591e32"
+          },
+          "embeddedSource": {
+            "sourceCommit": "30ab651fcb4354552bd4891619a0bdd81e0ebdbf",
+            "basis": "assembly-informational-version"
+          },
+          "assemblyName": "System.ValueTuple",
+          "assemblyVersion": "4.0.3.0"
+        }
+      }
+    },
+    "618fbd5361a07d18a74e8df0f6473b6225614ee375d52397db5f09f952d2181d": {
+      "id": "Microsoft.Extensions.CommandLineUtils",
+      "version": "1.0.1",
+      "fingerprint": {
+        "bytes": 41710,
+        "sha256": "618fbd5361a07d18a74e8df0f6473b6225614ee375d52397db5f09f952d2181d",
+        "sha512": "56b207e5d77a733a67d2098ecdf2105593b5fc92210c2cdc8db21a0fbad941bd33c4b9856c2dabffb61da25f0cb38a3c2f5751111d3fe80bce79b7ae04c94edb"
+      },
+      "nuspec": {
+        "path": "Microsoft.Extensions.CommandLineUtils.nuspec",
+        "bytes": 1468,
+        "sha256": "0a5125d395d8c02502d8e449c53552bd48dafd8668fee5c4d97dff1c4c32a0f8",
+        "sha512": "599b3ed6d1d196af81b3ddb0b0183e2d44d05467cb49a952fd135b74d0b5f0a215149efeb60a2af7c93a86d0825cb8520fb7a29be6e6b0499242c671b5e695ee"
+      },
+      "originalRepository": null,
+      "sourceCommits": [
+        "4f17c0aaa62b4608ee9ae8c33dee3944383d36f2"
+      ],
+      "originalLicenseDeclaration": {
+        "license": null,
+        "licenseUrl": "http://www.microsoft.com/web/webpi/eula/net_library_eula_enu.htm",
+        "requireLicenseAcceptance": "true"
+      },
+      "notices": {},
+      "members": {
+        "lib/netstandard1.3/Microsoft.Extensions.CommandLineUtils.dll": {
+          "fingerprint": {
+            "bytes": 29176,
+            "sha256": "89d044cc1f37067d258294dd7ae9548ee128defa9940677e64fd3dfa630fc856",
+            "sha512": "70cb66a0028d222e11cedda1aa6eac5fe85012aca954ba2eab3d8c7cb7289f041458a859adfcdc189dbda3462a0d8fb46887b38d08fe53aa2d387e8f0d3e2c78"
+          },
+          "embeddedSource": {
+            "sourceCommit": "4f17c0aaa62b4608ee9ae8c33dee3944383d36f2",
+            "basis": "assembly-metadata-commit-hash"
+          },
+          "assemblyName": "Microsoft.Extensions.CommandLineUtils",
+          "assemblyVersion": "1.0.1.0"
+        }
+      }
+    }
+  },
+  "products": {
+    "sdk/6.0.136/Microsoft.Win32.SystemEvents.dll": {
+      "fingerprint": {
+        "bytes": 23112,
+        "sha256": "e7a3165fb182ba25be3b410fce4528d238fa4ff9a1a5507ac7e50542d692daa1",
+        "sha512": "2497d654ce138f5db0116ceb60e84e8c53467f9b05b3f0819c49bcddd8d7b467b4206a26879912e01a42fffdf915a93d623180e06dcdc804bb51a470535dce89"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "187c670f53e56f7d862565564afd18e752a0b656fe71d2a03985416194a0545e",
+          "member": "lib/netstandard2.0/Microsoft.Win32.SystemEvents.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/System.Windows.Extensions.dll": {
+      "fingerprint": {
+        "bytes": 25976,
+        "sha256": "abbe8146fa3f638ee9f5aaae85182d72de7807c9f0a06311ef14eb4e5f3cb3b0",
+        "sha512": "90c6091172c6606336f9da42c5ce5f825d698ab493224e4f9adde905474719957b13e42640338d323018652d6b46ef22e6ed006a450ad50c285ba2b56d6c69d9"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "c96f86bd0ada9d179aa8fc39645bfe9928c1c90e72d6944b974e492047f7b585",
+          "member": "lib/netcoreapp3.0/System.Windows.Extensions.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/FSharp/Microsoft.Win32.SystemEvents.dll": {
+      "fingerprint": {
+        "bytes": 23112,
+        "sha256": "e7a3165fb182ba25be3b410fce4528d238fa4ff9a1a5507ac7e50542d692daa1",
+        "sha512": "2497d654ce138f5db0116ceb60e84e8c53467f9b05b3f0819c49bcddd8d7b467b4206a26879912e01a42fffdf915a93d623180e06dcdc804bb51a470535dce89"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "187c670f53e56f7d862565564afd18e752a0b656fe71d2a03985416194a0545e",
+          "member": "lib/netstandard2.0/Microsoft.Win32.SystemEvents.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/FSharp/System.Windows.Extensions.dll": {
+      "fingerprint": {
+        "bytes": 25976,
+        "sha256": "abbe8146fa3f638ee9f5aaae85182d72de7807c9f0a06311ef14eb4e5f3cb3b0",
+        "sha512": "90c6091172c6606336f9da42c5ce5f825d698ab493224e4f9adde905474719957b13e42640338d323018652d6b46ef22e6ed006a450ad50c285ba2b56d6c69d9"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "c96f86bd0ada9d179aa8fc39645bfe9928c1c90e72d6944b974e492047f7b585",
+          "member": "lib/netcoreapp3.0/System.Windows.Extensions.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/FSharp/System.Resources.Extensions.dll": {
+      "fingerprint": {
+        "bytes": 54136,
+        "sha256": "92a3eff77affaafde3561282f1c0e082fa6c191a549f2526d6b682085ce6b0a3",
+        "sha512": "afcc7b67dd170a9f5a2f516257b42556ce9d72f8da9402e5134a9317126741c76ca332661ed46762f40cf0986d81632598913ae01069009813a741af7c15c85f"
+      },
+      "sourceCommit": "4ac4c0367003fe3973a3648eb0715ddb0e3bbcea",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "12b00f4114e48d1b2271afa1d66005c4c65b13846b47d9c7d3f541f66482cc46",
+          "member": "lib/netstandard2.0/System.Resources.Extensions.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/FSharp/System.Security.Cryptography.ProtectedData.dll": {
+      "fingerprint": {
+        "bytes": 17784,
+        "sha256": "8604f8d2e3e932710b634730b29a245c896ceadfd64a62001e582e9171532f13",
+        "sha512": "add27cc766ab6ab8ad93774aa2d8d8ad9fb2c754afb2171544bcf7271d89e7c70dbefbecff82986a6f1c0f53bd20ff0910fb038b37683c916e1dc092f3bb877a"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "7597ece6adc88f55b578909f623c48da8fb8d5a4a2169680ba0a681026823ae8",
+          "member": "lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/FSharp/System.Configuration.ConfigurationManager.dll": {
+      "fingerprint": {
+        "bytes": 375912,
+        "sha256": "4668f89524fcb4d71950e0ad7e0d56e5e5db2c70e395ad49f7db6a8164cc50d6",
+        "sha512": "37b143c9ff3d06d87b07bd2118a22b48f7da590e5ae0c03d40a9b9bbbe45a184f091a23fb6cb7cf0ff8ba68e06815078d8e0738caa4529666e2c98c6f7f057a0"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "ad88e9fd499a808e1950b535a1c89afc0897c4b34bf2e84c57c2c11784055b5d",
+          "member": "lib/netstandard2.0/System.Configuration.ConfigurationManager.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/FSharp/System.Drawing.Common.dll": {
+      "fingerprint": {
+        "bytes": 143408,
+        "sha256": "13efece14e17b7f885afff8377b652a975c038964a8273805b80b9afb38f7077",
+        "sha512": "8730619094eceb6d84cbe4552b5ea4b0aaf6389312c7f4efeb95efe3f14abe13ea4efb5c8e5d201a632690d2bdcede363abcf2a5d46ecac946a330d0dda45f87"
+      },
+      "sourceCommit": "02b11eeee1fbc5f3ef43a1452fe07efd25fa1715",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "0f7a86fb101eefc9591ef95ca3d8072b64c400cdfbd24d3d73af92422f3bdc79",
+          "member": "lib/netstandard2.0/System.Drawing.Common.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/FSharp/System.Security.Permissions.dll": {
+      "fingerprint": {
+        "bytes": 92536,
+        "sha256": "74ef3b67960a9b569fed9ac457157769dbfe433b0f4fa13c52167c2246bfed71",
+        "sha512": "bacdf908ad5a92577eb12ef3a7342b8d4dac67c5d8fdeeeae044677d0d35db64caf9878c1f1b96f30549849af3351588aa5271c1c6d2b6003658554e553d4911"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "04681730b522e6bc559a60a18c885c5d4c62b098ef94d4e85e5c9a21b531c38d",
+          "member": "lib/netcoreapp3.0/System.Security.Permissions.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/FSharp/System.CodeDom.dll": {
+      "fingerprint": {
+        "bytes": 187224,
+        "sha256": "5aec78c69334fc1cd1c926f4a9c857260dd2e03ff1739e96def1d68296b86b8b",
+        "sha512": "541210c8e0e91d1c5584192d071515e51cc8e537cd34f1430d24de29743a4792fba5acfb10d6339eafc197f57391b8582f327b7f670d4f7fc3ec8a1a018c5ba8"
+      },
+      "sourceCommit": "8321c729934c0f8be754953439b88e6e1c120c24",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "2f5c72b2927ca4324d54f60a97e14c19fe19c26d2d96ab40c9008d5baa53ebfd",
+          "member": "lib/netstandard2.0/System.CodeDom.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/FSharp/runtimes/unix/lib/netcoreapp3.0/System.Drawing.Common.dll": {
+      "fingerprint": {
+        "bytes": 372840,
+        "sha256": "000b09d998b23159ab9e7ef87c7cb09aad8c9cfb366f4ae69dfca50af5a166c0",
+        "sha512": "d76aec9d5da8c78598e6fce3d7f849714a3bfea105943a9516113ea338589caab546aa786b0d5292a2cfb50a5a63255236d5f3384fab47d52f8bcfb5f167d1ff"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "0f7a86fb101eefc9591ef95ca3d8072b64c400cdfbd24d3d73af92422f3bdc79",
+          "member": "runtimes/unix/lib/netcoreapp3.0/System.Drawing.Common.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/FSharp/runtimes/win/lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll": {
+      "fingerprint": {
+        "bytes": 25464,
+        "sha256": "a2c267a61ee145d69128220c10b3ddd451a137273126ef7b4bd306059e1727af",
+        "sha512": "9a811203ac66805ba80e09ab63b868291cb3764d0581c09bd19bedd234144ee5050aea1bbda51981505264e35df2af58f9bf2e9a80dc71f18aa7215d5524ca67"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "7597ece6adc88f55b578909f623c48da8fb8d5a4a2169680ba0a681026823ae8",
+          "member": "runtimes/win/lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/FSharp/runtimes/win/lib/netcoreapp3.0/Microsoft.Win32.SystemEvents.dll": {
+      "fingerprint": {
+        "bytes": 50248,
+        "sha256": "1d5bbfb227f20e866cf25f649a059b61c3f35336f69ebd19b8ede7b6e14a7414",
+        "sha512": "5ed13debf26f120c80c09df572571b3bb05fcabee7b1c7d945d2d767b13a2fe1c5861cad4fa1fea1658357fb025f9237f7ae2de510db120cff6ef4041d5f6707"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "187c670f53e56f7d862565564afd18e752a0b656fe71d2a03985416194a0545e",
+          "member": "runtimes/win/lib/netcoreapp3.0/Microsoft.Win32.SystemEvents.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/FSharp/runtimes/win/lib/netcoreapp3.0/System.Windows.Extensions.dll": {
+      "fingerprint": {
+        "bytes": 56184,
+        "sha256": "b0b15ee123d24a220dc3446c96a6273e2fdade71d1f352bf06217bde57778b24",
+        "sha512": "4ed8fb355723824c6e608b38d397c215142d508c80e5000df854200de8f89b44eb4afe5829ea40f7706a6149527dbd8c748ff3af9172d9a20b24958dd94e6484"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "c96f86bd0ada9d179aa8fc39645bfe9928c1c90e72d6944b974e492047f7b585",
+          "member": "runtimes/win/lib/netcoreapp3.0/System.Windows.Extensions.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/FSharp/runtimes/win/lib/netcoreapp3.0/System.Drawing.Common.dll": {
+      "fingerprint": {
+        "bytes": 414280,
+        "sha256": "df409de7822ebe4871aadef1f8e4a553406395c8d692704037781777ba650300",
+        "sha512": "f1497bb0cb39a325923bd13314a8c8125b06978bd2d6bdb7387f4e838d27ad0e735461c8bc2584e421e9c9e8da2aaedc6757cad6f6678ec5bced41a81e8d0e34"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "0f7a86fb101eefc9591ef95ca3d8072b64c400cdfbd24d3d73af92422f3bdc79",
+          "member": "runtimes/win/lib/netcoreapp3.0/System.Drawing.Common.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/ref/netstandard.dll": {
+      "fingerprint": {
+        "bytes": 1319560,
+        "sha256": "1799854d01a89d141fecc4c4548b01e51fa57118c9b18eac66a752f3bbe98c02",
+        "sha512": "5e28a8a625b18c46aa3e3536891148f63a0011d71c0d7c53353931ede59d46e75748519e3dc76e09980c11e8c324fe657a40a2f87af1548663f43564bb03c57c"
+      },
+      "sourceCommit": "18a36291e48808fa7ef2d00a764ceb1ec95645a5",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "3eb87644f79bcffb3c0331dbdac3c7837265f2cdf58a7bfd93e431776f77c9ba",
+          "member": "build/netstandard2.0/ref/netstandard.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/ref/mscorlib.dll": {
+      "fingerprint": {
+        "bytes": 54408,
+        "sha256": "76b21520c37d7181c6857198c09ee896dea574c7d907b2f4c65b2d705b1f5d71",
+        "sha512": "73f38e61b963570f71422ab3f399bbe4e19b013b1bf418a184061bc9c53c175ec075b1600e83dcc02b22685999285a7013d40e4992118d10ea59e5f8023a6956"
+      },
+      "sourceCommit": "18a36291e48808fa7ef2d00a764ceb1ec95645a5",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "3eb87644f79bcffb3c0331dbdac3c7837265f2cdf58a7bfd93e431776f77c9ba",
+          "member": "build/netstandard2.0/ref/mscorlib.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/Sdks/Microsoft.NET.Sdk/tools/net472/System.Numerics.Vectors.dll": {
+      "fingerprint": {
+        "bytes": 115856,
+        "sha256": "1d3ef8698281e7cf7371d1554afef5872b39f96c26da772210a33da041ba1183",
+        "sha512": "0b14a039ca67982794a2bb69974ef04a7fbee3686d7364f8f4db70ea6259d29640cbb83d5b544d92fa1d3676c7619cd580ff45671a2bb4753ed8b383597c6da8"
+      },
+      "sourceCommit": "30ab651fcb4354552bd4891619a0bdd81e0ebdbf",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "a9d49320581fda1b4f4be6212c68c01a22cdf228026099c20a8eabefcf90f9cf",
+          "member": "lib/net46/System.Numerics.Vectors.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/Sdks/Microsoft.NET.Sdk/tools/net472/System.Buffers.dll": {
+      "fingerprint": {
+        "bytes": 20856,
+        "sha256": "accccfbe45d9f08ffeed9916e37b33e98c65be012cfff6e7fa7b67210ce1fefb",
+        "sha512": "5fc7fee5c25cb2eee19737068968e00a00961c257271b420f594e5a0da0559502d04ee6ba2d8d2aad77f3769622f6743a5ee8dae23f8f993f33fb09ed8db2741"
+      },
+      "sourceCommit": "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "c30b3dd2c7e2f4cee4b823d692fd42118309b42ab1f5007f923d329a5b0d6b12",
+          "member": "lib/net461/System.Buffers.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/Sdks/Microsoft.NET.Sdk/tools/net472/System.Threading.Tasks.Extensions.dll": {
+      "fingerprint": {
+        "bytes": 25984,
+        "sha256": "4f81ffd0dc7204db75afc35ea4291769b07c440592f28894260eea76626a23c6",
+        "sha512": "da7ab8c0100e7d074f0e680b28d241940733860dfbdc5b8c78428b76e807f27e44d1c5ec95ee80c0b5098e8c5d5da4d48bce86800164f9734a05035220c3ff11"
+      },
+      "sourceCommit": "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "a304a963cc0796c5179f9c6b7d8022bbce3b2fa7c029eb6196f631f7b462d678",
+          "member": "lib/net461/System.Threading.Tasks.Extensions.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/Sdks/Microsoft.NET.Sdk/tools/net472/System.Memory.dll": {
+      "fingerprint": {
+        "bytes": 141184,
+        "sha256": "8e76318e8b06692abf7dab1169d27d15557f7f0a34d36af6463eff0fe21213c7",
+        "sha512": "293d8c709bc68d2c980a0df423741ce06d05ff757077e63986d34cb6459f9623a024d12ef35a280f50d3d516d98abe193213b9ca71bfde2a9fe8753b1a6de2f0"
+      },
+      "sourceCommit": "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "dec0847f33b8823e4260672d97d657411461c00ada3107ec7bbcb32a845eeb91",
+          "member": "lib/net461/System.Memory.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/Sdks/Microsoft.NET.Sdk/tools/net472/System.ValueTuple.dll": {
+      "fingerprint": {
+        "bytes": 25232,
+        "sha256": "e905d102585b22c6df04f219af5cbdbfa7bc165979e9788b62df6dcc165e10f4",
+        "sha512": "6b223ce7f580a40a8864a762e3d5cccf1d34a554847787551e8a5d4d05d7f7a5f116f2de8a1c793f327a64d23570228c6e3648a541dd52f93d58f8f243591e32"
+      },
+      "sourceCommit": "30ab651fcb4354552bd4891619a0bdd81e0ebdbf",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "9e21fa9767d4e76bc0cee065c1d40cc34384a114bfec4d70e6c981168a926802",
+          "member": "lib/net47/System.ValueTuple.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/Sdks/Microsoft.NET.ILLink.Tasks/tools/net472/System.Numerics.Vectors.dll": {
+      "fingerprint": {
+        "bytes": 115856,
+        "sha256": "1d3ef8698281e7cf7371d1554afef5872b39f96c26da772210a33da041ba1183",
+        "sha512": "0b14a039ca67982794a2bb69974ef04a7fbee3686d7364f8f4db70ea6259d29640cbb83d5b544d92fa1d3676c7619cd580ff45671a2bb4753ed8b383597c6da8"
+      },
+      "sourceCommit": "30ab651fcb4354552bd4891619a0bdd81e0ebdbf",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "a9d49320581fda1b4f4be6212c68c01a22cdf228026099c20a8eabefcf90f9cf",
+          "member": "lib/net46/System.Numerics.Vectors.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/Sdks/Microsoft.NET.ILLink.Tasks/tools/net472/System.Buffers.dll": {
+      "fingerprint": {
+        "bytes": 20856,
+        "sha256": "accccfbe45d9f08ffeed9916e37b33e98c65be012cfff6e7fa7b67210ce1fefb",
+        "sha512": "5fc7fee5c25cb2eee19737068968e00a00961c257271b420f594e5a0da0559502d04ee6ba2d8d2aad77f3769622f6743a5ee8dae23f8f993f33fb09ed8db2741"
+      },
+      "sourceCommit": "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "c30b3dd2c7e2f4cee4b823d692fd42118309b42ab1f5007f923d329a5b0d6b12",
+          "member": "lib/net461/System.Buffers.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/Sdks/Microsoft.NET.ILLink.Tasks/tools/net472/System.Memory.dll": {
+      "fingerprint": {
+        "bytes": 141184,
+        "sha256": "8e76318e8b06692abf7dab1169d27d15557f7f0a34d36af6463eff0fe21213c7",
+        "sha512": "293d8c709bc68d2c980a0df423741ce06d05ff757077e63986d34cb6459f9623a024d12ef35a280f50d3d516d98abe193213b9ca71bfde2a9fe8753b1a6de2f0"
+      },
+      "sourceCommit": "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "dec0847f33b8823e4260672d97d657411461c00ada3107ec7bbcb32a845eeb91",
+          "member": "lib/net461/System.Memory.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/Sdks/Microsoft.NET.Sdk.Razor/tasks/net472/System.Numerics.Vectors.dll": {
+      "fingerprint": {
+        "bytes": 115856,
+        "sha256": "1d3ef8698281e7cf7371d1554afef5872b39f96c26da772210a33da041ba1183",
+        "sha512": "0b14a039ca67982794a2bb69974ef04a7fbee3686d7364f8f4db70ea6259d29640cbb83d5b544d92fa1d3676c7619cd580ff45671a2bb4753ed8b383597c6da8"
+      },
+      "sourceCommit": "30ab651fcb4354552bd4891619a0bdd81e0ebdbf",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "a9d49320581fda1b4f4be6212c68c01a22cdf228026099c20a8eabefcf90f9cf",
+          "member": "lib/net46/System.Numerics.Vectors.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/Sdks/Microsoft.NET.Sdk.Razor/tasks/net472/System.Buffers.dll": {
+      "fingerprint": {
+        "bytes": 20856,
+        "sha256": "accccfbe45d9f08ffeed9916e37b33e98c65be012cfff6e7fa7b67210ce1fefb",
+        "sha512": "5fc7fee5c25cb2eee19737068968e00a00961c257271b420f594e5a0da0559502d04ee6ba2d8d2aad77f3769622f6743a5ee8dae23f8f993f33fb09ed8db2741"
+      },
+      "sourceCommit": "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "c30b3dd2c7e2f4cee4b823d692fd42118309b42ab1f5007f923d329a5b0d6b12",
+          "member": "lib/net461/System.Buffers.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/Sdks/Microsoft.NET.Sdk.Razor/tasks/net472/System.Threading.Tasks.Extensions.dll": {
+      "fingerprint": {
+        "bytes": 25984,
+        "sha256": "4f81ffd0dc7204db75afc35ea4291769b07c440592f28894260eea76626a23c6",
+        "sha512": "da7ab8c0100e7d074f0e680b28d241940733860dfbdc5b8c78428b76e807f27e44d1c5ec95ee80c0b5098e8c5d5da4d48bce86800164f9734a05035220c3ff11"
+      },
+      "sourceCommit": "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "a304a963cc0796c5179f9c6b7d8022bbce3b2fa7c029eb6196f631f7b462d678",
+          "member": "lib/net461/System.Threading.Tasks.Extensions.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/Sdks/Microsoft.NET.Sdk.Razor/tasks/net472/System.Memory.dll": {
+      "fingerprint": {
+        "bytes": 141184,
+        "sha256": "8e76318e8b06692abf7dab1169d27d15557f7f0a34d36af6463eff0fe21213c7",
+        "sha512": "293d8c709bc68d2c980a0df423741ce06d05ff757077e63986d34cb6459f9623a024d12ef35a280f50d3d516d98abe193213b9ca71bfde2a9fe8753b1a6de2f0"
+      },
+      "sourceCommit": "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "dec0847f33b8823e4260672d97d657411461c00ada3107ec7bbcb32a845eeb91",
+          "member": "lib/net461/System.Memory.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/Sdks/Microsoft.NET.Sdk.Razor/tasks/net472/System.ValueTuple.dll": {
+      "fingerprint": {
+        "bytes": 25232,
+        "sha256": "e905d102585b22c6df04f219af5cbdbfa7bc165979e9788b62df6dcc165e10f4",
+        "sha512": "6b223ce7f580a40a8864a762e3d5cccf1d34a554847787551e8a5d4d05d7f7a5f116f2de8a1c793f327a64d23570228c6e3648a541dd52f93d58f8f243591e32"
+      },
+      "sourceCommit": "30ab651fcb4354552bd4891619a0bdd81e0ebdbf",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "9e21fa9767d4e76bc0cee065c1d40cc34384a114bfec4d70e6c981168a926802",
+          "member": "lib/net47/System.ValueTuple.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/System.Configuration.ConfigurationManager.dll": {
+      "fingerprint": {
+        "bytes": 375912,
+        "sha256": "4668f89524fcb4d71950e0ad7e0d56e5e5db2c70e395ad49f7db6a8164cc50d6",
+        "sha512": "37b143c9ff3d06d87b07bd2118a22b48f7da590e5ae0c03d40a9b9bbbe45a184f091a23fb6cb7cf0ff8ba68e06815078d8e0738caa4529666e2c98c6f7f057a0"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "ad88e9fd499a808e1950b535a1c89afc0897c4b34bf2e84c57c2c11784055b5d",
+          "member": "lib/netstandard2.0/System.Configuration.ConfigurationManager.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/Microsoft.Extensions.CommandLineUtils.dll": {
+      "fingerprint": {
+        "bytes": 29176,
+        "sha256": "89d044cc1f37067d258294dd7ae9548ee128defa9940677e64fd3dfa630fc856",
+        "sha512": "70cb66a0028d222e11cedda1aa6eac5fe85012aca954ba2eab3d8c7cb7289f041458a859adfcdc189dbda3462a0d8fb46887b38d08fe53aa2d387e8f0d3e2c78"
+      },
+      "sourceCommit": "4f17c0aaa62b4608ee9ae8c33dee3944383d36f2",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "618fbd5361a07d18a74e8df0f6473b6225614ee375d52397db5f09f952d2181d",
+          "member": "lib/netstandard1.3/Microsoft.Extensions.CommandLineUtils.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/System.Drawing.Common.dll": {
+      "fingerprint": {
+        "bytes": 143408,
+        "sha256": "13efece14e17b7f885afff8377b652a975c038964a8273805b80b9afb38f7077",
+        "sha512": "8730619094eceb6d84cbe4552b5ea4b0aaf6389312c7f4efeb95efe3f14abe13ea4efb5c8e5d201a632690d2bdcede363abcf2a5d46ecac946a330d0dda45f87"
+      },
+      "sourceCommit": "02b11eeee1fbc5f3ef43a1452fe07efd25fa1715",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "0f7a86fb101eefc9591ef95ca3d8072b64c400cdfbd24d3d73af92422f3bdc79",
+          "member": "lib/netstandard2.0/System.Drawing.Common.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/System.Security.Permissions.dll": {
+      "fingerprint": {
+        "bytes": 92536,
+        "sha256": "74ef3b67960a9b569fed9ac457157769dbfe433b0f4fa13c52167c2246bfed71",
+        "sha512": "bacdf908ad5a92577eb12ef3a7342b8d4dac67c5d8fdeeeae044677d0d35db64caf9878c1f1b96f30549849af3351588aa5271c1c6d2b6003658554e553d4911"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "04681730b522e6bc559a60a18c885c5d4c62b098ef94d4e85e5c9a21b531c38d",
+          "member": "lib/netcoreapp3.0/System.Security.Permissions.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/runtimes/unix/lib/netcoreapp3.0/System.Drawing.Common.dll": {
+      "fingerprint": {
+        "bytes": 372840,
+        "sha256": "000b09d998b23159ab9e7ef87c7cb09aad8c9cfb366f4ae69dfca50af5a166c0",
+        "sha512": "d76aec9d5da8c78598e6fce3d7f849714a3bfea105943a9516113ea338589caab546aa786b0d5292a2cfb50a5a63255236d5f3384fab47d52f8bcfb5f167d1ff"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "0f7a86fb101eefc9591ef95ca3d8072b64c400cdfbd24d3d73af92422f3bdc79",
+          "member": "runtimes/unix/lib/netcoreapp3.0/System.Drawing.Common.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/runtimes/win/lib/netcoreapp3.0/Microsoft.Win32.SystemEvents.dll": {
+      "fingerprint": {
+        "bytes": 50248,
+        "sha256": "1d5bbfb227f20e866cf25f649a059b61c3f35336f69ebd19b8ede7b6e14a7414",
+        "sha512": "5ed13debf26f120c80c09df572571b3bb05fcabee7b1c7d945d2d767b13a2fe1c5861cad4fa1fea1658357fb025f9237f7ae2de510db120cff6ef4041d5f6707"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "187c670f53e56f7d862565564afd18e752a0b656fe71d2a03985416194a0545e",
+          "member": "runtimes/win/lib/netcoreapp3.0/Microsoft.Win32.SystemEvents.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/runtimes/win/lib/netcoreapp3.0/System.Windows.Extensions.dll": {
+      "fingerprint": {
+        "bytes": 56184,
+        "sha256": "b0b15ee123d24a220dc3446c96a6273e2fdade71d1f352bf06217bde57778b24",
+        "sha512": "4ed8fb355723824c6e608b38d397c215142d508c80e5000df854200de8f89b44eb4afe5829ea40f7706a6149527dbd8c748ff3af9172d9a20b24958dd94e6484"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "c96f86bd0ada9d179aa8fc39645bfe9928c1c90e72d6944b974e492047f7b585",
+          "member": "runtimes/win/lib/netcoreapp3.0/System.Windows.Extensions.dll"
+        }
+      ]
+    },
+    "sdk/6.0.136/runtimes/win/lib/netcoreapp3.0/System.Drawing.Common.dll": {
+      "fingerprint": {
+        "bytes": 414280,
+        "sha256": "df409de7822ebe4871aadef1f8e4a553406395c8d692704037781777ba650300",
+        "sha512": "f1497bb0cb39a325923bd13314a8c8125b06978bd2d6bdb7387f4e838d27ad0e735461c8bc2584e421e9c9e8da2aaedc6757cad6f6678ec5bced41a81e8d0e34"
+      },
+      "sourceCommit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "0f7a86fb101eefc9591ef95ca3d8072b64c400cdfbd24d3d73af92422f3bdc79",
+          "member": "runtimes/win/lib/netcoreapp3.0/System.Drawing.Common.dll"
+        }
+      ]
+    }
+  },
+  "sources": {
+    "0f7f38c4fd323b26da10cce95f857f77f0f09b48": {
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "tree": "4ccff6a4546fb54fe63c8a4ee6bd5110b4bd22e0",
+      "licenses": {
+        "LICENSE.TXT": {
+          "bytes": 1116,
+          "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+          "sha512": "27f511fefea2390347bb7ea63f7795a26780ad43eca80d717c92c70a434d28fdf136c4b902750b52813ed9cf0d3c51af206062323a0496459461d985a34ac5c7",
+          "gitBlob": "984713a49622a96da110443c15477613bc12656b"
+        }
+      }
+    },
+    "4ac4c0367003fe3973a3648eb0715ddb0e3bbcea": {
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "4ac4c0367003fe3973a3648eb0715ddb0e3bbcea",
+      "tree": "6678bf2e078a916d75d17ddb219d590475022476",
+      "licenses": {
+        "LICENSE.TXT": {
+          "bytes": 1116,
+          "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+          "sha512": "27f511fefea2390347bb7ea63f7795a26780ad43eca80d717c92c70a434d28fdf136c4b902750b52813ed9cf0d3c51af206062323a0496459461d985a34ac5c7",
+          "gitBlob": "984713a49622a96da110443c15477613bc12656b"
+        }
+      }
+    },
+    "02b11eeee1fbc5f3ef43a1452fe07efd25fa1715": {
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "02b11eeee1fbc5f3ef43a1452fe07efd25fa1715",
+      "tree": "16ba0636a1eb15622275cf6332a53b0f5c412544",
+      "licenses": {
+        "LICENSE.TXT": {
+          "bytes": 1116,
+          "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+          "sha512": "27f511fefea2390347bb7ea63f7795a26780ad43eca80d717c92c70a434d28fdf136c4b902750b52813ed9cf0d3c51af206062323a0496459461d985a34ac5c7",
+          "gitBlob": "984713a49622a96da110443c15477613bc12656b"
+        }
+      }
+    },
+    "8321c729934c0f8be754953439b88e6e1c120c24": {
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "8321c729934c0f8be754953439b88e6e1c120c24",
+      "tree": "c19049409e3596a11e85b8426aa63469d2c94e17",
+      "licenses": {
+        "LICENSE.TXT": {
+          "bytes": 1116,
+          "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+          "sha512": "27f511fefea2390347bb7ea63f7795a26780ad43eca80d717c92c70a434d28fdf136c4b902750b52813ed9cf0d3c51af206062323a0496459461d985a34ac5c7",
+          "gitBlob": "984713a49622a96da110443c15477613bc12656b"
+        }
+      }
+    },
+    "18a36291e48808fa7ef2d00a764ceb1ec95645a5": {
+      "repository": "https://github.com/dotnet/standard",
+      "commit": "18a36291e48808fa7ef2d00a764ceb1ec95645a5",
+      "tree": "fc9ba2e6386a4b96ab9aff9ccdd8e3c3d5d2ae1e",
+      "licenses": {
+        "LICENSE.TXT": {
+          "bytes": 1094,
+          "sha256": "18647d26bc4c4d892a5fd29de1264d10906b3124cafa98313300ff300441c7f0",
+          "sha512": "593941428fcef035d65494cf4674614c1d3788c4c550d2ad91f847f5a6cc847c2285f066f10a4bc6935b087383e2ec5508f8a296031a2b077745dd7f2190a2c4",
+          "gitBlob": "56e51b1c06b5c4dead2b36c916acd983c347966e"
+        }
+      }
+    },
+    "30ab651fcb4354552bd4891619a0bdd81e0ebdbf": {
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "30ab651fcb4354552bd4891619a0bdd81e0ebdbf",
+      "tree": "8fc3ff70e6889bb67b3c86eafabc8c7ec4d2fcc0",
+      "licenses": {
+        "LICENSE.TXT": {
+          "bytes": 1116,
+          "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+          "sha512": "27f511fefea2390347bb7ea63f7795a26780ad43eca80d717c92c70a434d28fdf136c4b902750b52813ed9cf0d3c51af206062323a0496459461d985a34ac5c7",
+          "gitBlob": "984713a49622a96da110443c15477613bc12656b"
+        }
+      }
+    },
+    "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f": {
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
+      "tree": "711a0cab00d055132c81d1b483e05c021419ec7a",
+      "licenses": {
+        "LICENSE.TXT": {
+          "bytes": 1116,
+          "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+          "sha512": "27f511fefea2390347bb7ea63f7795a26780ad43eca80d717c92c70a434d28fdf136c4b902750b52813ed9cf0d3c51af206062323a0496459461d985a34ac5c7",
+          "gitBlob": "984713a49622a96da110443c15477613bc12656b"
+        }
+      }
+    },
+    "4f17c0aaa62b4608ee9ae8c33dee3944383d36f2": {
+      "repository": "https://github.com/aspnet/Common",
+      "commit": "4f17c0aaa62b4608ee9ae8c33dee3944383d36f2",
+      "tree": "826dae2a9bd5fbfae9d7c2b7463dc0d9140f1898",
+      "licenses": {
+        "LICENSE.txt": {
+          "bytes": 575,
+          "sha256": "6c9045c1cf391713484e2b7ee3e766ceae5f4696c111abaf53ed5e23e129ce24",
+          "sha512": "60412de326f7ed4dcaf22354b5a54c31201bc906af6aa6ef0be857e01946fd8fe592d82030d99f9346482de59a5ed9bbfc5c47c25d2a80f1200d85883cc1f6e4",
+          "gitBlob": "0bdc1962b61072fec286c90d320c47882092a5ae"
+        }
+      }
+    }
+  },
+  "packageRepositoryMetadataSynthesized": false,
+  "localBuildClaimed": false,
+  "byteIdenticalCompilationClaimed": false,
+  "sourceLicenseSubstitutedForOriginalBinaryLicense": false,
+  "licenseReference": {
+    "sourceCommit": "cc7fb0593127e24f55ce016fb3ac85b5b2857fec",
+    "sourceTree": "64a7abaa0abbf25f525e52f7e3086931c2b59743",
+    "sourcePath": "src/package/licenses/LICENSE_NET.txt",
+    "fingerprint": {
+      "bytes": 9062,
+      "sha256": "eb6370966273e1dc5a801c093e68d5999b33858c28031f453ac4a6467d5380df",
+      "sha512": "2a0a00f5a448fd6338c6f27d60aeb579440d2db6e90ab62a0ec8bc2677cb437b073ffea65f8890c1f99829fc20b193b054e3d1f9c0499cc924dbaefd4b9098f7"
+    },
+    "gitBlob": "5b03e9dce1e59a2cbbd0f323ece4cfff1835881f",
+    "originalLicenseUrl": "http://www.microsoft.com/web/webpi/eula/net_library_eula_enu.htm",
+    "vstestConsumptionOfCommandLineUtilsClaimed": false
+  }
+}
