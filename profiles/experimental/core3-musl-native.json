@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "kind": "core31-musl-native-source-experiment",
+  "issue": 35,
+  "qualification": false,
+  "releaseAdmission": false,
+  "sourceSdkProduct": false,
+  "architecture": "aarch64",
+  "alpine": "3.24.4",
+  "source": {
+    "repository": "https://github.com/dotnet/coreclr",
+    "commit": "c17d273aa03d4b9d14c92248a91f0d0faa881b98",
+    "archive": "coreclr31.tar.gz",
+    "bytes": 42793586,
+    "sha256": "652c190d653f38019a9c5b24d904776c062642bcb6e75c8524ffb04c5375e910",
+    "originalArcade": "1.0.0-beta.22114.9",
+    "originalNativeVersionTarget": "eng/empty.csproj:GenerateNativeVersionFile"
+  },
+  "patches": [
+    {"path": "patches/core3-musl/0002-clang20-typed-null.patch", "sha256": "5d33d0d85c9d7007c99af8327a8d8ab338fcdf92258ed437572573d5f0bb8a5f"},
+    {"path": "patches/core3-musl/0004-coreclr31-clang20-native-compat.patch", "sha256": "ef09d20a24f44e9f581ee70acc4eb515f93a1b24969df944ad629f79d3880ceb"}
+  ],
+  "privateBootstrap": {
+    "version": "8.0.131",
+    "rid": "linux-musl-arm64",
+    "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/8.0.131/dotnet-sdk-8.0.131-linux-musl-arm64.tar.gz",
+    "sha512": "aaa3e485166a5779a41cc7ec33a03e322d57aaede0dc4afed850d56371e9fdf06fd458eef412660b82a4773a8b625b213a0db7202623206d72c6a68a4fb90032",
+    "role": "Original native-version target and own test fixture compiler only; no bootstrap binary becomes a native product output."
+  },
+  "privateVersionSdk": {
+    "id": "microsoft.dotnet.arcade.sdk",
+    "version": "1.0.0-beta.22114.9",
+    "bytes": 1167851,
+    "sha256": "04f6d7be01908c362ae0c34b2f5334016a9158c4c595b14d77bd9d4daeac42a7",
+    "sha512": "6f025997650d53bf82299f108c033b2fb3eb111cb1485a72554ef08725f7945db0da54d88e7a11124aad566ea597ebb93db2386458766477d50aa47492983c30",
+    "publisherRepository": "https://github.com/dotnet/arcade",
+    "publisherCommit": "184ce2c7f17508264ffa19b307d97e7568da05ab",
+    "license": "MIT",
+    "role": "Original SDK resolver input outside project.assets caches; unchanged private native-version tooling, with complete corresponding-source audit still pending."
+  },
+  "runtimeVersion": "3.1.32",
+  "build": {
+    "configuration": "Release",
+    "compiler": "/usr/lib/llvm20/bin/clang",
+    "cxxCompiler": "/usr/lib/llvm20/bin/clang++",
+    "maxCpuCount": 2,
+    "targets": ["coreclr", "clrjit", "mscordaccore", "mscordbi", "coreclrtraceptprovider", "crossgen"],
+    "readyToRun": true,
+    "perfTracing": true,
+    "profiling": true,
+    "globalWarningsAsErrors": true,
+    "visibleCompatibilityWarning": "Existing GNU C++ variable-length arrays: -Wno-error=vla-cxx-extension, with the warning retained."
+  },
+  "scope": "Native3.1 source build and bounded diagnostic consumers. Original host/managed runtime and source OpenSSL compatibility are explicit test inputs. Core3.0 needs its own exact source build. Complete source SDK, used-source/license audit, final construction, two-CPU qualification and release admission remain separate mandatory gates."
+}

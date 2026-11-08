@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "issue": 35,
   "date": "2026-11-08",
-  "status": "bounded-native-managed-toolset-and-source-consumer-proof",
+  "status": "bounded-managed-toolset-and-full-coreclr31-native-source-proof",
   "qualification": false,
   "releaseAdmission": false,
   "sourceSdkProduct": false,
@@ -61,6 +61,21 @@
       "path": "patches/core3-musl/0003-preserve-declared-vstest-ui-culture.patch",
       "bytes": 1020,
       "sha256": "0a39b353824b1d2fdc9ad19db9ab356135594c452f89c179b51bdaa8f7b0de58"
+    },
+    {
+      "path": "scripts/core3-musl-native-probe.py",
+      "bytes": 21003,
+      "sha256": "40199e085b6e8b705b3575b8f6726ff8be4d9c35e98bcfce58ecdee3dfebedb3"
+    },
+    {
+      "path": "profiles/experimental/core3-musl-native.json",
+      "bytes": 2991,
+      "sha256": "2cfc6853481df0856ba98ee81d5aca2cdcfb36b882932845119700bf82ec27d9"
+    },
+    {
+      "path": "patches/core3-musl/0004-coreclr31-clang20-native-compat.patch",
+      "bytes": 17275,
+      "sha256": "ef09d20a24f44e9f581ee70acc4eb515f93a1b24969df944ad629f79d3880ceb"
     }
   ],
   "sharedAuditor": {
@@ -71,7 +86,9 @@
   "containers": {
     "worker": "94ff1d9ff574e99b27d367d9ef1854476f5b92cab47e6d84aab74e06e0774dd9",
     "minimalConsumer": "2bf31f6f286274c456ef35482b34665714feaef8e66b7da6bc187653efddaa33",
-    "engine": "Local native ARM64 rootful Podman in D-backed WSL; not final GHA Docker-default qualification"
+    "engine": "Local native ARM64 rootful Podman in D-backed WSL; not final GHA Docker-default qualification",
+    "nativeWorker": "a8d188e0ab5280e93591a711b4298a1537bda02dfd4c875d249353f4d4601f38",
+    "tracingConsumer": "5e35cd8a916b5f5d83ad965fa0a1b6814721a955f1a0eea68bd8de71e3601ccf"
   },
   "proofs": {
     "runs": {
@@ -733,7 +750,7 @@
     "completeSdkToolsetLayout": false,
     "fullCoreClrJitCrossgenSourceBuild": false,
     "sourceBuiltCompilerMsbuildNugetAndOtherToolsetDependencies": false,
-    "actualNextDependency": "Full native Core3.1 CoreCLR/JIT/DAC/DBI and actual managed-event tracing, F# localization, complete corresponding-source/license mapping of the diagnostic SDK/toolset and full native core-sdk/ASP.NET construction. Repeat complete Core3.0 and both native CPU producer/consumer qualification before any distribution admission.",
+    "actualNextDependency": "Complete Core3.1 framework/core-sdk/ASP.NET source construction, F# localization and full used-source/license mapping. Independent Core3.0 native source build, both native CPU final producer/consumer qualification and all distribution admission remain mandatory.",
     "failedBoundedAttempts": [
       "Original CLI defaults request unpublished Microsoft.Build16.7.0-preview-20265-03; approximate matches were rejected by NU1603, never accepted as outputs.",
       "Authoritative source-build coherent Microsoft.Build16.7.3 is also absent from configured public feeds; source compilation is required.",
@@ -743,11 +760,12 @@
     "architectureBlockerEstablished": false,
     "scope": "Concrete dependency work; neither EOL nor absent published SDK is treated as proof a port cannot be built.",
     "boundedManagedComponentsSucceeded": true,
-    "historicalBlockersDisposition": "The earlier missing MSBuild preview and Arcade SDK remain preserved as failed attempts. Native exact-source MSBuild16.7.3 now builds via the explicit pinned imported private Arcade22558 override; local component feeds close the demonstrated CLI/NuGet/VSTest/F# consumer paths, without claiming all remaining toolset imports have corresponding source."
+    "historicalBlockersDisposition": "The earlier missing MSBuild preview and Arcade SDK remain preserved as failed attempts. Native exact-source MSBuild16.7.3 now builds via the explicit pinned imported private Arcade22558 override; local component feeds close the demonstrated CLI/NuGet/VSTest/F# consumer paths, without claiming all remaining toolset imports have corresponding source.",
+    "boundedCore31FullNativeSourceBuild": true
   },
   "remainingGates": [
     "Complete genuine SDK/core-sdk/toolset source producer and full used-source/license audit",
-    "Full native runtime/JIT/crossgen and ASP.NET producer graph",
+    "Complete Core3.1 managed framework/core-sdk/ASP.NET producer graph and independent Core3.0 native CLR/JIT/crossgen source build",
     "F# all13 original cultures and complete imported managed component corresponding-source/license mapping",
     "Normal optimization and native apphost in final SDK",
     "Native x64 and ARM64 final Docker-default GHA producer/consumer qualification",
@@ -1401,6 +1419,86 @@
       "path": ".build/core3-musl-source-phase/tracked-vstest-source-data-fiftytwo-v3/positive.json",
       "bytes": 184770,
       "sha256": "72a4073b220caeeae8d4d69d99100ad57e8e41162af927135cf8c97436930747"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-coreclr31-native-fiftyfour/results.json",
+      "bytes": 14622,
+      "sha256": "0857cc96d133ec8d97eb77ec8e6c41e0fe2b9f6d9f5727fe1cb5d8c7037a5d05"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-coreclr31-native-fiftyfour/command-progress.json",
+      "bytes": 9929,
+      "sha256": "0c75488635950d55b02d46b58989bd2ef5d83edd6706c7dac2db7235f0f97034"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-coreclr31-native-fiftyfour/CMakeCache.txt",
+      "bytes": 44778,
+      "sha256": "97e308176a91b02d05e9177a57e1c3028c8d3d32773fc39a747087e9afc6ae9a"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-coreclr31-native-fiftyfour/compile_commands.json",
+      "bytes": 6014782,
+      "sha256": "72b474a8a5df5f280898a4864e76a8062b9aa6822a7ba33b7d076b8a23e97e20"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-coreclr31-native-fiftyfour/version.c",
+      "bytes": 125,
+      "sha256": "23561d2e5fbbf9ff14e5a43ff6b3efb72ac99bc4d32480617d90464a889d2d95"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-coreclr31-native-fiftyfour/generated-source-manifest.json",
+      "bytes": 163678,
+      "sha256": "1f08a46910280304261592d1308afd82cb98db697e24ef76571dc5342971a8f6"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-coreclr31-consumer-fiftyfive/results.json",
+      "bytes": 16696,
+      "sha256": "19bd17e34277b2dced17128d13ded037523e1452f055dbe96ce839475ebd6046"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-coreclr31-consumer-fiftyfive/command-progress.json",
+      "bytes": 11405,
+      "sha256": "97af2973946ed3c265ce9dce12c9b3622dca479f3dfd5b89b8d0fcdf283e4973"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-coreclr31-lttng-fiftysix/results.json",
+      "bytes": 7113,
+      "sha256": "58e27fdfff4e7fcdc5db42ee9918f80debbc38ee0e08d2671319be6331a47463"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-coreclr31-lttng-fiftysix/command-progress.json",
+      "bytes": 3437,
+      "sha256": "fb4b037b0db2b067478051148d4b33abcbc50c1c6ee62749f0bbd52ead0bd5fe"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-coreclr31-resolver-fiftyseven/results.json",
+      "bytes": 1506,
+      "sha256": "3685d2e92b93e81494aeb6c8f9cf7cc4d382c851ed4a04e0f33c4d876ab87bac"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-coreclr31-resolver-fiftyseven/private-version-sdk-input.json",
+      "bytes": 924,
+      "sha256": "61acf8e754001050843984aeae554b8208e77e9f449f530ddf0662b63d2b7b1b"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/full-coreclr31-register-flag-abi/results.json",
+      "bytes": 1302,
+      "sha256": "c008086ab3778cc9e99f2f591d4fa64c6f76bce6a96ea7c15aa11be8a8f5ebde"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/full-coreclr31-zap-enum-abi-v2/results.json",
+      "bytes": 1166,
+      "sha256": "d07675f983e13129cccdfe7bd391912cfc008aef37ccea1847d373c53c173583"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/full-coreclr31-pristine-git/results.json",
+      "bytes": 1956,
+      "sha256": "9c02da118e76425ce0a4c931a2c74bb522ca5b8710ef23145d31619446016e1f"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/full-coreclr31-final-source-patch-v1/results.json",
+      "bytes": 8268,
+      "sha256": "b2b05a853733f8317fb0a15fbfd52fed2d0bc70543955c01ef1d7cfd84461f2c"
     }
   ],
   "managedSourceCheckpoint": {
@@ -1680,6 +1778,185 @@
         "run": "52initial",
         "reason": "Source-data fixture initially expected only234translated XLF files; original archive also contains18neutral XLFs. Corrected helper preserves all252 originals and converts234translations; positive and4forgery controls pass."
       }
+    ]
+  },
+  "nativeSourceCheckpoint": {
+    "qualification": false,
+    "releaseAdmission": false,
+    "sourceSdkProduct": false,
+    "completeUsedSourceAudit": false,
+    "architecture": "aarch64",
+    "sourceCommit": "c17d273aa03d4b9d14c92248a91f0d0faa881b98",
+    "freshSourceProducer": {
+      "path": ".build/core3-musl-source-phase/tracked-coreclr31-native-fiftyfour/results.json",
+      "bytes": 14622,
+      "sha256": "0857cc96d133ec8d97eb77ec8e6c41e0fe2b9f6d9f5727fe1cb5d8c7037a5d05"
+    },
+    "originalReleaseSixTargetSeconds": 469.21,
+    "sourceCommandsPassed": 15,
+    "sourceInput": {
+      "bytes": 42793586,
+      "sha256": "652c190d653f38019a9c5b24d904776c062642bcb6e75c8524ffb04c5375e910",
+      "sha512": "f9ea59bb1b4601532ef5f691415bfa55ca5be858fea5d06d3cafe00c8e4fb7974085394c5787e7006132dce216f535a0443432ba1ec9089d49c008d730f65200"
+    },
+    "patches": [
+      {
+        "path": "patches/core3-musl/0002-clang20-typed-null.patch",
+        "sha256": "5d33d0d85c9d7007c99af8327a8d8ab338fcdf92258ed437572573d5f0bb8a5f"
+      },
+      {
+        "path": "patches/core3-musl/0004-coreclr31-clang20-native-compat.patch",
+        "sha256": "ef09d20a24f44e9f581ee70acc4eb515f93a1b24969df944ad629f79d3880ceb"
+      }
+    ],
+    "originalGlobalPins": {
+      "bytes": 267,
+      "sha256": "81e8523a99a257076044a8c1a9475aaf996f50b69bba6d95d47f836e61d79316",
+      "sha512": "a05e82591bb6f406b84f2bef1da5cf898fdca8d5ca51502fd971bc0f2b52f1beed75e3e097e5e09fec0b4eb866d036374c469c5dfe18696b18c932357f104e9f"
+    },
+    "datedCommunityBuildIdentity": "20261108.4",
+    "nativeVersion": "static char sccsid[] __attribute__((used)) = \"@(#)Version 4.700.26.55804 @Commit: c17d273aa03d4b9d14c92248a91f0d0faa881b98\";",
+    "nativeArtifacts": [
+      {
+        "path": ".build/core3-musl-source-phase/tracked-coreclr31-native-fiftyfour/native/libcoreclr.so",
+        "bytes": 51721296,
+        "sha256": "e3f78ff195f682c7736ed925437976032299f85e0a71e4ecc8e340d2e6131341"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/tracked-coreclr31-native-fiftyfour/native/libclrjit.so",
+        "bytes": 18186256,
+        "sha256": "a2ecf838d7ed537a1885d53114b6f914ef93a2dbc400ebc6530cfaee7ef7fb83"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/tracked-coreclr31-native-fiftyfour/native/libmscordaccore.so",
+        "bytes": 21335264,
+        "sha256": "6b10ef7ca471d569ddaeeb54e4a839647e524f1c5c43a2bc8759c91cf2a86f74"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/tracked-coreclr31-native-fiftyfour/native/libmscordbi.so",
+        "bytes": 11024984,
+        "sha256": "69688e7bf43d6504e977616b7ed3569dbc5e46c3c237796fa94d74ee43ab8269"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/tracked-coreclr31-native-fiftyfour/native/libcoreclrtraceptprovider.so",
+        "bytes": 1686184,
+        "sha256": "a40262379c843350af31149ba2d29365cb796bd4295e7831cf646d69fe134388"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/tracked-coreclr31-native-fiftyfour/native/crossgen",
+        "bytes": 27392856,
+        "sha256": "a0964905b6e455a16171a93388c6b17f24c0042d6dab021fab3213d79c1d129e"
+      }
+    ],
+    "generatedSourceFiles": 498,
+    "generatedSource": {
+      "path": ".build/core3-musl-source-phase/tracked-coreclr31-native-fiftyfour/generated-source.tar.gz",
+      "bytes": 240397,
+      "sha256": "c875aa721bab4034abb45a52616ab9646c4ea6f863b5d66085a4be86c9c4f2dd"
+    },
+    "actualAssetsPackages": {
+      "projectAssets": 1,
+      "packages": 11,
+      "snapshot": {
+        "path": ".build/core3-musl-source-phase/tracked-coreclr31-native-fiftyfour/actual-component-restore-closure.json",
+        "bytes": 75981,
+        "sha256": "449ecf18b1fd8573d0474123ef44acd6806c7a52444f12b6c783172b4716ea58"
+      }
+    },
+    "privateSdkResolver": {
+      "scope": "Supplement the completed54 run with the SDK resolver package outside assets-root caches. The exact same pinned native source/patch/compiler graph and earlier results are untouched; future source mode performs this accounting inline.",
+      "evidence": {
+        "path": ".build/core3-musl-source-phase/tracked-coreclr31-resolver-fiftyseven/results.json",
+        "bytes": 1506,
+        "sha256": "3685d2e92b93e81494aeb6c8f9cf7cc4d382c851ed4a04e0f33c4d876ab87bac"
+      },
+      "package": {
+        "path": ".build/core3-musl-source-phase/tracked-coreclr31-resolver-fiftyseven/private-version-sdk/microsoft.dotnet.arcade.sdk.1.0.0-beta.22114.9.nupkg",
+        "bytes": 1167851,
+        "sha256": "04f6d7be01908c362ae0c34b2f5334016a9158c4c595b14d77bd9d4daeac42a7"
+      },
+      "publisher": "184ce2c7f17508264ffa19b307d97e7568da05ab",
+      "projectAssetsBindingClaimed": false,
+      "signatureTrustClaimed": false,
+      "completeCorrespondingSourceAudit": false
+    },
+    "coldR2rConsumer": {
+      "evidence": {
+        "path": ".build/core3-musl-source-phase/tracked-coreclr31-consumer-fiftyfive/results.json",
+        "bytes": 16696,
+        "sha256": "19bd17e34277b2dced17128d13ded037523e1452f055dbe96ce839475ebd6046"
+      },
+      "commandsPassed": 20,
+      "elfClosures": 17,
+      "managedNativeHeaderBytes": 124,
+      "output": {
+        "path": ".build/core3-musl-source-phase/tracked-coreclr31-consumer-fiftyfive/Cold.ni.dll",
+        "bytes": 13312,
+        "sha256": "a335d35a5748100f1cef2a71b3373d885847edb948eed4fff32ac2dfea14d935"
+      }
+    },
+    "actualManagedLttng": {
+      "evidence": {
+        "path": ".build/core3-musl-source-phase/tracked-coreclr31-lttng-fiftysix/results.json",
+        "bytes": 7113,
+        "sha256": "58e27fdfff4e7fcdc5db42ee9918f80debbc38ee0e08d2671319be6331a47463"
+      },
+      "observed": {
+        "dotnetEvents": 2555,
+        "gcStartEvents": 80,
+        "gcEndEvents": 80,
+        "nativeControlEvents": 1,
+        "listedTracepoints": 410
+      },
+      "originalSameBuildProvider": true
+    },
+    "scope": "Local native ARM64 diagnostic overlays of the new source CLR/JIT/DAC/DBI/provider onto original host/managed runtime3.1.32 and source OpenSSL compatibility; no completed source SDK or two-CPU/GHA release qualification",
+    "earlierIndependentConsumers": [
+      {
+        "path": ".build/core3-musl-source-phase/full-coreclr31-negative-consumer-v1/results.json",
+        "bytes": 4068,
+        "sha256": "a43cc63da9c7f3a27a4136baf121e012730fe7f0a90297db820cbcd58c1a4d54"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/full-coreclr31-fsharp-consumer-v1/results.json",
+        "bytes": 20784,
+        "sha256": "d03a1f61ba55b6c6267ec69f4f12204a6efcbee4336c9c88c995c4469d501b9d"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/full-coreclr31-vstest-consumer-v1/results.json",
+        "bytes": 11275,
+        "sha256": "12d311b87dcacbe161482389071d6c4a40cc9f6ead6cb9615faa19c749a03132"
+      }
+    ],
+    "originalByteAbiControls": [
+      {
+        "path": ".build/core3-musl-source-phase/full-coreclr31-register-flag-abi/results.json",
+        "bytes": 1302,
+        "sha256": "c008086ab3778cc9e99f2f591d4fa64c6f76bce6a96ea7c15aa11be8a8f5ebde"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/full-coreclr31-zap-enum-abi-v2/results.json",
+        "bytes": 1166,
+        "sha256": "d07675f983e13129cccdfe7bd391912cfc008aef37ccea1847d373c53c173583"
+      }
+    ],
+    "exactPristineSource": {
+      "path": ".build/core3-musl-source-phase/full-coreclr31-pristine-git/results.json",
+      "bytes": 1956,
+      "sha256": "9c02da118e76425ce0a4c931a2c74bb522ca5b8710ef23145d31619446016e1f"
+    },
+    "complete27FileSourceDelta": {
+      "path": ".build/core3-musl-source-phase/full-coreclr31-final-source-patch-v1/results.json",
+      "bytes": 8268,
+      "sha256": "b2b05a853733f8317fb0a15fbfd52fed2d0bc70543955c01ef1d7cfd84461f2c"
+    },
+    "preservedFailedAttempts": [
+      "Initial incomplete LLVM builder rejected before configuration; full stock LLVM20 image follows",
+      "Original native version attempt exceeded old Arcade revision range; actual dated attempts3/4 retained",
+      "Original full Release compiler diagnostics and eight successive bounded build attempts retained; final patch is replayed from fresh source54",
+      "First evidence copy failed on unsupported Windows chmod; fresh byte-only output2 retains all six actual ELFs",
+      "First cold fixture passed; crossgen help returned original usage status252. Replaced with real crossgen IL-to-R2R compilation and normal execution",
+      "Zap enum original ABI control1 failed due read-only temporary folder; fresh control2 passed without source/ABI changes"
     ]
   }
 }

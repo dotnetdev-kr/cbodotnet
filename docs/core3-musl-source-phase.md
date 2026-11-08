@@ -80,4 +80,32 @@ Use the seven original VSTest patches from source-build `ab8b115b`, followed by 
 
 Complete pristine CLI/toolset/MSBuild sources and actual Arcade SDK source archives/licenses were retained separately. The published glibc **source-only** release archive was also verified and inspected; it contains prior producer source adaptations, for example an MSBuild SDK422 bootstrap adaptation where pristine upstream requests420. No compiled glibc output, or prior adapted source as a compiled input, was reused here. Exploratory direct CLI/toolset/MSBuild attempts explicitly invoked private425 while retaining their original global pins; those overrides and the single retired-feed transport mapping are recorded, not hidden as pristine upstream behavior.
 
-F# localization, full native CLR/JIT/DAC/DBI/crossgen and ASP.NET source production, complete used-source/license review, final Core3.0 and native two-CPU producer/consumer qualification, and all distribution admission remain pending. No release workflow, SDK10 dependency policy or published product changes are part of this checkpoint.
+The [native source/consumer probe](../scripts/core3-musl-native-probe.py) and [native experiment profile](../profiles/experimental/core3-musl-native.json) now reproduce the complete CoreCLR3.1 native build from exact source `c17d273a`. Fresh tracked54 compiles all six original Release targets: CLR, JIT, DAC, DBI, LTTng provider and crossgen. Its full native command succeeds in469.21 seconds at two jobs with stock Clang20, original `-O3`, global `-Werror`, ReadyToRun, profiling and tracing enabled. The original GNU C++ VLA warning stays visible through a specific `-Wno-error=vla-cxx-extension`; optimization and runtime features remain enabled.
+
+The [native compatibility patch](../patches/core3-musl/0004-coreclr31-clang20-native-compat.patch) follows the existing two-file PAL typed-null patch. It backports the exact two upstream metadata allocation-marker hunks, makes existing raw-memory destinations explicit without changing their addresses or byte counts, and corrects invalid template member names and runtime-only DAC cache mutators. Independent native checks compare every initialized field and byte in the34-row register table, and prove the original ZapNodeType already has unsigned-int storage, size, alignment and identical named-value bytes. Explicit enum storage permits the existing computed crossgen node codes. No vendor native output enters this build.
+
+Original `eng/empty.csproj:GenerateNativeVersionFile` produces the dated community native identity `4.700.26.55804` with the actual source commit, using private pinned SDK8.0.131. The original global SDK/Arcade pins stay unchanged. Its netcoreapp2.0 version-only reference restore emits the original visible NU1903 warning; that runtime is neither executed nor shipped. The actual assets input snapshot retains11 packages and all bindings. Original Arcade22114 is an SDK resolver input outside those assets caches; separate tracked57 authenticates its unchanged1.16MB archive, publisher `184ce2c7`, and MIT metadata. Future source mode captures it inline. This additional accounting leaves completed54–56 evidence untouched and does not claim package signature trust or complete corresponding source.
+
+Fresh SDK-free tracked55 verifies all17 ELF dependency closures, cold generics/floating point/SIMD/threadpool/GC/reflection/full-ICU behavior, and real source crossgen IL-to-R2R compilation. The generated PE has a124-byte native header and runs with normal ReadyToRun enabled. Separate tracked56 records2555 decoded DotNETRuntime events,80 GCStart/80 GCEnd and one independent native LTTng control. Both consumers run non-root with networking disabled, no capabilities, no SDK/compiler, and no preload or ptrace relaxation. They explicitly overlay the new native outputs onto original host/managed runtime3.1.32 with the already source-built OpenSSL compatibility input; they are not completed source SDKs. Earlier separate native consumers also pass the negative TLS/certificate fixture, genuine source F#/FSI and source Roslyn/VSTest with all13 explicit cultures.
+
+The source worker needs full LLVM20 including llvm-ar/link and the LTTng headers. Mount a fresh writable native work directory, repository read-only and evidence outside the worktree. The pinned SDK8 archive is private version/fixture tooling; SDK425 supplies test-only3.1 targeting references. Record an actual dated community attempt:
+
+```sh
+python3 /repo/scripts/core3-musl-native-probe.py --mode source \
+  --source-archive /inputs/coreclr31.tar.gz --bootstrap-sdk /bootstrap.tar.gz \
+  --targeting-sdk /phase/bootstrap-sdk425.tar.gz --official-build-id 20261108.4 \
+  --work-dir /native-work/new-clr31 --output-dir /phase/new-clr31
+```
+
+In the separate minimal image, use a new work/evidence directory and normal container isolation:
+
+```sh
+python3 /repo/scripts/core3-musl-native-probe.py --mode consumer \
+  --native-evidence-dir /phase/new-clr31 --runtime-archive /inputs/product-runtime.tar.gz \
+  --crypto-native /inputs/candidate-verified/candidate-native/corefx31-OpenSsl.so \
+  --work-dir /tmp/new-clr31-consumer --output-dir /phase/new-clr31-consumer
+```
+
+Repeat with `--mode lttng` in the separate SDK/compiler-free tracing image and fresh directories. Native artifact bytes can differ because generated version/build paths differ; this is not a bit-reproducible claim. Original source Git identity, all27 modified source file fingerprints, native-version output, compiler commands,498 generated source files, original inputs and earlier failed attempts are retained.
+
+F# localization, complete managed framework/core-sdk/ASP.NET source production and used-source/license review, the independent Core3.0 native branch, final native two-CPU producer/consumer qualification and all distribution admission remain pending. No release workflow, SDK10 dependency policy or published product changes are part of this checkpoint.

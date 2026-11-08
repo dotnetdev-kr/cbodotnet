@@ -1,0 +1,417 @@
+Subject: [PATCH] Build the original CoreCLR3.1 native runtime with Clang20
+
+Preserve original Release optimization, R2R, profiling and LTTng tracing.
+Backport the two metadata allocation-marker hunks from upstream commit
+35a39e97345abfda05e14f609759760b37ddeb4d, preserving the old NumItems spelling.
+Make intentional raw-memory destinations explicit void pointers without changing
+addresses, pointer adjustments or byte counts. Preserve actual unsigned enum
+storage and signed one-bit register representation, independently byte-checked.
+Correct invalid unused template names, keep the existing GNU C++ VLA diagnostic
+visible, and suppress only the upstream disabled unused-variable subcategory.
+DAC guards exclude three runtime-only reflection-cache mutators; layout and
+normal runtime behavior remain unchanged. No vendor binary or feature disable.
+
+Base-CoreCLR: c17d273aa03d4b9d14c92248a91f0d0faa881b98
+Apply-After: 0002-clang20-typed-null.patch
+
+--- a/configurecompiler.cmake
++++ b/configurecompiler.cmake
+@@ -480,6 +480,8 @@
+ 
+   # Disabled common warnings
+   add_compile_options(-Wno-unused-variable)
++  # Modern Clang separates this from the existing unused-variable category.
++  add_compile_options(-Wno-unused-but-set-variable)
+   add_compile_options(-Wno-unused-value)
+   add_compile_options(-Wno-unused-function)
+ 
+@@ -493,6 +495,9 @@
+     # The -ferror-limit is helpful during the porting, it makes sure the compiler doesn't stop
+     # after hitting just about 20 errors.
+     add_compile_options(-ferror-limit=4096)
++
++    # Existing GNU C++ variable-length arrays remain a visible compatibility warning.
++    add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-error=vla-cxx-extension>)
+ 
+     # Disabled warnings
+     add_compile_options(-Wno-unused-private-field)
+--- a/src/debug/daccess/request.cpp
++++ b/src/debug/daccess/request.cpp
+@@ -1669,7 +1669,7 @@
+ 
+     Module* pModule = PTR_Module(TO_TADDR(addr));
+ 
+-    ZeroMemory(ModuleData,sizeof(DacpModuleData));
++    ZeroMemory(static_cast<void*>(ModuleData),sizeof(DacpModuleData));
+     ModuleData->Address = addr;
+     ModuleData->File = HOST_CDADDR(pModule->GetFile());
+     COUNT_T metadataSize = 0;
+--- a/src/debug/shared/dbgtransportsession.cpp
++++ b/src/debug/shared/dbgtransportsession.cpp
+@@ -82,7 +82,7 @@
+ 
+     // Start with a blank slate so that Shutdown() on a partially initialized instance will only do the
+     // cleanup necessary.
+-    memset(this, 0, sizeof(*this));
++    memset(static_cast<void*>(this), 0, sizeof(*this));
+ 
+     // Because of the above memset the embeded classes/structs need to be reinitialized especially
+     // the two way pipe; it expects the in/out handles to be -1 instead of 0.
+--- a/src/inc/dacprivate.h
++++ b/src/inc/dacprivate.h
+@@ -53,7 +53,7 @@
+ struct ZeroInit
+ {
+     ZeroInit()
+-    { memset(static_cast<T*>(this), 0, sizeof(T)); }
++    { memset(static_cast<void*>(static_cast<T*>(this)), 0, sizeof(T)); }
+ };
+ 
+     
+--- a/src/inc/sarray.inl
++++ b/src/inc/sarray.inl
+@@ -323,7 +323,7 @@
+ 
+     if (BITWISE_COPY)
+     {
+-        memmove(p, from, size * sizeof(ELEMENT));
++        memmove(static_cast<void*>(p), from, size * sizeof(ELEMENT));
+     }
+     else
+     {
+--- a/src/jit/block.cpp
++++ b/src/jit/block.cpp
+@@ -1264,7 +1264,7 @@
+ 
+     // TODO-Throughput: The following memset is pretty expensive - do something else?
+     // Note that some fields have to be initialized to 0 (like bbFPStateX87)
+-    memset(block, 0, sizeof(*block));
++    memset(static_cast<void*>(block), 0, sizeof(*block));
+ 
+     // scopeInfo needs to be able to differentiate between blocks which
+     // correspond to some instrs (and so may have some LocalVarInfo
+--- a/src/jit/jitstd/hashtable.h
++++ b/src/jit/jitstd/hashtable.h
+@@ -464,7 +464,7 @@
+     , m_keyOf(keyOf)
+ {
+     rehash(n);
+-    insert(this->first, this->last);
++    insert(f, l);
+ }
+ 
+ template <typename Key, typename Value, typename Hash, typename Pred, typename Alloc, typename KeyOf>
+@@ -624,7 +624,7 @@
+     rehash(2);
+ 
+     // We will not use the hint here, we can consider doing this later.
+-    return insert_helper(this->val, m_buckets, m_elements, false).first;
++    return insert_helper(value, m_buckets, m_elements, false).first;
+ }
+ 
+ template <typename Key, typename Value, typename Hash, typename Pred, typename Alloc, typename KeyOf>
+@@ -680,7 +680,7 @@
+ {
+     std::swap(set.m_buckets, m_buckets);
+     std::swap(set.m_elements, m_elements);
+-    std::swap(set.m_flLoadFactor, this->m_flLoadFactor);
++    std::swap(set.m_nSize, this->m_nSize);
+     std::swap(set.m_flMaxLoadFactor, this->m_flMaxLoadFactor);
+     std::swap(set.m_keyOf, this->m_keyOf);
+ }
+--- a/src/md/runtime/metamodel.cpp
++++ b/src/md/runtime/metamodel.cpp
+@@ -688,13 +688,17 @@
+                                     // should we write the data into the structure
+ {
+     const CMiniTableDef *pTemplate;     // Template table definition.
+-    CMiniColDef pCols[9];               // The col defs to init.
++    // Mark the columns as not allocated for SetNewColumnDefinition.
++    const uint8_t MAX_COL_COUNT = 9;
++    BYTE colData[1 + sizeof(CMiniColDef) * MAX_COL_COUNT];
++    colData[0] = 0;
++    CMiniColDef* pCols = BYTEARRAY_TO_COLDES(colData);
+     BYTE        iOffset;                // Running size of a record.
+     BYTE        iSize;                  // Size of a field.
+     HRESULT     hr = S_OK;
+     
+     _ASSERTE((bExtra == 0) || (bExtra == 1));
+-    _ASSERTE(NumItems(pCols) >= pTable->m_cCols);
++    _ASSERTE(MAX_COL_COUNT >= pTable->m_cCols);
+     
+     bExtra = 0;//<TODO>@FUTURE: save in schema header.  until then use 0.</TODO>
+     
+--- a/src/palrt/bstr.cpp
++++ b/src/palrt/bstr.cpp
+@@ -48,7 +48,7 @@
+     else
+     {
+         ULONG temp = 0; // should not use in-place addition in ULongAdd
+-        if (SUCCEEDED(ULongMult(cchSize, sizeof(WCHAR), &temp)) &
++        if (SUCCEEDED(ULongMult(cchSize, sizeof(WCHAR), &temp)) &&
+             SUCCEEDED(ULongAdd(temp, constant, result)))
+         {
+             *result = *result & ~WIN32_ALLOC_ALIGN;
+--- a/src/vm/appdomain.cpp
++++ b/src/vm/appdomain.cpp
+@@ -5881,7 +5881,7 @@
+         (void*)GetDomainFile()->GetLoaderAllocator()->GetHighFrequencyHeap()->AllocMem(
+             S_SIZE_T(sizeof(DynamicClassInfo)) * S_SIZE_T(aDynamicEntries));
+ 
+-    memcpy(pNewDynamicClassTable, m_pDynamicClassTable, sizeof(DynamicClassInfo) * m_aDynamicEntries);
++    memcpy(static_cast<void*>(pNewDynamicClassTable), m_pDynamicClassTable, sizeof(DynamicClassInfo) * m_aDynamicEntries);
+ 
+     // Note: Memory allocated on loader heap is zero filled
+     // memset(pNewDynamicClassTable + m_aDynamicEntries, 0, (aDynamicEntries - m_aDynamicEntries) * sizeof(DynamicClassInfo));
+--- a/src/vm/baseassemblyspec.inl
++++ b/src/vm/baseassemblyspec.inl
+@@ -31,7 +31,7 @@
+ inline BaseAssemblySpec::BaseAssemblySpec()
+ {
+     LIMITED_METHOD_CONTRACT;
+-    ZeroMemory(this, sizeof(*this));
++    ZeroMemory(static_cast<void*>(this), sizeof(*this));
+     m_context.usMajorVersion = (USHORT) -1;
+     m_context.usMinorVersion = (USHORT) -1;
+     m_context.usBuildNumber = (USHORT) -1;
+--- a/src/vm/ceeload.cpp
++++ b/src/vm/ceeload.cpp
+@@ -6648,7 +6648,7 @@
+                     FillMemory(pUMEntryThunk, sizeof(*pUMEntryThunk), 0);
+ 
+                     UMThunkMarshInfo *pUMThunkMarshInfo = (UMThunkMarshInfo*)(void*)(GetThunkHeap()->AllocAlignedMem(sizeof(UMThunkMarshInfo), CODE_SIZE_ALIGN));
+-                    FillMemory(pUMThunkMarshInfo, sizeof(*pUMThunkMarshInfo), 0);
++                    FillMemory(static_cast<void*>(pUMThunkMarshInfo), sizeof(*pUMThunkMarshInfo), 0);
+ 
+                     pUMThunkMarshInfo->LoadTimeInit(pMD);
+                     pUMEntryThunk->LoadTimeInit(NULL, NULL, pUMThunkMarshInfo, pMD);
+--- a/src/vm/comreflectioncache.hpp
++++ b/src/vm/comreflectioncache.hpp
+@@ -27,6 +27,8 @@
+ 
+     void Init();
+ 
++#ifndef DACCESS_COMPILE
++    // These cache operations mutate runtime state and use runtime-only locks.
+     BOOL GetFromCache(Element *pElement, CacheType& rv)
+     {
+         CONTRACTL
+@@ -103,6 +105,7 @@
+         AdjustStamp(TRUE);
+         this->LeaveWrite();
+     }
++#endif // !DACCESS_COMPILE
+ 
+ private:
+     // Lock must have been taken before calling this.
+@@ -142,6 +145,7 @@
+         return CacheSize;
+     }
+ 
++#ifndef DACCESS_COMPILE
+     void AdjustStamp(BOOL hasWriterLock)
+     {
+         CONTRACTL
+@@ -171,6 +175,7 @@
+         if (!hasWriterLock)
+             this->LeaveWrite();
+     }
++#endif // !DACCESS_COMPILE
+ 
+     void UpdateHashTable(SIZE_T hash, int slot)
+     {
+--- a/src/vm/dllimportcallback.cpp
++++ b/src/vm/dllimportcallback.cpp
+@@ -1091,7 +1091,7 @@
+ {
+     LIMITED_METHOD_CONTRACT;
+ 
+-    FillMemory(this, sizeof(UMThunkMarshInfo), 0); // Prevent problems with partial deletes
++    FillMemory(static_cast<void*>(this), sizeof(UMThunkMarshInfo), 0); // Prevent problems with partial deletes
+ 
+     // This will be overwritten by the actual code pointer (or NULL) at the end of UMThunkMarshInfo::RunTimeInit()
+     m_pILStub = (PCODE)1;
+--- a/src/vm/exceptionhandling.cpp
++++ b/src/vm/exceptionhandling.cpp
+@@ -5411,7 +5411,7 @@
+                         {
+                             STRESS_LOG0(LF_EH, LL_INFO10, "TrackerAllocator:  allocated page\n");
+                             pPage->m_header.m_pNext = pNewPage;
+-                            ZeroMemory(pPage->m_header.m_pNext, TRACKER_ALLOCATOR_PAGE_SIZE);
++                            ZeroMemory(static_cast<void*>(pPage->m_header.m_pNext), TRACKER_ALLOCATOR_PAGE_SIZE);
+                         }
+                         else
+                         {
+@@ -5428,7 +5428,7 @@
+             {
+                 Thread* pThread  = GetThread();
+                 _ASSERTE(NULL != pPage);
+-                ZeroMemory(pTracker, sizeof(*pTracker));
++                ZeroMemory(static_cast<void*>(pTracker), sizeof(*pTracker));
+                 pTracker->m_pThread = pThread;
+                 EH_LOG((LL_INFO100, "TrackerAllocator: allocating tracker 0x%p, thread = 0x%p\n", pTracker, pTracker->m_pThread));
+                 break;
+--- a/src/vm/ilstubresolver.cpp
++++ b/src/vm/ilstubresolver.cpp
+@@ -323,7 +323,7 @@
+     NewArrayHolder<CompileTimeState> pNewCompileTimeState    = NULL;
+ 
+     pNewCompileTimeState = (CompileTimeState *)new BYTE[sizeof(CompileTimeState)];
+-    memset(pNewCompileTimeState, 0, sizeof(CompileTimeState));
++    memset(static_cast<void*>(static_cast<CompileTimeState*>(pNewCompileTimeState)), 0, sizeof(CompileTimeState));
+ 
+     pNewILCodeBuffer = new BYTE[cbCode];
+ 
+--- a/src/vm/jitinterface.cpp
++++ b/src/vm/jitinterface.cpp
+@@ -11678,7 +11678,7 @@
+             _ASSERTE(addlDelta == 0);
+ 
+             // Write the 12 bits page offset into location.
+-            INT32 imm12 = (INT32)target & 0xFFFLL;
++            INT32 imm12 = (INT32)((INT_PTR)target & 0xFFFLL);
+             PutArm64Rel12((UINT32 *)location, imm12);
+         }
+         break;
+--- a/src/vm/method.cpp
++++ b/src/vm/method.cpp
+@@ -3681,7 +3681,7 @@
+         CopyMemory(pNewMD, pMD, pMD->GetBaseSize());
+ 
+         if (pMD->IsMethodImpl())
+-            CopyMemory(pNewMD->GetMethodImpl(), pMD->GetMethodImpl(), sizeof(MethodImpl));
++            CopyMemory(static_cast<void*>(pNewMD->GetMethodImpl()), pMD->GetMethodImpl(), sizeof(MethodImpl));
+         else
+             pNewMD->m_wFlags &= ~mdcMethodImpl;
+ 
+--- a/src/vm/methodtablebuilder.cpp
++++ b/src/vm/methodtablebuilder.cpp
+@@ -11695,7 +11695,7 @@
+         // If we have to grow this array, we will not free the old array before we clean up the BuildMethodTable operation
+         // because this is a stacking allocator. However, the old array will get freed when all the stack allocator is freed.
+         Entry *rgEntriesNew = new (pStackingAllocator) Entry[newEntriesCount];
+-        memcpy(rgEntriesNew, rgEntries, sizeof(Entry) * cMaxIndex);
++        memcpy(static_cast<void*>(rgEntriesNew), rgEntries, sizeof(Entry) * cMaxIndex);
+ 
+         // Start using newly allocated array.
+         rgEntries = rgEntriesNew;
+--- a/src/vm/ngenhash.inl
++++ b/src/vm/ngenhash.inl
+@@ -61,8 +61,8 @@
+     // memset(m_pWarmBuckets, 0, sizeof(VolatileEntry*) * cInitialBuckets);
+ 
+ #ifdef FEATURE_PREJIT
+-    memset(&m_sHotEntries, 0, sizeof(PersistedEntries));
+-    memset(&m_sColdEntries, 0, sizeof(PersistedEntries));
++    memset(static_cast<void*>(&m_sHotEntries), 0, sizeof(PersistedEntries));
++    memset(static_cast<void*>(&m_sColdEntries), 0, sizeof(PersistedEntries));
+     m_cInitialBuckets = cInitialBuckets;
+ #endif // FEATURE_PREJIT
+ }
+@@ -850,7 +850,7 @@
+         m_sHotEntries.m_cBuckets = cHotBuckets;
+         m_sHotEntries.m_pEntries.SetValue(new PersistedEntry[cHotEntries]);
+         m_sHotEntries.m_pBuckets.SetValue(PersistedBucketList::CreateList(cHotBuckets, cHotEntries, cMaxHotChain));
+-        memset(GetPersistedHotEntries(), 0, cHotEntries * sizeof(PersistedEntry)); // NGen determinism
++        memset(static_cast<void*>(GetPersistedHotEntries()), 0, cHotEntries * sizeof(PersistedEntry)); // NGen determinism
+     }
+ 
+     if (cColdEntries)
+@@ -859,7 +859,7 @@
+         m_sColdEntries.m_cBuckets = cColdBuckets;
+         m_sColdEntries.m_pEntries.SetValue(new PersistedEntry[cColdEntries]);
+         m_sColdEntries.m_pBuckets.SetValue(PersistedBucketList::CreateList(cColdBuckets, cColdEntries, cMaxColdChain));
+-        memset(GetPersistedColdEntries(), 0, cColdEntries * sizeof(PersistedEntry));    // NGen determinism
++        memset(static_cast<void*>(GetPersistedColdEntries()), 0, cColdEntries * sizeof(PersistedEntry));    // NGen determinism
+     }
+ 
+     //
+@@ -1009,7 +1009,7 @@
+ 
+     // Zero-out the ngen version of the warm buckets.
+     VolatileEntry *pNewBuckets = (VolatileEntry*)pImage->GetImagePointer(GetWarmBuckets());
+-    memset(pNewBuckets, 0, cNewWarmBuckets * sizeof(VolatileEntry*));
++    memset(static_cast<void*>(pNewBuckets), 0, cNewWarmBuckets * sizeof(VolatileEntry*));
+ }
+ 
+ #ifdef _MSC_VER
+--- a/src/vm/object.inl
++++ b/src/vm/object.inl
+@@ -293,7 +293,7 @@
+         return FALSE;
+     if (!type.AsMethodTable()->HasInstantiation())            // shortcut, if it is not generic it can't be Nullable<T>
+         return FALSE;
+-	return Nullable::IsNullableForTypeHelper(type.AsMethodTable(), paramMT);
++    return Nullable::IsNullableForTypeHelper(type.AsMethodTable(), paramMT);
+ }
+ 
+ //===============================================================================
+@@ -305,7 +305,7 @@
+         return FALSE;
+     if (!type.AsMethodTable()->HasInstantiation())            // shortcut, if it is not generic it can't be Nullable<T>
+         return FALSE;
+-	return Nullable::IsNullableForTypeHelperNoGC(type.AsMethodTable(), paramMT);
++    return Nullable::IsNullableForTypeHelperNoGC(type.AsMethodTable(), paramMT);
+ }
+ 
+ //===============================================================================
+--- a/src/vm/siginfo.cpp
++++ b/src/vm/siginfo.cpp
+@@ -55,9 +55,9 @@
+ const ElementTypeInfo gElementTypeInfo[] = {
+ 
+ #ifdef _DEBUG
+-#define DEFINEELEMENTTYPEINFO(etname, cbsize, gcness, inreg) {(int)(etname),cbsize,gcness,inreg},
++#define DEFINEELEMENTTYPEINFO(etname, cbsize, gcness, inreg) {(int)(etname),cbsize,gcness,-(inreg)},
+ #else
+-#define DEFINEELEMENTTYPEINFO(etname, cbsize, gcness, inreg) {cbsize,gcness,inreg},
++#define DEFINEELEMENTTYPEINFO(etname, cbsize, gcness, inreg) {cbsize,gcness,-(inreg)},
+ #endif
+ 
+ // Meaning of columns:
+--- a/src/vm/syncblk.cpp
++++ b/src/vm/syncblk.cpp
+@@ -878,9 +878,9 @@
+         SyncTableEntry::GetSyncTableEntry() [0].m_Object = (Object *)m_OldSyncTables;
+         m_OldSyncTables = SyncTableEntry::GetSyncTableEntry();
+ 
+-        memset (newSyncTable, 0, newSyncTableSize*sizeof (SyncTableEntry));
++        memset (static_cast<void*>(newSyncTable), 0, newSyncTableSize*sizeof (SyncTableEntry));
+         memset (newBitMap, 0, BitMapSize (newSyncTableSize)*sizeof (DWORD));
+-        CopyMemory (newSyncTable, SyncTableEntry::GetSyncTableEntry(),
++        CopyMemory (static_cast<void*>(newSyncTable), SyncTableEntry::GetSyncTableEntry(),
+                     m_SyncTableSize*sizeof (SyncTableEntry));
+ 
+         CopyMemory (newBitMap, m_EphemeralBitmap,
+@@ -1117,7 +1117,7 @@
+             syncTableShadow = new(nothrow) SyncTableEntry [m_FreeSyncTableIndex];
+             if (syncTableShadow)
+             {
+-                memcpy (syncTableShadow, SyncTableEntry::GetSyncTableEntry(), m_FreeSyncTableIndex * sizeof (SyncTableEntry));                
++                memcpy (static_cast<void*>(syncTableShadow), SyncTableEntry::GetSyncTableEntry(), m_FreeSyncTableIndex * sizeof (SyncTableEntry));                
+             }
+         }
+ #endif //VERIFY_HEAP
+--- a/src/vm/syncblk.h
++++ b/src/vm/syncblk.h
+@@ -626,7 +626,7 @@
+     InteropSyncBlockInfo()
+     {
+         LIMITED_METHOD_CONTRACT;
+-        ZeroMemory(this, sizeof(InteropSyncBlockInfo));
++        ZeroMemory(static_cast<void*>(this), sizeof(InteropSyncBlockInfo));
+     }
+ #ifndef DACCESS_COMPILE
+     ~InteropSyncBlockInfo();
+--- a/src/zap/zapnodetype.h
++++ b/src/zap/zapnodetype.h
+@@ -13,7 +13,8 @@
+ #ifndef __ZAPNODETYPE_H__
+ #define __ZAPNODETYPE_H__
+ 
+-enum ZapNodeType {
++// Preserve native unsigned-int ABI and permit computed stored-structure node codes.
++enum ZapNodeType : unsigned int {
+ 
+ // System types
+ 
