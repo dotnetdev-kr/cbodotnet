@@ -991,6 +991,9 @@ class FunctionalEvidence(unittest.TestCase):
             stages = dict(verify=dict(commands=calls))
             M.validate_verification_boundary(root, record, prepare, stages)
             mutations = [lambda call: call.__setitem__(call.index(prepare['verificationImageId']), prepare['imageId']),
+                         lambda call: call.extend(['-v', '/hidden:/delivery/sdk']),
+                         lambda call: call.extend(['-v/hidden:/delivery/sdk']),
+                         lambda call: call.extend(['--volume=/hidden:/delivery/sdk']),
                          lambda call: call.extend(['--volume', '/bootstrap:/work']),
                          lambda call: call.extend(['--env', 'NUGET_PACKAGES=/home/build/.nuget/packages']),
                          lambda call: call.extend(['--env', 'COMPlus_ReadyToRun=0']),
@@ -1263,6 +1266,40 @@ class ActualClosureBoundary(unittest.TestCase):
                         side_effect=AssertionError('Unbound report reached dependency parser')):
                     with self.assertRaisesRegex(ValueError, 'unchanged archive bytes and interpreter'):
                         M.validate_elf_closure(root, record, {}, report)
+
+
+class TestHostNugetOriginalSources(unittest.TestCase):
+    def test_source_volume_aliases_and_explicit_child_overrides_reject(self):
+        call = ['docker', 'run', '--volume', '/build:/work', '--volume', '/repo:/project:ro']
+        M.validate_explicit_worker_mounts(call)
+        M.validate_unshadowed_source_mount(call, '/build/work/sdk', '/work/work/sdk')
+        for extra in (['-v', '/hidden:/work/work/sdk/src'], ['-v/hidden:/work/work/sdk/src'],
+                      ['--volume=/hidden:/work/work/sdk/src'], ['--mount=type=bind,src=/hidden,dst=/work/work/sdk/src'],
+                      ['--volumes-from', 'hidden']):
+            with self.subTest(extra=extra), self.assertRaisesRegex(ValueError, 'explicit reviewed'):
+                M.validate_explicit_worker_mounts(call + extra)
+        for extra in (['--volume', '/hidden:/work/work/sdk/src'], ['--volume', '/hidden:/work/work/sdk'],
+                      ['--volume', '/hidden:/work'], ['--volume', '/hidden:/work/work']):
+            with self.subTest(extra=extra), self.assertRaises(ValueError):
+                M.validate_unshadowed_source_mount(call + extra, '/build/work/sdk', '/work/work/sdk')
+
+    def test_exact_original_git_blobs_and_dependency_declarations(self):
+        fixture = json.loads((ROOT / 'tests/fixtures/musl-testhost-nuget-original-sources.json').read_text(encoding='utf-8'))
+        manifest = dict(roots=[dict(name='original-test', kind='git', commit='79d56b02b69a582cd90428878a5e9411ab7538f5'),
+                               dict(name='original-nuget', kind='git', commit=M.TESTHOST_NUGET_COMMIT)])
+        source = {'original-' + row['role'] + '/' + row['path']: row['content'].encode('utf-8') for row in fixture['sources']}
+        def validate(incoming, roots=manifest):
+            with mock.patch.object(M, 'source_member', side_effect=lambda release, manifest, name: incoming[name]):
+                M.validate_testhost_nuget_source(Path('/unused'), roots)
+        validate(source)
+        for name, raw in source.items():
+            for altered in (raw.replace(b'\n', b'\r\n'), raw + b'<!-- changed dependency -->\n', raw.removeprefix(b'\xef\xbb\xbf') if raw.startswith(b'\xef\xbb\xbf') else raw + b' '):
+                with self.subTest(name=name), self.assertRaisesRegex(ValueError, 'dependency/source declarations differ'):
+                    validate(dict(source, **{name: altered}))
+        for roots in (dict(roots=manifest['roots'][:1]), dict(roots=manifest['roots'] + [manifest['roots'][1]]),
+                      dict(roots=[manifest['roots'][0], dict(manifest['roots'][1], commit='0' * 40)])):
+            with self.assertRaisesRegex(ValueError, 'Exact separate TestHost'):
+                validate(source, roots)
 
 
 if __name__ == '__main__':

@@ -998,6 +998,28 @@ def validate_crossgen_task(row, replay, tasks, record):
             'Actual Crossgen2 command does not bind the transformed input/output')
 
 
+def validate_explicit_worker_mounts(call):
+    require(not any(value.startswith(('--mount', '--volumes-from', '--volume=', '-v')) for value in call),
+            'Worker may use only explicit reviewed --volume options')
+
+
+def validate_unshadowed_source_mount(call, host, guest):
+    volumes, mapped = {}, []
+    for index, value in enumerate(call):
+        if value != '--volume': continue
+        require(index + 1 < len(call), 'Complete explicit source volume required')
+        fields = call[index + 1].split(':')
+        require(len(fields) in (2, 3) and fields[1] not in volumes, 'Unique source volume destination required')
+        original, target = fields[:2]
+        require(all(path.startswith('/') and path == posixpath.normpath(path) for path in (original, target)),
+                'Normalized source volume paths required')
+        volumes[target] = original
+        require(not target.startswith(guest.rstrip('/') + '/'), 'Additional volume shadows an archived source input')
+        if target == guest or guest.startswith(target.rstrip('/') + '/'):
+            mapped.append(original.rstrip('/') + guest[len(target.rstrip('/')):])
+    require(mapped == [host], 'Exactly one archived source volume mapping required')
+
+
 def validate_replay_source_mount(release, replay, name, roots, stages, prepare):
     host = roots[name].get('originalPath')
     require(isinstance(host, str) and host.startswith('/') and host == posixpath.normpath(host), 'Actual source-root host path required')
@@ -1007,6 +1029,7 @@ def validate_replay_source_mount(release, replay, name, roots, stages, prepare):
             continue
         if not any(value in call for value in (prepare['imageId'], prepare['imageId'].removeprefix('sha256:'))):
             continue
+        validate_explicit_worker_mounts(call)
         for position, value in enumerate(call):
             if value != '--volume':
                 continue
@@ -1018,6 +1041,7 @@ def validate_replay_source_mount(release, replay, name, roots, stages, prepare):
                 continue
             mapped = guest.rstrip('/') + host[len(source.rstrip('/')):]
             if mapped == replay['sourceMountRoot']:
+                validate_unshadowed_source_mount(call, host, mapped)
                 matches.append(call)
     if name == 'sdk':
         require(any(replay['sourceMountRoot'] + '/source-build.slnf' in call and '/p:DotNetBuildFromSource=true' in call
@@ -1822,6 +1846,7 @@ def validate_native_build_boundary(release, record, prepare, stages, manifest, s
         if '/project/scripts/musl-legacy-coreclr.py' not in call: continue
         require(call[:len(P.DOCKER_ENGINE) + 1] == P.DOCKER_ENGINE + ['run'] and prepare['imageId'] in call,
                 'Native runtime source worker did not use the frozen native builder image')
+        validate_explicit_worker_mounts(call)
         options = {}
         for position, arg in enumerate(call):
             if arg == '--volume':
@@ -1833,6 +1858,7 @@ def validate_native_build_boundary(release, record, prepare, stages, manifest, s
             require(call.count(flag) == 1 and call[call.index(flag) + 1] == value,
                     'Actual native runtime worker source/bootstrap/output identity differs')
         require(options.get('sourceMount') == source, 'Native runtime compiler input is not the archived exact runtime source')
+        validate_unshadowed_source_mount(call, host, source)
         matches.append(call)
     require(len(matches) == 1, 'One actual original native CoreCLR/JIT/debugger source build is required')
 
@@ -1892,6 +1918,7 @@ def validate_lttng(release, record, prepare, stages):
     calls = [call for call in stages['test']['commands'] if '/project/scripts/musl-legacy-lttng.py' in call]
     require(len(calls) == 1, 'One actual final-archive tracing test worker is required')
     call = calls[0]
+    validate_explicit_worker_mounts(call)
     require(call[:len(P.DOCKER_ENGINE) + 1] == P.DOCKER_ENGINE + ['run']
             and call.count(prepare['tracingImageId']) == 1 and '--network=none' in call
             and [arg for arg in call if arg.startswith('--network')] == ['--network=none']
@@ -1902,6 +1929,8 @@ def validate_lttng(release, record, prepare, stages):
         DOTNET_SKIP_FIRST_TIME_EXPERIENCE='1', DOTNET_MULTILEVEL_LOOKUP='0', DOTNET_PROCESSOR_COUNT='2',
         PYTHONDONTWRITEBYTECODE='1', MSBUILDDEBUGPATH='/diag', MSBUILDDEBUGCOMM='1')
     for position, arg in enumerate(call):
+        require(not arg.startswith('-e') and (not arg.startswith('--env') or arg == '--env'),
+                'Tracing worker may use only explicit reviewed --env options')
         if arg == '--volume':
             fields = call[position + 1].split(':')
             require(len(fields) in {2, 3} and fields[1] not in mounts, 'Unexpected tracing worker volume syntax')
@@ -1911,6 +1940,7 @@ def validate_lttng(release, record, prepare, stages):
             require(separator and key not in environment and allowed_environment.get(key) == value,
                     'Tracing worker inherited an unreviewed SDK/library/runtime environment override')
             environment[key] = value
+    require(environment == allowed_environment, 'Complete reviewed tracing environment required')
     require(mounts == {'/project': 'ro', '/delivery': 'rw', '/home/build': 'rw', '/diag': 'rw'},
             'Tracing worker exposes a build/source/bootstrap workspace')
     for flag, value in [('--sdk', record['sdkVersion']), ('--arch', record['architecture']),
@@ -1991,8 +2021,10 @@ def validate_testhost_nuget_source(release, manifest):
     paths = {
         ('test', 'scripts/build/TestPlatform.Dependencies.props'): '7731e0e2a39a56b4b3501621cfbe77858c87f8b1dc8b05cbaa19c5ad0ce29c2c',
         ('test', 'src/Microsoft.TestPlatform.ObjectModel/Microsoft.TestPlatform.ObjectModel.csproj'): '85420ae550cefcabf11d61f6c3c67cbbd05b9db14aadd0acdaec3b4e2e2c1653',
-        ('nuget', 'build/config.props'): 'f9ae1625662df0b3b1fc402fe1d3d5c417897a2109a41373b40a410ef9a2277a',
-        ('nuget', 'src/NuGet.Core/NuGet.Frameworks/NuGet.Frameworks.csproj'): '9c3908aca7b693eacd3296f39f74d0ae0ff118e9b6c17870b22836fe858986ce'}
+        # Pin original Git blob bytes, independent of a Windows checkout's
+        # eol=crlf conversion. Corresponding sources retain canonical blobs.
+        ('nuget', 'build/config.props'): '2ffb85a438a75a38be3c47cea95817d79d853de29da03cd91938ca3593725a4f',
+        ('nuget', 'src/NuGet.Core/NuGet.Frameworks/NuGet.Frameworks.csproj'): 'aabf2bc049a70e9a7435cad152a3fb2df79e21875a5027ab0d85d1bd767453ff'}
     for (role, path), expected in paths.items():
         body = source_member(release, manifest, selected[role] + '/' + path)
         require(hashlib.sha256(body).hexdigest() == expected, 'Original separate TestHost NuGet dependency/source declarations differ')
@@ -2647,6 +2679,7 @@ def validate_verification_boundary(release, record, prepare, stages):
         DOTNET_SKIP_FIRST_TIME_EXPERIENCE='1', DOTNET_MULTILEVEL_LOOKUP='0', DOTNET_PROCESSOR_COUNT='2',
         PYTHONDONTWRITEBYTECODE='1', MSBUILDDEBUGPATH='/diag', MSBUILDDEBUGCOMM='1')
     for call in calls:
+        validate_explicit_worker_mounts(call)
         require(call.count(prepare['verificationImageId']) == 1
                 and not any(value.startswith(('--mount', '--volumes-from', '--device', '--entrypoint')) for value in call),
                 'Every final SDK worker must use the frozen SDK-free image')
