@@ -697,7 +697,7 @@ def public_oci(architecture,revision,workspace,output,*,registry=None,sdk_versio
     records=[row for row in manifest['records'] if row['architecture']==architecture]
     require(len(records)==1,'A unique actual native public OCI record required')
     record=records[0]
-    inputs=DISTRIBUTION.receive_source(architecture,workspace/'source',anonymous=True)
+    inputs=DISTRIBUTION.receive_source(architecture,workspace/'source',anonymous=True,sdk_version=sdk_version)
     plan,sdk=DISTRIBUTION.intake_plan(inputs,architecture,'oci',revision)
     context=workspace/'context'
     build=PACKAGES.build_oci_context(plan,sdk,context,ARCHIVE.BASES[architecture])

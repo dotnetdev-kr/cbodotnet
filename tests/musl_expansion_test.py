@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT / 'scripts'))
 import musl_archive as ARCHIVE
 import musl_contract as CONTRACT
 import musl_verification as VERIFY
+import musl_oci_delivery as OCI
 import cbodotnetup_retained_musl as RETAINED
 from downstream_release import encoded
 from musl_contract_test import fixture
@@ -71,6 +72,37 @@ class ExpansionTests(unittest.TestCase):
                 changed = copy.deepcopy(report); changed['buildInputs']['helper'] = 'e'*64
                 with self.assertRaises(ValueError):
                     RETAINED.validate_build_inputs(changed, 'x64')
+
+    def test_public_oci_reconstruction_receives_the_requested_sdk(self):
+        for version in ('9.0.123', '8.0.133'):
+            with self.subTest(version=version), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary); tag = CONTRACT.distribution_tag('oci', version)
+                base = 'https://github.com/'+CONTRACT.REPOSITORY+'/releases/download/'+tag+'/'
+                data = b'{}'; signer = 'A'*40
+                names = ['oci-index.json', 'qualification-x64.json', 'qualification-aarch64.json']
+                assets = [dict(name=name, size=len(data), sha256=hashlib.sha256(data).hexdigest()) for name in names]
+                manifest = dict(tag=tag, identity=dict(channel='oci', sdkVersion=version), signingFingerprint=signer,
+                    assets=assets, targetCommit='b'*40, records=[dict(architecture='x64')])
+                objects = {base+OCI.MANIFEST: encoded(manifest), base+OCI.SIGNATURE: b'signature'}
+                objects.update({base+name: data for name in names})
+                release = dict(tag_name=tag, draft=False, prerelease=False, assets=[
+                    dict(name=url.rsplit('/', 1)[1], size=len(raw), state='uploaded',
+                        digest='sha256:'+hashlib.sha256(raw).hexdigest(), browser_download_url=url)
+                    for url, raw in objects.items()])
+                objects['https://api.github.com/repos/'+CONTRACT.REPOSITORY+'/releases/tags/'+tag] = encoded(release)
+                def download(url, path, expected):
+                    path.write_bytes(objects[url])
+                with patch.object(OCI.DISTRIBUTION, 'orchestration', return_value={}), \
+                        patch.object(OCI.DISTRIBUTION, '_docker_architecture'), \
+                        patch.object(OCI, 'get_bytes', side_effect=lambda url, *a, **k: objects[url]), \
+                        patch.object(OCI.subprocess, 'run'), \
+                        patch('musl_release.verify_publication_signature', return_value=signer), \
+                        patch.object(OCI.DISTRIBUTION, 'download_asset', side_effect=download), \
+                        patch.object(OCI, 'validate_bundle'), patch.object(OCI, 'verify_release_tag'), \
+                        patch.object(OCI.DISTRIBUTION, 'receive_source', side_effect=ValueError('stop at source intake')) as receive:
+                    with self.assertRaisesRegex(ValueError, 'stop at source intake'):
+                        OCI.public_oci('x64', 1, root/'work', root/'output', sdk_version=version)
+                    receive.assert_called_once_with('x64', root/'work/source', anonymous=True, sdk_version=version)
 
 
 if __name__ == '__main__':
