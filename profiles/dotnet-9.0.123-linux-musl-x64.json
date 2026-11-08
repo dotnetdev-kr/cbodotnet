@@ -50,6 +50,16 @@
         "path": "patches/musl/net9/0002-use-fixed-build-helper-asn1.patch",
         "sha256": "862fbb3852f396d93c4033bbfba256531a54d0210916271c0eea5eec6b9de395",
         "purpose": "Centrally pin the VMR helpers transitive System.Formats.Asn1 dependency to CVE-2024-38095-fixed 8.0.1; NuGet audit remains enabled."
+      },
+      {
+        "path": "patches/musl/net9/0003-use-fixed-templating-nuget.patch",
+        "sha256": "579ba989c5ec56a046b7d1e1b2aa6549d892102063effe02a25a1e9e91cce6ee",
+        "purpose": "Service the coordinated templating NuGet package family to GHSA-g4vj-cjjj-v7hg-fixed 6.12.5; retain exact corresponding source and keep audit enabled."
+      },
+      {
+        "path": "patches/musl/net9/0004-use-fixed-razor-messagepack.patch",
+        "sha256": "0e3b9b14eca6c9dd5033479cc92af92892aac069f5b16e2a92e0f6b15f26b1d4",
+        "purpose": "Service Razor MessagePack within the compatible 2.5 line to 2.5.303, fixing all ten recorded advisories; retain exact corresponding source and keep audit enabled."
       }
     ]
   },
@@ -380,6 +390,16 @@
       "L": "MIT",
       "o": "krb5",
       "c": "92bc4f0d36aa5307e819fb57167fc19952cf515f"
+    },
+    {
+      "P": "krb5-dev",
+      "V": "1.22.2-r1",
+      "A": "x86_64",
+      "D": "e2fsprogs-dev libverto-dev krb5-libs=1.22.2-r1 krb5-server-ldap=1.22.2-r1 pkgconfig",
+      "L": "MIT",
+      "o": "krb5",
+      "c": "92bc4f0d36aa5307e819fb57167fc19952cf515f",
+      "repository": "main"
     },
     {
       "P": "libunwind-dev",
@@ -768,5 +788,92 @@
       "workloads",
       "NativeAOT"
     ]
-  }
+  },
+  "supplementalSourceGit": [
+    {
+      "name": "serviced-nuget",
+      "repository": "https://github.com/NuGet/NuGet.Client",
+      "commit": "c92125011405028c945371a89e1a1eb0e735456d",
+      "role": "source-for-serviced-imported-package",
+      "requiredNotices": [
+        "LICENSE.txt"
+      ],
+      "packages": [
+        {
+          "id": "nuget.common",
+          "version": "6.12.5",
+          "bytes": 198920,
+          "sha512": "01097aa2b4c1aaf19985fdd7bfaaba3123852135fc246095e0b07ae5ffdec47d5cee063c4f38a078ce52126a7828049c042d9d312dd2479d838c796a53661de2",
+          "license": "Apache-2.0"
+        },
+        {
+          "id": "nuget.configuration",
+          "version": "6.12.5",
+          "bytes": 237762,
+          "sha512": "9af81b7e0dd3b43f44207b703c507f45476745ec1e2b912fb68d9b9e2a0e859fe89149cd7decf39bd9e782cef35f13b55e137a330ca0fd3b41647aa269700cd5",
+          "license": "Apache-2.0"
+        },
+        {
+          "id": "nuget.credentials",
+          "version": "6.12.5",
+          "bytes": 162255,
+          "sha512": "dde841b64a3f5b1058c8018c8c94da8d7e8fed758cae6a7e1926d519fcd9c07d6d11d55da0681d39cbe0af51f4debbdc3ee461b028d63efba583cda056c6f3a2",
+          "license": "Apache-2.0"
+        },
+        {
+          "id": "nuget.frameworks",
+          "version": "6.12.5",
+          "bytes": 187590,
+          "sha512": "4d4632663ae09a956c687421413255c1cc099378100e3e441a55440c5d6cb597b281a04606aa4c623ac10e76d7589e52444b68d2a07ef3d4e07faf6210932591",
+          "license": "Apache-2.0"
+        },
+        {
+          "id": "nuget.packaging",
+          "version": "6.12.5",
+          "bytes": 978104,
+          "sha512": "b1a304f7d8023c470a9967d360032584001da8d20adc40b61fdcde4daae6c3ec4cd9059f7b76c5b3cb0a53e4caef3157b138dbef8d10c499747056fece97861e",
+          "license": "Apache-2.0"
+        },
+        {
+          "id": "nuget.protocol",
+          "version": "6.12.5",
+          "bytes": 1103641,
+          "sha512": "1a3697a92d2485b5a3dad13ff95b42f304996fa83323eddbb486acfc1a946fb9fd72a1b15b7d4549d9e8099c8892c27d9a45824554a2bbcedb637f74ada033cb",
+          "license": "Apache-2.0"
+        },
+        {
+          "id": "nuget.versioning",
+          "version": "6.12.5",
+          "bytes": 141735,
+          "sha512": "1b5627fde4cfa32480704de06aafb6ebd4cc8664f9bb6139bfe74908e0685d5391b7d24e8f52346c9fa6acfc01d330c87e1d6347aa1661a933173e4abb064980",
+          "license": "Apache-2.0"
+        }
+      ]
+    },
+    {
+      "name": "serviced-messagepack",
+      "repository": "https://github.com/MessagePack-CSharp/MessagePack-CSharp",
+      "commit": "7fd78bbf3476e03beae8b0f7a521125525a8a64a",
+      "role": "source-for-serviced-imported-package",
+      "requiredNotices": [
+        "LICENSE"
+      ],
+      "packages": [
+        {
+          "id": "messagepack",
+          "version": "2.5.303",
+          "bytes": 719384,
+          "sha512": "9f488e2a97145f33a686c398ac468ba4a657e93c8492ae184f1460a0b57d07438a7822992a235aa94496d7eddef14f3efc87f2aff7e7a666ad04898054141882",
+          "license": "MIT"
+        },
+        {
+          "id": "messagepack.annotations",
+          "version": "2.5.303",
+          "bytes": 44332,
+          "sha512": "ea24e678d7cfbfaa1e1d8219cb4e8797b9275e7a653baf3f6c40df74539aa51109798fa2320617633e0990fe07a9f1c0139208d7844746a72d555966ecde4b73",
+          "license": "MIT"
+        }
+      ]
+    }
+  ]
 }

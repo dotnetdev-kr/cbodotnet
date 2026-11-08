@@ -10,6 +10,7 @@ import tempfile
 import unittest
 from unittest import mock
 import xml.etree.ElementTree as ET
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
@@ -28,12 +29,47 @@ class NativeRoutes(unittest.TestCase):
                     original = json.loads((ROOT / 'profiles' / ('dotnet-10.0.403-linux-musl-' + arch + '.json')).read_text())
                     self.assertEqual(value['container'], original['container'])
                     self.assertEqual(value['apkIndexes'], original['apkIndexes'])
-                    self.assertEqual(value['buildPackages'], original['buildPackages'])
+                    self.assertEqual([p for p in value['buildPackages'] if p['P'] != 'krb5-dev'], original['buildPackages'])
+                    with tarfile.open(ROOT / value['apkIndexes']['main']['snapshotPath']) as stream:
+                        index = stream.extractfile('APKINDEX').read().decode()
+                    blocks = [dict(line.split(':', 1) for line in block.splitlines() if ':' in line)
+                              for block in index.split('\n\n')]
+                    kerberos = next(p for p in blocks if p.get('P') == 'krb5-dev')
+                    expected = {key: kerberos[key] for key in ('P', 'V', 'A', 'D', 'L', 'o', 'c')}
+                    self.assertEqual([dict(expected, repository='main')],
+                                     [p for p in value['buildPackages'] if p['P'] == 'krb5-dev'])
                     self.assertEqual(value['runtimePackages'], original['runtimePackages'])
                     self.assertFalse(value['build']['crossBuild'])
                     self.assertEqual('pending', value['qualification']['status'])
                     self.assertEqual(1, value['qualification']['producerRevision'])
                     self.assertFalse(value['qualification']['securityMaintenanceBeyondUpstreamEol'])
+
+    def test_servicing_sources_are_exact_coordinated_package_and_license_pins(self):
+        for arch in R.ARCHITECTURES:
+            value = R.profile('9.0.123', arch)
+            sources = value['supplementalSourceGit']
+            self.assertEqual(['serviced-nuget', 'serviced-messagepack'], [s['name'] for s in sources])
+            self.assertEqual({'6.12.5'}, {p['version'] for p in sources[0]['packages']})
+            self.assertEqual(7, len(sources[0]['packages']))
+            self.assertEqual({'2.5.303'}, {p['version'] for p in sources[1]['packages']})
+            self.assertEqual({'messagepack', 'messagepack.annotations'}, {p['id'] for p in sources[1]['packages']})
+            changed = copy.deepcopy(value)
+            changed['supplementalSourceGit'][1]['commit'] = '0' * 40
+            with mock.patch.object(R.json, 'loads', return_value=changed), self.assertRaisesRegex(ValueError, 'registry'):
+                R.profile('9.0.123', arch)
+
+    def test_normal_diagnostics_preserve_msbuild_without_breaking_crossgen2(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            for diagnostic in (False, True):
+                producer = M.Producer.__new__(M.Producer)
+                producer.reports = Path(temporary) / str(diagnostic)
+                producer.commands = []
+                producer.diagnostic_ptrace = diagnostic
+                options = producer.diagnostic_options()
+                self.assertIn('MSBUILDDEBUGPATH=/diag', options)
+                self.assertIn('MSBUILDDEBUGCOMM=1', options)
+                dumps = [value for value in options if value.startswith(('DOTNET_Dbg', 'DOTNET_CreateDump', 'DOTNET_EnableCrash'))]
+                self.assertEqual(5 if diagnostic else 0, len(dumps))
 
     def test_version_specific_commands_keep_real_native_musl_graph(self):
         for sdk in R.VERSIONS:
@@ -69,6 +105,61 @@ class NativeRoutes(unittest.TestCase):
 
 
 class SourceAndArchiveSafety(unittest.TestCase):
+    def test_serviced_package_rejects_wrong_corresponding_source_license_or_bytes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / 'package.nupkg'
+            source = dict(repository='https://github.com/MessagePack-CSharp/MessagePack-CSharp', commit='a' * 40)
+            package = dict(id='messagepack', version='2.5.303', license='MIT')
+            raw = ('<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd"><metadata>'
+                   '<id>MessagePack</id><version>2.5.303</version><license type="expression">MIT</license>'
+                   '<repository url="' + source['repository'] + '.git" commit="' + source['commit'] + '" />'
+                   '</metadata></package>').encode()
+            with zipfile.ZipFile(path, 'w') as archive:
+                archive.writestr('MessagePack.nuspec', raw)
+            package.update({key: value for key, value in M.fingerprint(path).items() if key in ('bytes', 'sha512')})
+            self.assertEqual(source['commit'], M.serviced_package(path, source, package)['repositoryCommit'])
+            for changed_source, changed_package in [(dict(source, commit='b' * 40), package),
+                                                     (source, dict(package, license='Apache-2.0')),
+                                                     (source, dict(package, sha512='0' * 128))]:
+                with self.assertRaisesRegex(ValueError, 'Serviced package'):
+                    M.serviced_package(path, changed_source, changed_package)
+
+    def test_servicing_admission_requires_actual_restore_and_archived_license(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            release = Path(temporary)
+            packages = release / 'reports/serviced-inputs/packages'
+            packages.mkdir(parents=True)
+            source = dict(name='serviced-sample', repository='https://github.com/example/source', commit='a' * 40,
+                          role='source-for-serviced-imported-package', requiredNotices=['LICENSE'])
+            path = packages / 'sample.1.0.1.nupkg'
+            with zipfile.ZipFile(path, 'w') as archive:
+                archive.writestr('Sample.nuspec', '<package><metadata><id>Sample</id><version>1.0.1</version>'
+                    '<license type="expression">MIT</license><repository url="https://github.com/example/source" commit="'
+                    + source['commit'] + '" /></metadata></package>')
+            fp = M.fingerprint(path)
+            package = dict(id='sample', version='1.0.1', license='MIT', bytes=fp['bytes'], sha512=fp['sha512'])
+            source['packages'] = [package]
+            profile = dict(sdkVersion='9.0.123', supplementalSourceGit=[source])
+            restored = dict(path='sample/1.0.1/sample.1.0.1.nupkg', source='https://api.nuget.org/v3/index.json', **fp)
+            M.write(release / 'reports/restored-inputs.json', dict(packages=[restored]))
+            notice = dict(path='LICENSE', bytes=3, sha256='b' * 64, sha512='c' * 128)
+            row = dict(M.serviced_package(path, source, package), path=path.relative_to(release).as_posix(), actualRestoreRecords=[restored])
+            report = dict(schemaVersion=1, sdkVersion='9.0.123', gitSources=[dict(source, tree='d' * 40, notices=[notice], packages=[row])])
+            M.write(release / 'reports/serviced-inputs.json', report)
+            (release / 'sources').mkdir()
+            (release / 'sources/source-index.jsonl').write_text(json.dumps(dict(notice, path='serviced-sample/LICENSE')) + '\n')
+            manifest = dict(index=dict(path='source-index.jsonl'), roots=[dict(name=source['name'], commit=source['commit'], tree='d' * 40, role=source['role'])])
+            M.validate_serviced_inputs(release, profile, manifest)
+            row['actualRestoreRecords'] = []
+            (release / 'reports/serviced-inputs.json').write_text(json.dumps(report))
+            with self.assertRaisesRegex(ValueError, 'actual restored'):
+                M.validate_serviced_inputs(release, profile, manifest)
+            row['actualRestoreRecords'] = [restored]
+            (release / 'reports/serviced-inputs.json').write_text(json.dumps(report))
+            (release / 'sources/source-index.jsonl').write_text(json.dumps(dict(notice, path='serviced-sample/OTHER')) + '\n')
+            with self.assertRaisesRegex(ValueError, 'licenses must be archived'):
+                M.validate_serviced_inputs(release, profile, manifest)
+
     def test_feed_adjustment_accepts_only_canonical_git_crlf_and_records_exact_changes(self):
         with tempfile.TemporaryDirectory() as temporary:
             source = Path(temporary) / 'source'

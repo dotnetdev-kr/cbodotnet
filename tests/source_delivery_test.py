@@ -152,6 +152,53 @@ class SourceDeliveryTests(unittest.TestCase):
         with tarfile.open(self.args.output_dir / manifest['archive']['path']) as archive:
             self.assertEqual(archive.extractfile(child_name + '/code.cs').read(), b'original source\n')
 
+    def test_serviced_corresponding_source_rejects_modified_or_added_code(self):
+        (self.code / 'code.cs').write_text('changed supplier source\n')
+        self.capture({'name':'serviced', 'kind':'git', 'path':str(self.code),
+                      'expectedCommit':self.head(self.code), 'role':'source-for-serviced-imported-package'})
+        with self.assertRaisesRegex(ValueError, 'Pristine corresponding source differs'):
+            self.verify()
+
+    def test_serviced_corresponding_source_cannot_omit_git_members(self):
+        (self.code / 'removed.cs').unlink()
+        self.capture({'name':'serviced', 'kind':'git', 'path':str(self.code),
+                      'expectedCommit':self.head(self.code), 'role':'source-for-serviced-imported-package'})
+        with self.assertRaisesRegex(ValueError, 'cannot omit Git members'):
+            self.verify()
+
+    def test_serviced_submodule_cannot_drop_pristine_source_validation(self):
+        child = self.repo('serviced-child')
+        self.command(self.code, '-c', 'protocol.file.allow=always', 'submodule', 'add', '-q', str(child), 'component')
+        self.command(self.code, 'commit', '-qam', 'Declare serviced package submodule')
+        self.capture({'name':'serviced', 'kind':'git', 'path':str(self.code),
+                      'expectedCommit':self.head(self.code), 'role':'source-for-serviced-imported-package'})
+        manifest = self.verify()
+        parent = next(row for row in manifest['roots'] if row['name'] == 'serviced')
+        actual_child = next(row for row in manifest['roots'] if row['name'] == parent['submodules'][0]['root'])
+        self.assertEqual(parent['role'], actual_child['role'])
+        actual_child['role'] = 'build-source'
+        raw = json.dumps(manifest).encode()
+        (self.args.output_dir / 'source-manifest.json').write_bytes(raw)
+        (self.release / 'reports/ci/used-source.json').write_bytes(raw)
+        with self.assertRaisesRegex(ValueError, 'lost its pristine'):
+            self.verify()
+
+    def test_nuget_servicing_crlf_exception_requires_exact_commit_tree_role_and_path(self):
+        root = dict(role='source-for-serviced-imported-package', commit='c92125011405028c945371a89e1a1eb0e735456d',
+                    tree='fc71961de683139268ff055534a8d56bf159dfff')
+        allowed = SOURCE.pristine_crlf_paths(root)
+        self.assertEqual(181, len(allowed)); self.assertIn('Directory.Build.props', allowed)
+        self.assertNotIn('invented.props', allowed)
+        for key in ('role', 'commit', 'tree'):
+            changed = dict(root); changed[key] = 'other'
+            self.assertFalse(SOURCE.pristine_crlf_paths(changed))
+        canonical = b'<Project>\n</Project>\n'; actual = canonical.replace(b'\n', b'\r\n')
+        git_blob = lambda data: hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+        row = dict(path='nuget/Directory.Build.props', mode='100644', baseline=dict(mode='100644', blob=git_blob(canonical)))
+        self.assertTrue(SOURCE.pristine_blob(row, git_blob(actual), actual, True))
+        self.assertFalse(SOURCE.pristine_blob(row, git_blob(actual), actual, False))
+        self.assertFalse(SOURCE.pristine_blob(row, git_blob(actual+b'changed'), actual+b'changed', True))
+
     def test_only_exact_windows_command_crlf_checkout_is_pristine(self):
         canonical = b'@echo off\necho fixture\n'; checkout = canonical.replace(b'\n', b'\r\n')
         digest = lambda data: hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()

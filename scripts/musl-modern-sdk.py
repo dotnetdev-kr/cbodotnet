@@ -19,6 +19,7 @@ from types import SimpleNamespace
 import urllib.request
 from urllib.parse import unquote, urlsplit
 import xml.etree.ElementTree as ET
+import zipfile
 
 sys.dont_write_bytecode = True
 import musl_version_routes as R
@@ -50,6 +51,73 @@ def inventory_cache(cache):
         metadata = load_json(metadata_path) if metadata_path.is_file() else {}
         rows.append(dict(path=path.relative_to(cache).as_posix(), source=metadata.get('source'), **fingerprint(path)))
     return rows
+
+
+def serviced_package(path, source, package):
+    """Bind each reviewed servicing input to its publisher's exact source."""
+    actual = fingerprint(path)
+    require(all(actual[key] == package[key] for key in ('bytes', 'sha512')),
+            'Serviced package bytes differ: ' + package['id'])
+    with zipfile.ZipFile(path) as archive:
+        names = [name for name in archive.namelist() if name.lower().endswith('.nuspec')]
+        require(len(names) == 1, 'One serviced package nuspec required')
+        raw = archive.read(names[0])
+    metadata = ET.fromstring(raw)
+    metadata = metadata.find('{*}metadata')
+    repository, license = metadata.find('{*}repository'), metadata.find('{*}license')
+    require(metadata.findtext('{*}id', '').lower() == package['id']
+            and metadata.findtext('{*}version') == package['version']
+            and repository is not None and repository.get('commit') == source['commit']
+            and repository.get('url', '').removesuffix('.git').rstrip('/') == source['repository']
+            and license is not None and license.get('type') == 'expression' and license.text == package['license'],
+            'Serviced package publisher source/license identity differs: ' + package['id'])
+    return dict(package, sha256=actual['sha256'], nuspecSha256=hashlib.sha256(raw).hexdigest(),
+                repository=source['repository'], repositoryCommit=source['commit'])
+
+
+def validate_serviced_inputs(release, profile, source_manifest):
+    sources = profile.get('supplementalSourceGit', [])
+    if not sources:
+        return
+    report = load_json(release / 'reports/serviced-inputs.json')
+    require(set(report) == {'schemaVersion', 'sdkVersion', 'gitSources'} and report['schemaVersion'] == 1
+            and report['sdkVersion'] == profile['sdkVersion'] and len(report['gitSources']) == len(sources),
+            'Serviced package/source review envelope differs')
+    restored = load_json(release / 'reports/restored-inputs.json')['packages']
+    notice_rows = {}
+    wanted = {source['name'] + '/' + name for source in sources for name in source['requiredNotices']}
+    with (release / 'sources' / source_manifest['index']['path']).open() as stream:
+        for line in stream:
+            row = json.loads(line)
+            if row['path'] in wanted:
+                notice_rows[row['path']] = row
+    require(set(notice_rows) == wanted, 'Corresponding serviced package licenses must be archived')
+    for expected, actual in zip(sources, report['gitSources']):
+        require(set(actual) == {'name', 'repository', 'commit', 'role', 'requiredNotices', 'packages', 'tree', 'notices'}
+                and all(actual[key] == expected[key] for key in ('name', 'repository', 'commit', 'role', 'requiredNotices')),
+                'Serviced package corresponding source identity differs')
+        roots = [root for root in source_manifest['roots'] if root['name'] == expected['name']]
+        require(len(roots) == 1 and roots[0].get('commit') == expected['commit']
+                and roots[0].get('tree') == actual['tree'] and roots[0].get('role') == expected['role'],
+                'Complete exact serviced package Git source must be retained')
+        require(len(actual['notices']) == len(expected['requiredNotices'])
+                and len(actual['packages']) == len(expected['packages']), 'Serviced source review is incomplete')
+        for name, notice in zip(expected['requiredNotices'], actual['notices']):
+            require(set(notice) == {'path', 'bytes', 'sha256', 'sha512'} and notice['path'] == name
+                    and all(notice_rows[expected['name'] + '/' + name][key] == notice[key]
+                            for key in ('bytes', 'sha256', 'sha512')), 'Serviced source license bytes differ')
+        for package, row in zip(expected['packages'], actual['packages']):
+            filename = package['id'] + '.' + package['version'] + '.nupkg'
+            relative = 'reports/serviced-inputs/packages/' + filename
+            require(set(row) == {'id', 'version', 'bytes', 'sha512', 'license', 'sha256', 'nuspecSha256',
+                                'repository', 'repositoryCommit', 'path', 'actualRestoreRecords'}
+                    and row['path'] == relative, 'Serviced package record shape/path differs')
+            metadata = serviced_package(release / relative, expected, package)
+            require(all(row[key] == value for key, value in metadata.items()), 'Serviced package metadata differs')
+            require(row['actualRestoreRecords'] and all(record in restored
+                    and Path(record['path']).name.lower() == filename
+                    and all(record[key] == row[key] for key in ('bytes', 'sha256', 'sha512'))
+                    for record in row['actualRestoreRecords']), 'Serviced package lacks actual restored-byte evidence')
 
 
 def configure_feeds(source, reports, sdk):
@@ -155,6 +223,20 @@ class Producer(P.Producer):
         require(len(cpus) == 2, 'Two matching native CPUs are required')
         return super().container_security_options(source=source) + ['--cpuset-cpus=' + ','.join(map(str, cpus))]
 
+    def diagnostic_options(self):
+        # Crossgen2 tool packs intentionally omit createdump. Enabling runtime
+        # dumps globally makes their valid ReadyToRun invocations fail before
+        # compilation. Preserve MSBuild diagnostics in every normal build.
+        path = self.reports / 'diagnostics' / ('container-' + str(len(self.commands)).zfill(4))
+        path.mkdir(parents=True)
+        options = ['--volume', str(path) + ':/diag', '--env', 'MSBUILDDEBUGPATH=/diag',
+                   '--env', 'MSBUILDDEBUGCOMM=1']
+        if self.diagnostic_ptrace:
+            options += ['--env', 'DOTNET_DbgEnableMiniDump=1', '--env', 'DOTNET_DbgMiniDumpType=1',
+                        '--env', 'DOTNET_DbgMiniDumpName=/diag/dotnet_%e_%p_%t.dmp',
+                        '--env', 'DOTNET_EnableCrashReport=1', '--env', 'DOTNET_CreateDumpDiagnostics=1']
+        return options
+
     def prepare(self):
         require(platform.system() == 'Linux' and platform.machine() == self.id['machine'] and os.getuid() != 0,
                 'An unprivileged matching native Linux host is required')
@@ -246,6 +328,7 @@ class Producer(P.Producer):
         for patch in self.profile['build']['patches']:
             self.run(['git', '-C', str(self.source), 'apply', '--check', str(ROOT / patch['path'])])
             self.run(['git', '-C', str(self.source), 'apply', str(ROOT / patch['path'])])
+        self.prepare_serviced_inputs()
         write(self.reports / 'prepare/source-patches.json', dict(sourceCommit=self.route['source'],
             patches=self.profile['build']['patches'], packageAuditEnabled=True,
             scope='Recorded minimal source adaptations; final SDK MSBuild remains built from the pinned product sources.'))
@@ -261,9 +344,42 @@ class Producer(P.Producer):
         if self.args.host_reports:
             shutil.copytree(ordinary(self.args.host_reports), self.reports / 'ci-host')
 
+    def prepare_serviced_inputs(self):
+        sources = self.profile.get('supplementalSourceGit', [])
+        if not sources:
+            return
+        directory = self.workspace / 'supplemental-sources'
+        directory.mkdir()
+        packages = self.reports / 'serviced-inputs/packages'
+        packages.mkdir(parents=True)
+        rows = []
+        for source in sources:
+            checkout = directory / source['name']
+            commands = [
+                ['git', 'init', str(checkout)],
+                ['git', '-C', str(checkout), 'remote', 'add', 'origin', source['repository']],
+                ['git', '-C', str(checkout), 'fetch', '--depth', '1', 'origin', source['commit']],
+                ['git', '-C', str(checkout), 'checkout', '--detach', 'FETCH_HEAD'],
+                ['git', '-C', str(checkout), 'submodule', 'update', '--init', '--recursive', '--depth', '1']]
+            for index, command in enumerate(commands):
+                self.run(command, self.reports / 'prepare' / (source['name'] + '-' + str(index) + '.log'))
+            require(git(checkout, 'rev-parse', 'HEAD') == source['commit']
+                    and not git(checkout, 'status', '--porcelain', '--untracked-files=all'),
+                    'Corresponding serviced package source must be pristine')
+            notices = [dict(path=name, **fingerprint(checkout / name)) for name in source['requiredNotices']]
+            imported = []
+            for package in source['packages']:
+                name = package['id'] + '.' + package['version'] + '.nupkg'
+                path = packages / name
+                download(dict(url='https://api.nuget.org/v3-flatcontainer/' + package['id'] + '/'
+                              + package['version'] + '/' + name, sha512=package['sha512']), path)
+                imported.append(dict(serviced_package(path, source, package), path=path.relative_to(self.output).as_posix()))
+            rows.append(dict(source, tree=git(checkout, 'rev-parse', 'HEAD^{tree}'), notices=notices, packages=imported))
+        write(self.reports / 'prepare/serviced-inputs.json', dict(schemaVersion=1, sdkVersion=self.sdk, gitSources=rows))
+
     def build_image(self):
-        # Exactly the reviewed Alpine branch/toolchain/APK snapshots used by SDK10.
-        recipe = ROOT / 'containers' / (self.args.arch + '-net10-musl.Containerfile')
+        # Keep the SDK10 recipe immutable; modern runtime builds also need krb5-dev.
+        recipe = ROOT / 'containers' / (self.args.arch + '-modern-musl.Containerfile')
         tag = 'localhost/cbodotnet-modern-musl-build:' + self.sdk + '-' + self.args.run_id + '-' + self.args.arch
         self.run(self.engine + ['build', '--network=host', '--file', str(recipe), '--tag', tag, str(self.image_context)],
                  self.reports / 'prepare/image-build.log')
@@ -346,8 +462,13 @@ class Producer(P.Producer):
                 'SDK must be a newly built unchanged output, never the upstream comparison archive')
         self.collect_construction()
         records = []
+        for path in sorted((self.reports / 'restored-inputs').glob('*.json')):
+            record = load_json(path)
+            require(record.get('schemaVersion') == 1 and record.get('packages'), 'Invalid pre-cleanup restored input record')
+            records.extend(dict(repository=record['repository'], cache=record['cache'], **row) for row in record['packages'])
         for cache in [self.home / '.nuget/packages', self.source / '.packages',
-                      *sorted((self.source / 'src').glob('*/artifacts/.packages'))]:
+                      *sorted((self.source / 'src').glob('*/artifacts/.packages')),
+                      *sorted((self.source / 'src').glob('*/artifacts/sb/package-cache'))]:
             records.extend(dict(cache=str(cache), **row) for row in inventory_cache(cache))
         write(self.reports / 'restored-inputs.json', dict(schemaVersion=1, packages=records))
         require(records, 'Actual restored upstream input byte inventory required')
@@ -356,6 +477,22 @@ class Producer(P.Producer):
         support = module('modern_consumer_roots', 'ci_vmr89_support.py')
         roots, ledger = support.consumer_roots(self.source, self.sdk.split('.')[0])
         roots[0]['role'] = 'built-sdk-vmr-source-and-corresponding-imported-input-source'
+        sources = self.profile.get('supplementalSourceGit', [])
+        if sources:
+            servicing = load_json(self.reports / 'prepare/serviced-inputs.json')
+            for source, row in zip(sources, servicing['gitSources']):
+                checkout = self.workspace / 'supplemental-sources' / source['name']
+                require(not git(checkout, 'status', '--porcelain', '--untracked-files=all'),
+                        'Serviced package source changed after preparation')
+                roots.append(dict(name=source['name'], path=str(checkout), kind='git',
+                                  expectedCommit=source['commit'], role=source['role']))
+                for package in row['packages']:
+                    filename = Path(package['path']).name
+                    matches = [record for record in records if Path(record['path']).name.lower() == filename
+                               and all(record[key] == package[key] for key in ('bytes', 'sha256', 'sha512'))]
+                    require(matches, 'Serviced package was not actually restored: ' + filename)
+                    package['actualRestoreRecords'] = matches
+            write(self.reports / 'serviced-inputs.json', servicing)
         roots_file = self.reports / 'source-roots.json'
         write(roots_file, dict(schemaVersion=1, roots=roots))
         write(self.reports / 'ci-inputs/source-exclusions.json', dict(exclusions=ledger))
@@ -616,6 +753,7 @@ def validate(release):
     source_manifest = load_json(release / 'sources/source-manifest.json')
     source_roots = [r for r in source_manifest['roots'] if r['name'] == 'vmr']
     require(len(source_roots) == 1 and source_roots[0]['commit'] == route['source'], 'Actual retained complete VMR source differs')
+    validate_serviced_inputs(release, profile, source_manifest)
     scan = load_json(release / 'reports/scan/pinned-source-inventory.json')
     require(scan.get('sourceCommit') == route['source'] and scan.get('pristineBefore') is True
             and scan.get('pristineAfter') is True and scan.get('sourceTree') == source_roots[0]['tree'],

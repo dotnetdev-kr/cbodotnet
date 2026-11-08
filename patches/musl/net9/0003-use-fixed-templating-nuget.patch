@@ -1,0 +1,35 @@
+Subject: [PATCH] Service the templating NuGet client family to 6.12.5
+
+NuGet.Protocol and NuGet.Packaging 6.12.4 are affected by the package identity
+validation issue GHSA-g4vj-cjjj-v7hg. Select the publisher's fixed 6.12.5
+servicing release for the coordinated NuGet family already pinned together in
+templating. Keep the original major/minor API line and NuGet audit enabled.
+This patch does not change the separately built SDK NuGet implementation.
+
+Advisory: https://github.com/NuGet/NuGet.Client/security/advisories/GHSA-g4vj-cjjj-v7hg
+Base-VMR: 9f04b57d1366e21b3178648493d6edffeff2216e
+Source-Reference: https://github.com/dotnet/dotnet/blob/v9.0.123/src/templating/eng/Versions.props
+
+diff --git a/src/templating/eng/Versions.props b/src/templating/eng/Versions.props
+--- a/src/templating/eng/Versions.props
++++ b/src/templating/eng/Versions.props
+@@ -26,12 +26,12 @@
+     <MicrosoftExtensionsLoggingAbstractionsVersion>9.0.3</MicrosoftExtensionsLoggingAbstractionsVersion>
+     <MicrosoftExtensionsLoggingConsoleVersion>9.0.3</MicrosoftExtensionsLoggingConsoleVersion>
+     <MicrosoftExtensionsDependencyInjectionAbstractionsVersion>9.0.3</MicrosoftExtensionsDependencyInjectionAbstractionsVersion>
+-    <NuGetCommonVersion>6.12.4</NuGetCommonVersion>
+-    <NuGetConfigurationVersion>6.12.4</NuGetConfigurationVersion>
+-    <NuGetCredentialsVersion>6.12.4</NuGetCredentialsVersion>
+-    <NuGetFrameworksVersion>6.12.4</NuGetFrameworksVersion>
+-    <NuGetPackagingVersion>6.12.4</NuGetPackagingVersion>
+-    <NuGetProtocolVersion>6.12.4</NuGetProtocolVersion>
+-    <NuGetVersioningVersion>6.12.4</NuGetVersioningVersion>
++    <NuGetCommonVersion>6.12.5</NuGetCommonVersion>
++    <NuGetConfigurationVersion>6.12.5</NuGetConfigurationVersion>
++    <NuGetCredentialsVersion>6.12.5</NuGetCredentialsVersion>
++    <NuGetFrameworksVersion>6.12.5</NuGetFrameworksVersion>
++    <NuGetPackagingVersion>6.12.5</NuGetPackagingVersion>
++    <NuGetProtocolVersion>6.12.5</NuGetProtocolVersion>
++    <NuGetVersioningVersion>6.12.5</NuGetVersioningVersion>
+   </PropertyGroup>
+ </Project>

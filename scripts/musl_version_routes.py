@@ -52,12 +52,25 @@ def profile(sdk, arch, root=ROOT):
         require(not any(p['P'] in ('gcompat', 'libc6-compat', 'glibc') for p in value[packages]),
                 'glibc compatibility providers are forbidden')
         require(any(p['P'] == 'icu-data-full' for p in value[packages]), 'Full ICU data is mandatory')
+    kerberos = [p for p in value['buildPackages'] if p['P'] == 'krb5-dev']
+    require(len(kerberos) == 1 and kerberos[0]['V'] == '1.22.2-r1'
+            and kerberos[0]['c'] == '92bc4f0d36aa5307e819fb57167fc19952cf515f'
+            and kerberos[0]['repository'] == 'main', 'Native runtime Kerberos development input differs')
+    supplemental = value.get('supplementalSourceGit', [])
+    require((not supplemental if expected['sourceOnly'] else hashlib.sha256(json.dumps(
+        supplemental, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+        == 'd3c607935519a6c23ef05969ab6b7bc6b2cbaa1f761c0b0e926d5e4ef796b116'),
+        'Reviewed serviced package/source/license registry differs')
     expected_patches = ({'patches/net8/0002-preserve-portable-aspnetcore-target.patch':
                          'b03fab8085c959debc05892fb1920edaa8f514f90d4189994de23608abcc7d8a'} if expected['sourceOnly'] else {
                          'patches/musl/net9/0001-use-fixed-build-helper-msbuild.patch':
                          '444916928c5c78a8232c3baba53b7d0c2d09ea4ad9bd4fe3536b1b11055b823e',
                          'patches/musl/net9/0002-use-fixed-build-helper-asn1.patch':
-                         '862fbb3852f396d93c4033bbfba256531a54d0210916271c0eea5eec6b9de395'})
+                         '862fbb3852f396d93c4033bbfba256531a54d0210916271c0eea5eec6b9de395',
+                         'patches/musl/net9/0003-use-fixed-templating-nuget.patch':
+                         '579ba989c5ec56a046b7d1e1b2aa6549d892102063effe02a25a1e9e91cce6ee',
+                         'patches/musl/net9/0004-use-fixed-razor-messagepack.patch':
+                         '0e3b9b14eca6c9dd5033479cc92af92892aac069f5b16e2a92e0f6b15f26b1d4'})
     require(len(build['patches']) == len(expected_patches)
             and {p['path'] for p in build['patches']} == set(expected_patches), 'Unreviewed source patch set')
     for patch in build['patches']:

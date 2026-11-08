@@ -29,6 +29,20 @@ source patches address the upstream advisories
 They preserve NuGet auditing and product MSBuild source identity. Actual
 restored inputs and patch bytes are retained in producer evidence.
 
+Templating's coordinated NuGet references are serviced to 6.12.5 for
+[the NuGet client validation update](https://github.com/advisories/GHSA-g4vj-cjjj-v7hg).
+Razor's MessagePack reference stays on the compatible 2.x line at 2.5.303,
+including [the later correction](https://github.com/advisories/GHSA-qhrr-8q5h-9q3h).
+The nine exact package inputs are bound to their SHA512, publisher source
+commit and license expression. Complete corresponding NuGet and MessagePack
+Git sources, including the pinned localization submodule and required notices,
+are retained with independently checked actual restore records.
+
+The modern build image adds pinned stock `krb5-dev` headers needed to compile
+the native runtime. SDK10's build recipe and runtime dependency policy remain
+intact. Normal modern builds retain MSBuild diagnostics without forcing runtime
+minidumps on Crossgen2 tool packages; ReadyToRun optimization remains enabled.
+
 The separate `musl-release.yml` requires an explicit SDK version. Source
 receiving authenticates the real workflow attempt, artifact API identity and
 digest, transport envelope, sealed producer evidence, and used-source package

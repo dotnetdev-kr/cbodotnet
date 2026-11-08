@@ -145,12 +145,16 @@ def expand_submodules(roots):
                        and other.get('expectedCommit') == submodule['commit'] and other['kind'] in ('git', 'git-export')]
             if present:
                 require(len(present) == 1, 'Ambiguous declared submodule consumer: ' + path)
+                if root.get('role') == 'source-for-serviced-imported-package':
+                    require(present[0].get('role') == root['role'], 'Serviced submodule must retain pristine corresponding-source role')
                 continue
             # Preserved generated checkouts have real Git directories/files.
             # Minimal legacy export markers must instead be declared with gitDir.
             name = root['name'] + '-sub-' + hashlib.sha256(submodule['path'].encode()).hexdigest()[:12]
             require(not any(other['name'] == name for other in roots), 'Duplicate automatic submodule name')
             child = {'name': name, 'path': path, 'kind': 'git', 'expectedCommit': submodule['commit']}
+            if root.get('role') == 'source-for-serviced-imported-package':
+                child['role'] = root['role']
             git_identity(child)
             roots.append(child)
     return roots
@@ -183,8 +187,30 @@ def shared_crlf_policy():
     return policy, frozenset(policy['paths'])
 
 
+@functools.lru_cache(maxsize=1)
+def serviced_nuget_crlf_policy():
+    """Exact publisher checkout transforms for the pinned NuGet servicing source."""
+    path = Path(__file__).with_name('musl-nuget-source-crlf.json')
+    require(path.is_file() and not any(p.is_symlink() for p in [path, *path.parents]),
+            'The serviced NuGet checkout policy must be ordinary')
+    data = path.read_bytes()
+    require(hashlib.sha256(data).hexdigest() == 'e2988fd617e2e70b77e88850c73f577b144107bb97990d7a0515e14876f3698d',
+            'The serviced NuGet checkout policy changed; re-audit required')
+    policy = json.loads(data)
+    require(policy['schemaVersion'] == 1 and policy['repository'] == 'https://github.com/NuGet/NuGet.Client'
+            and policy['commit'] == 'c92125011405028c945371a89e1a1eb0e735456d'
+            and policy['tree'] == 'fc71961de683139268ff055534a8d56bf159dfff'
+            and len(policy['paths']) == 181 and policy['paths'] == sorted(set(policy['paths']))
+            and all(portable(name) == name for name in policy['paths']), 'Unexpected serviced NuGet checkout policy')
+    return frozenset(policy['paths'])
+
+
 def pristine_crlf_paths(root):
     """Permit audited paths only for the corresponding pinned source root."""
+    if (root.get('role') == 'source-for-serviced-imported-package'
+            and root.get('commit') == 'c92125011405028c945371a89e1a1eb0e735456d'
+            and root.get('tree') == 'fc71961de683139268ff055534a8d56bf159dfff'):
+        return serviced_nuget_crlf_policy()
     if (root.get('role') != 'source-for-reused-shared-input'
             or root.get('commit') != '0427b9abbead3fa64c6655eb4290c537397131fa'
             or root.get('tree') != 'ed143c381dc0e4742aa1f9afd3652af5f21c15d6'):
@@ -359,7 +385,8 @@ def verify(args):
             require(row.get('bytes') == size and all(row.get(a) == h.hexdigest() for a, h in hashes.items()),
                     'Source content differs: ' + name)
             root_info = next(root for root in manifest['roots'] if root['name'] == PurePosixPath(name).parts[0])
-            if root_info['name'] == 'orchestration' or root_info.get('role') == 'source-for-reused-shared-input':
+            if root_info['name'] == 'orchestration' or root_info.get('role') in (
+                    'source-for-reused-shared-input', 'source-for-serviced-imported-package'):
                 require(pristine_blob(row, blob.hexdigest(), bytes(windows_bytes) if windows_bytes is not None else None, audited_crlf),
                         'Pristine corresponding source differs from its actual Git blob: ' + name)
             counts[PurePosixPath(name).parts[0]] += 1; total += 1
@@ -367,6 +394,8 @@ def verify(args):
     require(total == manifest['files'] and all(counts[root['name']] == root['files'] for root in manifest['roots']),
             'Source root counts differ')
     for root in manifest['roots']:
+        if root.get('role') == 'source-for-serviced-imported-package':
+            require(root.get('deleted') == [], 'Pristine serviced corresponding source cannot omit Git members')
         if root.get('kind') in ('git', 'git-export'):
             raw = base64.b64decode(root['commitObjectBase64'], validate=True)
             require(hashlib.sha1(b'commit ' + str(len(raw)).encode() + b'\0' + raw).hexdigest() == root['commit']
@@ -375,6 +404,8 @@ def verify(args):
                 children = [child for child in manifest['roots'] if child['name'] == submodule['root']
                             and child.get('commit') == submodule['commit']]
                 require(len(children) == 1, 'Pinned submodule source is missing')
+                if root.get('role') == 'source-for-serviced-imported-package':
+                    require(children[0].get('role') == root['role'], 'Serviced submodule lost its pristine corresponding-source role')
                 baselines[root['name']][submodule['path']] = {'mode': '160000', 'blob': submodule['commit']}
             require(baseline_tree(baselines[root['name']]) == root['tree'], 'Source baseline does not reconstruct its pinned Git tree')
     print(json.dumps({'status': 'passed', 'command': 'verify-source', 'files': total,

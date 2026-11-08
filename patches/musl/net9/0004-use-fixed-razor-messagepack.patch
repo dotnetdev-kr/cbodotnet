@@ -1,0 +1,40 @@
+Subject: [PATCH] Service Razor's MessagePack dependency within the 2.5 line
+
+Replace Razor's single central MessagePack 2.5.187 pin with 2.5.303. Nine
+publisher advisories below are fixed in 2.5.301; the nested-array allocation
+issue requires 2.5.303 and explicitly affects 2.5.302. Keep NuGet audit enabled.
+
+The publisher retains netstandard2.0, net6.0 and net472 assets in 2.5.303,
+covering Razor's existing target frameworks without a major API migration.
+The original Razor build and SDK tests remain required; native qualification also
+requires the complete offline SDK smoke, ELF and system-library checks.
+The actual restored nupkg, its license/repository metadata and package source
+are retained by the producer alongside this exact downstream source patch.
+
+Publisher-Release: https://github.com/MessagePack-CSharp/MessagePack-CSharp/releases/tag/v2.5.303
+Publisher-Source: https://github.com/MessagePack-CSharp/MessagePack-CSharp/blob/v2.5.303/src/MessagePack/MessagePack.csproj
+Advisory: https://github.com/MessagePack-CSharp/MessagePack-CSharp/security/advisories/GHSA-2f33-pr97-265q
+Advisory: https://github.com/MessagePack-CSharp/MessagePack-CSharp/security/advisories/GHSA-2x83-8g95-xh59
+Advisory: https://github.com/MessagePack-CSharp/MessagePack-CSharp/security/advisories/GHSA-cj9g-3mj2-g8vv
+Advisory: https://github.com/MessagePack-CSharp/MessagePack-CSharp/security/advisories/GHSA-cxmj-83gh-fp49
+Advisory: https://github.com/MessagePack-CSharp/MessagePack-CSharp/security/advisories/GHSA-q2h6-ghwm-5qm8
+Advisory: https://github.com/MessagePack-CSharp/MessagePack-CSharp/security/advisories/GHSA-qhmf-xw27-6rqr
+Advisory: https://github.com/MessagePack-CSharp/MessagePack-CSharp/security/advisories/GHSA-qhrr-8q5h-9q3h
+Advisory: https://github.com/MessagePack-CSharp/MessagePack-CSharp/security/advisories/GHSA-v72x-2h86-7f8m
+Advisory: https://github.com/MessagePack-CSharp/MessagePack-CSharp/security/advisories/GHSA-w567-gjr2-hm5j
+Advisory: https://github.com/MessagePack-CSharp/MessagePack-CSharp/security/advisories/GHSA-wfr3-xj75-pfwh
+Base-VMR: 9f04b57d1366e21b3178648493d6edffeff2216e
+Source-Reference: https://github.com/dotnet/dotnet/blob/v9.0.123/src/razor/Directory.Packages.props
+
+diff --git a/src/razor/Directory.Packages.props b/src/razor/Directory.Packages.props
+--- a/src/razor/Directory.Packages.props
++++ b/src/razor/Directory.Packages.props
+@@ -26,7 +26,7 @@
+     <PackageVersion Include="BenchmarkDotNet.Diagnostics.Windows" Version="$(_BenchmarkDotNetPackageVersion)" />
+     <PackageVersion Include="DiffPlex" Version="1.7.2" />
+     <PackageVersion Include="FluentAssertions" Version="6.7.0" />
+-    <PackageVersion Include="MessagePack" Version="2.5.187" />
++    <PackageVersion Include="MessagePack" Version="2.5.303" />
+     <PackageVersion Include="Microsoft.AspNetCore.App.Runtime.$(NetCoreSDKRuntimeIdentifier)" Version="8.0.0" />
+     <PackageVersion Include="Microsoft.Build.Framework" Version="$(_MicrosoftBuildPackageVersion)" />
+     <PackageVersion Include="Microsoft.Build.Locator" Version="1.4.1" />
