@@ -212,7 +212,7 @@ class ReviewedRestoredLeafBoundary(unittest.TestCase):
                     packageMember='lib/member.dll', sourceRoot=source['sourceRoot'], sourceCommit=source['sourceCommit']))
         return identities, sources, restored, shipping, actual, dict(roots=roots)
 
-    def run_fixture(self, root, fixture, local_vstest=None, transformed=None):
+    def run_fixture(self, root, fixture, local_vstest=None, transformed=None, artifacts=None):
         identities, sources, restored, shipping, actual, manifest = fixture
         with mock.patch.object(M, 'NETSTANDARD21', identities[0]), mock.patch.object(M, 'CSS_PARSER', identities[1]), \
              mock.patch.object(M.MSBUILD_RESOURCES, 'PACKAGE', identities[2]), \
@@ -222,7 +222,7 @@ class ReviewedRestoredLeafBoundary(unittest.TestCase):
              mock.patch.object(M.MSBUILD_RESOURCES, 'validate', return_value=sources[2]) as msbuild, \
              mock.patch.object(M.GLOBBING_INPUTS, 'validate', return_value=sources[3]) as globbing:
             reviewed, paths = M.validate_reviewed_shipping_inputs(root, manifest, restored)
-            M.validate_reviewed_shipping_bindings(root, manifest, reviewed, paths, shipping, actual, local_vstest, transformed)
+            M.validate_reviewed_shipping_bindings(root, manifest, reviewed, paths, shipping, actual, local_vstest, transformed, artifacts)
             for index, validate in enumerate((netstandard, css, msbuild, globbing)):
                 validate.assert_called_once_with(root, manifest, root / restored[index]['retained'])
         self.assertEqual({identity['sha256']:source for identity, source in zip(identities, sources)}, reviewed)
@@ -279,6 +279,17 @@ class ReviewedRestoredLeafBoundary(unittest.TestCase):
                 changed = copy.deepcopy(fixture); changed[3][-1][field] = value
                 with self.subTest(field=field), self.assertRaisesRegex(ValueError, 'genuine VSTest copy origin'):
                     self.run_fixture(root, changed, vstest)
+            name = row['path']; original = source['products'][name]
+            fixture[4][name] = M.ATTRIBUTED_COMPONENTS.fingerprint(b'observed Globbing ready-to-run output fixture')
+            toolset = root / 'actual-toolset.zip'
+            with zipfile.ZipFile(toolset,'w') as archive: archive.writestr('lib/globbing.dll',raw)
+            artifacts = dict(toolset=dict(path=toolset.name,kind='sdk-toolset',**M.fingerprint(toolset)))
+            transformed = {name:dict(archivePath=name,input='toolset',member='lib/globbing.dll',task='Crossgen',context='1:2:3:4',
+                inputSha256=original['sha256'],outputSha256=fixture[4][name]['sha256'])}
+            self.run_fixture(root,fixture,vstest,transformed,artifacts)
+            for field,value in [('inputSha256','f'*64),('outputSha256','f'*64),('context',''),('member','lib/forged.dll')]:
+                changed=copy.deepcopy(transformed);changed[name][field]=value
+                with self.subTest(r2rField=field),self.assertRaises(ValueError):self.run_fixture(root,fixture,vstest,changed,artifacts)
 
     def test_original_member_binds_validated_r2r_input_and_actual_output(self):
         with tempfile.TemporaryDirectory() as temporary:

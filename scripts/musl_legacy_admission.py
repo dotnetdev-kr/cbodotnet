@@ -1117,7 +1117,7 @@ def validate_reviewed_shipping_inputs(release, source_manifest, restored_package
 
 
 def validate_reviewed_shipping_bindings(release, source_manifest, reviewed, paths, shipping, actual,
-                                       local_vstest=None, transformed=None):
+                                       local_vstest=None, transformed=None, artifacts=None):
     """Bind copies after the caller validates every original Crossgen task and input/output."""
     roots = {root['name']: root for root in source_manifest['roots']}
     globbing_package = GLOBBING_INPUTS.policy()['package']
@@ -1137,6 +1137,7 @@ def validate_reviewed_shipping_bindings(release, source_manifest, reviewed, path
                 # the original 1.1.1 package independently binds preferred source.
                 imported = (local_vstest or {}).get('importedMembers', {}).get((row.get('packagePath'), row.get('packageMember')))
                 package_fp = (local_vstest or {}).get('packagePaths', {}).get(row.get('packagePath'))
+                expected = source['products'][name]; target = (transformed or {}).get(name)
                 require(imported is not None and package_fp is not None and row.get('origin') == 'imported-package'
                         and row.get('sourceRoot') == 'vstest' and row.get('sourceCommit') == VSTEST7_COMMIT
                         and 'vstest' in roots and roots['vstest'].get('kind') in {'git', 'git-export'}
@@ -1144,9 +1145,27 @@ def validate_reviewed_shipping_bindings(release, source_manifest, reviewed, path
                         and row.get('componentSource') == dict(sourceRoot=source['sourceRoot'], sourceCommit=source['sourceCommit'],
                                                                basis='assembly-metadata-commit-hash')
                         and imported['sourceCommit'] == source['sourceCommit'] and name in actual
-                        and all(imported[key] == actual[name][key] == source['products'][name][key] for key in ('bytes', 'sha256')),
+                        and all(imported[key] == expected[key] for key in ('bytes', 'sha256'))
+                        and (target is None and all(actual[name][key] == expected[key] for key in ('bytes', 'sha256'))
+                             or target is not None and target.get('archivePath') == name and target.get('task') == 'Crossgen'
+                             and isinstance(target.get('context'), str) and target['context']
+                             and target.get('inputSha256') == expected['sha256']
+                             and target.get('outputSha256') == actual[name]['sha256']),
                         'Globbing must preserve its exact validated genuine VSTest copy origin and separate preferred source: ' + name)
-                checked(release, dict(path=portable(row['packagePath']), **package_fp))
+                genuine = checked(release, dict(path=portable(row['packagePath']), **package_fp))
+                with zipfile.ZipFile(genuine) as archive:
+                    require(archive.getinfo(row['packageMember']).file_size == expected['bytes']
+                            and ATTRIBUTED_COMPONENTS.fingerprint(archive.read(row['packageMember'])) == expected,
+                            'Globbing genuine VSTest member must retain its full original fingerprint: ' + name)
+                if target is not None:
+                    require(target.get('input') in (artifacts or {}) and artifacts[target['input']]['kind'] == 'sdk-toolset',
+                            'Globbing R2R input must be an actual validated toolset: ' + name)
+                    artifact = artifacts[target['input']]
+                    package_input = checked(release, {key:artifact[key] for key in FP | {'path'}})
+                    with zipfile.ZipFile(package_input) as archive:
+                        require(target['member'] in archive.namelist() and archive.getinfo(target['member']).file_size == expected['bytes']
+                                and ATTRIBUTED_COMPONENTS.fingerprint(archive.read(target['member'])) == expected,
+                                'Globbing R2R input must retain its full original fingerprint: ' + name)
                 continue
             target = (transformed or {}).get(name)
             require(row.get('origin') == 'imported-package' and row.get('packagePath') == relative
@@ -1417,7 +1436,7 @@ def validate_construction(release, record, source_manifest, stages=None, prepare
                 if artifacts[row['input']]['kind'] == 'generated-installer-data'),
             'Generated layout metadata has no actual installer producer event')
     validate_reviewed_shipping_bindings(release, source_manifest, reviewed_sources, reviewed_paths,
-                                       proof['managedShipping'], actual, local_vstest, transformed)
+                                       proof['managedShipping'], actual, local_vstest, transformed, artifacts)
     validate_attributed_products_after_crossgen(release, attributed_policy, actual, transformed, artifacts)
     validate_trace(release, artifacts, policy, record, source_manifest)
     validate_native_runtime(release, artifacts, policy, record, source_manifest, stages, prepare)
