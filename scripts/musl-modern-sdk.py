@@ -507,7 +507,16 @@ class Producer(P.Producer):
         return R.build_command(self.sdk, self.args.arch, test, '/inputs/official-sdk.tar.gz' if test else None)
 
     def build(self):
-        self.container(self.build_command(), log=self.reports / 'build/build.log')
+        try:
+            self.container(self.build_command(), log=self.reports / 'build/build.log')
+        finally:
+            if self.route['sourceOnly']:
+                try:
+                    module('modern_source_failure_diagnostics', 'musl_build_diagnostics.py').capture(
+                        self.source, self.reports / 'diagnostics/source-assets')
+                except Exception as error:
+                    write(self.reports / 'diagnostics/source-assets-capture-error.json',
+                          dict(kind='source-assets-diagnostic-capture-error', error=str(error), qualificationAllowed=False))
         if self.route['sourceOnly']:
             log = self.reports / 'build/reference-audit.log'
             shutil.copyfile(self.source / 'artifacts/logs/source-build-assets.log', log)
