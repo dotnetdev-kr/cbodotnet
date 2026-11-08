@@ -1,0 +1,2419 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdk5-direct-canonical-framework-source-policy",
+  "sdkVersion": "5.0.214",
+  "sdkSourceCommit": "3fdf76c35026e311b7edc245d4b3d9e812fe532e",
+  "sdkSourceFiles": [
+    {
+      "path": "src/Tasks/Microsoft.NET.Build.Extensions.Tasks/Microsoft.NET.Build.Extensions.Tasks.csproj",
+      "bytes": 5146,
+      "sha256": "5ed85bbb977a8ec3161b2b2cbce83972bdf2cb7047eda170854ee89cc90591a2",
+      "sha512": "3b1dd92e8bce3a55306e011eece776e4ef74877aae38963325c4e5dbe086d5344654f3b9fee685ab2ef2aedd6b4d871e66deb53f43db314fb8db63b55c14daaf",
+      "gitBlob": "20d6fd9a0613200834d6373fc0e5bc0411e31eb8"
+    },
+    {
+      "path": "eng/Versions.props",
+      "bytes": 11211,
+      "sha256": "ae7af9d59768e88b2e7dbc74fa8d1b2ce3f5b56a38901e594e2db75483142156",
+      "sha512": "e9c5cd1fb5279ecf4d4e58b73771ee3b7a7fdf1b727413b2aa7062ffe8116755c2b4aaf95ba3549b95f9388cd274e1e7c167aa7445817571d8daf077bb6e59fe",
+      "gitBlob": "c6e9ff2ac21382e53afce05414252cc031aa131a"
+    },
+    {
+      "path": "LICENSE.TXT",
+      "bytes": 1116,
+      "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+      "sha512": "27f511fefea2390347bb7ea63f7795a26780ad43eca80d717c92c70a434d28fdf136c4b902750b52813ed9cf0d3c51af206062323a0496459461d985a34ac5c7",
+      "gitBlob": "984713a49622a96da110443c15477613bc12656b"
+    }
+  ],
+  "package": {
+    "id": "NETStandard.Library.NETFramework",
+    "version": "2.0.1-servicing-26011-01",
+    "fingerprint": {
+      "bytes": 1844646,
+      "sha256": "218dd4c63d3f800de697bca41178827a52df0a9ec7a9b47520327d91ebc7051c",
+      "sha512": "714a0fad007482d3bdacd4e4d88460003c0dc2e97f326525bdddc5ac0a09151951a45817de436ceb753aa766f3b8ae421fefc074a617698291e3f663146930fc"
+    }
+  },
+  "preferredSource": {
+    "repository": "https://github.com/dotnet/source-build-assets",
+    "commit": "eccb0828682858d8daa029ba29adce07fd70d9a7",
+    "tree": "cb4ed080b55039760f9b7fce7410be0d63ed2fe0",
+    "path": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01",
+    "files": {
+      "Directory.Build.props": {
+        "bytes": 881,
+        "sha256": "b72e482b0c27648da1f50c92d42d039fd34fad75c86a5e7b0c467d20c54afd6b",
+        "sha512": "3821c89707ec0f09f8218a3f750cc866f58d621bc96c7505549fa542d54b9b0bc96ce9a379e20a9f52ada08fc247a24b2958d4cb695a754c68a7ce956a30f1a7",
+        "gitBlob": "d85a0d1f035779ab10fcf9a21e2af9943b82453b"
+      },
+      "Directory.Build.targets": {
+        "bytes": 4692,
+        "sha256": "88ab36480acbbc810bf6b8f4054902b303d2cf244ad234c3ed5335eb56e4aec0",
+        "sha512": "a152b62e29490c7ea029a4a93e11bde7cee9a0baac0434896cef24406f99ca244bc1ad04927869cd05f2875dcddf8be5ddf742e1dfb67eee0881f861e1d3f5f8",
+        "gitBlob": "897e13505d7a174adeb1f3acbc530ff039d49cd7"
+      },
+      "eng/Versions.props": {
+        "bytes": 1123,
+        "sha256": "2ba64d2c00f22dd2f5fd80a43d3ae16c9e2f1e0401222fdd3d6d3ae0ccbfcebe",
+        "sha512": "d89df60f7bf4a812deb7aee1cec1725002d17799f8d98d6c41602e9779117a809ade4f79f8fe52f6fb484a698283ce1af522ad7a046abe37f9666d0e1957c25b",
+        "gitBlob": "2aa1649aa263128ecf99f9ab41a163e6a06540fa"
+      },
+      "global.json": {
+        "bytes": 409,
+        "sha256": "3e3985d519c124450580ba479ce2423aea636ad92301e25bc9bee0f2eb00f134",
+        "sha512": "7e8763bc7cfccfda32991fbdc1355289c04d2e3c097c4bc0dbacd45bc02c4ec816c306c9795a4cddae4c286e259958344d4b62c72e7fc3c7ef4e56b95b0c7245",
+        "gitBlob": "61666417f092c667bab6607a07a25960c333b88c"
+      },
+      "LICENSE.txt": {
+        "bytes": 1116,
+        "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+        "sha512": "27f511fefea2390347bb7ea63f7795a26780ad43eca80d717c92c70a434d28fdf136c4b902750b52813ed9cf0d3c51af206062323a0496459461d985a34ac5c7",
+        "gitBlob": "984713a49622a96da110443c15477613bc12656b"
+      },
+      "src/targetPacks/build-il.sh": {
+        "bytes": 352,
+        "sha256": "edb022ea324825b9f907f4ce141754a52fbe3cc9a7a05db4342eaca3ef8de073",
+        "sha512": "d8d53fd943600cb3621ffe6300bd5adf3e3d5d11ac4989960c4dbb74192f4411ebd2c01946398190802bfaa44f9531c9a14add089c01947c98f5cf8033cdcbfb",
+        "gitBlob": "68aefe8d57814952ea643d011929296413e65cc8"
+      },
+      "src/targetPacks/Directory.Build.props": {
+        "bytes": 1359,
+        "sha256": "b5d38acd395afad84ea35e8f3895d0010b25404f5b44b6dff7d407e36bc8bd47",
+        "sha512": "304b9de76b72b07d493d38ccdbf08188f9cc0f65387cbab4a97f8cf6d4e8aa9a24f58d9fb1129801f19661f62a85278005512ea8db0b512d9c2ae0785976bd72",
+        "gitBlob": "cda5fec2a122a12605d051a21d2a2e9bb7dc1c4c"
+      },
+      "src/targetPacks/Directory.Build.targets": {
+        "bytes": 6487,
+        "sha256": "90edab20ff271fa188f85f19fc09fe31a5ca60a740b3763235edb44dcda5a28b",
+        "sha512": "9b7df87acc9f3f206863b1d6c229fcb4bc17696c1f8c818536db932528e0a912aadfe849e06a780b7829fae605d0484341b677502555c51e211ef78a960017b5",
+        "gitBlob": "cf5e75ac420624cdfbeaaa02483fc6b38880389e"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/Microsoft.Win32.Primitives.il": {
+        "bytes": 17686,
+        "sha256": "44c462c70683dce85aa7cf42df26a9ec8e7821bd95c883f9b21f1a4f75d12afc",
+        "sha512": "2039a782286ea9ee5fc8d7805c7156ee73505b23eb23fa8a747ba244390fee863356e25d05421864534ed5f185977d556eff472893e6c41a2ce8a7fec832a08e",
+        "gitBlob": "a268647318ca41084e4a92e81fe25e3e762e205b"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/netfx.force.conflicts.il": {
+        "bytes": 34347,
+        "sha256": "e1bb0a76791908ade99f9466bc987710e0dbb5853fa1d47f44ea64e5d363f223",
+        "sha512": "3e560621bae1ef5f1131a1c5492171802cb2f660585a2c3539d43106aaebf78042cdf842f014c7fe24ba3eadf9b53e01e435b6eb8d03cc463d8522e372d4785a",
+        "gitBlob": "2fafb5737e3dd8359c2bb8ebd15d2e61adaa4967"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/netstandard.il": {
+        "bytes": 316699,
+        "sha256": "ecbfb88e3dfc004a942e3380e1d086427c9b2324f9adfa6ce3a810f95ca3856d",
+        "sha512": "db4caa7749e5661c4dfaf2b3ee7850b0ff32dfbb07ad2fba34117b03fb6d78536b2c45fb53ab2d2e5ec4cc2a4e4e55df69050ecc7527137d8d82ebf6cd76b196",
+        "gitBlob": "249636ccae8f27328eafaa4283a82399bdf7e728"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.AppContext.il": {
+        "bytes": 17622,
+        "sha256": "cca02e220d67e3266055fadad81d95fe2c80734a0f73464a8df48f0860db36ed",
+        "sha512": "3e923a551b72c979da5e3f1895408d5cbd59d835fa82b19e610853beb8aeaa070d5c2e0c79f9bb252987ec6708d9467ce03fe34326bc4dd5e61a2f429510353e",
+        "gitBlob": "f75a160598ed39938f4dc639e4a693373bf0f5a6"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Collections.Concurrent.il": {
+        "bytes": 19452,
+        "sha256": "788a3dbf0862274259a75990416f120878cc9ddf94cc2654dcb17ef27fc42d47",
+        "sha512": "b7121d120074885751bfcc5b4ac521c15821d445bee22ff538fae614521e8726f69d04e4a60f828dc6626816be7dc97b29546d75e7ec49be177c1d4539efe716",
+        "gitBlob": "3d6374bf8afbe781526341e8730b94fa785f50b6"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Collections.il": {
+        "bytes": 21150,
+        "sha256": "366ebd6a3fa68dbd1df1333af1d90da6e978857c08eca48b00985b2dad578bbd",
+        "sha512": "ad1d454cb82b4891b1092bd8bbae451085b6366eacaa3b44de396f30205df499612401984fea6db031fa1c17d1f8645df9942800a06e5f7c808914b8591a885c",
+        "gitBlob": "102510040ce4b9962cc51329d993dfc84f9aeccc"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Collections.NonGeneric.il": {
+        "bytes": 19399,
+        "sha256": "9314828bee78deb40d002d2e8700baa91cf4e57ab3f26c4cc93235009988ab28",
+        "sha512": "be9c17781739c2c18d80974ace64dca06f870cd8fb13a6f33abfa982f0a24214f7fc5dd8dec8e64a0d461c23353c807320080cc0204dd1a84cc8a29c6ecabaef",
+        "gitBlob": "df1fdb993f5471ecc8e24b7e8008107f27aa317f"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Collections.Specialized.il": {
+        "bytes": 19824,
+        "sha256": "9a60380e50a16f90156aa475f7cb3f74ae8e050c55dc035def1955b282b73057",
+        "sha512": "1272d08ac7430c29d0116a67db96444f280e181e7cf7daa07e48f65af7fd6024e6b943067a5cd1165ae9b6d3cb657045b684162a14c52fd6e5dc90c9f0dadcb9",
+        "gitBlob": "628ae7fbe124eb3eb1e12050e97ad3c121b3cb2d"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.ComponentModel.EventBasedAsync.il": {
+        "bytes": 19709,
+        "sha256": "ab9aa5cab86bc5dbf8b07591bf2deb16fd4fe3adae7aa5db0aefbc4a3385a3ce",
+        "sha512": "91baadc87ae253bbc478c8ea2005a550315a31f0c479c4918e7df14769dfe3f1db3f91537cd9f5df0577b36c47d78004238c2dd2073158dee8eb2c6bfab3b84e",
+        "gitBlob": "ba949a03b8c78d3c0e2c9a1faff7212a7758cecd"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.ComponentModel.il": {
+        "bytes": 18154,
+        "sha256": "38a96dfd20130c2e02af9b9a509c62d6a18c73bc60764a4ba96e383ea882488e",
+        "sha512": "4f669b672125c88067c802aae51a0bd02c89fa2d7ffe4d36c1b12de00247c3ff82839ffddf698f1240ac03e3b4273a416b02a19c091eee964890d9ca22f7af07",
+        "gitBlob": "5050145d9b7272f430ebf6b12c2bc15f5d1a03ad"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.ComponentModel.Primitives.il": {
+        "bytes": 21110,
+        "sha256": "777fba4611ac06d96a328e49c302d8136c16ddac6a65daad2d10630d3de919be",
+        "sha512": "c6e017a5059953239359d556b1cd856a8e66d6d48e24f8ad44704aa9fa06338e53b8f45b9a36c8f5aef342cf519abf3e98f577696a7d0c7c3893fd74de87d1ed",
+        "gitBlob": "bb677a9d591719d061009635bd93fa6671e72ea6"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.ComponentModel.TypeConverter.il": {
+        "bytes": 25763,
+        "sha256": "35cc38de0eb230a52b5b33f103dba8aa2afc93d15e2b5eded25efc1ee39d30ca",
+        "sha512": "254599f935183998f326948c3fcce4201589d81f7c347d283a16a2ac46bf5503763b2322d9ba6c4326faee87adef114573ec50a919a6481d26f1cce1a1aef75c",
+        "gitBlob": "b87c5d559b09e564ee286a9132788a538a6eca92"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Console.il": {
+        "bytes": 18379,
+        "sha256": "81ecf99c51b0e028c857079128d11f323949aadc7a4592e37e3d8c3c522b7325",
+        "sha512": "3b20865d8c2fa05acab3519dc1fbffd84bc20264abb9e49da229e9608db59ed7ebb72330334f5d2a39db02aca5b08e816d36e46d8af30fc2adf4bdd867d94a50",
+        "gitBlob": "8c51a331e462c9062bab6eb6097d28caeee242b6"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Data.Common.il": {
+        "bytes": 591423,
+        "sha256": "1565a9b7e645623348038c3003e80210bb39e167194d28a030f51898b296a42b",
+        "sha512": "ffaf27b425d8c90b2d74f81bd8caa35af0f90de88d397192142633c46f828bba74c3ee7ab69a6cfae1bfbfbcec658632e4262b8bd29f3fab7e38f40b967babf9",
+        "gitBlob": "fb23ca1d276e502c8a9c092c273911d65b14b6cd"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Diagnostics.Contracts.il": {
+        "bytes": 20189,
+        "sha256": "468d5dff5b503e92aafdab994d72ec23f2f4ef7e38a7e1034fc3ce54bcfadf67",
+        "sha512": "ef61d07a626cedb467d2287d8763d880757fb50185821bc49541ab0821b5a9fe0bb7140af59cda1b05b831c7b55cada5adc4876f1ef4171866bfd92e280af561",
+        "gitBlob": "d7ecc6d89d331d04a6916458c66b62b80a4e4de0"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Diagnostics.Debug.il": {
+        "bytes": 18699,
+        "sha256": "868a8197cf9a1b73a4ce33b0fbee93b8e2bc368e0e8a89c40412c069ebb4078a",
+        "sha512": "4c61bb96d12e171612946f8326875f65bedca0e3d85daf835dad474b9934f5101ae9ec4bf677776c2f84a6ec15e831cb2c41e8d4ad0e2e48ca04bf834b1a9976",
+        "gitBlob": "af69e0132a3451e0bdf3b6c1d86ff8b57e38a66a"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Diagnostics.FileVersionInfo.il": {
+        "bytes": 18373,
+        "sha256": "847e619da9ddc7021660ed25ecb1558b347204e39dc5f474526b52c1f876a98d",
+        "sha512": "45a8e3d97eede5c515471c71667eb0294f4d07f429b94dab802b983dbd7633a3b68796104dbe04151b428aacb64f606d908cf362a34ae7bc972319102745ffdb",
+        "gitBlob": "cf908b20097222fe1cc0e8eedf1a1e1f949050da"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Diagnostics.Process.il": {
+        "bytes": 19174,
+        "sha256": "c9ccc85f630378d119d59a6238d9d2e33e40c843e1c941df76a9ea9c6f986359",
+        "sha512": "5fbb1686fb2ce9c3d608af5207824b6fb6d98beb49d83d33e532cb71a6a42c1e20385fbe6f3aca9d69cd1553e7e138397f1a7dc38af78af21c85af9884b1d048",
+        "gitBlob": "2144faccf48669a2164d2d46d01aa8998f730073"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Diagnostics.StackTrace.il": {
+        "bytes": 28197,
+        "sha256": "ddb86c66330ff48aaf99b8ab76e0c5466d3e8dce7be21ed1f6981463290d2f20",
+        "sha512": "74df536756e1dceb0a1ff46aa27ab3f0978485506d7002c89a54c285b366a4fa4dd54037b03efcfa53217fcfb0ec3b930e6e60d3a681a3a95af3e75a838cbfd9",
+        "gitBlob": "bea54db142bdb528409a5e2378f36f27ab72b8a3"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Diagnostics.TextWriterTraceListener.il": {
+        "bytes": 18553,
+        "sha256": "98286f3f9050b2606c479e6cfe55a5f041fbd7a5d4ee964d5073ecaf5470f37d",
+        "sha512": "5fce79b9aaff5897a5773f72555edc7c7f2c7123b188d1bf1ee345a81cfd0d37664eccf1d1cf97ecfc4d969844f15274cbc77ed41fc606ea731d9d61a4c5d851",
+        "gitBlob": "9b309e9f948cbe966997b93dfc585f5569b6624d"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Diagnostics.Tools.il": {
+        "bytes": 17829,
+        "sha256": "bdb9e723ab2b9cee5a952061ea960abd876b05064fa3637f695409939a62dde7",
+        "sha512": "223542f20435b88033736e868a098d8fe933217345c6c94d3befa34061115f7649ad15b8228a0456902569a7c4258065af3e2c7131c598d483c3a8eae5990dc0",
+        "gitBlob": "23a3272bcc431e5665366587a2f4889a50dd0daf"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Diagnostics.TraceSource.il": {
+        "bytes": 20250,
+        "sha256": "14c6bc6d38654d8e85eb4a3861073f8ee3cf21cf6c5186bc44aa726d92132d66",
+        "sha512": "ba19ac93590cded08199bc9fe809c723e338cdf3afa95dc75f5fe863c60992373f5e5f77178cfbc2fd3e390b5cb0410137960760f606870dcd017c16821d7fff",
+        "gitBlob": "e5d48bd8d3d604ac2018896c24ddf5111692d9c1"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Diagnostics.Tracing.il": {
+        "bytes": 150973,
+        "sha256": "0a166b61e6f67eea0cef93c1e4b9d05cb4e1e3ffa5e9c83bd930ea3475f6016a",
+        "sha512": "de6803d1bdc601fd409d44b0f4d80de5498c1881ff317078e8e1a3ae0abf597cc11a7789f049a9521303b6da38c4bde2e0cb51fa3254bec094285df28e215202",
+        "gitBlob": "069dd86f48d83faebd4ded0aed1cecfee1d0b42e"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Drawing.Primitives.il": {
+        "bytes": 18209,
+        "sha256": "95acbe0a2b9dbea90994443d83ba5723f32a373674b87e2f63985b3b628cd97a",
+        "sha512": "e2645fd25a07431b0efd6e65b744dee52390fd29b590764593ce7ac7dfe3fc7fcdec9b36f2ff200bd874867b9b5df5bb46e1457b9d3542a50a3e75d6556cfece",
+        "gitBlob": "8b6a3805a65151761f00d753c6541a5cdbcb98d2"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Dynamic.Runtime.il": {
+        "bytes": 21117,
+        "sha256": "15a44ef414ed916f1e84c736617a2c6170b58489a4c5b14210bddaa6d9734398",
+        "sha512": "24260e848af73e5877685326d23f4d6919952a46afadeea49a5c8f34ca0d813e33e33879a3b7aab88e9e37efdf85989aa44d486589d9c42a6b93bcf8dca37799",
+        "gitBlob": "73181ab448cd0f177e3b3dc34f7b8b857ab55505"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Globalization.Calendars.il": {
+        "bytes": 20257,
+        "sha256": "5e8f9b957ea67ada5f2a65188a71a89a22ef8ea5304cce71797b3a1194c4ac1c",
+        "sha512": "2577945dba94bdbb4c83ed18e8dc5a3bf4ee427f8596e8d5a090d3efedbeac587de24945f791c0597496ba17d1bca121c1e3453b20234d990a8415ab003ad531",
+        "gitBlob": "38b7230d7d6feafc427d748a289282c7f53ccc96"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Globalization.Extensions.il": {
+        "bytes": 56251,
+        "sha256": "ead0514f51d8044c74d19b528a612bc66017101d669d90d9806343fa4c371e58",
+        "sha512": "c1eb7310c7d413ebd3fd43c8a1b3ab8637eae90b04d4795ec91b6efa37668b5c4cdd9abfcafe1e69e8fe5bf9223d8ccdc0299acb5fb59fc22e51fb0048cab30f",
+        "gitBlob": "c7db8e31b457127cfd286d6266782d73c80cd650"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Globalization.il": {
+        "bytes": 19244,
+        "sha256": "eb8cc2c0ccfb9572e148c28312024cb67ff0345ad2a298deb41704a4df60d13b",
+        "sha512": "ca8a130d8c4af403f2df327cc7f71271af16529046d48373d3c23f12bbeaee129c10c8681e8512a15d38a8f82aee0e3599a5c3d3663519a4b21b72effe6297ef",
+        "gitBlob": "d41fa757fed2aa1ccfacb70408c74d47cf0a5bc5"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.IO.Compression.il": {
+        "bytes": 1406479,
+        "sha256": "6f75a5572011e7eecf427384b205ea8fd01400cfb0e911a5712f60bc789199b1",
+        "sha512": "36ab2fb68a2eace45a0143ba4b0702a1ef646d62905cd0aef707a30161374b478378b185e2673b315d2d8968dd367ef0952cdc1882d0c8a5bdd5587c56b4857b",
+        "gitBlob": "d3fb0d779dd5fca1af92f5124c15220d9f335f6b"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.IO.Compression.ZipFile.il": {
+        "bytes": 17535,
+        "sha256": "370a8247d144d1df014fc5eb4a658a498ad61224ae22ee9e1024383ff36696ed",
+        "sha512": "ebe39b812854760e31906a2d274df73ce291331528ac355c29ea4002601c3c636c195c608667660e6c3e74dde954b561e694f11499caf6a1790b6f8d9fac38ec",
+        "gitBlob": "c2ba360d02317e6a7caf00a0979a1ada9d545e6d"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.IO.FileSystem.DriveInfo.il": {
+        "bytes": 18563,
+        "sha256": "1b1719deb46f5dc3f9e72be707fc38353cb1affdbe5fbfeec0fb9121ac49317f",
+        "sha512": "ee2e21be7528f4ec75b25a0e8b3c83f2910b038a88c4cc385554ee3d27feda2045a014099088fd33e2e453448ad828e86010cbdb54d70ec633f6e2594e280741",
+        "gitBlob": "3bb5d328783751230b578d1351e591f53978010e"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.IO.FileSystem.il": {
+        "bytes": 18520,
+        "sha256": "b39c46ec393c8e55b0b556db0d35b5127c15865ab120097ebcaf23a8d7336110",
+        "sha512": "30ac773c332c553239aae7fac1a26938b6429e66576809315cf5051a1065f857638e8e66b99b93f62c994763998511828202c912a8962047e7d215b4f5ff212f",
+        "gitBlob": "11ac501c23f04907e7afabac26d301e88f71f946"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.IO.FileSystem.Primitives.il": {
+        "bytes": 18666,
+        "sha256": "bd8046ed6163ac1bc0eb10be7aeeff7f77801b2567a7a1714a5801e0140e5e3c",
+        "sha512": "cdebc02930a3002fa81696c1011019741f233001bacccac6e96efcc4a2c2fd266965e72ecb25939e0ac676630cede5987c6884786726ee919a9e4de33dbc5a9d",
+        "gitBlob": "34f8c10dac4507adef9388c9fa628cbea5eb8d03"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.IO.FileSystem.Watcher.il": {
+        "bytes": 19221,
+        "sha256": "fe2a2ae64eff78d9444d46a1cef517b5c52136ba9c5a85a29822af9bcc23ac4f",
+        "sha512": "87ce483615342b3d201d8d65c8b3bca0b972b5140b583898e2e05fe10f1ca2e2111ed104eb48708cbeb7149bc4f84f6e964641ed0235786522beb8a6069fb587",
+        "gitBlob": "94cf80cbe5172daf849473094f210fda1ab469b0"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.IO.il": {
+        "bytes": 18588,
+        "sha256": "6bb441c521ae764c461fba82dcf728a3875ee6a6d9c936db546a1b12fd553184",
+        "sha512": "a0a6a2bcff75978abadaa7a3af982b3061f24ea2195fce598c9e9e309eca323ec97254f67053e7596cd3512506052e8f42e2cf6d447e0aad9f3b1057f6396b3e",
+        "gitBlob": "90e3e34e12cfa5695337f0a426323cf3343527b4"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.IO.IsolatedStorage.il": {
+        "bytes": 17965,
+        "sha256": "d7d50ad47ae65560681856736355dde1eb6afcd1c6806ab94fbb04a5fe2b13c7",
+        "sha512": "6ca95360eb64505e407ce3623970e811db416795c6ed71bc18c943ff69a1bba36ab940fa1e691d366005a1a722d29f8825234769cbe17c69af98b55161c620dd",
+        "gitBlob": "7d0ebb18f8caa61fc5ad1d95b168f8442d60c698"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.IO.MemoryMappedFiles.il": {
+        "bytes": 18670,
+        "sha256": "e356cf296c7f39eaaf82edf1a333715d642c9394ae1645a9c18aff5a3c2e3677",
+        "sha512": "3d7a60d5aeef7a78b8350ca76663b24b06cf77e2a971e3b10a1a102abfd33e807a9a34f9d2d2e84ab2fee78c8b40e804afedb061f1243c3260277e7b311e5707",
+        "gitBlob": "d2f544f2ac7b2f8af130b83b45436c7bc4bed8e5"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.IO.Pipes.il": {
+        "bytes": 18608,
+        "sha256": "abcfb2707dfd19133e04b814f2e16c5bd955451bb625fe4599b24e3204f89c1e",
+        "sha512": "41bbdbfb55d662da62a56445288525f3596053dd31bca8e8c2a88b6277d875bd300f88c767f0c47e287938a55ff4a9c349cb55cfb7c96e49809c31a85e50f592",
+        "gitBlob": "9d88b1f5b61c2e57605ddd3e3c236c87c5176552"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.IO.UnmanagedMemoryStream.il": {
+        "bytes": 18475,
+        "sha256": "4a68861171a0537d7f0d13b3752021a16e7cc549f277e0b8774cf1744e5cd882",
+        "sha512": "3802631613ab66034529725f48f535c9b3e603091cab456cdc46efbf9c544d2b449fd6e7a0e3a09a8ba694b76a02b5072a25f36a6d85fcef3a715c5fb58067b8",
+        "gitBlob": "c1e572e3e807f838af81a372c1615f3d2c4041a5"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Linq.Expressions.il": {
+        "bytes": 23329,
+        "sha256": "ab6f03e826405618492866094ea1a3f3168c149abeded6710befb38821dae071",
+        "sha512": "f42baab4dc4cba89e65001f00fb64c9bc7f4fd7ca70ceeb5f93a328200e17c16ef47f8ad6e3c71ed77a3b8c9238816b67401e84886cef6059478b200f22306c5",
+        "gitBlob": "3455dfa0c6c9908e2910d806ad9e8a57076c9dc9"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Linq.il": {
+        "bytes": 17392,
+        "sha256": "73513903f392b079fd9ed4935606b59f085fd074a9739560c6111d5597ad6033",
+        "sha512": "1bb977f2483de9f17e162617b1aabc28768e03406b3dfaee5e1535287efb580bfd0d9cf0009c7df72f7de99c6ecdfe0a07bec75571f7c2d882b641f885535674",
+        "gitBlob": "cce16671b6a8f34f82240705a7cab8ee62afb0e3"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Linq.Parallel.il": {
+        "bytes": 18236,
+        "sha256": "2aed70c4558335ab0d1364d0354782a0ab786844946b6887d606d22eb893498f",
+        "sha512": "003f9255dff32ff18d86b8d59b4feab7ee4a971068e1bcb9194b644084a768279b1e0e29258ea1e4479f08a8acdc9e2a521e846b219e1481e611b8c83859fc75",
+        "gitBlob": "1bbf65f3ac215da8a42ae3901decbd52f47dd3e8"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Linq.Queryable.il": {
+        "bytes": 18112,
+        "sha256": "556c86f4aaa0dbc8612fd8f14c8a9d77de09a73838085747f289d2490dcab7a1",
+        "sha512": "c961ebd3440bad446ec935b188e5b0c90a3732f78842218d22566d7b0a6b60ab81f8f17c4ab5177b30531c352967f087fed0dd5a8738349cb015a2208a6a83f6",
+        "gitBlob": "8c569daf58598118c463924a6e66658e976dfc2a"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Net.Http.il": {
+        "bytes": 3521690,
+        "sha256": "618e500c1e1ed7f2d333fece76a3bd379100bdf2066cb333b4b01a560d2f685b",
+        "sha512": "1de176302f1003972e35f967557cde5d728a740bdd503e693c196fadecf7c870dcbceb9047b933d2f982f13711e9c8d65bf07c845d206de94927f1d970e384e0",
+        "gitBlob": "5d09afd65b5db79587c27c38383badf48fbac611"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Net.NameResolution.il": {
+        "bytes": 17768,
+        "sha256": "3a261689ac11e13b7b490ffc060c0716bb66655f1af3852decf9670a5bb5eae9",
+        "sha512": "43ba9fda69c405f674f5e6712c68bdbd6b912d4c765abcb8e14ed3e725927da391dab65fdfbf304f2c88f908bbe8b4880395e9ba3b3b14e46ba55b789312f1f1",
+        "gitBlob": "6d89125d269cfe596a8faf3019b2229f7d046a24"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Net.NetworkInformation.il": {
+        "bytes": 22653,
+        "sha256": "88087f9e75fc6d5afe74e218b0a0b5d608581b64fe0df6a48a9d1d79797b6f8d",
+        "sha512": "e0a7b28183f8f0dd44eafab14ba784b3a70064e0e63e97a5efbda0fc28cd58d310443378bcb6395f80374e4dc95d8f8ce455629391790dce10c854de23c60e29",
+        "gitBlob": "2987c5bda81a64fd31df11fea961310803e31e31"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Net.Ping.il": {
+        "bytes": 18138,
+        "sha256": "6c356669ccfecf7e3c66cb975c393295117c76c14746b082d12df0d02f846b02",
+        "sha512": "aef06c18dcca69ac7ee6f4c66a01ab7546d87fbaad503cf4e19502179f50f19028749d074cf5c408aa957d6bb0e1dc6bb8ff6ef9cb945dad5c12279692a13ad8",
+        "gitBlob": "76d50cd4e01edad8279725fa442e5d24b7542bdc"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Net.Primitives.il": {
+        "bytes": 21137,
+        "sha256": "6bb60fee63ad606a53d460295841809741ff9c5a88a98e2404b237020c0403a6",
+        "sha512": "147bfa5c4031af807958bc438f918d2eb95755b3e51b9e0ab2cf9cd84cc93a37b695f52e9717d75ba6239bf33a6368e3e4a31a61473429d7911eeef20d1175fa",
+        "gitBlob": "1842bc154192d7f520fae03d56f45098e97fd051"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Net.Requests.il": {
+        "bytes": 18669,
+        "sha256": "707fb054955566eb4cb15fd6e2ebde3718cc1c8a4bd1af8959ff47ceb248589f",
+        "sha512": "5c201e17d79172adad579d81efdd417db6da488d7a3413145799b2931dc76a94da8b757290d45cdb5d0b51eb5878ce152f9865092db81254414c9a4c0479578a",
+        "gitBlob": "d497f1df64c60ba6f36ba2be88648aa4e07ce846"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Net.Security.il": {
+        "bytes": 19333,
+        "sha256": "db5ff64a264a1132775c7bd37904ccde9d9fa0792a0446082a985a5a2cc559f5",
+        "sha512": "e7d571f96b291eeb6b78d299da555300d25c065fd148da9f0cd73e857fece7a0aa78881043ffcb1fda4a2d6b572ee2779a37ce6240e5c4e1ef908d498677aecc",
+        "gitBlob": "5d43eaa65250a73ef2e7405eef091ca521067381"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Net.Sockets.il": {
+        "bytes": 198598,
+        "sha256": "3e040ad020d92e2faaa3f341638d18a289ade11411577a6d78b0072fac2db991",
+        "sha512": "01d69d2430000239bc5b19450aa6fea41fdd513c667ea78a4a3b3114109caaede3be040c1cb399de231daa3f427365ced98b41fe6e80f08c93400984d6e226aa",
+        "gitBlob": "61b4150c4ee0a45a7d91d7f0b89080c52a4a1b81"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Net.WebHeaderCollection.il": {
+        "bytes": 18580,
+        "sha256": "b57a967084fde1638b38ee7d58b14eb18cdcd8de4620e1669dcd44c4704570f6",
+        "sha512": "ea9ec998a62939ea75c2eddd4f00eda3fef48d8f95c07ba91e487e2c63081732b2eafeff03251e0f2bb6a9b8b333746c90f7a6ada0f6eacc4711b43977819bb1",
+        "gitBlob": "704b6f614ad519d3c65ebde7a0180811c30c0d88"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Net.WebSockets.Client.il": {
+        "bytes": 18330,
+        "sha256": "6c2e71e00a715848cbcc8645a001f21f84852256d3a5f88ab98b4a96a9b97eab",
+        "sha512": "5abd61260e677b628ed0f6b5a90da221768affc5e23816742291d263e33c270d1dc02a865634978f1c4f804da37ed4db4795ccb2899194a6cc59032674a7807b",
+        "gitBlob": "b4e251a7817fdba933e87dbcdce10640cdd22194"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Net.WebSockets.il": {
+        "bytes": 18418,
+        "sha256": "9745cb27bcec3a03306b12a24e9d00239b43ce62a5d4184cf42cac0418296c95",
+        "sha512": "641399b1de9f6b0fc28e19ea671b5333b6ff9ee62fb9b7259c73fa4f0aa55846e01f47c39ab4b7b301f0c94e5bda804ab1e39a11e20e64b44bf0cf1197ad7ad4",
+        "gitBlob": "cd4814758b7b7e3f3340fb8b302aa737509d0c7c"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.ObjectModel.il": {
+        "bytes": 20117,
+        "sha256": "9a824bddf349784407ccefb76289ee3436b7ff939f2f9e43a6dad8c50314bdfe",
+        "sha512": "7fb528256881a37ac851be60d3fef51eced86f431221ee1126bba27951b6daf661c5e501946c06bb256370e4a77c3faa418e2b0887f9072b3f2a6906a2c42436",
+        "gitBlob": "e1aa8139d38d57201c69d76a24ae552b9cedb386"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Reflection.Extensions.il": {
+        "bytes": 18458,
+        "sha256": "f22dde18716ec2310c1437a1a561f0bdc572b1655921ba1976f933a7fba711e8",
+        "sha512": "5b5dac741719dcf60fb437b172ad750d1676391bce4cdecb612ae6b24a031a8c2dcc8676fc1fec5c20e0facd769f411fad4ac6dbc8c659717648d0728bf70534",
+        "gitBlob": "5188182c836237db55f62ec3641c10cf5f209613"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Reflection.il": {
+        "bytes": 21649,
+        "sha256": "fde65f36b5a310dc7dbfb9d5ac04d225b5639bebb22638ce9eaa9e407f3cbd89",
+        "sha512": "a8bcf575095ad4553209a5da1e0573f913eb53e393b18ce7263b8c39141a6eeb00f54f3b3adb8930fc2a762741015b298d0aa2abdb8b9d6cdf23d5ec9d3cc4f0",
+        "gitBlob": "f54935aed75c608cd2673d38af7154b2456a8f75"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Reflection.Primitives.il": {
+        "bytes": 20022,
+        "sha256": "b6ffafc160f6909069cf54d3542b6d1efa59b9bb803fa425edaca9a94a666a88",
+        "sha512": "60acf25c4c57869b209f050faae97ad0a28f5226ca7904cb30990c34782fd444d45bbefec4696f98094abcc689971dbff0fbdbec09c45ce32384a4cbfe8c8470",
+        "gitBlob": "9ea267cc0d91602466e0142e3f7ec521abd9ad52"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Resources.Reader.il": {
+        "bytes": 17666,
+        "sha256": "80abd1b72430d7f4f9e732eb1596e6bd33750e65bc98f196cc0dc9d977ad02eb",
+        "sha512": "63f01502939e57e1e77acceec71893654616781833d990b454448d2c506166e92a808aa076378556b1f2cba17d8645c0ca555c0a610919537f0524aaa7cfbf64",
+        "gitBlob": "89a0fd50ef2a99c12148826d55d242e16aa775c2"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Resources.ResourceManager.il": {
+        "bytes": 18771,
+        "sha256": "f144534d34f35b4a904aa91e6dea6fb339985eb073b519bbf7e9d45715a30787",
+        "sha512": "f96d94360edbfbec127ee5fa64612f32a252d7089c631dad140d6cd4da12023718022fd621dc283c34c18551871036f1cb27fc7f6605db99655f04f9243d901b",
+        "gitBlob": "4d5da1989d6faad56cf43f72e1df672347595f7b"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Resources.Writer.il": {
+        "bytes": 17666,
+        "sha256": "8d9a7fabdcddb719a0200d77977e489e9f1c64e65709156ef15bebd965c5fc26",
+        "sha512": "aedf7bccada3176a32532c0f4f1e70b55bf1f8a62c3f924191e926d63cfb848dfc1f7ccac43eb64043db4d96e30803d3de1657010eeda1bddee8e0af033ecd94",
+        "gitBlob": "0ecdd8ee28f53791a07e1435b4c7ccfdd8869735"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Runtime.CompilerServices.VisualC.il": {
+        "bytes": 20305,
+        "sha256": "091f453f99a23ad0e85bb310c114118bfb8f65805a6934ef25f9efb29121ca61",
+        "sha512": "c0b03d25d849c195b834f55a3fe5ae0b3e49c6834e9db79723c5ef1543da200ac0372df2c7e69a0eb5d5fb4b53a30b549637c68aa330ddce2a7ba6fba3b826c3",
+        "gitBlob": "b8d0cebf1f11db354ba9b17156b5def51e2d2c09"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Runtime.Extensions.il": {
+        "bytes": 19139,
+        "sha256": "b710a92edbf9f9ef6f0f48f307ad8922238d74f83b450d7ba97dd19821d4a762",
+        "sha512": "ed9857a0eb1ba9b5662362e4874c1bd0b86bbec4ef8c12d9c53d5857db95b5393eb86e6185dfe7f3a9b873ce580d0cafe2079c5b86d86927c44e7c5b2d038384",
+        "gitBlob": "3c9fb47e2a4e28f1c81f2cdc81d52326b7792b75"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Runtime.Handles.il": {
+        "bytes": 18173,
+        "sha256": "52fe9304973d78e016e00cdf55024612bbdcd83e0a08477c879f9d5410edb100",
+        "sha512": "ba1628492d88f0be39bcbd4ecb005964e8da9fbbe864913b590d1701c4dabe8acb85e33d408b93e3c011d2ddb6da566a57870d31f30e0f51601c56c8d3aedd8b",
+        "gitBlob": "d58844e3902a6b59b77dea41813656d5be489c5b"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Runtime.il": {
+        "bytes": 49891,
+        "sha256": "1022e3419528f1f45bc4279365e8516c9c2da164c58d95dc91c7fa04a91085ff",
+        "sha512": "92b4aa8ef29ebf1b2e024e5114d966c327cfcdf7ea16e3f0a2e8ec9967604c39955405790d488302557e1eff91b15af6dd730b0aee66432ea5891a2186bdc676",
+        "gitBlob": "363c9009085cb38091bfd2830de60a984d2b9aa6"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Runtime.InteropServices.il": {
+        "bytes": 33703,
+        "sha256": "fa4cabf96cf2965ec1c02b5ccf18a7493adca38f8dc1a8210b9b11cd839fa5c7",
+        "sha512": "ecc69b1ee23dbe8f543b31fa41e979c2424dafe4459f191fc71d0b9fff4d28efa76ce35c73641630191696ec6adde66e440045fdb0920c5e301959b66102506f",
+        "gitBlob": "13fa30a503ed160dbca696eef9db20099c61c73c"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Runtime.InteropServices.RuntimeInformation.il": {
+        "bytes": 90527,
+        "sha256": "a2b55c050903a945e7d02e9be06fbd0b28be37cfeaca3a18b226d730e29fb7fa",
+        "sha512": "6a1507ba89a3b2a81963dddc0e32f329ec1b38e553b98549a37df867eb78b8779c30aab1e449a736d8ce8f663c01dcf4e5cf77390612637f7553ad79318c860d",
+        "gitBlob": "8646d9c1192437310efffe36ceded0e407dad1b3"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Runtime.Numerics.il": {
+        "bytes": 17771,
+        "sha256": "5a55a813114f9f63a7d7efecf90fe282e02a43091595c77845e73b982d6b9251",
+        "sha512": "398b3fcdef495f081030e7e9e2e902b5f3c42b316e0463b6ed0f99230aeed3953e5468a4c76cd91eccd6096bc41b8c7470ea92178bb351d46880f5456f8ffba3",
+        "gitBlob": "e1825f5942f44bb8ddbe143423fd6c513b99780b"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Runtime.Serialization.Formatters.il": {
+        "bytes": 19323,
+        "sha256": "8bb84a202c36dc9cacfa6031f24066faf9964f00326a0e4753a11ce41b692069",
+        "sha512": "c0e6475286693f8e4f4486981d2e78df1bc6c030a52608b87750c02c47a4f54a3018179a66436580b3d412c63172cb06423763c0042db8bcd6e74d032081b3f0",
+        "gitBlob": "9f7bd55d0d02506dbda91a1bfd40de58f9811edb"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Runtime.Serialization.Json.il": {
+        "bytes": 18814,
+        "sha256": "e8b238fc2b7b6c614179d36bc2d8f02efa847bd5bc7b4be14dfcdfc6d1ebe93a",
+        "sha512": "3027665e74d59af8c4aff77ab497f667815e29591fa18a2e960c9d0cf713276128d90a079929934962235c21440aaf05db921d5ab34f30f06da7776b4a9476ae",
+        "gitBlob": "b82ad079a63ddd699c5f3fdc3eb846d7c6d8fd48"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Runtime.Serialization.Primitives.il": {
+        "bytes": 40012,
+        "sha256": "69e0b3edc920a7420f2c904d1c5658770b54f9b368bd0ba69943d8dfaf1d2444",
+        "sha512": "0a428077b374472f19f31f7078c89e04868d8a01c4be2d19c1bb9f371d7a376dd26c7ea236a021cf289603b6398f8fafe795c4d524fc701a3b02fe25edcdb479",
+        "gitBlob": "da6342a8c0455ba58a2a7f823e7821845b111bd6"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Runtime.Serialization.Xml.il": {
+        "bytes": 42758,
+        "sha256": "4b827c732d3531cd8618fcc3043df9ae62e3b8f9c22ae547ff919e825bec0d15",
+        "sha512": "a89f529f24de3a8ba74079bdbc597ddf311efa764dfa0f728e4e2187a06afaf85aabcf4a9b57b0ebf1c4328d84ec3137239b292455455ee4865ca8e4f6b1157b",
+        "gitBlob": "45235ffea72ec85c492f4867a2460ed59d9e6a1c"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Security.Claims.il": {
+        "bytes": 18409,
+        "sha256": "0109c0cbb1ae93cd1ceccfb1b2916c6691a1deae993db3979ffdd5f03552ba5f",
+        "sha512": "6e7380014fe8ee8de6e70f18abac7c1f82c997dfc629b5ca25a4ae627148f8624cd0be6c8c7668b77e1374a89a65fb9b5887526e33d2ad0486ccea3446a234c6",
+        "gitBlob": "18b6bcab9db45da7bf4ebe47ab5f17772f6e6687"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Security.Cryptography.Algorithms.il": {
+        "bytes": 137509,
+        "sha256": "052cc8945e37e9c7a786588715a2d1373a2ce33079750f252ae71d5c581edd7d",
+        "sha512": "0f5e658263b7ec51b6864c59502706c3ba130a2e13c080ffed519a0b9c6739c6d3e03b5ab3b9c4cc62504f3c65c3d06e683e81cfe736ec54a116669fbe988bba",
+        "gitBlob": "652d07147d83273f6ca8025b63894884b0f1d4c8"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Security.Cryptography.Csp.il": {
+        "bytes": 19042,
+        "sha256": "5d565c654046812cedc01ce09d581b362d677bfc0686cc72325c6bc77cf80f14",
+        "sha512": "7459a562ce760390a67cb72e26d12ccf817e896c6f387afa321c3c3fc7509c6369e88b3ae5984e91ddb50b79ce50ce2c23af19e9feae5bdb9f5324ea7f9bd8f8",
+        "gitBlob": "cc5cc5659255560de5d4f97bd1babe81ab4377b2"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Security.Cryptography.Encoding.il": {
+        "bytes": 19178,
+        "sha256": "ffe1a45b0a499364a4b705d09eb2c0f561c0c3275124f10704e2ac352c2ca1c7",
+        "sha512": "c384b06d780205daa3a16a2faf12d79daa7efa54495f59ff2a2a01c536305e2d24f4782d99df66bf6dc7d2d0499de7d7363bec65f9e12780dfae9e63503d90bf",
+        "gitBlob": "af0791cbc6c0c4f78505a32056168f9f27da6323"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Security.Cryptography.Primitives.il": {
+        "bytes": 19970,
+        "sha256": "0b4ab27fc1400b3c8ec6baa83a7f46178f5bca5192040ded3247c8fec61631a2",
+        "sha512": "e7d4165b850c88fe8597502655bde1a97948a2b79f04f3fbe0c8914b2fedd2790e20ec4523e1ac575e98d18401f2a5a256118e840e2af8f3d9edca13e0a7c750",
+        "gitBlob": "ec150450be2b119a3faaab686d97593f72617b4a"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Security.Cryptography.X509Certificates.il": {
+        "bytes": 24751,
+        "sha256": "fceec9731fcf56f0e597a7ae8d272a8fda9fd843482c02bfeb2be2ed81a3a8f3",
+        "sha512": "94e3cc46e868bc21b21a3bad1c03a5da2dc9e111a1f7907a8a900bd45655052a90d3de503ef24ab849a9e4108efac7d6196302fcdca8894af23e1762065b0844",
+        "gitBlob": "3f623ac5c4665793a7f829d1671d7c5ad77735a7"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Security.Principal.il": {
+        "bytes": 17939,
+        "sha256": "d29e072cad65221e065b6a083e8e2bf78d5dd3ef8ae4ef398b797acb99f74d4d",
+        "sha512": "67a133e7bcfc2e51ec3789701b1cc7a267b651dcfbe6ce9dca77c7501e5208147ce740fa57f495d924de389ece540d3f2ae275661a873e968a72c979716f798b",
+        "gitBlob": "3e2ddab577906305d06a3cbdfed1aead6a2ae433"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Security.SecureString.il": {
+        "bytes": 22430,
+        "sha256": "a83a16ad471c52dc4830dd83c316723a8de0503ca3c342e14d6d8feccf100895",
+        "sha512": "575f21884b8f7c38b3729577b54ad424fb0181e59256acc3d59d43983d0d5421cd584545ba0faf2d4f0226aa2e4685c822e84b639fce9745d0f920d72aa4f1e5",
+        "gitBlob": "afc363786ec20cde9684c7e32dc7c27b64d41f8e"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Text.Encoding.Extensions.il": {
+        "bytes": 18798,
+        "sha256": "0d6b240debf6306f3120619b8289aa83f6510285e91b1266e7bfa6e9e845257b",
+        "sha512": "dd0ef2ff7f24889832a2685187850c08771224089f35825d33d6449da886cc4d87dfca179d71ee5295b52e8f1ab2974e6a612f1b5cba0b1fba064ee1512f119d",
+        "gitBlob": "345a0c4cdf52cd63943fd7f22ffae6802f2448af"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Text.Encoding.il": {
+        "bytes": 19179,
+        "sha256": "65254d05061a7a4c9e8477c3ecaadad01fc5f01394cfe57b550118975c3f6746",
+        "sha512": "6aac514d759ffd1010e6e954299023c2bc2a2b5a612b79bf49192226a2ec087433de7db83cf31df99f2db3a50110918959c9b4f8289d80c4a8516d9957f656b2",
+        "gitBlob": "a15bb2d0a6dbe948aa9c3264cd35ef23b03d3ba0"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Text.RegularExpressions.il": {
+        "bytes": 19799,
+        "sha256": "3b215089a8769d6afaab25d941896c6b4131264822380865bc69c5a048e64aa6",
+        "sha512": "336237958d9362c557fae39f551b608a4733ac51fad7acd0bef2affe058f7101d5e1656ec5fbe75bb5907ff99278f77f8175a429fe793540d3f6d1ce431a42fb",
+        "gitBlob": "5b3b0d4948cbd484a493af99f4763fb482c4b2d6"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Threading.il": {
+        "bytes": 21239,
+        "sha256": "4f6ab2ea2593e79d2780c51ca0d9113acba7d5bf64df39379538e33dc477275e",
+        "sha512": "92ebefb7ca89753b23ac58fb627e7df52bdd69a1ad56d15dfc23cd122936d3dc5c0ef0abe3129574f276ffc2d131b5414f7019584481f2fffd73ac4d7442b498",
+        "gitBlob": "1ae34fc7649f1b9db9208965c02c97be4956963d"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Threading.Overlapped.il": {
+        "bytes": 116699,
+        "sha256": "7a2fc18ba5ccff0d9d2ef2e1659898f70bd2f95d77c209a329c8545ac5307a61",
+        "sha512": "a4ed3fb45565c276fa79fa7ed5f8b2fa9c5cd18c66d5f3f6d3684b521dafaaf2a7e14dfb1c8cf147a60e614fc69c117a9987d44f43d06b2724145491b00afbac",
+        "gitBlob": "55b37876ff0fc983ccabc1d0c16c677c80c2d7cf"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Threading.Tasks.il": {
+        "bytes": 21864,
+        "sha256": "38eaac8b33c7986bc10f877741870e705efbdd1d43aa16b2ad9159812b1eff40",
+        "sha512": "2b5708aaf50705569bc91bf1aeef0ddd7b6c8967802b26e22fe74207ed67824b97aaec937a41f8ec347dbcb1d1e86a5e5cf4db060e16c05b39886d4167c27c8c",
+        "gitBlob": "5a7f91b05fa3d070d4eb8b782b57016b891f97e5"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Threading.Tasks.Parallel.il": {
+        "bytes": 18735,
+        "sha256": "49331dfd178eb4c54394b2140a5edac9737fb73fcc825571ae159b543ad86bab",
+        "sha512": "f418bfd4f565396aeca921bf7952e2f62d915dce8cf02a5c0b4cab0557a3db14c09d32ad3122c218de238d5c26d22b4a2545bab390b673552ec5157eab8ead8b",
+        "gitBlob": "f9db140fdc3c0242edaadb065b9596c0f4feab67"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Threading.Thread.il": {
+        "bytes": 18264,
+        "sha256": "44971045b0ddbb9fc1f9507737f2eb64bc250ae15d51efbdd19ff59d6a2ca173",
+        "sha512": "5d5e5069015773b089e1e8c5528f18ab4e8c7ecdd3d2a5b9df03605ecee5c85a98a403c169497f4d3be948701140dfe1a525c7ab9abc5d93e24d9166a995ec9c",
+        "gitBlob": "4bc7c088dd69ff87684514fd48008ebbc0045705"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Threading.ThreadPool.il": {
+        "bytes": 18046,
+        "sha256": "bf3f5a0134077cc5cea266cbdd15fa7ce4e782fb021345963d5315878098b5bb",
+        "sha512": "e62585714a5773c024a1d963428e2ce565881798f049141b68b3f0bb3c00c7f62899fc84c1dfb475b72dc077adf4137ce1a62b5e37577c05722e2d149a6f635d",
+        "gitBlob": "f6b2e29d64e1517f57e9bccf3a680a75d04d2d0c"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Threading.Timer.il": {
+        "bytes": 17769,
+        "sha256": "a1d06c047dee32d2c45ebee8d703aaf9e2d35b221891a8b470754db47c86c5a1",
+        "sha512": "f6a0e8d7e2da4f365745393ff226241b344450fc8e02d15ae983e8fe0a6c4a87da71862ed06c3cc6c94f549b5737aad716a166e30b55d96c23c5c93f545de0ca",
+        "gitBlob": "66e686e86e7659b6c4c04d78e8486fea222f36e0"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.ValueTuple.il": {
+        "bytes": 1248095,
+        "sha256": "921ab7d9e71c8157230e79823823ae9c4f37fdcc4f10736367ce62c1dd88f5d1",
+        "sha512": "35dc58725aa3320c8dcd75f4055b4638e8f7b29605b6178fbb2a65045c923eb1e7a9e6f0295b98e7e60fe311db7e873163fd12b9ecd4a56c85cd09153bd631b9",
+        "gitBlob": "78d2c0629d7465bda6db312f427c8e3a7670ecdb"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Xml.ReaderWriter.il": {
+        "bytes": 20624,
+        "sha256": "2ff39125b4f0c27011be40db8abadf00e8e3fff0bc0a01bea6e1d6323a97a48a",
+        "sha512": "4611aa091ea4f558a8cf4cfb26e764864a7ea88ad19c1100a1ddf825f548f6fbbf5862b00ae342799a4c189f0c2e3edc4664a8702067997a70193d12adbf87a2",
+        "gitBlob": "338d200d56281d41b5c06dd105352493ff892481"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Xml.XDocument.il": {
+        "bytes": 20178,
+        "sha256": "88fab5be7c0b5263bb98c112a7878a19d8d337bf855eea5c6dbdca6493110b6e",
+        "sha512": "e4253ecf3c87dee094dc00d30c166ce26b8d6eb2f61802e3ebff5256498f94d8e2e252a96eae267af0ac4e23dfdb7628f2c6a0c726eaee4993b8d0417b4d510a",
+        "gitBlob": "7768c836417a5ca7f6cfb63185313ff5891b281e"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Xml.XmlDocument.il": {
+        "bytes": 19931,
+        "sha256": "ceae68de65a1371777593b16aca2d926dad5c29b3e02d267a910a8d83e7e7740",
+        "sha512": "c6746951313ac471e3c7fdadd26894637149e0b543e87eaad546c5802bb036550a70af2cb7dc3cd52e75d251a6200f6597eed6e04a2b83e750e15502e2e6f3b7",
+        "gitBlob": "fe89c34fcb1c26b986cfb6ab26f67838efeb2ede"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Xml.XmlSerializer.il": {
+        "bytes": 20594,
+        "sha256": "3086e146c4385d33256ea27f8148e195e5e87a22ade3366fd342ec8f7a50a9fe",
+        "sha512": "d3081d5d85ebc3008e57f859545aea0a0459f398deb42f97eabee7302a4a74736350935155162ae64672041426f9733ff519beb86df4619a5ee35bffee836cf4",
+        "gitBlob": "6cc725e6b7445c8cb94db03465fe13124a8222d2"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Xml.XPath.il": {
+        "bytes": 19155,
+        "sha256": "e6a2905505c3fa201db807d2de0be6bda0fce200252f79ebc2f87ea77e0674e1",
+        "sha512": "7e66bb38a0aece472ef91cc2a77e3761765cde7120fd6ff432aa6aa15e2c9b49b910ae6baacc10227b16e601f0feb1f9b51c22b31dfce0537dcfbe28562b5f48",
+        "gitBlob": "bd0ac94a076a48fa4ca1f71b71aefb3514e06d13"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Xml.XPath.XDocument.il": {
+        "bytes": 23537,
+        "sha256": "0efbf851d699e6a54684b6147c00710033c50257eb746138a86c04b174b687d4",
+        "sha512": "827d272f6e0c16b29cca88a4407e48513717e5557eca9776e2356021a91679825824f9e228050abecf21a6abb6049bcf4031a6b85b5c24155571d96d13c6710f",
+        "gitBlob": "64307897a203231fe825b2d8be4817e816831a3b"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/NETStandard.Library.NETFramework.props": {
+        "bytes": 143,
+        "sha256": "cd2f0ea893d3bbcba7600a1e4c3095dce01e7926e976e5f4db60ba3caf80cc63",
+        "sha512": "ece5bcf42dfc32434f3d2cd8d56b17391e30ee80c59e6b639e2f8228cabcc361ce4e4e5bd97661a18e267395cef0cd6d00d133cd1a1dba3982357162bc319cd1",
+        "gitBlob": "e94b13d20f6b1cfbbe8e4e5f5cdfed46b30d2ac7"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/NETStandard.Library.NETFramework.targets": {
+        "bytes": 546,
+        "sha256": "b633574a1df8bd96d9c603d728613f20eb2ed7a8d1159202bcdd1023e45112a3",
+        "sha512": "c18ac255c1c6e5d6d9f4404e3077e64d124c23aae88179800b124d9ff16149d41a8d8bd48e2f771014b78198d0f2bdc89523c8f633bdee968717f5406cb2c573",
+        "gitBlob": "aea9b8bef98ab5d8a3008446b214f99657e82b6e"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net462/lib/System.Runtime.InteropServices.RuntimeInformation.il": {
+        "bytes": 90527,
+        "sha256": "88928b5d88ed078887e95c6a85bc8b6f9d572747a0a7be20713e6da2fa211972",
+        "sha512": "59c691209abf7cccfcf574129937936c2e4d3291c6eb6603d9bf1085bcdbb77d4d22aa7720d4bb84dcfee09953b7433b1ef892563947783b17fb2a81f9ebd57b",
+        "gitBlob": "88a0fb0118a72a48f2b3b35199e8ce80eac08790"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net462/NETStandard.Library.NETFramework.props": {
+        "bytes": 143,
+        "sha256": "cd2f0ea893d3bbcba7600a1e4c3095dce01e7926e976e5f4db60ba3caf80cc63",
+        "sha512": "ece5bcf42dfc32434f3d2cd8d56b17391e30ee80c59e6b639e2f8228cabcc361ce4e4e5bd97661a18e267395cef0cd6d00d133cd1a1dba3982357162bc319cd1",
+        "gitBlob": "e94b13d20f6b1cfbbe8e4e5f5cdfed46b30d2ac7"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net462/NETStandard.Library.NETFramework.targets": {
+        "bytes": 598,
+        "sha256": "d4d08ed92636f6edb2bdac9cbc85720f2a9c0dfb97b4a87927482e1277890e89",
+        "sha512": "9849394622e4e27422cc04915301f816d5e28447146ebd1ce479ccc082b78e13e5d5bf379c5bf8bf99025fe074bca790d99be5c24231aae3f0361367c9435bc4",
+        "gitBlob": "5192b805f8c150db5a468441c87dc2f7727188e8"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net47/lib/System.Runtime.InteropServices.RuntimeInformation.il": {
+        "bytes": 90527,
+        "sha256": "eb64376962a18645a06f0e49c1da2820cd174f123024b9c70de60f0636262ec4",
+        "sha512": "374a30899be7eeac9720e16ed026b4e47d9dae5f887e51fe7c319a34236fb5e0a715f80bf491ba9d1422b140c5cf6ddfaf42642a4ad8d5f5a4b6ff72471e364e",
+        "gitBlob": "a3b1965fc2467c4f6a2de6433d1d692693866ba7"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net47/lib/System.Security.Cryptography.Algorithms.il": {
+        "bytes": 138103,
+        "sha256": "c987e07dd0c7090b6ac0f675beea9c0a663ed5d23ce50e0d452b23c00871217d",
+        "sha512": "287d5f296c21ad914dcad85c7fba083835615d5408a7a11a1033a7a15effe3e06a01dfe40e380b7954447bc9f76ba26ce409f124a7d43a7154ea514031bacb5e",
+        "gitBlob": "52edd123b3a825a545000adedb16ee6f6feec076"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net47/lib/System.ValueTuple.il": {
+        "bytes": 37398,
+        "sha256": "68883378d8236f9dac9c87240e2dfa76ca9e9c305694b75ce9df0602f6017d5d",
+        "sha512": "b9e8a5624ef353b0d03520e4e19740fc6556e263ba0dc09d1a4d4b6fd91597ee961ee96b014027e0b4d905dc7940fb459ca2b1afda8a7a4996a0094be2314578",
+        "gitBlob": "31013f78615f0e8683820fd316e71ed81a18c361"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net47/NETStandard.Library.NETFramework.props": {
+        "bytes": 143,
+        "sha256": "cd2f0ea893d3bbcba7600a1e4c3095dce01e7926e976e5f4db60ba3caf80cc63",
+        "sha512": "ece5bcf42dfc32434f3d2cd8d56b17391e30ee80c59e6b639e2f8228cabcc361ce4e4e5bd97661a18e267395cef0cd6d00d133cd1a1dba3982357162bc319cd1",
+        "gitBlob": "e94b13d20f6b1cfbbe8e4e5f5cdfed46b30d2ac7"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net47/NETStandard.Library.NETFramework.targets": {
+        "bytes": 598,
+        "sha256": "ee1a6fb78aa53443e4a3f29af800806ef2cb360ab5b64ba9caa7e0ee1e4d849c",
+        "sha512": "430f82f5d268f9c78813da26c894e3af9a703d5e60a828418c6701ba8562eade4950fcf817de4e567880a67b9d191e82ff342f5e0a595907c500d9982c6f946d",
+        "gitBlob": "599141185df719f4acbaaf2764ee9bccd2430688"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/_._": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+        "gitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/netfx.force.conflicts.il": {
+        "bytes": 21975,
+        "sha256": "f365ffd3b377a54136995f0b196a47cabb3de3f29d6000c95a7f6af9b6130119",
+        "sha512": "687849b58bb60d7382a0b9e61342406831b2c41904c2e92938a14f6ca6bb21a2b6967595971a39687b6853e1d2274d7075c1e34e3a5589f0f4d2f8a454981554",
+        "gitBlob": "da7a4cf96a8c13bf2c10c916a819ee700205a3a6"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Data.Common.il": {
+        "bytes": 478611,
+        "sha256": "770c54a003845568a5fa5e1123e3fa7087386594ad998dfc1fdb2f2d4b2a000b",
+        "sha512": "cc1f66d75d495032038aba594a1a8e4b28d72985d4add53daad89c55503845c41ac27f2a474078a84967152054aa10193ac6429c049a561125abe0b574c2eb1d",
+        "gitBlob": "7f3d01d68b336613f9cc812c1570ae356410da52"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Diagnostics.StackTrace.il": {
+        "bytes": 21458,
+        "sha256": "50f1628f951ae704a2c56716d62da600ae97e5fd70789b87686cd28c1ed2c125",
+        "sha512": "7a7493c117e5a7f106662425f438a35435fe716711dcb34ccde5550a56eaa60631888a0ad8c1fdc55990ec5c54c469916fb94ca26e380afb85aa47472028b50d",
+        "gitBlob": "e39bad2979bad470a0ae121ac8c94dfd551464b6"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Diagnostics.Tracing.il": {
+        "bytes": 150973,
+        "sha256": "150c24d9a809ea449725141b60e850e6a879b52672168a26b4407ab4742c5ee1",
+        "sha512": "8fe0e9522ae1dae64c1413f162f68682ca0995ab42399018082a3e6e561639a479955537a864e97e21bc6902247d57d435a3f741cf66b67e7c9548818668c260",
+        "gitBlob": "0ad590f9c3e171845c6e639db44c51fd3e869a1d"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Globalization.Extensions.il": {
+        "bytes": 36748,
+        "sha256": "5da3d8344992177efe4bb561d6ba679d80251758efaede97b4743aa3168873d2",
+        "sha512": "dff060102991b29b1980c9d892dbaa5711a817f4d8c75237caf31efdb16793f2926ea7b0a7ec8848f79d98ddffc985c9dc850c24d39fccf576b6998281ff49ca",
+        "gitBlob": "a3899dcf4e6e581b5bf140271783934e9c6c0547"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.IO.Compression.il": {
+        "bytes": 1406479,
+        "sha256": "e6ab86805a41e6fb7742aabcbcc9a629126c48da8923ad5d7c6a755cb6374b05",
+        "sha512": "03cebd5d10f2677ba86975a952bb424d4399f7fcbd4f0b983f1a59a4c56b433b0819d79844609bed3a3112b381a551b0a06bbdb15aeae5717344093efd4ba4bb",
+        "gitBlob": "a957d1362eb86b02630fdf480a634ca4653bc199"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Net.Http.il": {
+        "bytes": 3521690,
+        "sha256": "796c594c43290ea2436a1084e24c7137cdcb86d90fe1459447cbe44341a817c3",
+        "sha512": "1ec653315c6e00fd4865d3d54eb778fb94482ac2ff6d59d9c29a1056e59571a17ded4d62bd94db47e62279d91e0303b5499c0f12d10ba5052dcbce951b08f113",
+        "gitBlob": "32bfe9658a003956288e8b06c78c4206fe061339"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Net.Sockets.il": {
+        "bytes": 22228,
+        "sha256": "baddcabc7b373b9d7dcd5c0696d274e712300f8aa4026500bbaf8e31dd26ebdb",
+        "sha512": "1a94d896b95e3b8bb224e2e0fdc2c05cfa0042f7c63fe3ea9b499ea9d503a49ad5292138e1cc64fd7d534fc3c3742d32903891fe44e2d0edbb6e3cdf8f3be072",
+        "gitBlob": "72bf91c7ac888e92aaf4a32a3ca7b30ee34dba9b"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Runtime.Serialization.Primitives.il": {
+        "bytes": 38740,
+        "sha256": "fe9c6d8f02290987990d739a82d0810756100467c6f33f2f7e3458c505b6a1e0",
+        "sha512": "9286eb2b7e4f217b6059961258044cb7a55ec9137f603463fe27dbf07edae1e403b24aa4a0ee63a29e917a4a8cb44c95f28a4150a5abf1a9e6101a830adc890c",
+        "gitBlob": "e352b570882cefd1791a2ecca3e4dc8bd2f0c61e"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Security.Cryptography.Algorithms.il": {
+        "bytes": 102938,
+        "sha256": "2cdc1dbc1de5aadc3c065bd0f184e94b38fd2dae141e99e886df81c9e81e6158",
+        "sha512": "b031664b63c98484d92b90bf2ef9f94c7d22543e12326a287da0ccf6d46b0a8719f256259c73cdde387592cb8c376a5e86e84914dda51a44e118c3298e1d91fc",
+        "gitBlob": "74cdfe19b85b5b400f996fb2beea46eedb59d115"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Security.SecureString.il": {
+        "bytes": 19004,
+        "sha256": "61b6217940f6c48dfe1c40300a3237195058a661086741ffb77bbd3a9284cc3e",
+        "sha512": "46b8b665a0fd749d3efe23e52c01fa7f7d806503a36c52a3d8a20171a55bc83b6fd79e3bb7db1cf8e9b17a8d33f30d756b35235329a4d8c8a3c98f7c07abccb8",
+        "gitBlob": "c535dc151513f4726647736202406c5f4f27ff61"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Threading.Overlapped.il": {
+        "bytes": 41056,
+        "sha256": "506db28f3edb4392431e94255166b781ee4f9c9e9eded1a522258db170dd8083",
+        "sha512": "4d333a47e43cbd5e9bbb89baf0b389758e5572e445e292f71e1b2e25505dc6048ced32333f75cf54ebd9f3b3f428871195c9e39a8744df4040280bf932668b4a",
+        "gitBlob": "cea9122a40385befb5a7249a2167dfec3c664dca"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Xml.XPath.XDocument.il": {
+        "bytes": 18908,
+        "sha256": "007d71b37471a33866e6fec9589749a2f4bfad80373117154e4d43981b4672c1",
+        "sha512": "c1efc2804280063c198b91dca44630051e85cdcb93ea9938a61a5d463e648ec25fa8b581851beaf3c800eb02c5e97b143e13d5ae392a6b9adcf59fe7c08c3f19",
+        "gitBlob": "74298a82381fdb694c0bb163ecc5e25545cb1fb0"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/NETStandard.Library.NETFramework.common.props": {
+        "bytes": 522,
+        "sha256": "1426160f2ca8fc6be1b75fbaa3c9a0f085ddaf71dd285b65e5bec8d206dc7019",
+        "sha512": "4f6888d95ffe1f319378b1c91b66be99f7c828678f531e317b5ebe80841234bdba69b9c96be71ec5fb71c22dcb95eed6ea2ee4a6845916003c6e31736cfc8216",
+        "gitBlob": "f0b4d4c2ba801008b976ab56f89c9fce94fbea42"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/NETStandard.Library.NETFramework.common.targets": {
+        "bytes": 3103,
+        "sha256": "fe7f8ee93179aa96b18c181eb207256105ef2f94d4db2bf0bed530998b36dada",
+        "sha512": "405f68df24cd4f12805c0968bcf5e8a6c7522d9a9e9db6fa5c81cc34c385fef3c09e037feb696807a31e6fb2b4c050cd8f89be0300e84cdca756e1d6641370a4",
+        "gitBlob": "bde8d6a9792e9ac045888044346ec588ac695492"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/LICENSE.TXT": {
+        "bytes": 1116,
+        "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+        "sha512": "27f511fefea2390347bb7ea63f7795a26780ad43eca80d717c92c70a434d28fdf136c4b902750b52813ed9cf0d3c51af206062323a0496459461d985a34ac5c7",
+        "gitBlob": "984713a49622a96da110443c15477613bc12656b"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/netstandard.library.netframework.2.0.1-servicing-26011-01.csproj": {
+        "bytes": 36,
+        "sha256": "8d654c44b7bebb6b31a9f2f606927f45b5072193adc4eef8cce3f3cf3b278df3",
+        "sha512": "c2c3b4a3ec9f909bd40313088c898989a5b15c317aa3a81d91f66800351cd960cbcf19669acfad5422470bd81dd47c6d68ebc59aa1b096798280e913a3a94fde",
+        "gitBlob": "6b512ec9245ec39fc1b7b533a704aa5d6434ca52"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/netstandard.library.netframework.nuspec": {
+        "bytes": 1360,
+        "sha256": "f291187c6455ecd14060100ab8a0756d67f39f69fa6726b7dacb31b865cafadd",
+        "sha512": "360deb78c4fe14f5f0e438887d0aaeccce42508c2944de2ae04ca8d9aa71b181bf672810282d49ef8b7cb16bb0520f760333a3a3c926b2fff628347f179fa792",
+        "gitBlob": "b39f6a6b67d0b707093f8428b3204a409baf604c"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/THIRD-PARTY-NOTICES.TXT": {
+        "bytes": 11365,
+        "sha256": "a8bc8b3b6cababd6da43e4c776a77cceb4859eb4df06d5e5da2aabb22d19542d",
+        "sha512": "f5cf40b6455c57ab5c9e8c3a865528eabe605a40adcc43ea4dccd9ede544cf2f89e7b1b6966da7087d4eb6b3b925bc2598372375d7b5095215fa1e5734863c87",
+        "gitBlob": "06055ff03ecd60832f85fb35bed4fba01aea16e1"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/useSharedDesignerContext.txt": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha512": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+        "gitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+      },
+      "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/version.txt": {
+        "bytes": 41,
+        "sha256": "f745e129fc0a8977ab4d994515513595bb1b0eb8baa1431fafbe5e4186627e11",
+        "sha512": "6d664a0258eaa7254efcd7c09f47625a0086bc1818f7c1a6369b35e821e28c7be768e0ba5749197f843116a4b334f28b978be08a37bc7a3bfd970e6a6419fa33",
+        "gitBlob": "15c2d43fc6938a70153129a3eb397aa9c3cde205"
+      }
+    }
+  },
+  "layout": [
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/Microsoft.Win32.Primitives.dll",
+      "packageMember": "build/net461/lib/Microsoft.Win32.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21216,
+        "sha256": "5eaa2e82a26b0b302280d08f54dc9da25165dd0e286be52440a271285d63f695",
+        "sha512": "3b510cdc45c94be383c91687c2cb01a501ba34e3fbb66346214fc576d6f0e63c77d1d09c6419fc907f5b083387a7046c0670377ad2e00c3ec2e731275739f9c7"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 1
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.AppContext.dll",
+      "packageMember": "build/net461/lib/System.AppContext.dll",
+      "fingerprint": {
+        "bytes": 21176,
+        "sha256": "9dc115ac4aadd6a94d87c7a8a3f61803cc25a3d73501d7534867df6b0d8a0d39",
+        "sha512": "e4da7e3ae5ca31e566ea0475e83d69d998253fb6d689970703a5ad354a2aad1bb78d49a2c038f0a3c84a188d091696191b04e4a39253deb3b6cb310b72f02f97"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 1
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Collections.Concurrent.dll",
+      "packageMember": "build/net461/lib/System.Collections.Concurrent.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "cc62f3b867d50083c2932061f20662c698d2e1a741c4d2f9df1fd2d435e3ef3c",
+        "sha512": "e241c16869d1cdbb2c6482a7c5b2af93de4ba0cef8185b8826eee35ecb174f35f7585c8ae0320f7f4f6b80f3bb5b3edae2383760f2f35637f03c3a0e38e0875c"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 10
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Collections.NonGeneric.dll",
+      "packageMember": "build/net461/lib/System.Collections.NonGeneric.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "529943c0cdf24f57e94bf03fac5f40b94a638625027a02df79e1e8cb5d9bc696",
+        "sha512": "29684ac5391268eaa276196a6249364f6d23abfe59bdc304a561cf326cea6cd662fa04c05e15924fd6d3f9e9d1607992b8dcad3f817cfe891580f9d9462fe9b7"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 11
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Collections.Specialized.dll",
+      "packageMember": "build/net461/lib/System.Collections.Specialized.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "938da38561da54793944e95e94b6e11cf83aacd667487297d428fbce1c06dc9c",
+        "sha512": "287f08ab07827570f9f3ef48a6d7e5c186899a2704fb3dbaf36975f6be7b29fb6695a69fab85a6f09bddefb60c79052c3a33cf862651f892eb9d773d880b3af8"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 12
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Collections.dll",
+      "packageMember": "build/net461/lib/System.Collections.dll",
+      "fingerprint": {
+        "bytes": 21696,
+        "sha256": "c2250e9e51b44d8ab8c5b892592766925f6580ee00b95026621d0afb037c2707",
+        "sha512": "99e4a226e1fabb348e7ef7c6fa56ad0ce4e4cf5d8569ce21881703dca8d83a1c113fd5f440a4fc9e9b99a04ae8cf4490e17d62ffc09cfac5a45678a4419efdbb"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 30
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ComponentModel.EventBasedAsync.dll",
+      "packageMember": "build/net461/lib/System.ComponentModel.EventBasedAsync.dll",
+      "fingerprint": {
+        "bytes": 21768,
+        "sha256": "22108e32e0b6e42f5f52a4cb17b9b6fa3dfd547ecd9eef9c67226dbec54d23e5",
+        "sha512": "9f3e834b8342e0c7aa5ccc993b520d664b03f1f0091066c66067923e1d4991efa03f63908552538c05f423aa2b696de7c76993f71a7564f3e87662cb0fc00726"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 11
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ComponentModel.Primitives.dll",
+      "packageMember": "build/net461/lib/System.ComponentModel.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21752,
+        "sha256": "bfcd867f71c887429dfe008d7ec5d1853d15b3932d4ce8991694293477b5be37",
+        "sha512": "9769e59279a32f29c2f2c6970c81d3ed76fe3421b819ddffc8fa98329f1b45300c737fdf71956672f80f69b3a75727d184f8c421e00b84e94163a86cb744a991"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 22
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ComponentModel.TypeConverter.dll",
+      "packageMember": "build/net461/lib/System.ComponentModel.TypeConverter.dll",
+      "fingerprint": {
+        "bytes": 22784,
+        "sha256": "0dbb92ecd5dfa7fc258bc6deed4cecf1b37f895457fd06976496926abdb317bb",
+        "sha512": "4fef3e1535f546ffdde0683f32a069beeffe89096524c7068f1f5ce8377824f82ae530d3990c9dd51bccaa9e53fded5613fa1174013325808059276dee771187"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 59
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ComponentModel.dll",
+      "packageMember": "build/net461/lib/System.ComponentModel.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "5e61d755616cb10524f5f31e9b70c65a7fff8e30e25ce711ac8b354d657ab479",
+        "sha512": "9ba5cc82573308e5d995ba05bc660fc1c087eb91d8bd7efca6ff838a3c47bd6118d9c92919b2e0dac11a5a27977318c5c819499dc19cd5d6e57122a0749858c6"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 5
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Console.dll",
+      "packageMember": "build/net461/lib/System.Console.dll",
+      "fingerprint": {
+        "bytes": 21160,
+        "sha256": "b537313413f80105f143cc144feeae2ac93f44747727de309a71d57d2650034a",
+        "sha512": "18d1bb2d5c469644078d75766dbf04addf7d0c543f7ed15ff522ceeaef960900dd8ec68172f5d684b76b0aa6946bb38d641f021ec04c70ad66a6062c10412e0a"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 8
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Data.Common.dll",
+      "packageMember": "build/net461/lib/System.Data.Common.dll",
+      "fingerprint": {
+        "bytes": 154448,
+        "sha256": "1c7bff6f16bb618648e699b723aeafe511515cd6aad699c25faae2a507e22811",
+        "sha512": "225128e58e2f01b5caada6fe54b1d32ff6a700542ce22b425649ab22da2944f796f04d1a2428c542bcab5348a161cf73f5f9a1e7bbf1f6417c4d507217fe3fd0"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Data.Common.il",
+      "mvid": "0006e65b-7d1a-4983-a66f-156027e0a6a3",
+      "methodBodies": 516,
+      "noRvaMethods": 1,
+      "resources": [
+        {
+          "name": "FxResources.System.Data.Common.SR.resources",
+          "flags": 1,
+          "bytes": 60516,
+          "sha256": "6d13553c5ceb8add61bbeaed4e2d34e766b00fd24295b54787cfdbb83f9ee9f7",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.Contracts.dll",
+      "packageMember": "build/net461/lib/System.Diagnostics.Contracts.dll",
+      "fingerprint": {
+        "bytes": 21736,
+        "sha256": "9c4ae61e0e8365762efe3d34c5595029f2c12e0079e6070720e2cef0882c84e5",
+        "sha512": "e96f8fdd6ffb702d344746ce82de576bba8636ede3e39a7da18ccf8a0178b8346fd31140760b864f1487d7804d931ff1a18de07a4cafa0cf79bdb340421fc03f"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 15
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.Debug.dll",
+      "packageMember": "build/net461/lib/System.Diagnostics.Debug.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "55a30d92d163cf1807bea6dc13b4c13e70aebbb034dc77eaef4f4394730dcd8e",
+        "sha512": "d03f450a3a19320de71145e48cd7c088d9b50d0a683cc9a79d8967dce085a6f63cbe537fca1c6208865eb52eafb10189613c7233047318caeb2fb2c23c34a269"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 9
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.FileVersionInfo.dll",
+      "packageMember": "build/net461/lib/System.Diagnostics.FileVersionInfo.dll",
+      "fingerprint": {
+        "bytes": 21248,
+        "sha256": "7c25a74772e135257235640a0264ddc05235e14f3627896cfe735e9955155f83",
+        "sha512": "fd4560cdf01de237ddf797a33c5dbc220d3fcae07ede17d43c39f5562e36e03646676a87e20699d7603fca6d84f66c8756eb863dd4727b7e1a499619bb88dde1"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 1
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.Process.dll",
+      "packageMember": "build/net461/lib/System.Diagnostics.Process.dll",
+      "fingerprint": {
+        "bytes": 21728,
+        "sha256": "28b165cddb82a2507114394ae398995ef8a50c549214f8678aa66054f6927754",
+        "sha512": "5959e1129c983825233a07869dd1b2b1db32830d2b5f6b7f8d869c39a76a241f88f76d37341fdfbf56f000fc6acba19aeb36a7efb94721494b41b65bf4978651"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 13
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.StackTrace.dll",
+      "packageMember": "build/net461/lib/System.Diagnostics.StackTrace.dll",
+      "fingerprint": {
+        "bytes": 23936,
+        "sha256": "cae99f910874288afbf810968d13b79d755cd4b2006609ec036ea4934181cba5",
+        "sha512": "554a25c761102dc41a9e421621e329868d1162ab29f47e59754c8fcfae0c12bbe8200e1b5975abf926f1de0977a5407c43202ac8a2801c69a7f01d95b6a1e959"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Diagnostics.StackTrace.il",
+      "mvid": "8c43a5c3-0235-4b03-99c1-b107b4d0c55d",
+      "methodBodies": 6,
+      "noRvaMethods": 0,
+      "resources": []
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.TextWriterTraceListener.dll",
+      "packageMember": "build/net461/lib/System.Diagnostics.TextWriterTraceListener.dll",
+      "fingerprint": {
+        "bytes": 21280,
+        "sha256": "63eab38ee9f4dcd686c8e6a4f01e1e2a9bb91e52b20ab4dde0c28061e9261860",
+        "sha512": "7352368b68835ecc9c5943ae2f2bd5cab775a7fbb018af7683e74fad1731a9738ae14ebe0bccd854a223ab762fca7ec11411fdae865c5c6ddd034900fa55cfd0"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 2
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.Tools.dll",
+      "packageMember": "build/net461/lib/System.Diagnostics.Tools.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "260c6250ef9b57dca99b4cecc533f9a34857b5a32b5351202f776163841200aa",
+        "sha512": "393d1747911a7f91f4c4f4f363a3782f24e00431478088da454823a223a4e75e51d9b010fc5d9746e2bf0185be90071b6cb70c777337d718b39151eef6b486aa"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 2
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.TraceSource.dll",
+      "packageMember": "build/net461/lib/System.Diagnostics.TraceSource.dll",
+      "fingerprint": {
+        "bytes": 21744,
+        "sha256": "c81a57d0634c462a6cf49844059e9b170f650ccdf0789519ffd4ae7d28e2718d",
+        "sha512": "cedac24f414cce5053fdf10779dbd153fcebad69b3960f75a5ab1110da18799c79dc01b30269641022fcd874a331bc2dc7ce1a7d1a60dc90e109dd55b58665db"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 17
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.Tracing.dll",
+      "packageMember": "build/net461/lib/System.Diagnostics.Tracing.dll",
+      "fingerprint": {
+        "bytes": 31608,
+        "sha256": "b84b93be455cc7d14ec0c88ce08dafac7b6aac2e549c969e7126eb48c31f8b1c",
+        "sha512": "90bcea3baa04146f08013a832633957c6d511d5eb52270575ef9a571153384b5a02c5026361b70940775907b5bc710b2c91627eeace432744f3b9e5e1ed509d6"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Diagnostics.Tracing.il",
+      "mvid": "256e0362-2bd7-4c54-b056-b7d84c71cceb",
+      "methodBodies": 53,
+      "noRvaMethods": 0,
+      "resources": []
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Drawing.Primitives.dll",
+      "packageMember": "build/net461/lib/System.Drawing.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "2805a18724a24034ad6acb315dac516e479cecc5f3753204052657e560932d5d",
+        "sha512": "17558306a611bfac6982d5650335b05ea407191290b653c028896142ebee2abceb22f7d71926fbbcc3fab8227c61a5fda0e770abfca021ac7f891c9c7ee42e81"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 6
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Dynamic.Runtime.dll",
+      "packageMember": "build/net461/lib/System.Dynamic.Runtime.dll",
+      "fingerprint": {
+        "bytes": 22224,
+        "sha256": "f600acc811720183c639cebe5618baf9c8135b85b9cbdc0758bc9b2dcc6dd7a9",
+        "sha512": "6bd6e482533b9ff8fff8823f84cde7191a0fd5575f76891a95e99cd1f5c1122ef92b436745ec9583089445fd5eac795181759080b1d83ccfa1eed31d9cce3af0"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 29
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Globalization.Calendars.dll",
+      "packageMember": "build/net461/lib/System.Globalization.Calendars.dll",
+      "fingerprint": {
+        "bytes": 21744,
+        "sha256": "b56ffb65b842daae13f3020b0b04646db92f89801d2a2f89087d145a996d43f7",
+        "sha512": "dc3e9c3b4d732801dcf43cfd6cdd2672f01e03cb99d804a3f4803fddb9ca9817bcfd2f96fd94b7b33db0994f5478ce200c048db5dbb78d3b24e950262ebf4d28"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 16
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Globalization.Extensions.dll",
+      "packageMember": "build/net461/lib/System.Globalization.Extensions.dll",
+      "fingerprint": {
+        "bytes": 25992,
+        "sha256": "c7e91bd148ed22ee1ff8ebd3e58b199a30af90aa37499bcf8da34409672f2ed9",
+        "sha512": "1067bacc4495eacbc27937b54780b97da62fed1af66158e2fa492fc82b068d49bb49bc20c3c82c22d8edd300bd7b097e14aa1e317f1789744e188bca15d22b4d"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Globalization.Extensions.il",
+      "mvid": "b9ba8638-25d2-4a3b-b91f-16b3d3799861",
+      "methodBodies": 20,
+      "noRvaMethods": 0,
+      "resources": [
+        {
+          "name": "FxResources.System.Globalization.Extensions.SR.resources",
+          "flags": 1,
+          "bytes": 261,
+          "sha256": "22650234ae841b80104d14c293e591ba3f177656184686caccc673f80f339e05",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Globalization.dll",
+      "packageMember": "build/net461/lib/System.Globalization.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "56bd0c02c734abf4d7fd1ef2e8b6a9e4bf5e4bab4e606cd1023d63b02852fa61",
+        "sha512": "62305027ae8bb5b830630fe54f2cf9e607f9b97ffe28912c2cb15d429252668f17eaf2d7ceecf5601c889d5ea52e0b9100f115173bb11b5d6208171792833c85"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 14
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.Compression.ZipFile.dll",
+      "packageMember": "build/net461/lib/System.IO.Compression.ZipFile.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "7720ee13405ea8a3c204703a181e67dc6d66835e9df263c09d04d8b48b41eb26",
+        "sha512": "9288148ec879ebeafd53c225854ee3bd3768ba5c7b829d6af1251d20ac301fc27a04bebb603fe2cde6949bc5968fde717e8b747337c1ad872450d26f7c36f515"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 2
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.Compression.dll",
+      "packageMember": "build/net461/lib/System.IO.Compression.dll",
+      "fingerprint": {
+        "bytes": 110944,
+        "sha256": "da18d61bb6b7d35c56cb4f392fae0844cca73f72a043a08994beccb531ff3b77",
+        "sha512": "f85f03e20c8ce40bcf28d883ccd80ced755bf75d515fa66986963f0f4f5ad00bb1823d8c100a75323147b28a4916dd6c598102b18999aeb7b358c196af4206da"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.IO.Compression.il",
+      "mvid": "35dd20b5-8766-476b-b5d2-0ea16ef0a946",
+      "methodBodies": 465,
+      "noRvaMethods": 8,
+      "resources": [
+        {
+          "name": "FxResources.System.IO.Compression.SR.resources",
+          "flags": 1,
+          "bytes": 7436,
+          "sha256": "abbfe22954105bfb0bdbc9ea0f175780df4ba52256b6b93d317abb0b6056ea5e",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.FileSystem.DriveInfo.dll",
+      "packageMember": "build/net461/lib/System.IO.FileSystem.DriveInfo.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "984575c44cab17d46587af6cc8c22c409b79bec280fd771e6af93a0a0c20e5b0",
+        "sha512": "1527a426f8ec9931573468929966e102012b630ec4aa370c196b2b87472bcee696b00355adaeb39b4151b986470f7dada415e3f930d9678b68d3c531c8ac9b52"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 3
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.FileSystem.Primitives.dll",
+      "packageMember": "build/net461/lib/System.IO.FileSystem.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "5c84dd40d67c0e59906511d2b09da8e28c454b5979eb5fde74213f9d4bdbc564",
+        "sha512": "099ec1b84fcf6bf07142ad8cd34307c80f19a64c754ade505ab55707075a764fbe7bfa4ce2fbaeaa09b3e61ebdb6e3d116608df0cf77bc076c7b3119db37a324"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 4
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.FileSystem.Watcher.dll",
+      "packageMember": "build/net461/lib/System.IO.FileSystem.Watcher.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "c9e2562f1a1b86acdb6957cf916aced9c4f8b71ebb16dfa0050252146205ad37",
+        "sha512": "245f12b4926114ebdb39a54628a1df2501c4a27abd531172cc63bc96298ee0f4be5658ae95fe730c063eadfb1b664c7d201c69c2246cfba23ed5a4fe7ef3d14e"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 10
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.FileSystem.dll",
+      "packageMember": "build/net461/lib/System.IO.FileSystem.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "9a4595dbb128e2d8f373b3ac45478e7131f4d181b50ec821ec8cb88bd46bd5b8",
+        "sha512": "58d7e8d6fa237a6eac018c0a88d6bf76ad9ee49b6a6790b64e68c33ebf80afcb4223881aac6821132b877e7d848bc917eb9490590cdb297f362c9b43143d6713"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 9
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.IsolatedStorage.dll",
+      "packageMember": "build/net461/lib/System.IO.IsolatedStorage.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "0e80a2e256d16e487bc847d1857ed7cd088f176254ba2a385d675338b836b0fc",
+        "sha512": "443dd75234c043de736423466c1fc2ff2bd9b6b9fe753521c3c225de99f5a7d3828a470cf8ea54678a86681949e5dcd1de1eab35bf0f348f758fa099a9092f54"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 3
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.MemoryMappedFiles.dll",
+      "packageMember": "build/net461/lib/System.IO.MemoryMappedFiles.dll",
+      "fingerprint": {
+        "bytes": 21216,
+        "sha256": "81b6527ac2d18782ac24ae463c11dd1d70ab1bc89f626b7347a592229b371a1d",
+        "sha512": "aa339f2489ca9bc9ef7f6121c9586dbd8f5ad2ca5a160a3bcac74b908570ec2fc0bc24e0ec33ae9de9d6a6c3557ec2816fe8e89ffca93e310503f6f83a691f6d"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 8
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.Pipes.dll",
+      "packageMember": "build/net461/lib/System.IO.Pipes.dll",
+      "fingerprint": {
+        "bytes": 21168,
+        "sha256": "80a229b2917fc3a5d941ff9745a6be0065028afdf9509300410d2721c71f1198",
+        "sha512": "18736ecfe0ef0c477bf64f89ca97af4578defc996f0a5bad33d7a29af6e09745e4b10d6d543243b9664e40169ee550c996e783c5ffbb0fc767da7ffc63e13fb6"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 9
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.UnmanagedMemoryStream.dll",
+      "packageMember": "build/net461/lib/System.IO.UnmanagedMemoryStream.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "86f1f12e47f260985b08bb966598123578eb5e48bef9bb086f04e16e9d53bb32",
+        "sha512": "cdc5d49fcf0249c539e45c9917c152f130c8fee975d97c2f62526f474cb779b2bf273195f4aa7a64f76dd2496528c0d021b56e60aae2635606f9f55092cb47f4"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 2
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.dll",
+      "packageMember": "build/net461/lib/System.IO.dll",
+      "fingerprint": {
+        "bytes": 21144,
+        "sha256": "c191a43029edd4eb8eee003356f1fe79aa45071c25433a7a3589590e9089eed9",
+        "sha512": "5232b7ef2b60a99be2b027112078a7debf58bfa4308f4ae53dd9a96fa7bccbb0927beb7148e7a3944173f7820f9f519767539d1fdfef848b6f1d6668be11fc15"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 16
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Linq.Expressions.dll",
+      "packageMember": "build/net461/lib/System.Linq.Expressions.dll",
+      "fingerprint": {
+        "bytes": 22224,
+        "sha256": "bf97f67165231c2a42b95f11d80337b082e2b2be54351da44c8a10c06194b369",
+        "sha512": "0fe87438acd6c14401523987be617a83ddfd2b42938fc52e0da5f941f7dc70686cc6436edd41c4998fd56d5f52d64acfab5010b96b1e80c084c4ab9f546202a8"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 46
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Linq.Parallel.dll",
+      "packageMember": "build/net461/lib/System.Linq.Parallel.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "30a49d16436e3a05569c99a0c2d21755c2fa323c5b925f9f21c10287cc97d9c9",
+        "sha512": "057f21a7e7496343c06cc497a24e46e59218eae1838885eeef7391285cde243afe853155f52933959b40f40aa7028a289d15d279833208bba42bf853d4df91c6"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 6
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Linq.Queryable.dll",
+      "packageMember": "build/net461/lib/System.Linq.Queryable.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "719ac73bb261e0a13574f5a198126ccf40352264958defb555280d005134c704",
+        "sha512": "257fb07c0d86e292fe6fa88e03b29994cb9864c17a535ce7b366a728eaa4b3a803d88a23157caa457d0b681a2c0d97dd7d9a2754300b73030d9a09c4e9004772"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 5
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Linq.dll",
+      "packageMember": "build/net461/lib/System.Linq.dll",
+      "fingerprint": {
+        "bytes": 21152,
+        "sha256": "349c7fbe9ae2b78c2f90239bddfcea5b16a0faac1fe83553a816c50c3e9089b1",
+        "sha512": "8f87b5013e0cf3a776bfb1f1a68f316a28af3cb6c74f0adf3ead6d5063525c6668b42c077549f66267130959a9cb986bf5f8e4242fc4ef36c356d6927f587a0f"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 5
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Http.dll",
+      "packageMember": "build/net461/lib/System.Net.Http.dll",
+      "fingerprint": {
+        "bytes": 198472,
+        "sha256": "b5d20736f84f335ef4c918a5ba41c3a0d7189397c71b166ccc6c342427a94ece",
+        "sha512": "5300d39365e84a67010ae4c282d7e05172563119afb84dc1b0610217683c7d110803aef02945034a939262f6a7ecf629b52c0e93c1cd63d52ca7a3b3e607bb7d"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Net.Http.il",
+      "mvid": "27bbdd4c-eaf0-4a95-b172-ee502d76a725",
+      "methodBodies": 1274,
+      "noRvaMethods": 11,
+      "resources": [
+        {
+          "name": "FxResources.System.Net.Http.SR.resources",
+          "flags": 1,
+          "bytes": 11495,
+          "sha256": "882ba03503973548b49b01572a988ea2a464410699e885eaf273781d1b67131d",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.NameResolution.dll",
+      "packageMember": "build/net461/lib/System.Net.NameResolution.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "222bd77c5692c2961e8c3638f6511d6f7cbeb9e0977e2d5c3bca6739a5311f37",
+        "sha512": "03f132e1bac629a394a093d59550b22d5fd4c4d6f244697173229282741a9cd6669c4256c024467ce94293c74f304560066711c35620ab4750621502aa67b5b1"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 2
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.NetworkInformation.dll",
+      "packageMember": "build/net461/lib/System.Net.NetworkInformation.dll",
+      "fingerprint": {
+        "bytes": 22248,
+        "sha256": "2e2d28a0802d8c8c08c0d422f48733ad8bf1dfae75f5682a4a3df8898e7e819f",
+        "sha512": "25fc9d4254de0afab9ae3e19b8b225e1d875dcace6ca2c83f768b62c0e2b331cc9dd2988dff7994b5819fb0dd7a89a49fd19e653fc2e4ee656182e08a969a93d"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 33
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Ping.dll",
+      "packageMember": "build/net461/lib/System.Net.Ping.dll",
+      "fingerprint": {
+        "bytes": 21168,
+        "sha256": "4d97e8481b9a27042bb903245625735d82ff627c66797de619303c1e705d0d6a",
+        "sha512": "28dcb8b6e306015d2004ec00443652ce986ab8e09fb09eb82193bfb0604268ca63c527ff64b6364f63c3adbcdaf5fcdf4d1494243bfc8f6bb629bd213073bd7c"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 5
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Primitives.dll",
+      "packageMember": "build/net461/lib/System.Net.Primitives.dll",
+      "fingerprint": {
+        "bytes": 22216,
+        "sha256": "9a8ba725f8e953c933285065228a9409036f9137d03016b127ccea8a19452466",
+        "sha512": "fde868018d24fd72177ede58952325b52561f9d44ae02a4a2268e445f47abf3b81b809f443d362df83bd6667b5988ac2ca15242b9f76a0b5fb5b444fada1bf26"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 30
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Requests.dll",
+      "packageMember": "build/net461/lib/System.Net.Requests.dll",
+      "fingerprint": {
+        "bytes": 21184,
+        "sha256": "f2e74a3ec2dc753c9a48fa9a677775f949eb1e02fc1bb8bf38c39e8d2ab147eb",
+        "sha512": "cd44e789a6c04e2bc3b07810b57cc83787f06530065fdce069d89e42557f40770923cc705e73b7699731166f19fd7133fbdd8edd578d308a4f72cbb29e76939f"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 10
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Security.dll",
+      "packageMember": "build/net461/lib/System.Net.Security.dll",
+      "fingerprint": {
+        "bytes": 21696,
+        "sha256": "d0d90152136a0acf340fb345098f2e5c718bb13f3b5a809d7be4d9948b8574d4",
+        "sha512": "991fc952b452446255963aeb4f11c74e7116e15b666924452f3c0d15517322ef1d925dc44bc1f003e8483b5c0b34ad71d54ecaee360fd9e942664fdec4e37e99"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 13
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Sockets.dll",
+      "packageMember": "build/net461/lib/System.Net.Sockets.dll",
+      "fingerprint": {
+        "bytes": 30544,
+        "sha256": "694f4c61b6bae0aefac07a1e861c12c03cb6002f30091e4c8b05bb9c8ccf0d3d",
+        "sha512": "38890886c641d7e6e76a3d4d984215c680f5dcf12129ba2ebd560644eda793335b01c637c1f6744c249dab1fefd5aeb8d1b212475221c03df3ca82413f6670c0"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Net.Sockets.il",
+      "mvid": "163dceee-0158-4d46-ba6d-71a15519ef5c",
+      "methodBodies": 41,
+      "noRvaMethods": 0,
+      "resources": []
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.WebHeaderCollection.dll",
+      "packageMember": "build/net461/lib/System.Net.WebHeaderCollection.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "69b48ff8e6f40b84cdddb95bcdbb34e1184a2e29cb4ccc0fc9f1a2493648ee37",
+        "sha512": "9c0e69c07b2ed6caa9bb3ffd9eba6c82a0b763f2dfb06341f6343c54dbc254505cc0350b96b79dc4062d8d28d47c79824e98bb293c8c85203e827164af862b5a"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 3
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.WebSockets.Client.dll",
+      "packageMember": "build/net461/lib/System.Net.WebSockets.Client.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "19766a20b62b038abc3e863f2d6e7b55fabee4d9cbcad3eb1d7bd3ebfe8d023a",
+        "sha512": "69c6d8d5f8835da31d36940f0ae793bd00d87e9cb9380c3a7b21fe3e315f192f95b8e63c8f9d0a3737c73673a0aeac41fc728fb7b236f12453a953066f9e53e7"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 2
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.WebSockets.dll",
+      "packageMember": "build/net461/lib/System.Net.WebSockets.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "99920ce34a01a0c07efd86d6e134bb401993515d001b7567a4116ad222993a63",
+        "sha512": "5a8c41f32598bcf8c8e315b18ad5f1bbc377d7b638dc05caa3cc47e988536aa0ebe4718d73aee39ed5004328be3a9de9722d8759e5dfd500038e7139dadf9638"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 7
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ObjectModel.dll",
+      "packageMember": "build/net461/lib/System.ObjectModel.dll",
+      "fingerprint": {
+        "bytes": 21696,
+        "sha256": "870ee1141cb61abfce44507e39bfdd734f2335e34d89ecfffb13838195a6b936",
+        "sha512": "5338b067297b8cb157c5389d79d0440a6492841c85794ea15b805b5f71cfed445efa9099c95e5bdef8cf3902a6b10f032bfc356b0598dde4f89fa5b349737907"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 19
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Reflection.Extensions.dll",
+      "packageMember": "build/net461/lib/System.Reflection.Extensions.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "3d2551d6458b84566025fddfe5dad479cab5785428efd6814860d36ad1811c9a",
+        "sha512": "1b13c70f05d56871008d5c8752bc93c8fb590d5f89b4e97264f592cdfd772cbbcce8380d255f8bb305bc25bcddea21e422617fa614dffd3ddcc9a1d4be6c54a5"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 3
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Reflection.Primitives.dll",
+      "packageMember": "build/net461/lib/System.Reflection.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21736,
+        "sha256": "0383dc02fdf0b5d4612d8caaad13d594cac1609c8240b73dfd6ea5803f5e17ea",
+        "sha512": "5c67456a65fd051147281e14041f5165c1852fd6519dfc8dfcf9c86f20217cdad9e2d26f815b557b99e2db3500af47b2df8a1225a659fa1069815cd62302458f"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 16
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Reflection.dll",
+      "packageMember": "build/net461/lib/System.Reflection.dll",
+      "fingerprint": {
+        "bytes": 22200,
+        "sha256": "63aaf632ee7f3bc852c4d71c742cf1d26f18f784f6c89113e056b2599ba8f514",
+        "sha512": "d991298419fb5290d6906a1f9fccef56bb3e17506e235c85b4d979ebc49abd4f4b3123697e675346b57829c3efdeed6291a155d69348cd55b8b6b2eec9f804a1"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 34
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Resources.Reader.dll",
+      "packageMember": "build/net461/lib/System.Resources.Reader.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "e3036362506d96c9c00ed6393a2afcacd9f2e71cd2a35c1d638a61e85d2fb040",
+        "sha512": "4c931389035df21ae67810d8c8e95cb613d9495e2392b11e34d84f624f90c78c541b14fb0d6fe7f0f89799aad4b34e91fb6f73978ae38231840f047915e6eb5b"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 1
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Resources.ResourceManager.dll",
+      "packageMember": "build/net461/lib/System.Resources.ResourceManager.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "62dce4679e33c079e11f41b096bc803b30b1d963a1ea79efa84187cebbc06afe",
+        "sha512": "ff8cdc0287e510f859f46c1e35f9b0fb42ead907b1eaa42c90c84b31cf6c2d4638cf682777f359b8611dd22062c1a5fa71f7fb667b7a3903783673e678098515"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 4
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Resources.Writer.dll",
+      "packageMember": "build/net461/lib/System.Resources.Writer.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "daaabd07f1b94be19d72913360286e469f454886850afcc603506eaab03150e4",
+        "sha512": "8e65ff1909ac8d65f599062e61ac935a919d43404c357dbc6ad628923b0c7ed7158862ddd272cfc1c2a8cec393d48a57bc4d69ce7706eef1bb6838826b1afae3"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 1
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.CompilerServices.VisualC.dll",
+      "packageMember": "build/net461/lib/System.Runtime.CompilerServices.VisualC.dll",
+      "fingerprint": {
+        "bytes": 21784,
+        "sha256": "18a610b8bad43cf784cde4d4902a238f2281c2a677daae790cab55f6da915979",
+        "sha512": "d3696d4d60cfc5aa5834f60a0b97a4f3a3f8ec3fb05beb3c3d927426b72b3e5463c628c7df950e43ff1344823b8c2d39730ba47ba0f2fec7a0cfcdc237a5bcc6"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 15
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Extensions.dll",
+      "packageMember": "build/net461/lib/System.Runtime.Extensions.dll",
+      "fingerprint": {
+        "bytes": 21720,
+        "sha256": "f9feb277f86241f55425182a26decf50a210675d4f040ec542af3fb3dd287de6",
+        "sha512": "916a465236f11ff6e421800961b20cb80a320176da8c58002f6742040ce33c5207d378667a584c5d8e35cf8cfc19ac54504b3f6129e489eeabd86a5b4e7d8c77"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 15
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Handles.dll",
+      "packageMember": "build/net461/lib/System.Runtime.Handles.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "7a81d2a001b543b2a55c9affc845a5df7edab1fd308c6979bbd982b1b826b57c",
+        "sha512": "43607aebbb0a3f2d437c7de77785cd6c9f49411e1d4efe41eccd93d7fcca197dabd4e15f45fbc4fbff27c202fec96b79f82202afc88b59c20ed5e7912bcdc6d3"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 5
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.InteropServices.RuntimeInformation.dll",
+      "packageMember": "build/net461/lib/System.Runtime.InteropServices.RuntimeInformation.dll",
+      "fingerprint": {
+        "bytes": 28624,
+        "sha256": "76432f414458e93b54ceb02fc348e652a84744108102f3a83792d8a804040eb8",
+        "sha512": "c763fe0e16079e431cfa13c63706b58637e3bb6e395f3c874f7ec8b1d5d5c16849d30a088e69e4ba798afaaf7066763daffff6a2880fb6c8ab838d9d721f000d"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Runtime.InteropServices.RuntimeInformation.il",
+      "mvid": "e46ba45e-6a63-47cd-af70-2c3016aff75a",
+      "methodBodies": 32,
+      "noRvaMethods": 3,
+      "resources": [
+        {
+          "name": "FxResources.System.Runtime.InteropServices.RuntimeInformation.SR.resources",
+          "flags": 1,
+          "bytes": 413,
+          "sha256": "a83796b787f7906b39ee465114e0f0f1d25bf982108def68d9abde8d5cbda90c",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.InteropServices.dll",
+      "packageMember": "build/net461/lib/System.Runtime.InteropServices.dll",
+      "fingerprint": {
+        "bytes": 24296,
+        "sha256": "383a1f9dac655c6805c24d4a03bc5fbeb9abd1536de5510f5756259eefcb4871",
+        "sha512": "b7e76b65406904f092fe96ded558a94ea53fa40bec500efcdcdebf124921f4526de2f239cd25bae1801692dd6dfe5652ffd46b2aa4325133c7127d27f626bb9b"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 114
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Numerics.dll",
+      "packageMember": "build/net461/lib/System.Runtime.Numerics.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "16e7efd6c19b2e3e516ae1bc7b3175d0e22f1ad357701f229e353da348eee182",
+        "sha512": "8505479031a0a5caeeee1a8a60aa35d7e0c332bbfdde61193b615e242c127780e55f404289f26930e9ec9e53fccf436b1a991ba2c8a9177163b41aaaf6be0d32"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 2
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Serialization.Formatters.dll",
+      "packageMember": "build/net461/lib/System.Runtime.Serialization.Formatters.dll",
+      "fingerprint": {
+        "bytes": 21264,
+        "sha256": "c343f7bf08a4c97a90ba607a492c721533333173fa63f65f6e5de9ceee65fc16",
+        "sha512": "5c2de8f18cb9b367d7de88a2af8a7fd538486b9ffb393972fbdff42cd2899d6679fd8d7076fe37954d5e8eab6c5041f19edad32659c5cceec1c2ba35e6f8982a"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 8
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Serialization.Json.dll",
+      "packageMember": "build/net461/lib/System.Runtime.Serialization.Json.dll",
+      "fingerprint": {
+        "bytes": 21240,
+        "sha256": "e8d531f0aaa674f794b7f43ec76e4e32ad93f3c136020cf4b6e3433832f9c0df",
+        "sha512": "ddf9d6e05d9566c9e02295a061756ff164c408ea211d016023edbfa91bba4d0d7dff293d2bf4d87c25fe923500c7535e4a21b6a8d4b18fd9505f8e5c635f9c95"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 4
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Serialization.Primitives.dll",
+      "packageMember": "build/net461/lib/System.Runtime.Serialization.Primitives.dll",
+      "fingerprint": {
+        "bytes": 27048,
+        "sha256": "575e26a455892f1fd77b730e6928f70b760e76094afe5bcb677d854daf869ac5",
+        "sha512": "85e005b5beb7c14ba34c62c38da635962d1aa4740f91549b8659910edd10f0fde1734064b19567bf5bc63dbbbb62399f6cbe0aa323193da599232dce22b14a01"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Runtime.Serialization.Primitives.il",
+      "mvid": "974b0bf7-982b-4be5-9ba3-167fb7d5e92b",
+      "methodBodies": 9,
+      "noRvaMethods": 3,
+      "resources": [
+        {
+          "name": "FxResources.System.Runtime.Serialization.Primitives.SR.resources",
+          "flags": 1,
+          "bytes": 315,
+          "sha256": "d337c0e6c46463a82f47ced079c482739420b26222a26e046bea49ed2385a3e2",
+          "kind": "string-table"
+        },
+        {
+          "name": "System.Runtime.Serialization.Primitives.Resources.System.Runtime.Serialization.Primitives.rd.xml",
+          "flags": 1,
+          "bytes": 1067,
+          "sha256": "fb269ae0a06115f8efa47d364b3d45c054d059053c024cef75fee4a17bbda508",
+          "kind": "xml"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Serialization.Xml.dll",
+      "packageMember": "build/net461/lib/System.Runtime.Serialization.Xml.dll",
+      "fingerprint": {
+        "bytes": 24816,
+        "sha256": "557858e44a51a74646ad07a85cba56af1da13ad26ac2f74ee5d8c3e8a171c221",
+        "sha512": "f728238fa567457d7977fea667fccb56c2efe718a9a362e294934cc752e506e05c5d20c0be2a309de2a984dd60c3ae4ea03054185b96c9b5f5f5de827af9ceaf"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Runtime.Serialization.Xml.il",
+      "mvid": "8a95abd0-56c9-4ce1-a144-65a049f87940",
+      "methodBodies": 14,
+      "noRvaMethods": 0,
+      "resources": []
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.dll",
+      "packageMember": "build/net461/lib/System.Runtime.dll",
+      "fingerprint": {
+        "bytes": 29360,
+        "sha256": "50ad612d4cf6113de26b2870da099c4817f59e64a2da98f05803b4a2e2304919",
+        "sha512": "2498811f4aac308cdc55c3406bea4fef5dc9e6f23559b09fb181f7447474ef586f00038282ddc39c241490b5dc2bca7f41f19bd3e1bb00890da29df6489bb151"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 279
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Claims.dll",
+      "packageMember": "build/net461/lib/System.Security.Claims.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "8270d1248950ee8aee5c2ac2e321df07e65c7a94004ae03c857deacd231a5542",
+        "sha512": "be6dee6e7030b400eac68ac289ec9b74bfe0140ee59af5e68bf43a63a821c6f6ad9ca03c501896a6c92464bf8116d7996ffe640ab51bd9fa96673d9794ac82cd"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 7
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Cryptography.Algorithms.dll",
+      "packageMember": "build/net461/lib/System.Security.Cryptography.Algorithms.dll",
+      "fingerprint": {
+        "bytes": 47016,
+        "sha256": "967dddbfe7f1ceb933b5875d65c59cdb835bb063f287a361e8b35dd814a9b14d",
+        "sha512": "49299c773a4c7ccc235c54a91fd07a000cf547b3ee55272e2ee8b2aa40281dc0af3c3b5a9edf5caee4beb3ad0de5a0dea07159aceba582911b78a6b85db793b0"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Security.Cryptography.Algorithms.il",
+      "mvid": "2edcf609-0ba1-4620-a99f-b91cf1f6de66",
+      "methodBodies": 80,
+      "noRvaMethods": 0,
+      "resources": [
+        {
+          "name": "FxResources.System.Security.Cryptography.Algorithms.SR.resources",
+          "flags": 1,
+          "bytes": 9596,
+          "sha256": "9ae21db1c207221e0534b54f1faf63fffbf72b8cd0111f56db6b78aabb7db544",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Cryptography.Csp.dll",
+      "packageMember": "build/net461/lib/System.Security.Cryptography.Csp.dll",
+      "fingerprint": {
+        "bytes": 21240,
+        "sha256": "566775f5502c3c1fa70acade145293df5d02c1a9f031820d429605e9b4584b44",
+        "sha512": "bd23571bf9d0fe62bbf5fddcaff6b8f383ccc728afbceebcad8404d68c02ea1f55d4a22306bfc86c30172e70c6cf5425f2ff8877aaa8758a51c48cf4303bd2ab"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 6
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Cryptography.Encoding.dll",
+      "packageMember": "build/net461/lib/System.Security.Cryptography.Encoding.dll",
+      "fingerprint": {
+        "bytes": 21256,
+        "sha256": "1f5c1abe1b2720680170388569354d8cda9d558b53aff7caf175ce0f7e3733e5",
+        "sha512": "65ed3aff2424e7560fcc44380dc719bf200d444f9b06af7f916d52152c330d55a7f4b96d0c1d2b291b07d82805c71dd9850f2f5f612f00adfca1cdf117c6b14a"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 7
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Cryptography.Primitives.dll",
+      "packageMember": "build/net461/lib/System.Security.Cryptography.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21784,
+        "sha256": "b755d0b55a465d07c9dd3fc11822487d1e649b684aef91a4ce9b935b416a01b9",
+        "sha512": "6147f18bd9c49727251cbea7a3168e3b19f34056de5a9898571ecdec85d424627a72968072449c81f97f95330baed7e2ed0f6fdba7e2f79b59b9352ab11003cf"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 13
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Cryptography.X509Certificates.dll",
+      "packageMember": "build/net461/lib/System.Security.Cryptography.X509Certificates.dll",
+      "fingerprint": {
+        "bytes": 22832,
+        "sha256": "3c8630acb43c12a6a317227ff2922056ecd991fe945464fdf7ea81f1293a479f",
+        "sha512": "f3e5e97aaf3d26ea62c64787198cce6df703ea3a4ebb389bebc84b424c8129a0181142a4fa5d965ca3106758a047d0e1a723f181ad293fd389c4f1b8d290b5a5"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 39
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Principal.dll",
+      "packageMember": "build/net461/lib/System.Security.Principal.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "02416bc542be82002b8b81adbbbcdcc8d098104020d09b571dc674b5bc19a177",
+        "sha512": "2566f369edee9313e823aa2667cb95977f0db57b4b47da62f44850811f524d0598fde6f5bb082bb3325789e4b256e970603b4297d3586f1c435498430723a38b"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 3
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.SecureString.dll",
+      "packageMember": "build/net461/lib/System.Security.SecureString.dll",
+      "fingerprint": {
+        "bytes": 22392,
+        "sha256": "18032d190d0d599823e59c8dd8b588909bef8888b8bf304723a138b61f1b911f",
+        "sha512": "025e33f6927e634fe187491f40d96b36b2ddaf2acde97b340c8705bae58bded6c02b8bf9199a1b9d4ac75884c69dc665dc03b34571b1bd178ca1784c5f0d5451"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Security.SecureString.il",
+      "mvid": "d3b13c8d-2f40-4072-9202-9bba5ccdf990",
+      "methodBodies": 4,
+      "noRvaMethods": 0,
+      "resources": []
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Text.Encoding.Extensions.dll",
+      "packageMember": "build/net461/lib/System.Text.Encoding.Extensions.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "cbe29672cd2b6a0ea97b55f3844fbede3e591996f39c3aa1f829f2fa50551fa9",
+        "sha512": "322f82aeb9eb9da22257ac9fe835bf1c54c1bb268d37f0f97a4ca52bb42f6accca9c8dbdb96d6d695fa69c24f5069978a4b6f1e960ee81d9ea671ccd30a348d3"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 5
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Text.Encoding.dll",
+      "packageMember": "build/net461/lib/System.Text.Encoding.dll",
+      "fingerprint": {
+        "bytes": 21696,
+        "sha256": "0ab1f7f87b7c2afca57d394e4f4e262c82ba3209cb0a750cd66401fb33f21eca",
+        "sha512": "ff7d953ec4b82c10e64fc85d3afc8a1a58582170ef1752d4688fa1d48efc490dba5f0a784e748f7902e96fd885ea868b1a84de44f48cf071975f3cd3f8e52c6a"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 14
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Text.RegularExpressions.dll",
+      "packageMember": "build/net461/lib/System.Text.RegularExpressions.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "c98a52bd017df01aea7b955e6f219537d391a62c2c2b976684da282f9cd7cacf",
+        "sha512": "79ed01c6d1cea3dba6b3566e03d05a971745e221be9330f6800a249d1b239e092d3ff704e7403e7ecd6b7709b24b0cdd7e518f2ee5da38019e7139d80594173e"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 12
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.Overlapped.dll",
+      "packageMember": "build/net461/lib/System.Threading.Overlapped.dll",
+      "fingerprint": {
+        "bytes": 37752,
+        "sha256": "f17ff442b77a6cfe9c118d2f8fae1ab6c814a0d4f35c5844996be84f3fcc8592",
+        "sha512": "4eec61f9245dff3d468818d6d6cbb8e12a5172658f1027a9ab0ece03cc1377499833056a0dd4ff20b83b9ff9e47bb2e7f8dc7b641bc63ad78ff96c54be01f524"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Threading.Overlapped.il",
+      "mvid": "a0439cb6-a5e6-4813-a76c-13f92addded5",
+      "methodBodies": 36,
+      "noRvaMethods": 1,
+      "resources": [
+        {
+          "name": "FxResources.System.Threading.Overlapped.SR.resources",
+          "flags": 1,
+          "bytes": 1025,
+          "sha256": "3d9981c93c8c14ffac68be91890a881d4bc0fc1badf494961b9e6018db31f1bf",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.Tasks.Parallel.dll",
+      "packageMember": "build/net461/lib/System.Threading.Tasks.Parallel.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "3468e0c875db94a8f45d56ab76bbcc677b942ca51a23649ba3c5ad1b20e391f1",
+        "sha512": "23dcf5819996ee0f0c8fe044d6642a12e98a40309ce1f3f74688cf8e3dd6f6ed230aec391fe7e511e15fbbbf14bff09f976e923f22f2d68ad816d8ffad17f101"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 4
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.Tasks.dll",
+      "packageMember": "build/net461/lib/System.Threading.Tasks.dll",
+      "fingerprint": {
+        "bytes": 22224,
+        "sha256": "0110616dfe870b8bcf25df8f6ce38ef5aac39e728ddaa3420ea199f5a7e80a16",
+        "sha512": "c66fc92435c399804d8a8c1c836e5648725dda8a55d7acd897ae719ca231d89251a0d9a293a67f079e345709cfda83dcc693ad41a28d13661a55459f94fe33e0"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 33
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.Thread.dll",
+      "packageMember": "build/net461/lib/System.Threading.Thread.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "9d4faea9892d4ecfabf61986687fc6cb30f5f51a6b62819b9571ff58e04c4dd5",
+        "sha512": "cbd8370f3cb84cb9eb8bf3a7392245d6a90ce1a324971ea96170974da092bdfc3db2196f66958ca5d5000f13b18afab44ff82d50c5b9a625aa1b7a4af17717de"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 6
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.ThreadPool.dll",
+      "packageMember": "build/net461/lib/System.Threading.ThreadPool.dll",
+      "fingerprint": {
+        "bytes": 21216,
+        "sha256": "3d9ebc81b1bd3234666c8ce403a5f17a726867c68ffa5de4ec8ee92599335658",
+        "sha512": "0c027440ef6f6c105b0bf9319f4e0ea421fd310699028af0a159300145c662e74b4b5d969663e3b52cda7f9934a6ab93bbae9bcd1bd39aaac24fcba7ec451156"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 4
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.Timer.dll",
+      "packageMember": "build/net461/lib/System.Threading.Timer.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "04b9235f64c9c846f8a767230714895da87c7ae2cd0105e9d14835ae46f0fed8",
+        "sha512": "f475dcd2cc23fdfb017688713170fcaf8fea05869a680613ea4ad84cb358ed0f2442db0ff0dcbd739e3cc3db7128a8f4a568ae8e5af6a8840319b02630e420b9"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 2
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.dll",
+      "packageMember": "build/net461/lib/System.Threading.dll",
+      "fingerprint": {
+        "bytes": 22192,
+        "sha256": "4dc8d588ec63641c28422d648e8de5e2c030eb7afec2071a99dd3bd9a204557f",
+        "sha512": "fb7c628b796a321ad9ecbf01d165e24f151c99d7e60a65d0af52f779ad60a3203f47b247d44fc47044a68790d1ea4ee458a7bc8df7ebe9d42c2275a9c11bc324"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 31
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ValueTuple.dll",
+      "packageMember": "build/net461/lib/System.ValueTuple.dll",
+      "fingerprint": {
+        "bytes": 79176,
+        "sha256": "efd8155cec6f3683b701fe94f555d225332d283126bb36b36d9a20ea9d7fc724",
+        "sha512": "7eaa67b9f5e0cd5d1f2aded212721973ce7fc951d6af554084b1ff82521f9ee85eaacf8881ef58453cf67935289cc68092a8f845506314bdc1249780b46503d8"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.ValueTuple.il",
+      "mvid": "746baba9-6b87-43c7-9d05-0e1c366cf318",
+      "methodBodies": 226,
+      "noRvaMethods": 3,
+      "resources": [
+        {
+          "name": "FxResources.System.ValueTuple.SR.resources",
+          "flags": 1,
+          "bytes": 524,
+          "sha256": "7fa23cf3abf90dbe51fddf5ab7e0ad11743ef1924e52c9472fbb1c1bddb2aff1",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.ReaderWriter.dll",
+      "packageMember": "build/net461/lib/System.Xml.ReaderWriter.dll",
+      "fingerprint": {
+        "bytes": 21712,
+        "sha256": "5f560e1dd529bb2529d7052e04008449f58d0439c2bb43437d7b5d39f84f949f",
+        "sha512": "fdac43d0a18d9158db4438349a7a550557a36e6ed0665efcb65a046a5beb5c38181996cbf6d860b8ad01c19e35315bb61ae766caf06b23985e046484dab45256"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 27
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.XDocument.dll",
+      "packageMember": "build/net461/lib/System.Xml.XDocument.dll",
+      "fingerprint": {
+        "bytes": 21696,
+        "sha256": "4f6a14e4ba2a2b26b8b8433d5f82f75a96af5a4f036d9447373b07271493917b",
+        "sha512": "f59faa6319fe2afebccbd643e20c1edb75db74e9271354bd86dac3bea2cc59452ee024dc26b517ae88254a7c90dbe0e6c19a7b5ab3bfe9159d986d6c53ca5521"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 23
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.XPath.XDocument.dll",
+      "packageMember": "build/net461/lib/System.Xml.XPath.XDocument.dll",
+      "fingerprint": {
+        "bytes": 22904,
+        "sha256": "b33d08149a756a401628d11bfddfeeaca1f03c0578395bb061dae44f8a12ce5d",
+        "sha512": "c4d13e95114e232300b36ed7b7a72ce786f66d0f68b0ed9d54fef788a831b39c893daa3c2de982b376a56a539c23e8f314ce8552ed7094e6826d5f70bfbe2d4b"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net461/lib/System.Xml.XPath.XDocument.il",
+      "mvid": "742fb0b4-5b6d-4d0f-93ae-5f144e4f3d3a",
+      "methodBodies": 3,
+      "noRvaMethods": 0,
+      "resources": []
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.XPath.dll",
+      "packageMember": "build/net461/lib/System.Xml.XPath.dll",
+      "fingerprint": {
+        "bytes": 21176,
+        "sha256": "24daa1faee0478ba58febe8ee789eb88be0a14d350b57ad8b10690c55976b2e1",
+        "sha512": "55b5c22b87f21df89d0514ae05c9433b65a3c7532845fdfc4c2c5c5e2c3929d70143d84698fdb4dc13ec01895b1022cf0e5e76e12102739530b54150932a7b07"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 14
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.XmlDocument.dll",
+      "packageMember": "build/net461/lib/System.Xml.XmlDocument.dll",
+      "fingerprint": {
+        "bytes": 21712,
+        "sha256": "8957f0bcea6ab8a011a53ae62466505199f11a228f87f3809931d974f87078ce",
+        "sha512": "16569ecb727ada36811e72ffc925f07aa21b8a627be45f1eda18cf2b759939591dcafcb2d087596ee903c5abffaf19f56f25e9710ef22874c934cad19537b798"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 21
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.XmlSerializer.dll",
+      "packageMember": "build/net461/lib/System.Xml.XmlSerializer.dll",
+      "fingerprint": {
+        "bytes": 21712,
+        "sha256": "21493f7f615a099e795f7fae7ecce6082414d1d427790bdf4b103623a3ab34eb",
+        "sha512": "de5546ff103ccc6aa38e254039a372697a193f9c44d0a44f0be3b242d9eef63023dc3fd0c6e8e0d2363177f9230a4e7200d4c32591b398269a1cee9bc47a99fc"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 23
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/netfx.force.conflicts.dll",
+      "packageMember": "build/net461/lib/netfx.force.conflicts.dll",
+      "fingerprint": {
+        "bytes": 25440,
+        "sha256": "8e251da213b4cf9778c3879c7bbde705c4a3f7c3f952d488f3cf54bd356be40a",
+        "sha512": "70af244ce0ac28da16ca4749b296fe746fd712647566090ffcce62902bdd260f105cad026151ec4de57e106eb55a7392f2b84ceac0bb34a7aefcf1bbf1d95202"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 59
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net461/lib/netstandard.dll",
+      "packageMember": "build/net461/lib/netstandard.dll",
+      "fingerprint": {
+        "bytes": 98616,
+        "sha256": "8be4a2270f8b2bea40f33f79869fdcca34e07bb764e63b81ded49d90d2b720dd",
+        "sha512": "f81ac2895048333ac50e550d2b03e90003865f18058ce4a1dfba9455a5bda2485a2d31b0fdc77f6cbdfb1bb2e32d9f8ab81b3201d96d56e060e4a440719502d6"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 2417
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net462/lib/System.Runtime.InteropServices.RuntimeInformation.dll",
+      "packageMember": "build/net462/lib/System.Runtime.InteropServices.RuntimeInformation.dll",
+      "fingerprint": {
+        "bytes": 28624,
+        "sha256": "8bb9d52ba5c67f05c8f632deb1e7e98a909318b10e1388b47e919515fdd42cbf",
+        "sha512": "6052ee3664fd2095de3338cf6d24df022dc13d00b4bf14c57572f2a34ac078e07bd1f634a50028db0952ae8067ffcf19079177fa534240d9526f33ae1e1459ac"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net462/lib/System.Runtime.InteropServices.RuntimeInformation.il",
+      "mvid": "488ce209-4e5d-40e7-be8c-f81f2b99f13a",
+      "methodBodies": 32,
+      "noRvaMethods": 3,
+      "resources": [
+        {
+          "name": "FxResources.System.Runtime.InteropServices.RuntimeInformation.SR.resources",
+          "flags": 1,
+          "bytes": 413,
+          "sha256": "a83796b787f7906b39ee465114e0f0f1d25bf982108def68d9abde8d5cbda90c",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net47/lib/System.Runtime.InteropServices.RuntimeInformation.dll",
+      "packageMember": "build/net47/lib/System.Runtime.InteropServices.RuntimeInformation.dll",
+      "fingerprint": {
+        "bytes": 28624,
+        "sha256": "d3537a610199272efe4d7a02910038aa4c5aeafa50f5c29e2822f1b73ad5cb9b",
+        "sha512": "79366b2a99719de121f535f48cc71c1d46f17d6b6396ad709efeb3a258a9a6cdeeeb6febc3e013a28080a6e8d96e0c90f5038c9c8695f0b5bb57a6ee07f79008"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net47/lib/System.Runtime.InteropServices.RuntimeInformation.il",
+      "mvid": "fd6c8616-c1d8-43f9-ac17-a1c48a45fda2",
+      "methodBodies": 32,
+      "noRvaMethods": 3,
+      "resources": [
+        {
+          "name": "FxResources.System.Runtime.InteropServices.RuntimeInformation.SR.resources",
+          "flags": 1,
+          "bytes": 413,
+          "sha256": "a83796b787f7906b39ee465114e0f0f1d25bf982108def68d9abde8d5cbda90c",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net47/lib/System.Security.Cryptography.Algorithms.dll",
+      "packageMember": "build/net47/lib/System.Security.Cryptography.Algorithms.dll",
+      "fingerprint": {
+        "bytes": 47016,
+        "sha256": "f64a25b875db31551826651ce260de24652286c246f0ef54310cd48c576c02bb",
+        "sha512": "cc3200f7396fbbdfb7069348e9cf878eb3cf280ac2aa7544830c3ac38cf8bf8bf595efdc5b33a6ca5264b1dffedbc6d6463ca514424fa0904826e6438fec1999"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net47/lib/System.Security.Cryptography.Algorithms.il",
+      "mvid": "457e0373-46ca-4f3e-b880-0b33e786cbce",
+      "methodBodies": 80,
+      "noRvaMethods": 0,
+      "resources": [
+        {
+          "name": "FxResources.System.Security.Cryptography.Algorithms.SR.resources",
+          "flags": 1,
+          "bytes": 9596,
+          "sha256": "9ae21db1c207221e0534b54f1faf63fffbf72b8cd0111f56db6b78aabb7db544",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net47/lib/System.ValueTuple.dll",
+      "packageMember": "build/net47/lib/System.ValueTuple.dll",
+      "fingerprint": {
+        "bytes": 24240,
+        "sha256": "1101c2e91d07d7db626600834f63141d596390ff3fd1fcbcd51d444d809bc576",
+        "sha512": "d948225dace8ae7f06a4e472a70c651c59f4d6abdd1e6f0d83c7cbc3ed1a1eed84d670ff925be51164dd9ce25e6fe2380f1e84e4c7d3f9825885e29d4325077a"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net47/lib/System.ValueTuple.il",
+      "mvid": "7a7b8fba-6e96-4a0b-9782-87b1830cce8e",
+      "methodBodies": 10,
+      "noRvaMethods": 0,
+      "resources": [
+        {
+          "name": "FxResources.System.ValueTuple.SR.resources",
+          "flags": 1,
+          "bytes": 524,
+          "sha256": "7fa23cf3abf90dbe51fddf5ab7e0ad11743ef1924e52c9472fbb1c1bddb2aff1",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Data.Common.dll",
+      "packageMember": "build/net471/lib/System.Data.Common.dll",
+      "fingerprint": {
+        "bytes": 146616,
+        "sha256": "4fe23dd147813c0b724b62fcfc0ce419e9a4ad36f3da4cc43e5da97d796e289e",
+        "sha512": "2504dfed8dcf4f5c1cc56cb9ebcb03833cfb6837d0592f82dbdbc28899b6f1aae2e007e0175ad7544ff13b017f3063145e1826267a5dfaea91be182acca3c5bb"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Data.Common.il",
+      "mvid": "886e8d5b-395c-45da-8c35-7a15293470ef",
+      "methodBodies": 462,
+      "noRvaMethods": 0,
+      "resources": [
+        {
+          "name": "FxResources.System.Data.Common.SR.resources",
+          "flags": 1,
+          "bytes": 60516,
+          "sha256": "6d13553c5ceb8add61bbeaed4e2d34e766b00fd24295b54787cfdbb83f9ee9f7",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Diagnostics.StackTrace.dll",
+      "packageMember": "build/net471/lib/System.Diagnostics.StackTrace.dll",
+      "fingerprint": {
+        "bytes": 23264,
+        "sha256": "e932b25f50e3b09dd7759ff5b9e9abfa8fc115ea171b768164ae21387feac7e8",
+        "sha512": "422f8f7a50f457eb979652b14a6c06a51a6a94c7eb9f56045a4b944acbe3026580465aefffd9f30a4334a556fa1eed8488db0766c16d637023e72b579a26dfcf"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 18
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Diagnostics.Tracing.dll",
+      "packageMember": "build/net471/lib/System.Diagnostics.Tracing.dll",
+      "fingerprint": {
+        "bytes": 31448,
+        "sha256": "d4a59fb62d8a7a138a49911110f8b2ab416196df95f4cfc599abb6ec61629e5e",
+        "sha512": "aa96e1544fd0286fb1d6a77b8ace8745f69ec4835cf0957c457aa3026b4ad5ec02e953c7bc106d80205109a85512d1df99ab3de7d41300e96858298ae5767fe5"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Diagnostics.Tracing.il",
+      "mvid": "6192cdde-5eb2-4862-9361-88a77b2b6a6a",
+      "methodBodies": 53,
+      "noRvaMethods": 0,
+      "resources": []
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Globalization.Extensions.dll",
+      "packageMember": "build/net471/lib/System.Globalization.Extensions.dll",
+      "fingerprint": {
+        "bytes": 24296,
+        "sha256": "f690794a0296d8dad4f30d626a8a89121df51b5909e440da08707b09518d040e",
+        "sha512": "b7dae61979760224eddc28c717b78aabdcde2c9acd3659958041d08b44cda12e9d62f15b436691213771a4b32714bd78d54d2ba4c90471fc7bff4bf274c66c07"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Globalization.Extensions.il",
+      "mvid": "1a2b9b2a-02f5-4c78-ab0c-7c6d2795ce2b",
+      "methodBodies": 9,
+      "noRvaMethods": 0,
+      "resources": [
+        {
+          "name": "FxResources.System.Globalization.Extensions.SR.resources",
+          "flags": 1,
+          "bytes": 261,
+          "sha256": "22650234ae841b80104d14c293e591ba3f177656184686caccc673f80f339e05",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.IO.Compression.dll",
+      "packageMember": "build/net471/lib/System.IO.Compression.dll",
+      "fingerprint": {
+        "bytes": 110784,
+        "sha256": "76fcaccf84313bf78f523b3bc8198c2d040dabdc04a5dc863b46c8af7ac10a88",
+        "sha512": "40980b050861f7c4f1ed5b71f7f7fd91052fcfc1c49b7b3490d9a4fd68fec8fd3c95af38d113aba8e7f1ce2b4ceadd1b6d66c5d1ea68064ec6265c266be1afc5"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.IO.Compression.il",
+      "mvid": "8dbd1669-97bc-4190-9bd8-738561193741",
+      "methodBodies": 465,
+      "noRvaMethods": 8,
+      "resources": [
+        {
+          "name": "FxResources.System.IO.Compression.SR.resources",
+          "flags": 1,
+          "bytes": 7436,
+          "sha256": "abbfe22954105bfb0bdbc9ea0f175780df4ba52256b6b93d317abb0b6056ea5e",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Net.Http.dll",
+      "packageMember": "build/net471/lib/System.Net.Http.dll",
+      "fingerprint": {
+        "bytes": 198464,
+        "sha256": "8646a26a64928866bbe8746f3323a1f446c5a28c10b6b81df9bf4a08336b8c02",
+        "sha512": "0c308b29febfb5d4cb52bd3b7b0c61a5844ebf1bdf305be2b89fb0f5040f52abd8557e9c4245a4f35c527a23674f1ae97bb12cc3a02a7dd7c8387208fcc73152"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Net.Http.il",
+      "mvid": "41ace450-8f44-455a-97ac-0679e5462071",
+      "methodBodies": 1274,
+      "noRvaMethods": 11,
+      "resources": [
+        {
+          "name": "FxResources.System.Net.Http.SR.resources",
+          "flags": 1,
+          "bytes": 11495,
+          "sha256": "882ba03503973548b49b01572a988ea2a464410699e885eaf273781d1b67131d",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Net.Sockets.dll",
+      "packageMember": "build/net471/lib/System.Net.Sockets.dll",
+      "fingerprint": {
+        "bytes": 23224,
+        "sha256": "a4b4bb8b9be478600f48e43ae8571e6c123f8130923067f10fc92546d0900fb6",
+        "sha512": "4e0104c8a650943d8680f0bd449d4b953b25ff909bf50be19772e88295f9ce7542f29211528e20b4ad798d26251a50211eeea8685e3d81fab72df1380ca6b984"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 29
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Runtime.Serialization.Primitives.dll",
+      "packageMember": "build/net471/lib/System.Runtime.Serialization.Primitives.dll",
+      "fingerprint": {
+        "bytes": 26888,
+        "sha256": "a576d1609cc08c46a46ce708b7fdae33452a3befb701128a5bc9d6ff1f1b6dfd",
+        "sha512": "ee6855bca6ee6ff8ac7ce5c0565ccc77c35e5f1b3096f1ede2c018d3364683bc289c6c520472ba46e174fdbd821ea673bffa7dabc9358ce4c86d26f0c08fcc7c"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Runtime.Serialization.Primitives.il",
+      "mvid": "a488922d-904d-4ee6-99bc-374a07184e5c",
+      "methodBodies": 9,
+      "noRvaMethods": 0,
+      "resources": [
+        {
+          "name": "FxResources.System.Runtime.Serialization.Primitives.SR.resources",
+          "flags": 1,
+          "bytes": 315,
+          "sha256": "d337c0e6c46463a82f47ced079c482739420b26222a26e046bea49ed2385a3e2",
+          "kind": "string-table"
+        },
+        {
+          "name": "System.Runtime.Serialization.Primitives.Resources.System.Runtime.Serialization.Primitives.rd.xml",
+          "flags": 1,
+          "bytes": 1067,
+          "sha256": "fb269ae0a06115f8efa47d364b3d45c054d059053c024cef75fee4a17bbda508",
+          "kind": "xml"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Security.Cryptography.Algorithms.dll",
+      "packageMember": "build/net471/lib/System.Security.Cryptography.Algorithms.dll",
+      "fingerprint": {
+        "bytes": 44816,
+        "sha256": "a83ca72a33172e977d7fff1e96fa6cbac6befe86dca21d651c04578210325225",
+        "sha512": "386ab22aa5299c5d4fb3d8b551f97c916129f05fa87d4d3d90b58be1cc304ffd3431b0b5402a0a77f2db64b713f31ba60b3d006d0f01eb5a5195a4307ed7f590"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Security.Cryptography.Algorithms.il",
+      "mvid": "0a71c3d5-217e-4942-ac8d-e27a8de711bb",
+      "methodBodies": 70,
+      "noRvaMethods": 0,
+      "resources": [
+        {
+          "name": "FxResources.System.Security.Cryptography.Algorithms.SR.resources",
+          "flags": 1,
+          "bytes": 9596,
+          "sha256": "9ae21db1c207221e0534b54f1faf63fffbf72b8cd0111f56db6b78aabb7db544",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Security.SecureString.dll",
+      "packageMember": "build/net471/lib/System.Security.SecureString.dll",
+      "fingerprint": {
+        "bytes": 22240,
+        "sha256": "9239de3543ea4dcf71ad86f16aa23eeb760566bc69078925900d0e41eec859ac",
+        "sha512": "3ec05a1de21ec4c96d6137788a868342aade033b2d6e9ed7972c8fbef3503cd03dd4728ba34e37c577ac301c056bb8c142516332c31d2f131599021a307da86b"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 2
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Threading.Overlapped.dll",
+      "packageMember": "build/net471/lib/System.Threading.Overlapped.dll",
+      "fingerprint": {
+        "bytes": 25816,
+        "sha256": "a74a34e69b5226f0ee4882f7ac1fc0a88602139ed439202c5fc5c8ed489bfa11",
+        "sha512": "16d4c5180ed313c10886c1e411bf38b5b664d5d3e1b9cb1cde2d6ddf9efe39367a792e818636b5e12f90a027c68347a546bf43b386195f50904bd9b5882a005e"
+      },
+      "kind": "upstream-full-il-and-original-resource-inputs",
+      "ilSourcePath": "src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01/build/net471/lib/System.Threading.Overlapped.il",
+      "mvid": "82d565ac-e41c-4e29-9939-c031c88edbdd",
+      "methodBodies": 14,
+      "noRvaMethods": 0,
+      "resources": [
+        {
+          "name": "FxResources.System.Threading.Overlapped.SR.resources",
+          "flags": 1,
+          "bytes": 1025,
+          "sha256": "3d9981c93c8c14ffac68be91890a881d4bc0fc1badf494961b9e6018db31f1bf",
+          "kind": "string-table"
+        }
+      ]
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Xml.XPath.XDocument.dll",
+      "packageMember": "build/net471/lib/System.Xml.XPath.XDocument.dll",
+      "fingerprint": {
+        "bytes": 22744,
+        "sha256": "05df614f3252b522d2aa078585dcddd502a25bdb06ca3a44b1c0d24c1adb85a2",
+        "sha512": "12ea4ffbcd243f3db5fec4d4901f5550f044e49478a909416e7b588eb15e9c6dd005d8255ed8235e803c76b57fbeeba6fc9b0b85a8155787c1d885537eb87611"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 2
+    },
+    {
+      "path": "Microsoft/Microsoft.NET.Build.Extensions/net471/lib/netfx.force.conflicts.dll",
+      "packageMember": "build/net471/lib/netfx.force.conflicts.dll",
+      "fingerprint": {
+        "bytes": 22208,
+        "sha256": "630842e814eba133468271beb4e386e4e4f21063f4831660ae08bd37e3b8250c",
+        "sha512": "6f43427dd8711c62d09b201e7d61504f89a648cad5480d83c23f6cfd043e90b6a595e92c4c32ca311dc5ebf64911db44ac34baae4ee04d9a767b42a3248cdf7e"
+      },
+      "kind": "derived-readable-type-forwarder-source-inputs",
+      "exportedTypes": 13
+    }
+  ],
+  "totals": {
+    "layoutFiles": 114,
+    "literalForwarders": 87,
+    "realImplementations": 27,
+    "methodBodies": 5289,
+    "resourceBlobs": 22,
+    "resourceStrings": 1410
+  },
+  "originalCSharpSourceRecovered": false,
+  "localBuildClaimed": false,
+  "byteIdenticalCompilationClaimed": false,
+  "sdk7PublisherPackageUsed": false,
+  "sdk6PublisherPackageUsed": false
+}
