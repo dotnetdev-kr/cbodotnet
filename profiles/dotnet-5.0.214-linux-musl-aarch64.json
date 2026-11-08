@@ -193,9 +193,9 @@
       },
       "nativeRuntimeWorker": {
         "path": "scripts/musl-legacy-coreclr5.py",
-        "bytes": 12880,
-        "sha256": "b5e8a924db269eeae71b83e344de6d855efeecf4f9a3b8eeaad0cd893a7baa49",
-        "sha512": "f75af625b150c70d8427474b7260d28e8bb3a98bd54de4867a18fb9330c68318a7301f6b5c80a024862908008854cd6784d41ad714ebad28bf61698fadb09c85"
+        "bytes": 16273,
+        "sha256": "aafc299c1214b9b6e9fb73e50ca421c62d7ee33307c124c6bbee2cc2d06da1bb",
+        "sha512": "980332864583aed671b06b0ce79ea84748f3b013ec18694e59482acd29aafb8abdf1529604246ca495bf10a59a0a61a41c68b62005f203cc7ab435188a9212d3"
       }
     }
   },
@@ -434,6 +434,157 @@
       "bytes": 13734,
       "sha256": "53d71ec4aafd96f5417c9b4fd5034e816dabdc6753e77b663cffba5f72040bfa",
       "sha512": "1515fe28c1392846a1217bea34551367ed1fbd4686f63f27605f853bc282c71ec804ea971b27088bcfad1a3177b95b99c0009a98025e60c34ab170de655b6378"
+    }
+  },
+  "nativeVersionConsumptionCorrection": {
+    "status": "arm64-compiled-native-version-verified-final-sdk-checks-incomplete",
+    "observedPreviousElfVersion": "42.42.42.42424",
+    "allSixPreviousElfsHadFallbackVersion": true,
+    "generatedFirstHeaderWasNotConsumptionProof": true,
+    "historicalFunctionalProofsRetained": true,
+    "oldDatedNativeVersionClaimsSuperseded": true,
+    "freshCorrectedNativeAndFinalArchiveChecksRequired": true,
+    "qualificationAllowed": false,
+    "sourceAdmissionAllowed": false,
+    "releaseAvailabilityAllowed": false,
+    "document": {
+      "path": "docs/musl-sdk5-native-version-consumption.md",
+      "bytes": 3323,
+      "sha256": "6acdf2310739933fc157608c0975a8251a64dc1af54c163b12087a5e44e54575",
+      "sha512": "fa92690e796610fac23d8a74b672f4bbe9eeb4b17c0b84de49d70c1ad2afbce7e6cd6603aa22c2c3d33f201f1dccc5238665d0cb33d068fe79abb33f3f83ea4f"
+    },
+    "observedPreviousElfVersions": {
+      "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v2/observed-fallback-native-version-v1.json",
+      "bytes": 1129,
+      "sha256": "27ab0491c40960b146efec6563aaa06d882f6b1884e9a307ba7ec4159ce29ea4",
+      "sha512": "57d6b10ea629d62fd615e47b38bc11e408ba05c45ff944978ce3f2d143e9bc57ac681f4334f588560f313861db79d863bd65814054790cc63d276cd092145163"
+    },
+    "previousWorkerImplementation": {
+      "path": ".build/musl-legacy-assessment-20261108/native5-version-consumption-review-v1/previous-worker.py",
+      "bytes": 12880,
+      "sha256": "b5e8a924db269eeae71b83e344de6d855efeecf4f9a3b8eeaad0cd893a7baa49",
+      "sha512": "f75af625b150c70d8427474b7260d28e8bb3a98bd54de4867a18fb9330c68318a7301f6b5c80a024862908008854cd6784d41ad714ebad28bf61698fadb09c85"
+    },
+    "arm64PrivateCorrectedNativeProof": {
+      "results": {
+        "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v3/reports/build/native-runtime/results.json",
+        "bytes": 20616,
+        "sha256": "86e46cb16be6fdf5f799c992ff2853e0684958cfb508e15d180eebf3921f2d66",
+        "sha512": "5b2b2f13a59f379b4c0fdcef81458b42b6fc219a59f0e3e469b82bc3b8e1cba379f0dc8b452c39379f8b410715f56777d9930af18df47041e7f285afdc44e38d"
+      },
+      "versionConsumption": {
+        "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v3/reports/build/native-runtime/native-version-consumption.json",
+        "bytes": 55013,
+        "sha256": "e42c969996b2d66125091798d796257a6fcec290d4ab1c35896142e17d540411",
+        "sha512": "76f7a5e3d8d4f01d7af3c78c77cb292aed5641d38ca04499a64d9fe55f7b118a175d5c2c9bbc9fd78f1c1e49b222d1269dd2199265c6bc8f749be7810c482e0f"
+      },
+      "firstVersionProducerBinlog": {
+        "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v3/reports/build/native-runtime/native-version.binlog",
+        "bytes": 323325,
+        "sha256": "119102d584e54acc9234146407aefe5f7d36f27bff0fe4f2adac947536b985b9",
+        "sha512": "fe8e6bfd02f5d6e0658ba6b9729aa37a6e0ba609d3731d4c3e289ab0b5ed5a001d431f36c01851f022e03269b552e6c0c9942333b80b9031ff90439f8b4285af"
+      },
+      "actualConfigureVersionProducerBinlog": {
+        "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v3/reports/build/native-runtime/native-configure-version.binlog",
+        "bytes": 315863,
+        "sha256": "d090754ecbe5af786cd533d9014703eb7b181960d4661435c1d951ec2db6803a",
+        "sha512": "bf1f2987758229fd0e7e0e9fe5d06c1db6b93c625a8ecfa7ad8e39b38df332ff22046ccdcba7ecd290ccff18f3e97951c8e40700b2061000f74fadbd2cec8948"
+      },
+      "workerExecution": {
+        "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v3/execution.json",
+        "bytes": 214113,
+        "sha256": "c6feb8e9b90f93994b568662eaf0360b701f04efcb237c92836ac9321b42489c",
+        "sha512": "e3f325f5bb6eba8dc630bb0f5cbd99ecdca9f616628daf5bad28b6cfd7b1ea5dbe3c3471439c8abb3efbd4ab68b7fab34384d7709965375fc945383ae93b61b2"
+      },
+      "allSixDatedElfProducts": [
+        {
+          "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v3/reports/build/native-runtime/libcoreclr.so",
+          "bytes": 6782408,
+          "sha256": "fd3604d3c041aa9ba871e888c73b9bd364580ebfdf7f509a717f5ad437d8f3e9",
+          "sha512": "e06e0902a3b9cc4b395e7695eb4cd2759c8ae6899a2d38e112a2f9ffdf90922edc073fb587bd40f04944a2ee1ae4dd400ac2e671533d18b6f5b5b20ccebf0280"
+        },
+        {
+          "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v3/reports/build/native-runtime/libclrjit.so",
+          "bytes": 2301832,
+          "sha256": "8dc126fd0b3aee4a52b179670710f39d43663c168b2b1ef03c148deb6a35ae8f",
+          "sha512": "f41205a9bf12fdf6e4bdbccc368c89eb0827a9fa9d9951b8a227a7a52b989a7541f03a70be9f943170737c9681ce48b7de4e0f4d686b7995b1200e9e0bdc2376"
+        },
+        {
+          "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v3/reports/build/native-runtime/libmscordaccore.so",
+          "bytes": 2517864,
+          "sha256": "d2988a6ca65ee853139fc0a57c728bbd79e1ac128eee4670de3b1ea75a5e8c72",
+          "sha512": "61b33d600dc9a20fb8893abc938b48b7d625c2b338352e933103720d9f031725542437782e0a66c905477ae0a5a80b0d86eb30a6e3af7399a6beaceec3eda7bc"
+        },
+        {
+          "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v3/reports/build/native-runtime/libmscordbi.so",
+          "bytes": 1840088,
+          "sha256": "1954c262b2f96e09dacb74ac203c3dec96bb803ce67f4e8e546c545385df6a08",
+          "sha512": "afe5395fa7425fe825f9d27176312e328c7e98d0a1e3dfbfe8ee72c0db8c26d8ad4d67a7b7735ecb3c5727fe50b61dc40592e62123bf7dfd6efa9ed488172b5a"
+        },
+        {
+          "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v3/reports/build/native-runtime/libcoreclrtraceptprovider.so",
+          "bytes": 609904,
+          "sha256": "f012057df9dc06ace3c11cfc413bf716ab418d62199238cf1e31953d94a92fa0",
+          "sha512": "bc1abb2d14887de49473b0bc08bcf0f81844f3cac47289b3fb5e044f6d31ca7d393116ff55c99d6d0abf2ab0c4fb77e5f933b08fd3dd405dc20e92f48e67d4e2"
+        },
+        {
+          "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v3/reports/build/native-runtime/crossgen",
+          "bytes": 3613840,
+          "sha256": "892a225112ba760a64b90e09647951db5728437a6766f4e388361a9ec4509695",
+          "sha512": "4d49abdc7523bca48e9552112102ef2997a02362ba6fe87ffe122d2181ba544c7883e534a2677d26eb5a7e72cf1f5bf37d94009815205895380e5bec6488c009"
+        }
+      ],
+      "allSixMatchingDebugProducts": [
+        {
+          "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v3/reports/build/native-runtime/libcoreclr.so.dbg",
+          "bytes": 41896888,
+          "sha256": "46777feaa536e6787e268847b80daac7d97b97494c05365596fb3a0762601ee3",
+          "sha512": "ee9076de9e0207f249159c6707f245091d44aa7a8ade0d3802ba3fdf0a3957fb3d94d3defca3b6c80eb084ae844212bb7da1a9b48ec2ecde2b5d5d392170d5da"
+        },
+        {
+          "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v3/reports/build/native-runtime/libclrjit.so.dbg",
+          "bytes": 15628256,
+          "sha256": "350a097765e2b64cffff56419befac2360b4b3c4ee5755adaddc408dad4007b2",
+          "sha512": "1d4b32084b5dca6a121bed9a92bc4da6b02212be6d3e916485eb5317f8e54f766ff682ed8e77652c8f5c53e66d09a12e07bb4c8208677708b7964500ae7b9820"
+        },
+        {
+          "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v3/reports/build/native-runtime/libmscordaccore.so.dbg",
+          "bytes": 17986736,
+          "sha256": "ed03a88cf15e0fa60f32faa9e7e5b90f1f5f9139a2ddfaa2390f5f87dc27bbf6",
+          "sha512": "c3f5343ac2e7fa40e9508f586356317ddafede827fd5ae233813b571bbd41f51369d12d7094c78c51403eb99007a40a1cfcb8db9bee895e8746ab2fa50f4b645"
+        },
+        {
+          "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v3/reports/build/native-runtime/libmscordbi.so.dbg",
+          "bytes": 8400872,
+          "sha256": "9571a4a7aa56f40f13229f9dd112496b5c1b511ee21e8a1d3196da3e8636ac53",
+          "sha512": "683172cd3994c4feaca663c1b520ed7c946d638474d04ad319a031936ab1dac8a9a28fe3fddf1c21190a73d385abf28d866b57a58d4abf521a8c71fdc4ac1a30"
+        },
+        {
+          "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v3/reports/build/native-runtime/libcoreclrtraceptprovider.so.dbg",
+          "bytes": 1160832,
+          "sha256": "55b3c4660f94568168a9125abb475eaa9c8e86954d7494200404bbdd56be15c5",
+          "sha512": "2870895a9c9b5923c3f98bae7e15a3df5016667ad247646ec9446abad23bbbe3de598c07f31e045bb1ad4c06eedb84397e9a30a7867d5e5ab310d95896b49099"
+        },
+        {
+          "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-worker-v3/reports/build/native-runtime/crossgen.dbg",
+          "bytes": 21708432,
+          "sha256": "80c9dfe5505c457afbcae8d66c7e39d53bae04a4136e64ae11146da939b0da47",
+          "sha512": "35217f87af90f2badccbff633a5d17137fbfc4e00b2ff35ece1d17ac35283b8da8b437d7fe05bfd824d7db0c6806ec23f6834fd0459f4704b23db97fbbf8c9ca"
+        }
+      ],
+      "x64ExecutionClaimed": false,
+      "completeSdkOriginalSmokePassed": false,
+      "qualificationAllowed": false
+    },
+    "intermediateSdkOriginal68Failure": {
+      "summary": {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-own-components-v9/archive-consumers-v9/original68/summary.json",
+        "bytes": 598,
+        "sha256": "5f82af6e4e0cd0419a3c103cdec041383baf7a65535737cdc332bbf5ad9f723d",
+        "sha512": "181333539b778330d3c8900257bc4d4224dc492e1452f9712210efbe4b0b01c70dd39b328fe29386dd405821266f92c553d0cc1a57e6f896a859c5938485e68d"
+      },
+      "reason": "Original suite detects missing Worker SDK in managed layout; all original tests remain required",
+      "failurePreserved": true
     }
   }
 }

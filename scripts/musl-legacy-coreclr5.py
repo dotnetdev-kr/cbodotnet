@@ -65,6 +65,29 @@ def fingerprint(path):
                 sha512=hashlib.sha512(data).hexdigest())
 
 
+def version_inputs(source_version, compiled_version, source_header, compiled_header, commands, file_version):
+    """Bind the original wrapper's second version producer to CMake inputs."""
+    require(source_version.read_bytes() == compiled_version.read_bytes(),
+            'The actual compiled native version source differs from the dated upstream source')
+    require(source_header.read_bytes() == compiled_header.read_bytes(),
+            'The actual CMake runtime header differs from the dated upstream header')
+    marker = '@(#)Version ' + file_version + ' @Commit: ' + COMMIT
+    text = compiled_version.read_text()
+    require(marker in text and '42.42.42.42424' not in text,
+            'The compiled native version source must contain the dated version and commit')
+    rows = [row for row in commands if Path(row['file']).name in {'version.c', '_version.c'}]
+    require(rows and all(Path(row['file']) == compiled_version and str(compiled_version) in row['command']
+                         for row in rows), 'The compiler database must consume the dated native version source')
+    return marker, rows
+
+
+def elf_version(data, marker):
+    actual = re.findall(rb'@\(#\)Version [^\x00\r\n]+', data)
+    require(actual and set(actual) == {marker.encode()},
+            'Native ELF dated version/source identity differs from its actual compiler input')
+    return dict(marker=marker, occurrences=len(actual))
+
+
 def write(path, data):
     with path.open('x', encoding='utf-8') as stream:
         json.dump(data, stream, indent=2)
@@ -158,23 +181,31 @@ def main():
     configure = execute(args, rows, 'configure', [args.source / 'src/coreclr/build-runtime.sh',
         '-' + cpu, '-release', '-numproc', '2',
         '-cmakeargs', '-DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DLIBGSS=/usr/lib/libgssapi_krb5.so.2 '
-                      '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON', '-configureonly'], environment=env)
+                      '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON', '-configureonly',
+        '/p:Version=' + RUNTIME_VERSION, '/p:OfficialBuildId=' + args.build_id,
+        '/p:ContinuousIntegrationBuild=true', '/p:UseSharedCompilation=false'], environment=env)
     require('-- Generating done' in configure and 'CMake Error' not in configure,
             'The upstream configure wrapper did not complete CMake generation')
     obj = args.source / ('artifacts/obj/coreclr/Linux.' + cpu + '.Release')
     cache = (obj / 'CMakeCache.txt').read_text()
     require('CMAKE_BUILD_TYPE:STRING=RELEASE' in cache and 'CLR_CMAKE_PGO_OPTIMIZE:UNINITIALIZED=1' in cache,
             'Original Release and PGO optimization must remain enabled')
+    marker, version_commands = version_inputs(args.source / 'artifacts/obj/_version.c', obj / 'version.c',
+        header, obj.parent / 'runtime_version.h', json.loads((obj / 'compile_commands.json').read_text()), file_version)
+    configure_binlogs = list((args.source / 'artifacts/log').rglob('GenNativeVersion_Linux.' + cpu + '.Release.binlog'))
+    require(len(configure_binlogs) == 1, 'The actual configure-wrapper version producer binlog is required')
+    shutil.copyfile(configure_binlogs[0], args.output / 'native-configure-version.binlog')
     targets = ['coreclr', 'clrjit', 'mscordaccore', 'mscordbi', 'coreclrtraceptprovider', 'crossgen']
     execute(args, rows, 'build', ['cmake', '--build', obj, '--target', *targets,
                                  '--parallel', '2', '--verbose'], environment=env)
-    outputs, auxiliary, debug = [], [], []
+    outputs, auxiliary, debug, version_products = [], [], [], []
     for name, relative in {**OUTPUTS, **AUXILIARY}.items():
         original = obj / relative
         require(original.is_file() and not original.is_symlink(), 'A native source-built product is absent: ' + name)
         data = original.read_bytes()
         require(data[:4] == b'\x7fELF' and int.from_bytes(data[18:20], 'little') ==
                 {'aarch64': 183, 'x64': 62}[args.arch], 'A source-built product has the wrong native ELF CPU')
+        version_products.append(dict(path=name, **elf_version(data, marker)))
         target = args.output / name
         shutil.copyfile(original, target)
         execute(args, rows, 'elf-' + name, ['readelf', '--wide', '--file-header', '--dynamic', '--version-info', target])
@@ -195,10 +226,20 @@ def main():
                 shutil.copyfile(original, destination)
     for name in ['_version.c', 'runtime_version.h']:
         shutil.copyfile(args.source / 'artifacts/obj' / name, generated / name)
+    shutil.copyfile(obj.parent / 'runtime_version.h', generated / 'compiled-runtime_version.h')
     for name in ['CMakeCache.txt', 'compile_commands.json']:
         shutil.copyfile(obj / name, args.output / name)
     execute(args, rows, 'compiler-version', ['clang', '--version'])
     execute(args, rows, 'cmake-version', ['cmake', '--version'])
+    write(args.output / 'native-version-consumption.json', dict(
+        generatedVersionSource=dict(buildPath=str(args.source / 'artifacts/obj/_version.c'),
+                                    **fingerprint(args.source / 'artifacts/obj/_version.c')),
+        actualCompiledVersionSource=dict(buildPath=str(obj / 'version.c'), **fingerprint(obj / 'version.c')),
+        actualCompiledRuntimeHeader=dict(buildPath=str(obj.parent / 'runtime_version.h'),
+                                        **fingerprint(obj.parent / 'runtime_version.h')),
+        compilerCommands=version_commands, nativeElfProducts=version_products,
+        compiledSourceByteEqualsUpstreamGenerated=True, compiledHeaderByteEqualsUpstreamGenerated=True,
+        nativeFileVersion=file_version, sourceCommit=COMMIT, qualificationAllowed=False))
     write(args.output / 'results.json', dict(schemaVersion=1, kind='legacy-musl-native-runtime-build',
         status='passed', sdkVersion=SDK, runtimeVersion=RUNTIME_VERSION, architecture=args.arch,
         worker=fingerprint(Path(__file__)),
@@ -210,6 +251,9 @@ def main():
         auxiliaryFiles=auxiliary, debugSidecars=debug,
         traceProviderAvailableFromThisBuild=True,
         upstreamProductVersionMetadataVerified=True, nativeVersionBinlog=fingerprint(args.output / 'native-version.binlog'),
+        nativeVersionCompilationAndAllSixElfsVerified=True,
+        nativeConfigureVersionBinlog=fingerprint(args.output / 'native-configure-version.binlog'),
+        nativeVersionConsumption=fingerprint(args.output / 'native-version-consumption.json'),
         cmakeCache=fingerprint(args.output / 'CMakeCache.txt'),
         compileCommands=fingerprint(args.output / 'compile_commands.json'),
         generatedSourceFileCount=sum(p.is_file() for p in generated.rglob('*')),
