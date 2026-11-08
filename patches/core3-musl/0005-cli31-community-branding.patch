@@ -1,0 +1,512 @@
+diff --git a/src/Microsoft.DotNet.Cli.Utils/LocalizableStrings.resx b/src/Microsoft.DotNet.Cli.Utils/LocalizableStrings.resx
+index d2780ab..9a9969b 100644
+--- a/src/Microsoft.DotNet.Cli.Utils/LocalizableStrings.resx
++++ b/src/Microsoft.DotNet.Cli.Utils/LocalizableStrings.resx
+@@ -183,4 +183,7 @@ dotnet tool install --global {1}</value>
+   <data name="DotnetCliHomeUsed" xml:space="preserve">
+     <value>Using home directory '{0}' set by the '{1}' environment variable.</value>
+   </data>
++  <data name="CommunityBuildBrand" xml:space="preserve">
++    <value>Community Build of .NET (built by .NET Dev)</value>
++  </data>
+ </root>
+diff --git a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.cs.xlf b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.cs.xlf
+index 0448059..92a4b1e 100644
+--- a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.cs.xlf
++++ b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.cs.xlf
+@@ -114,6 +114,11 @@ dotnet tool install --global {1}</target>
+         <target state="translated">Sada .NET Core SDK</target>
+         <note />
+       </trans-unit>
++      <trans-unit id="CommunityBuildBrand">
++        <source>Community Build of .NET (built by .NET Dev)</source>
++        <target state="needs-review-translation">Community Build of .NET (built by .NET Dev)</target>
++        <note />
++      </trans-unit>
+     </body>
+   </file>
+ </xliff>
+\ No newline at end of file
+diff --git a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.de.xlf b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.de.xlf
+index 51b7fe8..e3273e7 100644
+--- a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.de.xlf
++++ b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.de.xlf
+@@ -114,6 +114,11 @@ dotnet tool install --global {1}</target>
+         <target state="translated">.NET Core SDK</target>
+         <note />
+       </trans-unit>
++      <trans-unit id="CommunityBuildBrand">
++        <source>Community Build of .NET (built by .NET Dev)</source>
++        <target state="needs-review-translation">Community Build of .NET (built by .NET Dev)</target>
++        <note />
++      </trans-unit>
+     </body>
+   </file>
+ </xliff>
+\ No newline at end of file
+diff --git a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.es.xlf b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.es.xlf
+index 444a66f..1825db5 100644
+--- a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.es.xlf
++++ b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.es.xlf
+@@ -114,6 +114,11 @@ dotnet tool install --global {1}</target>
+         <target state="translated">SDK de .NET Core</target>
+         <note />
+       </trans-unit>
++      <trans-unit id="CommunityBuildBrand">
++        <source>Community Build of .NET (built by .NET Dev)</source>
++        <target state="needs-review-translation">Community Build of .NET (built by .NET Dev)</target>
++        <note />
++      </trans-unit>
+     </body>
+   </file>
+ </xliff>
+\ No newline at end of file
+diff --git a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.fr.xlf b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.fr.xlf
+index 23bda0d..2c75958 100644
+--- a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.fr.xlf
++++ b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.fr.xlf
+@@ -114,6 +114,11 @@ dotnet tool install --global {1}</target>
+         <target state="translated">Kit SDK .NET Core</target>
+         <note />
+       </trans-unit>
++      <trans-unit id="CommunityBuildBrand">
++        <source>Community Build of .NET (built by .NET Dev)</source>
++        <target state="needs-review-translation">Community Build of .NET (built by .NET Dev)</target>
++        <note />
++      </trans-unit>
+     </body>
+   </file>
+ </xliff>
+\ No newline at end of file
+diff --git a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.it.xlf b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.it.xlf
+index 29ed05a..7683005 100644
+--- a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.it.xlf
++++ b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.it.xlf
+@@ -114,6 +114,11 @@ dotnet tool install --global {1}</target>
+         <target state="translated">.NET Core SDK</target>
+         <note />
+       </trans-unit>
++      <trans-unit id="CommunityBuildBrand">
++        <source>Community Build of .NET (built by .NET Dev)</source>
++        <target state="needs-review-translation">Community Build of .NET (built by .NET Dev)</target>
++        <note />
++      </trans-unit>
+     </body>
+   </file>
+ </xliff>
+\ No newline at end of file
+diff --git a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.ja.xlf b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.ja.xlf
+index 8db6154..5f8cf5d 100644
+--- a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.ja.xlf
++++ b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.ja.xlf
+@@ -114,6 +114,11 @@ dotnet tool install --global {1} コマンドを実行してインストール
+         <target state="translated">.NET Core SDK</target>
+         <note />
+       </trans-unit>
++      <trans-unit id="CommunityBuildBrand">
++        <source>Community Build of .NET (built by .NET Dev)</source>
++        <target state="needs-review-translation">Community Build of .NET (built by .NET Dev)</target>
++        <note />
++      </trans-unit>
+     </body>
+   </file>
+ </xliff>
+\ No newline at end of file
+diff --git a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.ko.xlf b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.ko.xlf
+index c25baa2..7b3c2ae 100644
+--- a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.ko.xlf
++++ b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.ko.xlf
+@@ -114,6 +114,11 @@ dotnet 도구를 설치하세요. install --global {1}</target>
+         <target state="translated">.NET Core SDK</target>
+         <note />
+       </trans-unit>
++      <trans-unit id="CommunityBuildBrand">
++        <source>Community Build of .NET (built by .NET Dev)</source>
++        <target state="needs-review-translation">Community Build of .NET (built by .NET Dev)</target>
++        <note />
++      </trans-unit>
+     </body>
+   </file>
+ </xliff>
+\ No newline at end of file
+diff --git a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.pl.xlf b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.pl.xlf
+index adf3684..0554d88 100644
+--- a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.pl.xlf
++++ b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.pl.xlf
+@@ -114,6 +114,11 @@ dotnet tool install --global {1}</target>
+         <target state="translated">Zestaw .NET Core SDK</target>
+         <note />
+       </trans-unit>
++      <trans-unit id="CommunityBuildBrand">
++        <source>Community Build of .NET (built by .NET Dev)</source>
++        <target state="needs-review-translation">Community Build of .NET (built by .NET Dev)</target>
++        <note />
++      </trans-unit>
+     </body>
+   </file>
+ </xliff>
+\ No newline at end of file
+diff --git a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.pt-BR.xlf b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.pt-BR.xlf
+index 94394d0..3034e62 100644
+--- a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.pt-BR.xlf
++++ b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.pt-BR.xlf
+@@ -114,6 +114,11 @@ dotnet tool install --global {1}</target>
+         <target state="translated">SDK do .NET Core</target>
+         <note />
+       </trans-unit>
++      <trans-unit id="CommunityBuildBrand">
++        <source>Community Build of .NET (built by .NET Dev)</source>
++        <target state="needs-review-translation">Community Build of .NET (built by .NET Dev)</target>
++        <note />
++      </trans-unit>
+     </body>
+   </file>
+ </xliff>
+\ No newline at end of file
+diff --git a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.ru.xlf b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.ru.xlf
+index 2032d48..fb233bc 100644
+--- a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.ru.xlf
++++ b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.ru.xlf
+@@ -114,6 +114,11 @@ dotnet tool install --global {1}</target>
+         <target state="translated">Пакет SDK для .NET Core</target>
+         <note />
+       </trans-unit>
++      <trans-unit id="CommunityBuildBrand">
++        <source>Community Build of .NET (built by .NET Dev)</source>
++        <target state="needs-review-translation">Community Build of .NET (built by .NET Dev)</target>
++        <note />
++      </trans-unit>
+     </body>
+   </file>
+ </xliff>
+\ No newline at end of file
+diff --git a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.tr.xlf b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.tr.xlf
+index 718b3fd..c0195b3 100644
+--- a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.tr.xlf
++++ b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.tr.xlf
+@@ -114,6 +114,11 @@ dotnet tool install --global {1}</target>
+         <target state="translated">.NET Core SDK'sı</target>
+         <note />
+       </trans-unit>
++      <trans-unit id="CommunityBuildBrand">
++        <source>Community Build of .NET (built by .NET Dev)</source>
++        <target state="needs-review-translation">Community Build of .NET (built by .NET Dev)</target>
++        <note />
++      </trans-unit>
+     </body>
+   </file>
+ </xliff>
+\ No newline at end of file
+diff --git a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.zh-Hans.xlf b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.zh-Hans.xlf
+index 6a56262..0eb0e04 100644
+--- a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.zh-Hans.xlf
++++ b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.zh-Hans.xlf
+@@ -114,6 +114,11 @@ dotnet tool install --global {1}</target>
+         <target state="translated">.NET Core SDK</target>
+         <note />
+       </trans-unit>
++      <trans-unit id="CommunityBuildBrand">
++        <source>Community Build of .NET (built by .NET Dev)</source>
++        <target state="needs-review-translation">Community Build of .NET (built by .NET Dev)</target>
++        <note />
++      </trans-unit>
+     </body>
+   </file>
+ </xliff>
+\ No newline at end of file
+diff --git a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.zh-Hant.xlf b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.zh-Hant.xlf
+index d9c75b4..870d7ab 100644
+--- a/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.zh-Hant.xlf
++++ b/src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.zh-Hant.xlf
+@@ -114,6 +114,11 @@ dotnet tool install --global {1}</target>
+         <target state="translated">.NET Core SDK</target>
+         <note />
+       </trans-unit>
++      <trans-unit id="CommunityBuildBrand">
++        <source>Community Build of .NET (built by .NET Dev)</source>
++        <target state="needs-review-translation">Community Build of .NET (built by .NET Dev)</target>
++        <note />
++      </trans-unit>
+     </body>
+   </file>
+ </xliff>
+\ No newline at end of file
+diff --git a/src/Microsoft.DotNet.Configurer/LocalizableStrings.resx b/src/Microsoft.DotNet.Configurer/LocalizableStrings.resx
+index df33b9a..757fa04 100644
+--- a/src/Microsoft.DotNet.Configurer/LocalizableStrings.resx
++++ b/src/Microsoft.DotNet.Configurer/LocalizableStrings.resx
+@@ -120,7 +120,8 @@
+   <data name="FirstTimeMessageWelcome" xml:space="preserve">
+     <value>Welcome to .NET Core {0}!
+ ---------------------
+-SDK Version: {1}</value>
++SDK Version: {1}
++Community Build of .NET (built by .NET Dev)</value>
+   </data>
+   <data name="FailedToDetermineUserHomeDirectory" xml:space="preserve">
+     <value>The user's home directory could not be determined. Set the '{0}' environment variable to specify the directory to use.</value>
+diff --git a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.cs.xlf b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.cs.xlf
+index a4acc1e..d2017cb 100644
+--- a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.cs.xlf
++++ b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.cs.xlf
+@@ -29,10 +29,12 @@ Psaní první aplikace: https://aka.ms/first-net-core-app
+       <trans-unit id="FirstTimeMessageWelcome">
+         <source>Welcome to .NET Core {0}!
+ ---------------------
+-SDK Version: {1}</source>
++SDK Version: {1}
++Community Build of .NET (built by .NET Dev)</source>
+         <target state="translated">Vítá vás .NET Core {0}!
+ ---------------------
+-Verze sady SDK: {1}</target>
++Verze sady SDK: {1}
++Community Build of .NET (built by .NET Dev)</target>
+         <note />
+       </trans-unit>
+       <trans-unit id="TelemetryMessage">
+diff --git a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.de.xlf b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.de.xlf
+index a07be71..6594f3d 100644
+--- a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.de.xlf
++++ b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.de.xlf
+@@ -29,10 +29,12 @@ Schreiben Sie Ihre erste Anwendung: https://aka.ms/first-net-core-app
+       <trans-unit id="FirstTimeMessageWelcome">
+         <source>Welcome to .NET Core {0}!
+ ---------------------
+-SDK Version: {1}</source>
++SDK Version: {1}
++Community Build of .NET (built by .NET Dev)</source>
+         <target state="translated">Willkommen bei .NET Core {0}!
+ ---------------------
+-SDK-Version: {1}</target>
++SDK-Version: {1}
++Community Build of .NET (built by .NET Dev)</target>
+         <note />
+       </trans-unit>
+       <trans-unit id="TelemetryMessage">
+diff --git a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.es.xlf b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.es.xlf
+index 302f9da..cbf88fd 100644
+--- a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.es.xlf
++++ b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.es.xlf
+@@ -29,10 +29,12 @@ Escriba su primera aplicación: https://aka.ms/first-net-core-app
+       <trans-unit id="FirstTimeMessageWelcome">
+         <source>Welcome to .NET Core {0}!
+ ---------------------
+-SDK Version: {1}</source>
++SDK Version: {1}
++Community Build of .NET (built by .NET Dev)</source>
+         <target state="translated">Esto es .NET Core {0}.
+ ---------------------
+-Versión del SDK: {1}</target>
++Versión del SDK: {1}
++Community Build of .NET (built by .NET Dev)</target>
+         <note />
+       </trans-unit>
+       <trans-unit id="TelemetryMessage">
+diff --git a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.fr.xlf b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.fr.xlf
+index 3119674..e24dab4 100644
+--- a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.fr.xlf
++++ b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.fr.xlf
+@@ -29,10 +29,12 @@ Utilisez 'dotnet --help' pour voir les commandes disponibles, ou accédez à htt
+       <trans-unit id="FirstTimeMessageWelcome">
+         <source>Welcome to .NET Core {0}!
+ ---------------------
+-SDK Version: {1}</source>
++SDK Version: {1}
++Community Build of .NET (built by .NET Dev)</source>
+         <target state="translated">Bienvenue dans .NET Core {0} !
+ ---------------------
+-Version du kit SDK : {1}</target>
++Version du kit SDK : {1}
++Community Build of .NET (built by .NET Dev)</target>
+         <note />
+       </trans-unit>
+       <trans-unit id="TelemetryMessage">
+diff --git a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.it.xlf b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.it.xlf
+index d1b3520..6321f1d 100644
+--- a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.it.xlf
++++ b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.it.xlf
+@@ -29,10 +29,12 @@ Istruzioni per la creazione della prima app: https://aka.ms/first-net-core-app
+       <trans-unit id="FirstTimeMessageWelcome">
+         <source>Welcome to .NET Core {0}!
+ ---------------------
+-SDK Version: {1}</source>
++SDK Version: {1}
++Community Build of .NET (built by .NET Dev)</source>
+         <target state="translated">Benvenuti a .NET Core {0}
+ ---------------------
+-Versione SDK: {1}</target>
++Versione SDK: {1}
++Community Build of .NET (built by .NET Dev)</target>
+         <note />
+       </trans-unit>
+       <trans-unit id="TelemetryMessage">
+diff --git a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.ja.xlf b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.ja.xlf
+index b696263..0e2c109 100644
+--- a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.ja.xlf
++++ b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.ja.xlf
+@@ -29,10 +29,12 @@ Write your first app: https://aka.ms/first-net-core-app
+       <trans-unit id="FirstTimeMessageWelcome">
+         <source>Welcome to .NET Core {0}!
+ ---------------------
+-SDK Version: {1}</source>
++SDK Version: {1}
++Community Build of .NET (built by .NET Dev)</source>
+         <target state="translated">.NET Core {0} へようこそ!
+ ---------------------
+-SDK バージョン: {1}</target>
++SDK バージョン: {1}
++Community Build of .NET (built by .NET Dev)</target>
+         <note />
+       </trans-unit>
+       <trans-unit id="TelemetryMessage">
+diff --git a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.ko.xlf b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.ko.xlf
+index 028e976..939a337 100644
+--- a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.ko.xlf
++++ b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.ko.xlf
+@@ -29,10 +29,12 @@ GitHub에서 문제 보고 및 소스 찾기: https://github.com/dotnet/core
+       <trans-unit id="FirstTimeMessageWelcome">
+         <source>Welcome to .NET Core {0}!
+ ---------------------
+-SDK Version: {1}</source>
++SDK Version: {1}
++Community Build of .NET (built by .NET Dev)</source>
+         <target state="translated">.NET Core {0}을(를) 시작합니다.
+ ---------------------
+-SDK 버전: {1}</target>
++SDK 버전: {1}
++Community Build of .NET (built by .NET Dev)</target>
+         <note />
+       </trans-unit>
+       <trans-unit id="TelemetryMessage">
+diff --git a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.pl.xlf b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.pl.xlf
+index ede6280..91f3346 100644
+--- a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.pl.xlf
++++ b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.pl.xlf
+@@ -29,10 +29,12 @@ Napisz swoją pierwszą aplikację: https://aka.ms/first-net-core-app
+       <trans-unit id="FirstTimeMessageWelcome">
+         <source>Welcome to .NET Core {0}!
+ ---------------------
+-SDK Version: {1}</source>
++SDK Version: {1}
++Community Build of .NET (built by .NET Dev)</source>
+         <target state="translated">.NET Core {0} — Zapraszamy!
+ ---------------------
+-Wersja zestawu SDK: {1}</target>
++Wersja zestawu SDK: {1}
++Community Build of .NET (built by .NET Dev)</target>
+         <note />
+       </trans-unit>
+       <trans-unit id="TelemetryMessage">
+diff --git a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.pt-BR.xlf b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.pt-BR.xlf
+index d0d1609..6de8f17 100644
+--- a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.pt-BR.xlf
++++ b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.pt-BR.xlf
+@@ -29,10 +29,12 @@ Crie seu primeiro aplicativo: https://aka.ms/first-net-core-app
+       <trans-unit id="FirstTimeMessageWelcome">
+         <source>Welcome to .NET Core {0}!
+ ---------------------
+-SDK Version: {1}</source>
++SDK Version: {1}
++Community Build of .NET (built by .NET Dev)</source>
+         <target state="translated">Bem-vindo ao .NET Core {0}.
+ ---------------------
+-Versão do SDK: {1}</target>
++Versão do SDK: {1}
++Community Build of .NET (built by .NET Dev)</target>
+         <note />
+       </trans-unit>
+       <trans-unit id="TelemetryMessage">
+diff --git a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.ru.xlf b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.ru.xlf
+index 59c447c..f0b6e9f 100644
+--- a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.ru.xlf
++++ b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.ru.xlf
+@@ -29,10 +29,12 @@ Write your first app: https://aka.ms/first-net-core-app
+       <trans-unit id="FirstTimeMessageWelcome">
+         <source>Welcome to .NET Core {0}!
+ ---------------------
+-SDK Version: {1}</source>
++SDK Version: {1}
++Community Build of .NET (built by .NET Dev)</source>
+         <target state="translated">Вас приветствует .NET Core {0}!
+ ---------------------
+-Версия пакета SDK: {1}</target>
++Версия пакета SDK: {1}
++Community Build of .NET (built by .NET Dev)</target>
+         <note />
+       </trans-unit>
+       <trans-unit id="TelemetryMessage">
+diff --git a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.tr.xlf b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.tr.xlf
+index 8fe0f85..b7edd2a 100644
+--- a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.tr.xlf
++++ b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.tr.xlf
+@@ -29,10 +29,12 @@ Kullanılabilen komutları görmek için 'dotnet --help' komutunu kullanın veya
+       <trans-unit id="FirstTimeMessageWelcome">
+         <source>Welcome to .NET Core {0}!
+ ---------------------
+-SDK Version: {1}</source>
++SDK Version: {1}
++Community Build of .NET (built by .NET Dev)</source>
+         <target state="translated">.NET Core {0} sürümüne hoş geldiniz!
+ ---------------------
+-SDK Sürümü: {1}</target>
++SDK Sürümü: {1}
++Community Build of .NET (built by .NET Dev)</target>
+         <note />
+       </trans-unit>
+       <trans-unit id="TelemetryMessage">
+diff --git a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.zh-Hans.xlf b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.zh-Hans.xlf
+index 581df0b..b9cf84a 100644
+--- a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.zh-Hans.xlf
++++ b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.zh-Hans.xlf
+@@ -29,10 +29,12 @@ Write your first app: https://aka.ms/first-net-core-app
+       <trans-unit id="FirstTimeMessageWelcome">
+         <source>Welcome to .NET Core {0}!
+ ---------------------
+-SDK Version: {1}</source>
++SDK Version: {1}
++Community Build of .NET (built by .NET Dev)</source>
+         <target state="translated">欢迎使用 .NET Core {0}!
+ ---------------------
+-SDK 版本: {1}</target>
++SDK 版本: {1}
++Community Build of .NET (built by .NET Dev)</target>
+         <note />
+       </trans-unit>
+       <trans-unit id="TelemetryMessage">
+diff --git a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.zh-Hant.xlf b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.zh-Hant.xlf
+index 771e404..e5c5e46 100644
+--- a/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.zh-Hant.xlf
++++ b/src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.zh-Hant.xlf
+@@ -29,10 +29,12 @@ Write your first app: https://aka.ms/first-net-core-app
+       <trans-unit id="FirstTimeMessageWelcome">
+         <source>Welcome to .NET Core {0}!
+ ---------------------
+-SDK Version: {1}</source>
++SDK Version: {1}
++Community Build of .NET (built by .NET Dev)</source>
+         <target state="translated">歡迎使用 .NET Core {0}!
+ ---------------------
+-SDK 版本: {1}</target>
++SDK 版本: {1}
++Community Build of .NET (built by .NET Dev)</target>
+         <note />
+       </trans-unit>
+       <trans-unit id="TelemetryMessage">
+diff --git a/src/dotnet/Program.cs b/src/dotnet/Program.cs
+index 626e51d..17ea352 100644
+--- a/src/dotnet/Program.cs
++++ b/src/dotnet/Program.cs
+@@ -301,11 +301,13 @@ namespace Microsoft.DotNet.Cli
+ 
+         private static void PrintVersion()
+         {
++            Reporter.Error.WriteLine(LocalizableStrings.CommunityBuildBrand);
+             Reporter.Output.WriteLine(Product.Version);
+         }
+ 
+         private static void PrintInfo()
+         {
++            Reporter.Output.WriteLine(LocalizableStrings.CommunityBuildBrand);
+             DotnetVersionFile versionFile = DotnetFiles.VersionFileObject;
+             var commitSha = versionFile.CommitSha ?? "N/A";
+             Reporter.Output.WriteLine($"{LocalizableStrings.DotNetSdkInfoLabel}");

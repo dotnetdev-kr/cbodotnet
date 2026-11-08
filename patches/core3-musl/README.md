@@ -20,3 +20,18 @@ inputs; complete SDK/source/license and two-CPU admission remain closed.
 
 The original .NET Foundation MIT licenses/notices remain in the complete CoreFX/CoreCLR/runtime donor archives. The investigation helper retains and hashes every notice in those archives. Keep those source archives with generated source, patch receipts, native artifacts and probe logs. No clean-bootstrap, extra security maintenance, Microsoft support, or release qualification is claimed.
 
+`0005-cli31-community-branding.patch` applies to CLI
+`cca488d5d530e6ec291134abe3462fed613a4429`. It compiles branding from29 original
+source/resource files, preserves numeric version stdout and original13-culture
+welcome translations, and prints version branding on stderr. Original version
+targets generate the dated assembly/package identities; no PE is restamped.
+
+`0006-fsharp31-spanish-format-placeholder.patch` applies to F#
+`3ef6f0b514198c0bfa6c2c09fefe41a740b024d5` after its four original source-build
+patches. It corrects only a malformed Spanish format placeholder while keeping
+the translated sentence. Strict original localized Release builds and actual
+FSC/FSI messages pass for all13 cultures. The [source preparation helper](../../scripts/core3_musl_community_sources.py)
+checks exact input/patch/file hashes and leaves original global SDK pins intact.
+These additions do not close the private archive's imported source/license or
+native two-CPU release gates.
+

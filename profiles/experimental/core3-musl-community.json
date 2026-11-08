@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "kind": "core31-community-source-preparation",
+  "issue": 35,
+  "qualification": false,
+  "releaseAdmission": false,
+  "sourceSdkProduct": false,
+  "branding": "Community Build of .NET (built by .NET Dev)",
+  "sourceBuild": {
+    "repository": "https://github.com/dotnet/source-build",
+    "commit": "ab8b115b5658237ee8916ae3586600b39fb2fd19",
+    "archive": "source-build31.tar.gz",
+    "bytes": 372407,
+    "sha256": "67604043ce492fa7d201cff4c0374835323992b05cdb202baf890c9fab9ba5d8"
+  },
+  "components": {
+    "cli31": {
+      "source": {
+        "repository": "https://github.com/dotnet/cli",
+        "commit": "cca488d5d530e6ec291134abe3462fed613a4429",
+        "bytes": 1163498,
+        "sha256": "59c8e27934fecd00bdde4f2daf041b82fea576b63952f5977a045606a848a977"
+      },
+      "archiveRoot": "dotnet-cli-cca488d",
+      "patchDirectory": "cli",
+      "originalPatches": [
+        {
+          "name": "0002-Fix-package-version-property-name.patch",
+          "sha256": "fa2aabc700126c91e91ecfea45fdf7268d893186a17ef1b82b7bc19483068de9"
+        },
+        {
+          "name": "0003-Don-t-call-dotnet-without-path.patch",
+          "sha256": "ed3c9f09cfd8f49dc4f5c4439f314c7cb88087bcdf261002d91191d1cf4f893c"
+        },
+        {
+          "name": "0006-Force-some-package-versions.patch",
+          "sha256": "1e13c9e4bfda8f900e15a0697545e4165bf14b0ced92e22ade8a5895f8373a3b"
+        }
+      ],
+      "skippedOriginalPatch": {
+        "name": "0005-Exclude-test-projects-from-source-build.patch",
+        "reason": "Diagnostic scope builds original redist and explicitly packs six children; no full CLI.sln/test project build is claimed.",
+        "sha256": "746ee9b44f8f2dc7643675d479522fdae4388b51c8e8c9655fed171234a4810c"
+      },
+      "communityPatch": {
+        "path": "patches/core3-musl/0005-cli31-community-branding.patch",
+        "bytes": 23995,
+        "sha256": "3ff52c3f6d5284a0677f324fcf840ebc6f69cc39fe69cc2126801e64e6c3da46"
+      },
+      "files": [
+        {
+          "path": "src/Microsoft.DotNet.Cli.Utils/LocalizableStrings.resx",
+          "beforeSha256": "6b91454d575400355b4d99d97f811dbdf022972fa5f03aeed1487a908f6c58de",
+          "afterSha256": "27551106b52d6a039b8d8db2a55060fa247eb5ba8dc36a449a1faac6641bc2ed"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.cs.xlf",
+          "beforeSha256": "62a64895def1442822ac65322aaf2d117b3e380fd462f9df2ce7b06811d45eee",
+          "afterSha256": "dfa9250d448dba825696505cdce71a513e187182095cdf4862727b775b944d19"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.de.xlf",
+          "beforeSha256": "b98bedcbdc2e62b0f5747999b899c7e5032373558a913c085738e50bb18a56a4",
+          "afterSha256": "6fb32b337e2c0dd2bb4e0c8ad8c788ffbbc982c7e984cb99a3ce33968e527464"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.es.xlf",
+          "beforeSha256": "63bc3a9782903dafca81a9d84b20734fecbeda399318b59335983136f94670d8",
+          "afterSha256": "08f1af97764e611d6cbfda72388c79be8398b1dadbe5e0afbf75d9c2aabe36a6"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.fr.xlf",
+          "beforeSha256": "83bde306c8a1d82d848365d6c2c54fe8b77ebf3a0a56223a7dd0a31610a964b6",
+          "afterSha256": "453ab0d88891317d229ce4e349aace33441c3e6f9801be9c283fea6865e215cd"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.it.xlf",
+          "beforeSha256": "7b831e250bf5db13735fe00811c04a0137d253672b76261c8c1a01f149c8258a",
+          "afterSha256": "e733af33caad30a9a6fc50adb59410e5627a4afe2948a449357810e015b41202"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.ja.xlf",
+          "beforeSha256": "4fba723fbbd6b5540158eb0cb9a0854ef6198447d3216667fcf7a2b6a5104d5b",
+          "afterSha256": "8051c29792890f5d556151e879de2db81ce53e9ff1f467961f7702b2977750f0"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.ko.xlf",
+          "beforeSha256": "f4dad28bf7ca4788d103c95a5ad7b9658b9d8ba0b0ab5487070b4dc0771313df",
+          "afterSha256": "96856b5585591f0eb295a683372b7f3b565850c087f3f4c4911bfdd503a0b733"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.pl.xlf",
+          "beforeSha256": "b96db72965c8b69ca56a526c05d639162cbf10bfa24c4bf49a661a81b59fd77d",
+          "afterSha256": "64225976f611096fb7c42a4a2f09800c4ece4eb5ec01344868373b5143d8c02c"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.pt-BR.xlf",
+          "beforeSha256": "e53d889bb9e2e04faafb96b5c0668e0e58b9f60ab814b3d1adf3f694a31f9e9f",
+          "afterSha256": "b6b1f30ac81b06e99a0f1c1c486b2c8dcbfc7faaa742c5d3cd9a53ad9839f1f6"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.ru.xlf",
+          "beforeSha256": "6885ef4f91693a7c5901ff3f69c1d97a48a8a6c42f20ef557d49c2ff7e1901ac",
+          "afterSha256": "6cac5908a5154ad4803245d6cf2e024a72cc40e65dcb29da63048e6d35e83273"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.tr.xlf",
+          "beforeSha256": "5015942a48c4c83232e978e16781b3ec642a9093c87eca71f81566f5c75a79ff",
+          "afterSha256": "74cad501c7aa75c4177f7f18bfed67c646451e4101c1a45f31ff7c47801b7fbb"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.zh-Hans.xlf",
+          "beforeSha256": "3bc74aa48e506ffb14a5d5b0006d0216b5deec5d377715daa9af7d57d7c5cd4d",
+          "afterSha256": "4632ba778b54788490941fb3571fb8166cab79a63f5f59c62998061693a1ab5e"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Cli.Utils/xlf/LocalizableStrings.zh-Hant.xlf",
+          "beforeSha256": "80a33438a862f449acbdfb286055baa6b2b60a6b7c1e6fabf8c42f419afd669e",
+          "afterSha256": "5f250294b2bdc029e0d78fd306a9f0634b651d0888a1d7c55a39425aa2c391a0"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Configurer/LocalizableStrings.resx",
+          "beforeSha256": "23f769c95449092f907d36e65ea3e8d0d1e3948e3cf9242daee532b5e8fb3ed1",
+          "afterSha256": "db3c5a33d514c6dd3577dc7386767717e580254e5f088a6a8972faad7263bc7e"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.cs.xlf",
+          "beforeSha256": "a2497e556f6c56ab2bd3859a6863f10ec9b69c1e0402a7cd41669261fcc4835a",
+          "afterSha256": "8ad27c0d220d1c2f5f2920d3f740d7a32f2c3465ef6085e6dfbee191f1799092"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.de.xlf",
+          "beforeSha256": "29df058fa2d7b9d886aceaf34560ed715b6b26e404df8ba3e5a0526c3466bfdb",
+          "afterSha256": "58e2a8921b98d2fb69b706b17aff54c265e070cd4b405e836cbdc469b6345d57"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.es.xlf",
+          "beforeSha256": "a0941d6fe11cfd8c62e723c7ed70fe350123b85dbf65a4c4521c4b5099b30811",
+          "afterSha256": "d2c94ffb73bdc8fa01326b42dee6d40fea7e001da04c22767f567da4417031d0"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.fr.xlf",
+          "beforeSha256": "0490babab578d801c76f0e1b3c2c13eca6b08b45e4f8d37e79a657a012d39554",
+          "afterSha256": "7b7d59190825f53a16408e54e663c9c9090b267ba465e72d488625e1dbccb633"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.it.xlf",
+          "beforeSha256": "3ff476f7e2e785ced04412a5d9f3c537d3c0acea25f899e557d1a19d11311538",
+          "afterSha256": "2d1c4384e12faf77622df023df139281fdb0ddcb1f25ebf6f8dea80f74eb7384"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.ja.xlf",
+          "beforeSha256": "0f7c11cdc095e49e11d9d76de938630ed20d31fb390a12dcb2db60bbb022f908",
+          "afterSha256": "a621fd3c3e94525b80e2b30a7e04c75f2690e65a77c8e203a7d8192a9e5b9aa8"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.ko.xlf",
+          "beforeSha256": "91a02a554e180bcf28f6a1932bd32be0cf9fe7a82cae23defcf4a7a18a50f859",
+          "afterSha256": "dbc7f1d6c0f539b1a5c717b704135861c4614b2af32a388763e0280f9f4b7d86"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.pl.xlf",
+          "beforeSha256": "9e5fa324c21ea7e9773cff11a242d2d915bb56966948fd83de39d8718abad17d",
+          "afterSha256": "0234a9be606519a1d7b954930b03427f429726e7bbb450053b1c93e060390305"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.pt-BR.xlf",
+          "beforeSha256": "a0e5fc3031894b75afa52b5bdbbe6e7252b09d2f23aa4dd2659202095f6b7004",
+          "afterSha256": "009f7dd85f7473b2621c899bd79a00045d531a7026d2b7c1356f1eb137c21eda"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.ru.xlf",
+          "beforeSha256": "be88d5ad0b6b0a0eb1ff3d4052a8c2baaeb0a8812c35c985811d7d649dba5776",
+          "afterSha256": "5440e6bb3e346fa889c9a3c2a7408a842fee03f476de99a5d1b759e855398dd4"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.tr.xlf",
+          "beforeSha256": "b29b23e961004d95797983c5437f581e8945e9a1d15e2da7df0d4c0fc3c61cbe",
+          "afterSha256": "18d0e8404b4a8311a357d779809597db7ab7e07b511f1dffad00dd9bd389bfcf"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.zh-Hans.xlf",
+          "beforeSha256": "64164fd9dec0cae712ca7ed706bfae1b8bea1382f3f2cd291e444d9e835fb51d",
+          "afterSha256": "9ea86e406e28f1236df6c720f51de17b4caa7b9edb2baab7b135a9bb169f01f0"
+        },
+        {
+          "path": "src/Microsoft.DotNet.Configurer/xlf/LocalizableStrings.zh-Hant.xlf",
+          "beforeSha256": "b08020e0b14030e3bb034b7e88eca1a7a87bde6f3f1b059ef33757a2b8e6ca86",
+          "afterSha256": "bab8d81dbfb977879cb607ec8530522f72c54e6e4a580714aabb4da3421b1b04"
+        },
+        {
+          "path": "src/dotnet/Program.cs",
+          "beforeSha256": "7e452dd7a3cbafccd8733672a4376194d8e3de390727077274788c1790a73809",
+          "afterSha256": "e21ca94739b6ea4a15d9baa43f241d8a546ab0999953c8de8491ef2a907cbd33"
+        }
+      ]
+    },
+    "fsharp31": {
+      "source": {
+        "repository": "https://github.com/dotnet/fsharp",
+        "commit": "3ef6f0b514198c0bfa6c2c09fefe41a740b024d5",
+        "bytes": 18086620,
+        "sha256": "5f8127bcec8eb97b892978a30c9d10bea2bf02c2f82c6696a5084d926314e29e"
+      },
+      "archiveRoot": "dotnet-fsharp-3ef6f0b",
+      "patchDirectory": "fsharp",
+      "originalPatches": [
+        {
+          "name": "0001-Pin-some-system-package-versions.patch",
+          "sha256": "8eee4fd1a525d22c0466e77cae315d87e7990502a4f28d0c3e7cd161cbedb851"
+        },
+        {
+          "name": "0002-Update-Microsoft-Build-to-reference-package-version.patch",
+          "sha256": "c10c81d7083d47755aa24e2b6372ed1e42d41f349735b6dd6562070242c5047a"
+        },
+        {
+          "name": "0003-revert-some-F-changes-for-new-APIs.patch",
+          "sha256": "13301dc7be7a5736b5ee71e919e846d93a5b2d42e69a0427fb038248392e0445"
+        },
+        {
+          "name": "0004-Fix-package-version.patch",
+          "sha256": "7ffddc198dd6d162d40a094cead45b77ca75990e8993b260255ae80ab9d4a4ac"
+        }
+      ],
+      "communityPatch": {
+        "path": "patches/core3-musl/0006-fsharp31-spanish-format-placeholder.patch",
+        "bytes": 1067,
+        "sha256": "96faabdbbe2ce1e8a3b343a6cc5b7226697867f6a5970332a3e116b096643b09"
+      },
+      "files": [
+        {
+          "path": "src/fsharp/xlf/FSComp.txt.es.xlf",
+          "beforeSha256": "2a1c933c8d7553b8e7d5f4f4d02e863412d25ad6fdfaf8792ae999b3dd510530",
+          "afterSha256": "78d68295e2a2f1b2e731f6b58d38cb308b0b4288f2475ab2611792fd3cf336f9"
+        }
+      ],
+      "releaseAdditionalArguments": [
+        "/p:LocalizedBuild=true",
+        "/p:EnableXlfLocalization=true",
+        "/p:UpdateXlfOnBuild=false"
+      ],
+      "protoAdditionalArguments": [
+        "/p:LocalizedBuild=false",
+        "/p:EnableXlfLocalization=false"
+      ]
+    }
+  },
+  "observed20261108": {
+    "officialBuildId": "20261108.1",
+    "cliPackage": "3.1.426-servicing.26558.1",
+    "cliAssembly": "3.1.426.0",
+    "sdkTaskAssembly": "3.1.15.5801",
+    "fsharpPackage": "10.10.0-beta.26558.1"
+  },
+  "scope": "Only exact source preparation and original dated-build arguments. CLI branding is compiled from neutral/XLF sources; Spanish F# fix preserves the translated sentence and repairs one format placeholder. Private bootstrap selection, actual source restore/build/package/consumer evidence, complete imported dependency source/license closure and native two-CPU release admission are separate. No version relabeling or compiled product editing."
+}
