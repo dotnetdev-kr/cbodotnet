@@ -23,6 +23,37 @@ M = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(M)
 
 
+class OriginalRestoreCaches(unittest.TestCase):
+    def test_sdk8_original_cache_bytes_are_observed_when_old_search_roots_are_empty(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); source, home = root / 'vmr', root / 'home'
+            package = source / 'prereqs/packages/restored/original.package/1.0/original.package.1.0.nupkg'
+            package.parent.mkdir(parents=True); package.write_bytes(b'actual original restore cache bytes')
+            (package.parent / '.nupkg.metadata').write_text(json.dumps(dict(source='https://original.example/feed')))
+            records = [row for cache in M.restored_cache_roots(source, home, '8.0.133', 'aarch64') for row in M.inventory_cache(cache)]
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0]['sha256'], hashlib.sha256(package.read_bytes()).hexdigest())
+            self.assertEqual(records[0]['source'], 'https://original.example/feed')
+
+    def test_sdk8_retains_original_archived_and_native_platform_cache_roots(self):
+        for architecture, cpu in [('aarch64', 'arm64'), ('x64', 'x64')]:
+            with tempfile.TemporaryDirectory() as temporary:
+                source, home = Path(temporary) / 'vmr', Path(temporary) / 'home'
+                inner = source / 'src/runtime/artifacts/source-build/self/package-cache'; inner.mkdir(parents=True)
+                roots = M.restored_cache_roots(source, home, '8.0.133', architecture)
+                self.assertIn(source / 'prereqs/packages/previouslyRestored', roots)
+                self.assertIn(source / 'artifacts/obj' / cpu / 'Release/nuget-packages', roots)
+                self.assertIn(inner, roots)
+                self.assertEqual(len(roots), len(set(roots)))
+                self.assertNotIn(source / 'artifacts/obj' / cpu / 'Release/blob-feed/packages', roots)
+
+    def test_sdk9_cache_route_keeps_its_existing_scope(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            source, home = Path(temporary) / 'vmr', Path(temporary) / 'home'
+            roots = M.restored_cache_roots(source, home, '9.0.123', 'x64')
+            self.assertEqual(roots, [home / '.nuget/packages', source / '.packages'])
+
+
 class NativeRoutes(unittest.TestCase):
     def test_all_four_routes_use_exact_native_bootstrap_and_stock_dependencies(self):
         for sdk in R.VERSIONS:

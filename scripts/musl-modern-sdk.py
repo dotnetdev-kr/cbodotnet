@@ -69,6 +69,24 @@ def inventory_cache(cache):
     return rows
 
 
+def restored_cache_roots(source, home, sdk, architecture):
+    """Observe each original graph's actual restore caches, never output feeds."""
+    require(sdk in R.VERSIONS and architecture in R.ARCHITECTURES, 'Reviewed native restore cache route required')
+    roots = [home / '.nuget/packages', source / '.packages',
+             *sorted((source / 'src').glob('*/artifacts/.packages')),
+             *sorted((source / 'src').glob('*/artifacts/sb/package-cache'))]
+    if sdk == '8.0.133':
+        # Original 7d1bf908 Directory.Build.props defines PackagesDir and
+        # PreviouslyRestoredPackagesPath here. ArchiveDownloadedPackages uses
+        # LocalNuGetPackagesRoot under the platform-specific intermediate path;
+        # CopyInnerPackageCache also retains each original inner build's cache.
+        cpu = R.ARCHITECTURES[architecture]['upstream']
+        roots += [source / 'prereqs/packages/restored', source / 'prereqs/packages/previouslyRestored',
+                  source / 'artifacts/obj' / cpu / 'Release/nuget-packages',
+                  *sorted((source / 'src').glob('*/artifacts/source-build/self/package-cache'))]
+    return list(dict.fromkeys(roots))
+
+
 def net8_source_built_artifacts_url(props):
     root = ET.parse(props).getroot()
     require(root.tag in ('Project', '{http://schemas.microsoft.com/developer/msbuild/2003}Project'),
@@ -743,9 +761,7 @@ class Producer(P.Producer):
             record = load_json(path)
             require(record.get('schemaVersion') == 1 and record.get('packages'), 'Invalid pre-cleanup restored input record')
             records.extend(dict(repository=record['repository'], cache=record['cache'], **row) for row in record['packages'])
-        for cache in [self.home / '.nuget/packages', self.source / '.packages',
-                      *sorted((self.source / 'src').glob('*/artifacts/.packages')),
-                      *sorted((self.source / 'src').glob('*/artifacts/sb/package-cache'))]:
+        for cache in restored_cache_roots(self.source, self.home, self.sdk, self.args.arch):
             records.extend(dict(cache=str(cache), **row) for row in inventory_cache(cache))
         write(self.reports / 'restored-inputs.json', dict(schemaVersion=1, packages=records))
         require(records, 'Actual restored upstream input byte inventory required')
