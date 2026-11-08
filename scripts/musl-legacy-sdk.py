@@ -190,6 +190,8 @@ class Producer(P.Producer):
         self.clone('aspnetcore','https://github.com/dotnet/aspnetcore',self.selected['aspnetcore'])
         T.M.ENGINE=self.engine
         T.prepare(SimpleNamespace(workspace=self.sdk_work,sdk=self.sdk,arch='arm64' if self.args.arch=='aarch64' else 'x64',bootstrap_archive=None))
+        module('legacy_actual_bootstrap_receipt','musl_legacy_bootstrap_receipt.py').retain(
+            self.sdk_work,self.profile,self.sdk,self.id['rid'],self.reports/'prepare')
         self.sources['sdk']=dict(name='sdk',path=str(self.sdk_work/'sdk'),kind='git',expectedCommit=self.selected['sdk'])
         for name,repository in [('nuget','https://github.com/NuGet/NuGet.Client'),('vstest','https://github.com/microsoft/vstest'),
                                 ('msbuild','https://github.com/dotnet/msbuild')]:
