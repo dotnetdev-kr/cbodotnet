@@ -23,6 +23,7 @@ from musl_contract import (ARCHITECTURES, REPOSITORY, SOURCES, KINDS, require,
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = '.github/workflows/musl-release.yml'
 PRODUCER_WORKFLOW = '.github/workflows/musl-sdk.yml'
+MAX_PRODUCER_TRANSPORT_BYTES = 8 * 1024**3
 
 
 def validate_run(run, *, workflow, run_id, attempt, commit=None):
@@ -58,6 +59,20 @@ def validate_artifact(artifact, run, name):
     return artifact
 
 
+def producer_transport_descriptor(value):
+    """Actions ZIP/delivery transport can exceed a single release asset's size."""
+    path = ordinary_file(value)
+    before = path.stat()
+    require(0 < before.st_size < MAX_PRODUCER_TRANSPORT_BYTES,
+            'Musl producer transport must be nonempty and smaller than 8 GiB')
+    with path.open('rb') as stream:
+        digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+    after = path.stat()
+    require((before.st_size, before.st_mtime_ns) == (after.st_size, after.st_mtime_ns),
+            'Musl producer transport changed during fingerprinting')
+    return dict(name=path.name, size=before.st_size, sha256=digest)
+
+
 def extract_artifact(path, output, expected_names, *, api_artifact):
     """Verify actual transport bytes and a closed, flat ZIP before extraction."""
     path = ordinary_file(path)
@@ -65,7 +80,7 @@ def extract_artifact(path, output, expected_names, *, api_artifact):
     require(not output.exists() and output.parent.is_dir()
             and not any(p.is_symlink() for p in (output, *output.parents)),
             'Use a fresh ordinary musl artifact receive directory')
-    item = descriptor(path)
+    item = producer_transport_descriptor(path)
     require(item['size'] == api_artifact['size_in_bytes']
             and 'sha256:' + item['sha256'] == api_artifact['digest'],
             'Musl artifact ZIP differs from its GitHub API size/digest')
@@ -409,7 +424,7 @@ def receive_producer(run_id, attempt, output, *, gh='gh', sdk_version='10.0.403'
             subprocess.run([gh, 'api', f'repos/{REPOSITORY}/actions/artifacts/{artifact["id"]}/zip'], stdout=stream, check=True)
         extracted = extract_artifact(zip_path, output/(arch+'-artifact'),
             {'delivery.tar.gz', 'delivery.tar.gz.sha256', 'delivery.json'}, api_artifact=artifact)
-        actual = descriptor(extracted/'delivery.tar.gz')
+        actual = producer_transport_descriptor(extracted/'delivery.tar.gz')
         checksum = ordinary_file(extracted/'delivery.tar.gz.sha256').read_text(encoding='ascii')
         require(checksum in {actual['sha256']+'  delivery.tar.gz\n', actual['sha256']+' *delivery.tar.gz\n'},
                 'Musl delivery checksum differs from actual tar bytes')
@@ -427,7 +442,7 @@ def receive_producer(run_id, attempt, output, *, gh='gh', sdk_version='10.0.403'
                 and str(sealed.get('runId')) == str(run_id) and str(sealed.get('runAttempt')) == str(attempt)
                 and sealed.get('targetRid') == ARCHITECTURES[arch]['rid'] and sealed.get('libc') == 'musl',
                 'Sealed musl delivery identity differs from the actual API-authenticated native run')
-        received[arch] = dict(artifact=artifact, artifactZip=descriptor(zip_path),
+        received[arch] = dict(artifact=artifact, artifactZip=producer_transport_descriptor(zip_path),
             delivery=actual, directory=str(tree), commit=commit)
     result = dict(schemaVersion=1, kind='received-native-musl-producers', libc='musl',
         sdkVersion=sdk_version, runId=run_id, runAttempt=attempt, projectCommit=commit, architectures=received)

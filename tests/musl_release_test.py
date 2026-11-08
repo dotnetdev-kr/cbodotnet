@@ -19,6 +19,7 @@ from downstream_release import descriptor, encoded
 from musl_contract_test import fixture
 import musl_archive
 import musl_contract
+import musl_release
 
 
 class MuslOriginTest(unittest.TestCase):
@@ -51,6 +52,22 @@ class MuslOriginTest(unittest.TestCase):
                 extract_artifact(source, root/'substitution', {'different.json'}, api_artifact=api)
             with self.assertRaises(ValueError):
                 extract_artifact(source, root/'tampered', {'delivery.json'}, api_artifact=dict(api, digest='sha256:'+'0'*64))
+
+    def test_producer_transport_uses_its_own_limit_and_preserves_api_digest_checks(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); source = root/'bundle.zip'
+            with zipfile.ZipFile(source, 'w') as archive: archive.writestr('delivery.json', '{}')
+            api = dict(size_in_bytes=source.stat().st_size, digest='sha256:'+hashlib.sha256(source.read_bytes()).hexdigest())
+            with mock.patch.object(musl_release, 'descriptor', side_effect=AssertionError('Release asset limit applied to Actions transport')):
+                extract_artifact(source, root/'received', {'delivery.json'}, api_artifact=api)
+                with self.assertRaisesRegex(ValueError, 'API size/digest'):
+                    extract_artifact(source, root/'wrong-size', {'delivery.json'}, api_artifact=dict(api, size_in_bytes=api['size_in_bytes']+1))
+            with mock.patch.object(musl_release, 'MAX_PRODUCER_TRANSPORT_BYTES', source.stat().st_size):
+                with self.assertRaisesRegex(ValueError, 'smaller than 8 GiB'):
+                    extract_artifact(source, root/'oversized', {'delivery.json'}, api_artifact=api)
+            empty = root/'empty.zip'; empty.write_bytes(b'')
+            with self.assertRaisesRegex(ValueError, 'nonempty'):
+                musl_release.producer_transport_descriptor(empty)
 
     def test_delivery_rejects_traversal_links_and_duplicate_files(self):
         with tempfile.TemporaryDirectory() as temporary:
