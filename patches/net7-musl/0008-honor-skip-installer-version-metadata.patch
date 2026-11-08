@@ -1,0 +1,11 @@
+--- a/src/redist/targets/GenerateLayout.targets
++++ b/src/redist/targets/GenerateLayout.targets
+@@ -311,7 +311,7 @@
+       </BundledInstallerComponent>
+ 
+       <BundledInstallerComponent Include="AspNetCoreSharedFxBaseRuntimeVersionFile"
+-                                 Condition="!$(Architecture.StartsWith('arm')) or '$(Rid)' == 'win-arm64' or '$(Rid)' == 'osx-arm64'">
++                                 Condition="'$(SkipBuildingInstallers)' != 'true' And (!$(Architecture.StartsWith('arm')) or '$(Rid)' == 'win-arm64' or '$(Rid)' == 'osx-arm64')">
+         <BaseUrl>$(AspNetCoreSharedFxRootUrl)$(AspNetCoreBlobVersion)</BaseUrl>
+         <BaseUrl Condition=" '$(DotNetBuildFromSource)' == 'true' AND '$(DotNetBuildOffline)' == 'true' ">$(AspNetCoreSharedFxRootUrl)</BaseUrl>
+         <DownloadFileName>$(AspNetCoreSharedFxBaseRuntimeVersionFileName)</DownloadFileName>

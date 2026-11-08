@@ -379,7 +379,8 @@ class Producer(P.Producer):
         (imports/'native-runtime').mkdir()
         for name in ['libcoreclr.so','libclrjit.so','libmscordaccore.so','libmscordbi.so']:
             shutil.copyfile(native_runtime/name,imports/'native-runtime'/name)
-        for patch in ['0001-copy-local-source-built-components.patch','0006-copy-matching-source-built-native-runtime.patch']:
+        for patch in ['0001-copy-local-source-built-components.patch','0006-copy-matching-source-built-native-runtime.patch',
+                      '0008-honor-skip-installer-version-metadata.patch']:
             self.run(['git','-C',str(self.installer),'apply','--check',str(ROOT/'patches/net7-musl'/patch)])
             self.run(['git','-C',str(self.installer),'apply',str(ROOT/'patches/net7-musl'/patch)])
         command=['./build.sh','--configuration','Release','--restore','--build','--pack','--projects',
