@@ -2650,7 +2650,7 @@ def validate_verification_boundary(release, record, prepare, stages):
         require(call.count(prepare['verificationImageId']) == 1
                 and not any(value.startswith(('--mount', '--volumes-from', '--device', '--entrypoint')) for value in call),
                 'Every final SDK worker must use the frozen SDK-free image')
-        require(not any(value in ('-e', '--env-file') or value.startswith(('--env=', '--env-file=')) for value in call),
+        require(not any(value.startswith('-e') or value == '--env-file' or value.startswith(('--env=', '--env-file=')) for value in call),
                 'Cold verification requires explicit reviewed environment options')
         mounts, environment = {}, {}
         for index, value in enumerate(call):

@@ -998,6 +998,7 @@ class FunctionalEvidence(unittest.TestCase):
                          lambda call: call.extend(['--env-file', '/hidden/environment']),
                          lambda call: call.extend(['--env=COMPlus_ReadyToRun=0']),
                          lambda call: call.extend(['-e', 'COMPlus_ReadyToRun=0']),
+                         lambda call: call.extend(['-eCOMPlus_ReadyToRun=0']),
                          lambda call: call.extend(['--env', 'HOME=/home/build', '--env', 'HOME=/other']),
                          lambda call: call.__setitem__(call.index('--network=none'), '--network=host'),
                          lambda call: call.__setitem__(call.index('/delivery/genuine.tar.gz'), '/delivery/imported.tar.gz')]
