@@ -650,10 +650,53 @@ class Producer(P.Producer):
 
     def test(self):
         major = self.sdk.split('.')[0]
+        test_image = self.image
+        if major == '8':
+            tag = 'localhost/cbodotnet-net8-musl-tests:' + self.args.run_id + '-' + self.args.arch
+            self.run(self.engine + ['build', '--network=host', '--file', str(ROOT / 'containers/net8-musl-smoke.Containerfile'),
+                '--build-arg', 'BUILDER_IMAGE=' + self.image, '--tag', tag, str(self.image_context)],
+                log=self.reports / 'test/image-build.log')
+            inspected = json.loads(self.run(self.engine + ['image', 'inspect', tag], capture=True))
+            require(len(inspected) == 1 and inspected[0]['Architecture'] == self.id['image']
+                    and inspected[0]['Os'] == 'linux', 'Original NET8 test image CPU differs')
+            test_image = inspected[0]['Id']
+            write(self.reports / 'test/image.json', inspected)
+            self.container(['python3', '-c', "import shutil; shutil.copytree('/cbodotnet-net8-test-apks', '/delivery/reports/test/apks')"],
+                image=test_image, log=self.reports / 'test/apk-retention.log')
+            self.container(['python3', '/project/scripts/prepare-net8-musl-tests.py', '--source', '/vmr',
+                '--reports', '/delivery/reports/test/native-inputs', '--arch', self.args.arch],
+                image=test_image, log=self.reports / 'test/native-inputs.log')
         if major == '9':
             self.container(['python3', '/project/scripts/prepare-scenario-report-fence.py', 'apply', '--version', '9',
                 '--source-dir', '/vmr', '--reports-dir', '/delivery/reports/test/scenario-report-fence'])
-        self.container(self.build_command(True), log=self.reports / 'test/test.log')
+        try:
+            self.container(self.build_command(True), image=test_image, log=self.reports / 'test/test.log')
+        except Exception:
+            # Retain the real unchanged SDK for diagnosing failed original tests.
+            # This is not collection, qualification, or a successful producer seal.
+            try:
+                collector = module('modern_failed_test_sdk', 'collect-artifacts.py')
+                sdk, candidates, _ = collector.select_sdk(self.source, self.sdk, self.id['rid'],
+                    legacy=self.route['sourceOnly'], exact_name=True)
+                fp = fingerprint(sdk)
+                require(all({k: row[k] for k in fp} == fp for row in candidates), 'Conflicting failed-test SDK outputs')
+                target = self.reports / 'test/failure/sdk.tar.gz'
+                target.parent.mkdir(parents=True)
+                shutil.copyfile(sdk, target)
+                require(fingerprint(target) == fp, 'Failed-test SDK retention changed its bytes')
+                write(target.parent / 'sdk.json', dict(kind='failed-original-test-sdk-diagnostic',
+                    sdkVersion=self.sdk, architecture=self.args.arch, sourceCommit=self.route['source'],
+                    archive=dict(path='reports/test/failure/sdk.tar.gz', **fp), qualificationAllowed=False,
+                    sourceAdmissionAllowed=False, releasePublished=False))
+            except Exception as error:
+                write(self.reports / 'test/diagnostic-capture-error.json', dict(error=str(error), qualificationAllowed=False))
+            raise
+        finally:
+            base = self.source / ('test/Microsoft.DotNet.SourceBuild.SmokeTests/TestResults' if major == '8'
+                                  else 'artifacts/TestResults/Release')
+            results = list(base.glob('*.trx'))
+            if len(results) == 1:
+                shutil.copyfile(results[0], self.reports / 'test/common.trx')
         base = self.source / ('test/Microsoft.DotNet.SourceBuild.SmokeTests/TestResults' if major == '8'
                               else 'artifacts/TestResults/Release')
         results = list(base.glob('*.trx'))
@@ -670,7 +713,8 @@ class Producer(P.Producer):
 
     def collect(self):
         collector = module('modern_artifact_collector', 'collect-artifacts.py')
-        upstream, candidates, _ = collector.select_sdk(self.source, self.sdk, self.id['rid'], exact_name=True)
+        upstream, candidates, _ = collector.select_sdk(self.source, self.sdk, self.id['rid'],
+            legacy=self.route['sourceOnly'], exact_name=True)
         fp = fingerprint(upstream)
         require(all({key: row[key] for key in fp} == fp for row in candidates), 'Conflicting upstream output SDK archives')
         self.archive = self.output / ('cbodotnet-sdk-' + self.sdk + '-linux-musl-' + self.args.arch
@@ -989,6 +1033,18 @@ def validate(release):
     if sdk.startswith('9.'):
         require(load_json(release / 'reports/additional-inputs.json') == validate_additional_inputs(release, profile, source_manifest),
                 'Independent additional targeting package/source interpretation differs')
+    if sdk.startswith('8.'):
+        helper = module('original_net8_native_test_inputs', 'prepare-net8-musl-tests.py')
+        native_inputs = helper.verify(release / 'reports/test/native-inputs', arch)
+        require(native_inputs['sourceCommit'] == route['source'], 'Original NET8 test source differs')
+        test_image = load_json(release / 'reports/test/image.json')
+        require(len(test_image) == 1 and test_image[0]['Architecture'] == identity['image']
+                and test_image[0]['Os'] == 'linux', 'Original NET8 test image CPU differs')
+        installed = (release / 'reports/test/apks/installed-packages.txt').read_text().splitlines()
+        require('elfutils-0.195-r0' in installed, 'The original NET8 debug-symbol test requires actual pinned elfutils')
+        test_commands = [c for c in stages['test']['commands'] if './build.sh' in c]
+        require(len(test_commands) == 1 and test_image[0]['Id'] in test_commands[0],
+                'Original NET8 cases must execute in the inspected native test image')
     scan = load_json(release / 'reports/scan/pinned-source-inventory.json')
     require(scan.get('sourceCommit') == route['source'] and scan.get('pristineBefore') is True
             and scan.get('pristineAfter') is True and scan.get('sourceTree') == source_roots[0]['tree'],

@@ -122,6 +122,27 @@ official SDK files. Protected promotion replays the closed proof against the
 exact retained reference metadata and independently reconstructed candidate
 payload; a single Community series proof cannot qualify an expanded SDK.
 
+## Original SDK 8 musl test inputs
+
+The original SDK 8 `Config.TargetArchitecture` takes the second RID component,
+so `linux-musl-arm64` becomes `musl` and requests an absent OmniSharp asset.
+`prepare-net8-musl-tests.py` changes only that parser to the final component
+and retains its exact original Git blob and recorded patch. It pre-stages the
+original test version, OmniSharp 1.39.14, from its CPU-specific official musl
+archive, with a closed byte count, SHA-256 and complete member inventory. The
+original test already launches its managed DLL through the tested SDK; neither
+assertions, case rows nor runtime options change. A derived test-only image
+adds stock `elfutils=0.195-r0` from the same authenticated frozen APK indexes
+because the original debug-symbol case requires `eu-readelf`.
+
+The native two-CPU build from run 42468773276 completed, but its original suite
+failed (21 passed, 23 failed, 2 original skips). Besides these test input gaps,
+generated apphost launch failures remain under investigation. The failed run
+is not qualified. Subsequent failed tests retain the unchanged actual output
+SDK and original TRX as diagnostics, preserving the failing exit status. SDK 8
+collection follows its original `artifacts/<cpu>/Release` output layout;
+SDK 9 continues to use `artifacts/assets/Release`.
+
 ## Existing installer releases
 
 Expanding the consumer helpers changes their source hashes without changing
