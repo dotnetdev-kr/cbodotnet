@@ -52,7 +52,7 @@
       },
       {
         "path": "patches/musl/net8/0001-retain-reference-audit-warnings.patch",
-        "sha256": "1bb226434a9c4358fe2446af35956c75d2185659e13c68f884f097320fad7e7f",
+        "sha256": "ab698abeac802febfd8dc1f27c7c05784911bed55c84d1df49f3de5e98f45daf",
         "purpose": "Keep historical signature-only reference identities and visible audit warnings; independently reject unknown advisories and runtime stub placements."
       }
     ]
