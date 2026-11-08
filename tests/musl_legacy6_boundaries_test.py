@@ -3,6 +3,7 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+from types import SimpleNamespace
 import tempfile
 import unittest
 from unittest import mock
@@ -18,7 +19,7 @@ class SDK6NormalBoundaryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             release = Path(temporary); record, prepared, stages = self.fixture(release)
             record['sdk'].update(bytes=1, sha256='1' * 64, sha512='2' * 128)
-            fixture = M.module('sdk6_tracing_test_program', 'musl-legacy6-lttng.py')
+            fixture = SimpleNamespace(PROGRAM='// Unit fixture; no trace execution is claimed.\n', CONTROL='UNIT_NATIVE_CONTROL')
             raw = fixture.PROGRAM.encode(); directory = release / 'reports/test/native-lttng'; directory.mkdir(parents=True)
             (directory / 'Program.cs').write_bytes(raw); (directory / 'managed.stdout.log').write_text('READY\nDONE\n')
             base = dict(schemaVersion=1, kind='legacy-musl-lttng-session-proof', sdkVersion='6.0.136', architecture='aarch64',
@@ -44,7 +45,7 @@ class SDK6NormalBoundaryTests(unittest.TestCase):
             position = call.index('/project/scripts/verify-sdk.sh'); call[position:] = ['python3', '/project/scripts/musl-legacy6-lttng.py',
                 '--sdk','6.0.136','--arch','aarch64','--archive','/delivery/actual-sdk.tar.gz','--output','/delivery/reports/test/native-lttng']
             def check(candidate):
-                with mock.patch.object(M, 'native_command_records', return_value=commands):
+                with mock.patch.object(M, 'native_command_records', return_value=commands), mock.patch.object(M, 'module', return_value=fixture):
                     M.validate_lttng(release, record, prepared, dict(test=dict(commands=[candidate])))
             check(call)
             for extra in (['-e','COMPlus_ReadyToRun=0'], ['-eCOMPlus_ReadyToRun=0'], ['--env=DOTNET_ReadyToRun=0'],
