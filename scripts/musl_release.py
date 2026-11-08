@@ -15,9 +15,10 @@ import zipfile
 
 from downstream_release import descriptor, encoded, ordinary_file, verify_report_signature
 from downstream_publish import GitHubReleases, verify_remote_assets
-from musl_contract import (ARCHITECTURES, REPOSITORY, SOURCE, KINDS, require,
+from musl_contract import (ARCHITECTURES, REPOSITORY, SOURCES, KINDS, require,
     producer_asset_name, producer_tag, validate_producer_manifest, validate_producer_release,
-    load_qualification_catalog, distribution_tag, oci_tag)
+    load_qualification_catalog, distribution_tag, oci_tag, producer_workflow,
+    producer_artifact_name, producer_script)
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = '.github/workflows/musl-release.yml'
@@ -176,7 +177,7 @@ def validate_publication_metadata(manifest, receipt, reports, *, verification_ma
     identity = manifest.get('identity', {})
     channel = identity.get('channel')
     require(channel in {'archive','apk','oci'} and identity.get('libc') == 'musl'
-            and identity.get('sdkVersion') == '10.0.403' and identity.get('producerRevision') == 1
+            and identity.get('sdkVersion') in SOURCES and identity.get('producerRevision') == 1
             and type(identity.get('packageRevision')) is int and identity['packageRevision'] > 0,
             'Unreviewed musl publication identity')
     tag = distribution_tag(channel, identity['sdkVersion'], identity['packageRevision'])
@@ -377,11 +378,12 @@ def extract_delivery(path, output):
     return output / 'delivery'
 
 
-def receive_producer(run_id, attempt, output, *, gh='gh'):
+def receive_producer(run_id, attempt, output, *, gh='gh', sdk_version='10.0.403'):
     """Receive both exact native artifacts; never accept a path supplied by them."""
     api = GitHubReleases(gh=gh)
     run = api.api(f'repos/{REPOSITORY}/actions/runs/{run_id}/attempts/{attempt}')
-    commit = validate_run(run, workflow=PRODUCER_WORKFLOW, run_id=run_id, attempt=attempt)
+    workflow = producer_workflow(sdk_version)
+    commit = validate_run(run, workflow=workflow, run_id=run_id, attempt=attempt)
     artifacts = []
     for page in range(1, 101):
         listing = api.api(f'repos/{REPOSITORY}/actions/runs/{run_id}/artifacts?per_page=100&page={page}')
@@ -398,7 +400,7 @@ def receive_producer(run_id, attempt, output, *, gh='gh'):
     (output/'run.json').write_bytes(encoded(run))
     received = {}
     for arch in ARCHITECTURES:
-        name = f'sdk-musl-net10-{arch}-{run_id}-{attempt}'
+        name = producer_artifact_name(sdk_version, arch, run_id, attempt)
         matches = [row for row in artifacts if row.get('name') == name]
         require(len(matches) == 1, 'An exact unique native musl artifact is required: ' + arch)
         artifact = validate_artifact(matches[0], run, name)
@@ -412,16 +414,23 @@ def receive_producer(run_id, attempt, output, *, gh='gh'):
         require(checksum in {actual['sha256']+'  delivery.tar.gz\n', actual['sha256']+' *delivery.tar.gz\n'},
                 'Musl delivery checksum differs from actual tar bytes')
         tree = extract_delivery(extracted/'delivery.tar.gz', output/(arch+'-received'))
-        subprocess.run([sys.executable, str(ROOT/'scripts/musl-sdk.py'), 'validate', '--release-dir', str(tree)], check=True)
+        transport = json.loads(ordinary_file(extracted/'delivery.json').read_bytes())
+        require(transport.get('kind') == 'musl-sdk-producer-transport' and transport.get('status') == 'passed'
+                and transport.get('sdkVersion') == sdk_version and transport.get('workflow') == workflow
+                and transport.get('architecture') == arch and transport.get('projectCommit') == commit
+                and transport.get('repository') == REPOSITORY and transport.get('libc') == 'musl'
+                and str(transport.get('runId')) == str(run_id) and str(transport.get('runAttempt')) == str(attempt)
+                and transport.get('bundle') == actual, 'Musl transport identity differs from exact requested run')
+        subprocess.run([sys.executable, str(ROOT/'scripts'/producer_script(sdk_version)), 'validate', '--release-dir', str(tree)], check=True)
         sealed = json.loads(ordinary_file(tree/'producer-validation.json').read_bytes())
-        require(sealed.get('architecture') == arch and sealed.get('projectCommit') == commit
+        require(sealed.get('sdkVersion') == sdk_version and sealed.get('architecture') == arch and sealed.get('projectCommit') == commit
                 and str(sealed.get('runId')) == str(run_id) and str(sealed.get('runAttempt')) == str(attempt)
                 and sealed.get('targetRid') == ARCHITECTURES[arch]['rid'] and sealed.get('libc') == 'musl',
                 'Sealed musl delivery identity differs from the actual API-authenticated native run')
         received[arch] = dict(artifact=artifact, artifactZip=descriptor(zip_path),
             delivery=actual, directory=str(tree), commit=commit)
     result = dict(schemaVersion=1, kind='received-native-musl-producers', libc='musl',
-        runId=run_id, runAttempt=attempt, projectCommit=commit, architectures=received)
+        sdkVersion=sdk_version, runId=run_id, runAttempt=attempt, projectCommit=commit, architectures=received)
     (output/'received.json').write_bytes(encoded(result))
     return result
 
@@ -445,8 +454,10 @@ def stage_producer(received_directory, output):
     from types import SimpleNamespace
     received_directory = Path(received_directory).absolute()
     received = json.loads(ordinary_file(received_directory/'received.json').read_bytes())
+    version = received.get('sdkVersion', '10.0.403')
+    workflow = producer_workflow(version)
     run = json.loads(ordinary_file(received_directory/'run.json').read_bytes())
-    commit = validate_run(run, workflow=PRODUCER_WORKFLOW, run_id=received['runId'],
+    commit = validate_run(run, workflow=workflow, run_id=received['runId'],
                           attempt=received['runAttempt'], commit=received['projectCommit'])
     require(received.get('kind') == 'received-native-musl-producers' and received.get('libc') == 'musl'
             and set(received.get('architectures', {})) == set(ARCHITECTURES), 'An exact two-CPU musl receive record is required')
@@ -455,22 +466,22 @@ def stage_producer(received_directory, output):
             and not any(p.is_symlink() for p in (output, *output.parents)), 'A fresh musl producer staging directory is required')
     output.mkdir()
     manifest = dict(schemaVersion=1, kind='musl-sdk-producer-release', repository=REPOSITORY,
-        sdkVersion='10.0.403', producerRevision=1, libc='musl', tag=producer_tag('10.0.403'), architectures={})
+        sdkVersion=version, producerRevision=1, libc='musl', tag=producer_tag(version), architectures={})
     for arch, target in ARCHITECTURES.items():
         row = received['architectures'][arch]
-        validate_artifact(row['artifact'], run, f'sdk-musl-net10-{arch}-{run["id"]}-{run["run_attempt"]}')
+        validate_artifact(row['artifact'], run, producer_artifact_name(version, arch, run['id'], run['run_attempt']))
         # The receiving record's absolute paths are informational, never routing inputs.
         tree = received_directory/(arch+'-received')/'delivery'
-        subprocess.run([sys.executable, str(ROOT/'scripts/musl-sdk.py'), 'validate', '--release-dir', str(tree)], check=True)
+        subprocess.run([sys.executable, str(ROOT/'scripts'/producer_script(version)), 'validate', '--release-dir', str(tree)], check=True)
         sealed = json.loads(ordinary_file(tree/'producer-validation.json').read_bytes())
         producer = json.loads(ordinary_file(tree/'producer-sdk.json').read_bytes())
         for record in (sealed, producer):
-            require(record.get('architecture') == arch and record.get('projectCommit') == commit
+            require(record.get('sdkVersion') == version and record.get('architecture') == arch and record.get('projectCommit') == commit
                     and str(record.get('runId')) == str(run['id']) and str(record.get('runAttempt')) == str(run['run_attempt'])
                     and record.get('targetRid') == target['rid'] and record.get('libc') == 'musl',
                     'Musl source stage identity differs from trusted origin')
         raw_name = producer['sdk']['name']
-        require(isinstance(raw_name, str) and re.fullmatch(r'cbodotnet-sdk-10\.0\.403-linux-musl-'+arch+r'-build\.[1-9][0-9]*\.tar\.gz', raw_name),
+        require(isinstance(raw_name, str) and re.fullmatch(r'cbodotnet-sdk-'+re.escape(version)+r'-linux-musl-'+arch+r'-build\.[1-9][0-9]*\.tar\.gz', raw_name),
                 'Unexpected native musl SDK filename')
         raw_sdk = ordinary_file(tree/raw_name)
         actual = descriptor(raw_sdk)
@@ -484,11 +495,11 @@ def stage_producer(received_directory, output):
         source = ordinary_file(tree/'sources'/source_name)
         entry = dict(targetRid=target['rid'])
         for kind, path in (('sdk', raw_sdk), ('source', source)):
-            destination = output/producer_asset_name(kind, '10.0.403', arch)
+            destination = output/producer_asset_name(kind, version, arch)
             shutil.copyfile(path, destination)
             entry[kind] = descriptor(destination)
             require(entry[kind]['sha256'] == descriptor(path)['sha256'], 'Musl producer staging copy changed bytes')
-        evidence = output/producer_asset_name('evidence', '10.0.403', arch)
+        evidence = output/producer_asset_name('evidence', version, arch)
         exclude = {raw_sdk, source}
         with tarfile.open(evidence, 'w:gz', compresslevel=6) as archive:
             for path in sorted(tree.rglob('*')):
@@ -497,8 +508,8 @@ def stage_producer(received_directory, output):
                     archive.add(path, arcname=path.relative_to(tree).as_posix(), recursive=False)
         entry['evidence'] = descriptor(evidence)
         entry['provenance'] = dict(projectCommit=commit, runId=str(run['id']), runAttempt=str(run['run_attempt']),
-            artifactId=str(row['artifact']['id']), workflow=PRODUCER_WORKFLOW,
-            workflowUrl=f'https://github.com/{REPOSITORY}/actions/runs/{run["id"]}', libc='musl', targetRid=target['rid'], **SOURCE)
+            artifactId=str(row['artifact']['id']), workflow=workflow,
+            workflowUrl=f'https://github.com/{REPOSITORY}/actions/runs/{run["id"]}', libc='musl', targetRid=target['rid'], **SOURCES[version])
         manifest['architectures'][arch] = entry
     checksum_bytes = producer_checksum_bytes(manifest)
     (output/'SHA256SUMS').write_bytes(checksum_bytes)
@@ -539,10 +550,10 @@ def publish_producer(directory, *, gh='gh'):
     for arch, entry in manifest['architectures'].items():
         provenance = entry['provenance']
         run = api.api(f'repos/{REPOSITORY}/actions/runs/{provenance["runId"]}/attempts/{provenance["runAttempt"]}')
-        validate_run(run, workflow=PRODUCER_WORKFLOW, run_id=int(provenance['runId']),
+        validate_run(run, workflow=producer_workflow(manifest['sdkVersion']), run_id=int(provenance['runId']),
                      attempt=int(provenance['runAttempt']), commit=commit)
         artifact = api.api(f'repos/{REPOSITORY}/actions/artifacts/{provenance["artifactId"]}')
-        validate_artifact(artifact, run, f'sdk-musl-net10-{arch}-{provenance["runId"]}-{provenance["runAttempt"]}')
+        validate_artifact(artifact, run, producer_artifact_name(manifest['sdkVersion'], arch, provenance['runId'], provenance['runAttempt']))
     tag = manifest['tag']
     title = f'Community Build musl SDK {manifest["sdkVersion"]} producer r{manifest["producerRevision"]}'
     body = ('Native Alpine musl producer inputs for Community Build of .NET (built by .NET Dev).\n\n'
@@ -550,8 +561,13 @@ def publish_producer(directory, *, gh='gh'):
         'Use the qualified consumer archives, APK repository or explicit Alpine OCI variants listed at '
         'https://dotnetdev.kr/cbodotnet/ after their independent public verification.\n\n'
         'release-manifest.json and SHA256SUMS bind both native CPUs, actual used sources and complete evidence. '
-        'This regular VMR build rebuilds SDK tooling and imports attributed upstream musl shared-framework inputs. '
+        'The original source build reconstructs SDK tooling; the evidence records rebuilt and imported shared-framework inputs. '
         'NativeAOT, workloads and cbodotnetup musl admission are separate qualification work.\n')
+    if manifest['sdkVersion'] == '10.0.403':
+        # Preserve the immutable SDK10 release's exact existing metadata.
+        body = body.replace(
+            'The original source build reconstructs SDK tooling; the evidence records rebuilt and imported shared-framework inputs. ',
+            'This regular VMR build rebuilds SDK tooling and imports attributed upstream musl shared-framework inputs. ')
     release = api.find(tag)
     if release is None:
         require(api.api(f'repos/{REPOSITORY}/git/ref/tags/{tag}') is None,
@@ -592,6 +608,7 @@ def main():
     commands = parser.add_subparsers(dest='command', required=True)
     receive = commands.add_parser('receive-producer')
     receive.add_argument('--run-id', type=int, required=True)
+    receive.add_argument('--sdk-version', choices=sorted(SOURCES), default='10.0.403')
     receive.add_argument('--attempt', type=int, default=1)
     receive.add_argument('--output', type=Path, required=True)
     stage = commands.add_parser('stage-producer')
@@ -602,7 +619,7 @@ def main():
     publish.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     if args.command == 'receive-producer':
-        result = receive_producer(args.run_id, args.attempt, args.output)
+        result = receive_producer(args.run_id, args.attempt, args.output, sdk_version=args.sdk_version)
         print(json.dumps(dict(status='received-validated', commit=result['projectCommit'],
                               architectures=sorted(result['architectures']))))
     elif args.command == 'stage-producer':

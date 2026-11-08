@@ -394,7 +394,6 @@ def catalog(output, builds, *, now=None, sequence=None):
 
 def catalog_musl(output, builds, common):
     from cbodotnetup_musl import sdk_catalog_record,validate_catalog,validate_tool_report
-    from cbodotnetup_musl_native import build_inputs
     policy=load(POLICY)
     require(set(builds)=={'linux-musl-x64','linux-musl-arm64'},'Both native musl builds are mandatory')
     tools=[]
@@ -404,8 +403,8 @@ def catalog_musl(output, builds, common):
         validate_tool_report(report,arch,source_inputs=tool_inputs(),version=policy['version'],native_runtime=policy['nativeRuntime'])
         baseline_report=load(directory/'baseline/provenance.json')
         validate_tool_report(baseline_report,arch,source_inputs=tool_inputs(),version='0.5.0',native_runtime=policy['nativeRuntime'])
-        require(report['buildInputs']==baseline_report['buildInputs']==build_inputs(arch),
-                'Native musl toolchain source/profile inputs changed')
+        require(report['buildInputs']==baseline_report['buildInputs'],
+                'Native musl baseline and current toolchain inputs changed')
         require(baseline_report['source']==report['source'] and baseline_report['sourceInputs']==report['sourceInputs']
                 and report['source']['repository']=='dotnetdev-kr/cbodotnet' and report['source']['workflow']==WORKFLOW,
                 'Musl baseline and current tool must share reviewed source provenance')

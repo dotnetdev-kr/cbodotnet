@@ -394,7 +394,8 @@ def replace_exact(data, old, new, required=False):
 
 def transform(root, policy, candidate, audit):
     adapter = policy['adapter']; baseline = adapter['baselineSdk']
-    profiles = sorted((root / 'profiles').glob('dotnet-' + baseline + '-linux-*.json'))
+    profiles = sorted(path for path in (root / 'profiles').glob('dotnet-' + baseline + '-linux-*.json')
+                      if '-linux-musl-' not in path.name)
     require(len(profiles) == 2, 'Exactly two baseline native profiles are required')
     old_profile = load(profiles[0]); original_inputs = old_profile['upstreamInputs']
     require(old_profile['source']['commit'] == adapter['baselineSource']
@@ -471,7 +472,8 @@ def generate(args):
                     str(args.project_root), str(args.destination)], check=True)
     git(args.destination, 'checkout', '--quiet', '--detach', parent)
     baseline_profiles = [path.relative_to(args.destination).as_posix() for path in
-                         (args.destination / 'profiles').glob('dotnet-' + adapter['baselineSdk'] + '-linux-*.json')]
+                         (args.destination / 'profiles').glob('dotnet-' + adapter['baselineSdk'] + '-linux-*.json')
+                         if '-linux-musl-' not in path.name]
     require(len(baseline_profiles) == 2, 'Exactly two original native profiles are required')
     if module:
         module.transform(args.destination, policy, candidate, helper_api())

@@ -44,8 +44,12 @@
   "releases": {
     "10.0.403": {
       "target": "net10-musl",
-      "producerRevisions": [1],
-      "candidateVariants": ["alpine-3.24"],
+      "producerRevisions": [
+        1
+      ],
+      "candidateVariants": [
+        "alpine-3.24"
+      ],
       "source": {
         "sourceCommit": "5a2162bea6845eabc1fc721624a43568c65db3b1",
         "sharedVmrCommit": "0427b9abbead3fa64c6655eb4290c537397131fa",
@@ -53,7 +57,54 @@
         "sharedSdk": "10.0.114-servicing.26522.126",
         "runtimeVersion": "10.0.14"
       },
-      "licensePaths": ["LICENSE.txt", "ThirdPartyNotices.txt"],
+      "licensePaths": [
+        "LICENSE.txt",
+        "ThirdPartyNotices.txt"
+      ],
+      "securitySupport": "community-build-no-additional-security-maintenance"
+    },
+    "9.0.123": {
+      "target": "net9-musl",
+      "producerWorkflow": ".github/workflows/musl-sdk-expand.yml",
+      "producerRevisions": [
+        1
+      ],
+      "candidateVariants": [
+        "alpine-3.24"
+      ],
+      "source": {
+        "sourceCommit": "9f04b57d1366e21b3178648493d6edffeff2216e",
+        "bootstrapSdk": "9.0.121",
+        "runtimeVersion": "9.0.22",
+        "runtimeSourceCommit": "faaecba82df8933d7af60972138ce25f9c776cbd",
+        "aspnetSourceCommit": "5aeb916d29e761492c987f1c09895c3ba9cbe1ac"
+      },
+      "licensePaths": [
+        "LICENSE.txt",
+        "ThirdPartyNotices.txt"
+      ],
+      "securitySupport": "community-build-no-additional-security-maintenance"
+    },
+    "8.0.133": {
+      "target": "net8-musl",
+      "producerWorkflow": ".github/workflows/musl-sdk-expand.yml",
+      "producerRevisions": [
+        1
+      ],
+      "candidateVariants": [
+        "alpine-3.24"
+      ],
+      "source": {
+        "sourceCommit": "7d1bf90885cff22e7da72b27e9848e42fd3cb1ae",
+        "bootstrapSdk": "8.0.131",
+        "runtimeVersion": "8.0.33",
+        "runtimeSourceCommit": "da7a9beabf4cccc624399d583f52f080a4c858c2",
+        "aspnetSourceCommit": "380bd0d498fbaa0a8ddd67c325aa748dd21f7596"
+      },
+      "licensePaths": [
+        "LICENSE.txt",
+        "ThirdPartyNotices.txt"
+      ],
       "securitySupport": "community-build-no-additional-security-maintenance"
     }
   },
@@ -64,10 +115,28 @@
       "pointRelease": "3.24.4",
       "libc": "musl",
       "status": "candidate-only",
-      "dependencies": ["musl", "ca-certificates", "libgcc", "libstdc++", "libssl3", "libcrypto3", "icu-libs", "icu-data-full", "tzdata", "krb5-libs", "zlib", "brotli-libs", "lttng-ust"]
+      "dependencies": [
+        "musl",
+        "ca-certificates",
+        "libgcc",
+        "libstdc++",
+        "libssl3",
+        "libcrypto3",
+        "icu-libs",
+        "icu-data-full",
+        "tzdata",
+        "krb5-libs",
+        "zlib",
+        "brotli-libs",
+        "lttng-ust"
+      ]
     }
   },
-  "channels": ["archive", "apk", "oci"],
+  "channels": [
+    "archive",
+    "apk",
+    "oci"
+  ],
   "ociRepository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
   "qualification": {
     "matchingNativeCpuRequired": true,

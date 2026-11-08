@@ -267,6 +267,9 @@ class TransformationTests(unittest.TestCase):
                       (self.root / 'scripts/build-vmr9.sh').read_text())
         self.assertEqual(self.before['scripts/ci_arch.py'], (self.root / 'scripts/ci_arch.py').read_bytes())
         for path in (self.root / 'profiles').glob('*.json'):
+            if '-linux-musl-' in path.name:
+                self.assertEqual(self.before['profiles/' + path.name], path.read_bytes())
+                continue
             profile = json.loads(path.read_text())
             self.assertEqual('9.0.124', profile['sdkVersion'])
             self.assertFalse(profile['build']['sourceOnly'])

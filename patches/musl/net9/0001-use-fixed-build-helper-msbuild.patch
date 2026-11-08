@@ -1,0 +1,27 @@
+Subject: [PATCH] Use serviced MSBuild packages for the VMR build helpers
+
+Update the single VMR-infrastructure version property consistently for its
+Microsoft.Build, Framework, Tasks.Core and Utilities.Core references. MSBuild
+17.8.43 fixes CVE-2025-55247 / GHSA-w3q9-fxm7-j8fq. The upstream 17.8.29 helper
+packages fail the current NuGet advisory audit; do not disable that audit.
+
+This property controls the VMR orchestration helpers, not the SDK's locally
+built MSBuild product or the native compiler/bootstrap SDK. Retain the original
+source tree, this patch, adjusted source bytes and actual restored input hashes.
+
+Advisory: https://github.com/advisories/GHSA-w3q9-fxm7-j8fq
+Base-VMR: 9f04b57d1366e21b3178648493d6edffeff2216e
+Source-Reference: https://github.com/dotnet/dotnet/blob/v9.0.123/eng/Versions.props
+
+diff --git a/eng/Versions.props b/eng/Versions.props
+--- a/eng/Versions.props
++++ b/eng/Versions.props
+@@ -28,7 +28,7 @@
+     <!-- command-line-api dependencies -->
+     <SystemCommandLineVersion>2.0.0-beta4.24126.1</SystemCommandLineVersion>
+     <!-- msbuild dependencies -->
+-    <MicrosoftBuildVersion>17.8.29</MicrosoftBuildVersion>
++    <MicrosoftBuildVersion>17.8.43</MicrosoftBuildVersion>
+     <!-- runtime dependencies -->
+     <MicrosoftExtensionsFileSystemGlobbingVersion>8.0.0</MicrosoftExtensionsFileSystemGlobbingVersion>
+     <MicrosoftExtensionsLoggingConsoleVersion>8.0.0</MicrosoftExtensionsLoggingConsoleVersion>

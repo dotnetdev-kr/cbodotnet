@@ -13,15 +13,15 @@ import musl_contract as MUSL
 import release_catalog as GLIBC
 
 
-def fixture():
-    version, revision = '10.0.403', 1
+def fixture(version='10.0.403'):
+    revision = 1
     tag = MUSL.producer_tag(version, revision)
     manifest = dict(schemaVersion=1, kind='musl-sdk-producer-release', repository=MUSL.REPOSITORY,
         libc='musl', sdkVersion=version, producerRevision=revision, tag=tag, architectures={})
     payloads = {}
     for arch, identity in MUSL.ARCHITECTURES.items():
-        entry = dict(targetRid=identity['rid'], provenance=dict(MUSL.SOURCE, libc='musl', targetRid=identity['rid'],
-            projectCommit='a' * 40, workflow='.github/workflows/musl-sdk.yml', runId='123', runAttempt='1',
+        entry = dict(targetRid=identity['rid'], provenance=dict(MUSL.SOURCES[version], libc='musl', targetRid=identity['rid'],
+            projectCommit='a' * 40, workflow=MUSL.producer_workflow(version), runId='123', runAttempt='1',
             artifactId='456' if arch == 'x64' else '457',
             workflowUrl=f'https://github.com/{MUSL.REPOSITORY}/actions/runs/123'))
         for kind in MUSL.KINDS:
@@ -40,7 +40,7 @@ def fixture():
                 browser_download_url=f'https://github.com/{MUSL.REPOSITORY}/releases/download/{tag}/{name}')
             for name, data in payloads.items()])
     catalog = dict(schemaVersion=1, kind='qualified-musl-sdk-producers', repository=MUSL.REPOSITORY,
-        libc='musl', builds=[dict(target='net10-musl', sdkVersion=version, producerRevision=revision,
+        libc='musl', builds=[dict(target='net'+version.split('.')[0]+'-musl', sdkVersion=version, producerRevision=revision,
             libc='musl', sourceReleaseTag=tag, sourceManifestSha256=hashlib.sha256(raw).hexdigest(),
             architectures={arch: copy.deepcopy(entry['provenance']) for arch, entry in manifest['architectures'].items()})])
     return release, manifest, raw, checksums, catalog, payloads

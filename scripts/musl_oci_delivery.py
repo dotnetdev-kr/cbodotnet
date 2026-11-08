@@ -368,11 +368,11 @@ def validate_report_closure(rows,stock,sdk_root):
     require(referenced==set(system),'Native OCI closure contains unreferenced or missing stock providers')
 
 
-def native_candidate(architecture,revision,workspace,output,*,push_staging=False,registry=None):
+def native_candidate(architecture,revision,workspace,output,*,push_staging=False,registry=None,sdk_version="10.0.403"):
     origin=protected({'native_oci'})
     DISTRIBUTION._docker_architecture(architecture)
     workspace=ARCHIVE.fresh_directory(workspace)
-    inputs=DISTRIBUTION.receive_source(architecture,workspace/'inputs')
+    inputs=DISTRIBUTION.receive_source(architecture,workspace/'inputs',sdk_version=sdk_version)
     plan,sdk=DISTRIBUTION.intake_plan(inputs,architecture,'oci',revision)
     context=workspace/'context'
     build=PACKAGES.build_oci_context(plan,sdk,context,ARCHIVE.BASES[architecture])
@@ -518,12 +518,13 @@ def publication_index(platforms,version,revision,actual):
 
 
 def create_bundle(candidates,origin,output,*,revision=1,keyring,signing_key=None,gnupg_home=None,
-                  target_commit,registry=None,source_receiver=None,policy=None):
+                  target_commit,registry=None,source_receiver=None,policy=None,sdk_version="10.0.403"):
     require(set(candidates)==set(CONTRACT.ARCHITECTURES),'Both native OCI candidates required before any canonical write')
     require(re.fullmatch(r'[a-f0-9]{40}',target_commit),'Exact protected OCI publication commit required')
     policy=policy or load_signing_policy(); signing_key=signing_key or PROMOTION.active_signer(policy)
     require(signing_key==PROMOTION.active_signer(policy),'Unreviewed OCI publication signing fingerprint')
-    source_receiver=source_receiver or DISTRIBUTION.receive_source
+    from functools import partial
+    source_receiver=source_receiver or partial(DISTRIBUTION.receive_source,sdk_version=sdk_version)
     registry=registry or Registry()
     output=ARCHIVE.fresh_directory(output)
     records=[];platforms={};assets={};common=None
@@ -533,7 +534,7 @@ def create_bundle(candidates,origin,output,*,revision=1,keyring,signing_key=None
             inputs=source_receiver(arch,Path(temporary)/arch)
             build,report,platform=verify_candidate(directory,arch,origin,inputs,revision,registry)
             identity=PROMOTION.publication_identity(build['plan'])
-            require(identity['channel']=='oci' and (common is None or common==identity),'Mixed OCI source/version/revision matrix')
+            require(identity['channel']=='oci' and identity['sdkVersion']==sdk_version and (common is None or common==identity),'Mixed OCI source/version/revision matrix')
             common=identity;platforms[arch]=platform
             name='qualification-'+arch+'.json'
             shutil.copyfile(ordinary_file(directory/'qualification-report.json'),output/name)
@@ -601,13 +602,13 @@ def validate_bundle(directory,keyring,*,policy=None,registry=None):
     return manifest
 
 
-def freeze_oci(run_id,attempt,revision,output,*,keyring,signing_key=None,gnupg_home=None,api=None,registry=None):
+def freeze_oci(run_id,attempt,revision,output,*,keyring,signing_key=None,gnupg_home=None,api=None,registry=None,sdk_version="10.0.403"):
     current=protected({'freeze_oci'})
     api=api or GitHubReleases()
     with tempfile.TemporaryDirectory(prefix='musl-oci-receive-') as temporary:
         origin,candidates=receive_candidates(api,run_id,attempt,Path(temporary)/'received',current=current)
         return create_bundle(candidates,origin,output,revision=revision,keyring=keyring,signing_key=signing_key,
-            gnupg_home=gnupg_home,target_commit=current['commit'],registry=registry)
+            gnupg_home=gnupg_home,target_commit=current['commit'],registry=registry,sdk_version=sdk_version)
 
 
 def publish_oci(directory,keyring,*,api=None,registry=None,policy=None):
@@ -657,14 +658,14 @@ def publish_oci(directory,keyring,*,api=None,registry=None,policy=None):
         assets=[dict(row,url=base+row['name']) for row in manifest['assets']])
 
 
-def public_oci(architecture,revision,workspace,output,*,registry=None):
+def public_oci(architecture,revision,workspace,output,*,registry=None,sdk_version="10.0.403"):
     origin=DISTRIBUTION.orchestration()
     require(architecture in CONTRACT.ARCHITECTURES,'Exact native public OCI CPU required')
-    CONTRACT.version_revision('10.0.403',revision)
+    CONTRACT.version_revision(sdk_version,revision)
     DISTRIBUTION._docker_architecture(architecture)
     workspace=ARCHIVE.fresh_directory(workspace)
     bundle=ARCHIVE.fresh_directory(workspace/'public-bundle')
-    tag=CONTRACT.distribution_tag('oci','10.0.403',revision)
+    tag=CONTRACT.distribution_tag('oci',sdk_version,revision)
     base=f'https://github.com/{REPOSITORY}/releases/download/{tag}/'
     release=json.loads(get_bytes(f'https://api.github.com/repos/{REPOSITORY}/releases/tags/{tag}',8*1024**2,api=True))
     require(release.get('tag_name')==tag and release.get('draft') is False and release.get('prerelease') is False,
@@ -721,6 +722,7 @@ def main():
         child=commands.add_parser(name)
         child.add_argument('--arch',choices=tuple(CONTRACT.ARCHITECTURES),required=True)
         child.add_argument('--revision',type=int,default=1)
+        child.add_argument('--sdk-version',choices=sorted(CONTRACT.SOURCES),default='10.0.403')
         child.add_argument('--workspace',type=Path,required=True)
         child.add_argument('--output',type=Path,required=True)
         if name=='native-candidate':child.add_argument('--push-staging',action='store_true')
@@ -728,6 +730,7 @@ def main():
     child.add_argument('--run-id',type=int,required=True)
     child.add_argument('--attempt',type=int,default=1)
     child.add_argument('--revision',type=int,default=1)
+    child.add_argument('--sdk-version',choices=sorted(CONTRACT.SOURCES),default='10.0.403')
     child.add_argument('--output',type=Path,required=True)
     child.add_argument('--keyring',type=Path,required=True)
     child.add_argument('--signing-key')
@@ -738,16 +741,16 @@ def main():
     child.add_argument('--output',type=Path,required=True)
     args=parser.parse_args()
     if args.command=='native-candidate':
-        result=native_candidate(args.arch,args.revision,args.workspace,args.output,push_staging=args.push_staging)
+        result=native_candidate(args.arch,args.revision,args.workspace,args.output,push_staging=args.push_staging,sdk_version=args.sdk_version)
     elif args.command=='freeze-oci':
         result=freeze_oci(args.run_id,args.attempt,args.revision,args.output,keyring=args.keyring,
-            signing_key=args.signing_key,gnupg_home=args.gnupg_home)
+            signing_key=args.signing_key,gnupg_home=args.gnupg_home,sdk_version=args.sdk_version)
     elif args.command=='publish-oci':
         require(args.output.parent.is_dir() and not args.output.exists(),'Fresh OCI publication receipt path required')
         result=publish_oci(args.bundle,args.keyring)
         args.output.write_bytes(encoded(result))
     else:
-        result=public_oci(args.arch,args.revision,args.workspace,args.output)
+        result=public_oci(args.arch,args.revision,args.workspace,args.output,sdk_version=args.sdk_version)
     print(json.dumps(dict(status=result.get('status'),tag=result.get('tag'),architecture=result.get('architecture'))))
 
 

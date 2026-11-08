@@ -27,6 +27,35 @@ QUALIFICATION = dict(matchingNativeCpuRequired=True, completePayloadElfAuditRequ
 SOURCE = dict(sourceCommit='5a2162bea6845eabc1fc721624a43568c65db3b1',
     sharedVmrCommit='0427b9abbead3fa64c6655eb4290c537397131fa', bootstrapSdk='10.0.401',
     sharedSdk='10.0.114-servicing.26522.126', runtimeVersion='10.0.14')
+EXPANSION_WORKFLOW = '.github/workflows/musl-sdk-expand.yml'
+# Reviewed candidate routes are not source or delivery qualification.
+SOURCES = {
+    '10.0.403': SOURCE,
+    '9.0.123': dict(sourceCommit='9f04b57d1366e21b3178648493d6edffeff2216e',
+        bootstrapSdk='9.0.121', runtimeVersion='9.0.22',
+        runtimeSourceCommit='faaecba82df8933d7af60972138ce25f9c776cbd',
+        aspnetSourceCommit='5aeb916d29e761492c987f1c09895c3ba9cbe1ac'),
+    '8.0.133': dict(sourceCommit='7d1bf90885cff22e7da72b27e9848e42fd3cb1ae',
+        bootstrapSdk='8.0.131', runtimeVersion='8.0.33',
+        runtimeSourceCommit='da7a9beabf4cccc624399d583f52f080a4c858c2',
+        aspnetSourceCommit='380bd0d498fbaa0a8ddd67c325aa748dd21f7596'),
+}
+
+
+def producer_workflow(version):
+    require(version in SOURCES, 'Unreviewed musl producer SDK version')
+    return '.github/workflows/musl-sdk.yml' if version == '10.0.403' else EXPANSION_WORKFLOW
+
+
+def producer_artifact_name(version, architecture, run_id, attempt):
+    require(version in SOURCES and architecture in ARCHITECTURES, 'Unreviewed native musl artifact route')
+    prefix = 'net10' if version == '10.0.403' else 'sdk' + version
+    return f'sdk-musl-{prefix}-{architecture}-{run_id}-{attempt}'
+
+
+def producer_script(version):
+    require(version in SOURCES, 'Unreviewed native musl producer validator')
+    return 'musl-sdk.py' if version == '10.0.403' else 'musl-sdk-expand.py'
 NATIVE_DEPENDENCIES = ['musl', 'ca-certificates', 'libgcc', 'libstdc++', 'libssl3', 'libcrypto3',
                        'icu-libs', 'icu-data-full', 'tzdata', 'krb5-libs', 'zlib', 'brotli-libs', 'lttng-ust']
 KINDS = ('sdk', 'source', 'evidence')
@@ -87,13 +116,17 @@ def validate_contract(contract):
     require(contract.get('qualification') == QUALIFICATION and contract.get('publicationAllowed') is False,
             'Candidate musl contract cannot authorize publication or installer admission')
     releases = contract.get('releases', {})
-    require(set(releases) == {'10.0.403'}, 'Unreviewed musl SDK candidate')
-    release = releases['10.0.403']
-    require(release.get('target') == 'net10-musl' and release.get('source') == SOURCE
-            and release.get('producerRevisions') == [1] and release.get('candidateVariants') == ['alpine-3.24']
-            and release.get('licensePaths') == ['LICENSE.txt', 'ThirdPartyNotices.txt']
-            and release.get('securitySupport') == 'community-build-no-additional-security-maintenance',
-            'Unreviewed musl SDK source or candidate identity')
+    require(set(releases) == set(SOURCES), 'Unreviewed musl SDK candidate')
+    for version, source in SOURCES.items():
+        release = releases[version]
+        require(release.get('target') == 'net' + version.split('.')[0] + '-musl'
+                and release.get('source') == source
+                and release.get('producerRevisions') == [1] and release.get('candidateVariants') == ['alpine-3.24']
+                and release.get('licensePaths') == ['LICENSE.txt', 'ThirdPartyNotices.txt']
+                and release.get('securitySupport') == 'community-build-no-additional-security-maintenance',
+                'Unreviewed musl SDK source or candidate identity')
+        if version != '10.0.403':
+            require(release.get('producerWorkflow') == producer_workflow(version), 'Unreviewed expansion workflow')
     require(contract.get('operatingSystems') == {'alpine-3.24': dict(distribution='alpine', branch='3.24',
             pointRelease='3.24.4', libc='musl', status='candidate-only', dependencies=NATIVE_DEPENDENCIES)},
             'Unreviewed musl user space or native dependencies')
@@ -105,19 +138,21 @@ def load_contract(path=None):
     return validate_contract(json.loads(path.read_bytes()))
 
 
-def validate_provenance(provenance, architecture, contract=None):
+def validate_provenance(provenance, architecture, contract=None, *, version='10.0.403'):
     contract = contract if contract is not None else load_contract()
     require(architecture in ARCHITECTURES and isinstance(provenance, dict), 'Missing musl producer provenance')
     require(provenance.get('libc') == 'musl' and provenance.get('targetRid') == ARCHITECTURES[architecture]['rid'],
             'Producer libc or target RID does not match musl architecture')
-    require(provenance.get('workflow') == contract['producerWorkflow']
+    require(version in contract['releases'], 'Unreviewed producer SDK version')
+    require(provenance.get('workflow') == producer_workflow(version)
             and isinstance(provenance.get('projectCommit'), str)
             and re.fullmatch(r'[a-f0-9]{40}', provenance['projectCommit']), 'Unreviewed musl producer workflow or commit')
     for field in ('runId', 'runAttempt', 'artifactId'):
         positive_id(provenance.get(field), field)
     require(provenance.get('workflowUrl') == f'https://github.com/{REPOSITORY}/actions/runs/{provenance["runId"]}',
             'Musl producer workflow URL differs from exact run')
-    require(all(provenance.get(key) == value for key, value in SOURCE.items()),
+    require(all(provenance.get(key) == value for key, value in SOURCES[version].items())
+            and not (version != '10.0.403' and ('sharedVmrCommit' in provenance or 'sharedSdk' in provenance)),
             'Musl producer source/bootstrap/shared SDK identity differs from reviewed candidate')
     return provenance
 
@@ -141,7 +176,7 @@ def validate_producer_manifest(manifest, *, release=None, contract=None):
         require(isinstance(entry, dict) and entry.get('targetRid') == identity['rid'], 'Musl source entry target RID differs')
         for kind in KINDS:
             asset_descriptor(entry.get(kind), producer_asset_name(kind, version, arch, revision))
-        validate_provenance(entry.get('provenance'), arch, contract)
+        validate_provenance(entry.get('provenance'), arch, contract, version=version)
     asset_descriptor(manifest.get('checksums'), 'SHA256SUMS')
     if release is not None:
         require(release.get('tag_name') == manifest['tag'] and release.get('draft') is False
@@ -195,7 +230,7 @@ def validate_qualification_catalog(catalog, *, contract=None):
         require(isinstance(producers, dict) and set(producers) == set(ARCHITECTURES),
                 'Musl qualification requires both native architectures')
         for arch, provenance in producers.items():
-            validate_provenance(provenance, arch, contract)
+            validate_provenance(provenance, arch, contract, version=version)
     return catalog
 
 

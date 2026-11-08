@@ -18,15 +18,15 @@ import musl_contract as CONTRACT
 from musl_contract_test import fixture
 
 
-def prepared_inputs(directory):
-    release, manifest, raw, checksums, catalog, payloads = fixture()
+def prepared_inputs(directory, version='10.0.403'):
+    release, manifest, raw, checksums, catalog, payloads = fixture(version)
     content = io.BytesIO()
     with tarfile.open(fileobj=content, mode='w:gz') as archive:
         for name, data, mode in (
-            ('dotnet', b'#!/bin/sh\nprintf "10.0.403\\n"\n', 0o755),
+            ('dotnet', ('#!/bin/sh\nprintf "'+version+'\\n"\n').encode(), 0o755),
             ('LICENSE.txt', b'Upstream license\n', 0o644),
             ('ThirdPartyNotices.txt', b'Upstream notices\n', 0o644),
-            ('sdk/10.0.403/sentinel', b'Original SDK bytes\n', 0o644)):
+            ('sdk/'+version+'/sentinel', b'Original SDK bytes\n', 0o644)):
             row = tarfile.TarInfo(name)
             row.mode, row.size = mode, len(data)
             archive.addfile(row, io.BytesIO(data))

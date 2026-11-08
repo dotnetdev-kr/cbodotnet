@@ -242,7 +242,8 @@ def compatibility(root, policy, candidate, helpers):
 
 def transform(root, policy, candidate, helpers):
     adapter = policy['adapter']; inputs = candidate['upstreamInputs']; baseline = adapter['baselineSdk']
-    profiles = sorted((root / 'profiles').glob('dotnet-' + baseline + '-linux-*.json'))
+    profiles = sorted(path for path in (root / 'profiles').glob('dotnet-' + baseline + '-linux-*.json')
+                      if '-linux-musl-' not in path.name)
     require(len(profiles) == 2, 'Both baseline native profiles are required')
     original = helpers.load(profiles[0])
     require(original['source']['commit'] == adapter['baselineSource'], 'The NET8 adapter baseline differs')

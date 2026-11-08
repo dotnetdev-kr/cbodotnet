@@ -1,5 +1,6 @@
 """Independent native-musl archive construction and Alpine consumer qualification."""
 import argparse
+from sdk_runtime import target_framework
 import gzip
 import hashlib
 import importlib.util
@@ -149,7 +150,7 @@ def build_archive(inputs, architecture, revision, output, *, contract=None, cata
     (tree / 'distribution.json').write_bytes(encoded(dict(plan, payloadDirectory='payload', additionalDirectories=added)))
     (tree / 'README.txt').write_text(BRANDING['displayName'] + '\n\n'
         'Target user space: native musl Linux on Alpine 3.24.4. Verify the signed release evidence before use.\n'
-        'Run ./cbodotnet, ./cbodotnet-10.0 or ./dotnet. The unchanged SDK is under payload/.\n'
+        'Run ./cbodotnet, ./cbodotnet-' + '.'.join(plan['sdkVersion'].split('.')[:2]) + ' or ./dotnet. The unchanged SDK is under payload/.\n'
         'Direct apphosts need DOTNET_ROOT set to the absolute payload/ directory.\n'
         'Original notices: payload/LICENSE.txt and payload/ThirdPartyNotices.txt.\n'
         'Additional wrappers: LICENSE.wrapper.txt (the project MIT notice).\n'
@@ -446,7 +447,8 @@ def full_smoke_script(plan, payload, cli, workdir, *, expected_user='cbot-musl')
 
 def trust_probe_script(plan, payload, cli, workdir):
     """Build the system-trust HTTPS probe offline; its later invocation is online."""
-    project = '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType></PropertyGroup></Project>'
+    from sdk_runtime import target_framework
+    project = '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>' + target_framework(plan['sdkVersion']) + '</TargetFramework><OutputType>Exe</OutputType></PropertyGroup></Project>'
     program = '''using System; using System.Net.Http; using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 public static class Program { public static async Task Main() {
@@ -561,7 +563,7 @@ def installed(build_directory, architecture, workspace, target_policy=None):
         checks=dict.fromkeys(REPORT_CHECKS - {'system-trust-https'}, 'passed'), functionalChecks=functional,
         commands=commands, elfAudit=descriptor(workspace / 'elf-audit.json'),
         dependencies=run(['apk', 'info', '-v']).splitlines(), caBundle=descriptor(Path('/etc/ssl/cert.pem').resolve(strict=True)),
-        trustProbe=str(workspace / 'system-trust/bin/Debug/net10.0/Trust.dll'), cli=str(cli), payload=str(payload))))
+        trustProbe=str(workspace / ('system-trust/bin/Debug/' + target_framework(plan['sdkVersion']) + '/Trust.dll')), cli=str(cli), payload=str(payload))))
     return dict(status='passed', scope='musl-consumer-archive-offline')
 
 
@@ -582,7 +584,7 @@ def validate_offline_report(report, build, architecture, *, elf_audit=None):
                 and all(observed[key] == 'passed' for key in expected), 'Offline musl worker omitted a mandatory passed check')
     payload = '/qualification/relocated musl archive/payload'
     require(report.get('payload') == payload and report.get('cli') == '/qualification/relocated musl archive/cbodotnet'
-        and report.get('trustProbe') == '/qualification/system-trust/bin/Debug/net10.0/Trust.dll',
+        and report.get('trustProbe') == '/qualification/system-trust/bin/Debug/' + target_framework(build['plan']['sdkVersion']) + '/Trust.dll',
         'Offline musl worker attempted to route an unreviewed runtime/probe command')
     commands = report.get('commands', [])
     require(isinstance(commands, list) and len(commands) == 3

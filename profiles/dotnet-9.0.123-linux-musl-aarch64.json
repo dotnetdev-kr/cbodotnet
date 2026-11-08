@@ -1,0 +1,772 @@
+{
+  "schemaVersion": 1,
+  "selectedAt": "2026-11-08",
+  "sdkVersion": "9.0.123",
+  "source": {
+    "repository": "https://github.com/dotnet/dotnet",
+    "tag": "v9.0.123",
+    "commit": "9f04b57d1366e21b3178648493d6edffeff2216e"
+  },
+  "host": {
+    "os": "linux",
+    "architecture": "arm64",
+    "emulation": false
+  },
+  "target": {
+    "rid": "linux-musl-arm64",
+    "libc": "musl"
+  },
+  "container": {
+    "repository": "docker.io/library/alpine",
+    "version": "3.24.4",
+    "digest": "sha256:1829893486be257df5049ab3b7fc95afbd0fc09d89803cbc580bda1ba5386b29",
+    "indexDigest": "sha256:93b41ef40b1677fce8fcc64ff4af09daddfacf5040afde618bc46c1e2d1cc7d4"
+  },
+  "bootstrap": {
+    "version": "9.0.121",
+    "rid": "linux-musl-arm64",
+    "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/9.0.121/dotnet-sdk-9.0.121-linux-musl-arm64.tar.gz",
+    "sha512": "42d417c60eff017d4d838b86e5673cf374f1ac39814574805a86949da9bdf6678580b75d65c50ef10e1801c2313f15608ef5c7bbc76be9ad1560bb54be905399"
+  },
+  "build": {
+    "system": "vmr-unified-build",
+    "configuration": "Release",
+    "sourceOnly": false,
+    "online": true,
+    "crossBuild": false,
+    "portableBuild": true,
+    "maxCpuCount": 2,
+    "cleanWhileBuilding": false,
+    "compiler": "/usr/bin/clang-20",
+    "cxxCompiler": "/usr/bin/clang++-20",
+    "sharedComponents": "The core runtime is built locally; ASP.NET Core may use the tagged upstream fallback, whose actual bytes and corresponding sources must be recorded.",
+    "patches": [
+      {
+        "path": "patches/musl/net9/0001-use-fixed-build-helper-msbuild.patch",
+        "sha256": "444916928c5c78a8232c3baba53b7d0c2d09ea4ad9bd4fe3536b1b11055b823e",
+        "purpose": "Service only the VMR build-helper Microsoft.Build package family from 17.8.29 to CVE-2025-55247-fixed 17.8.43; NuGet audit remains enabled."
+      },
+      {
+        "path": "patches/musl/net9/0002-use-fixed-build-helper-asn1.patch",
+        "sha256": "862fbb3852f396d93c4033bbfba256531a54d0210916271c0eea5eec6b9de395",
+        "purpose": "Centrally pin the VMR helpers transitive System.Formats.Asn1 dependency to CVE-2024-38095-fixed 8.0.1; NuGet audit remains enabled."
+      }
+    ]
+  },
+  "upstreamInputs": {
+    "bootstrapSdk": "9.0.121",
+    "sourceBuiltArtifacts": "9.0.121-servicing.26421.1",
+    "runtime": "9.0.22",
+    "sourceBuiltArtifactsRole": "Bootstrap compiler/tooling input; never claim this archive as a newly built musl SDK."
+  },
+  "additionalPackages": [],
+  "apkIndexes": {
+    "main": {
+      "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/aarch64/APKINDEX.tar.gz",
+      "sha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540",
+      "snapshotPath": "inputs/alpine-3.24.4/aarch64/main-APKINDEX.tar.gz"
+    },
+    "community": {
+      "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/community/aarch64/APKINDEX.tar.gz",
+      "sha256": "ad8f92f7111c96240bc7ec595d78201a74e4fc1ef2d50658f3136a446e0c7f08",
+      "snapshotPath": "inputs/alpine-3.24.4/aarch64/community-APKINDEX.tar.gz"
+    }
+  },
+  "buildPackages": [
+    {
+      "P": "bash",
+      "V": "5.3.9-r1",
+      "A": "aarch64",
+      "D": "/bin/sh so:libc.musl-aarch64.so.1 so:libreadline.so.8",
+      "L": "GPL-3.0-or-later",
+      "o": "bash",
+      "c": "1522c3193610902d8493f9790a2755c11f21f26d",
+      "repository": "main"
+    },
+    {
+      "P": "build-base",
+      "V": "0.5-r4",
+      "A": "aarch64",
+      "D": "binutils file gcc g++ make libc-dev fortify-headers patch",
+      "L": "MIT",
+      "o": "build-base",
+      "c": "1eff03395e9533e60c804a7a21400e59d5c8a1bf",
+      "repository": "main"
+    },
+    {
+      "P": "clang20",
+      "V": "20.1.8-r3",
+      "A": "aarch64",
+      "D": "clang20-headers=20.1.8-r3 clang20-libs=20.1.8-r3 fortify-headers>=1.1-r2 libgcc-static libstdc++-dev llvm20-linker-tools musl-dev clang20-headers=20.1.8-r3 so:libLLVM.so.20.1 so:libc.musl-aarch64.so.1 so:libclang-cpp.so.20.1 so:libgcc_s.so.1 so:libstdc++.so.6",
+      "L": "Apache-2.0 WITH LLVM-exception",
+      "o": "clang20",
+      "c": "ae31ee6bd9b88ee679224bbb0105585725b33cdc",
+      "repository": "main"
+    },
+    {
+      "P": "lld20",
+      "V": "20.1.8-r1",
+      "A": "aarch64",
+      "D": "so:libLLVM.so.20.1 so:libc.musl-aarch64.so.1 so:libgcc_s.so.1 so:liblldCOFF.so.20.1 so:liblldCommon.so.20.1 so:liblldELF.so.20.1 so:liblldMachO.so.20.1 so:liblldMinGW.so.20.1 so:liblldWasm.so.20.1 so:libscudo.so so:libstdc++.so.6",
+      "L": "Apache-2.0",
+      "o": "lld20",
+      "c": "f568a1a88293bb77119606df5d9bd27f1630406a",
+      "repository": "main"
+    },
+    {
+      "P": "llvm20-dev",
+      "V": "20.1.8-r1",
+      "A": "aarch64",
+      "D": "llvm20=20.1.8-r1 libffi-dev zlib-dev zstd-dev llvm20-test-utils=20.1.8-r1 llvm20-libs=20.1.8-r1 so:libc.musl-aarch64.so.1 so:libgcc_s.so.1 so:libstdc++.so.6",
+      "L": "Apache-2.0",
+      "o": "llvm20",
+      "c": "68eef0ad60d0ed38fa37f6ffc878d7b5da1d536f",
+      "repository": "main"
+    },
+    {
+      "P": "cmake",
+      "V": "4.2.3-r0",
+      "A": "aarch64",
+      "D": "so:libarchive.so.13 so:libc.musl-aarch64.so.1 so:libcrypto.so.3 so:libexpat.so.1 so:libgcc_s.so.1 so:librhash.so.1 so:libssl.so.3 so:libstdc++.so.6 so:libuv.so.1 so:libz.so.1",
+      "L": "BSD-3-Clause",
+      "o": "cmake",
+      "c": "1eedad55aa2fbcfbaf5fe2ae36c2434b1244c167",
+      "repository": "main"
+    },
+    {
+      "P": "samurai",
+      "V": "1.2-r8",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1",
+      "L": "Apache-2.0",
+      "o": "samurai",
+      "c": "d7d0e7c6dea902bafc0462da51e5e5a6c0b685d5",
+      "repository": "main"
+    },
+    {
+      "P": "git",
+      "V": "2.54.0-r0",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1 so:libcurl.so.4 so:libexpat.so.1 so:libpcre2-8.so.0 so:libz.so.1",
+      "L": "GPL-2.0-only",
+      "o": "git",
+      "c": "b3ed5f8f4ce6b2ef13adeaf7494557add6546bda",
+      "repository": "main"
+    },
+    {
+      "P": "python3",
+      "V": "3.14.10-r1",
+      "A": "aarch64",
+      "D": "libssl3>=3.3.0 libexpat>=2.9.0 so:libbz2.so.1 so:libc.musl-aarch64.so.1 so:libcrypto.so.3 so:libexpat.so.1 so:libffi.so.8 so:libgdbm_compat.so.4 so:liblzma.so.5 so:libmpdec.so.4 so:libncursesw.so.6 so:libpanelw.so.6 so:libreadline.so.8 so:libsqlite3.so.0 so:libssl.so.3 so:libz.so.1",
+      "L": "PSF-2.0",
+      "o": "python3",
+      "c": "831cfeb7301d5010c027905e42958312698f4e4a",
+      "repository": "main"
+    },
+    {
+      "P": "curl",
+      "V": "8.23.0-r0",
+      "A": "aarch64",
+      "D": "libcurl=8.23.0-r0 so:libc.musl-aarch64.so.1 so:libcurl.so.4 so:libz.so.1",
+      "L": "curl",
+      "o": "curl",
+      "c": "c65a7b3f6d6bc4b3c0a8a6fff759d8fd05a167ce",
+      "repository": "main"
+    },
+    {
+      "P": "wget",
+      "V": "1.25.0-r3",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1 so:libcrypto.so.3 so:libidn2.so.0 so:libpcre2-8.so.0 so:libssl.so.3 so:libz.so.1",
+      "L": "GPL-3.0-or-later WITH OpenSSL-Exception",
+      "o": "wget",
+      "c": "7a02ccbc115c031eddb5836df5ed9bf41fb3bd8a",
+      "repository": "main"
+    },
+    {
+      "P": "tar",
+      "V": "1.35-r5",
+      "A": "aarch64",
+      "D": "so:libacl.so.1 so:libc.musl-aarch64.so.1",
+      "L": "GPL-3.0-or-later",
+      "o": "tar",
+      "c": "a9e2a2dc46f377eb25884f7fea9834492de7f518",
+      "repository": "main"
+    },
+    {
+      "P": "gzip",
+      "V": "1.15-r0",
+      "A": "aarch64",
+      "D": "less so:libc.musl-aarch64.so.1",
+      "L": "GPL-3.0-or-later",
+      "o": "gzip",
+      "c": "83633a158291005671d07f7f24feb56d75044585",
+      "repository": "main"
+    },
+    {
+      "P": "xz",
+      "V": "5.8.4-r0",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1 so:liblzma.so.5",
+      "L": "GPL-2.0-or-later AND 0BSD AND Public-Domain AND LGPL-2.1-or-later",
+      "o": "xz",
+      "c": "0c088d609f9fe69eedd6b4c7f4b99cdad847c20a",
+      "repository": "main"
+    },
+    {
+      "P": "unzip",
+      "V": "6.0-r16",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1",
+      "L": "custom",
+      "o": "unzip",
+      "c": "b7410ac718d5eeae21001de5cae9159f597bb517",
+      "repository": "main"
+    },
+    {
+      "P": "zip",
+      "V": "3.0-r13",
+      "A": "aarch64",
+      "D": "unzip so:libc.musl-aarch64.so.1",
+      "L": "Info-ZIP",
+      "o": "zip",
+      "c": "14226268fa7d58f8faa74d8971ce1503959b8345",
+      "repository": "main"
+    },
+    {
+      "P": "cpio",
+      "V": "2.15-r0",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1",
+      "L": "GPL-3.0-or-later",
+      "o": "cpio",
+      "c": "d385485f21a2f960adc55154d63804c7cec5b364",
+      "repository": "community"
+    },
+    {
+      "P": "findutils",
+      "V": "4.10.0-r1",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1",
+      "L": "GPL-3.0-or-later",
+      "o": "findutils",
+      "c": "1a4e2ce6309586205b7e4c500c7ae287be39ea31",
+      "repository": "main"
+    },
+    {
+      "P": "coreutils",
+      "V": "9.11-r0",
+      "A": "aarch64",
+      "D": "coreutils-env=9.11-r0 coreutils-fmt=9.11-r0 coreutils-sha512sum=9.11-r0 /bin/sh so:libacl.so.1 so:libattr.so.1 so:libc.musl-aarch64.so.1 so:libcrypto.so.3 so:libutmps.so.0.1",
+      "L": "GPL-3.0-or-later",
+      "o": "coreutils",
+      "c": "8e261cdab4fd1bc77881cbff73b9ea962e9bd49f",
+      "repository": "main"
+    },
+    {
+      "P": "grep",
+      "V": "3.12-r0",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1 so:libpcre2-8.so.0",
+      "L": "GPL-3.0-or-later",
+      "o": "grep",
+      "c": "4cbb86a7e5760f0f92903377ef35da450df3e1e6",
+      "repository": "main"
+    },
+    {
+      "P": "sed",
+      "V": "4.9-r2",
+      "A": "aarch64",
+      "D": "/bin/sh so:libc.musl-aarch64.so.1",
+      "L": "GPL-3.0-or-later",
+      "o": "sed",
+      "c": "84a227baf001b6e0208e3352b294e4d7a40e93de",
+      "repository": "main"
+    },
+    {
+      "P": "file",
+      "V": "5.47-r2",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1 so:libmagic.so.1",
+      "L": "BSD-2-Clause",
+      "o": "file",
+      "c": "a05d36fa86411cd0ce86d756f818e525d0eee1c3",
+      "repository": "main"
+    },
+    {
+      "P": "binutils",
+      "V": "2.45.1-r1",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1 so:libgcc_s.so.1 so:libjansson.so.4 so:libstdc++.so.6 so:libz.so.1 so:libzstd.so.1",
+      "L": "GPL-2.0-or-later AND LGPL-2.1-or-later AND BSD-3-Clause",
+      "o": "binutils",
+      "c": "673df4f3ce2e71e9bcfbf64939332917a35795fc"
+    },
+    {
+      "P": "jq",
+      "V": "1.8.2-r0",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1 so:libonig.so.5",
+      "L": "MIT",
+      "o": "jq",
+      "c": "2437351bfa2aecb328f0b859f4a4987476ae31c9",
+      "repository": "main"
+    },
+    {
+      "P": "time",
+      "V": "1.10-r0",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1",
+      "L": "GPL-3.0-only",
+      "o": "time",
+      "c": "9ee119352da72892628a245b4ab4eedbe4741c9a",
+      "repository": "community"
+    },
+    {
+      "P": "linux-headers",
+      "V": "7.0.0-r1",
+      "A": "aarch64",
+      "D": null,
+      "L": "GPL-2.0-only",
+      "o": "linux-headers",
+      "c": "4568bf119fd5a67f5d895a2a68a1dcf8b7bfa606",
+      "repository": "main"
+    },
+    {
+      "P": "icu-dev",
+      "V": "78.1-r0",
+      "A": "aarch64",
+      "D": "icu=78.1-r0 icu-libs=78.1-r0 icu=78.1-r0 pkgconfig so:libc.musl-aarch64.so.1 so:libgcc_s.so.1 so:libicutu.so.78 so:libicuuc.so.78 so:libstdc++.so.6",
+      "L": "ICU",
+      "o": "icu",
+      "c": "6755fdb21483ba250d374c3244f0f48bc63447e2",
+      "repository": "main"
+    },
+    {
+      "P": "icu-data-full",
+      "V": "78.1-r0",
+      "A": "aarch64",
+      "D": null,
+      "L": "ICU",
+      "o": "icu",
+      "c": "6755fdb21483ba250d374c3244f0f48bc63447e2",
+      "repository": "main"
+    },
+    {
+      "P": "openssl-dev",
+      "V": "3.5.9-r0",
+      "A": "aarch64",
+      "D": "libcrypto3=3.5.9-r0 libssl3=3.5.9-r0 pkgconfig",
+      "L": "Apache-2.0",
+      "o": "openssl",
+      "c": "29b9ec24b1b5b39aeef51fa2a044210e2ec5258e",
+      "repository": "main"
+    },
+    {
+      "P": "zlib-dev",
+      "V": "1.4-r0",
+      "A": "aarch64",
+      "D": "zlib=1.4-r0 pkgconfig",
+      "L": "Zlib",
+      "o": "zlib",
+      "c": "bdf501c870a92a05c097857401f69c48c4810384",
+      "repository": "main"
+    },
+    {
+      "P": "krb5-libs",
+      "V": "1.22.2-r1",
+      "A": "aarch64",
+      "D": "krb5-conf so:libc.musl-aarch64.so.1 so:libcom_err.so.2 so:libcrypto.so.3 so:libkeyutils.so.1 so:libssl.so.3 so:libverto.so.1",
+      "L": "MIT",
+      "o": "krb5",
+      "c": "92bc4f0d36aa5307e819fb57167fc19952cf515f"
+    },
+    {
+      "P": "libunwind-dev",
+      "V": "1.8.3-r0",
+      "A": "aarch64",
+      "D": "libucontext-dev libunwind=1.8.3-r0 pkgconfig",
+      "L": "MIT",
+      "o": "libunwind",
+      "c": "1789f1e1e73cb18ef6050b7cbb544fc5cfcd65be",
+      "repository": "main"
+    },
+    {
+      "P": "lttng-ust-dev",
+      "V": "2.14.2-r0",
+      "A": "aarch64",
+      "D": "userspace-rcu-dev>0.10 lttng-ust=2.14.2-r0 py3-lttng=2.14.2-r0 pkgconfig",
+      "L": "LGPL-2.1-only AND GPL-2.0-only AND MIT",
+      "o": "lttng-ust",
+      "c": "99d1723f7af0cc1fdec1b62a221c85224f0924f8",
+      "repository": "main"
+    },
+    {
+      "P": "libedit-dev",
+      "V": "20260508.3.1-r1",
+      "A": "aarch64",
+      "D": "bsd-compat-headers ncurses-dev libedit=20260508.3.1-r1 pkgconfig",
+      "L": "BSD-3-Clause",
+      "o": "libedit",
+      "c": "7c805161e588c028cdee3f19f500849fb2c75d42",
+      "repository": "main"
+    },
+    {
+      "P": "gettext-dev",
+      "V": "1.0-r0",
+      "A": "aarch64",
+      "D": "!musl-libintl xz gettext-asprintf=1.0-r0 gettext-libs=1.0-r0 gettext=1.0-r0 libintl=1.0-r0",
+      "L": "GPL-3.0-or-later AND LGPL-2.1-or-later AND MIT",
+      "o": "gettext",
+      "c": "a0b12dbf67fb047e79a1b76c6dfe6f2904d0d391",
+      "repository": "main"
+    },
+    {
+      "P": "brotli-dev",
+      "V": "1.2.1-r0",
+      "A": "aarch64",
+      "D": "brotli=1.2.1-r0 brotli-libs=1.2.1-r0 pkgconfig",
+      "L": "MIT",
+      "o": "brotli",
+      "c": "8313352127992a9d82e2c2024494f6c38a4dffb4",
+      "repository": "main"
+    },
+    {
+      "P": "compiler-rt",
+      "V": "22.1.3-r0",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1 so:libgcc_s.so.1 so:libstdc++.so.6",
+      "L": "Apache-2.0",
+      "o": "llvm-runtimes",
+      "c": "95b2a62e779cd08bbff8ba007557d7acd4ddc885",
+      "repository": "main"
+    },
+    {
+      "P": "pax-utils",
+      "V": "1.3.9-r1",
+      "A": "aarch64",
+      "D": "scanelf so:libc.musl-aarch64.so.1 so:libcap.so.2",
+      "L": "GPL-2.0-only",
+      "o": "pax-utils",
+      "c": "c61801eeacb3ffcd9c2025b09e402153bb93fb39",
+      "repository": "main"
+    },
+    {
+      "P": "perl",
+      "V": "5.42.3-r0",
+      "A": "aarch64",
+      "D": "so:libbz2.so.1 so:libc.musl-aarch64.so.1 so:libz.so.1",
+      "L": "Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "o": "perl",
+      "c": "202d687a7e8911ce847f7b94051c39ea14c65354",
+      "repository": "main"
+    },
+    {
+      "P": "rsync",
+      "V": "3.5.2-r0",
+      "A": "aarch64",
+      "D": "so:libacl.so.1 so:libc.musl-aarch64.so.1 so:libidn2.so.0 so:liblz4.so.1 so:libpopt.so.0 so:libxxhash.so.0 so:libz.so.1 so:libzstd.so.1",
+      "L": "GPL-3.0-or-later",
+      "o": "rsync",
+      "c": "0351b06f825ba527a1ff93f95b6040503943b004",
+      "repository": "main"
+    },
+    {
+      "P": "gawk",
+      "V": "5.3.2-r2",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1",
+      "L": "GPL-3.0-or-later",
+      "o": "gawk",
+      "c": "730f2f5bdc97be98b2beee33f55134c622e6189c",
+      "repository": "main"
+    },
+    {
+      "P": "autoconf",
+      "V": "2.73-r0",
+      "A": "aarch64",
+      "D": "m4 perl",
+      "L": "GPL-3.0-or-later WITH Autoconf-exception-3.0",
+      "o": "autoconf",
+      "c": "7e747c6804eb510366769877534d11d708a617e1",
+      "repository": "main"
+    },
+    {
+      "P": "automake",
+      "V": "1.18.1-r1",
+      "A": "aarch64",
+      "D": "perl",
+      "L": "GPL-2.0-or-later",
+      "o": "automake",
+      "c": "afd510019609accbee2616bbaa42c81df8b8fd1c",
+      "repository": "main"
+    },
+    {
+      "P": "libtool",
+      "V": "2.6.0-r1",
+      "A": "aarch64",
+      "D": "diffutils libltdl=2.6.0-r1",
+      "L": "LGPL-2.0-or-later AND GPL-2.0-or-later",
+      "o": "libtool",
+      "c": "21b05914806e37e3e9de9d1e5a037fc688cbebd6",
+      "repository": "main"
+    },
+    {
+      "P": "patch",
+      "V": "2.8.1-r0",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1",
+      "L": "GPL-3.0-or-later",
+      "o": "patch",
+      "c": "5120e945a123efcb74ac4f3e9617165ea551c7d2",
+      "repository": "main"
+    },
+    {
+      "P": "bison",
+      "V": "3.8.2-r3",
+      "A": "aarch64",
+      "D": "m4 so:libc.musl-aarch64.so.1",
+      "L": "GPL-3.0-or-later",
+      "o": "bison",
+      "c": "21b05914806e37e3e9de9d1e5a037fc688cbebd6",
+      "repository": "main"
+    },
+    {
+      "P": "flex",
+      "V": "2.6.4-r8",
+      "A": "aarch64",
+      "D": "m4 so:libc.musl-aarch64.so.1",
+      "L": "BSD-2-Clause",
+      "o": "flex",
+      "c": "f0dedbda461817821fef04821eacac4212929934",
+      "repository": "main"
+    },
+    {
+      "P": "libxml2-dev",
+      "V": "2.13.9-r2",
+      "A": "aarch64",
+      "D": "zlib-dev xz-dev libxml2-utils=2.13.9-r2 libxml2=2.13.9-r2 pc:liblzma pc:zlib pkgconfig",
+      "L": "MIT",
+      "o": "libxml2",
+      "c": "f1bd5b6767a0e7fdda380c95138a1c938eb6e102",
+      "repository": "main"
+    }
+  ],
+  "runtimePackages": [
+    {
+      "P": "bash",
+      "V": "5.3.9-r1",
+      "A": "aarch64",
+      "D": "/bin/sh so:libc.musl-aarch64.so.1 so:libreadline.so.8",
+      "L": "GPL-3.0-or-later",
+      "o": "bash",
+      "c": "1522c3193610902d8493f9790a2755c11f21f26d",
+      "repository": "main"
+    },
+    {
+      "P": "python3",
+      "V": "3.14.10-r1",
+      "A": "aarch64",
+      "D": "libssl3>=3.3.0 libexpat>=2.9.0 so:libbz2.so.1 so:libc.musl-aarch64.so.1 so:libcrypto.so.3 so:libexpat.so.1 so:libffi.so.8 so:libgdbm_compat.so.4 so:liblzma.so.5 so:libmpdec.so.4 so:libncursesw.so.6 so:libpanelw.so.6 so:libreadline.so.8 so:libsqlite3.so.0 so:libssl.so.3 so:libz.so.1",
+      "L": "PSF-2.0",
+      "o": "python3",
+      "c": "831cfeb7301d5010c027905e42958312698f4e4a",
+      "repository": "main"
+    },
+    {
+      "P": "curl",
+      "V": "8.23.0-r0",
+      "A": "aarch64",
+      "D": "libcurl=8.23.0-r0 so:libc.musl-aarch64.so.1 so:libcurl.so.4 so:libz.so.1",
+      "L": "curl",
+      "o": "curl",
+      "c": "c65a7b3f6d6bc4b3c0a8a6fff759d8fd05a167ce",
+      "repository": "main"
+    },
+    {
+      "P": "tar",
+      "V": "1.35-r5",
+      "A": "aarch64",
+      "D": "so:libacl.so.1 so:libc.musl-aarch64.so.1",
+      "L": "GPL-3.0-or-later",
+      "o": "tar",
+      "c": "a9e2a2dc46f377eb25884f7fea9834492de7f518",
+      "repository": "main"
+    },
+    {
+      "P": "binutils",
+      "V": "2.45.1-r1",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1 so:libgcc_s.so.1 so:libjansson.so.4 so:libstdc++.so.6 so:libz.so.1 so:libzstd.so.1",
+      "L": "GPL-2.0-or-later AND LGPL-2.1-or-later AND BSD-3-Clause",
+      "o": "binutils",
+      "c": "673df4f3ce2e71e9bcfbf64939332917a35795fc"
+    },
+    {
+      "P": "ca-certificates",
+      "V": "20261020-r0",
+      "A": "aarch64",
+      "D": "/bin/sh so:libc.musl-aarch64.so.1 so:libcrypto.so.3",
+      "L": "MPL-2.0 AND MIT",
+      "o": "ca-certificates",
+      "c": "e78f5987166c6ffbe23f6472e2e8f040298fe2da"
+    },
+    {
+      "P": "libgcc",
+      "V": "15.2.0-r5",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1",
+      "L": "GPL-2.0-or-later AND LGPL-2.1-or-later",
+      "o": "gcc",
+      "c": "423a8ad043d07f2c7546c8ec3e2b0384cda360ae"
+    },
+    {
+      "P": "libstdc++",
+      "V": "15.2.0-r5",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1 so:libgcc_s.so.1",
+      "L": "GPL-2.0-or-later AND LGPL-2.1-or-later",
+      "o": "gcc",
+      "c": "423a8ad043d07f2c7546c8ec3e2b0384cda360ae"
+    },
+    {
+      "P": "libssl3",
+      "V": "3.5.9-r0",
+      "A": "aarch64",
+      "D": "libcrypto3=3.5.9-r0 so:libc.musl-aarch64.so.1 so:libcrypto.so.3",
+      "L": "Apache-2.0",
+      "o": "openssl",
+      "c": "29b9ec24b1b5b39aeef51fa2a044210e2ec5258e"
+    },
+    {
+      "P": "icu-libs",
+      "V": "78.1-r0",
+      "A": "aarch64",
+      "D": "icu-data=78.1-r0 so:libc.musl-aarch64.so.1 so:libgcc_s.so.1 so:libstdc++.so.6",
+      "L": "ICU",
+      "o": "icu",
+      "c": "6755fdb21483ba250d374c3244f0f48bc63447e2"
+    },
+    {
+      "P": "icu-data-full",
+      "V": "78.1-r0",
+      "A": "aarch64",
+      "D": null,
+      "L": "ICU",
+      "o": "icu",
+      "c": "6755fdb21483ba250d374c3244f0f48bc63447e2"
+    },
+    {
+      "P": "tzdata",
+      "V": "2026f-r0",
+      "A": "aarch64",
+      "D": null,
+      "L": "Public-Domain",
+      "o": "tzdata",
+      "c": "63faba7f731ad47f4cd60d3ff34ff1aadd49c091"
+    },
+    {
+      "P": "krb5-libs",
+      "V": "1.22.2-r1",
+      "A": "aarch64",
+      "D": "krb5-conf so:libc.musl-aarch64.so.1 so:libcom_err.so.2 so:libcrypto.so.3 so:libkeyutils.so.1 so:libssl.so.3 so:libverto.so.1",
+      "L": "MIT",
+      "o": "krb5",
+      "c": "92bc4f0d36aa5307e819fb57167fc19952cf515f"
+    },
+    {
+      "P": "brotli-libs",
+      "V": "1.2.1-r0",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1",
+      "L": "MIT",
+      "o": "brotli",
+      "c": "8313352127992a9d82e2c2024494f6c38a4dffb4",
+      "repository": "main"
+    },
+    {
+      "P": "lttng-ust",
+      "V": "2.14.2-r0",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1",
+      "L": "LGPL-2.1-only AND GPL-2.0-only AND MIT",
+      "o": "lttng-ust",
+      "c": "99d1723f7af0cc1fdec1b62a221c85224f0924f8",
+      "repository": "main"
+    },
+    {
+      "P": "coreutils",
+      "V": "9.11-r0",
+      "A": "aarch64",
+      "D": "coreutils-env=9.11-r0 coreutils-fmt=9.11-r0 coreutils-sha512sum=9.11-r0 /bin/sh so:libacl.so.1 so:libattr.so.1 so:libc.musl-aarch64.so.1 so:libcrypto.so.3 so:libutmps.so.0.1",
+      "L": "GPL-3.0-or-later",
+      "o": "coreutils",
+      "c": "8e261cdab4fd1bc77881cbff73b9ea962e9bd49f",
+      "repository": "main"
+    },
+    {
+      "P": "findutils",
+      "V": "4.10.0-r1",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1",
+      "L": "GPL-3.0-or-later",
+      "o": "findutils",
+      "c": "1a4e2ce6309586205b7e4c500c7ae287be39ea31",
+      "repository": "main"
+    },
+    {
+      "P": "grep",
+      "V": "3.12-r0",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1 so:libpcre2-8.so.0",
+      "L": "GPL-3.0-or-later",
+      "o": "grep",
+      "c": "4cbb86a7e5760f0f92903377ef35da450df3e1e6",
+      "repository": "main"
+    },
+    {
+      "P": "sed",
+      "V": "4.9-r2",
+      "A": "aarch64",
+      "D": "/bin/sh so:libc.musl-aarch64.so.1",
+      "L": "GPL-3.0-or-later",
+      "o": "sed",
+      "c": "84a227baf001b6e0208e3352b294e4d7a40e93de",
+      "repository": "main"
+    },
+    {
+      "P": "gawk",
+      "V": "5.3.2-r2",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1",
+      "L": "GPL-3.0-or-later",
+      "o": "gawk",
+      "c": "730f2f5bdc97be98b2beee33f55134c622e6189c",
+      "repository": "main"
+    },
+    {
+      "P": "file",
+      "V": "5.47-r2",
+      "A": "aarch64",
+      "D": "so:libc.musl-aarch64.so.1 so:libmagic.so.1",
+      "L": "BSD-2-Clause",
+      "o": "file",
+      "c": "a05d36fa86411cd0ce86d756f818e525d0eee1c3",
+      "repository": "main"
+    }
+  ],
+  "supportScope": "Community qualification candidate on Alpine 3.24.4; not an assertion of Microsoft Alpine 3.24 support.",
+  "qualification": {
+    "status": "pending",
+    "producerRevision": 1,
+    "producerValidationSchemaVersion": 2,
+    "producerWorkflow": ".github/workflows/musl-sdk-expand.yml",
+    "upstreamEol": "2026-11-10",
+    "upstreamSupportPhase": "maintenance",
+    "securityMaintenanceBeyondUpstreamEol": false,
+    "unsupported": [
+      "workloads",
+      "NativeAOT"
+    ]
+  }
+}

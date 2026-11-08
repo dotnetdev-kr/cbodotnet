@@ -42,9 +42,10 @@ def protected():
     return result
 
 
-def verification_tag(revision):
-    CONTRACT.version_revision('10.0.403', revision)
-    return f'verification-musl-sdk-10.0.403-r{revision}'
+def verification_tag(revision, sdk_version='10.0.403'):
+    require(sdk_version in CONTRACT.SOURCES, 'Unreviewed musl verification SDK version')
+    CONTRACT.version_revision(sdk_version, revision)
+    return f'verification-musl-sdk-{sdk_version}-r{revision}'
 
 
 def asset_url(tag, name):
@@ -135,7 +136,7 @@ def receive_json_artifact(api, artifact, run, expected_name, filename, output, o
     return path.read_bytes(), value, artifact_provenance(artifact, archive, origin, job=job)
 
 
-def receive_channel(api, channel, run_id, attempt, revision, output, *, downloader=None):
+def receive_channel(api, channel, run_id, attempt, revision, output, *, downloader=None, sdk_version="10.0.403"):
     require(channel in CHANNELS and type(run_id) is int and run_id > 0 and type(attempt) is int and attempt > 0,
             'Exact completed public channel run and attempt required')
     run = api.api(f'repos/{REPOSITORY}/actions/runs/{run_id}/attempts/{attempt}')
@@ -158,7 +159,7 @@ def receive_channel(api, channel, run_id, attempt, revision, output, *, download
     identity = receipt.get('identity', {})
     require(receipt.get('schemaVersion') == 1 and receipt.get('kind') == 'musl-distribution-publication-receipt'
         and receipt.get('status') == 'published-public-bytes-verified' and identity.get('channel') == channel
-        and identity.get('sdkVersion') == '10.0.403' and identity.get('packageRevision') == revision
+        and identity.get('sdkVersion') == sdk_version and identity.get('packageRevision') == revision
         and identity.get('libc') == 'musl' and 'verification' not in receipt and 'postVerification' not in receipt,
         'Original musl receipt is not an unactivated exact public-byte publication')
     reports, provenance = {}, {}
@@ -180,7 +181,7 @@ def authenticate_channel(receipt, keyring, *, api=None, fetch=None):
     api, fetch = api or GitHubReleases(), fetch or get_bytes
     identity = receipt.get('identity', {})
     channel, version, revision = identity.get('channel'), identity.get('sdkVersion'), identity.get('packageRevision')
-    require(channel in CHANNELS and version == '10.0.403' and identity.get('producerRevision') == 1
+    require(channel in CHANNELS and version in CONTRACT.SOURCES and identity.get('producerRevision') == 1
         and identity.get('libc') == 'musl', 'Unreviewed public musl channel source identity')
     tag = CONTRACT.distribution_tag(channel, version, revision)
     require(receipt.get('tag') == tag and receipt.get('manifestUrl') == asset_url(tag, 'distribution-manifest.json')
@@ -226,14 +227,15 @@ def authenticate_channel(receipt, keyring, *, api=None, fetch=None):
     return manifest
 
 
-def final_document(received, revision, target_commit, signer):
+def final_document(received, revision, target_commit, signer, *, sdk_version="10.0.403"):
     require(set(received) == set(CHANNELS), 'All three public musl delivery channels are required')
-    tag, entries, assets, reports = verification_tag(revision), [], [], {}
+    tag, entries, assets, reports = verification_tag(revision, sdk_version), [], [], {}
     common = None
     for channel in CHANNELS:
         source = received[channel]
         entry = copy.deepcopy(source['receipt'])
         identity = entry['identity']
+        require(identity.get('sdkVersion') == sdk_version, 'Final public source SDK differs from requested version')
         shared = {key: value for key, value in identity.items() if key != 'channel'}
         require(common is None or common == shared, 'Public musl channels mix qualified source/version/revision')
         common = shared
@@ -252,7 +254,7 @@ def final_document(received, revision, target_commit, signer):
                 rawJsonSha256=item['sha256'], rawJsonSize=item['size'], provenance=copy.deepcopy(source['provenance'][arch])))
         entry['postVerification'] = post
         entries.append(entry)
-    return dict(schemaVersion=1, kind='musl-public-verification', repository=REPOSITORY, libc='musl', sdkVersion='10.0.403',
+    return dict(schemaVersion=1, kind='musl-public-verification', repository=REPOSITORY, libc='musl', sdkVersion=sdk_version,
         packageRevision=revision, tag=tag, targetCommit=target_commit, signingFingerprint=signer,
         status='validated-complete-matrix', entries=entries, assets=sorted(assets, key=lambda row: row['name'])), reports
 
@@ -261,8 +263,8 @@ def validate_public_evidence(document, manifests, reports):
     entries = document.get('entries', [])
     require(document.get('schemaVersion') == 1 and document.get('kind') == 'musl-public-verification'
         and document.get('repository') == REPOSITORY and document.get('libc') == 'musl'
-        and document.get('sdkVersion') == '10.0.403'
-        and document.get('tag') == verification_tag(document.get('packageRevision'))
+        and document.get('sdkVersion') in CONTRACT.SOURCES
+        and document.get('tag') == verification_tag(document.get('packageRevision'), document.get('sdkVersion'))
         and document.get('status') == 'validated-complete-matrix'
         and re.fullmatch(r'[a-f0-9]{40}', document.get('targetCommit', ''))
         and isinstance(entries, list) and len(entries) == 3
@@ -276,7 +278,7 @@ def validate_public_evidence(document, manifests, reports):
         shared = {key:value for key,value in identity.items() if key != 'channel'}
         require(common is None or common == shared, 'Final public verification mixes qualified source identities')
         common = shared
-        require(identity.get('packageRevision') == document['packageRevision'] and 'verification' not in entry
+        require(identity.get('sdkVersion') == document['sdkVersion'] and identity.get('packageRevision') == document['packageRevision'] and 'verification' not in entry
             and set(reports[channel]) == set(CONTRACT.ARCHITECTURES), 'Final public verification has partial or redirected report identity')
         post = entry.get('postVerification', {})
         publication = post.get('publication', {})
@@ -335,7 +337,7 @@ def validate_recorded_artifact(proof, origin, run, name):
                 <= timestamp(proof['job']['completed_at']), 'Signed native artifact time is outside its source job')
 
 
-def freeze(sources, revision, output, keyring, *, gnupg_home=None, api=None, fetch=None, downloader=None):
+def freeze(sources, revision, output, keyring, *, gnupg_home=None, api=None, fetch=None, downloader=None, sdk_version="10.0.403"):
     current = protected()
     require(set(sources) == set(CHANNELS), 'All three exact source runs are required')
     api = api or GitHubReleases()
@@ -345,9 +347,9 @@ def freeze(sources, revision, output, keyring, *, gnupg_home=None, api=None, fet
     with tempfile.TemporaryDirectory(prefix='cbodotnet-musl-final-receive-') as temporary:
         for channel in CHANNELS:
             run_id, attempt = sources[channel]
-            received[channel] = receive_channel(api, channel, run_id, attempt, revision, Path(temporary)/channel, downloader=downloader)
+            received[channel] = receive_channel(api, channel, run_id, attempt, revision, Path(temporary)/channel, downloader=downloader, sdk_version=sdk_version)
             manifests[channel] = authenticate_channel(received[channel]['receipt'], keyring, api=api, fetch=fetch)
-        document, reports = final_document(received, revision, current['commit'], signer)
+        document, reports = final_document(received, revision, current['commit'], signer, sdk_version=sdk_version)
         validate_public_evidence(document, manifests, reports)
         output = Path(output).absolute()
         require(output.parent.is_dir() and not output.exists() and not any(path.is_symlink() for path in [output,*output.parents]),
@@ -414,7 +416,7 @@ def publish(directory, output, keyring, *, api=None, fetch=None):
     expected = {item['name']:item for item in document['assets']}
     expected.update({name:descriptor(directory/name) for name in (MANIFEST,SIGNATURE)})
     tag = document['tag']
-    title = f'Community Build musl SDK 10.0.403 public verification r{document["packageRevision"]}'
+    title = f'Community Build musl SDK {document["sdkVersion"]} public verification r{document["packageRevision"]}'
     body = ('Signed actual public installation evidence for Community Build of .NET (built by .NET Dev).\n\n'
         'The six unchanged native reports cover archive, APK and OCI delivery on Alpine 3.24.4, '
         'each on x64 and AArch64. verification-manifest.json binds the exact signed channel receipts, '
@@ -459,6 +461,7 @@ def main():
         freeze_command.add_argument('--'+channel+'-run-id',type=int,required=True)
         freeze_command.add_argument('--'+channel+'-attempt',type=int,default=1)
     freeze_command.add_argument('--revision',type=int,default=1)
+    freeze_command.add_argument('--sdk-version',choices=sorted(CONTRACT.SOURCES),default='10.0.403')
     freeze_command.add_argument('--output',type=Path,required=True)
     freeze_command.add_argument('--gnupg-home',type=Path)
     publish_command = commands.add_parser('publish')
@@ -469,7 +472,7 @@ def main():
     args = parser.parse_args()
     if args.command == 'freeze':
         sources = {channel:(getattr(args,channel+'_run_id'),getattr(args,channel+'_attempt')) for channel in CHANNELS}
-        result = freeze(sources,args.revision,args.output,args.keyring,gnupg_home=args.gnupg_home)
+        result = freeze(sources,args.revision,args.output,args.keyring,gnupg_home=args.gnupg_home,sdk_version=args.sdk_version)
         print(json.dumps(dict(status='signed-and-frozen',tag=result['tag'])))
     else:
         result = publish(args.bundle,args.output,args.keyring)

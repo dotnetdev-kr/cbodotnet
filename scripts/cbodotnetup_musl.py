@@ -218,8 +218,8 @@ def validate_tool_report(report, arch, *, source_inputs=None, version='0.5.1', n
             and chain.get('apkInputs') and chain.get('installedPackages') and chain.get('clang') and chain.get('lld')
             and report.get('nativePackages') and report.get('elfAudit', {}).get('status') == 'passed',
             'Native musl installer lacks pinned compiler/package inputs and actual ELF audit')
-    from cbodotnetup_musl_native import build_inputs
-    require(report['buildInputs'] == build_inputs(arch), 'Native musl compiler scripts, container, profile or APK indexes changed')
+    from cbodotnetup_retained_musl import validate_build_inputs
+    validate_build_inputs(report, arch)
     require(re.fullmatch(r'sha256:[a-f0-9]{64}', chain['imageId'])
             and isinstance(chain['installedPackages'], list) and len(chain['installedPackages']) == len(set(chain['installedPackages']))
             and not any(p.startswith(('gcompat-', 'libc6-compat-')) for p in chain['installedPackages']),

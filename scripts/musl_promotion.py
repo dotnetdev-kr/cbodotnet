@@ -92,7 +92,7 @@ def artifact_name(architecture, origin):
     return f'musl-native-archive-{architecture}-{origin["runId"]}-{origin["runAttempt"]}'
 
 
-def receive_candidates(api, run_id, attempt, revision, output, *, current=None, downloader=None):
+def receive_candidates(api, run_id, attempt, revision, output, *, current=None, downloader=None, sdk_version="10.0.403"):
     run, origin, jobs = native_identity(api, run_id, attempt, current=current)
     artifacts = []
     for page in range(1, 11):
@@ -118,7 +118,7 @@ def receive_candidates(api, run_id, attempt, revision, output, *, current=None, 
         else:
             downloader(artifact, archive)
         directory = extract_artifact(archive, output / arch,
-            {CONTRACT.archive_name('10.0.403', arch, revision), 'package-build.json', 'qualification-report.json'},
+            {CONTRACT.archive_name(sdk_version, arch, revision), 'package-build.json', 'qualification-report.json'},
             api_artifact=artifact)
         received[arch] = dict(directory=directory, transport=dict(artifact=artifact,
             artifactZip=descriptor(archive), jobId=jobs[arch]['id'], jobName=jobs[arch]['name']))
@@ -192,18 +192,18 @@ def validate_native_report(report, build, origin, *, payload=None):
     return report
 
 
-def verify_candidate(directory, architecture, origin, source_inputs, revision=1):
+def verify_candidate(directory, architecture, origin, source_inputs, revision=1, *, sdk_version="10.0.403"):
     directory = Path(directory)
-    require({path.name for path in directory.iterdir()} == {CONTRACT.archive_name('10.0.403', architecture, revision),
+    require({path.name for path in directory.iterdir()} == {CONTRACT.archive_name(sdk_version, architecture, revision),
         'package-build.json', 'qualification-report.json'}, 'Native candidate is not a closed three-file set')
     build, report = load_json(directory / 'package-build.json'), load_json(directory / 'qualification-report.json')
     require(build.get('kind') == 'musl-consumer-archive-build' and build.get('archiveLayoutVersion') == 1
             and build.get('status') == 'built-unpublished' and build.get('publicationAllowed') is False,
             'An unpublished native musl consumer build is required')
-    require(ARCHIVE.plan_architecture(build['plan']) == architecture and build['plan']['packageRevision'] == revision,
+    require(ARCHIVE.plan_architecture(build['plan']) == architecture and build['plan']['packageRevision'] == revision and build['plan']['sdkVersion'] == sdk_version,
             'Native candidate architecture/revision differs')
     require(isinstance(build.get('artifact'), dict)
-            and build['artifact'].get('name') == CONTRACT.archive_name('10.0.403', architecture, revision),
+            and build['artifact'].get('name') == CONTRACT.archive_name(sdk_version, architecture, revision),
             'Native candidate artifact name differs from its closed expected filename')
     require(descriptor(directory / build['artifact']['name']) == build['artifact'], 'Native archive bytes changed after qualification')
     # Reconstruct every byte, mode and link independently. Compression libraries
@@ -237,7 +237,7 @@ def active_signer(policy):
 
 
 def create_bundle(candidates, origin, output, *, signing_key=None, keyring, gnupg_home=None,
-                  target_commit=None, policy=None, source_receiver=None):
+                  target_commit=None, policy=None, source_receiver=None, sdk_version="10.0.403"):
     require(set(candidates) == set(CONTRACT.ARCHITECTURES), 'Both native musl candidates are required')
     policy = policy if policy is not None else load_signing_policy()
     signing_key = signing_key or active_signer(policy)
@@ -245,7 +245,8 @@ def create_bundle(candidates, origin, output, *, signing_key=None, keyring, gnup
     require(re.fullmatch(r'[a-f0-9]{40}', target_commit or ''), 'Exact protected publication commit required')
     if source_receiver is None:
         from musl_distribution import receive_source
-        source_receiver = receive_source
+        from functools import partial
+        source_receiver = partial(receive_source, sdk_version=sdk_version)
     output = ARCHIVE.fresh_directory(output)
     records, assets, common = [], {}, None
     with tempfile.TemporaryDirectory(prefix='cbodotnet-musl-source-recheck-') as temporary:
@@ -253,7 +254,7 @@ def create_bundle(candidates, origin, output, *, signing_key=None, keyring, gnup
             directory = Path(item['directory'])
             inputs = source_receiver(arch, Path(temporary) / arch)
             revision = load_json(directory / 'package-build.json')['plan']['packageRevision']
-            build, report = verify_candidate(directory, arch, origin, inputs, revision)
+            build, report = verify_candidate(directory, arch, origin, inputs, revision, sdk_version=sdk_version)
             identity = publication_identity(build['plan'])
             require(identity['channel'] == 'archive' and (common is None or common == identity),
                     'Native musl matrix mixes source/channel/version/revision')
@@ -325,13 +326,13 @@ def validate_bundle(directory, keyring, *, policy=None):
     return manifest
 
 
-def freeze_archive(run_id, attempt, output, *, revision=1, keyring, signing_key=None, gnupg_home=None, api=None):
+def freeze_archive(run_id, attempt, output, *, revision=1, keyring, signing_key=None, gnupg_home=None, api=None, sdk_version='10.0.403'):
     current = protected()
     api = api or GitHubReleases()
     with tempfile.TemporaryDirectory(prefix='cbodotnet-musl-native-receive-') as temporary:
-        origin, candidates = receive_candidates(api, run_id, attempt, revision, Path(temporary) / 'received', current=current)
+        origin, candidates = receive_candidates(api, run_id, attempt, revision, Path(temporary) / 'received', current=current, sdk_version=sdk_version)
         return create_bundle(candidates, origin, output, signing_key=signing_key, keyring=keyring,
-                             gnupg_home=gnupg_home, target_commit=current['commit'])
+                             gnupg_home=gnupg_home, target_commit=current['commit'], sdk_version=sdk_version)
 
 
 def publication_metadata(manifest):
@@ -398,6 +399,7 @@ def main():
     freeze.add_argument('--run-id', type=int, required=True)
     freeze.add_argument('--attempt', type=int, default=1)
     freeze.add_argument('--revision', type=int, default=1)
+    freeze.add_argument('--sdk-version', choices=sorted(CONTRACT.SOURCES), default='10.0.403')
     freeze.add_argument('--output', type=Path, required=True)
     freeze.add_argument('--signing-key')
     freeze.add_argument('--gnupg-home', type=Path)
@@ -409,7 +411,7 @@ def main():
     args = parser.parse_args()
     if args.command == 'freeze-archive':
         result = freeze_archive(args.run_id, args.attempt, args.output, revision=args.revision, keyring=args.keyring,
-                                signing_key=args.signing_key, gnupg_home=args.gnupg_home)
+                                signing_key=args.signing_key, gnupg_home=args.gnupg_home, sdk_version=args.sdk_version)
         print(json.dumps(dict(status='signed-and-frozen', tag=result['tag'])))
     else:
         require(args.output.parent.is_dir() and not args.output.exists(), 'A fresh musl publication receipt path is required')

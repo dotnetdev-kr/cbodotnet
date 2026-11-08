@@ -1,0 +1,23 @@
+Subject: [PATCH] Service the VMR build helpers' transitive ASN.1 dependency
+
+The fixed MSBuild helper graph retains System.Formats.Asn1 7.0.0 transitively.
+Use central transitive pinning, which this VMR already enables, to select 8.0.1,
+the serviced package for CVE-2024-38095 / GHSA-447r-wph3-92pm. These helpers
+target net9.0, so this is a supported package target. Keep NuGet audit enabled.
+This infrastructure package does not replace the locally built runtime/SDK.
+
+Advisory: https://github.com/advisories/GHSA-447r-wph3-92pm
+Base-VMR: 9f04b57d1366e21b3178648493d6edffeff2216e
+Source-Reference: https://github.com/dotnet/dotnet/blob/v9.0.123/Directory.Packages.props
+
+diff --git a/Directory.Packages.props b/Directory.Packages.props
+--- a/Directory.Packages.props
++++ b/Directory.Packages.props
+@@ -13,6 +13,7 @@
+     <!-- MSBuild dependencies -->
+     <PackageVersion Include="Microsoft.Build.Tasks.Core" Version="$(MicrosoftBuildVersion)" />
+     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildVersion)" />
++    <PackageVersion Include="System.Formats.Asn1" Version="8.0.1" />
+     <!-- Runtime dependencies -->
+     <PackageVersion Include="Microsoft.Extensions.FileSystemGlobbing" Version="$(MicrosoftExtensionsFileSystemGlobbingVersion)" />
+     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="$(MicrosoftExtensionsLoggingConsoleVersion)" />

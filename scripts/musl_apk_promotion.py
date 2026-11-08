@@ -1,5 +1,6 @@
 """Independently verify native APK candidates and freeze protected signatures."""
 import argparse
+from sdk_runtime import target_framework
 import hashlib
 import json
 import os
@@ -149,7 +150,7 @@ def validate_native_report(report, build, origin, *, payload=None):
     require(len(commands) == 2 and {row.get('command') for row in commands} == {'cbodotnet', 'cbodotnet-' + series}
         and all(row.get('targetRid') == plan['targetRid'] and row.get('sdkRoot') == root for row in commands)
         and offline.get('payload') == root and offline.get('cli') == '/usr/bin/cbodotnet'
-        and offline.get('trustProbe') == '/qualification/system-trust/bin/Debug/net10.0/Trust.dll',
+        and offline.get('trustProbe') == '/qualification/system-trust/bin/Debug/'+target_framework(build['plan']['sdkVersion'])+'/Trust.dll',
         'APK command aliases or trust probe escaped the exact installed SDK')
     require(all(name + '-' + version in offline.get('dependencies', [])
                 for name, version in ARCHIVE.RUNTIME_PACKAGES.items()), 'APK stock runtime pins differ')
@@ -362,7 +363,7 @@ def expected_package_snapshots(plan, payload, commands):
 
 
 def create_bundle(candidates, origin, output, *, apk_private_key, apk_public_key, keyring,
-                  signing_key=None, gnupg_home=None, target_commit=None, policy=None, source_receiver=None):
+                  signing_key=None, gnupg_home=None, target_commit=None, policy=None, source_receiver=None, sdk_version="10.0.403"):
     require(set(candidates) == set(CONTRACT.ARCHITECTURES), 'Both native APK candidates are required')
     policy = policy if policy is not None else load_signing_policy()
     signing_key = signing_key or PROMOTION.active_signer(policy)
@@ -373,7 +374,8 @@ def create_bundle(candidates, origin, output, *, apk_private_key, apk_public_key
     key_identity = APK.public_key_identity(apk_public_key)
     if source_receiver is None:
         from musl_distribution import receive_source
-        source_receiver = receive_source
+        from functools import partial
+        source_receiver = partial(receive_source, sdk_version=sdk_version)
     output = ARCHIVE.fresh_directory(output)
     records, assets, common = [], {}, None
     def copy_asset(source, name):
@@ -389,7 +391,7 @@ def create_bundle(candidates, origin, output, *, apk_private_key, apk_public_key
             inputs = source_receiver(arch, Path(temporary) / (arch + '-inputs'))
             native, upgrade, report, lifecycle = verify_candidate(directory, arch, origin, inputs)
             identity = PROMOTION.publication_identity(native['plan'])
-            require(identity['channel'] == 'apk' and identity['packageRevision'] == 1
+            require(identity['channel'] == 'apk' and identity['sdkVersion'] == sdk_version and identity['packageRevision'] == 1
                 and (common is None or common == identity), 'APK matrix mixes source/channel/version/revision')
             common = identity
             signed_dir = Path(temporary) / (arch + '-signed')
@@ -528,13 +530,13 @@ def validate_bundle(directory, keyring, *, policy=None):
 
 
 def freeze_apk(run_id, attempt, output, *, revision=1, apk_private_key, apk_public_key, keyring,
-               signing_key=None, gnupg_home=None, api=None):
+               signing_key=None, gnupg_home=None, api=None, sdk_version="10.0.403"):
     current = protected()
     api = api or GitHubReleases()
     with tempfile.TemporaryDirectory(prefix='musl-apk-receive-') as temporary:
         origin, candidates = receive_candidates(api, run_id, attempt, revision, Path(temporary) / 'received', current=current)
         return create_bundle(candidates, origin, output, apk_private_key=apk_private_key, apk_public_key=apk_public_key,
-            keyring=keyring, signing_key=signing_key, gnupg_home=gnupg_home, target_commit=current['commit'])
+            keyring=keyring, signing_key=signing_key, gnupg_home=gnupg_home, target_commit=current['commit'], sdk_version=sdk_version)
 
 
 def publish_release(api, tag, commit, title, body, files):
@@ -576,7 +578,7 @@ def publish_release(api, tag, commit, title, body, files):
     return release
 
 
-def publish_bundle(directory, keyring, *, api=None, policy=None, source_receiver=None):
+def publish_bundle(directory, keyring, *, api=None, policy=None, source_receiver=None, sdk_version="10.0.403"):
     current = protected()
     directory = Path(directory).absolute()
     manifest = validate_bundle(directory, keyring, policy=policy)
@@ -584,7 +586,8 @@ def publish_bundle(directory, keyring, *, api=None, policy=None, source_receiver
     source = manifest['sourceOrchestration']
     if source_receiver is None:
         from musl_distribution import receive_source
-        source_receiver = receive_source
+        from functools import partial
+        source_receiver = partial(receive_source, sdk_version=manifest['identity']['sdkVersion'])
     # The signer does not execute native candidate SDKs. The publisher receives
     # the API-bound ZIPs again and repeats canonical source/control/payload checks.
     with tempfile.TemporaryDirectory(prefix='musl-apk-publish-recheck-') as temporary:
@@ -635,6 +638,7 @@ def main():
     freeze.add_argument('--run-id', type=int, required=True)
     freeze.add_argument('--attempt', type=int, default=1)
     freeze.add_argument('--revision', type=int, default=1)
+    freeze.add_argument('--sdk-version', choices=sorted(CONTRACT.SOURCES), default='10.0.403')
     freeze.add_argument('--output', type=Path, required=True)
     freeze.add_argument('--apk-private-key', type=Path, required=True)
     freeze.add_argument('--apk-public-key', type=Path, required=True)
@@ -649,7 +653,7 @@ def main():
     if args.command == 'freeze-apk':
         result = freeze_apk(args.run_id, args.attempt, args.output, revision=args.revision,
             apk_private_key=args.apk_private_key, apk_public_key=args.apk_public_key, keyring=args.keyring,
-            signing_key=args.signing_key, gnupg_home=args.gnupg_home)
+            signing_key=args.signing_key, gnupg_home=args.gnupg_home, sdk_version=args.sdk_version)
         print(json.dumps(dict(status='signed-and-frozen', tag=result['tag'])))
     else:
         require(args.output.parent.is_dir() and not args.output.exists(), 'Fresh APK publication receipt path required')

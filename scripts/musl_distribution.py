@@ -72,10 +72,10 @@ def download_asset(url, path, expected):
     return descriptor(path)
 
 
-def receive_source(architecture, output, *, anonymous=False):
+def receive_source(architecture, output, *, anonymous=False, sdk_version="10.0.403"):
     require(architecture in CONTRACT.ARCHITECTURES, 'An exact public musl CPU is required')
     catalog = CONTRACT.load_qualification_catalog()
-    matches = [row for row in catalog['builds'] if row['sdkVersion']=='10.0.403' and row['producerRevision']==1]
+    matches = [row for row in catalog['builds'] if row['sdkVersion']==sdk_version and row['producerRevision']==1]
     require(len(matches)==1, 'The initial two-CPU musl producer is not independently qualified')
     row = matches[0]; tag = row['sourceReleaseTag']
     api = AnonymousGitHubAPI() if anonymous else GitHubReleases()
@@ -164,11 +164,11 @@ def _export_apk_candidate(assembly, report, lifecycle, origin, output):
     return output
 
 
-def apk_candidate(architecture, revision, workspace, output):
+def apk_candidate(architecture, revision, workspace, output, *, sdk_version="10.0.403"):
     import musl_package_native as NATIVE
     origin=orchestration(); _docker_architecture(architecture)
     workspace=fresh(workspace)
-    inputs=receive_source(architecture,workspace/'inputs')
+    inputs=receive_source(architecture,workspace/'inputs',sdk_version=sdk_version)
     work=fresh(workspace/'assembly-parent'); work.chmod(0o777)
     containerfile=workspace/'APK.Containerfile'
     containerfile.write_text('FROM '+ARCHIVE.BASES[architecture]+'\nRUN apk add --no-cache '
@@ -204,10 +204,10 @@ def apk_candidate(architecture, revision, workspace, output):
     return dict(status='validated-unpublished',architecture=architecture)
 
 
-def archive_candidate(architecture, revision, workspace, output):
+def archive_candidate(architecture, revision, workspace, output, *, sdk_version="10.0.403"):
     origin = orchestration()
     workspace = fresh(workspace)
-    inputs = receive_source(architecture,workspace/'inputs')
+    inputs = receive_source(architecture,workspace/'inputs',sdk_version=sdk_version)
     build_directory = workspace/'build'
     build = ARCHIVE.build_archive(inputs,architecture,revision,build_directory)
     report = ARCHIVE.native(build_directory,architecture,workspace/'qualification')
@@ -221,15 +221,15 @@ def archive_candidate(architecture, revision, workspace, output):
     return dict(status='validated-unpublished',architecture=architecture,sourceManifestSha256=build['plan']['sourceManifestSha256'])
 
 
-def public_archive(architecture, revision, workspace, output):
+def public_archive(architecture, revision, workspace, output, *, sdk_version="10.0.403"):
     """Fetch actual public signed bytes anonymously and repeat native execution."""
     import musl_promotion as PROMOTION
     origin = orchestration()
     require(architecture in CONTRACT.ARCHITECTURES, 'An exact native public archive CPU is required')
-    CONTRACT.version_revision('10.0.403',revision)
+    CONTRACT.version_revision(sdk_version,revision)
     workspace = fresh(workspace)
     bundle = fresh(workspace/'public-bundle')
-    tag = CONTRACT.distribution_tag('archive','10.0.403',revision)
+    tag = CONTRACT.distribution_tag('archive',sdk_version,revision)
     base = f'https://github.com/{CONTRACT.REPOSITORY}/releases/download/{tag}/'
     release = json.loads(get_bytes(f'https://api.github.com/repos/{CONTRACT.REPOSITORY}/releases/tags/{tag}',8*1024**2,api=True))
     require(release.get('tag_name')==tag and release.get('draft') is False and release.get('prerelease') is False,
@@ -279,13 +279,13 @@ def public_archive(architecture, revision, workspace, output):
     return dict(status='public-native-verified',architecture=architecture,artifactSha256=build['artifact']['sha256'])
 
 
-def public_bundle(channel, revision, workspace):
+def public_bundle(channel, revision, workspace, *, sdk_version="10.0.403"):
     """Authenticate the closed public signed inventory without any API token."""
     from musl_release import verify_publication_signature
     import musl_promotion as PROMOTION
-    CONTRACT.version_revision('10.0.403',revision)
+    CONTRACT.version_revision(sdk_version,revision)
     bundle=fresh(workspace/'public-bundle')
-    tag=CONTRACT.distribution_tag(channel,'10.0.403',revision)
+    tag=CONTRACT.distribution_tag(channel,sdk_version,revision)
     base=f'https://github.com/{CONTRACT.REPOSITORY}/releases/download/{tag}/'
     api=AnonymousGitHubAPI()
     release=api.api(f'repos/{CONTRACT.REPOSITORY}/releases/tags/{tag}')
@@ -321,19 +321,19 @@ def public_bundle(channel, revision, workspace):
     return bundle,manifest,raw,fingerprint,keyring,base
 
 
-def public_apk(architecture, revision, workspace, output):
+def public_apk(architecture, revision, workspace, output, *, sdk_version="10.0.403"):
     """Install the permanent signed public repository and rerun native gates."""
     import musl_apk_promotion as PROMOTION
     import musl_package_native as NATIVE
     import musl_packages as APK
     origin=orchestration(); _docker_architecture(architecture)
     workspace=fresh(workspace)
-    bundle,manifest,raw,fingerprint,keyring,base=public_bundle('apk',revision,workspace)
+    bundle,manifest,raw,fingerprint,keyring,base=public_bundle('apk',revision,workspace,sdk_version=sdk_version)
     PROMOTION.validate_bundle(bundle,keyring)
     records=[row for row in manifest['records'] if row['architecture']==architecture]
     require(len(records)==1,'An exact native public APK record is required')
     record=records[0]; build=record['build']; repository=record['repository']
-    inputs=receive_source(architecture,workspace/'source',anonymous=True)
+    inputs=receive_source(architecture,workspace/'source',anonymous=True,sdk_version=sdk_version)
     plan,sdk=intake_plan(inputs,architecture,'apk',revision)
     require(build['plan']==plan,'Public APK plan differs from independently authenticated source')
     context,_,_,_=APK.stage_payload(plan,sdk,workspace/'context')
@@ -395,20 +395,22 @@ def main():
     apk.add_argument('--revision',type=int,default=1)
     apk.add_argument('--workspace',type=Path,required=True)
     apk.add_argument('--output',type=Path,required=True)
+    for command in (receive,archive,public,public_apk_command,apk):
+        command.add_argument('--sdk-version',choices=sorted(CONTRACT.SOURCES),default='10.0.403')
     args=parser.parse_args()
     if args.command=='receive-source':
-        result=receive_source(args.arch,args.output)
+        result=receive_source(args.arch,args.output,sdk_version=args.sdk_version)
         print(json.dumps(dict(status='received-qualified',directory=str(result))))
     elif args.command=='archive-candidate':
-        print(json.dumps(archive_candidate(args.arch,args.revision,args.workspace,args.output)))
+        print(json.dumps(archive_candidate(args.arch,args.revision,args.workspace,args.output,sdk_version=args.sdk_version)))
     elif args.command=='public-archive':
-        print(json.dumps(public_archive(args.arch,args.revision,args.workspace,args.output)))
+        print(json.dumps(public_archive(args.arch,args.revision,args.workspace,args.output,sdk_version=args.sdk_version)))
     elif args.command=='public-apk':
-        print(json.dumps(public_apk(args.arch,args.revision,args.workspace,args.output)))
+        print(json.dumps(public_apk(args.arch,args.revision,args.workspace,args.output,sdk_version=args.sdk_version)))
     elif args.command=='assemble-apk':
         print(json.dumps(assemble_apk(args.inputs,args.arch,args.revision,args.output)))
     else:
-        print(json.dumps(apk_candidate(args.arch,args.revision,args.workspace,args.output)))
+        print(json.dumps(apk_candidate(args.arch,args.revision,args.workspace,args.output,sdk_version=args.sdk_version)))
 
 
 if __name__=='__main__':

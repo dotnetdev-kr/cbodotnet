@@ -4,6 +4,7 @@ The native builders may use ephemeral keys. Promotion replaces only the v2
 signature member; signed control and payload compressed bytes stay unchanged.
 """
 import argparse
+from sdk_runtime import target_framework
 import datetime
 import gzip
 import hashlib
@@ -341,7 +342,7 @@ def installed_apk(build_directory,architecture,workspace,public_key,target_polic
         checks=dict.fromkeys(APK_CHECKS-{'system-trust-https'},'passed'),functionalChecks=functional,
         commands=commands,packages=packages,negativeCases=negative,dependencies=ARCHIVE.run(['apk','info','-v']).splitlines(),
         caBundle=descriptor(Path('/etc/ssl/cert.pem').resolve(strict=True)),
-        trustProbe=str(workspace/'system-trust/bin/Debug/net10.0/Trust.dll'),cli=str(cli),payload=str(root))
+        trustProbe=str(workspace/('system-trust/bin/Debug/'+target_framework(plan['sdkVersion'])+'/Trust.dll')),cli=str(cli),payload=str(root))
     (workspace/'offline-report.json').write_bytes(encoded(result))
     return result
 
@@ -749,7 +750,7 @@ def native_oci(build_directory,architecture,workspace,image,target_policy=None,p
     functional.update(fullIcuCulturesAndCalendars='passed',timeZoneDatabase='passed')
     (workspace/'functional.txt').write_text(output)
     ARCHIVE.run([*offline,'sh','-ec',ARCHIVE.trust_probe_script(plan,runtime_root,cli,'/qualification/system-trust')])
-    trust=ARCHIVE.run([*common,'--network=default',image,cli,'/qualification/system-trust/bin/Debug/net10.0/Trust.dll'])
+    trust=ARCHIVE.run([*common,'--network=default',image,cli,'/qualification/system-trust/bin/Debug/'+target_framework(plan['sdkVersion'])+'/Trust.dll'])
     require('system-trust-https-passed' in trust,'OCI actual HTTPS using system CA trust failed')
     (workspace/'system-trust.txt').write_text(trust)
     result=dict(schemaVersion=1,scope='musl-oci-installation',status='passed',native=True,architecture=architecture,
