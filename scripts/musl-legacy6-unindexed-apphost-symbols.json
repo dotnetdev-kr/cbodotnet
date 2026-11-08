@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdk6-unindexed-original-apphost-debug-symbol-inputs",
+  "sdkVersion": "6.0.136",
+  "package": {
+    "bytes": 22819451,
+    "sha256": "3effe1e19c4236fef2259bd37a34ced651c017acdba85a45b750d27026216e8c",
+    "sha512": "32cd238f548aa733a22219a3472bc3e60b82b7bcbfb54ddc4e332a9a2689484a3724f66f25749cc8039a2a370c5db091e5e02f0267c4e069f68674b3921f7477"
+  },
+  "members": {
+    "runtimes//native/apphost.pdb": {
+      "bytes": 2658304,
+      "sha256": "e2847c400356c1e86ec6deafbffc61f28dffc62352fbc7a909bf3e500011e96f",
+      "sha512": "260ebc2427097722827ee38802293c68aa3e964d37f0cfba7da650f5d78b1be0714360c6c03ff0b45d8ceac34e170464589aefe6b6f54bb321a038ff41c5880a"
+    },
+    "runtimes//native/singlefilehost.pdb": {
+      "bytes": 65187840,
+      "sha256": "acf3812da36830d59279441f671da46722faeb2b99ded7f07708dbe57b62f693",
+      "sha512": "61ccceffa0de768061e5bf76eba774e4da95b667653993567b8b82ce4c9f240988dd617166cdc15181acda31adad36ca4abd6498ee4c49683e5dc4ab6727c8d9"
+    },
+    "runtimes//native/nethost.pdb": {
+      "bytes": 2453504,
+      "sha256": "2013b34eb3f75c02c718b9448c144077804d159747791844aa96ac71c8d108a2",
+      "sha512": "90567bd3ee21ddc2ad9860b172a155e2d1d1a2a1ab3ba3eb61fd90e5ecbe9f13063cc5b9ae60bd6d54ec126d5f2416211b8d9e2e25cd857846e33e18f7958e3f"
+    },
+    "runtimes//native/comhost.pdb": {
+      "bytes": 3100672,
+      "sha256": "44585bd3007624ebed90b291f9f2f49413f5cfd845b206779a4d20013d590a1c",
+      "sha512": "0331005629efda394a1b0dbfb5cbb677528192f42734ebc346a3caedeabe75230454162ea569de8e2590da61eae5b25e854a6d1afcfacaee15ff167336fda064"
+    },
+    "runtimes//native/ijwhost.pdb": {
+      "bytes": 2600960,
+      "sha256": "49f9d285dc5518689a3f432cd37373e5d27ad36ea7ef3e9e38535ee24dfbb289",
+      "sha512": "dc0d3a2a829083691468cf7cb3320d9aee48e5cb9e4362529422c2f86be4fe38290145e16ac370d7c0f64e2f7dc04bdace74eaeaf8b72169f492f41de095fb62"
+    }
+  },
+  "originalPackageRetainedUnchanged": true,
+  "sourceForSymbolsClaimed": false,
+  "shippingSymbolsAllowed": false,
+  "memberPathsNormalized": false
+}

@@ -1,0 +1,318 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "6.0.136",
+  "sources": [
+    {
+      "name": "sdk6-attributed-source-build-externals-522d361e1cd7",
+      "repository": "https://github.com/dotnet/source-build-externals",
+      "commit": "522d361e1cd703f1e8e526f5306e4ed18de1da41",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-linker-d0662ed8db91",
+      "repository": "https://github.com/dotnet/linker",
+      "commit": "d0662ed8db919642177ddfd06a1c33895a69015f",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-aspnetcore-64ea4108e7dc",
+      "repository": "https://github.com/dotnet/aspnetcore",
+      "commit": "64ea4108e7dcf1ca575f8dd2028363b0b1ef6ebc",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-nuget.client-42a8779499c1",
+      "repository": "https://github.com/NuGet/NuGet.Client",
+      "commit": "42a8779499c1d1ed2488c2e6b9e2ee6ff6107766",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "globbing",
+      "repository": "https://github.com/aspnet/FileSystem",
+      "commit": "96bf83a6c1ab6f6801130150c27282c49030c8e1",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "globbing-common",
+      "repository": "https://github.com/aspnet/Common",
+      "commit": "fab8d45f6be307ae0b96b1860e516f8a7aa903b0",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-component-corefx-30ab651fcb43",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "30ab651fcb4354552bd4891619a0bdd81e0ebdbf",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-component-corefx-7601f4f62250",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-component-standard-18a36291e488",
+      "repository": "https://github.com/dotnet/standard",
+      "commit": "18a36291e48808fa7ef2d00a764ceb1ec95645a5",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "netstandard-core-setup",
+      "repository": "https://github.com/dotnet/core-setup",
+      "commit": "7d57652f33493fa022125b7f63aad0d70c52d810",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "netstandard-library",
+      "repository": "https://github.com/dotnet/standard",
+      "commit": "a5b5f2e1e369972c8ff1e2183979fab6099f52ef",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-attributed-cssparser-d6d86bcd8c16",
+      "repository": "https://github.com/dotnet/cssparser",
+      "commit": "d6d86bcd8c162b1ae22ef00955ff748d028dd0ee",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-attributed-msbuildlocator-47281c3de1c8",
+      "repository": "https://github.com/microsoft/MSBuildLocator",
+      "commit": "47281c3de1c87a43ab946725d011b9dca4b6434a",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-attributed-runtime-4822e3c3aa77",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "4822e3c3aa77eb82b2fb33c9321f923cf11ddde6",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-attributed-runtime-cf258a14b70a",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "cf258a14b70ad9069470a108f13765e0e5988f51",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-emsdk-d440134ad103",
+      "repository": "https://github.com/dotnet/emsdk",
+      "commit": "d440134ad1037c7a3c91c78fff964078f240e08c",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-clicommandlineparser-0e89c2116ad2",
+      "repository": "https://github.com/dotnet/CliCommandLineParser",
+      "commit": "0e89c2116ad28e404ba56c14d1c3f938caa25a01",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-command-line-api-82273cb56c83",
+      "repository": "https://github.com/dotnet/command-line-api",
+      "commit": "82273cb56c83b589e8e5b63da0ac9745ffc6e105",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-common-4f17c0aaa62b",
+      "repository": "https://github.com/aspnet/Common",
+      "commit": "4f17c0aaa62b4608ee9ae8c33dee3944383d36f2",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-corefx-02b11eeee1fb",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "02b11eeee1fbc5f3ef43a1452fe07efd25fa1715",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-corefx-0f7f38c4fd32",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-corefx-4ac4c0367003",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "4ac4c0367003fe3973a3648eb0715ddb0e3bbcea",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-corefx-4d1af962ca0f",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "4d1af962ca0fede10beb01d197367c2f90e92c97",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-corefx-8321c729934c",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "8321c729934c0f8be754953439b88e6e1c120c24",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-deployment-tools-c3ad00ae8448",
+      "repository": "https://github.com/dotnet/deployment-tools",
+      "commit": "c3ad00ae84489071080a606f6a8e43c9a91a5cc2",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-diagnostics-2ee978c099e2",
+      "repository": "https://github.com/dotnet/diagnostics",
+      "commit": "2ee978c099e2af7ce69aad0a8c8aabb719fc952d",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-format-68bc36719088",
+      "repository": "https://github.com/dotnet/format",
+      "commit": "68bc36719088c86b0ff01334039b0611741b8276",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-fsharp-6d626ff0752a",
+      "repository": "https://github.com/dotnet/fsharp",
+      "commit": "6d626ff0752a77d339f609b4d361787dc9ca93a5",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-humanizer-b30550eed103",
+      "repository": "https://github.com/Humanizr/Humanizer",
+      "commit": "b30550eed103a6970d8465fe7c5c16300b70be81",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-msbuild-4242f381a90f",
+      "repository": "https://github.com/dotnet/msbuild",
+      "commit": "4242f381a90f77f483b123819759db1ff8eddf67",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-msbuild-85d71072f8fa",
+      "repository": "https://github.com/dotnet/msbuild",
+      "commit": "85d71072f8fa22cc761d6b65954da263364bee4d",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-roslyn-487283bcd8d6",
+      "repository": "https://github.com/dotnet/roslyn",
+      "commit": "487283bcd8d66693091f2800dcf1c8ae37cccdee",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-roslyn-analyzers-547cafd885b9",
+      "repository": "https://github.com/dotnet/roslyn-analyzers",
+      "commit": "547cafd885b92adc6c9ca2de29548c7ccebd0a07",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-roslyn-analyzers-596f8f422003",
+      "repository": "https://github.com/dotnet/roslyn-analyzers",
+      "commit": "596f8f422003d89b65e2bd50dc5a1aea7ce4ce91",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-roslyn-c7d6f9fab845",
+      "repository": "https://github.com/dotnet/roslyn",
+      "commit": "c7d6f9fab845ffd943216da465022744e7d35f22",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-runtime-2f740adc1457",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "2f740adc1457e8a28c1c072993b66f515977eb51",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-runtime-3150bfa50618",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "3150bfa50618cc98f546ffae7652b12c17cea702",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-runtime-53976d38b1bd",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "53976d38b1bd6917b8fa4d1dd4f009728ece3adb",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-runtime-55fb7ef977e7",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "55fb7ef977e7d120dc12f0960edcff0739d7ee0e",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-runtime-b02e13abab3d",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "b02e13abab3d6f499751af2ad1ae6333fb4e633d",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-runtime-c76ac565499f",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "c76ac565499f3e7c657126d46c00b67a0d74832c",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-runtime-e37fab9fc9f7",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "e37fab9fc9f7bce120a7165491ed392a73f8ab51",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-runtime-e77011b31a3e",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "e77011b31a3e5c47d931248a64b47f9b2d47853d",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-runtime-f1dd57165bfd",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "f1dd57165bfd91875761329ac3a8b17f6606ad18",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-runtime-f27d33729518",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "f27d33729518f5aa478aa818b7b4f54a4d50bef1",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-source-build-assets-eccb08286828",
+      "repository": "https://github.com/dotnet/source-build-assets",
+      "commit": "eccb0828682858d8daa029ba29adce07fd70d9a7",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-symreader-f8a3ba85aed3",
+      "repository": "https://github.com/dotnet/symreader",
+      "commit": "f8a3ba85aed339fb8d08ca26f3876b28c32d58ee",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-templating-1e5db134e25b",
+      "repository": "https://github.com/dotnet/templating",
+      "commit": "1e5db134e25b38b223858e7dd497f9f8a9312f4e",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-templating-9dc082ffb55d",
+      "repository": "https://github.com/dotnet/templating",
+      "commit": "9dc082ffb55d5b9c5b3bc8d34dc90a56fa88593f",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-import-xdt-5b67dee04d86",
+      "repository": "https://github.com/dotnet/xdt",
+      "commit": "5b67dee04d86740575f0f5022b79833213cc024a",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-localization-arcade",
+      "repository": "https://github.com/dotnet/arcade",
+      "commit": "bd9b4590681e602535ed414e98a17e6ba121dca4",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk6-test-templates-c40ef7e056b4",
+      "repository": "https://github.com/dotnet/test-templates",
+      "commit": "c40ef7e056b48e011c43a21354d6790ba6b8b4fc",
+      "role": "source-for-serviced-imported-package"
+    }
+  ]
+}
