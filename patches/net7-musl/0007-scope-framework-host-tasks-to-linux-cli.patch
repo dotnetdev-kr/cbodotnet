@@ -1,0 +1,13 @@
+--- a/src/Layout/redist/targets/GenerateLayout.targets
++++ b/src/Layout/redist/targets/GenerateLayout.targets
+@@ -153,6 +153,10 @@
+       <NETSdksContent Include="$(NETSdkRazorSourceRoot)\**\*.*"
+                      DeploymentSubPath="Sdks\Microsoft.NET.Sdk.Razor"/>
+     </ItemGroup>
++    <ItemGroup Condition="'$(OSName)' == 'linux-musl'">
++      <NETSdksContent Remove="$(NETSdkSourceRoot)\tools\net472\**" />
++      <NETSdksContent Remove="$(NETSdkRazorSourceRoot)\tasks\net472\**" />
++    </ItemGroup>
+     <Copy SourceFiles="@(NETSdksContent)"
+       DestinationFiles="@(NETSdksContent->'$(OutputPath)\%(DeploymentSubpath)\%(RecursiveDir)%(Filename)%(Extension)')" />
+   </Target>

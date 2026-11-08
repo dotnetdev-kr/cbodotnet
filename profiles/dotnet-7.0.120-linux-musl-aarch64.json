@@ -3,7 +3,7 @@
   "kind": "legacy-musl-diagnostic-profile",
   "selectedAt": "2026-11-08",
   "sdkVersion": "7.0.120",
-  "status": "native-arm64-native-coreclr-original42-minimal-runtime-and-lttng-passed-source-closure-pending",
+  "status": "native-arm64-genuine-source-vstest-core-sdk-full-functional-passed-source-closure-pending",
   "qualificationAllowed": false,
   "sourceAdmissionAllowed": false,
   "releaseAvailabilityAllowed": false,
@@ -79,11 +79,14 @@
     "productBuildQualified": false,
     "rebuiltComponentsPlanned": [
       "dotnet/sdk CLI, SDK tasks, resolvers and SDK redist",
-      "dotnet/installer core SDK tasks and redist"
+      "dotnet/installer core SDK tasks and redist",
+      "original VSTest Core hosts and all thirteen resource cultures",
+      "matching native CoreCLR/JIT/DAC/debugger and trace provider"
     ],
     "importedComponentsPlanned": [
-      "matching official musl host/runtime/ASP.NET archives",
-      "pinned compiler, MSBuild, NuGet and other tool packages"
+      "matching official musl host, managed runtime, ASP.NET and remaining native libraries",
+      "pinned compiler/MSBuild/reference inputs and explicitly attributed imported managed dependencies",
+      "unchanged original resource-only NuGet translation data"
     ],
     "sourceCompleteness": "Full used source/license closure has not yet been retained and verified",
     "sourceBuildWrappersReusable": false,
@@ -133,7 +136,7 @@
       "qualificationAllowed": false
     }
   },
-  "supportScope": "EOL community feasibility diagnostic on Alpine 3.24.4; not Microsoft support, source admission or release availability",
+  "supportScope": "EOL community diagnostic Core MSBuild/Core VSTest Linux CLI on Alpine 3.24.4; no Microsoft support, source admission or release availability. This native Linux CLI uses the original source-build Core MSBuild and Core VSTest host matrix. Full/Mono MSBuild and .NET Framework test-host execution are not provided. Reference-based .NET Framework cross-target compilation remains available; all 114 existing Build.Extensions target libraries are byte-identical. Cross-runtime test execution beyond the exercised original suite is not qualified.",
   "nativeComponentPlan": {
     "traceProvider": {
       "action": "rebuild-own-exact-runtime-source-against-stock-lttng",
@@ -150,11 +153,20 @@
       "nativeArm64CompletedArchiveExperiment": "passed",
       "nativeX64Experiment": "not-executed",
       "sourceClosureComplete": false
+    },
+    "vstest": {
+      "action": "build-original-source-build-core-host-graph-and-xlf-resources",
+      "sourceCommit": "79d56b02b69a582cd90428878a5e9411ab7538f5",
+      "actualSourceDefaultVersion": "17.4.1-dev",
+      "nativeArm64CompletedArchiveExperiment": "passed",
+      "nativeX64Experiment": "not-executed",
+      "publisherFullTestHostEquivalenceClaimed": false,
+      "sourceClosureComplete": false
     }
   },
   "localDiagnosticEvidence": {
     "path": "docs/musl-legacy-feasibility.json",
-    "sha256": "f37ec1ca24bd08d86d4186d5f2cf926333d06864aeb3490413be6aa77af93635",
+    "sha256": "32c23d51b4715c4f3b7d349327e71da02213572497efe8b735c105c6c1656f3b",
     "officialWorkflowQualified": false,
     "sourceClosureComplete": false,
     "qualificationAllowed": false

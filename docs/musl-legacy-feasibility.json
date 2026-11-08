@@ -5,7 +5,7 @@
   "qualificationAllowed": false,
   "sourceAdmissionAllowed": false,
   "releaseAvailabilityAllowed": false,
-  "scope": "Native ARM64 genuine SDK7, SDK6 and SDK5 source-tooling/installer diagnostic candidates pass their original suites and canonical minimal-runtime checks. SDK7 additionally passes actual decoded LTTng GC events from a completed archive after a narrow exact-source native rebuild. No official two-CPU producer or source admission is qualified.",
+  "scope": "Native ARM64 genuine SDK7, SDK6 and SDK5 diagnostic candidates pass their original suites and canonical minimal-runtime checks. SDK7 now includes genuine Core VSTest source packages and optimized native CoreCLR products, with actual decoded GC events, original suites, Razor build/pack/HTTP and all thirteen VSTest translations passing. Full source/receiver closure and official two-CPU qualification remain incomplete.",
   "stockAlpine": {
     "branch": "3.24",
     "pointRelease": "3.24.4",
@@ -62,11 +62,19 @@
     },
     {
       "id": "sdk7-exact-vstest",
-      "status": "exact-official-input-recovered",
+      "status": "historical-exact-import-recovered-and-later-replaced-by-genuine-original-source-build",
       "sourceCommit": "79d56b02b69a582cd90428878a5e9411ab7538f5",
       "url": "https://pkgs.dev.azure.com/dnceng/public/_packaging/test-tools/nuget/v3/flat2/microsoft.testplatform.cli/17.4.1-release-20230405-06/microsoft.testplatform.cli.17.4.1-release-20230405-06.nupkg",
       "sha256": "12a6be3700ac802727aa8a1308230e0cfa4a6cb59ac66c3a9423da4270d8a475",
-      "substitution": false
+      "substitution": false,
+      "resolution": {
+        "actualVersion": "17.4.1-dev",
+        "sourceCommit": "79d56b02b69a582cd90428878a5e9411ab7538f5",
+        "sourceCompiledProducts": 301,
+        "importedDependencyMembers": 6,
+        "productScope": "This native Linux CLI uses the original source-build Core MSBuild and Core VSTest host matrix. Full/Mono MSBuild and .NET Framework test-host execution are not provided. Reference-based .NET Framework cross-target compilation remains available; all 114 existing Build.Extensions target libraries are byte-identical. Cross-runtime test execution beyond the exercised original suite is not qualified.",
+        "qualified": false
+      }
     },
     {
       "id": "sdk5-regular-managed-compiler-inputs",
@@ -290,6 +298,13 @@
           "Strict independent full-file construction/source/license closure and producer sealing",
           "Native x64 and official default Docker two-CPU qualification"
         ]
+      },
+      "latestSourceBuiltCoreVstestArchive": {
+        "name": "final-sdk.tar.gz",
+        "bytes": 180797446,
+        "sha256": "1d182a775794acd38f7e64e2021858c659838bc273b11333f13ff49f3da130dc",
+        "sha512": "82f8460e7de700ab6ebb204f0d0a84c9972e3f41819ce089ed5fd1f31f29b3eaad4c7a35c149a1e583f25b8bf91bf4663557749824e6432f8d9f69985828cf4c",
+        "qualificationAllowed": false
       }
     }
   ],
@@ -297,7 +312,7 @@
     {
       "sdkVersion": "7.0.120",
       "issue": 33,
-      "status": "native-arm64-completed-sdk-archive-original42-minimal-runtime-and-real-lttng-passed",
+      "status": "native-arm64-genuine-source-vstest-core-sdk-full-functional-passed-source-closure-pending",
       "sourceFacts": {
         "schemaVersion": 1,
         "kind": "pinned-legacy-musl-source-facts",
@@ -1311,6 +1326,219 @@
             "remaining": [
               "Strict independent full-file construction/source/license closure and producer sealing",
               "Native x64 and official default Docker two-CPU qualification"
+            ]
+          },
+          "sourceBuiltCoreVstestSdkCandidate": {
+            "status": "native-arm64-genuine-source-vstest-core-sdk-full-functional-passed-source-closure-pending",
+            "archive": {
+              "name": "final-sdk.tar.gz",
+              "bytes": 180797446,
+              "sha256": "1d182a775794acd38f7e64e2021858c659838bc273b11333f13ff49f3da130dc",
+              "sha512": "82f8460e7de700ab6ebb204f0d0a84c9972e3f41819ce089ed5fd1f31f29b3eaad4c7a35c149a1e583f25b8bf91bf4663557749824e6432f8d9f69985828cf4c",
+              "qualificationAllowed": false
+            },
+            "vstest": {
+              "sourceCommit": "79d56b02b69a582cd90428878a5e9411ab7538f5",
+              "actualSourceDefaultVersion": "17.4.1-dev",
+              "originalSourceGraph": "TestPlatform_BuildFromSource.sln",
+              "originalSourceBuildTarget": "net7.0",
+              "originalXlfFiles": 247,
+              "compilerTasks": 246,
+              "managedPackageMembers": 307,
+              "ownSourceCompilerProducts": 301,
+              "importedDependencyMembers": 6,
+              "genuineCompiledSatellitePackageMembers": 273,
+              "importedCompiledResources": false,
+              "vendorVersionRelabeled": false
+            },
+            "productScope": "This native Linux CLI uses the original source-build Core MSBuild and Core VSTest host matrix. Full/Mono MSBuild and .NET Framework test-host execution are not provided. Reference-based .NET Framework cross-target compilation remains available; all 114 existing Build.Extensions target libraries are byte-identical. Cross-runtime test execution beyond the exercised original suite is not qualified.",
+            "linuxHostTaskScope": {
+              "removedFiles": 69,
+              "prefixes": [
+                "Sdks/Microsoft.NET.Sdk/tools/net472/",
+                "Sdks/Microsoft.NET.Sdk.Razor/tasks/net472/"
+              ],
+              "targetReferenceFiles": 114,
+              "targetReferenceBytesUnchanged": true,
+              "manualFullTestHostPruning": false
+            },
+            "originalTests": {
+              "total": 42,
+              "passed": 41,
+              "failed": 0,
+              "skipped": 1,
+              "omniSharpPassed": 12,
+              "scope": "Original suite and assertions; only absent poison-report input skipped. OmniSharp timed scenarios do not prove full editor functionality."
+            },
+            "vstestActualLocalizedHelpCultures": 14,
+            "razorLibraryBuildAndPack": true,
+            "razorPagesBuildAndActualHttp": true,
+            "canonicalMinimalRuntime": true,
+            "systemTrustTls": true,
+            "negativeCertificateCasesPreserved": true,
+            "readyToRun": true,
+            "nativeLttng": {
+              "dotnetEvents": 10916,
+              "gcStartEvents": 80,
+              "gcEndEvents": 82,
+              "controlEvents": 1,
+              "totalDecodedLines": 23409,
+              "listedDotnetTracepoints": 508
+            },
+            "sourceAudit": {
+              "actualPackageCacheRows": 625,
+              "uniqueActualPackageBytes": 399,
+              "managedCompilerTasks": 609,
+              "managedCompilerSourceInputs": 5595,
+              "originalAbsentAdditionalFiles": 2,
+              "observedGeneratorDirectories": 50,
+              "observedGeneratedFiles": 0,
+              "literalTypeForwarderProducts": 87,
+              "fullSourceClosureComplete": false
+            },
+            "evidence": [
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-vstest-source-scope/archive.json",
+                "bytes": 312,
+                "sha256": "82dada93d631a9f094c7f629c9c766542dda225ba9099f401e6cb1a0bbb1b6b6",
+                "sha512": "25eabb945d495399e1b590138b92c8eb3987f650d6b95f15d1e2e9b6666f04b1dc17b9f3947e5aad6aa364a03038d62c66b7681ca95e2b97f268bc9010cf46b5"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-vstest-source-scope/construction-evidence-retry2/result.json",
+                "bytes": 60,
+                "sha256": "fbf64b3f1ab5483d5c1a755bd3de27cce21d139d3ebc3a9e5e64271bb1159506",
+                "sha512": "c5fdf39574a7ef7d573ca8fe6b9f9e6647944774cecd2ac22b981bd3c99ad50c8987982662dc835ad98e780d97e2fec3b2a75aec5b2edec6d49ddd73a9224362"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-vstest-source-scope/validation-v1/original-smoke/summary.json",
+                "bytes": 242,
+                "sha256": "5f0acbf0e244c184d28e535676b50ec40192477e9a7256331dbc9b5a81cd2d84",
+                "sha512": "8f643a975f0f439f6cb3fc8118bb29364c4f31093cade0becbf6d8b44b3ed39897522ae2fdbba91c241615464a296e68fde889cb5a450de8d27f9a939e5827d3"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-vstest-source-scope/validation-v1/functional/offline-summary.json",
+                "bytes": 288,
+                "sha256": "c550adea8c82200a807587e4023333a1f2acb1e3207faf752c539b472944f4d5",
+                "sha512": "74e59d2bca00976dd8b36a66f0f14118d16169b07a36d00f8608a10bae960f845b7c83d2115edcf0c762de6d0e1921cd90b06b867836f7144d9a6d5c85ff297d"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-vstest-source-scope/validation-v1/functional/tls.json",
+                "bytes": 121,
+                "sha256": "9500ffad9cad3b6e41cc34ffececaf443241389ee80ca251d99a88a7d2f415a2",
+                "sha512": "9c0083a6e0f490dbd83cafe773d46d0d5416827eb65a3e523fa2f1b32bb63224abd000b8d8e51351cd12d0028ab16287a4482d8fd985ee7e8d7965cb424e984f"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-vstest-source-scope/validation-v1/functional/negative-certificates.json",
+                "bytes": 979,
+                "sha256": "6149c8f53a11facb3dd0f2cf6b1734e3cc0ddbe10eb58d18713c29bfbc76bb6d",
+                "sha512": "37c3f0ee921ff2d5dcaab06558a2bd1fcc24feb4732358904fc266372d10dbc65f4504fec304b069fb5ee7810d487842bfc3fd78bbda20f261febdb5e9cf58b5"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-vstest-source-scope/validation-v1/elf.json",
+                "bytes": 70661,
+                "sha256": "df8c79cb8c286fa1d0a870de3fdb77c3d80b5aeae4126800ac4b50d286fedac2",
+                "sha512": "554839e7888b7866e236bac0e3f82af2af74d518c89dd9c84a122a5d7b5bca116113f58033caf3670d36869038f78b9d07271e0eff4c197fa1573cfa6f9d81b7"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-vstest-source-scope/validation-v1/razor-locales/results.json",
+                "bytes": 17277,
+                "sha256": "f288243607a03d6517effe8d1b08aacaf052d473b6691a06456c7ffd2cc6d616",
+                "sha512": "5da2309850c4ea46bf5d8185fc306caeff0cf58a9cea559fea635873f9e49218a081a3e5b5234ef9b0d94af765ee1f89461d9500adf7da5283cc44eba37fe749"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-vstest-source-scope/validation-v1/native-lttng/results.json",
+                "bytes": 6035,
+                "sha256": "6d11aa71c36bd8ad8666e4adc0c5dfd9386249361c5984a11dd37e1e9e705b1c",
+                "sha512": "0aa251d2795e882500dc6b36aaface101c97cf8a93507f8d7048e7f03475aca25c1c9961d06e36481cc13914bc4cc6adffa933aa84ec13ee54b395b50a3bfcfb"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/vstest7-source-build-v3/results.json",
+                "bytes": 15075,
+                "sha256": "73f80ea1003a844bdc847ba8d331da746ac9bc9f3c06284d518ab72501c17178",
+                "sha512": "b1a1af923acdd552e1d7633864952359fae0c211432c0cfdd267277075ed83b70ccbb78c87faab5428d3377928aa0ab08f3abd553a5988716288aa546f306a2f"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/vstest7-source-build-v3/pure-source-review-v3/results.json",
+                "bytes": 416,
+                "sha256": "1a18d50af830bade4bfd9a5e75b35d5fce3245f1e1c9506e99419e1aaae151a4",
+                "sha512": "61ad12d71c18cf253edb080230d42687d63d6e7c30a190d0e7fb28853da193529f74d3d0e9abafd09d1856ab0e078c59fcf594ef651b39e296ae640870f404de"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/vstest7-source-build-v3/compatibility-review/results.json",
+                "bytes": 583827,
+                "sha256": "19f1f3970034f41d7476da6b0e643874ebf82e2d27c3478f49f07076b9b39568",
+                "sha512": "231850baad840c3eb3932820b4a019fd1a7750300d1376853321c24c1f1876c2bc38d1ee81eee14ede98d3b63773a5d1efbf1167e01c92fd86a4ccc93f820d9f"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/sdk7-vstest-linux-scope-inventory-v2/results.json",
+                "bytes": 73996,
+                "sha256": "d94cb80dd7bc314fbc2227c68f7a2395a256c6f6ec065632b3cba79feafb75b6",
+                "sha512": "5aac524842fb94be12784fb9517bd070f393795e0e883de5b05d961e5fa91cf88a7b3dbb5eca5aa89c1826b2a41dd9c047193c049fd3b2a82adc293fc3c1f760"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/vstest7-normal-worker-v1/invocation.json",
+                "bytes": 1894,
+                "sha256": "d58cf922144611cde8f63309a024b631c3d1664ad7ae7de022f9f8a20e9d7019",
+                "sha512": "801781736c9e21cf12e8f134ccb94f969aeb952d732f2b64947cabcab5759c3007423f73d52021f7b2ca58b0f699332f8e379bc53ccc3183a04a363f28c2abb7"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/vstest7-normal-worker-v1/reports/build/vstest/results.json",
+                "bytes": 41342,
+                "sha256": "f8450ec2567cf49a278bbd0c02dfe76dabd6e8465ea2f70640453d0a7f51271d",
+                "sha512": "4404fffd684fff87db65d446517fc0f9759a4ae28bbde1beb5621419128f4f7efc5d64745596a5135e4016a30749237587760ac76e980ebe4ab01ff8e6bcdfc5"
+              },
+              {
+                "path": ".build/legacy-source-vstest7-construction-inputs-v1/data-prepare-results.json",
+                "bytes": 624,
+                "sha256": "05b863042d1e3a7520adff053e42fe59165513a00130f4f891dccf272b20a39e",
+                "sha512": "667510f7c542b93a977f36a4b38bb2c2c2dd8407ce64062ad47d36c0f53c6b259881b3c6298f62799a48fb6bca37126a654d0ef94618f094ddd07820275ff093"
+              },
+              {
+                "path": ".build/globbing-source-policy-review-v6/results.json",
+                "bytes": 1899,
+                "sha256": "1b7a1cf4fe1fbe4c491291ea2f4850317d63a6b81435ddb0a0a42a36cce5ef2c",
+                "sha512": "90a065d3dfbf805e74e3018d9b5520aa763ec3c016097bbb83fa556bf7df86dfca94587bdf1cb7f79223fbc79d8d885f27ef6c37ce6945f183ea9d56bedb1a18"
+              }
+            ],
+            "implementation": [
+              {
+                "path": "scripts/musl-legacy-vstest.py",
+                "bytes": 11569,
+                "sha256": "3b8441c43c6c29b2cb79c3e5c9a119564adc99a900a7b288aca09260e579707d",
+                "sha512": "f9c96b95946bb0177eb630ea189d7dc9afac31c36dcf3b5b9488e5047ce56461690a6536e2e28a7f7081a3234a78f6ca74f1e7a7d7af41235f46d63aa4887f29"
+              },
+              {
+                "path": "scripts/musl_legacy_xlf.py",
+                "bytes": 5684,
+                "sha256": "2b8d6ca9d4cbd2f15138829f114b394022b183720a314fff442b2d57e0435eb9",
+                "sha512": "61561aa6043948cf6393ac871ce30f2a98fa8a5e5624d38823974c5da1230c3d5489d3f3f0e42b1f43722e9d84100d590982a913fe178acf301cc20deca113a2"
+              },
+              {
+                "path": "scripts/musl_legacy_globbing_inputs.py",
+                "bytes": 16073,
+                "sha256": "b707795ce746e0d307162590b1a49b1e9f8b98adba0e67441e2c0dd4f73f71fd",
+                "sha512": "9625e51daa0689c8cf1cc3538b709f2b6e4ea75f71cb315e88b344ae5011278fe6d77afc426621ce7cb293b2dcc2314c869d7209abf8c565cb46dbba09873393"
+              },
+              {
+                "path": "scripts/musl-legacy-globbing-policy.json",
+                "bytes": 5304,
+                "sha256": "ff75f3a9017a6e4cd69c7b606156cfacf2768b28cb7013bc3f623f1608170d85",
+                "sha512": "c1afe5b2ec5d7ec65d64882f25556d68e59e322b8860cc717a7d28d083ce43e32cb78bff3d224f7a87b7890f9a3a4b11c4e7774954bed6b18a71780c07121910"
+              },
+              {
+                "path": "patches/net7-musl/0007-scope-framework-host-tasks-to-linux-cli.patch",
+                "bytes": 689,
+                "sha256": "0b55218fb3a9869ea7da66df0118f8b682c7b228b39f7313a5e0f2248057f7c1",
+                "sha512": "b1c8567bab030f71efe82b097138147d613ab5a851cdeeba96bc1bbc2a66269f96d2908091ce37a415bbc560312c8e660453469ddf5146ab3eccbb51e5a57502"
+              }
+            ],
+            "officialWorkflowQualified": false,
+            "sourceAdmissionAllowed": false,
+            "releaseAvailabilityAllowed": false,
+            "qualificationAllowed": false,
+            "remaining": [
+              "Strict independent complete source/license/construction receiver validation and normal-producer sealing",
+              "Native x64 and official default Docker qualification on both CPUs"
             ]
           }
         }

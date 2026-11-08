@@ -146,7 +146,7 @@
   },
   "localDiagnosticEvidence": {
     "path": "docs/musl-legacy-feasibility.json",
-    "sha256": "f37ec1ca24bd08d86d4186d5f2cf926333d06864aeb3490413be6aa77af93635",
+    "sha256": "32c23d51b4715c4f3b7d349327e71da02213572497efe8b735c105c6c1656f3b",
     "officialWorkflowQualified": false,
     "sourceClosureComplete": false,
     "qualificationAllowed": false

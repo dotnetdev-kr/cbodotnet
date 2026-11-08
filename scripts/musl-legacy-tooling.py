@@ -40,6 +40,12 @@ TRANSLATION_HOOK='''  <Target Name="CopyCommunityMuslNuGetTranslationData"
 
 '''
 
+LINUX_HOST_TASKS_HOOK='''    <ItemGroup Condition="'$(OSName)' == 'linux-musl'">
+      <NETSdksContent Remove="$(NETSdkSourceRoot)\\tools\\net472\\**" />
+      <NETSdksContent Remove="$(NETSdkRazorSourceRoot)\\tasks\\net472\\**" />
+    </ItemGroup>
+'''
+
 
 def source_command(workspace, *arguments):
     source=workspace/'sdk'
@@ -110,6 +116,8 @@ def build(args):
     workspace=args.workspace
     prepared=json.loads((workspace/'prepared.json').read_text())
     pin=PINS[args.sdk]
+    M.require(not (getattr(args,'scope_linux_host_tasks',False) or getattr(args,'vstest_source_version',None))
+              or args.sdk=='7.0.120','The reviewed source-package/host-task adaptations are specific to SDK7')
     rid='linux-musl-'+args.arch
     M.require(prepared['sdkVersion']==args.sdk and prepared['rid']==rid and
         source_command(workspace,'rev-parse','HEAD')==pin['sdk'],'Prepared input identity differs')
@@ -118,26 +126,30 @@ def build(args):
     report=workspace/'evidence'/args.attempt
     report.mkdir()
     prepare_test_hook(workspace,pin,report)
-    if args.vstest_tfm:
+    if args.vstest_tfm or getattr(args,'nuget_resources',None) or getattr(args,'scope_linux_host_tasks',False):
         target=workspace/'sdk/src/Layout/redist/targets/GenerateLayout.targets'
         original=source_command(workspace,'show',pin['sdk']+':src/Layout/redist/targets/GenerateLayout.targets')+'\n'
         marker='      <TestCliNuGetDirectory>$(NuGetPackageRoot)'
         addition=('      <TestCliNuGetDirectoryTargetFramework Condition="\'$(CommunityMuslTestCliFramework)\' != \'\'">'
                   '$(CommunityMuslTestCliFramework)</TestCliNuGetDirectoryTargetFramework>\n')
-        adjusted=original.replace(marker,addition+marker,1)
+        adjusted=original.replace(marker,addition+marker,1) if args.vstest_tfm else original
         current=target.read_text()
         if TRANSLATION_HOOK in current:
             M.require(getattr(args,'nuget_resources',None) is not None and current.count(TRANSLATION_HOOK)==1,
                       'An existing explicit translation source hook requires its original reviewed input')
             current=current.replace(TRANSLATION_HOOK,'',1)
-        M.require(adjusted!=original and current in {original,adjusted},'Pinned VSTest import source changed')
+        if LINUX_HOST_TASKS_HOOK in current:
+            M.require(getattr(args,'scope_linux_host_tasks',False) and current.count(LINUX_HOST_TASKS_HOOK)==1,
+                      'An existing Linux CLI host-task scope requires its explicit reviewed build option')
+            current=current.replace(LINUX_HOST_TASKS_HOOK,'',1)
+        M.require(current in {original,adjusted},'Pinned SDK layout source changed')
         target.write_text(adjusted)
         import difflib
         patch=''.join(difflib.unified_diff(original.splitlines(True),adjusted.splitlines(True),
                   fromfile='a/src/Layout/redist/targets/GenerateLayout.targets',tofile='b/src/Layout/redist/targets/GenerateLayout.targets'))
         (report/'vstest-layout.patch').write_text(patch)
         M.write(report/'vstest-layout.json',dict(sourceCommit=pin['sdk'],framework=args.vstest_tfm,
-            reason='Exact imported VSTest CLI package uses this directory; original DotNetBuildFromSource target unconditionally selects its source-built net7/net6 layout',
+            reason='Use the explicitly declared package target directory when supplied; otherwise preserve the original source-build directory',
             patch=M.digest(report/'vstest-layout.patch')))
         if getattr(args,'nuget_resources',None):
             M.require(args.sdk=='7.0.120' and args.nuget_resources.is_absolute() and args.nuget_resources.is_dir() and
@@ -153,6 +165,19 @@ def build(args):
             M.write(report/'nuget-translation-data.json',dict(sourceCommit=pin['sdk'],translationSourceCommit=origin['sourceCommit'],
                 origin=M.digest(args.nuget_resources/'origin.json'),patch=M.digest(report/'nuget-translation-data.patch'),
                 purpose='Import only exact reviewed resource-only translation data; no primary NuGet assembly or native input is copied'))
+        if getattr(args,'scope_linux_host_tasks',False):
+            M.require(args.sdk=='7.0.120','Only the reviewed exact SDK7 Linux CLI host-task scope is available')
+            text=target.read_text();marker='    <Copy SourceFiles="@(NETSdksContent)"\n'
+            M.require(text.count(marker)==1,'Pinned SDK host-task copy boundary changed')
+            revised=text.replace(marker,LINUX_HOST_TASKS_HOOK+marker,1);target.write_text(revised)
+            patch=''.join(difflib.unified_diff(text.splitlines(True),revised.splitlines(True),
+                fromfile='a/src/Layout/redist/targets/GenerateLayout.targets',tofile='b/src/Layout/redist/targets/GenerateLayout.targets'))
+            (report/'linux-host-task-scope.patch').write_text(patch)
+            M.write(report/'linux-host-task-scope.json',dict(sourceCommit=pin['sdk'],osName='linux-musl',
+                removedLayoutPrefixes=['Sdks/Microsoft.NET.Sdk/tools/net472/','Sdks/Microsoft.NET.Sdk.Razor/tasks/net472/'],
+                preserved=['all target reference assemblies','Build.Extensions/net46*/lib','all reference packs','TestHostNetFramework'],
+                reason='The Linux CLI uses the original Core MSBuild task selection; Full/Mono MSBuild host task execution is outside this product layout',
+                patch=M.digest(report/'linux-host-task-scope.patch')))
     inspect=json.loads(subprocess.check_output(M.ENGINE+['image','inspect',args.image],text=True))
     M.require(len(inspect)==1 and inspect[0]['Architecture']=={'x64':'amd64','arm64':'arm64'}[args.arch],
               'Builder image CPU differs')
@@ -163,13 +188,26 @@ def build(args):
     inner=['./build.sh','--configuration','Release','--pack','--projects',project,
            '/p:ArcadeBuildFromSource=false','/p:DotNetBuildFromSource='+from_source,'/p:Architecture='+args.arch,
            '/p:OSName=linux-musl','/p:Rid='+rid,'/p:PortableBuild=true','/p:CrossBuild=false',
-           '/p:ContinuousIntegrationBuild=true','/p:UseSharedCompilation=false','/m:2',
+           '/p:ContinuousIntegrationBuild=true','/p:UseSharedCompilation=false','/p:EmitCompilerGeneratedFiles=true','/m:2',
            '/bl:/source/artifacts/log/Release/community-sdk-'+args.attempt+'.binlog']
     if getattr(args,'rebuild',False):inner+=['--rebuild']
     if args.vstest_tfm:
         inner+=['/p:CommunityMuslTestCliFramework='+args.vstest_tfm]
     if getattr(args,'nuget_resources',None):
         inner+=['/p:CommunityMuslNuGetTranslationRoot=/nuget-translation-data/resources']
+    if getattr(args,'vstest_source_version',None):
+        version=args.vstest_source_version
+        M.require(args.sdk=='7.0.120' and version=='17.4.1-dev' and args.component_source_build and args.nuget_feed,
+                  'Only the exact SDK7 source-built VSTest candidate version is available')
+        inner+=['/p:MicrosoftNETTestSdkPackageVersion='+version,
+                '/p:MicrosoftTestPlatformCLIPackageVersion='+version,
+                '/p:MicrosoftTestPlatformBuildPackageVersion='+version]
+        M.write(report/'vstest-source-package-version.json',dict(sourceCommit='79d56b02b69a582cd90428878a5e9411ab7538f5',
+            actualSourceDefaultVersion=version,vendorVersionRelabeled=False,
+            packages=[dict(path=name,**M.digest(args.nuget_feed/name)) for name in
+                ['Microsoft.TestPlatform.CLI.'+version+'.nupkg','Microsoft.TestPlatform.Build.'+version+'.nupkg']],
+            interpretation='Explicit actual source-package version; compilation, source and consumption evidence require independent validation',
+            qualificationAllowed=False))
     uid,gid=(1000,1000) if os.getuid()==0 else (os.getuid(),os.getgid())
     command=M.ENGINE+['run','--rm','--name',name,'--network=host','--user',str(uid)+':'+str(gid),
         '--cap-drop=all','--security-opt=no-new-privileges','--workdir','/source',
@@ -243,9 +281,11 @@ def main():
     parser.add_argument('--seconds',type=int,default=300)
     parser.add_argument('--bootstrap-archive',type=Path,help='Reuse a retained official bootstrap only after metadata SHA-512 verification')
     parser.add_argument('--component-source-build',action='store_true',help='Use SDK-component source-build semantics without the full source-build wrapper; UI/workload differences require review')
-    parser.add_argument('--nuget-feed',type=Path,help='Retained locally source-built bootstrap packages; not a version substitution')
+    parser.add_argument('--nuget-feed',type=Path,help='Retained local source-built input packages with recorded actual identities')
     parser.add_argument('--package-cache',default='.packages',help='Fresh source-local cache name when bootstrap input bytes change')
     parser.add_argument('--vstest-tfm',help='Actual target directory of the exact imported VSTest CLI package')
+    parser.add_argument('--scope-linux-host-tasks',action='store_true',help='Apply the exact reviewed SDK7 Linux CLI host-task layout scope')
+    parser.add_argument('--vstest-source-version',choices=['17.4.1-dev'],help='Consume the actual SDK7 VSTest source-build package version without vendor relabeling')
     parser.add_argument('--nuget-resources',type=Path,help='Exact reviewed NuGet7 resource-only translation-data input')
     parser.add_argument('--rebuild',action='store_true',help='Run original graph Rebuild to retain every fresh compiler event in this binary log')
     args=parser.parse_args()
