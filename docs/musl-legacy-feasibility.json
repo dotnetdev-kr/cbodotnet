@@ -5,7 +5,7 @@
   "qualificationAllowed": false,
   "sourceAdmissionAllowed": false,
   "releaseAvailabilityAllowed": false,
-  "scope": "Native ARM64 genuine SDK7 source-tooling/installer candidate with original42 and minimal-runtime proof; native SDK6/5 component candidates. No official two-CPU producer or source admission qualified.",
+  "scope": "Native ARM64 genuine SDK7, SDK6 and SDK5 source-tooling/installer diagnostic candidates pass their original suites and canonical minimal-runtime checks. SDK7 additionally passes actual decoded LTTng GC events from a completed archive after a narrow exact-source native rebuild. No official two-CPU producer or source admission is qualified.",
   "stockAlpine": {
     "branch": "3.24",
     "pointRelease": "3.24.4",
@@ -58,7 +58,7 @@
       "sourceCommit": "1653cf17925473602f5460c5e4682a0dab4c4d22",
       "sourceUrl": "https://github.com/NuGet/NuGet.Client/tree/1653cf17925473602f5460c5e4682a0dab4c4d22",
       "evidence": ".build/musl-legacy-assessment-20261108/tooling7-ubuntu/evidence/attempt3",
-      "nextStep": "Retain all exact sources/import/license/construction evidence; complete localized-resource review and native x64 official producer qualification."
+      "nextStep": "Localized resource-only publisher data and all13 actualResourceManager cultures now pass; finish strict source/license/construction closure and official two-CPU producer qualification."
     },
     {
       "id": "sdk7-exact-vstest",
@@ -67,13 +67,237 @@
       "url": "https://pkgs.dev.azure.com/dnceng/public/_packaging/test-tools/nuget/v3/flat2/microsoft.testplatform.cli/17.4.1-release-20230405-06/microsoft.testplatform.cli.17.4.1-release-20230405-06.nupkg",
       "sha256": "12a6be3700ac802727aa8a1308230e0cfa4a6cb59ac66c3a9423da4270d8a475",
       "substitution": false
+    },
+    {
+      "id": "sdk5-regular-managed-compiler-inputs",
+      "affected": [
+        "5.0.214"
+      ],
+      "status": "native-25-product-source-graph-succeeded-with-attributed-exact-musl-managed-inputs",
+      "sourceSdkCommit": "3fdf76c35026e311b7edc245d4b3d9e812fe532e",
+      "regularBootstrapSdk": "5.0.401",
+      "actualSelectedRuntime": "5.0.17",
+      "productProjectRoots": 25,
+      "excludedOriginalTestProjectRoots": 31,
+      "missingExactPackages": {
+        "Microsoft.FSharp.Compiler": "11.3.2-beta.21102.9",
+        "Microsoft.CodeAnalysis.VisualBasic.CodeStyle": "3.8.0-5.20519.18",
+        "Microsoft.Net.Compilers.Toolset": "3.9.0-6.21273.1"
+      },
+      "approximateVersionsAccepted": false,
+      "nextStep": "Retain exact source/component/container mapping and qualify genuine installer archive with upstream WindowsDesktop source-build guard; native full SDK smoke/minimal probes and strict admission remain pending.",
+      "resolution": {
+        "kind": "locally-derived-matching-official-musl-sdk-managed-component-inputs",
+        "originalPublisherNupkg": false,
+        "originalPrimarySdkCompilerBytesUnchanged": true,
+        "fullCorrespondingSourcesRetained": true,
+        "nativeElfImports": 0,
+        "foreignMachinePeImports": 0,
+        "managedPeCount": 273,
+        "r2r": "Matching native LinuxARM64 R2R preserved and attributed; IL-only CodeStyle; no header stripping or consumer R2R disable",
+        "roslynSource": "f8111b17631aa5e2703dc11acd671c6ea22c3af1",
+        "fsharpSource": "7ce7132f1459095e635194d09d6f73265352029a",
+        "visualBasicCodeStyleSource": "4c195c3ac1974edcefa76774d7a59a2350ec55fa",
+        "roslynRuntimeDependenciesSource": "cf258a14b70ad9069470a108f13765e0e5988f51"
+      }
+    },
+    {
+      "id": "sdk7-lttng-actual-events",
+      "affected": [
+        "7.0.120"
+      ],
+      "architectures": [
+        "aarch64"
+      ],
+      "status": "native-arm64-completed-archive-real-gc-events-and-native-control-passed",
+      "environment": {
+        "COMPlus_LTTng": "1",
+        "COMPlus_EnableEventLog": "1",
+        "LTTNG_UST_DEBUG": "1"
+      },
+      "nextStep": "Finish strict source/license/construction closure and normal producer sealing, then qualify both native CPUs.",
+      "evidence": [
+        {
+          "path": ".build/musl-legacy-assessment-20261108/sdk7-lttng-session-v3/result.json",
+          "bytes": 1982,
+          "sha256": "b2b2accf8999866f39a0f14341066e4f9c56af3c7ab0bd56428b444378239937",
+          "sha512": "4ef4b1bbaff41f8b1d8f965ba0b1d235ab982553e29c06f6495e7a73d6ec8359401e965831066d923bbdb847396c74d1a60112b21e2ed2c533e0d44e0745a8f6"
+        },
+        {
+          "path": ".build/musl-legacy-assessment-20261108/sdk7-lttng-session-v3/orchestration.json",
+          "bytes": 1067,
+          "sha256": "b0921687e62b710c1c5d0763089c175c889c536dfdc5e77fd4e6aaba513b34a2",
+          "sha512": "248fb0634944b02be6ddb4704258516904b2826d0b036c4c64ae2f3b3335e00afed8fb66c900e2d35a00bc13d5c1f05e9a2d10454d0892182c4734aab196bc48"
+        },
+        {
+          "path": ".build/musl-legacy-assessment-20261108/sdk7-lttng-session-v3/decoded.log",
+          "bytes": 31753,
+          "sha256": "e35f62f6ee300e4aa068eb2b7dd9311c6b72195fb22865de877ba3ca7074ef26",
+          "sha512": "7884a326a43b84611646c6f1b0a846679a4b7370826c52e09098ff2de3a0fdf7f869e999f56d3bc5e519cf798d030281f3e7bba974c2957ccda077a07d3eec7b"
+        },
+        {
+          "path": ".build/musl-legacy-assessment-20261108/sdk7-lttng-session-v3/tracepoints.log",
+          "bytes": 60778,
+          "sha256": "aefd78f08b05f6e1455df97368da43676bff0a1cd9973742a1c6bca0283109ee",
+          "sha512": "84132fabf5ed88b3f99b77731bde1cd838a06e975e363c5faafae66332fc0e1e66873607c1607114e2ec2bbad2bec730828d7b7111f3a9ddef1d48c57ed9361e"
+        }
+      ],
+      "originalFailureFact": "Own trace-point provider compiles/loads on stock LTTng2.14.2 and508DotNETevents are listed, but a fresh80GC managed program emits zero decoded DotNETevents in an enabled userspace session; same session has one real native tracef control event/112decodedlines. Imported CoreCLR contains dynamic tracepoint.so.0 while stockAlpine provides tracepoint.so.1. No compatibility alias or binary edit is used.",
+      "fact": "An exact-source optimized Release CoreCLR/JIT/DAC/debugger rebuild plus its separately source-built trace provider closes the legacy LTTng SONAME gap on stock Alpine. The completed installer SDK archive emits 10916 DotNETRuntime events, including 80 GCStart and 82 GCEnd events, with one independent native control; the original 42-test suite passes 41 with its original poison-input skip.",
+      "resolution": {
+        "status": "native-arm64-completed-sdk-archive-original42-minimal-runtime-and-real-lttng-passed",
+        "archive": {
+          "name": "final-sdk.tar.gz",
+          "bytes": 188736904,
+          "sha256": "4cd66f8031a1e84838fccb51e1cb86a3a988c00c454e69fac753e23c7a60a0cd",
+          "sha512": "8fc6f8998c08eed771cea26fce7a461923bce81fad2a45f74ddaf7f507f435f70aa9b1a8df4bfbaaeee501f1b5ca19b3cb842408ca744d6ccb32cd919a667c9d",
+          "qualificationAllowed": false
+        },
+        "sourceCommit": "0fb6ac59fb1edbe4ed3ad62661df0eb7eacd7903",
+        "rebuiltNativeFiles": [
+          "libcoreclr.so",
+          "libclrjit.so",
+          "libmscordaccore.so",
+          "libmscordbi.so"
+        ],
+        "separateMatchingSourceTraceProviderRetained": true,
+        "configuration": "Release",
+        "readyToRun": true,
+        "optimizationDisabled": false,
+        "upstreamMetadataBackport": "35a39e97345abfda05e14f609759760b37ddeb4d",
+        "patches": [
+          {
+            "path": "patches/net7-musl/0004-guard-runtime-only-reflection-cache-mutations-in-dac.patch",
+            "bytes": 819,
+            "sha256": "773dd9dae8c3e82d7f04831da915893210bc8cd71541cec6c98aed3918b84c34",
+            "sha512": "df5dd63ac33c0945911366551f65cc26fea66adc2d71b5e3f68348b4ac359c54fbdf6d8fd9f83d2041eb05101d11d8d41fd76d5b73ab0257bc16afb7b5132547"
+          },
+          {
+            "path": "patches/net7-musl/0005-backport-metadata-local-allocation-marker.patch",
+            "bytes": 1251,
+            "sha256": "f28a687f619d6baaa746f80469080fc5ed715a46f9a540cb80aee5bafe0fcf51",
+            "sha512": "aa82ca22f62883962c8a8607c486b177fd18e23b81bf684428c744875edb5df218a5194030e7ebd8f793a7e9c043ad4ce8ef204244eeb869add5d88d947b9e6c"
+          },
+          {
+            "path": "patches/net7-musl/0006-copy-matching-source-built-native-runtime.patch",
+            "bytes": 1319,
+            "sha256": "2736a1939720edd7ac72317e5b6c732d31498c52cf980ec6f062da7ba1fc97f1",
+            "sha512": "06b994a387b8cf3c1467515b6b56313e004cfa25a39c060b0ecbd86e104b7fecba5d183593d6d4947f003e3b553c2c950a6ee47bd108313826c7f00d275bc54c"
+          }
+        ],
+        "originalTests": {
+          "total": 42,
+          "passed": 41,
+          "failed": 0,
+          "skipped": 1,
+          "omniSharpPassed": 12,
+          "scope": "Original suite and assertions; only absent poison-report input skipped. OmniSharp timed scenarios do not prove full editor functionality."
+        },
+        "actualLttng": {
+          "dotnetEvents": 10916,
+          "gcStartEvents": 80,
+          "gcEndEvents": 82,
+          "controlEvents": 1,
+          "totalDecodedLines": 23409,
+          "listedDotnetTracepoints": 508
+        },
+        "runtimeOverlaysAccepted": false,
+        "evidence": [
+          {
+            "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/archive.json",
+            "bytes": 312,
+            "sha256": "26868e4b1a64b44342b1553cc08a027075974821232fbeae2bddd3e3320d4559",
+            "sha512": "221d471939725976fd3eb1967ba8aa6d0c1d3b155ffaa04f5eb68301ca5e9d2b842977bd34823ae4f2d36a050bb3196f862fe1dad6f979c32af0335be6036b7b"
+          },
+          {
+            "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/construction-evidence-retry2/result.json",
+            "bytes": 60,
+            "sha256": "1e5c7ee09f0c3ac5f6c8ba8a19cad167c3485ec94fc4857f9111c72de0b80231",
+            "sha512": "d21f509730a9f891b959664f7da1b8854fd3998d78819ae5a9f88f9e68fb3a078fe16e66557727375c604bdf294ed1726cec3d72c6f05c78e5b97c2ffe9311f3"
+          },
+          {
+            "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/construction-evidence-retry2/invocation.json",
+            "bytes": 2376,
+            "sha256": "acb3d521a1e68178c82b62d504cc0d50120700432627af386d601bbdb86b2aa6",
+            "sha512": "5ccf161a1f09423d820f180532e4713f5b2c5718be4c2a882141dd98e2ccd859b8964794309c521eb9217dfca0a776dc4ffd2bc22e3c6c4cb6ed8edf5338001f"
+          },
+          {
+            "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/original-smoke/summary.json",
+            "bytes": 242,
+            "sha256": "5f0acbf0e244c184d28e535676b50ec40192477e9a7256331dbc9b5a81cd2d84",
+            "sha512": "8f643a975f0f439f6cb3fc8118bb29364c4f31093cade0becbf6d8b44b3ed39897522ae2fdbba91c241615464a296e68fde889cb5a450de8d27f9a939e5827d3"
+          },
+          {
+            "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/original-smoke/identity.json",
+            "bytes": 5735,
+            "sha256": "2d7ef2010d18b8680b4cb03ad52bf2bd8022ffd610420eb2175f8482b537feec",
+            "sha512": "c57f0fe8f177bf371935cf3ab7d04d4643668e9d350525597d39becbbe6386ba25aaaa75dc584c4c95b8c249f3d8ca2b97b741c48b588fc0e349ca20c596fe01"
+          },
+          {
+            "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/functional/candidate.json",
+            "bytes": 502,
+            "sha256": "bcb6923d30bf2ccda99ea234d4989675836d08bf95040f78214917b50d4eb682",
+            "sha512": "1c60097d168d7947561ea4aa85ed88cff5267855c5382e7f084b659557a4cdc19ca2ac3107e9d28f8beb5cba435cd170f33932f168077210a0fbe6e883a6e726"
+          },
+          {
+            "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/functional/offline-summary.json",
+            "bytes": 288,
+            "sha256": "c550adea8c82200a807587e4023333a1f2acb1e3207faf752c539b472944f4d5",
+            "sha512": "74e59d2bca00976dd8b36a66f0f14118d16169b07a36d00f8608a10bae960f845b7c83d2115edcf0c762de6d0e1921cd90b06b867836f7144d9a6d5c85ff297d"
+          },
+          {
+            "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/functional/tls.json",
+            "bytes": 121,
+            "sha256": "9500ffad9cad3b6e41cc34ffececaf443241389ee80ca251d99a88a7d2f415a2",
+            "sha512": "9c0083a6e0f490dbd83cafe773d46d0d5416827eb65a3e523fa2f1b32bb63224abd000b8d8e51351cd12d0028ab16287a4482d8fd985ee7e8d7965cb424e984f"
+          },
+          {
+            "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/elf.json",
+            "bytes": 70661,
+            "sha256": "1b50bc2951abd20ac74ebe7baacff93ea31763e397829388e03d764b2905da17",
+            "sha512": "7fd6ab9712b5312e748a6b9bf614b2e3e36572a1bb07143b71cc3ee72c5b93628f7eab9cbd95f8485989b0fa9d6aa9a733e16a10ecb17b5df9445c8e84cffcc3"
+          },
+          {
+            "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/native-lttng/identity.json",
+            "bytes": 594,
+            "sha256": "7360750155e955f5ed54b9a14a14274b0d2ada8fcea29bb1115d1da9eaf32323",
+            "sha512": "9d9a086ffed0035f2103d68016f68f74f4aa0063d59b03b501ec86ed15636293a4e7c006f6f1a9418ea50157bf3a31e6421ad8b96ca412449d6a6809651878d6"
+          },
+          {
+            "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/native-lttng/results.json",
+            "bytes": 6035,
+            "sha256": "0ecb1a339a9c33920b583eb42fe0413a4f65d0187c4a77b69453ac1fd0f40f2a",
+            "sha512": "a6ed413e0fb0aa6acad2c7be88ec33b492a57afb2f8305dad3ae465a9335c5665115fb3c2dc9313b5266211f7a2275dd869cb34ba345152aca8f5889948db08e"
+          },
+          {
+            "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/native-lttng/decoded.log",
+            "bytes": 15849437,
+            "sha256": "51adcab438ebbe34114da50cc7ac18c6c5af696a5057c96d63099e26c0e863e5",
+            "sha512": "74d3d704aa3245a066aa1e1840e64ef1e575a33aa899ca988a6c3543d48cd270bc7b985217751215657114f44aec1146bc82a14a9370b332359f8fba577dd3b3"
+          },
+          {
+            "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/native-lttng/managed.stdout.log",
+            "bytes": 11,
+            "sha256": "35c15a698aecce39532bf4f1f3cd49a842cce5aeb2abc411f8a1239b0e07379d",
+            "sha512": "eb119a7405f3d4033e01bcca9b0e8cca0798cfc43a264ca202c36866539baf6bd78d2f7d17d2f706ceae127f235c6075b2865fd5e8c1bf19d38baa3ce0a1c716"
+          }
+        ],
+        "sourceClosureComplete": false,
+        "officialWorkflowQualified": false,
+        "qualificationAllowed": false,
+        "sourceAdmissionAllowed": false,
+        "remaining": [
+          "Strict independent full-file construction/source/license closure and producer sealing",
+          "Native x64 and official default Docker two-CPU qualification"
+        ]
+      }
     }
   ],
   "releases": [
     {
       "sdkVersion": "7.0.120",
       "issue": 33,
-      "status": "native-arm64-genuine-sdk-candidate-original42-and-canonical-minimal-runtime-passed",
+      "status": "native-arm64-completed-sdk-archive-original42-minimal-runtime-and-real-lttng-passed",
       "sourceFacts": {
         "schemaVersion": 1,
         "kind": "pinned-legacy-musl-source-facts",
@@ -600,6 +824,494 @@
               "strict independent producer construction/sealing",
               "native x64 and official defaultDocker two-CPU qualification"
             ]
+          },
+          "localizedGenuineSourceSdkCandidate": {
+            "status": "passed-local-native-diagnostics",
+            "sdkArchive": {
+              "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7/localized-sdk.tar.gz",
+              "bytes": 188808744,
+              "sha256": "295ab3641cb391ce901a2b1410e0972ab4f687314bb926b4ebcc86fb05f04a0d",
+              "sha512": "440e6c5e48e3c94d212b064f2f8680478a61bba2f7bdef1bb8bff354a789735e1856cd845ed74020a22c7fadc452e3c862fdcfa62be1182a30aa961a231f207f"
+            },
+            "originalSmoke": {
+              "total": 42,
+              "passed": 41,
+              "skipped": 1,
+              "failed": 0,
+              "omniSharpPassed": 12,
+              "evidence": [
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7/localized-original-smoke/summary.json",
+                  "bytes": 242,
+                  "sha256": "5f0acbf0e244c184d28e535676b50ec40192477e9a7256331dbc9b5a81cd2d84",
+                  "sha512": "8f643a975f0f439f6cb3fc8118bb29364c4f31093cade0becbf6d8b44b3ed39897522ae2fdbba91c241615464a296e68fde889cb5a450de8d27f9a939e5827d3"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7/localized-original-smoke/test.log",
+                  "bytes": 658,
+                  "sha256": "26293a2f8cc96f2031fea2b9bda5b331f8a85edd0f427f2d08cf50b55cec0d46",
+                  "sha512": "af00ceab6b0880e3f5450f664ddfbd196f2fa75b7cec80c27f40222b090dabd17b1e293cdf5710020a6c2043f607f03e1209515a3b3996dda47ce208b155badd"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7/localized-original-smoke/identity.json",
+                  "bytes": 5804,
+                  "sha256": "ea069f3a62fbe944190ca023a9e64eaec6d6704c99d58d743f2846783ff6397f",
+                  "sha512": "5017edca8835230f9c1db5dd00d5d038cb30774a0723ca8b97cc9cd224cd81c9dfaa10d7a658e588da02ec15352544a776170369e912016122e673e65eceb290"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7/localized-original-smoke/fixture.json",
+                  "bytes": 103279,
+                  "sha256": "e05053805e853bedfbe163c021fdd3f5b07cbfdb0659324c1a451b80185b2be6",
+                  "sha512": "c6f6ea04ae86d2f1aeca5824423fcb415156a358ad1b345dceb78af0bf6f750e1a548de16e62d32250947fb4fe4160ca516e058fb3f1ab4914ab46839327abed"
+                }
+              ]
+            },
+            "minimalRuntimeEvidence": [
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7/localized-elf.json",
+                "bytes": 70661,
+                "sha256": "4a8c6a713dbb3465dadacd4047ebc523c28317613c3ff1c7f8514605fd7e11a0",
+                "sha512": "c0471272cf41c31e580c704a9084d55870d73d4d6c9e6e8614fe41747b17419c9211e45e0cdaff16911907b42250461c2ff008c60450371400fe50518e8d3799"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7/localized-functional/candidate.json",
+                "bytes": 506,
+                "sha256": "e04f4feb73b81d7349c3c6913deff9950f2b7bfb7d4bec0681e4de26f824bce9",
+                "sha512": "1ff5598fd5abb3ebb7f8779040315056c28b21805ed856a3a15c24ed5867b3afe037c8ff78434d8b75716f307d5d2c0a2ab3cb1314b1da98cf0ec54bfed1994b"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7/localized-functional/offline-summary.json",
+                "bytes": 288,
+                "sha256": "c550adea8c82200a807587e4023333a1f2acb1e3207faf752c539b472944f4d5",
+                "sha512": "74e59d2bca00976dd8b36a66f0f14118d16169b07a36d00f8608a10bae960f845b7c83d2115edcf0c762de6d0e1921cd90b06b867836f7144d9a6d5c85ff297d"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7/localized-functional/tls.json",
+                "bytes": 121,
+                "sha256": "9500ffad9cad3b6e41cc34ffececaf443241389ee80ca251d99a88a7d2f415a2",
+                "sha512": "9c0083a6e0f490dbd83cafe773d46d0d5416827eb65a3e523fa2f1b32bb63224abd000b8d8e51351cd12d0028ab16287a4482d8fd985ee7e8d7965cb424e984f"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7/localized-functional/negative-certificates.json",
+                "bytes": 979,
+                "sha256": "476862cd82f08aea6942324b7623f614d43e685f7be0505dfab91bb8365e1746",
+                "sha512": "9e149dfa3ed08539982b58529de2c8eacf317a388fc81e82f7f3c1ccca165470fdf675240ae563ae14fea197f0cbf4362bf614d1ff8a91351bb774ef74ccebe5"
+              }
+            ],
+            "translations": {
+              "origin": "imported-official-resource-only-translation-data",
+              "productSatellites": 286,
+              "cultures": 13,
+              "orphanTestUtilitySatellitesOmitted": 13,
+              "sourceCommit": "1653cf17925473602f5460c5e4682a0dab4c4d22",
+              "translationsLocallySourceBuilt": false,
+              "sourcePrimaryAssembliesUnchanged": true,
+              "actualResourceManagerLookups": 208,
+              "resourceManagerReadyToRun": true,
+              "evidence": [
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/sdk7-nuget-translation-data-v9/origin.json",
+                  "bytes": 522877,
+                  "sha256": "8edaf21ede2da27a0f2d5847dd3efabc68d3d0b7c8641b171984eda23a4fa860",
+                  "sha512": "2c62c34cf1e57bbeb9f7da866d457f549a28c1af8f3fa96f3f9ee90cf9aa077637454dfa6eed4bc2934ef9a96978d2dfac4a8f8b118ec0bb2a2b634ac91878f1"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7/localized-primary-identity.json",
+                  "bytes": 23926,
+                  "sha256": "ca8264449c72f447c46c32228f8ccfe68b810b27d8ffbb180b2f4064bb3ca034",
+                  "sha512": "f96d9d1ca1b691cf9bd3fc331cb0d3092f309b8df9fc1cd3a7b06934abb3fd9b6a2771d37887825a0c3c283264d304e514483e157c6c691ddbeda09e960e2ed4"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7/localized-resource-lookup-v2/result.json",
+                  "bytes": 1001,
+                  "sha256": "b49cbd7783591108255eadd5a2966da083ff601f62e36abab30c4139fdbc5720",
+                  "sha512": "588699a62d844c0e32358c4a6de389a59050ee722448b9d70daf960e3cca3eea01514c9474cc812cb1a4494f6829ecb31b35ce44275e0d1e0d30b10ab6f7d458"
+                }
+              ]
+            },
+            "freshOriginalSdkRebuild": {
+              "buildSucceeded": true,
+              "compilerTasks": 309,
+              "unfinishedTasks": 0,
+              "toolsetMembers": 2489,
+              "allToolsetMemberBytesEqualInstallerInput": true,
+              "evidence": [
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7/fresh-rebuild-toolset-byte-equivalence.json",
+                  "bytes": 408,
+                  "sha256": "3a1d9dbe475a00bb06da0aecbd90e091e1782cb7a412ba82ae9d4d77d2d57984",
+                  "sha512": "706ff923fce88f838c9b470e5f2da57769c5c584aba8e60999099cabf542657befbc7760a3d54a8206d65435873a24969f01976280aba8264035a5acbeb0d3f2"
+                },
+                {
+                  "path": ".build/legacy-reader-fresh-csc7/sdk-status.json",
+                  "bytes": 3282,
+                  "sha256": "b42d1ae32dc37b7aecebd187f16e5cca1804a256fa23c830ff42410b387120ea",
+                  "sha512": "069145618d212156efc9cc77e22ad8e61bdd20f54f4af0c0d5cfd7c319c7308d8e04fb8ac8fc4bdba15a747ee0047a231f68acdb72618dc2b25eea1ca0ba104e"
+                }
+              ]
+            },
+            "exactNuGetSourceRebuild": {
+              "sourceCommit": "1653cf17925473602f5460c5e4682a0dab4c4d22",
+              "originalLibraryTargetMatrix": true,
+              "compilerTasks": 53,
+              "packTasks": 19,
+              "unfinishedTasks": 0,
+              "primaryPayloadMemberBytesMatchActualConsumedPackages": true,
+              "evidence": [
+                {
+                  "path": ".build/legacy-reader-nuget7-full-csc/nuget-status.json",
+                  "bytes": 2153,
+                  "sha256": "e624a3b920ea6a3ee59771b95ebae614cac6c4c546dd5fcd75d29e56b5cc707d",
+                  "sha512": "852f0d286cb6a5ebeb1c28cc84be871159aefabb5b1e527f3beb2b92047887bd95c1f109634439ea95f7de01ab92cba98517ca3c7a6186129d991fc3e24f1a85"
+                }
+              ]
+            },
+            "wholeUpstreamSdkUsedAsProduct": false,
+            "sourceClosureComplete": false,
+            "officialWorkflowQualified": false,
+            "qualificationAllowed": false,
+            "sourceAdmissionAllowed": false,
+            "remaining": [
+              "strict independent full-file construction/source/license closure and producer sealing",
+              "native x64 and official default Docker two-CPU qualification"
+            ]
+          },
+          "actualLttngEventProbe": {
+            "id": "sdk7-lttng-actual-events",
+            "affected": [
+              "7.0.120"
+            ],
+            "architectures": [
+              "aarch64"
+            ],
+            "status": "resolved-by-native-arm64-completed-archive-proof",
+            "fact": "Own trace-point provider compiles/loads on stock LTTng2.14.2 and508DotNETevents are listed, but a fresh80GC managed program emits zero decoded DotNETevents in an enabled userspace session; same session has one real native tracef control event/112decodedlines. Imported CoreCLR contains dynamic tracepoint.so.0 while stockAlpine provides tracepoint.so.1. No compatibility alias or binary edit is used.",
+            "environment": {
+              "COMPlus_LTTng": "1",
+              "COMPlus_EnableEventLog": "1",
+              "LTTNG_UST_DEBUG": "1"
+            },
+            "nextStep": "Rebuild the exact CoreCLR7 native subset against stock headers/libraries with optimizedRelease/defaultfeatures, generate truthful native version metadata, then repeat actualeventcontrol and originalSDK/native suites.",
+            "evidence": [
+              {
+                "path": ".build/musl-legacy-assessment-20261108/sdk7-lttng-session-v3/result.json",
+                "bytes": 1982,
+                "sha256": "b2b2accf8999866f39a0f14341066e4f9c56af3c7ab0bd56428b444378239937",
+                "sha512": "4ef4b1bbaff41f8b1d8f965ba0b1d235ab982553e29c06f6495e7a73d6ec8359401e965831066d923bbdb847396c74d1a60112b21e2ed2c533e0d44e0745a8f6"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/sdk7-lttng-session-v3/orchestration.json",
+                "bytes": 1067,
+                "sha256": "b0921687e62b710c1c5d0763089c175c889c536dfdc5e77fd4e6aaba513b34a2",
+                "sha512": "248fb0634944b02be6ddb4704258516904b2826d0b036c4c64ae2f3b3335e00afed8fb66c900e2d35a00bc13d5c1f05e9a2d10454d0892182c4734aab196bc48"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/sdk7-lttng-session-v3/decoded.log",
+                "bytes": 31753,
+                "sha256": "e35f62f6ee300e4aa068eb2b7dd9311c6b72195fb22865de877ba3ca7074ef26",
+                "sha512": "7884a326a43b84611646c6f1b0a846679a4b7370826c52e09098ff2de3a0fdf7f869e999f56d3bc5e519cf798d030281f3e7bba974c2957ccda077a07d3eec7b"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/sdk7-lttng-session-v3/tracepoints.log",
+                "bytes": 60778,
+                "sha256": "aefd78f08b05f6e1455df97368da43676bff0a1cd9973742a1c6bca0283109ee",
+                "sha512": "84132fabf5ed88b3f99b77731bde1cd838a06e975e363c5faafae66332fc0e1e66873607c1607114e2ec2bbad2bec730828d7b7111f3a9ddef1d48c57ed9361e"
+              }
+            ],
+            "resolution": {
+              "status": "native-arm64-completed-sdk-archive-original42-minimal-runtime-and-real-lttng-passed",
+              "archive": {
+                "name": "final-sdk.tar.gz",
+                "bytes": 188736904,
+                "sha256": "4cd66f8031a1e84838fccb51e1cb86a3a988c00c454e69fac753e23c7a60a0cd",
+                "sha512": "8fc6f8998c08eed771cea26fce7a461923bce81fad2a45f74ddaf7f507f435f70aa9b1a8df4bfbaaeee501f1b5ca19b3cb842408ca744d6ccb32cd919a667c9d",
+                "qualificationAllowed": false
+              },
+              "sourceCommit": "0fb6ac59fb1edbe4ed3ad62661df0eb7eacd7903",
+              "rebuiltNativeFiles": [
+                "libcoreclr.so",
+                "libclrjit.so",
+                "libmscordaccore.so",
+                "libmscordbi.so"
+              ],
+              "separateMatchingSourceTraceProviderRetained": true,
+              "configuration": "Release",
+              "readyToRun": true,
+              "optimizationDisabled": false,
+              "upstreamMetadataBackport": "35a39e97345abfda05e14f609759760b37ddeb4d",
+              "patches": [
+                {
+                  "path": "patches/net7-musl/0004-guard-runtime-only-reflection-cache-mutations-in-dac.patch",
+                  "bytes": 819,
+                  "sha256": "773dd9dae8c3e82d7f04831da915893210bc8cd71541cec6c98aed3918b84c34",
+                  "sha512": "df5dd63ac33c0945911366551f65cc26fea66adc2d71b5e3f68348b4ac359c54fbdf6d8fd9f83d2041eb05101d11d8d41fd76d5b73ab0257bc16afb7b5132547"
+                },
+                {
+                  "path": "patches/net7-musl/0005-backport-metadata-local-allocation-marker.patch",
+                  "bytes": 1251,
+                  "sha256": "f28a687f619d6baaa746f80469080fc5ed715a46f9a540cb80aee5bafe0fcf51",
+                  "sha512": "aa82ca22f62883962c8a8607c486b177fd18e23b81bf684428c744875edb5df218a5194030e7ebd8f793a7e9c043ad4ce8ef204244eeb869add5d88d947b9e6c"
+                },
+                {
+                  "path": "patches/net7-musl/0006-copy-matching-source-built-native-runtime.patch",
+                  "bytes": 1319,
+                  "sha256": "2736a1939720edd7ac72317e5b6c732d31498c52cf980ec6f062da7ba1fc97f1",
+                  "sha512": "06b994a387b8cf3c1467515b6b56313e004cfa25a39c060b0ecbd86e104b7fecba5d183593d6d4947f003e3b553c2c950a6ee47bd108313826c7f00d275bc54c"
+                }
+              ],
+              "originalTests": {
+                "total": 42,
+                "passed": 41,
+                "failed": 0,
+                "skipped": 1,
+                "omniSharpPassed": 12,
+                "scope": "Original suite and assertions; only absent poison-report input skipped. OmniSharp timed scenarios do not prove full editor functionality."
+              },
+              "actualLttng": {
+                "dotnetEvents": 10916,
+                "gcStartEvents": 80,
+                "gcEndEvents": 82,
+                "controlEvents": 1,
+                "totalDecodedLines": 23409,
+                "listedDotnetTracepoints": 508
+              },
+              "runtimeOverlaysAccepted": false,
+              "evidence": [
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/archive.json",
+                  "bytes": 312,
+                  "sha256": "26868e4b1a64b44342b1553cc08a027075974821232fbeae2bddd3e3320d4559",
+                  "sha512": "221d471939725976fd3eb1967ba8aa6d0c1d3b155ffaa04f5eb68301ca5e9d2b842977bd34823ae4f2d36a050bb3196f862fe1dad6f979c32af0335be6036b7b"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/construction-evidence-retry2/result.json",
+                  "bytes": 60,
+                  "sha256": "1e5c7ee09f0c3ac5f6c8ba8a19cad167c3485ec94fc4857f9111c72de0b80231",
+                  "sha512": "d21f509730a9f891b959664f7da1b8854fd3998d78819ae5a9f88f9e68fb3a078fe16e66557727375c604bdf294ed1726cec3d72c6f05c78e5b97c2ffe9311f3"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/construction-evidence-retry2/invocation.json",
+                  "bytes": 2376,
+                  "sha256": "acb3d521a1e68178c82b62d504cc0d50120700432627af386d601bbdb86b2aa6",
+                  "sha512": "5ccf161a1f09423d820f180532e4713f5b2c5718be4c2a882141dd98e2ccd859b8964794309c521eb9217dfca0a776dc4ffd2bc22e3c6c4cb6ed8edf5338001f"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/original-smoke/summary.json",
+                  "bytes": 242,
+                  "sha256": "5f0acbf0e244c184d28e535676b50ec40192477e9a7256331dbc9b5a81cd2d84",
+                  "sha512": "8f643a975f0f439f6cb3fc8118bb29364c4f31093cade0becbf6d8b44b3ed39897522ae2fdbba91c241615464a296e68fde889cb5a450de8d27f9a939e5827d3"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/original-smoke/identity.json",
+                  "bytes": 5735,
+                  "sha256": "2d7ef2010d18b8680b4cb03ad52bf2bd8022ffd610420eb2175f8482b537feec",
+                  "sha512": "c57f0fe8f177bf371935cf3ab7d04d4643668e9d350525597d39becbbe6386ba25aaaa75dc584c4c95b8c249f3d8ca2b97b741c48b588fc0e349ca20c596fe01"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/functional/candidate.json",
+                  "bytes": 502,
+                  "sha256": "bcb6923d30bf2ccda99ea234d4989675836d08bf95040f78214917b50d4eb682",
+                  "sha512": "1c60097d168d7947561ea4aa85ed88cff5267855c5382e7f084b659557a4cdc19ca2ac3107e9d28f8beb5cba435cd170f33932f168077210a0fbe6e883a6e726"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/functional/offline-summary.json",
+                  "bytes": 288,
+                  "sha256": "c550adea8c82200a807587e4023333a1f2acb1e3207faf752c539b472944f4d5",
+                  "sha512": "74e59d2bca00976dd8b36a66f0f14118d16169b07a36d00f8608a10bae960f845b7c83d2115edcf0c762de6d0e1921cd90b06b867836f7144d9a6d5c85ff297d"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/functional/tls.json",
+                  "bytes": 121,
+                  "sha256": "9500ffad9cad3b6e41cc34ffececaf443241389ee80ca251d99a88a7d2f415a2",
+                  "sha512": "9c0083a6e0f490dbd83cafe773d46d0d5416827eb65a3e523fa2f1b32bb63224abd000b8d8e51351cd12d0028ab16287a4482d8fd985ee7e8d7965cb424e984f"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/elf.json",
+                  "bytes": 70661,
+                  "sha256": "1b50bc2951abd20ac74ebe7baacff93ea31763e397829388e03d764b2905da17",
+                  "sha512": "7fd6ab9712b5312e748a6b9bf614b2e3e36572a1bb07143b71cc3ee72c5b93628f7eab9cbd95f8485989b0fa9d6aa9a733e16a10ecb17b5df9445c8e84cffcc3"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/native-lttng/identity.json",
+                  "bytes": 594,
+                  "sha256": "7360750155e955f5ed54b9a14a14274b0d2ada8fcea29bb1115d1da9eaf32323",
+                  "sha512": "9d9a086ffed0035f2103d68016f68f74f4aa0063d59b03b501ec86ed15636293a4e7c006f6f1a9418ea50157bf3a31e6421ad8b96ca412449d6a6809651878d6"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/native-lttng/results.json",
+                  "bytes": 6035,
+                  "sha256": "0ecb1a339a9c33920b583eb42fe0413a4f65d0187c4a77b69453ac1fd0f40f2a",
+                  "sha512": "a6ed413e0fb0aa6acad2c7be88ec33b492a57afb2f8305dad3ae465a9335c5665115fb3c2dc9313b5266211f7a2275dd869cb34ba345152aca8f5889948db08e"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/native-lttng/decoded.log",
+                  "bytes": 15849437,
+                  "sha256": "51adcab438ebbe34114da50cc7ac18c6c5af696a5057c96d63099e26c0e863e5",
+                  "sha512": "74d3d704aa3245a066aa1e1840e64ef1e575a33aa899ca988a6c3543d48cd270bc7b985217751215657114f44aec1146bc82a14a9370b332359f8fba577dd3b3"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/native-lttng/managed.stdout.log",
+                  "bytes": 11,
+                  "sha256": "35c15a698aecce39532bf4f1f3cd49a842cce5aeb2abc411f8a1239b0e07379d",
+                  "sha512": "eb119a7405f3d4033e01bcca9b0e8cca0798cfc43a264ca202c36866539baf6bd78d2f7d17d2f706ceae127f235c6075b2865fd5e8c1bf19d38baa3ce0a1c716"
+                }
+              ],
+              "sourceClosureComplete": false,
+              "officialWorkflowQualified": false,
+              "qualificationAllowed": false,
+              "sourceAdmissionAllowed": false,
+              "remaining": [
+                "Strict independent full-file construction/source/license closure and producer sealing",
+                "Native x64 and official default Docker two-CPU qualification"
+              ]
+            }
+          },
+          "nativeRuntimeGenuineSdkCandidate": {
+            "status": "native-arm64-completed-sdk-archive-original42-minimal-runtime-and-real-lttng-passed",
+            "archive": {
+              "name": "final-sdk.tar.gz",
+              "bytes": 188736904,
+              "sha256": "4cd66f8031a1e84838fccb51e1cb86a3a988c00c454e69fac753e23c7a60a0cd",
+              "sha512": "8fc6f8998c08eed771cea26fce7a461923bce81fad2a45f74ddaf7f507f435f70aa9b1a8df4bfbaaeee501f1b5ca19b3cb842408ca744d6ccb32cd919a667c9d",
+              "qualificationAllowed": false
+            },
+            "sourceCommit": "0fb6ac59fb1edbe4ed3ad62661df0eb7eacd7903",
+            "rebuiltNativeFiles": [
+              "libcoreclr.so",
+              "libclrjit.so",
+              "libmscordaccore.so",
+              "libmscordbi.so"
+            ],
+            "separateMatchingSourceTraceProviderRetained": true,
+            "configuration": "Release",
+            "readyToRun": true,
+            "optimizationDisabled": false,
+            "upstreamMetadataBackport": "35a39e97345abfda05e14f609759760b37ddeb4d",
+            "patches": [
+              {
+                "path": "patches/net7-musl/0004-guard-runtime-only-reflection-cache-mutations-in-dac.patch",
+                "bytes": 819,
+                "sha256": "773dd9dae8c3e82d7f04831da915893210bc8cd71541cec6c98aed3918b84c34",
+                "sha512": "df5dd63ac33c0945911366551f65cc26fea66adc2d71b5e3f68348b4ac359c54fbdf6d8fd9f83d2041eb05101d11d8d41fd76d5b73ab0257bc16afb7b5132547"
+              },
+              {
+                "path": "patches/net7-musl/0005-backport-metadata-local-allocation-marker.patch",
+                "bytes": 1251,
+                "sha256": "f28a687f619d6baaa746f80469080fc5ed715a46f9a540cb80aee5bafe0fcf51",
+                "sha512": "aa82ca22f62883962c8a8607c486b177fd18e23b81bf684428c744875edb5df218a5194030e7ebd8f793a7e9c043ad4ce8ef204244eeb869add5d88d947b9e6c"
+              },
+              {
+                "path": "patches/net7-musl/0006-copy-matching-source-built-native-runtime.patch",
+                "bytes": 1319,
+                "sha256": "2736a1939720edd7ac72317e5b6c732d31498c52cf980ec6f062da7ba1fc97f1",
+                "sha512": "06b994a387b8cf3c1467515b6b56313e004cfa25a39c060b0ecbd86e104b7fecba5d183593d6d4947f003e3b553c2c950a6ee47bd108313826c7f00d275bc54c"
+              }
+            ],
+            "originalTests": {
+              "total": 42,
+              "passed": 41,
+              "failed": 0,
+              "skipped": 1,
+              "omniSharpPassed": 12,
+              "scope": "Original suite and assertions; only absent poison-report input skipped. OmniSharp timed scenarios do not prove full editor functionality."
+            },
+            "actualLttng": {
+              "dotnetEvents": 10916,
+              "gcStartEvents": 80,
+              "gcEndEvents": 82,
+              "controlEvents": 1,
+              "totalDecodedLines": 23409,
+              "listedDotnetTracepoints": 508
+            },
+            "runtimeOverlaysAccepted": false,
+            "evidence": [
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/archive.json",
+                "bytes": 312,
+                "sha256": "26868e4b1a64b44342b1553cc08a027075974821232fbeae2bddd3e3320d4559",
+                "sha512": "221d471939725976fd3eb1967ba8aa6d0c1d3b155ffaa04f5eb68301ca5e9d2b842977bd34823ae4f2d36a050bb3196f862fe1dad6f979c32af0335be6036b7b"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/construction-evidence-retry2/result.json",
+                "bytes": 60,
+                "sha256": "1e5c7ee09f0c3ac5f6c8ba8a19cad167c3485ec94fc4857f9111c72de0b80231",
+                "sha512": "d21f509730a9f891b959664f7da1b8854fd3998d78819ae5a9f88f9e68fb3a078fe16e66557727375c604bdf294ed1726cec3d72c6f05c78e5b97c2ffe9311f3"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/construction-evidence-retry2/invocation.json",
+                "bytes": 2376,
+                "sha256": "acb3d521a1e68178c82b62d504cc0d50120700432627af386d601bbdb86b2aa6",
+                "sha512": "5ccf161a1f09423d820f180532e4713f5b2c5718be4c2a882141dd98e2ccd859b8964794309c521eb9217dfca0a776dc4ffd2bc22e3c6c4cb6ed8edf5338001f"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/original-smoke/summary.json",
+                "bytes": 242,
+                "sha256": "5f0acbf0e244c184d28e535676b50ec40192477e9a7256331dbc9b5a81cd2d84",
+                "sha512": "8f643a975f0f439f6cb3fc8118bb29364c4f31093cade0becbf6d8b44b3ed39897522ae2fdbba91c241615464a296e68fde889cb5a450de8d27f9a939e5827d3"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/original-smoke/identity.json",
+                "bytes": 5735,
+                "sha256": "2d7ef2010d18b8680b4cb03ad52bf2bd8022ffd610420eb2175f8482b537feec",
+                "sha512": "c57f0fe8f177bf371935cf3ab7d04d4643668e9d350525597d39becbbe6386ba25aaaa75dc584c4c95b8c249f3d8ca2b97b741c48b588fc0e349ca20c596fe01"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/functional/candidate.json",
+                "bytes": 502,
+                "sha256": "bcb6923d30bf2ccda99ea234d4989675836d08bf95040f78214917b50d4eb682",
+                "sha512": "1c60097d168d7947561ea4aa85ed88cff5267855c5382e7f084b659557a4cdc19ca2ac3107e9d28f8beb5cba435cd170f33932f168077210a0fbe6e883a6e726"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/functional/offline-summary.json",
+                "bytes": 288,
+                "sha256": "c550adea8c82200a807587e4023333a1f2acb1e3207faf752c539b472944f4d5",
+                "sha512": "74e59d2bca00976dd8b36a66f0f14118d16169b07a36d00f8608a10bae960f845b7c83d2115edcf0c762de6d0e1921cd90b06b867836f7144d9a6d5c85ff297d"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/functional/tls.json",
+                "bytes": 121,
+                "sha256": "9500ffad9cad3b6e41cc34ffececaf443241389ee80ca251d99a88a7d2f415a2",
+                "sha512": "9c0083a6e0f490dbd83cafe773d46d0d5416827eb65a3e523fa2f1b32bb63224abd000b8d8e51351cd12d0028ab16287a4482d8fd985ee7e8d7965cb424e984f"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/elf.json",
+                "bytes": 70661,
+                "sha256": "1b50bc2951abd20ac74ebe7baacff93ea31763e397829388e03d764b2905da17",
+                "sha512": "7fd6ab9712b5312e748a6b9bf614b2e3e36572a1bb07143b71cc3ee72c5b93628f7eab9cbd95f8485989b0fa9d6aa9a733e16a10ecb17b5df9445c8e84cffcc3"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/native-lttng/identity.json",
+                "bytes": 594,
+                "sha256": "7360750155e955f5ed54b9a14a14274b0d2ada8fcea29bb1115d1da9eaf32323",
+                "sha512": "9d9a086ffed0035f2103d68016f68f74f4aa0063d59b03b501ec86ed15636293a4e7c006f6f1a9418ea50157bf3a31e6421ad8b96ca412449d6a6809651878d6"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/native-lttng/results.json",
+                "bytes": 6035,
+                "sha256": "0ecb1a339a9c33920b583eb42fe0413a4f65d0187c4a77b69453ac1fd0f40f2a",
+                "sha512": "a6ed413e0fb0aa6acad2c7be88ec33b492a57afb2f8305dad3ae465a9335c5665115fb3c2dc9313b5266211f7a2275dd869cb34ba345152aca8f5889948db08e"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/native-lttng/decoded.log",
+                "bytes": 15849437,
+                "sha256": "51adcab438ebbe34114da50cc7ac18c6c5af696a5057c96d63099e26c0e863e5",
+                "sha512": "74d3d704aa3245a066aa1e1840e64ef1e575a33aa899ca988a6c3543d48cd270bc7b985217751215657114f44aec1146bc82a14a9370b332359f8fba577dd3b3"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk7-native-clr/resume-validation-v1/native-lttng/managed.stdout.log",
+                "bytes": 11,
+                "sha256": "35c15a698aecce39532bf4f1f3cd49a842cce5aeb2abc411f8a1239b0e07379d",
+                "sha512": "eb119a7405f3d4033e01bcca9b0e8cca0798cfc43a264ca202c36866539baf6bd78d2f7d17d2f706ceae127f235c6075b2865fd5e8c1bf19d38baa3ce0a1c716"
+              }
+            ],
+            "sourceClosureComplete": false,
+            "officialWorkflowQualified": false,
+            "qualificationAllowed": false,
+            "sourceAdmissionAllowed": false,
+            "remaining": [
+              "Strict independent full-file construction/source/license closure and producer sealing",
+              "Native x64 and official default Docker two-CPU qualification"
+            ]
           }
         }
       ]
@@ -607,7 +1319,7 @@
     {
       "sdkVersion": "6.0.136",
       "issue": 33,
-      "status": "native-arm64-stock-component-candidate-passed-sdk-producer-unqualified",
+      "status": "native-arm64-genuine-sdk-candidate-original42-and-canonical-minimal-runtime-passed",
       "sourceFacts": {
         "schemaVersion": 1,
         "kind": "pinned-legacy-musl-source-facts",
@@ -1055,6 +1767,109 @@
                 "sha512": "522d34a4091b9342bcde0c20f69edd7ca06019d57c36e884285c3f2d58644d8ed131e517439fc3c9329bf60ee4a59135f2fae0f65e3dfbc7329e6e05ea2edba4"
               }
             ]
+          },
+          "genuineSourceSdkCandidate": {
+            "status": "passed-local-native-diagnostics",
+            "sdkArchive": {
+              "path": ".build/musl-legacy-assessment-20261108/genuine-sdk6/final-sdk.tar.gz",
+              "bytes": 169113832,
+              "sha256": "dbde6825ad7478bbf673db8a133b9ee468b706a6839879622d551af03f203a6f",
+              "sha512": "80284249f63f6a6782ece10c2f6b36c7a90e37ab77fd9ea74b6cbc61fd77ff22369c9c89c5b394e40034b6ba6ad34ec279d2944faeff339cf65b8bacfa214e57"
+            },
+            "installerSource": "d638663530d923adbe0442604b7a6562127321e9",
+            "sdkSource": "1d205826ddc14c8f868eb6373e7a6bafcb9fe5be",
+            "runtimeSource": "f1dd57165bfd91875761329ac3a8b17f6606ad18",
+            "rebuilt": [
+              "original36-root SDK source-build.slnf product graph",
+              "matching own-source runtime6 trace provider",
+              "regular installer redist"
+            ],
+            "imported": [
+              "matching officialmusl6.0.36host/runtime/ASP.NET",
+              "exactmanaged compiler/NuGet/VSTest inputs",
+              "explicit52matchingMSBuildmanaged satellites"
+            ],
+            "wholeUpstreamSdkUsedAsProduct": false,
+            "originalSmoke": {
+              "total": 42,
+              "passed": 41,
+              "failed": 0,
+              "skipped": 1,
+              "omniSharpPassed": 12,
+              "evidence": [
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk6/original-smoke/summary.json",
+                  "bytes": 242,
+                  "sha256": "5f0acbf0e244c184d28e535676b50ec40192477e9a7256331dbc9b5a81cd2d84",
+                  "sha512": "8f643a975f0f439f6cb3fc8118bb29364c4f31093cade0becbf6d8b44b3ed39897522ae2fdbba91c241615464a296e68fde889cb5a450de8d27f9a939e5827d3"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk6/original-smoke/test.log",
+                  "bytes": 701,
+                  "sha256": "a8a66bff3a80eff2d9fed1ba1af2e28cc19a46cf60e3681481c147138f4678ae",
+                  "sha512": "132b821f6e76239da08d8d7c44aa7f56741898cd993bc7009344ab67603301663b052900781b72d9ddbf3b5b9d61dd68d247dd1d8e6aa7868c00ecf2d5ea3261"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk6/original-smoke/identity.json",
+                  "bytes": 5849,
+                  "sha256": "2b680d713bbda9943a480e8c244b4811dd5a89dc4d0975628f336edcca3cb60e",
+                  "sha512": "dc70a9b8fc6c48791008422738d5ae272d32d296c412ad8a0e9cffcc7d243ed01cebb34c346737530152407e5d11502b2c2eb165ce6578a39c42def2e64db541"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk6/original-smoke/fixture.json",
+                  "bytes": 103279,
+                  "sha256": "5fd76d003d0df2a0722c3158a698239b2a32e52c99792ad75ac0fc875660bc44",
+                  "sha512": "84e0ca98d9402d9c15059c816c8ffee134c6c223e9a285b7e3fb53e20d41107a5def7e451e6bd1039d65a2dca9d87c3e03291757dc1347478bc65693a434363a"
+                }
+              ]
+            },
+            "minimalRuntimeEvidence": [
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk6/elf.json",
+                "bytes": 70766,
+                "sha256": "3634c23da0ffdf813ee78edfc7f6a4da0ff7da03fc9bc102800a1058b5e70af8",
+                "sha512": "30907953b54eee1f4898ee06fbe3e86f3a6ab1e858cd1adbab7b6bd6bfecdda070e4d7cdd3e69009e5fa69c8e4d2b41128bdd8a11e9984564b9f3972e7638b8d"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk6/functional/candidate.json",
+                "bytes": 528,
+                "sha256": "8c46cee247e5433e512fe39a8c50210895438abea0a16bf147be1ba9f489c71c",
+                "sha512": "5efa7163bb14277a34a9600dbc08d10b5769762c61d5201c57fe4ceb9a82e5ee13310d5fcdc8a3f30ccd276b7b632986132b164fa83dd429caaf30c7681758f9"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk6/functional/offline-summary.json",
+                "bytes": 288,
+                "sha256": "c550adea8c82200a807587e4023333a1f2acb1e3207faf752c539b472944f4d5",
+                "sha512": "74e59d2bca00976dd8b36a66f0f14118d16169b07a36d00f8608a10bae960f845b7c83d2115edcf0c762de6d0e1921cd90b06b867836f7144d9a6d5c85ff297d"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk6/functional/negative-certificates.json",
+                "bytes": 979,
+                "sha256": "7e73c754cea82cff240570b9e23cfbd8014c846e6019429bc12307ead0138dc9",
+                "sha512": "3f0822db8542c51fb334e202809b2b295d5ae8fa2d70fdf10d7844eb7a9afbf3a8abd429d27c23dc279f1761e7764601d66f77e60ff32233e36153031d66b818"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk6/functional/negative-execution.log",
+                "bytes": 974,
+                "sha256": "a7e180e725004e4dbdde52b967efaeeb9745d6804e487f6592d3c0dd10483830",
+                "sha512": "f041a8b8f8e3dd9da0b8e81a1404d2fdfe717473f200f06a5d6478c12fa14f05366082a799c1156fd7fba9bff610d0759be4d8ef7285029de824bd26073da50f"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk6/functional/tls.json",
+                "bytes": 121,
+                "sha256": "9500ffad9cad3b6e41cc34ffececaf443241389ee80ca251d99a88a7d2f415a2",
+                "sha512": "9c0083a6e0f490dbd83cafe773d46d0d5416827eb65a3e523fa2f1b32bb63224abd000b8d8e51351cd12d0028ab16287a4482d8fd985ee7e8d7965cb424e984f"
+              }
+            ],
+            "sourceClosureComplete": false,
+            "officialWorkflowQualified": false,
+            "qualificationAllowed": false,
+            "sourceAdmissionAllowed": false,
+            "remaining": [
+              "fullpackage/source/license closure and localized-resource completeness",
+              "strict independent construction/sealing",
+              "native x64 official defaultDocker qualification"
+            ]
           }
         }
       ]
@@ -1062,7 +1877,7 @@
     {
       "sdkVersion": "5.0.214",
       "issue": 34,
-      "status": "native-arm64-stock-component-candidate-passed-sdk-producer-unqualified",
+      "status": "native-arm64-genuine-sdk-original68-and-minimal-runtime-passed-fullsource-runtimequalification-pending",
       "sourceFacts": {
         "schemaVersion": 1,
         "kind": "pinned-legacy-musl-source-facts",
@@ -1460,7 +2275,7 @@
           },
           "negativeCertificateSourcePortProbe": {
             "status": "passed",
-            "scope": "Imported exactSDK5 with explicit own-source5.0.17crypto+trace overlays; genuineSDK5product not yet built",
+            "scope": "This earlier component-only probe used exact official SDK5 with explicit own-source5.0.17 crypto and trace overlays; genuine source-tooling product evidence is recorded separately.",
             "readyToRun": true,
             "defaultSslStream": true,
             "certificateValidationCallback": false,
@@ -1492,6 +2307,218 @@
                 "bytes": 8255,
                 "sha256": "3c88ee9eab40b2e096b96c73316e8af8f3a58ea11b40fa72a84d6c5a4de647cc",
                 "sha512": "971bfd212ac951df44d44da671c29ace2872288e07d95a76c04ec640cda228f39398f3c130b65ddef75373b23b4e5a6970b809ff57485dcc1930d52f72867679"
+              }
+            ]
+          },
+          "genuineSourceSdkCandidate": {
+            "status": "passed-local-native-original68-and-minimal-runtime",
+            "sdkArchive": {
+              "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/final-sdk.tar.gz",
+              "bytes": 130407255,
+              "sha256": "d983b6ddb11e88fa541bcd44e13f031aae1a9f4b3e5fbf97dcfecdcb60168daa",
+              "sha512": "4dabf2bf883783daa3feeb26724575567dd3914d4fc7c56a27720f13c62fe00c68e3c77f7b2916bf31760d2376a4fd02a0d324d49080f0f9f4c6c31faa76db72"
+            },
+            "sdkSource": "3fdf76c35026e311b7edc245d4b3d9e812fe532e",
+            "installerSource": "430330f7c5428f031b4a835be3dcf5945f55a56a",
+            "runtimeSource": "6a984143635bde23e728abaaccbde52f5ea8fa3e",
+            "productProjectRoots": 25,
+            "excludedOriginalTestProjectRoots": 31,
+            "rebuilt": [
+              "original SDK solution25-product roots: CLI/tasks/resolvers/templates/redist",
+              "matching runtime5 trace provider",
+              "matching runtime5 OpenSSL3 crypto port",
+              "regular installer tasks/redist"
+            ],
+            "imported": [
+              "matching official musl5.0.17 host/runtime/ASP.NET",
+              "explicit locally-derived exact official musl managed compiler components and other attributed managed packages"
+            ],
+            "wholeUpstreamSdkUsedAsProduct": false,
+            "upstreamWindowsDesktopSourceBuildGuard": "Exact source-build d414 patch0008, retained as patches/net5-musl/0005-use-upstream-source-build-windowsdesktop-import-guard.patch",
+            "minimalRuntimeImageId": "b504e12ef21ecf409b6b0f4cf7760f3cf2630c08dc3607e02fe4900a2a9d64e7",
+            "minimalRuntimeEvidence": [
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/elf.json",
+                "bytes": 87374,
+                "sha256": "0299973f0e0ec4907414ae0af5c6c631f71ac27b2c87cfb1028fbbd878c7378c",
+                "sha512": "10670eb8a0d2be4da9683ce6b2c45c977d65c07c7e2c725fd11e58c7e6aad7ae4c9a1323e00fcdddf4f2ddc5b7bb24c0a49e1270730f9f22a798dc1eeaa11589"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/functional/candidate.json",
+                "bytes": 502,
+                "sha256": "dab687c5b7041bb8b984e1e378d2e791a154fc640df0ad120af98a91f96a53bf",
+                "sha512": "b1cf568ec5ed64b85caaaba8d7aa2c81cce7ebedcac61ab700aae93924b3555fef25bd57fe5b87cc7bf001bfb71bf4f3455d242201ed07355933f542d2082519"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/functional/offline-summary.json",
+                "bytes": 288,
+                "sha256": "c550adea8c82200a807587e4023333a1f2acb1e3207faf752c539b472944f4d5",
+                "sha512": "74e59d2bca00976dd8b36a66f0f14118d16169b07a36d00f8608a10bae960f845b7c83d2115edcf0c762de6d0e1921cd90b06b867836f7144d9a6d5c85ff297d"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/functional/negative-certificates.json",
+                "bytes": 979,
+                "sha256": "0825c24e36253916ab957ad9e56c7af9e3cafdb98577b9fc0b479b816e61ec27",
+                "sha512": "0cfab13646fb5774173a7d6c5fa71ca52eb9a97bf6fc23776ce8c24f45a66a6d4ef7c06651c7bdcae25e92b07cbff416c9e8f5b7a50ab57cdfdbf15aeaa5b7ef"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/functional/tls.json",
+                "bytes": 121,
+                "sha256": "9500ffad9cad3b6e41cc34ffececaf443241389ee80ca251d99a88a7d2f415a2",
+                "sha512": "9c0083a6e0f490dbd83cafe773d46d0d5416827eb65a3e523fa2f1b32bb63224abd000b8d8e51351cd12d0028ab16287a4482d8fd985ee7e8d7965cb424e984f"
+              }
+            ],
+            "negativeCertificates": {
+              "readyToRun": true,
+              "defaultSslStream": true,
+              "certificateValidationCallback": false,
+              "ephemeralUserTrustStore": true,
+              "fixtureSha256": "3c88ee9eab40b2e096b96c73316e8af8f3a58ea11b40fa72a84d6c5a4de647cc",
+              "trustedControlConnected": true,
+              "untrustedSelfSignedRejected": true,
+              "expiredRejected": true,
+              "wrongHostnameRejected": true,
+              "invalidCaTlsRejected": true,
+              "invalidBasicConstraintsManagedChainRejected": true
+            },
+            "originalSmoke": {
+              "status": "passed",
+              "templateCasesStarted": 68,
+              "templateCasesFinished": 68,
+              "httpsSetups": 2,
+              "xmlDocAssertionsPassed": true,
+              "localAndOnlinePhasesPassed": true,
+              "suiteExclusions": [],
+              "runSmokeTestMsbuildTargetExecuted": false,
+              "rootSourceBuildGraphClaimed": false,
+              "evidence": [
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/original-smoke-retry2/summary.json",
+                  "bytes": 596,
+                  "sha256": "09b4fce984ddb55ef2dff5b4b1d73ec74b4042fc28d8b880e2f01ace4cacd4ac",
+                  "sha512": "b4b34885f448584801f55a6036477414dd6a70c2680d50c3defaa209f477f10a1da625664d160094e8a42a243c3673faac817a5459555c553eac3a611f19efb1"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/original-smoke-retry2/identity.json",
+                  "bytes": 1719,
+                  "sha256": "2e5c90622c09f3a398e9712905cab525034b5f178561feef04ee5abc7c37a9d9",
+                  "sha512": "4fbd61ef30685153b5da42931ec0b4b7b29bd355abd18f6d164041c95a9c3fa6e0cc0288eaac3bb08d7421b2d673cc6383b944174b5dae1b8d1641fc098a9049"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/original-smoke-retry2/command.json",
+                  "bytes": 446,
+                  "sha256": "cfa12977b4264ef98cce455ffe22e661e2190a1a12dba44100454db342654480",
+                  "sha512": "9a8a1c90dfb168dae725a2924127c33dce9432c7c6edda962702c5f20444738e4a3a029ba4bdd2dfa6d9cb1529ac57e4de8f46ba35d31bfdad89f9bc8066633a"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/original-smoke-retry2/execution.log",
+                  "bytes": 266490,
+                  "sha256": "575697222b33220e889f8a8d5c019096bb507fa3c796db4406aadbb1962e4f84",
+                  "sha512": "39d0da024110db543012fb4051c394b357d86dafc7bfbea11a4ff4cfb36eae8e90b5393c52269bf6b3ed84219acd62890a92375834eaf511af0e705694dfd0fe"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/original-smoke-retry2/smoke-test.log",
+                  "bytes": 242222,
+                  "sha256": "e7ef85da53f5a966932b1ecf25f32e255dc1747fb4a655968bff8cdeabdcd29e",
+                  "sha512": "0e74a5c81ca584768774bde862a8a11ff590b360ee13d354527ae8606e769021d29e712accba64deae1e13a8c374238114beedc6bbfd96a70dd5cafdfd40d4fc"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/original-smoke-retry2/upstream-smoke-test.original.sh",
+                  "bytes": 23754,
+                  "sha256": "ab8dbbbb0b1580e220767216cdb281e868ca8cc8bf874d376332c7199ffbe640",
+                  "sha512": "d1ab620647975b58a66d4d1f24762bf2d00b9f6f331ba230e5249d5f040f2a461788442cdb68b65b5bf68805dc3cdad01facc001536de40bec163ff3b6d9a5b2"
+                },
+                {
+                  "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/original-smoke-retry2/upstream-smoke-test.adapted.sh",
+                  "bytes": 23582,
+                  "sha256": "39fc79fe29e580b1579abdc28db98fcc779bef2a72be82d62dd760febca51272",
+                  "sha512": "5aec9a9d0dab2b0e001870d325bfebd111cc5dbb3ba858df230182c0820daa7b80ca5d8cc3fbca0c3a4a862fa4213210ddb1ac9ae8ce8c42474e392d2c82e9cd"
+                }
+              ],
+              "priorAttempts": [
+                {
+                  "status": "interrupted",
+                  "evidence": {
+                    "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/original-smoke/interruption.json",
+                    "bytes": 502,
+                    "sha256": "8564ef41810df31f331da6e31a638c4d0e38d7d2e0163a383181a88216a8f214",
+                    "sha512": "7f5cc705bca19dd71937d49359c153f9047234cb9b084f0bf4df339d5b4214fab79c99c605371fcdfcfaa0654444a1a94a0ec86b9419d241efdd177a91ede3c8"
+                  }
+                },
+                {
+                  "status": "failed-harness-keepProjects-retention-flag",
+                  "evidence": {
+                    "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/original-smoke-retry1/summary.json",
+                    "bytes": 600,
+                    "sha256": "aae284ff710f5b44a267115a25ffca2e8864d6647bfb077ee4f95bcfa11e5373",
+                    "sha512": "641c0768ae941db6f938589b8ea315a46af225e13501a5013438a216118a4e4b8635fb0a53b853cdb1ca1fd7c8a6fb049126b2fe21633ccbac4f65b088a91121"
+                  }
+                }
+              ]
+            },
+            "sourceClosureComplete": false,
+            "officialWorkflowQualified": false,
+            "qualificationAllowed": false,
+            "sourceAdmissionAllowed": false,
+            "remaining": [
+              "full corresponding-source/package/license/R2R/native construction review and strict producer sealing",
+              "independentactualLTTngsession test and ownnativeCoreCLR source rebuild if required",
+              "native x64 and official default Docker two-CPU qualification"
+            ],
+            "constructionEvidence": [
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/construction-evidence/sdk-invocation.json",
+                "bytes": 2035,
+                "sha256": "16acfac3379cbd50c8d6305dcd296568e57197b111b8c5bf36271344e6deae98",
+                "sha512": "aa07374cc80677153915b9dde96eddd1dd718d06445517006d2fef497855785ad5f6ad6b7f368f51af37d61c3a0f8b7c083ed9d0f9e0f1ee5a27165181f6a88b"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/construction-evidence/sdk-result.json",
+                "bytes": 506,
+                "sha256": "681368215ad05ea803a1adcf0c87d4c02827f1de469cf866d6aa3d7ec6e451cb",
+                "sha512": "fa0d8785fda00653018e51a0b0d1ededfd769109fdadd1ba15c8ba60b6b9f7d076881061e46a5d2d8f26001f5392db4066ed8336719570432d7ef05958db08b8"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/construction-evidence/sdk-build.log",
+                "bytes": 18768,
+                "sha256": "df135ac976569547225e057062a7b0afb6986579f6285a75ef427f68e6b91425",
+                "sha512": "3e2b8eb5d12a33de828e026e91879f546b24988a0ca3c4d04470c9ddfdadb2e1dbeb78eeb0b95825d67edd7c193e8dd6e19ea3bc3d724fd3db299486ebe85c58"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/construction-evidence/sdk.binlog",
+                "bytes": 3996615,
+                "sha256": "359c9f97d1a8c0e042c7ebfe67e429c7606ba6995b8679da89d3cc74944c088f",
+                "sha512": "7c00e7a27e490638a932183a346e7682f32661d512e5e1f2cc1b5a9f658a0126f1c4961e5187b3c78e3ee3fde261ab1be9b6f8b18e831ab1ed48db062fade7b2"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/construction-evidence/installer-invocation.json",
+                "bytes": 2314,
+                "sha256": "30fb566fa2af41a9920de0a1f3707817d3a30e830544430246e009a129210175",
+                "sha512": "99c9c054a983a999e08ed5c72303bed0671e2554933397e2097eaea0a017120b7fe744a9a2c0c07aad2e7be0b3c137353b86be8b473016e20dcd51636dae9870"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/construction-evidence/installer-result.json",
+                "bytes": 41,
+                "sha256": "a00672d2bae193bfdef5344fed1c8a6fa87ea4e8801979ddcc79b2216c0057d9",
+                "sha512": "a2bfe2e1bd6ba40eeaee82fc71cbd0016cfa5135e910a146b3941199635b82a448a16cf18122cbb1ec81276cdabd75201b525659d4c1d8179e33561382d6347b"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/construction-evidence/installer-build.log",
+                "bytes": 10323,
+                "sha256": "c20b26f1051a9688561081e0245a99eb80a9021849bacebd948bf3e07a2bd325",
+                "sha512": "a2da594d5286752cbdcc2a554f0b0c456d0e9746b71fed05011dc69567f3786e74c0f88e2aa2ac2eb3f9acf1690b133a1e9e452dff50d4c5635fbc30eb1409e3"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/construction-evidence/installer.binlog",
+                "bytes": 781692,
+                "sha256": "be6ecedaa3602c1b8dfd67f7214324f01dd6157864c7878e17a7c93f105891a2",
+                "sha512": "ad7b0e2d88f21bc99f771036beeca29de03a7bba0682b4d390180fe577141fcbcd53831f670b57c915d1b82463adbfc26bcff7bcfb2d1d6c6bc20df26f8c41d9"
+              },
+              {
+                "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-upstream-import-guard/construction-evidence/source-built-toolset.zip",
+                "bytes": 68402867,
+                "sha256": "cbd76bca6bb3a44d120624d251e0306f49e304766da4f191c7bc2965deb9a326",
+                "sha512": "b14e818b43cad806beed93a0ddb760d251867e54f44be4341b3c5c4d51c9ee43e550bf93319e2b8647f554726a2f1a61ec2319f0e9803da44b94c8a5ebed8c2b"
               }
             ]
           }

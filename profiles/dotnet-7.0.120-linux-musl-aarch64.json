@@ -3,7 +3,7 @@
   "kind": "legacy-musl-diagnostic-profile",
   "selectedAt": "2026-11-08",
   "sdkVersion": "7.0.120",
-  "status": "native-arm64-genuine-sdk-original42-passed-officialqualification-pending",
+  "status": "native-arm64-native-coreclr-original42-minimal-runtime-and-lttng-passed-source-closure-pending",
   "qualificationAllowed": false,
   "sourceAdmissionAllowed": false,
   "releaseAvailabilityAllowed": false,
@@ -89,9 +89,8 @@
     "sourceBuildWrappersReusable": false,
     "glibcPatchesAssumedApplicable": false,
     "unresolved": [
-      "Every host/runtime/tool ELF must close on stock Alpine, including legacy LTTng trace provider",
-      "Native successful regular tooling and installer build on each CPU",
-      "Bind all actual imported bytes and exact matching used sources/licenses"
+      "Strict independent full-file construction/source/license closure and producer sealing",
+      "Native x64 and official default Docker two-CPU qualification"
     ]
   },
   "diagnostics": {
@@ -142,11 +141,20 @@
       "stockSoname": "liblttng-ust.so.1",
       "nativeArm64Experiment": "passed",
       "nativeX64Experiment": "not-executed"
+    },
+    "coreclr": {
+      "action": "rebuild-own-exact-runtime-source-native-coreclr-jit-dac-debugger",
+      "sourceCommit": "0fb6ac59fb1edbe4ed3ad62661df0eb7eacd7903",
+      "configuration": "Release",
+      "upstreamMetadataBackport": "35a39e97345abfda05e14f609759760b37ddeb4d",
+      "nativeArm64CompletedArchiveExperiment": "passed",
+      "nativeX64Experiment": "not-executed",
+      "sourceClosureComplete": false
     }
   },
   "localDiagnosticEvidence": {
     "path": "docs/musl-legacy-feasibility.json",
-    "sha256": "1a88dd736500babbcef96eadc9e2f976ba5e0f5c0bb4822b07d21e8dca8343ff",
+    "sha256": "f37ec1ca24bd08d86d4186d5f2cf926333d06864aeb3490413be6aa77af93635",
     "officialWorkflowQualified": false,
     "sourceClosureComplete": false,
     "qualificationAllowed": false

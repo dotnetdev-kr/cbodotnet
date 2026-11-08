@@ -3,7 +3,7 @@
   "kind": "legacy-musl-diagnostic-profile",
   "selectedAt": "2026-11-08",
   "sdkVersion": "5.0.214",
-  "status": "native-arm64-stock-openssl3-port-negative-certificates-passed-sdkproducer-in-progress",
+  "status": "native-arm64-genuine-sdk-original68-minimal-runtime-passed-fullruntimequalification-pending",
   "qualificationAllowed": false,
   "sourceAdmissionAllowed": false,
   "releaseAvailabilityAllowed": false,
@@ -46,7 +46,7 @@
     "rid": "linux-musl-arm64",
     "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/5.0.212/dotnet-sdk-5.0.212-linux-musl-arm64.tar.gz",
     "sha512": "a84ff994602532a76f9494a8c408a8f6b4623b2f750d72e366bf130a0f2b7cd5e33fa46a56c02dd832e01ec90cba70f5dd0452f73d71922879bef358f79274d9",
-    "purpose": "Candidate regular SDK tooling/bootstrap input; not a previously source-built glibc archive"
+    "purpose": "Preserved source-build bootstrap input; original regular SDK source additionally requires5.0.401"
   },
   "stockAlpine": {
     "branch": "3.24",
@@ -158,9 +158,20 @@
   },
   "localDiagnosticEvidence": {
     "path": "docs/musl-legacy-feasibility.json",
-    "sha256": "1a88dd736500babbcef96eadc9e2f976ba5e0f5c0bb4822b07d21e8dca8343ff",
+    "sha256": "f37ec1ca24bd08d86d4186d5f2cf926333d06864aeb3490413be6aa77af93635",
     "officialWorkflowQualified": false,
     "sourceClosureComplete": false,
+    "qualificationAllowed": false
+  },
+  "regularToolingBootstrap": {
+    "version": "5.0.401",
+    "rid": "linux-musl-arm64",
+    "selection": "Original SDKsource global.json tools.dotnet",
+    "selectedRuntime": "5.0.17",
+    "ownSourceNativeComponents": [
+      "crypto5.0.17 OpenSSL3 port",
+      "trace5.0.17 current stockLTTng"
+    ],
     "qualificationAllowed": false
   }
 }

@@ -3,7 +3,7 @@
   "kind": "legacy-musl-diagnostic-profile",
   "selectedAt": "2026-11-08",
   "sdkVersion": "6.0.136",
-  "status": "native-arm64-stock-component-closure-passed-sdkproducer-in-progress",
+  "status": "native-arm64-genuine-sdk-original42-and-negative-certificates-passed-officialqualification-pending",
   "qualificationAllowed": false,
   "sourceAdmissionAllowed": false,
   "releaseAvailabilityAllowed": false,
@@ -146,7 +146,7 @@
   },
   "localDiagnosticEvidence": {
     "path": "docs/musl-legacy-feasibility.json",
-    "sha256": "1a88dd736500babbcef96eadc9e2f976ba5e0f5c0bb4822b07d21e8dca8343ff",
+    "sha256": "f37ec1ca24bd08d86d4186d5f2cf926333d06864aeb3490413be6aa77af93635",
     "officialWorkflowQualified": false,
     "sourceClosureComplete": false,
     "qualificationAllowed": false

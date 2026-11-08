@@ -1,0 +1,13 @@
+--- a/src/redist/redist.csproj
++++ b/src/redist/redist.csproj
+@@ -12,8 +12,8 @@
+                         RuntimeFrameworkVersion="$(MicrosoftNETCoreAppRuntimePackageVersion)"
+                         />
+ 
+-    <ProjectReference Include="..\SdkResolver\SdkResolver.csproj" ReferenceOutputAssembly="false" />
+-    <ProjectReference Include="..\VSTemplateLocator\VSTemplateLocator.csproj" ReferenceOutputAssembly="false" />
++    <ProjectReference Include="..\SdkResolver\SdkResolver.csproj" ReferenceOutputAssembly="false" Condition="'$(OS)' == 'Windows_NT'" />
++    <ProjectReference Include="..\VSTemplateLocator\VSTemplateLocator.csproj" ReferenceOutputAssembly="false" Condition="'$(OS)' == 'Windows_NT'" />
+   </ItemGroup>
+ 
+   <ItemGroup>

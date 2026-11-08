@@ -1,0 +1,25 @@
+--- a/src/redist/targets/GenerateLayout.targets
++++ b/src/redist/targets/GenerateLayout.targets
+@@ -367,6 +367,22 @@
+           SkipUnchangedFiles="false" />
+   </Target>
+ 
++  <Target Name="CopyCommunityMuslNativeRuntime"
++          AfterTargets="LayoutBundledComponents"
++          Condition="'$(CommunityMuslNativeRuntimeRoot)' != ''">
++    <ItemGroup>
++      <CommunityMuslNativeRuntime Include="libcoreclr.so" />
++      <CommunityMuslNativeRuntime Include="libclrjit.so" />
++      <CommunityMuslNativeRuntime Include="libmscordaccore.so" />
++      <CommunityMuslNativeRuntime Include="libmscordbi.so" />
++    </ItemGroup>
++    <Error Condition="!Exists('$(CommunityMuslNativeRuntimeRoot)/%(CommunityMuslNativeRuntime.Identity)')"
++           Text="Missing matching source-built musl native runtime component: %(CommunityMuslNativeRuntime.Identity)" />
++    <Copy SourceFiles="@(CommunityMuslNativeRuntime->'$(CommunityMuslNativeRuntimeRoot)/%(Identity)')"
++          DestinationFiles="@(CommunityMuslNativeRuntime->'$(RedistLayoutPath)shared/Microsoft.NETCore.App/$(MicrosoftNETCoreAppRuntimePackageVersion)/%(Identity)')"
++          SkipUnchangedFiles="false" />
++  </Target>
++
+   <Target Name="DownloadBundledComponents" DependsOnTargets="SetupBundledComponents">
+     <ItemGroup>
+       <BundledLayoutComponent>

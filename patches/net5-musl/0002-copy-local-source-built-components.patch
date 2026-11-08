@@ -1,0 +1,33 @@
+--- a/src/redist/targets/GenerateLayout.targets
++++ b/src/redist/targets/GenerateLayout.targets
+@@ -311,6 +311,30 @@
+ 
+   </Target>
+ 
++  <Target Name="CopyCommunityMuslSourceComponents"
++          AfterTargets="SetupBundledComponents"
++          Condition="'$(CommunityMuslComponentRoot)' != ''">
++    <Error Condition="!Exists('$(CommunityMuslComponentRoot)/%(BundledLayoutComponent.DownloadFileName)')"
++           Text="Missing exact local component: %(BundledLayoutComponent.DownloadFileName)" />
++    <MakeDir Directories="$(DownloadsFolder)" />
++    <Copy SourceFiles="@(BundledLayoutComponent->'$(CommunityMuslComponentRoot)/%(DownloadFileName)')"
++          DestinationFiles="@(BundledLayoutComponent->'$(DownloadsFolder)%(DownloadFileName)')"
++          SkipUnchangedFiles="false" />
++  </Target>
++
++  <Target Name="CopyCommunityMuslNativeComponents"
++          AfterTargets="LayoutBundledComponents"
++          Condition="'$(CommunityMuslNativeTraceProvider)' != '' or '$(CommunityMuslNativeCrypto)' != ''">
++    <Error Condition="!Exists('$(CommunityMuslNativeTraceProvider)') or !Exists('$(CommunityMuslNativeCrypto)')"
++           Text="Both exact own-source5.0.17 native components are required" />
++    <Copy SourceFiles="$(CommunityMuslNativeTraceProvider)"
++          DestinationFiles="$(RedistLayoutPath)shared/Microsoft.NETCore.App/$(MicrosoftNETCoreAppRuntimePackageVersion)/libcoreclrtraceptprovider.so"
++          SkipUnchangedFiles="false" />
++    <Copy SourceFiles="$(CommunityMuslNativeCrypto)"
++          DestinationFiles="$(RedistLayoutPath)shared/Microsoft.NETCore.App/$(MicrosoftNETCoreAppRuntimePackageVersion)/libSystem.Security.Cryptography.Native.OpenSsl.so"
++          SkipUnchangedFiles="false" />
++  </Target>
++
+   <Target Name="DownloadBundledComponents" DependsOnTargets="SetupBundledComponents">
+     <ItemGroup>
+       <BundledLayoutComponent>

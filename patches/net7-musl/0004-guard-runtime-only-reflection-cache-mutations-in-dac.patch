@@ -1,0 +1,35 @@
+--- a/src/coreclr/vm/comreflectioncache.hpp
++++ b/src/coreclr/vm/comreflectioncache.hpp
+@@ -26,6 +26,8 @@
+ 
+     void Init();
+ 
++#ifndef DACCESS_COMPILE
++    // These cache operations mutate runtime state and use runtime-only locks.
+     BOOL GetFromCache(Element *pElement, CacheType& rv)
+     {
+         CONTRACTL
+@@ -102,6 +104,7 @@
+         AdjustStamp(TRUE);
+         this->LeaveWrite();
+     }
++#endif // !DACCESS_COMPILE
+ 
+ private:
+     // Lock must have been taken before calling this.
+@@ -141,6 +144,7 @@
+         return CacheSize;
+     }
+ 
++#ifndef DACCESS_COMPILE
+     void AdjustStamp(BOOL hasWriterLock)
+     {
+         CONTRACTL
+@@ -170,6 +174,7 @@
+         if (!hasWriterLock)
+             this->LeaveWrite();
+     }
++#endif // !DACCESS_COMPILE
+ 
+     void UpdateHashTable(SIZE_T hash, int slot)
+     {

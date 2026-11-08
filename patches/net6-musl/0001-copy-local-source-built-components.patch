@@ -1,0 +1,30 @@
+--- a/src/redist/targets/GenerateLayout.targets
++++ b/src/redist/targets/GenerateLayout.targets
+@@ -331,6 +331,27 @@
+       </BundledInstallerComponent>
+     </ItemGroup>
+ 
++  </Target>
++
++  <Target Name="CopyCommunityMuslSourceComponents"
++          AfterTargets="SetupBundledComponents"
++          Condition="'$(CommunityMuslComponentRoot)' != ''">
++    <Error Condition="!Exists('$(CommunityMuslComponentRoot)/%(BundledLayoutComponent.DownloadFileName)')"
++           Text="Missing exact local component: %(BundledLayoutComponent.DownloadFileName)" />
++    <MakeDir Directories="$(DownloadsFolder)" />
++    <Copy SourceFiles="@(BundledLayoutComponent->'$(CommunityMuslComponentRoot)/%(DownloadFileName)')"
++          DestinationFiles="@(BundledLayoutComponent->'$(DownloadsFolder)%(DownloadFileName)')"
++          SkipUnchangedFiles="false" />
++  </Target>
++
++  <Target Name="CopyCommunityMuslNativeTraceProvider"
++          AfterTargets="LayoutBundledComponents"
++          Condition="'$(CommunityMuslNativeTraceProvider)' != ''">
++    <Error Condition="!Exists('$(CommunityMuslNativeTraceProvider)')"
++           Text="The exact source-built musl trace provider is absent" />
++    <Copy SourceFiles="$(CommunityMuslNativeTraceProvider)"
++          DestinationFiles="$(RedistLayoutPath)shared/Microsoft.NETCore.App/$(MicrosoftNETCoreAppRuntimePackageVersion)/libcoreclrtraceptprovider.so"
++          SkipUnchangedFiles="false" />
+   </Target>
+ 
+   <Target Name="DownloadBundledComponents" DependsOnTargets="SetupBundledComponents">

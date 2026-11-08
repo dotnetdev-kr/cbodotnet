@@ -1,0 +1,20 @@
+--- a/src/Layout/redist/targets/GenerateLayout.targets
++++ b/src/Layout/redist/targets/GenerateLayout.targets
+@@ -474,4 +474,17 @@
+           DestinationFiles="%(LayoutDefinition.OutputFiles)"
+           SkipUnchangedFiles="true" />
+   </Target>
++  <Target Name="CopyCommunityMuslNuGetTranslationData"
++          AfterTargets="PublishTestCli"
++          Condition="'$(CommunityMuslNuGetTranslationRoot)' != ''">
++    <ItemGroup>
++      <_CommunityMuslNuGetTranslation Include="$(CommunityMuslNuGetTranslationRoot)/**/*.resources.dll" />
++    </ItemGroup>
++    <Error Condition="'@(_CommunityMuslNuGetTranslation)' == ''"
++           Text="The exact reviewed imported NuGet translation data is absent" />
++    <Copy SourceFiles="@(_CommunityMuslNuGetTranslation)"
++          DestinationFiles="@(_CommunityMuslNuGetTranslation->'$(OutputPath)/%(RecursiveDir)%(Filename)%(Extension)')"
++          SkipUnchangedFiles="false" />
++  </Target>
++
+ </Project>
