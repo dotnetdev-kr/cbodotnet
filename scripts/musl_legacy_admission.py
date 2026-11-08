@@ -1188,7 +1188,9 @@ def validate_attributed_inputs(release, source_manifest, restored_packages, ship
     """
     policy = ATTRIBUTED_COMPONENTS.policy()
     packages, paths = {}, {}
-    for sha, expected in policy['packages'].items():
+    selected = ATTRIBUTED_COMPONENTS.selected_packages(row.get('sha256') for row in restored_packages)
+    for sha in selected.values():
+        expected = ATTRIBUTED_COMPONENTS.package_policy(sha)
         packages[sha], paths[sha] = checked_restored_primary(release, restored_packages, expected)
     validated = ATTRIBUTED_COMPONENTS.validate(release, source_manifest, packages)
     require(validated.get('kind') == ATTRIBUTED_COMPONENTS.KIND

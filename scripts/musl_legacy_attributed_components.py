@@ -19,6 +19,9 @@ ROOT_NAME = 'attributed-component-inputs'
 ROLE = 'original-package-component-source-correspondence-inputs'
 KIND = 'reviewed-closed-original-component-source-chain'
 POLICY_SHA = '46349d2bbccd46eedae3b8e3c4cd23faf10bf3ac4d67a108aab73b40166e73f4'
+VARIANTS_SHA = '1cad689f5aaa4b8a4c457f5efdc3f26e65b535b6ec750d028b028fddcd6de5ae'
+ILLINK_CANONICAL = '4ebaac39fd6f96593fd368dffdaf811690c84a05bf58bc3913674770c7edd025'
+ILLINK_SIGNED = '4b057a2e0807ba2c0265ed709886b848fe1fd4b17b379c3ab838f313883b7fb1'
 FP = ('bytes', 'sha256', 'sha512')
 
 
@@ -69,25 +72,69 @@ def module(name, file):
     return result
 
 
+def container_variants():
+    raw = Path(__file__).with_name('musl-legacy-illink-container-variants.json').read_bytes()
+    require(hashlib.sha256(raw).hexdigest() == VARIANTS_SHA, 'Closed ILLink container variant policy bytes differ')
+    result = json.loads(raw)
+    require(result['schemaVersion'] == 1 and result['sdkVersion'] == '7.0.120'
+            and result['kind'] == 'closed-illink-package-container-variants'
+            and result['sourcePolicySha256'] == POLICY_SHA and result['canonicalPackageSha256'] == ILLINK_CANONICAL
+            and set(result['acceptedPackages']) == set(result['signatureMembers']) == {ILLINK_CANONICAL, ILLINK_SIGNED}
+            and result['acceptedPackages'][ILLINK_CANONICAL] == policy()['packages'][ILLINK_CANONICAL]
+            and result['acceptedPackages'][ILLINK_SIGNED]['nuspec'] == result['acceptedPackages'][ILLINK_CANONICAL]['nuspec']
+            and len(result['unchangedNonSignatureMembers']) == 24 and result['signatureMember'] == '.signature.p7s'
+            and all(result[key] is False for key in ('productSourceLicenseBindingsChanged', 'rawInputCanonicalized',
+                                                    'signatureCryptographicTrustClaimed')),
+            'Only the two fully pinned original ILLink containers are reviewed')
+    return result
+
+
+def package_policy(sha):
+    p = policy()
+    if sha in p['packages']: return p['packages'][sha]
+    variants = container_variants()
+    require(sha == ILLINK_SIGNED, 'Unreviewed original component package container')
+    return variants['acceptedPackages'][sha]
+
+
+def selected_packages(available):
+    """Select one actual raw container per closed original package identity."""
+    available = set(available); selected = {}
+    for canonical in policy()['packages']:
+        allowed = set(container_variants()['acceptedPackages']) if canonical == ILLINK_CANONICAL else {canonical}
+        present = sorted(allowed & available)
+        require(len(present) == 1, 'A unique exact actual restored component and one unambiguous actual container required: ' + canonical)
+        selected[canonical] = present[0]
+    return selected
+
+
 def declared_product(name, package_sha256, member, data):
     """Construct a candidate attribution; complete validation remains separate."""
     p = policy(); row = p['products'].get(name)
     if row is None: return None
-    require(row['packageSha256'] == package_sha256 and row['packageMember'] == member
+    allowed = set(container_variants()['acceptedPackages']) if row['packageSha256'] == ILLINK_CANONICAL else {row['packageSha256']}
+    require(package_sha256 in allowed and row['packageMember'] == member
             and fingerprint(data) == row['fingerprint'], 'Closed imported component path/package/member bytes differ')
     identity = module('attributed_component_metadata', 'musl_managed_metadata.py').inspect(data)
     require(identity == row['metadata'], 'Closed imported component actual metadata differs')
-    return dict(row, sourceCommit=p['sources'][row['source']]['commit'])
+    return dict(row, packageSha256=package_sha256, sourceCommit=p['sources'][row['source']]['commit'])
 
 
 def inspect_package(path, sha):
-    p = policy(); expected = p['packages'][sha]; pinned(path, expected)
+    p = policy(); expected = package_policy(sha); pinned(path, expected)
     with zipfile.ZipFile(path) as archive:
         require(len(archive.namelist()) == len(set(archive.namelist())), 'Duplicate component ZIP members forbidden')
+        if sha in {ILLINK_CANONICAL, ILLINK_SIGNED}:
+            variants = container_variants()
+            members = dict(variants['unchangedNonSignatureMembers'])
+            members[variants['signatureMember']] = variants['signatureMembers'][sha]
+            require(set(archive.namelist()) == set(members) and all(fingerprint(archive.read(name)) == identity
+                    for name, identity in members.items()), 'Exact ILLink payload and signature members required')
         require(fingerprint(archive.read(expected['nuspec']['path'])) == {k: expected['nuspec'][k] for k in FP},
                 'Original component package nuspec differs')
         for name, row in p['products'].items():
-            if row['packageSha256'] == sha: declared_product(name, sha, row['packageMember'], archive.read(row['packageMember']))
+            if row['packageSha256'] == sha or row['packageSha256'] == ILLINK_CANONICAL and sha == ILLINK_SIGNED:
+                declared_product(name, sha, row['packageMember'], archive.read(row['packageMember']))
 
 
 def package_source_commit(path):
@@ -142,8 +189,8 @@ def prepare(unsafe_package, destination):
 def validate(release, manifest, packages):
     """Independently validate exact packages and complete original Git trees."""
     release = ordinary(release); p = policy(); roots = {}
-    for sha in p['packages']:
-        require(sha in packages, 'All actual original component package inputs required')
+    selected_containers = selected_packages(packages)
+    for sha in selected_containers.values():
         inspect_package(packages[sha], sha)
     for role, expected in p['sources'].items():
         matches = [r for r in manifest['roots'] if r.get('kind') in ('git', 'git-export')
@@ -209,6 +256,7 @@ def validate(release, manifest, packages):
         canonicalUnsafePackage=p['unsafeCanonicalPackage'], canonicalPackageUsedAsLayoutOrigin=False,
         canonicalPackageExecuted=False, localBuildClaimed=False, byteIdenticalCompilationClaimed=False,
         publicCecilPackageUsedAsBinaryOrigin=False), 'Original component evidence scope differs')
-    products = {name: dict(row, sourceRoot=roots[row['source']]['name'], sourceCommit=p['sources'][row['source']]['commit'])
+    products = {name: dict(row, packageSha256=selected_containers[row['packageSha256']],
+                          sourceRoot=roots[row['source']]['name'], sourceCommit=p['sources'][row['source']]['commit'])
                 for name, row in p['products'].items()}
     return dict(kind=KIND, products=products, localBuildClaimed=False, byteIdenticalCompilationClaimed=False)

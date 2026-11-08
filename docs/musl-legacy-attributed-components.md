@@ -21,6 +21,15 @@ validator reconstructs each full Git tree, checks original Cecil Gitlink
 connectivity, reopens pinned original packages and rejects changed source,
 package, member or product identities.
 
+The ILLink package has two explicitly pinned raw containers. Their24
+non-signature members are byte-identical; each container's `.signature.p7s`
+has its own exact fingerprint. The separate container policy records all25
+member fingerprints and both whole-package identities. It changes no product,
+source, Gitlink or license binding. Exactly one reviewed container must be
+observed; mixed descriptors and an unlisted third container are rejected.
+Actual restored bytes and signatures are retained without canonicalization.
+This comparison does not claim cryptographic trust in a publisher signature.
+
 ## Elfie source review
 
 The diagnostic compilation uses the unchanged original netstandard2.0

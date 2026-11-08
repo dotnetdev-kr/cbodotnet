@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "7.0.120",
+  "kind": "closed-illink-package-container-variants",
+  "sourcePolicySha256": "46349d2bbccd46eedae3b8e3c4cd23faf10bf3ac4d67a108aab73b40166e73f4",
+  "canonicalPackageSha256": "4ebaac39fd6f96593fd368dffdaf811690c84a05bf58bc3913674770c7edd025",
+  "acceptedPackages": {
+    "4ebaac39fd6f96593fd368dffdaf811690c84a05bf58bc3913674770c7edd025": {
+      "bytes": 1122520,
+      "sha256": "4ebaac39fd6f96593fd368dffdaf811690c84a05bf58bc3913674770c7edd025",
+      "sha512": "0c2eba33c5add64b7022d8e6ef634873ca3c19ec88a9ec3df5c464997778256fa5efe848123bdb45aa47a1dd0622f986e798ab5303554c619d5b339aff7c4751",
+      "nuspec": {
+        "bytes": 977,
+        "sha256": "1148da689bc27a914bfc9178cf4a35a2fcf80aedfb111280f35c84cd662e72f9",
+        "sha512": "f951a9580a3b902389f052a62834c66f8f1faf993a3073a6f9a68dc1f980f043797157b9de5c47d5bade19401f5b3d64e6fa09df3e5c24f51c042362b9d47927",
+        "path": "Microsoft.NET.ILLink.Tasks.nuspec"
+      }
+    },
+    "4b057a2e0807ba2c0265ed709886b848fe1fd4b17b379c3ab838f313883b7fb1": {
+      "bytes": 1133916,
+      "sha256": "4b057a2e0807ba2c0265ed709886b848fe1fd4b17b379c3ab838f313883b7fb1",
+      "sha512": "3c93fe908360b41574fbf369797a2da75afaf8f7dddcfa9f1f645e7a7de452a03d9df485c1dc961c196c2b4dcc5cbcdd5f56d5dbbfb0c1a589886adf6ef28edd",
+      "nuspec": {
+        "bytes": 977,
+        "sha256": "1148da689bc27a914bfc9178cf4a35a2fcf80aedfb111280f35c84cd662e72f9",
+        "sha512": "f951a9580a3b902389f052a62834c66f8f1faf993a3073a6f9a68dc1f980f043797157b9de5c47d5bade19401f5b3d64e6fa09df3e5c24f51c042362b9d47927",
+        "path": "Microsoft.NET.ILLink.Tasks.nuspec"
+      }
+    }
+  },
+  "unchangedNonSignatureMembers": {
+    "_rels/.rels": {
+      "bytes": 520,
+      "sha256": "49ccbbb3c8de3a82a0d8200c2423aa30ed784931af44f30f3c8f34d4d1bd730e",
+      "sha512": "e63e3ba47f43b7ecb7663a25edd2a57671ebbd2843205576229cc1c7f04ca06ddc73fcc16e5c68b54d2505526fed960dba5d3f2e1813e26a758ba573c7cdcc9a"
+    },
+    "Microsoft.NET.ILLink.Tasks.nuspec": {
+      "bytes": 977,
+      "sha256": "1148da689bc27a914bfc9178cf4a35a2fcf80aedfb111280f35c84cd662e72f9",
+      "sha512": "f951a9580a3b902389f052a62834c66f8f1faf993a3073a6f9a68dc1f980f043797157b9de5c47d5bade19401f5b3d64e6fa09df3e5c24f51c042362b9d47927"
+    },
+    "tools/net472/ILLink.Tasks.dll": {
+      "bytes": 39872,
+      "sha256": "56e753035622ecb52ad6475c6664e1fc2d45110d6f10495c1e19787779dd8617",
+      "sha512": "de0cd1804538b9cec9ec5878e4ac49801248bf11f4933a81845afd9897ca0904d9caf67729a0e9d40172f8fe2c2293e817b2b0baf35fe1946790e08d9854b297"
+    },
+    "tools/net472/Mono.Cecil.dll": {
+      "bytes": 421848,
+      "sha256": "499811639953f5b7c33be9a6bedf7bd9b094f7fa6603039b52452e2bf56a94d5",
+      "sha512": "f3bc618a8c23550039e7a4cd4273f191fe6c194e57788f16416b352de19c506d3953070dcb537fbf619bdfc0df1be05fe0df5bbb99ba318d69586cc4cabd25e1"
+    },
+    "tools/net472/System.Buffers.dll": {
+      "bytes": 20856,
+      "sha256": "accccfbe45d9f08ffeed9916e37b33e98c65be012cfff6e7fa7b67210ce1fefb",
+      "sha512": "5fc7fee5c25cb2eee19737068968e00a00961c257271b420f594e5a0da0559502d04ee6ba2d8d2aad77f3769622f6743a5ee8dae23f8f993f33fb09ed8db2741"
+    },
+    "tools/net472/System.Collections.Immutable.dll": {
+      "bytes": 189312,
+      "sha256": "646d3b52a4898078f46534727bdb06ff23b72523441458b9f49ecc315bf3ef5c",
+      "sha512": "8a5b4afb4363732008c97d53f13ee430401e4a17677af37123da035f15f9e9409a2aeb74ae238379291fd5de07c3cd4e3de2778da5edf83a42649fa5b281cb32"
+    },
+    "tools/net472/System.Memory.dll": {
+      "bytes": 141184,
+      "sha256": "8e76318e8b06692abf7dab1169d27d15557f7f0a34d36af6463eff0fe21213c7",
+      "sha512": "293d8c709bc68d2c980a0df423741ce06d05ff757077e63986d34cb6459f9623a024d12ef35a280f50d3d516d98abe193213b9ca71bfde2a9fe8753b1a6de2f0"
+    },
+    "tools/net472/System.Numerics.Vectors.dll": {
+      "bytes": 115856,
+      "sha256": "1d3ef8698281e7cf7371d1554afef5872b39f96c26da772210a33da041ba1183",
+      "sha512": "0b14a039ca67982794a2bb69974ef04a7fbee3686d7364f8f4db70ea6259d29640cbb83d5b544d92fa1d3676c7619cd580ff45671a2bb4753ed8b383597c6da8"
+    },
+    "tools/net472/System.Reflection.Metadata.dll": {
+      "bytes": 462728,
+      "sha256": "46451e1168dd11d450aa9b6119f17cec9a70928a40ac3c752abf61ce809cba6f",
+      "sha512": "fc4c18ea6a6f38d8c4b4f2e02d3d077cc729b531ca08cf9602c65e22aadc0be770e441660cc980cbfed3b27bd783e65f793838532673e2845276390b4b22d730"
+    },
+    "tools/net472/System.Runtime.CompilerServices.Unsafe.dll": {
+      "bytes": 16768,
+      "sha256": "3cadcb6b8a7335141c7c357a1d77af1ff49b59b872df494f5025580191d1c0d5",
+      "sha512": "066984c83de975df03eee1c2b5150c6b9b2e852d9caf90cfd956e9f0f7bd5a956b96ea961b26f7cd14c089bc8a27f868b225167020c5eb6318f66e58113efa37"
+    },
+    "tools/net7.0/illink.dll": {
+      "bytes": 714176,
+      "sha256": "e72cc2344aba71b7b7e94544c2257317260ae163040036f71969cae059785e6d",
+      "sha512": "dc164a76d19df929f381b661589863ee1f860c617ccfe802946164bc249c482fdf61abccbf088635105da880c2701dc9c07be41f6287606e8b82c14bb0263b4d"
+    },
+    "tools/net7.0/ILLink.Tasks.dll": {
+      "bytes": 40384,
+      "sha256": "a6a309bbdc5610d3fa0d99dbfbdc37ff09682d5c400bd3adff313f3ed96e0006",
+      "sha512": "46f96701e5b02f59c6b959dcf0d9148db29121146744aa6040968586fade247961aa344a84bbfc15b00aa3f73ff0bd5fda5353fccd8a9ac11f9ce3ee48f802fd"
+    },
+    "tools/net7.0/Mono.Cecil.dll": {
+      "bytes": 421848,
+      "sha256": "499811639953f5b7c33be9a6bedf7bd9b094f7fa6603039b52452e2bf56a94d5",
+      "sha512": "f3bc618a8c23550039e7a4cd4273f191fe6c194e57788f16416b352de19c506d3953070dcb537fbf619bdfc0df1be05fe0df5bbb99ba318d69586cc4cabd25e1"
+    },
+    "tools/net7.0/Mono.Cecil.Pdb.dll": {
+      "bytes": 104408,
+      "sha256": "3cde623038347f2a3ae5bc7c16a7fa1305b6cbceab7506bbd0142c0276f78909",
+      "sha512": "78f506efe2136afc6764ac696225466e357d5b0f945f550e2a07e4d3ce8ec681e2ce20ffe03d23cf166448f8af6d05d07b99b77b609c2c014a46e6ee35a336d6"
+    },
+    "tools/net7.0/illink.deps.json": {
+      "bytes": 6311,
+      "sha256": "1cb6a598d9782916184e3532177cfd9b55693d3490fd06cb1850d67d5dbd2360",
+      "sha512": "c5406af72d5e9e11877d07bdf129ad9eb59c7c4198b96e5f49832afe9956358584d5a1caee8d52b8bb28785be6f79647a73768fa85feba02a8837476fd223e1c"
+    },
+    "tools/net7.0/illink.runtimeconfig.json": {
+      "bytes": 324,
+      "sha256": "24df54c46d6917b9b55d328889718090a986c752bd17ea65ba28860f7ba84ee1",
+      "sha512": "1f51ee844ed511d7a6b8b0f01fd276ec133335916aae66b5759c319f71f20c7da8518d37a3136c20dacdfe27a6b846c9bc065822c6436a91ded95f6ad8c9ae80"
+    },
+    "tools/net7.0/ILLink.Tasks.deps.json": {
+      "bytes": 24379,
+      "sha256": "4eab41ad6cd86de79adc35fb0d1710d53a19ffdad94df7c0007f8f03ea9a7c10",
+      "sha512": "2343778812410df29e4956f323b4d8c56d41f78404c6b12370f60059e4f5d337aee6a5dc85eed5d494702e0cfd71f41b68a51b83ebdfb544401d1602409546fd"
+    },
+    "Sdk/Sdk.props": {
+      "bytes": 783,
+      "sha256": "70dbe8be5968e2c5c2ea500a5182118ba2a4e6ff938bb0bd80fc736f2793534e",
+      "sha512": "e264f23f61bf22fb88a0d06ff44c13406b39d52dfb11389b26b0ba3b21f88162f24158c3766295b966c9df297caa5dd7a095bb881ad37e901725345f228f0751"
+    },
+    "build/Microsoft.NET.ILLink.Tasks.props": {
+      "bytes": 1451,
+      "sha256": "8264e1b4bc3c3c2b7aabe30e156642d2aff99cf0f5829dbe072a49e2e9d7b10d",
+      "sha512": "ef857529c4a6b5908294076e68941befc257336ddca9363f3b74b5c90145032e70f58582ee86514ef359578b39577ed4e6bf7744a682058f757e602476267397"
+    },
+    "build/Microsoft.NET.ILLink.targets": {
+      "bytes": 21227,
+      "sha256": "3b6aae8bd82401a446bdbf99545ae18e5761526c49765d79503bf94bb016640c",
+      "sha512": "732bb2972eb48970fa4785b94eb3782327ffb439379c67f741afc11248731a900fdc03b59aed2d0ae88f82f5aee3497b90d9d7c98d6f7866f909aff81aea677f"
+    },
+    "build/6.0_suppressions.xml": {
+      "bytes": 10806,
+      "sha256": "af652c77840210abe8f0e9649770519deacaf1cef876b2231a5ca5ae7641cc1d",
+      "sha512": "34ca7ed2baa6f3d528d98c99f21525dfba0910533c7dcf9a27d78c10eba4fd54841dcbfa9260616bad5933aa0c9d125a968c55083847b317d3483dd910dc264d"
+    },
+    "Icon.png": {
+      "bytes": 7006,
+      "sha256": "3356b59b6d9c24db3a22398c0fb3430724052fe75ae5e8430ee8ede2fb713356",
+      "sha512": "12d5aa8bea27ad6a1118bee3b1185dbb952197dfa4465e141d3b51090364db7d7ab7c2add6463a0adc318410faf1c3783c69b35e08cba0285571c59c0c7aab25"
+    },
+    "[Content_Types].xml": {
+      "bytes": 787,
+      "sha256": "588ad8f3fc6c3091a8c1533078d26d842e55d59f2ebcdc6a3ea8e57cd9614792",
+      "sha512": "a2764c2dd8d2c3a12ad7255e5be1fc142c89dfc9027c12d03eb440ea23a3660fa3b16a9c0fa03163e819b518553dfeb8934c01de05bf77368d2251ca9461717e"
+    },
+    "package/services/metadata/core-properties/d2f620a2f7c84e9fbfd81a0e2aafd6e7.psmdcp": {
+      "bytes": 664,
+      "sha256": "19606b137134819342c367eda7ac048ef0848abc1f2f0665b353ee05fef396ed",
+      "sha512": "aa2708b81884771eb4f4241048844c1d406e749a42ffb5484f38085c63d16cc5a4b51c22be53159112c33a21f30f9854c434e4265750d67946c0360cb2c6601b"
+    }
+  },
+  "signatureMember": ".signature.p7s",
+  "signatureMembers": {
+    "4ebaac39fd6f96593fd368dffdaf811690c84a05bf58bc3913674770c7edd025": {
+      "bytes": 11402,
+      "sha256": "25164c7ef99843499a8572dfd498feaf41032ded7fadcfd15c0881c82950201a",
+      "sha512": "be4ee399c397de203994be2c13881b7e4e78a9283fb52ab32b47a3c9c03be0df697ba808080417f846a33de1b1098e20c790be4c7016a5f8259e82752119d869"
+    },
+    "4b057a2e0807ba2c0265ed709886b848fe1fd4b17b379c3ab838f313883b7fb1": {
+      "bytes": 22798,
+      "sha256": "a89b832c1317376a9f8fbe99ba58920dc5c95c030a9597d19db0f3870b374bb6",
+      "sha512": "7f33f604dd1c0b4a2e2caeafa9084ee52b51470dd49326fbae1ec38c79350a1959c8b6ab64d748da00c158c8668aad423beb3ecf647f0860b5516653dad3ec8e"
+    }
+  },
+  "productSourceLicenseBindingsChanged": false,
+  "rawInputCanonicalized": false,
+  "signatureCryptographicTrustClaimed": false
+}
