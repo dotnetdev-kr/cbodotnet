@@ -60,6 +60,16 @@
         "path": "patches/musl/net9/0004-use-fixed-razor-messagepack.patch",
         "sha256": "0e3b9b14eca6c9dd5033479cc92af92892aac069f5b16e2a92e0f6b15f26b1d4",
         "purpose": "Service Razor MessagePack within the compatible 2.5 line to 2.5.303, fixing all ten recorded advisories; retain exact corresponding source and keep audit enabled."
+      },
+      {
+        "path": "patches/musl/net9/0005-preserve-native-aspnetcore-musl-target.patch",
+        "sha256": "71bff321157426db0e31940b48816851e80146d8af5c4c80fde40f9e243574e5",
+        "purpose": "Preserve the actual native musl target and crossgen host in the regular ASP.NET graph; retain all ReadyToRun optimization and original tests."
+      },
+      {
+        "path": "patches/musl/net9/0006-use-maintained-fsharp-test-telemetry.patch",
+        "sha256": "a9c383a8f9d6b55c702698aec507025948cb21eeedb047801e7128eb84a7409f",
+        "purpose": "Migrate only F# test utility tracing from unpatched deprecated Jaeger to security-fixed OTLP 1.15.3 with its required DiagnosticSource; preserve every test and retain exact complete package/source/license closure."
       }
     ]
   },
@@ -874,6 +884,175 @@
           "license": "MIT"
         }
       ]
+    },
+    {
+      "name": "serviced-opentelemetry",
+      "repository": "https://github.com/open-telemetry/opentelemetry-dotnet",
+      "commit": "d622e6c7c899527638b53a6b06919859f5752add",
+      "role": "source-for-serviced-imported-package",
+      "requiredNotices": [
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT"
+      ],
+      "packages": [
+        {
+          "id": "opentelemetry",
+          "version": "1.15.3",
+          "bytes": 860843,
+          "sha512": "5c9fdda36f4ac0ddfc7d273b6f92bfa5c4ad6027593f6ef7dc49b3a619858e39ead6a50dbea428d9131f89fbbc3adf53780a8e2587b90ee5969a6529365b996e",
+          "license": "Apache-2.0"
+        },
+        {
+          "id": "opentelemetry.api",
+          "version": "1.15.3",
+          "bytes": 269594,
+          "sha512": "3c5e72a9dd25bcb39ae49c6748fc4024c87a306707ba17b23ed7a95e893bc9f1f67dda2986e98ade00962f98806be36bf74abdea2e08a789c687a7106bc2b0c6",
+          "license": "Apache-2.0"
+        },
+        {
+          "id": "opentelemetry.api.providerbuilderextensions",
+          "version": "1.15.3",
+          "bytes": 118020,
+          "sha512": "f311a016c09ca1391dbbb910eeb8884e0c71ffaaf49f475170257af1897bed4d75b412509fe93f7cd08f766d89630bcf05565bd8e2a6a099b4f133e0c8e8852b",
+          "license": "Apache-2.0"
+        },
+        {
+          "id": "opentelemetry.exporter.opentelemetryprotocol",
+          "version": "1.15.3",
+          "bytes": 508651,
+          "sha512": "5f3f7a2c2f45ba429976a14563150ed0e7717353c51f8ee0e79c8323d15f11d71c8833407934bcb46a751ad4c08d7220459a3bd4fbd6a4bf6ff7cba73196fdef",
+          "license": "Apache-2.0"
+        }
+      ]
+    },
+    {
+      "name": "serviced-telemetry-extensions",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "9d5a6a9aa463d6d10b0b0ba6d5982cc82f363dc3",
+      "role": "source-for-serviced-imported-package",
+      "requiredNotices": [
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT"
+      ],
+      "packages": [
+        {
+          "id": "microsoft.extensions.configuration",
+          "version": "9.0.0",
+          "bytes": 159967,
+          "sha512": "534f843342f2ca2bc09663fd37fdd3d8acd50c9904fc8f1f3fa14498bf4b9fe91329a1a9bfc012d17fd1358d894c15efdbd026ebfaecea48fa0bb59e79b8ee71",
+          "license": "MIT"
+        },
+        {
+          "id": "microsoft.extensions.configuration.abstractions",
+          "version": "9.0.0",
+          "bytes": 127574,
+          "sha512": "3282710ed202a188cf30d23fe4d9831c4111752907d00b963294fd71917633bbf0f45e2b4b7fb9fde1c3a52710bcc122d06a7ace70b836b0d4b5576656dcc3b9",
+          "license": "MIT"
+        },
+        {
+          "id": "microsoft.extensions.configuration.binder",
+          "version": "9.0.0",
+          "bytes": 366133,
+          "sha512": "43666627d5d88a031f8f48a06d1317fb6b3752786c15a20b9f96fe59ef2348462b134e5d4beb9a2e313def38df27d2fcb3f797baf24b5c5187d0e86102153926",
+          "license": "MIT"
+        },
+        {
+          "id": "microsoft.extensions.dependencyinjection",
+          "version": "9.0.0",
+          "bytes": 291528,
+          "sha512": "3cd3f939c041941c3d6f185e0b0e29a519c9a561d61716c4574d8ef447bed0a9f787508f88780c53ba9e9142aaf926147024500784da88f3955a041a5350f8cf",
+          "license": "MIT"
+        },
+        {
+          "id": "microsoft.extensions.dependencyinjection.abstractions",
+          "version": "9.0.0",
+          "bytes": 241242,
+          "sha512": "62d69c591f1f533930baceef96d13562c46f3a254edda207aede39df86aa344c0ca13389b72adbc03f943b120db945c04944551d9a17165f820ab0bfec9b7e2b",
+          "license": "MIT"
+        },
+        {
+          "id": "microsoft.extensions.diagnostics.abstractions",
+          "version": "9.0.0",
+          "bytes": 130830,
+          "sha512": "a5598c2bb424e046e2032c3c9fd2494fe378d5a9ec782a584d7502f3f92f684ffdc78f541953533ca04f69f5e9e1391959a32591f9cae549292515aac51d7e78",
+          "license": "MIT"
+        },
+        {
+          "id": "microsoft.extensions.logging",
+          "version": "9.0.0",
+          "bytes": 200977,
+          "sha512": "38b8e95ad6133abc93b207b5f4ca8fcc582d7b8b137a9af060939f78ef4f8247b3e595b4caef7133928174d571a7c0d31ce3b3ad31e8188fa3472cdc37c8e7e9",
+          "license": "MIT"
+        },
+        {
+          "id": "microsoft.extensions.logging.abstractions",
+          "version": "9.0.0",
+          "bytes": 777117,
+          "sha512": "fcaed8b683033737a9ccfb361a41569663c045c63997887f376726748c58c92d79c28796f132ef7e561c9cd9602c7011e1fb112a9d30bf9973626587b0ae5d74",
+          "license": "MIT"
+        },
+        {
+          "id": "microsoft.extensions.logging.configuration",
+          "version": "9.0.0",
+          "bytes": 122529,
+          "sha512": "634f023d4206cfc269574a2faa7dcb5aed637a192aa50a16277c8461848aa84f503f6ee540e0a68fa6acc652074bd12c5dd45be4deacd59ac75ecd9267b73591",
+          "license": "MIT"
+        },
+        {
+          "id": "microsoft.extensions.options",
+          "version": "9.0.0",
+          "bytes": 453683,
+          "sha512": "05e7c9042523094fca2fc81345b157f5e78e42f03917b22458528dcb9fad77215f0f6fb078eabd3032022c9d66d7fffaf7f32437e29fecc613cc597ac0770b9d",
+          "license": "MIT"
+        },
+        {
+          "id": "microsoft.extensions.options.configurationextensions",
+          "version": "9.0.0",
+          "bytes": 117122,
+          "sha512": "f5002a5028cf6c3cc7dd415ec765bc3bd256577e13f4e651def19be2db6f84b11251a7003540dc0fbe59ae741427e64ee4f86588281f1b0963a237e8cb22d26e",
+          "license": "MIT"
+        },
+        {
+          "id": "microsoft.extensions.primitives",
+          "version": "9.0.0",
+          "bytes": 176058,
+          "sha512": "679d7986b0dc51b41addcb0bb0de1c6d8bb80f6f4c6bf19e929afdca8784fa8cfa3e0e9a8ca634bd3acee4cdeea83a43a3290f60e871e609502eaeeec1aa945b",
+          "license": "MIT"
+        }
+      ]
+    },
+    {
+      "name": "serviced-diagnosticsource",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "60629d14374c56f1cb51819049ad1fa529307f8d",
+      "role": "source-for-serviced-imported-package",
+      "requiredNotices": [
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT"
+      ],
+      "packages": [
+        {
+          "id": "system.diagnostics.diagnosticsource",
+          "version": "10.0.0",
+          "bytes": 602965,
+          "sha512": "75f669a0eabf64cbe1112db6007e051c2f78c26b511d57f2b270f2957d0c8cc9a00d02831127bc85456516763f1043e641260d5d03a68602d3a9130ab07ff606",
+          "license": "MIT"
+        }
+      ],
+      "publisher": {
+        "repository": "https://github.com/dotnet/dotnet",
+        "commit": "b0f34d51fccc69fd334253924abd8d6853fad7aa",
+        "sourceManifest": {
+          "path": "src/source-manifest.json",
+          "sha256": "e1b53317a3678f540e53bc8304d5f29228aadb8c0f63965d63bbe38939519763"
+        },
+        "componentPath": "runtime",
+        "identicalLibraryTree": {
+          "sourcePath": "src/libraries",
+          "publisherPath": "src/runtime/src/libraries",
+          "tree": "2260d80412edbd1639beaf53497e87e2bf51ea80"
+        }
+      }
     }
   ]
 }

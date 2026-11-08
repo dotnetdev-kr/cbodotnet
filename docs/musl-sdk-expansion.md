@@ -75,6 +75,22 @@ anonymous public checks on both CPUs; six exact public reports are bound by a
 separate signed final verification manifest before availability is activated.
 SDK 9 or 8 installer admission requires separate qualification.
 
+SDK 9's F# test tracing uses the maintained OTLP 1.15.3 exporter because the
+deprecated Jaeger exporter has no fixed release for its advisory. The original
+test graph, compiler activity source, spans, tags and flush/disposal lifecycle
+remain intact. Native audited restoration and actual HTTP/Protobuf export were
+tested. All 17 introduced package inputs retain exact corresponding sources
+and notices. DiagnosticSource 10 distinguishes its published VMR commit from
+the runtime component commit: protected validation checks the exact publisher
+manifest and reconstructs the complete corresponding libraries Git tree.
+
+The regular SDK 9 ASP.NET adapter also forwards the explicit portable musl
+target. Crossgen2 uses the actual private SDK host RID to select its native
+compiler package while retaining `linux` as the target OS. Real .NET 9 MSBuild
+evaluation checked native musl, glibc-host and x64-property controls. Source-only
+task exclusions remain confined to their original source-only branch;
+ReadyToRun optimization and original project coverage remain enabled.
+
 Expanded SDK APK candidates also receive the actual public SDK 10 r1 packages.
 The reference's signed metadata, approved key, index, package bytes and complete
 payload inventory are checked against the existing public receipt and original

@@ -92,14 +92,57 @@ def serviced_package(path, source, package):
     metadata = ET.fromstring(raw)
     metadata = metadata.find('{*}metadata')
     repository, license = metadata.find('{*}repository'), metadata.find('{*}license')
+    publisher = source.get('publisher', source)
     require(metadata.findtext('{*}id', '').lower() == package['id']
             and metadata.findtext('{*}version') == package['version']
-            and repository is not None and repository.get('commit') == source['commit']
-            and repository.get('url', '').removesuffix('.git').rstrip('/') == source['repository']
+            and repository is not None and repository.get('commit') == publisher['commit']
+            and repository.get('url', '').removesuffix('.git').rstrip('/') == publisher['repository']
             and license is not None and license.get('type') == 'expression' and license.text == package['license'],
             'Serviced package publisher source/license identity differs: ' + package['id'])
     return dict(package, sha256=actual['sha256'], nuspecSha256=hashlib.sha256(raw).hexdigest(),
-                repository=source['repository'], repositoryCommit=source['commit'])
+                repository=publisher['repository'], repositoryCommit=publisher['commit'])
+
+
+def validate_publisher_source_map(source, path, baseline=None):
+    """Bind a VMR-published package to its complete pristine component source.
+
+    A publisher commit and the component commit are distinct identities. The
+    reviewed VMR manifest identifies the component; its entire libraries Git
+    tree must also match the independently reconstructed source archive tree.
+    """
+    publisher = source['publisher']
+    require(set(publisher) == {'repository', 'commit', 'sourceManifest', 'componentPath', 'identicalLibraryTree'}
+            and publisher['repository'] == 'https://github.com/dotnet/dotnet'
+            and set(publisher['sourceManifest']) == {'path', 'sha256'}
+            and publisher['sourceManifest']['path'] == 'src/source-manifest.json'
+            and fingerprint(path)['sha256'] == publisher['sourceManifest']['sha256'],
+            'Reviewed publisher source-manifest bytes differ')
+    manifest = load_json(path)
+    components = [row for row in manifest['repositories'] if row['path'] == publisher['componentPath']]
+    require(len(components) == 1 and components[0]['remoteUri'] == source['repository']
+            and components[0]['commitSha'] == source['commit'], 'Publisher/component source identity mapping differs')
+    tree = publisher['identicalLibraryTree']
+    require(set(tree) == {'sourcePath', 'publisherPath', 'tree'}
+            and tree['sourcePath'] == 'src/libraries'
+            and tree['publisherPath'] == 'src/' + publisher['componentPath'] + '/' + tree['sourcePath']
+            and re.fullmatch('[a-f0-9]{40}', tree['tree']), 'Reviewed publisher/component library tree scope differs')
+    if baseline is not None:
+        require(baseline and module('modern_publisher_source_tree', 'package-used-source.py').baseline_tree(baseline) == tree['tree'],
+                'Complete corresponding source library Git tree differs from the package publisher')
+
+
+def pristine_corresponding_checkout(checkout, commit):
+    # Git can report a forced-CRLF solution as modified after exact Git-blob
+    # serialization even when `git diff` is empty. Permit only that precise
+    # checkout state; every other tracked/untracked change remains forbidden.
+    status = subprocess.check_output(['git', '-C', str(checkout), 'status', '--porcelain', '--untracked-files=all'], text=True)
+    for row in status.splitlines():
+        require(row.startswith(' M ') and row[3:].endswith('.sln'), 'Corresponding serviced package source changed')
+        relative = row[3:]
+        path = checkout / relative
+        raw = subprocess.check_output(['git', '-C', str(checkout), 'show', commit + ':' + relative])
+        require(path.is_file() and not path.is_symlink() and path.read_bytes() == raw,
+                'Canonical corresponding solution differs from its exact Git blob')
 
 
 def validate_serviced_inputs(release, profile, source_manifest):
@@ -111,22 +154,41 @@ def validate_serviced_inputs(release, profile, source_manifest):
             and report['sdkVersion'] == profile['sdkVersion'] and len(report['gitSources']) == len(sources),
             'Serviced package/source review envelope differs')
     restored = load_json(release / 'reports/restored-inputs.json')['packages']
-    notice_rows = {}
+    notice_rows, mapped_baselines = {}, {}
     wanted = {source['name'] + '/' + name for source in sources for name in source['requiredNotices']}
+    mapped = [source for source in sources if 'publisher' in source]
+    wanted.update('serviced-publisher-metadata/' + source['name'] + '-source-manifest.json' for source in mapped)
     with (release / 'sources' / source_manifest['index']['path']).open() as stream:
         for line in stream:
             row = json.loads(line)
             if row['path'] in wanted:
                 notice_rows[row['path']] = row
+            for source in mapped:
+                prefix = source['name'] + '/' + source['publisher']['identicalLibraryTree']['sourcePath'] + '/'
+                if row['path'].startswith(prefix):
+                    require(row.get('baseline'), 'Corresponding library source is not an original Git member')
+                    mapped_baselines.setdefault(source['name'], {})[row['path'][len(prefix):]] = row['baseline']
     require(set(notice_rows) == wanted, 'Corresponding serviced package licenses must be archived')
     for expected, actual in zip(sources, report['gitSources']):
-        require(set(actual) == {'name', 'repository', 'commit', 'role', 'requiredNotices', 'packages', 'tree', 'notices'}
+        map_fields = {'publisher', 'publisherSourceManifest'} if 'publisher' in expected else set()
+        require(set(actual) == {'name', 'repository', 'commit', 'role', 'requiredNotices', 'packages', 'tree', 'notices'} | map_fields
                 and all(actual[key] == expected[key] for key in ('name', 'repository', 'commit', 'role', 'requiredNotices')),
                 'Serviced package corresponding source identity differs')
         roots = [root for root in source_manifest['roots'] if root['name'] == expected['name']]
         require(len(roots) == 1 and roots[0].get('commit') == expected['commit']
                 and roots[0].get('tree') == actual['tree'] and roots[0].get('role') == expected['role'],
                 'Complete exact serviced package Git source must be retained')
+        if map_fields:
+            require(actual['publisher'] == expected['publisher'], 'Serviced publisher source map registry differs')
+            descriptor = actual['publisherSourceManifest']
+            relative = 'reports/serviced-inputs/source-maps/' + expected['name'] + '-source-manifest.json'
+            require(set(descriptor) == {'path', 'bytes', 'sha256', 'sha512'} and descriptor['path'] == relative,
+                    'Closed publisher source-map descriptor required')
+            path = ordinary(release / relative)
+            require(all(descriptor[key] == value for key, value in fingerprint(path).items())
+                    and all(notice_rows['serviced-publisher-metadata/' + path.name][key] == descriptor[key]
+                            for key in ('bytes', 'sha256', 'sha512')), 'Publisher source map is absent from complete used sources')
+            validate_publisher_source_map(expected, path, mapped_baselines.get(expected['name']))
         require(len(actual['notices']) == len(expected['requiredNotices'])
                 and len(actual['packages']) == len(expected['packages']), 'Serviced source review is incomplete')
         for name, notice in zip(expected['requiredNotices'], actual['notices']):
@@ -390,7 +452,35 @@ class Producer(P.Producer):
             require(git(checkout, 'rev-parse', 'HEAD') == source['commit']
                     and not git(checkout, 'status', '--porcelain', '--untracked-files=all'),
                     'Corresponding serviced package source must be pristine')
+            # Some publisher repos request CRLF solution checkouts. These are
+            # attribution sources, never the working VMR: retain the exact Git
+            # blob so the protected pristine-source gate needs no new exception.
+            for relative in git(checkout, 'ls-files', '-z', '--', '*.sln').split('\0'):
+                if not relative:
+                    continue
+                path = checkout / relative
+                raw = subprocess.check_output(['git', '-C', str(checkout), 'show', source['commit'] + ':' + relative])
+                actual = path.read_bytes()
+                require(actual == raw or actual.replace(b'\r\n', b'\n') == raw,
+                        'Corresponding solution checkout differs beyond canonical Git line endings')
+                if actual != raw:
+                    path.write_bytes(raw)
+            pristine_corresponding_checkout(checkout, source['commit'])
             notices = [dict(path=name, **fingerprint(checkout / name)) for name in source['requiredNotices']]
+            publisher_map = {}
+            if 'publisher' in source:
+                publisher = source['publisher']
+                mapping = self.reports / 'serviced-inputs/source-maps' / (source['name'] + '-source-manifest.json')
+                mapping.parent.mkdir(exist_ok=True)
+                url = 'https://raw.githubusercontent.com/dotnet/dotnet/' + publisher['commit'] + '/src/source-manifest.json'
+                with urllib.request.urlopen(url, timeout=120) as response:
+                    raw = response.read(1024 * 1024 + 1)
+                require(0 < len(raw) <= 1024 * 1024, 'Publisher source manifest exceeds its bound')
+                mapping.write_bytes(raw)
+                validate_publisher_source_map(source, mapping)
+                require(git(checkout, 'rev-parse', 'HEAD:' + publisher['identicalLibraryTree']['sourcePath'])
+                        == publisher['identicalLibraryTree']['tree'], 'Original component library tree differs from reviewed publisher tree')
+                publisher_map['publisherSourceManifest'] = dict(path=mapping.relative_to(self.output).as_posix(), **fingerprint(mapping))
             imported = []
             for package in source['packages']:
                 name = package['id'] + '.' + package['version'] + '.nupkg'
@@ -398,7 +488,7 @@ class Producer(P.Producer):
                 download(dict(url='https://api.nuget.org/v3-flatcontainer/' + package['id'] + '/'
                               + package['version'] + '/' + name, sha512=package['sha512']), path)
                 imported.append(dict(serviced_package(path, source, package), path=path.relative_to(self.output).as_posix()))
-            rows.append(dict(source, tree=git(checkout, 'rev-parse', 'HEAD^{tree}'), notices=notices, packages=imported))
+            rows.append(dict(source, tree=git(checkout, 'rev-parse', 'HEAD^{tree}'), notices=notices, packages=imported, **publisher_map))
         write(self.reports / 'prepare/serviced-inputs.json', dict(schemaVersion=1, sdkVersion=self.sdk, gitSources=rows))
 
     def build_image(self):
@@ -513,8 +603,7 @@ class Producer(P.Producer):
             servicing = load_json(self.reports / 'prepare/serviced-inputs.json')
             for source, row in zip(sources, servicing['gitSources']):
                 checkout = self.workspace / 'supplemental-sources' / source['name']
-                require(not git(checkout, 'status', '--porcelain', '--untracked-files=all'),
-                        'Serviced package source changed after preparation')
+                pristine_corresponding_checkout(checkout, source['commit'])
                 roots.append(dict(name=source['name'], path=str(checkout), kind='git',
                                   expectedCommit=source['commit'], role=source['role']))
                 for package in row['packages']:
@@ -524,6 +613,9 @@ class Producer(P.Producer):
                     require(matches, 'Serviced package was not actually restored: ' + filename)
                     package['actualRestoreRecords'] = matches
             write(self.reports / 'serviced-inputs.json', servicing)
+            if any('publisher' in source for source in sources):
+                roots.append(dict(name='serviced-publisher-metadata', path=str(self.reports / 'serviced-inputs/source-maps'),
+                                  kind='tree', role='corresponding-serviced-package-publisher-component-source-map'))
         roots_file = self.reports / 'source-roots.json'
         write(roots_file, dict(schemaVersion=1, roots=roots))
         write(self.reports / 'ci-inputs/source-exclusions.json', dict(exclusions=ledger))

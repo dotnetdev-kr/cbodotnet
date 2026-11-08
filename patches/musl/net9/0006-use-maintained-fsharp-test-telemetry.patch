@@ -1,0 +1,62 @@
+Subject: [PATCH] Preserve F# test tracing with the maintained OTLP exporter
+
+The deprecated Jaeger exporter has no fixed release for GHSA-38h3-2333-qx47.
+Migrate only FSharp.Test.Utilities' trace exporter from Jaeger 1.4.0 to OTLP
+1.15.3, the first coherent family fixing the recorded OTLP/API advisories.
+Keep every original test/project, compiler activity source, resource/service,
+span/tag, ForceFlush and disposal path. The maintained exporter also honors
+OTEL_EXPORTER_OTLP_* environment variables for an OTLP-capable collector.
+
+The API 1.15.3 package requires DiagnosticSource 10.0.0 on net9.0. Pin that
+dependency in this test project only; do not change F# product dependencies
+or let its existing explicit 8.0.0 reference produce a NuGet downgrade.
+NuGet auditing and warnings remain enabled. Retain actual restored inputs,
+all 17 introduced package identities, complete exact corresponding sources,
+publisher VMR/component mapping and original licenses/notices.
+
+Native ARM validation: audited all-transitive restore with warnings as errors;
+F# compilation of the exact tracer builder; real loopback HTTP/Protobuf export
+of the compiler span, service and tags; original ForceFlush/Dispose lifecycle.
+Original complete VMR build/test and both-CPU qualification remain mandatory.
+
+Advisory: https://github.com/open-telemetry/opentelemetry-dotnet/security/advisories/GHSA-38h3-2333-qx47
+Advisory: https://github.com/open-telemetry/opentelemetry-dotnet/security/advisories/GHSA-g94r-2vxg-569j
+Advisory: https://github.com/open-telemetry/opentelemetry-dotnet/security/advisories/GHSA-4625-4j76-fww9
+Advisory: https://github.com/open-telemetry/opentelemetry-dotnet/security/advisories/GHSA-mr8r-92fq-pj8p
+Advisory: https://github.com/open-telemetry/opentelemetry-dotnet/security/advisories/GHSA-q834-8qmm-v933
+Publisher-Source: https://github.com/open-telemetry/opentelemetry-dotnet/tree/d622e6c7c899527638b53a6b06919859f5752add
+Base-VMR: 9f04b57d1366e21b3178648493d6edffeff2216e
+
+diff --git a/src/fsharp/tests/FSharp.Test.Utilities/FSharp.Test.Utilities.fsproj b/src/fsharp/tests/FSharp.Test.Utilities/FSharp.Test.Utilities.fsproj
+--- a/src/fsharp/tests/FSharp.Test.Utilities/FSharp.Test.Utilities.fsproj
++++ b/src/fsharp/tests/FSharp.Test.Utilities/FSharp.Test.Utilities.fsproj
+@@ -89,7 +89,7 @@
+     <PackageReference Include="System.Collections.Immutable" Version="$(SystemCollectionsImmutableVersion)" GeneratePathProperty="true" />
+     <PackageReference Include="System.Memory" Version="$(SystemMemoryVersion)" />
+     <PackageReference Include="System.Buffers" Version="$(SystemBuffersVersion)" />
+-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(SystemDiagnosticsDiagnosticSourceVersion)" />
++    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="10.0.0" />
+     <PackageReference Include="Microsoft.DiaSymReader.PortablePdb" Version="$(MicrosoftDiaSymReaderPortablePdbVersion)">
+       <PrivateAssets>all</PrivateAssets>
+       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+@@ -99,7 +99,7 @@
+     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(MicrosoftCodeAnalysisCSharpVersion)" />
+     <PackageReference Include="Microsoft.CodeAnalysis.Test.Resources.Proprietary" Version="$(MicrosoftCodeAnalysisTestResourcesProprietaryVersion)" />
+     <PackageReference Include="Microsoft.NETCore.App.Ref" Version="6.0.0" IncludeAssets="none" PrivateAssets="all" GeneratePathProperty="true" />
+-    <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="1.4.0" />
++    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
+ 	<PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
+   </ItemGroup>
+ 
+diff --git a/src/fsharp/tests/FSharp.Test.Utilities/ProjectGeneration.fs b/src/fsharp/tests/FSharp.Test.Utilities/ProjectGeneration.fs
+--- a/src/fsharp/tests/FSharp.Test.Utilities/ProjectGeneration.fs
++++ b/src/fsharp/tests/FSharp.Test.Utilities/ProjectGeneration.fs
+@@ -1014,7 +1014,7 @@
+             Sdk.CreateTracerProviderBuilder()
+                 .AddSource("fsc")
+                 .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName="F#", serviceVersion = "1"))
+-                .AddJaegerExporter()
++                .AddOtlpExporter()
+                 .Build()
+             |> Some
+         activity <- Activity.start ctx.Project.Name [ Activity.Tags.project, ctx.Project.Name; "UsingTransparentCompiler", useTransparentCompiler.ToString() ] |> Some

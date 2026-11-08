@@ -1,0 +1,52 @@
+Subject: [PATCH] Preserve native musl ASP.NET target and compiler host
+
+The regular VMR adapter otherwise loses the explicit portable target. ASP.NET
+then assumes its crossgen compiler is hosted on glibc Linux. Propagate the
+reviewed musl target without applying source-only task exclusions, and select
+the compiler package from the actual private SDK host RID. The crossgen target
+OS remains linux. ReadyToRun, complete project coverage and non-musl behavior
+are preserved.
+
+Base-VMR: 9f04b57d1366e21b3178648493d6edffeff2216e
+ASP.NET-Source: 5aeb916d29e761492c987f1c09895c3ba9cbe1ac
+
+--- a/repo-projects/aspnetcore.proj
++++ b/repo-projects/aspnetcore.proj
+@@ -16,9 +16,12 @@
+     <LogVerbosityOptOut>true</LogVerbosityOptOut>
+   </PropertyGroup>
+ 
+-  <PropertyGroup Condition="'$(DotNetBuildSourceOnly)' == 'true'">
++  <PropertyGroup Condition="'$(DotNetBuildSourceOnly)' == 'true' Or '$(TargetOS)' == 'linux-musl'">
+     <BuildArgs>$(BuildArgs) /p:PortableBuild=$(PortableBuild)</BuildArgs>
+     <BuildArgs>$(BuildArgs) /p:TargetRuntimeIdentifier=$(TargetRid)</BuildArgs>
++  </PropertyGroup>
++
++  <PropertyGroup Condition="'$(DotNetBuildSourceOnly)' == 'true'">
+     <BuildArgs>$(BuildArgs) $(FlagParameterPrefix)no-build-repo-tasks</BuildArgs>
+   </PropertyGroup>
+ 
+--- a/src/aspnetcore/src/Framework/App.Runtime/src/Microsoft.AspNetCore.App.Runtime.csproj
++++ b/src/aspnetcore/src/Framework/App.Runtime/src/Microsoft.AspNetCore.App.Runtime.csproj
+@@ -109,7 +109,11 @@
+     <BuildOsName Condition=" '$(DotNetBuildSourceOnly)' == 'true' ">$(TargetRuntimeIdentifier.Substring(0,$(TargetRuntimeIdentifier.IndexOf('-'))))</BuildOsName>
+     <Crossgen2BuildArchitecture Condition=" '$(BuildOsName)' == 'win' ">x64</Crossgen2BuildArchitecture>
+     <Crossgen2BuildArchitecture Condition=" '$(Crossgen2BuildArchitecture)' == '' ">$(BuildArchitecture)</Crossgen2BuildArchitecture>
+-    <Crossgen2PackageRootVariableName>PkgMicrosoft_NETCore_App_Crossgen2_$(BuildOsName.Replace('.', '_'))-$(Crossgen2BuildArchitecture)</Crossgen2PackageRootVariableName>
++    <!-- Select the compiler for the actual SDK host libc, independently of
++         the crossgen target OS value, which remains linux for musl targets. -->
++    <Crossgen2HostOsName>$(BuildOsName)</Crossgen2HostOsName>
++    <Crossgen2HostOsName Condition="$(NETCoreSdkRuntimeIdentifier.StartsWith('linux-musl-'))">linux-musl</Crossgen2HostOsName>
++    <Crossgen2PackageRootVariableName>PkgMicrosoft_NETCore_App_Crossgen2_$(Crossgen2HostOsName.Replace('.', '_'))-$(Crossgen2BuildArchitecture)</Crossgen2PackageRootVariableName>
+ 
+     <AssetTargetFallback>$(AssetTargetFallback);native,Version=0.0</AssetTargetFallback>
+ 
+@@ -140,7 +144,7 @@
+       $(GeneratePathProperty) and hacks in the _ExpandRuntimePackageRoot target work around the gaps.
+     -->
+     <Reference Condition="'$(CrossgenOutput)' == 'true'"
+-        Include="Microsoft.NETCore.App.Crossgen2.$(BuildOsName)-$(Crossgen2BuildArchitecture)"
++        Include="Microsoft.NETCore.App.Crossgen2.$(Crossgen2HostOsName)-$(Crossgen2BuildArchitecture)"
+         ExcludeAssets="All"
+         PrivateAssets="All"
+         GeneratePathProperty="true" />

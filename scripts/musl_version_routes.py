@@ -59,7 +59,7 @@ def profile(sdk, arch, root=ROOT):
     supplemental = value.get('supplementalSourceGit', [])
     require((not supplemental if expected['sourceOnly'] else hashlib.sha256(json.dumps(
         supplemental, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
-        == 'd3c607935519a6c23ef05969ab6b7bc6b2cbaa1f761c0b0e926d5e4ef796b116'),
+        == '1d079cb10bdbdae5924077bbb8d7010e8e5a9e0e7a6cbd28103c51539cee7570'),
         'Reviewed serviced package/source/license registry differs')
     reference_audit = dict(path='scripts/musl-reference-audit-policy.json',
         sha256='a225d95dc15db8025320de1736a8d6ee68683894375168cca63057a28a9780ba')
@@ -79,7 +79,11 @@ def profile(sdk, arch, root=ROOT):
                          'patches/musl/net9/0003-use-fixed-templating-nuget.patch':
                          '579ba989c5ec56a046b7d1e1b2aa6549d892102063effe02a25a1e9e91cce6ee',
                          'patches/musl/net9/0004-use-fixed-razor-messagepack.patch':
-                         '0e3b9b14eca6c9dd5033479cc92af92892aac069f5b16e2a92e0f6b15f26b1d4'})
+                         '0e3b9b14eca6c9dd5033479cc92af92892aac069f5b16e2a92e0f6b15f26b1d4',
+                         'patches/musl/net9/0005-preserve-native-aspnetcore-musl-target.patch':
+                         '71bff321157426db0e31940b48816851e80146d8af5c4c80fde40f9e243574e5',
+                         'patches/musl/net9/0006-use-maintained-fsharp-test-telemetry.patch':
+                         'a9c383a8f9d6b55c702698aec507025948cb21eeedb047801e7128eb84a7409f'})
     require(len(build['patches']) == len(expected_patches)
             and {p['path'] for p in build['patches']} == set(expected_patches), 'Unreviewed source patch set')
     for patch in build['patches']:

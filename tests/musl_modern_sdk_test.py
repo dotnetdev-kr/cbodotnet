@@ -5,6 +5,7 @@ import io
 import json
 from pathlib import Path
 import sys
+import subprocess
 import tarfile
 import tempfile
 import unittest
@@ -48,11 +49,19 @@ class NativeRoutes(unittest.TestCase):
         for arch in R.ARCHITECTURES:
             value = R.profile('9.0.123', arch)
             sources = value['supplementalSourceGit']
-            self.assertEqual(['serviced-nuget', 'serviced-messagepack'], [s['name'] for s in sources])
+            self.assertEqual(['serviced-nuget', 'serviced-messagepack', 'serviced-opentelemetry',
+                              'serviced-telemetry-extensions', 'serviced-diagnosticsource'], [s['name'] for s in sources])
             self.assertEqual({'6.12.5'}, {p['version'] for p in sources[0]['packages']})
             self.assertEqual(7, len(sources[0]['packages']))
             self.assertEqual({'2.5.303'}, {p['version'] for p in sources[1]['packages']})
             self.assertEqual({'messagepack', 'messagepack.annotations'}, {p['id'] for p in sources[1]['packages']})
+            self.assertEqual(4, len(sources[2]['packages']))
+            self.assertEqual({'1.15.3'}, {p['version'] for p in sources[2]['packages']})
+            self.assertEqual(12, len(sources[3]['packages']))
+            self.assertEqual({'9.0.0'}, {p['version'] for p in sources[3]['packages']})
+            self.assertEqual(['system.diagnostics.diagnosticsource'], [p['id'] for p in sources[4]['packages']])
+            self.assertEqual('b0f34d51fccc69fd334253924abd8d6853fad7aa', sources[4]['publisher']['commit'])
+            self.assertEqual('60629d14374c56f1cb51819049ad1fa529307f8d', sources[4]['commit'])
             changed = copy.deepcopy(value)
             changed['supplementalSourceGit'][1]['commit'] = '0' * 40
             with mock.patch.object(R.json, 'loads', return_value=changed), self.assertRaisesRegex(ValueError, 'registry'):
@@ -105,6 +114,53 @@ class NativeRoutes(unittest.TestCase):
 
 
 class SourceAndArchiveSafety(unittest.TestCase):
+    def test_corresponding_solution_serialization_accepts_only_exact_git_blob(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            checkout = Path(temporary)
+            subprocess.run(['git', 'init', str(checkout)], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            (checkout / '.gitattributes').write_text('*.sln text eol=crlf\n', newline='\n')
+            (checkout / 'Product.sln').write_bytes(b'original solution\n')
+            subprocess.run(['git', '-C', str(checkout), 'add', '.'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(['git', '-C', str(checkout), '-c', 'user.name=Fixture', '-c',
+                'user.email=fixture@example.invalid', 'commit', '-m', 'Pinned corresponding source'],
+                check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            commit = M.git(checkout, 'rev-parse', 'HEAD')
+            (checkout / 'Product.sln').unlink()
+            subprocess.run(['git', '-C', str(checkout), 'checkout', '--', 'Product.sln'], check=True)
+            (checkout / 'Product.sln').write_bytes(subprocess.check_output(['git', '-C', str(checkout), 'show', commit + ':Product.sln']))
+            M.pristine_corresponding_checkout(checkout, commit)
+            (checkout / 'Product.sln').write_bytes(b'replaced solution\n')
+            with self.assertRaisesRegex(ValueError, 'exact Git blob'):
+                M.pristine_corresponding_checkout(checkout, commit)
+            (checkout / 'Product.sln').write_bytes(b'original solution\n')
+            (checkout / 'injected.cs').write_text('unreviewed')
+            with self.assertRaisesRegex(ValueError, 'source changed'):
+                M.pristine_corresponding_checkout(checkout, commit)
+
+    def test_publisher_vmr_component_mapping_requires_exact_manifest_and_library_tree(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / 'source-manifest.json'
+            source = dict(repository='https://github.com/dotnet/runtime', commit='a' * 40)
+            document = dict(repositories=[dict(path='runtime', remoteUri=source['repository'], commitSha=source['commit'])])
+            path.write_text(json.dumps(document))
+            baseline = {'Product.cs': dict(mode='100644', blob='1' * 40)}
+            tree = M.module('test_mapped_source_tree', 'package-used-source.py').baseline_tree(baseline)
+            source['publisher'] = dict(repository='https://github.com/dotnet/dotnet', commit='b' * 40,
+                sourceManifest=dict(path='src/source-manifest.json', sha256=M.fingerprint(path)['sha256']),
+                componentPath='runtime', identicalLibraryTree=dict(sourcePath='src/libraries',
+                    publisherPath='src/runtime/src/libraries', tree=tree))
+            M.validate_publisher_source_map(source, path, baseline)
+            for mutation in (dict(Product=dict(mode='100644', blob='2' * 40)), {}):
+                with self.assertRaisesRegex(ValueError, 'corresponding source library'):
+                    M.validate_publisher_source_map(source, path, mutation)
+            document['repositories'][0]['commitSha'] = 'c' * 40
+            path.write_text(json.dumps(document))
+            with self.assertRaisesRegex(ValueError, 'manifest bytes'):
+                M.validate_publisher_source_map(source, path, baseline)
+            source['publisher']['sourceManifest']['sha256'] = M.fingerprint(path)['sha256']
+            with self.assertRaisesRegex(ValueError, 'component source identity'):
+                M.validate_publisher_source_map(source, path, baseline)
+
     def test_net8_original_and_actual_prep_bytes_are_both_pinned(self):
         with tempfile.TemporaryDirectory() as temporary:
             release = Path(temporary)
