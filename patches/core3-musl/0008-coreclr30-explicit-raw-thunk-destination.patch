@@ -1,0 +1,11 @@
+--- a/src/vm/ceeload.cpp
++++ b/src/vm/ceeload.cpp
+@@ -6645,7 +6645,7 @@
+                         (UINT_PTR)&(pPointers[iMethod]), pMD->m_pszDebugMethodName, pMD));
+ 
+                     UMEntryThunk *pUMEntryThunk = (UMEntryThunk*)(void*)(GetDllThunkHeap()->AllocAlignedMem(sizeof(UMEntryThunk), CODE_SIZE_ALIGN)); // UMEntryThunk contains code
+-                    FillMemory(pUMEntryThunk, sizeof(*pUMEntryThunk), 0);
++                    FillMemory(static_cast<void*>(pUMEntryThunk), sizeof(*pUMEntryThunk), 0);
+ 
+                     UMThunkMarshInfo *pUMThunkMarshInfo = (UMThunkMarshInfo*)(void*)(GetThunkHeap()->AllocAlignedMem(sizeof(UMThunkMarshInfo), CODE_SIZE_ALIGN));
+                     FillMemory(static_cast<void*>(pUMThunkMarshInfo), sizeof(*pUMThunkMarshInfo), 0);

@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "kind": "core30-musl-native-source-experiment",
+  "issue": 35,
+  "qualification": false,
+  "releaseAdmission": false,
+  "sourceSdkProduct": false,
+  "architecture": "aarch64",
+  "alpine": "3.24.4",
+  "source": {
+    "repository": "https://github.com/dotnet/coreclr",
+    "commit": "259ce7d4619478cfefe7b0c0f6fa765f765f7e37",
+    "archive": "coreclr30.tar.gz",
+    "bytes": 42711125,
+    "sha256": "54754dd1dc80bc752f86e2dfdcabc90f8da670ce79235b48e4a6e7cf6e0282b2",
+    "originalArcade": "1.0.0-beta.19577.5",
+    "originalNativeVersionTarget": "eng/empty.csproj:GenerateNativeVersionFile"
+  },
+  "patches": [
+    {
+      "path": "patches/core3-musl/0002-clang20-typed-null.patch",
+      "sha256": "5d33d0d85c9d7007c99af8327a8d8ab338fcdf92258ed437572573d5f0bb8a5f"
+    },
+    {
+      "path": "patches/core3-musl/0004-coreclr31-clang20-native-compat.patch",
+      "sha256": "ef09d20a24f44e9f581ee70acc4eb515f93a1b24969df944ad629f79d3880ceb"
+    },
+    {
+      "path": "patches/core3-musl/0007-coreclr30-upstream-clang-alignment-and-aliasing.patch",
+      "sha256": "f7602840766e76b2c8f336515ce7c0e6e5f7f650de4b50c98d50c484135bad12"
+    },
+    {
+      "path": "patches/core3-musl/0008-coreclr30-explicit-raw-thunk-destination.patch",
+      "sha256": "1c80cb2548921edcab3d0735607d9863066c4b17b58e911ab67b35c56517b55a"
+    },
+    {
+      "path": "patches/core3-musl/0009-coreclr30-upstream-common-symbol-default.patch",
+      "sha256": "2f9a654d563b96f57cfcaf4ad0dfaf65e6ccba11047bb7b05ef987a23d31ecc9"
+    },
+    {
+      "path": "patches/core3-musl/0010-coreclr30-upstream-slist-dac-pointers.patch",
+      "sha256": "b1f2cd4e80b9aca454461dd01652961d8a5e265aa72c4a5bbbe815633416db9d"
+    }
+  ],
+  "privateBootstrap": {
+    "version": "8.0.131",
+    "rid": "linux-musl-arm64",
+    "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/8.0.131/dotnet-sdk-8.0.131-linux-musl-arm64.tar.gz",
+    "sha512": "aaa3e485166a5779a41cc7ec33a03e322d57aaede0dc4afed850d56371e9fdf06fd458eef412660b82a4773a8b625b213a0db7202623206d72c6a68a4fb90032",
+    "role": "Original native-version target and own test fixture compiler only; no bootstrap binary becomes a native product output."
+  },
+  "privateVersionSdk": {
+    "id": "microsoft.dotnet.arcade.sdk",
+    "version": "1.0.0-beta.19577.5",
+    "bytes": 821111,
+    "sha256": "65779ab736fec46cececc3d353ec415cbc83dccfec7a966f5f7629e67da15da8",
+    "sha512": "a4ffaa394b12a1a75dd9488673ac1d43a5e006c925bc9876c952e204cad8f35a104b83663f8ebb93c3da3275ae4ae6c08e72edb7288e5e3a6604b386b9efa2e5",
+    "publisherRepository": "https://github.com/dotnet/arcade",
+    "publisherCommit": "99c6b59a8afff97fe891341b39abe985f1d3c565",
+    "license": "MIT",
+    "role": "Exact original native-version SDK resolver input, private tooling only; no native product member imported and corresponding-source audit still required."
+  },
+  "runtimeVersion": "3.0.3",
+  "build": {
+    "configuration": "Release",
+    "compiler": "/usr/lib/llvm20/bin/clang",
+    "cxxCompiler": "/usr/lib/llvm20/bin/clang++",
+    "maxCpuCount": 2,
+    "targets": [
+      "coreclr",
+      "clrjit",
+      "mscordaccore",
+      "mscordbi",
+      "coreclrtraceptprovider",
+      "crossgen"
+    ],
+    "readyToRun": true,
+    "perfTracing": true,
+    "profiling": true,
+    "globalWarningsAsErrors": true,
+    "visibleCompatibilityWarning": "Existing GNU C++ variable-length arrays: -Wno-error=vla-cxx-extension, with the warning retained."
+  },
+  "scope": "Separate exact Core3.0 native source build and component consumers; no Core3.1 proof inheritance. Original musl host/framework and source OpenSSL compatibility are explicit test inputs, with same-version private metadata RID adaptation. Complete source SDK, used-source/license audit, final construction, two-CPU qualification and release admission remain separate mandatory gates.",
+  "sourceBranch": "3.0",
+  "source31ProofInherited": false,
+  "nativeVersionTransport": {
+    "originalGlobalUnchanged": true,
+    "originalNuGetConfigRestored": true,
+    "mappings": [
+      [
+        "https://dotnetfeed.blob.core.windows.net/dotnet-coreclr/index.json",
+        "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json"
+      ],
+      [
+        "https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json",
+        "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json"
+      ]
+    ]
+  },
+  "compatibilityOrigins": {
+    "alignmentAndAliasing": {
+      "upstreamRepository": "https://github.com/dotnet/runtime",
+      "upstreamCommit": "f86caa54678535ead8e1977da37025a96e2afe8a",
+      "hunks": 5,
+      "files": 2,
+      "pristine30NativeWrapperFailedAlignmentResidues": [
+        1,
+        2,
+        3
+      ],
+      "patched30NativeWrapperAllPassed": true
+    },
+    "commonSymbolDefault": {
+      "upstreamOriginal31Commit": "c17d273aa03d4b9d14c92248a91f0d0faa881b98",
+      "original30LinkFailure": "Three C tentative BSS definitions of _U_dyn_info_list",
+      "beforeBssDefinitions": 3,
+      "afterCommonObjectDefinitions": 3,
+      "afterLinkedDefinition": 1
+    },
+    "slistDacPointers": {
+      "upstreamOriginal31Commit": "c17d273aa03d4b9d14c92248a91f0d0faa881b98",
+      "wholePatchedHeaderByteIdentical": true,
+      "statementChanges": 3
+    },
+    "rawThunkDestination": {
+      "reason": "Actual Clang20 Werror nontrivial memset destination at ceeload.cpp6648",
+      "sameRawAllocationAddressAndSize": true,
+      "noConstructorOrInitializationChange": true
+    }
+  },
+  "consumerInputs": {
+    "originalMuslRuntimeHostVersion": "3.0.3",
+    "officialSdkMetadataVersion": "3.0.103",
+    "metadataOnlyRidAdaptation": true,
+    "cryptoSourceCommit": "a4238c9819075be9bff74e009da802ce47233f38",
+    "cryptoSha256": "e282dff2651bef174cf7fbcf76c162d4f25e9fcaecdf3ddffc53f0dd3ae85804",
+    "fixtureCompiler": "Private official SDK8.0.131 / original3.0targetingrefs; no product compiler qualification",
+    "scope": "Explicit original musl host/framework and genuine branch crypto diagnostic inputs; five own source native components. Full source host/framework/SDK producer remains separate."
+  },
+  "observed": {
+    "allSixNativeTargetsCompleted": true,
+    "postBuildCollectorWindowsChmodFailurePreserved": true,
+    "subsequentByteOnlyCollection": true,
+    "generatedSourceFiles": 498,
+    "originalAndSourceConsumerCommandsEach": 8,
+    "allFiveEhMetadataClausesAndBehaviorsPass": true,
+    "defaultTrustPositiveAndNegativeCertificateControlsPass": true,
+    "sourceCrossgenReadyToRunHeaderBytes": 124,
+    "sourceCrossgenNativeExecutionPass": true,
+    "lttngDotnetEvents": 2545,
+    "lttngGcStartEvents": 80,
+    "lttngGcEndEvents": 80,
+    "lttngNativeControlEvents": 1,
+    "normalReadyToRun": true
+  }
+}

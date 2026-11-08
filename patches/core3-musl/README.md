@@ -35,3 +35,18 @@ checks exact input/patch/file hashes and leaves original global SDK pins intact.
 These additions do not close the private archive's imported source/license or
 native two-CPU release gates.
 
+
+`0007`–`0010` target exact CoreCLR3.0
+`259ce7d4619478cfefe7b0c0f6fa765f765f7e37`, after0002 and0004. Those two common
+patches are now separately checked/built on3.0; this does not inherit3.1 proof.
+0007 backports the five upstream f86caa alignment/aliasing statements.0008
+makes one existing raw memset destination explicit.0009 backports the original
+3.1 common-symbol CMake default, and0010 backports its three DAC pointer
+wrappers. Public patch bytes equal the private patches used in the actual
+six-target LLVM20 Release build, including original upstream whitespace.
+The [separate3.0 profile](../../profiles/experimental/core30-musl-native.json)
+and [native checkpoint](../../docs/core3-musl-source-phase.md) retain concrete
+before/after controls, default-trust certificate tests, source crossgen and
+actual GC LTTng evidence. Original host/managed framework inputs are explicit
+diagnostic overlays; a complete source SDK and native two-CPU release producer
+remain unqualified.

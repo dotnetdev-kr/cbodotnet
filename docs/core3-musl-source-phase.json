@@ -6118,5 +6118,1268 @@
       "Native x64 and ARM64 normalDocker/GHA fullproducer/consumer qualification withnormaloptimization, ReadyToRun, nativeapphost, defaultTLSnegativecases andactualLTTng",
       "Archive/APK/signing/OCI/public/installer andallother distributionadmission"
     ]
+  },
+  "core30NativeComponentCheckpoint": {
+    "date": "2026-11-09",
+    "qualification": false,
+    "releaseAdmission": false,
+    "sourceSdkProduct": false,
+    "sourceBranch": "3.0",
+    "source31ProofInherited": false,
+    "profile": {
+      "path": "profiles/experimental/core30-musl-native.json",
+      "bytes": 6764,
+      "sha256": "4b4b7dca836b039e9d013d36b77644237d8ecfd44ca877aa094117f0676942a2"
+    },
+    "implementation": [
+      {
+        "path": "profiles/experimental/core30-musl-native.json",
+        "bytes": 6764,
+        "sha256": "4b4b7dca836b039e9d013d36b77644237d8ecfd44ca877aa094117f0676942a2"
+      },
+      {
+        "path": "patches/core3-musl/0007-coreclr30-upstream-clang-alignment-and-aliasing.patch",
+        "bytes": 1899,
+        "sha256": "f7602840766e76b2c8f336515ce7c0e6e5f7f650de4b50c98d50c484135bad12"
+      },
+      {
+        "path": "patches/core3-musl/0008-coreclr30-explicit-raw-thunk-destination.patch",
+        "bytes": 784,
+        "sha256": "1c80cb2548921edcab3d0735607d9863066c4b17b58e911ab67b35c56517b55a"
+      },
+      {
+        "path": "patches/core3-musl/0009-coreclr30-upstream-common-symbol-default.patch",
+        "bytes": 483,
+        "sha256": "2f9a654d563b96f57cfcaf4ad0dfaf65e6ccba11047bb7b05ef987a23d31ecc9"
+      },
+      {
+        "path": "patches/core3-musl/0010-coreclr30-upstream-slist-dac-pointers.patch",
+        "bytes": 733,
+        "sha256": "b1f2cd4e80b9aca454461dd01652961d8a5e265aa72c4a5bbbe815633416db9d"
+      }
+    ],
+    "sourceCommit": "259ce7d4619478cfefe7b0c0f6fa765f765f7e37",
+    "evidenceIndex": {
+      "path": ".build/core3-musl-source-phase/core30-native-checkpoint-index-v2.json",
+      "bytes": 56006,
+      "sha256": "ddefd50a1145537ad11633cfa82711d810654293db49bd19b2e63b8e3b332815"
+    },
+    "evidence": [
+      {
+        "path": ".build/core3-musl-source-phase/build-core30-native100-worker.py",
+        "bytes": 500,
+        "sha256": "8e0682d9b7fb9a2ba9b9280f5ffc221314f2f4d36117d4a255762b7d149dbf22"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/build-core30-native112-worker.py",
+        "bytes": 146,
+        "sha256": "c547626f77f63416296af1b03d603f6b7e3dff11e5b69810aaea0ae6df3f0d5d"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/build-core30-native98-worker.py",
+        "bytes": 3370,
+        "sha256": "b01ad0bc6a135eccd0e66d5312c8b79291b8e714453137d2416811f4bb74628e"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/collect-core30-native114-worker.py",
+        "bytes": 4477,
+        "sha256": "8a24aed4a2eebcf96bedfed93b1cab1d526d8028c63e60e9f2e2412254876871"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/configure-core30-native94-v3-worker.py",
+        "bytes": 871,
+        "sha256": "31ac4e38de1ef8e51276aa0e26b1ed8d5efb3ba6b0e46930d0c92af0b3cf64d3"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/consume-core30-lttng119-v2-worker.py",
+        "bytes": 209,
+        "sha256": "c99ecc598bd2ade588c1db304003e86019e3a5080d1106ea5f313988d151160c"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/consume-core30-native116-worker.py",
+        "bytes": 3973,
+        "sha256": "43c05ae9eed695894c1cd7f0845a8b840de3a4b52b3d4670998057efbc486938"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/consume-core30-tools118-worker.py",
+        "bytes": 5307,
+        "sha256": "fede79baabd918a14a020251dd349f86e8b1304e70d6beb50f80948e973264e1"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-bootstrap-sdk-onehundredthirteen-v2/dotnet-sdk-3.0.103-linux-arm64.tar.gz",
+        "bytes": 114015109,
+        "sha256": "c7935c53d416fa646ee6e5b77519a44a7fdbf4e021454cca05cbd6cd0a5a1b8a"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-bootstrap-sdk-onehundredthirteen-v2/release-metadata.json",
+        "bytes": 351799,
+        "sha256": "3a81cc1cfe4239b4e37987e63e96cc0f368747888f18bcb643fe1e2c2d8ee5e2"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-bootstrap-sdk-onehundredthirteen-v2/results.json",
+        "bytes": 832,
+        "sha256": "d0a377bd850388556281faa8f0d90e6891ca3bf3189513d65eb050661904d0cd"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-consumer-preparation-onehundredtwo-v1/results.json",
+        "bytes": 110499,
+        "sha256": "7eb93d8df615951a848cb152e0114a4ec3e42739cbc20c4992466761ad1c04e7"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-fixtures-onehundredthree-v1/Cold-compile.log",
+        "bytes": 214,
+        "sha256": "4f32bb1856eea4f319ef549f6c84c138630997e166017a71feb10f8a5b0baa53"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-fixtures-onehundredthree-v1/EH-compile.log",
+        "bytes": 214,
+        "sha256": "4f32bb1856eea4f319ef549f6c84c138630997e166017a71feb10f8a5b0baa53"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-fixtures-onehundredthree-v1/Events-compile.log",
+        "bytes": 214,
+        "sha256": "4f32bb1856eea4f319ef549f6c84c138630997e166017a71feb10f8a5b0baa53"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-fixtures-onehundredthree-v1/NegativeCertificates-compile.log",
+        "bytes": 214,
+        "sha256": "4f32bb1856eea4f319ef549f6c84c138630997e166017a71feb10f8a5b0baa53"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-fixtures-onehundredthree-v1/execution.json",
+        "bytes": 39,
+        "sha256": "a11a9bd6561682e6f54a3adcb711d2a1ab793d43580bc19f3737e431de99c055"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-fixtures-onehundredthree-v1/execution.log",
+        "bytes": 31,
+        "sha256": "79713368f5c069117266a5614fb810092e32d9a83efbdb9803bf507cea747976"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-fixtures-onehundredthree-v1/invocation.json",
+        "bytes": 921,
+        "sha256": "802f07875ceed10f674d294a37ead3f6f75d28d1ef8c9f810bf5148cd4a14782"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-fixtures-onehundredthree-v1/results.json",
+        "bytes": 2250,
+        "sha256": "c40f9f74b28a9c741a2481f41454378d20f5bdcd1fa482c1c723db050bf98d3d"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-full-native-source-onehundredtwelve-v1/CMakeCache.txt",
+        "bytes": 44532,
+        "sha256": "4d1d8d2b120b94272f36923dfe3bcb17d0116ba502954aec1874c816d7a9bf9e"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-full-native-source-onehundredtwelve-v1/command.json",
+        "bytes": 275,
+        "sha256": "a1c5e692f04918d60ccee1b8099baac6daa5e6ff4183f694f4b54b4edca88354"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-full-native-source-onehundredtwelve-v1/compile_commands.json",
+        "bytes": 5843631,
+        "sha256": "2edf6237a4b3160ae474450b5ba51454f2c20fc5bb3e0a24ea379e6a55031db3"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-full-native-source-onehundredtwelve-v1/execution.json",
+        "bytes": 41,
+        "sha256": "2b3e15c21b28599e9d3c414cf993ba90e482cd08e9173535b5239496637bf5fd"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-full-native-source-onehundredtwelve-v1/execution.log",
+        "bytes": 1875,
+        "sha256": "78318e5d052074bf4456b7472305a12dca10fbff11ab44a9f4274412abcdc783"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-full-native-source-onehundredtwelve-v1/invocation.json",
+        "bytes": 826,
+        "sha256": "e79a77ff4ab87505b21671dc80cd6153d7f59594204f838dbb9c6500b6f1a6f1"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-full-native-source-onehundredtwelve-v1/native/libcoreclr.so",
+        "bytes": 51728400,
+        "sha256": "3971db85667204e97240c714e706a73fe1a03ce2230862b77e428a69978530c1"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-full-native-source-onehundredtwelve-v1/native-build.log",
+        "bytes": 1775113,
+        "sha256": "df7cec09a401ee0e7d7b063d76ace2c64ce92854ddb9aa7f413a15aff70df468"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-full-native-source-onehundredtwelve-v1/version.c",
+        "bytes": 125,
+        "sha256": "6e3455c1ca433119b853b2aa96d2e3f2d15ed9942cbc4342d5296d0e284615db"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/CMakeCache.txt",
+        "bytes": 44532,
+        "sha256": "4d1d8d2b120b94272f36923dfe3bcb17d0116ba502954aec1874c816d7a9bf9e"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/compile_commands.json",
+        "bytes": 5843631,
+        "sha256": "2edf6237a4b3160ae474450b5ba51454f2c20fc5bb3e0a24ea379e6a55031db3"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/crossgen-readelf.log",
+        "bytes": 2887,
+        "sha256": "24596ff37f5a4c3789d079557c5cc1d52587af4964eb036ba2df44e18a061bac"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/execution.json",
+        "bytes": 39,
+        "sha256": "b30bb7eb4ee6770ccbc995a3b1cd1a973fba4f35782ee2bbacebe7ce395ce464"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/execution.log",
+        "bytes": 68,
+        "sha256": "b84085467c48b61d1381a7a6e7b259561f387f7795d073a342d4708bbe113835"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/generated-source-manifest.json",
+        "bytes": 90970,
+        "sha256": "c16403fe2e764517df02e0319a691a9fafca8c459ea76f9e41cb9add2b3a5044"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/generated-source.tar.gz",
+        "bytes": 240090,
+        "sha256": "eafa3de1674213d7eeee7701a911e814b0600488ee0f1ed7574272cbf7e91c95"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/invocation.json",
+        "bytes": 832,
+        "sha256": "bc290133f640049598c1461cd1a1885f24c1bfcf05dd20efb2dd6edd1906eaa7"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/libclrjit.so-readelf.log",
+        "bytes": 3030,
+        "sha256": "e1a7e71deb0d04f14676bfa2e16288922262c3d874e7561bb35fa0f43c5248ec"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/libcoreclr.so-readelf.log",
+        "bytes": 2979,
+        "sha256": "14a004692457d5d2a3341bbe7fa231d3e071fde984dbc2c3bc78b47db59c89bb"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/libcoreclrtraceptprovider.so-readelf.log",
+        "bytes": 2614,
+        "sha256": "41693bb25ddd824003fc01dde4200d05e99ed40916af9e0fa229b38608623b5c"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/libmscordaccore.so-readelf.log",
+        "bytes": 2983,
+        "sha256": "f221c13cc6c3aec910205bc5d6bd83904df31e2b852188aef329738eaed8fb0d"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/libmscordbi.so-readelf.log",
+        "bytes": 3051,
+        "sha256": "84ae348dd0c666d1cc996230baa01d1f6834d64edfbe6afbfa8840583922db1a"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/native/crossgen",
+        "bytes": 27383736,
+        "sha256": "da9c481a78c4dfe94da6a1123f14ae6367b1b4d9f733b30a8427b597de74ae9d"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/native/libclrjit.so",
+        "bytes": 18180656,
+        "sha256": "39cd931822182a82ddec42c798a74c42ab48b4eca4dc2e2478ff8fe9c35651e0"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/native/libcoreclr.so",
+        "bytes": 51728400,
+        "sha256": "3971db85667204e97240c714e706a73fe1a03ce2230862b77e428a69978530c1"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/native/libcoreclrtraceptprovider.so",
+        "bytes": 1686136,
+        "sha256": "cca43083cd18e648a0db8eb7f93c62134de141bc92634acf71c2dd4e937baf03"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/native/libmscordaccore.so",
+        "bytes": 21323584,
+        "sha256": "1b20f3250b75684a74b1b790732e0920739dd1a008b795702d4200d31da24b4f"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/native/libmscordbi.so",
+        "bytes": 11021968,
+        "sha256": "da32a856e2b5d37631eb32338e67e2ffc0abefe6603f4a379f0ca8521afc8a78"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/results.json",
+        "bytes": 5669,
+        "sha256": "ad760c9aabce7859725846d2865fad6bb13b086b7c5d1274791bb232c817b533"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-collection-onehundredfourteen-v1/version.c",
+        "bytes": 125,
+        "sha256": "6e3455c1ca433119b853b2aa96d2e3f2d15ed9942cbc4342d5296d0e284615db"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/CMakeCache.txt",
+        "bytes": 44532,
+        "sha256": "4d1d8d2b120b94272f36923dfe3bcb17d0116ba502954aec1874c816d7a9bf9e"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-assets-selection.json",
+        "bytes": 249,
+        "sha256": "fc64418aa89e442d09af0aa2b5e23551792cc03718dc00047f0b4b0aa331171a"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-component-restore-closure.json",
+        "bytes": 75079,
+        "sha256": "1ceb82cd156750e3ff2372b53f64c538f9f9a9791e6437bc1c8137b33095ed91"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-project-assets/source/coreclr-259ce7d4619478cfefe7b0c0f6fa765f765f7e37/artifacts/obj/empty/project.assets.json",
+        "bytes": 77935,
+        "sha256": "7bffb0a49f2dd9e3d17891ad124038abb42ea37b4679bb2ea93ff98073ec71ee"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.build.tasks.git/1.0.0-beta2-19367-01/.nupkg.metadata",
+        "bytes": 178,
+        "sha256": "3a8e79dc29996e6b873f527873ea1736de7f9844a17b61f825a9cfbd066754c0"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.build.tasks.git/1.0.0-beta2-19367-01/microsoft.build.tasks.git.1.0.0-beta2-19367-01.nupkg",
+        "bytes": 463624,
+        "sha256": "721cdec55ae06ffb36576e10da8f9fd6b706215ef7eb4a1970af2d6fd0c5d4b8"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.net.compilers.toolset/3.3.0-beta2-19367-02/.nupkg.metadata",
+        "bytes": 227,
+        "sha256": "895108e7f7014218e19183da0eaade4d6544eb00ee49d1836733d38d3f0e5927"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.net.compilers.toolset/3.3.0-beta2-19367-02/microsoft.net.compilers.toolset.3.3.0-beta2-19367-02.nupkg",
+        "bytes": 22122481,
+        "sha256": "5413e4413f534a760d52233fbaa9637cfc186f8c48613a01c5305f579df834ed"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.netcore.app/2.0.0/.nupkg.metadata",
+        "bytes": 178,
+        "sha256": "a883b78ec68502b396519245144bebface61b4e5340056ace1580f372f0e113a"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.netcore.app/2.0.0/microsoft.netcore.app.2.0.0.nupkg",
+        "bytes": 4072688,
+        "sha256": "a29d96f11439e5e0bee532980f566fb93d21eb3491a9dc6aee1e6a95b59e1d49"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.netcore.dotnetapphost/2.0.0/.nupkg.metadata",
+        "bytes": 228,
+        "sha256": "674dc49c174c1b54e71319c43732d2236ece4bc56bb664e20fe4b79b2466b7c3"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.netcore.dotnetapphost/2.0.0/microsoft.netcore.dotnetapphost.2.0.0.nupkg",
+        "bytes": 13966,
+        "sha256": "8d3fa889266477d4bcf01787e59634b977501ef4d7345068b67f519dc36c3d7a"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.netcore.dotnethostpolicy/2.0.0/.nupkg.metadata",
+        "bytes": 228,
+        "sha256": "aa6874d09741b190a01adf937bffd267824c5300578d11414fe98cbe15c61343"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.netcore.dotnethostpolicy/2.0.0/microsoft.netcore.dotnethostpolicy.2.0.0.nupkg",
+        "bytes": 14047,
+        "sha256": "4e79ad29f5a27637b60959f031bf58d16718ae84776874682451b1cdbef3e9ff"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.netcore.dotnethostresolver/2.0.0/.nupkg.metadata",
+        "bytes": 228,
+        "sha256": "e90398b25af75e00742ae9cebe2885765dde412d362d96d9f7d94650e95b79ff"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.netcore.dotnethostresolver/2.0.0/microsoft.netcore.dotnethostresolver.2.0.0.nupkg",
+        "bytes": 14014,
+        "sha256": "ab0fda19e3e0ae9b7decdf222ab7822f98737360a7a207b6c9e7e356712fc477"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.netcore.platforms/2.0.0/.nupkg.metadata",
+        "bytes": 178,
+        "sha256": "e68674709cabeb2844ec82133bdf8305701d79ab18a42edb039f2a18d85d0c10"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.netcore.platforms/2.0.0/microsoft.netcore.platforms.2.0.0.nupkg",
+        "bytes": 19181,
+        "sha256": "204bc193ac145d27720a7923ead1da84e26fdbdd2d5554fcb727a661c47462ba"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.sourcelink.common/1.0.0-beta2-19367-01/.nupkg.metadata",
+        "bytes": 228,
+        "sha256": "cae823b561ac8eb1c8f4ffb3bff4b3a15cd83bef4b9404dca83248cd5445c53d"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.sourcelink.common/1.0.0-beta2-19367-01/microsoft.sourcelink.common.1.0.0-beta2-19367-01.nupkg",
+        "bytes": 160529,
+        "sha256": "e68617790e5543f466e2943a9ea2f8d2430d3cc4066345bf98a3e02ac1f79fdc"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.sourcelink.github/1.0.0-beta2-19367-01/.nupkg.metadata",
+        "bytes": 178,
+        "sha256": "f0fdc147d9e20987186c46aee8bc7a9629c3fc5c88824801b74f90cc215f4966"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.sourcelink.github/1.0.0-beta2-19367-01/microsoft.sourcelink.github.1.0.0-beta2-19367-01.nupkg",
+        "bytes": 284000,
+        "sha256": "adedb1a93ad8eab1298677bd51a4cf69901243c7177225199ff90266a5409430"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.sourcelink.vsts.git/1.0.0-beta2-19367-01/.nupkg.metadata",
+        "bytes": 178,
+        "sha256": "61f9c60979f09643651f032f0ff959be2ae3923300586cfdee364e70baac153c"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/microsoft.sourcelink.vsts.git/1.0.0-beta2-19367-01/microsoft.sourcelink.vsts.git.1.0.0-beta2-19367-01.nupkg",
+        "bytes": 296667,
+        "sha256": "6446f018d0d41f5defb96c1516cd6822d2fc12a5450f4ca1d348270646ef246a"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/netstandard.library/2.0.0/.nupkg.metadata",
+        "bytes": 228,
+        "sha256": "7103f57f32fd79dc695972b33a9bace34623630383a70fc893b1a5f5492c5880"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/actual-version-restore-inputs/actual-restored-packages/0/netstandard.library/2.0.0/netstandard.library.2.0.0.nupkg",
+        "bytes": 3143842,
+        "sha256": "3e9edf47295a8bc26b1353bef5319f20426b00e9a75932512d613ea8905a84ad"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/compile_commands.json",
+        "bytes": 5829906,
+        "sha256": "ac28209af2655a8d0102306677410cf1b3f38abc07488079f8a8d853c1496cf7"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/configure.log",
+        "bytes": 19803,
+        "sha256": "d39880c7a7b93180137b97b26f62a5c34e21eb20da6963816065b73e001c4a35"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/execution.json",
+        "bytes": 40,
+        "sha256": "3824a6f63e0e3ea1327872c8ccccb935a6c95bff8b51a93ab84ecaa8d82a3348"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/execution.log",
+        "bytes": 25,
+        "sha256": "37001c224b84629340b5eeba4760464521e4aa91c00cc7b7dad171298fd39f31"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/invocation.json",
+        "bytes": 826,
+        "sha256": "47abb44b0cbe781aac0eb8fb75cf18921d1285f5b59cd1c926c54955c4dbd257"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/microsoft.dotnet.arcade.sdk.1.0.0-beta.19577.5.nupkg",
+        "bytes": 821111,
+        "sha256": "65779ab736fec46cececc3d353ec415cbc83dccfec7a966f5f7629e67da15da8"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/private-original-arcade.nuspec",
+        "bytes": 2128,
+        "sha256": "87f605f3f932e40644b312868755063377aab34a5f5e604dc650c1382f4f676e"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/probe-compile.log",
+        "bytes": 139,
+        "sha256": "aaec41e46ccc9ae7a8d730d59123d5aab2e3786ee38ac394006fdbd4df356acc"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/probe.cpp",
+        "bytes": 1567,
+        "sha256": "8b06cae3364cf1b800c0f6fc535fa4e4819da3932b5ddcda2ea45ec6296c76b7"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/results.json",
+        "bytes": 87388,
+        "sha256": "fb7b9fd3695f67149ffd9342213914477209f3e2b5139a3963a1cf93f2134ba9"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-configure-ninetyfour-v3/version.c",
+        "bytes": 125,
+        "sha256": "6e3455c1ca433119b853b2aa96d2e3f2d15ed9942cbc4342d5296d0e284615db"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-rawmemory-ninetynine-v1/coreclr30-explicit-raw-thunk-destination.patch",
+        "bytes": 784,
+        "sha256": "1c80cb2548921edcab3d0735607d9863066c4b17b58e911ab67b35c56517b55a"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-rawmemory-ninetynine-v1/original-ceeload.cpp",
+        "bytes": 479198,
+        "sha256": "ae8eaa72abccaec0b178c3c71cd923eb3846f68ee3963b87e3d08fd026c897b1"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-rawmemory-ninetynine-v1/patched-ceeload.cpp",
+        "bytes": 479218,
+        "sha256": "e165a653117a4e071db3793dd5ce6c453c585627ae6e7f3c3e7245e692efbd52"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-rawmemory-ninetynine-v1/results.json",
+        "bytes": 765,
+        "sha256": "e91ba48cdd76e7d5aaf8b31327264ce8ae68935017b0c30c45a6d4b8b7407de8"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-upstream-f86-ninetysix-v1/coreclr30-upstream-f86-alignment-and-aliasing.patch",
+        "bytes": 1899,
+        "sha256": "f7602840766e76b2c8f336515ce7c0e6e5f7f650de4b50c98d50c484135bad12"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-upstream-f86-ninetysix-v1/results.json",
+        "bytes": 1391,
+        "sha256": "4b0938e2fa955db605564fdf81714cfa793a73b2c1257be39a835c1ed7e9dead"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-version-ninetythree-v1/command.json",
+        "bytes": 988,
+        "sha256": "3be7094fcaeb9bcf3a1b4b312b80ed331a8fe6e5d6e428891af9c7532b74581e"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-version-ninetythree-v1/execution.json",
+        "bytes": 39,
+        "sha256": "067604bc9f66833d96324999669ab758e847407ebb2a9a223fa466505d256950"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-version-ninetythree-v1/execution.log",
+        "bytes": 35,
+        "sha256": "abc43b90fa446f9e4f51b07940070357571f0a038e55dc95094040922976e4ec"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-version-ninetythree-v1/invocation.json",
+        "bytes": 916,
+        "sha256": "2150819bd1d09775f2f77191bf231defaae5a88bd044485c1d4f72e731958d42"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-version-ninetythree-v1/native-version.binlog",
+        "bytes": 380780,
+        "sha256": "b11a7708bb904b32ed2b042fe4f852b097964ba4a489047c072b6946c60a4ce6"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-version-ninetythree-v1/native-version.log",
+        "bytes": 918,
+        "sha256": "b7b341cd9f89c476b3f2e6efca938886594e4a7e31faa66c0527cd982033af6c"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-version-ninetythree-v1/original-NuGet.config",
+        "bytes": 911,
+        "sha256": "8286655659ad23c83ea0f63bc1b1a36bbd4cb91e714c8a13641721776645aece"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-version-ninetythree-v1/original-config-restored.json",
+        "bytes": 117,
+        "sha256": "1af7bff1fe45062599c641aef7ab0e1741a61e15ca2980790e10a565e3946622"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-version-ninetythree-v1/private-transport-NuGet.config",
+        "bytes": 949,
+        "sha256": "39a8856d2f76e4d4d01d75822256d10bd776fa55a886640d86fc0fe475df077b"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-version-ninetythree-v1/results.json",
+        "bytes": 1779,
+        "sha256": "1d9c26da9d256b61b0a7e42291949b49dbef55d57fc1395cd3984317d21af6a0"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-version-ninetythree-v1/transport-receipt.json",
+        "bytes": 810,
+        "sha256": "6b1e94384ab93aaa5e9803d5aa529b3f0f14e3f85af69b85be0c25c7071752a6"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-native-version-ninetythree-v1/version.c",
+        "bytes": 125,
+        "sha256": "6e3455c1ca433119b853b2aa96d2e3f2d15ed9942cbc4342d5296d0e284615db"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-metadata-onehundredfifteen-v1/.version",
+        "bytes": 47,
+        "sha256": "b7729eae12cca1641a38d3a8219a376b586e4ed46b648712cd7129fcf48f8bb3"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-metadata-onehundredfifteen-v1/Microsoft.NETCore.App.deps.json",
+        "bytes": 91266,
+        "sha256": "f55fdd4fff908eb377f4c2b65bb2ef4f1e6f8cec2a372af4e5dccb9fa74f9151"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-metadata-onehundredfifteen-v1/results.json",
+        "bytes": 1747,
+        "sha256": "07e340de618ea2a509bbf0ffc987c430626c063f58d31d1fa73f0bf7965b5966"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-runtime-control-onehundredsixteen-v1/cold.log",
+        "bytes": 59,
+        "sha256": "31451d8bc1b296a012bf4f3df036a4fdc0e3d000a08f2573e316a14278dfbd53"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-runtime-control-onehundredsixteen-v1/default-certificates.log",
+        "bytes": 878,
+        "sha256": "4b364a67548b99334500175fad83a6eaf7be022a0e704515d29cd927aa3c785b"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-runtime-control-onehundredsixteen-v1/eh-catch.log",
+        "bytes": 22,
+        "sha256": "33f18ae7a4788b5993bbdf3c65e363e9bcbb32b99d4bfa688c63ef937d0c5d08"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-runtime-control-onehundredsixteen-v1/eh-loop.log",
+        "bytes": 32,
+        "sha256": "abf744c5d88b7cc6c0864b1766b05eac8fc999abc1653ce8f22ce4e247d94c0d"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-runtime-control-onehundredsixteen-v1/eh-metadata.log",
+        "bytes": 725,
+        "sha256": "1f1245d9e1d4fcf020c620d3682a7c27f74578dc4efcac939385701653cb38cc"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-runtime-control-onehundredsixteen-v1/eh-normal.log",
+        "bytes": 35,
+        "sha256": "daf1a88f8d4c296de7df03a794963b4c4d3da1aac04e9f003f83a589e87ba3d0"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-runtime-control-onehundredsixteen-v1/eh-return.log",
+        "bytes": 47,
+        "sha256": "f3d532589509683379e07c561c709834374b1108788999ba440313d32d955113"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-runtime-control-onehundredsixteen-v1/eh-throw.log",
+        "bytes": 49,
+        "sha256": "8c0075aa0c3010375a5686a8ba90f9462837b170664ad90b6764c91b3e872460"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-runtime-control-onehundredsixteen-v1/execution.json",
+        "bytes": 39,
+        "sha256": "dfb37f9821a0926b42569c29b930d542044225b18b7ca1f02b1f6d632324cc3f"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-runtime-control-onehundredsixteen-v1/execution.log",
+        "bytes": 100,
+        "sha256": "d170fcd749a0b1ead755b2addf0efa5d9fb9439ef272b53f1390834014819adb"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-runtime-control-onehundredsixteen-v1/invocation.json",
+        "bytes": 852,
+        "sha256": "0548c654c57bda953f0babee8dfa3f9293d53e134d544f3598be4bd4bcb16993"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-runtime-control-onehundredsixteen-v1/results.json",
+        "bytes": 3460,
+        "sha256": "5abb221a3616c9f009adb1ce9b41f27fe728a55793f0fcfb3641909147285b14"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/aspnetcore30/build.sh",
+        "bytes": 12670,
+        "sha256": "467a2ec0229b4f3de1412f48a31c97456b5548d82bab0d4346bb79e81e613b03"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/aspnetcore30/eng/Version.Details.xml",
+        "bytes": 28080,
+        "sha256": "4d6e86b4e0907a181bb7d1034ba380bcca25c4d408efe24ec736dcf99cfdae65"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/aspnetcore30/eng/Versions.props",
+        "bytes": 24085,
+        "sha256": "4d707961d5aee43712014dd057471317a73fac9720b1a7f8a68165c2ffb7ab48"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/aspnetcore30/global.json",
+        "bytes": 739,
+        "sha256": "1876cadd4a1ecb55107b63b3e479a8ace30fa71abb9453366c97e3827d1e22f8"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/core-sdk30/build.sh",
+        "bytes": 1544,
+        "sha256": "22bcf8c312f93b324ee2ca672702635030a77ab519501dba4e34b81c09a64bbd"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/core-sdk30/eng/Version.Details.xml",
+        "bytes": 6006,
+        "sha256": "0c54fcbf25bea69895a5fd37adbecdfc671fc9786eb19804ef49f7b0dd4ede15"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/core-sdk30/eng/Versions.props",
+        "bytes": 7901,
+        "sha256": "e61bc429c44fc1bd8ca752969c646ca083b04c71feb024b712ad7d000d2d04c8"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/core-sdk30/global.json",
+        "bytes": 126,
+        "sha256": "114982fded00b226c0e496cedd1b4e65634c96e76b17cb9e428592a12acac8ec"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/core-setup30/build.sh",
+        "bytes": 516,
+        "sha256": "4f76acd23e3d97b04c6f5466b003ac3108dd8b2e42b2f13c3a920c6d839d3c22"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/core-setup30/eng/Version.Details.xml",
+        "bytes": 7875,
+        "sha256": "c36527e954fbf8936c3123abc968a9aa2303636b2fa1785fb85d24bcc0fcf288"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/core-setup30/eng/Versions.props",
+        "bytes": 8456,
+        "sha256": "09cd407a1e5a51bc4c22810ae4308f5dd4d7ddb8ded172b28e151015e48436da"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/core-setup30/global.json",
+        "bytes": 127,
+        "sha256": "8cd8115a2c5c242c603e1a1614bb5758054f5f158d62d76674557a28fb1a52de"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/coreclr30/CMakeLists.txt",
+        "bytes": 7464,
+        "sha256": "b191911b7097806960c3c8a49901bd6c8cdebbb6e6502c8a8a16a89cc5488d13"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/coreclr30/build.sh",
+        "bytes": 36497,
+        "sha256": "effad5a50d518ba07f61366c439245b111c97619e7295804257f7a6ef3a89bdb"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/coreclr30/eng/Version.Details.xml",
+        "bytes": 2090,
+        "sha256": "9e046d7fada2e2dd224f27cd3b0abd589fccdd6ecc9599e3048f1adc9bd0b306"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/coreclr30/eng/Versions.props",
+        "bytes": 2722,
+        "sha256": "182c3eccb7c648066bd187246fcd33bec15ba1009167560115ec5194e11562e6"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/coreclr30/eng/empty.csproj",
+        "bytes": 523,
+        "sha256": "6a32862a2d44ecca882dd4a11fe7da063932e669e74f94798f798f11eb8cca2e"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/coreclr30/global.json",
+        "bytes": 338,
+        "sha256": "eabc487c290ef7a3058851ffee08b4b46cff1231ebf02d7d62730a957dafe40d"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/coreclr30/src/inc/check.h",
+        "bytes": 26581,
+        "sha256": "b0949840df587ee7adb3bd1021865238f46b2879bd93d7b6b7b1856cab94f068"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/coreclr30/src/inc/corhlpr.cpp",
+        "bytes": 12468,
+        "sha256": "c774cb2d39e08da7548df410d970c49458d3488c8d997fb6a2be9d54bfd1ad26"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/coreclr30/src/inc/corhlpr.h",
+        "bytes": 21683,
+        "sha256": "86e999ce3f5bc48ad7d6c920434ab6daa7d6a2046da3e4f17ebdd1c0dd7dadac"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/coreclr30/src/md/compiler/regmeta.cpp",
+        "bytes": 49963,
+        "sha256": "9c5032d29d55ef13e2ab4cba2b383ac82c7d5a70f73a01fba9a4409caf905117"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/corefx30/build.sh",
+        "bytes": 499,
+        "sha256": "fb745a4c75cb2f09e895505c4c1603aff3e3f7673659cd77d66af65efd3b7088"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/corefx30/eng/Version.Details.xml",
+        "bytes": 5239,
+        "sha256": "1bf590e4bb33868c7b25f3c6d65839525e5598d44fd2818cb7d359fc7fbd58a2"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/corefx30/eng/Versions.props",
+        "bytes": 7072,
+        "sha256": "7fc3c3bca77ac69221b94248883f2f9a5add05cbe6904aa8832d7eecc3ada9b9"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/corefx30/global.json",
+        "bytes": 483,
+        "sha256": "11a68d0b52df6afb90606136fa3f259519fe3ded99ea78785d2616d6afbbd739"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/results.json",
+        "bytes": 22307,
+        "sha256": "eee9d5aaaf7d63d7be0ba66e25411033fd2084921ff244e944898b80900dfd05"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/sdk30/build.sh",
+        "bytes": 504,
+        "sha256": "3ff436272d22f80f7aa17f71951a78d66903229c9d5c322e3be1979d2c53e3bf"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/sdk30/eng/Version.Details.xml",
+        "bytes": 1183,
+        "sha256": "2e364126e5bcd1188369c7196a4136f9e5e06e2d40d8670782487c5abb5fbb98"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/sdk30/eng/Versions.props",
+        "bytes": 2396,
+        "sha256": "899920b3c064078532d4022391da0f8e21d4392d263b21ea41253fe3fdbd9fc7"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/sdk30/global.json",
+        "bytes": 247,
+        "sha256": "b39b7231a9c20a7ce7476523a1f9e0bee58c56f072290b28604c9797255633b3"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/source-build30/build.sh",
+        "bytes": 2640,
+        "sha256": "b096612dd4dc9416cfd5bee2413a52a0c0aac0a6ff241db722281171c803df52"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/source-build30/eng/Version.Details.xml",
+        "bytes": 8385,
+        "sha256": "918dd574a25feab6a9a068e2dbaace31f9ab0ddf2abefb5fbaadaf8d1d6ddcbc"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/source-build30/eng/Versions.props",
+        "bytes": 617,
+        "sha256": "2b249551f9236b6cb7e619d7a138112ed340f55d9b9d8ae33691920743c09207"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-original-source-graph-eightynine-v1/source-build30/global.json",
+        "bytes": 307,
+        "sha256": "4fc0f5ce691b7b2c51cf3b602c42121d9e892917aaea0b5158793e72dd705260"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-runtime-inputs-onehundredone-v1/microsoft.netcore.app.runtime.linux-musl-arm64.3.0.3.catalog.json",
+        "bytes": 91346,
+        "sha256": "14a00f4d908ba96f55541811fb483118c2b1bbbb4b517aae1b8e1918f3229cd1"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-runtime-inputs-onehundredone-v1/microsoft.netcore.app.runtime.linux-musl-arm64.3.0.3.nuspec",
+        "bytes": 1220,
+        "sha256": "e9e0544086906ecbbc691fb1bc9c4e0a1b2c84f83824d208e4d8da77ef52ad3d"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-runtime-inputs-onehundredone-v1/microsoft.netcore.app.runtime.linux-musl-arm64.3.0.3.registration.json",
+        "bytes": 897,
+        "sha256": "1cb32b4b6b32efce22d39481ea4b0d87b67d3cbb5640b0d2500771a3a293f2de"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-runtime-inputs-onehundredone-v1/packages/microsoft.netcore.app.runtime.linux-musl-arm64.3.0.3.nupkg",
+        "bytes": 36066754,
+        "sha256": "ab105d16ff711abb58012a3e3c957f9d297a2f28209865121249d49a2f856cc4"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-runtime-inputs-onehundredone-v1/packages/runtime.linux-musl-arm64.microsoft.netcore.dotnethost.3.0.3.nupkg",
+        "bytes": 56749,
+        "sha256": "7883a69d84d4718331e995d55a79a83bbed5ed704369991a4d7a781f1c01022c"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-runtime-inputs-onehundredone-v1/packages/runtime.linux-musl-arm64.microsoft.netcore.dotnethostpolicy.3.0.3.nupkg",
+        "bytes": 151453,
+        "sha256": "73fd962b761e2bd6f525428e844f5d3d4071d268cece08623bdd3818332205f1"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-runtime-inputs-onehundredone-v1/packages/runtime.linux-musl-arm64.microsoft.netcore.dotnethostresolver.3.0.3.nupkg",
+        "bytes": 171403,
+        "sha256": "c5839076e475c09cfd0ef2d0e6197627b0c540a361d375c13718c09bcc743c27"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-runtime-inputs-onehundredone-v1/results.json",
+        "bytes": 53638,
+        "sha256": "cc698ecbaeac5619d1479b1a10882e8a4e82f0e45b791f91f0a04dec05c06335"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-runtime-inputs-onehundredone-v1/runtime.linux-musl-arm64.microsoft.netcore.dotnethost.3.0.3.catalog.json",
+        "bytes": 5366,
+        "sha256": "30efe4a174f257ca99a641ff70315ffbdf419195ad41d84d5504d166fb692372"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-runtime-inputs-onehundredone-v1/runtime.linux-musl-arm64.microsoft.netcore.dotnethost.3.0.3.nuspec",
+        "bytes": 1248,
+        "sha256": "3ef38571cdf6266c019ce12ad688a009df03a08a3b922a893d9031a970d90c0b"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-runtime-inputs-onehundredone-v1/runtime.linux-musl-arm64.microsoft.netcore.dotnethost.3.0.3.registration.json",
+        "bytes": 933,
+        "sha256": "794cb33fa37eaec06ea9e520d9f4f6fa9bc6ebf6b7bbf70f4b18fb71c1742be5"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-runtime-inputs-onehundredone-v1/runtime.linux-musl-arm64.microsoft.netcore.dotnethostpolicy.3.0.3.catalog.json",
+        "bytes": 6131,
+        "sha256": "17b80b22eda539ec8bd82b816c4c431c2dddba11d8b67291559cf477c84f12d8"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-runtime-inputs-onehundredone-v1/runtime.linux-musl-arm64.microsoft.netcore.dotnethostpolicy.3.0.3.nuspec",
+        "bytes": 1396,
+        "sha256": "abdf05f39f1502040bd43e872e862983e7ed2cfcb6da7e8a698c844ec0003320"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-runtime-inputs-onehundredone-v1/runtime.linux-musl-arm64.microsoft.netcore.dotnethostpolicy.3.0.3.registration.json",
+        "bytes": 962,
+        "sha256": "38206c48670013a0b1d316f90e8062ae950a64e47455468de282670bc0250ea9"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-runtime-inputs-onehundredone-v1/runtime.linux-musl-arm64.microsoft.netcore.dotnethostresolver.3.0.3.catalog.json",
+        "bytes": 6129,
+        "sha256": "ef15853e043a8fbd1482b3accc39bcc8e2f44c5aa4f4be066bf5f08648cd219a"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-runtime-inputs-onehundredone-v1/runtime.linux-musl-arm64.microsoft.netcore.dotnethostresolver.3.0.3.nuspec",
+        "bytes": 1378,
+        "sha256": "507469f221bd6eb70e92e17ce01210e1e6ee180a9d69ddbecf264afa7ce8d89d"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-runtime-inputs-onehundredone-v1/runtime.linux-musl-arm64.microsoft.netcore.dotnethostresolver.3.0.3.registration.json",
+        "bytes": 973,
+        "sha256": "6d0a945a4306d0105e1376ad665173f4092f904d3fabd0cf06b01ed89c7e7e23"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-crossgen-onehundredeighteen-v1/Cold.ni.dll",
+        "bytes": 10752,
+        "sha256": "58524cc1ca6c5a6b97e76965d73b95766e444400466bc079d638be15e10f9885"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-crossgen-onehundredeighteen-v1/execution.json",
+        "bytes": 39,
+        "sha256": "3df8744ba65c29a0002ce394d174b39225cd601be055cfa3e245741abb32ef00"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-crossgen-onehundredeighteen-v1/execution.log",
+        "bytes": 1620,
+        "sha256": "f4280431620bcead413ee87fb34972dfbc3d4355fd41716c9c55ff0c299e2803"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-crossgen-onehundredeighteen-v1/invocation.json",
+        "bytes": 847,
+        "sha256": "29428d9e5fd9ccde01da138ac97cf17c852709201405f6dce40e87cbc3620173"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-crossgen-onehundredeighteen-v1/r2r-native-execution.log",
+        "bytes": 59,
+        "sha256": "31451d8bc1b296a012bf4f3df036a4fdc0e3d000a08f2573e316a14278dfbd53"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-crossgen-onehundredeighteen-v1/results.json",
+        "bytes": 4122,
+        "sha256": "3b31f1873599abdac21d3e7efda872abdcf258a4e3a14e5ed83becce619da905"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-crossgen-onehundredeighteen-v1/source-crossgen-r2r.log",
+        "bytes": 196,
+        "sha256": "ac315eeb87251cc1e261af1f0008ce652e7fe5d4112b54c50e69dbf9ecfb6abe"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v1/execution.json",
+        "bytes": 39,
+        "sha256": "f51ec704dab3f6f70bc3e753131b2e2a15343e8fb39600bdb139b5b9775261b4"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v1/execution.log",
+        "bytes": 2519,
+        "sha256": "6b329e70ca0a56c35ab0fc6515e7c322544a238d23fce7c2546fda51fc6caeb9"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v1/invocation.json",
+        "bytes": 838,
+        "sha256": "066d6f4c03c6a1d91c90b959f942b9dbf39f1268cf14ea8ca6cd55e1be3877c1"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v2/create.log",
+        "bytes": 92,
+        "sha256": "9bbe0b0a86fcb9829bfd3c61ce2466ada8af623d749dee45447a41fa44d28af6"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v2/decoded.log",
+        "bytes": 3588276,
+        "sha256": "ddb8b1f446803ce032dccce453e649811f4e3a9eb97391689fe79cb93b16de6f"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v2/destroy.log",
+        "bytes": 77,
+        "sha256": "c49ca81f36324ce7157dfab7146dd5910142e762ab38144534dc816386c0c137"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v2/enable.log",
+        "bytes": 85,
+        "sha256": "9e023e50e0da3e0cb5cdc7f47823074effc5fe3bc99b595b2c5d9b70b963795a"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v2/execution.json",
+        "bytes": 40,
+        "sha256": "db8ea3ea83e9564cec9acbabf3624a52a4b10e178aedfbcc882def62fddf9914"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v2/execution.log",
+        "bytes": 229,
+        "sha256": "0f975302581e784b48cacaf4f30aaaf0b0ffb36e802482e056a97f7021c00315"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v2/invocation.json",
+        "bytes": 841,
+        "sha256": "453d67eb8196e50e7ffca45ed6f58b6b52e8a97bb2f45aa6153dc78ec53429a6"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v2/managed.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v2/managed.stdout.log",
+        "bytes": 11,
+        "sha256": "35c15a698aecce39532bf4f1f3cd49a842cce5aeb2abc411f8a1239b0e07379d"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v2/results.json",
+        "bytes": 3435,
+        "sha256": "559f0cd6808b6c4811f94dfea9953e93daa8c1ef7b58e742cc2634d91a9b54e8"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v2/session.tar.gz",
+        "bytes": 90644,
+        "sha256": "1de05577724be528b7f9e3da1bff07007106068028efe03c40918b88476b86c5"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v2/sessiond.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v2/start.log",
+        "bytes": 47,
+        "sha256": "ad484bfc98b5ac67ee444dd62f6107114a741b9d5a0f7514ba61a4c3d280c836"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v2/stop.log",
+        "bytes": 77,
+        "sha256": "44f1d52eeda77c022f3a7ff7ee7f452086494dde405deea2b49d9edb4d39ad44"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-lttng-onehundrednineteen-v2/tracepoints.log",
+        "bytes": 49344,
+        "sha256": "611abe989d966c7eff07d3b7238a37f6755a6247f9866a244cadc86c1a1f4478"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-native-consumer-onehundredseventeen-v1/cold.log",
+        "bytes": 59,
+        "sha256": "31451d8bc1b296a012bf4f3df036a4fdc0e3d000a08f2573e316a14278dfbd53"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-native-consumer-onehundredseventeen-v1/default-certificates.log",
+        "bytes": 878,
+        "sha256": "4b364a67548b99334500175fad83a6eaf7be022a0e704515d29cd927aa3c785b"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-native-consumer-onehundredseventeen-v1/eh-catch.log",
+        "bytes": 22,
+        "sha256": "33f18ae7a4788b5993bbdf3c65e363e9bcbb32b99d4bfa688c63ef937d0c5d08"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-native-consumer-onehundredseventeen-v1/eh-loop.log",
+        "bytes": 32,
+        "sha256": "abf744c5d88b7cc6c0864b1766b05eac8fc999abc1653ce8f22ce4e247d94c0d"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-native-consumer-onehundredseventeen-v1/eh-metadata.log",
+        "bytes": 725,
+        "sha256": "1f1245d9e1d4fcf020c620d3682a7c27f74578dc4efcac939385701653cb38cc"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-native-consumer-onehundredseventeen-v1/eh-normal.log",
+        "bytes": 35,
+        "sha256": "daf1a88f8d4c296de7df03a794963b4c4d3da1aac04e9f003f83a589e87ba3d0"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-native-consumer-onehundredseventeen-v1/eh-return.log",
+        "bytes": 47,
+        "sha256": "f3d532589509683379e07c561c709834374b1108788999ba440313d32d955113"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-native-consumer-onehundredseventeen-v1/eh-throw.log",
+        "bytes": 49,
+        "sha256": "8c0075aa0c3010375a5686a8ba90f9462837b170664ad90b6764c91b3e872460"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-native-consumer-onehundredseventeen-v1/execution.json",
+        "bytes": 39,
+        "sha256": "78b11a4adeb27fc8101c6a3ff6667571e48fa9c496df69e2116f48f7a2190628"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-native-consumer-onehundredseventeen-v1/execution.log",
+        "bytes": 100,
+        "sha256": "d170fcd749a0b1ead755b2addf0efa5d9fb9439ef272b53f1390834014819adb"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-native-consumer-onehundredseventeen-v1/invocation.json",
+        "bytes": 850,
+        "sha256": "a9cda8ae5de5a0ada6284601f365b07ad6014e542a538dea9cec7a274e5b94bc"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-source-native-consumer-onehundredseventeen-v1/results.json",
+        "bytes": 4570,
+        "sha256": "8052c32d1e277cd4c04eb312225dc2c613efa56a59c5b3b2e6f45ab14adb3bd0"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-upstream-common-onehundredfive-v1/coreclr30-backport-upstream31-common-symbol-default.patch",
+        "bytes": 483,
+        "sha256": "2f9a654d563b96f57cfcaf4ad0dfaf65e6ccba11047bb7b05ef987a23d31ecc9"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-upstream-common-onehundredfive-v1/original-configurecompiler.cmake",
+        "bytes": 29904,
+        "sha256": "d566af032ec79e9a9634e8de30af6ec8531b935948e936af173d62cabfed0df9"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-upstream-common-onehundredfive-v1/patched-configurecompiler.cmake",
+        "bytes": 30005,
+        "sha256": "cea576352c5fc60f382157d1cd65a1ed49f25dd44e21c1d49e6f72a215533dc6"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-upstream-common-onehundredfive-v1/results.json",
+        "bytes": 1574,
+        "sha256": "dc18ab45eb70d4e073b8bf3c3e6e63b7549f5ca53fbbe46916bb5e135897dd59"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-upstream-slist-onehundredten-v1/coreclr30-backport-original31-slist-dac-pointers.patch",
+        "bytes": 733,
+        "sha256": "b1f2cd4e80b9aca454461dd01652961d8a5e265aa72c4a5bbbe815633416db9d"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-upstream-slist-onehundredten-v1/original-slist.h",
+        "bytes": 9829,
+        "sha256": "b7894f6db46a640ffc59f7466d0ae8ab5b628c589cda881d6ba0030276f2cf4d"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-upstream-slist-onehundredten-v1/patched-slist.h",
+        "bytes": 9862,
+        "sha256": "21a8793f452184a54cd1df4ad278adb1a056bc9fdce6e6e17776e07ce6c8b602"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/core30-upstream-slist-onehundredten-v1/results.json",
+        "bytes": 763,
+        "sha256": "ddb9e2348bdd10a3ea9971247178a8c76d1abe271cbf25aa670323322bffe906"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/prepare-core30-common105.py",
+        "bytes": 2516,
+        "sha256": "7d309733a2e6873ff971a50eaaac0b041da21546400ce638da5b7e9c7e4a337f"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/prepare-core30-f86-alignment96.py",
+        "bytes": 3333,
+        "sha256": "af84b1500a63d90481764ddc787bf35124a31082be9eb7aaca53707499e54508"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/prepare-core30-metadata115.py",
+        "bytes": 2637,
+        "sha256": "6c693d2e4615c942b2737f0f5d6cfa34d8c56a5f3fef1e3c4fcc138b12fd1862"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/prepare-core30-native90.py",
+        "bytes": 2094,
+        "sha256": "90f7eb33412c76b2d57e6b4599bdf493b8ba40a2a6c6e456dca2cd9a26f5655c"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/prepare-core30-rawmemory99.py",
+        "bytes": 1657,
+        "sha256": "0adfe4bbb4ee6e28f3805dec037fda69832d21e71d74d49d6b06bb6ef4caa2d2"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/prepare-core30-slist110.py",
+        "bytes": 1819,
+        "sha256": "0b51c14e181258ae5e6f49e5fede61377b3a8e1e2e6069c431956d684032e2b5"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/probe-core30-version93-worker.py",
+        "bytes": 367,
+        "sha256": "2f14561d9911969eca1809c8df2f37722a54f059777bd173f1e8343864cf1b89"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/run-core30-lttng119-v2.py",
+        "bytes": 520,
+        "sha256": "e075e537b93f14860616254be85b58f6a40c23ce110179e105db6b44de095571"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/run-core30-native112.py",
+        "bytes": 410,
+        "sha256": "47353003014c42f37f5506c41a29bf1a778146cfc795959c66a35662ccd4b8b2"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/run-core30-native114.py",
+        "bytes": 1276,
+        "sha256": "26fdaa538555fe948e7c8b48ee29c1c40578e491cf39546bcb3f234ad249624b"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/run-core30-native116.py",
+        "bytes": 1464,
+        "sha256": "7eda15cee40b550bb934f79c3cc9050357dae61e152fc66b997c8d9caaad1bb0"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/run-core30-native98.py",
+        "bytes": 1272,
+        "sha256": "797d96600fb9d11a2f0b02f76b173e8f19be21d60568f1a5ba332592270f12cb"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/run-core30-tools118.py",
+        "bytes": 1378,
+        "sha256": "b81f928da8828aad5a6bf808b9c8b8f76b47db3e23eefec9094e3416fe119010"
+      },
+      {
+        "path": "patches/core3-musl/0002-clang20-typed-null.patch",
+        "bytes": 1115,
+        "sha256": "5d33d0d85c9d7007c99af8327a8d8ab338fcdf92258ed437572573d5f0bb8a5f"
+      },
+      {
+        "path": "patches/core3-musl/0004-coreclr31-clang20-native-compat.patch",
+        "bytes": 17275,
+        "sha256": "ef09d20a24f44e9f581ee70acc4eb515f93a1b24969df944ad629f79d3880ceb"
+      }
+    ],
+    "previousDocuments": [
+      {
+        "snapshot": {
+          "path": ".build/core3-musl-source-phase/core30-native-documents-before-checkpoint-v1/docs/core3-musl-source-phase.md",
+          "bytes": 33985,
+          "sha256": "f8967b064ce96c82d37f3d1f37b8011b76554af634924786efd47b03e3eb2505"
+        },
+        "gitCommit": "fd1dcd2d12276403e4b6915d756637745f610786",
+        "gitPath": "docs/core3-musl-source-phase.md",
+        "gitBlob": "0cfdef7b00a7deadc0ad6629ba7da02e2ff662a5",
+        "rawSnapshotGitBlob": "0cfdef7b00a7deadc0ad6629ba7da02e2ff662a5",
+        "lfNormalizedGitBlob": "0cfdef7b00a7deadc0ad6629ba7da02e2ff662a5"
+      },
+      {
+        "snapshot": {
+          "path": ".build/core3-musl-source-phase/core30-native-documents-before-checkpoint-v1/docs/core3-musl-source-phase.json",
+          "bytes": 318206,
+          "sha256": "0d0c2f322b76451af2613facf35ceb7c7b5502ba7a497d6070d9146815f6ca9e"
+        },
+        "gitCommit": "fd1dcd2d12276403e4b6915d756637745f610786",
+        "gitPath": "docs/core3-musl-source-phase.json",
+        "gitBlob": "d5905576bac1c8ed689e043e2fa20f96f7473d10",
+        "rawSnapshotGitBlob": "d5905576bac1c8ed689e043e2fa20f96f7473d10",
+        "lfNormalizedGitBlob": "d5905576bac1c8ed689e043e2fa20f96f7473d10"
+      },
+      {
+        "snapshot": {
+          "path": ".build/core3-musl-source-phase/core30-native-documents-before-checkpoint-v1/patches/core3-musl/README.md",
+          "bytes": 3606,
+          "sha256": "ac9adfcb410f1ed979940316e4e584f7225aa2f12f364a504a1aebb1f49359c0"
+        },
+        "gitCommit": "fd1dcd2d12276403e4b6915d756637745f610786",
+        "gitPath": "patches/core3-musl/README.md",
+        "gitBlob": "9889d6103851181a9d68d4ad1ff887b72f57d5e0",
+        "rawSnapshotGitBlob": "9889d6103851181a9d68d4ad1ff887b72f57d5e0",
+        "lfNormalizedGitBlob": "9889d6103851181a9d68d4ad1ff887b72f57d5e0"
+      }
+    ],
+    "summary": {
+      "allSixNativeTargetsCompleted": true,
+      "postBuildCollectorWindowsChmodFailurePreserved": true,
+      "subsequentByteOnlyCollection": true,
+      "generatedSourceFiles": 498,
+      "originalAndSourceConsumerCommandsEach": 8,
+      "allFiveEhMetadataClausesAndBehaviorsPass": true,
+      "defaultTrustPositiveAndNegativeCertificateControlsPass": true,
+      "sourceCrossgenReadyToRunHeaderBytes": 124,
+      "sourceCrossgenNativeExecutionPass": true,
+      "lttngDotnetEvents": 2545,
+      "lttngGcStartEvents": 80,
+      "lttngGcEndEvents": 80,
+      "lttngNativeControlEvents": 1,
+      "normalReadyToRun": true
+    },
+    "scope": "Genuine exact 3.0 native production and explicit mixed-input component consumers only. Full source framework/host/SDK, shipped import source/licenses, native x64/ARM64 normal producer/consumer and release admission remain required. Original CLI122 exact Arcade19607.3 missing; no publisher-package reconstruction or product version restamp claimed."
   }
 }
