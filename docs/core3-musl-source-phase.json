@@ -44,8 +44,8 @@
     },
     {
       "path": "scripts/core3_musl_restore_inputs.py",
-      "bytes": 7064,
-      "sha256": "e5d4b7e38e2eb08947b7241a3851707bdc489aa19ca30fbd197b24dec00e98c3"
+      "bytes": 7772,
+      "sha256": "7cb6ea6292d443deb6b943015c273513352765cd463bb95ac817bdf222660b1a"
     },
     {
       "path": "scripts/musl_nuget_content_hash.py",
@@ -54,8 +54,8 @@
     },
     {
       "path": "tests/core3_musl_restore_inputs_test.py",
-      "bytes": 4968,
-      "sha256": "2a5ae187188c6bf515fc735cc65226af7e502a22929865428b8e8aec16f85ff2"
+      "bytes": 6094,
+      "sha256": "e53735bf8cc8d53a6470553453a36b191e8541235280d42b1a087f27d59516b9"
     },
     {
       "path": "patches/core3-musl/0003-preserve-declared-vstest-ui-culture.patch",
@@ -764,7 +764,7 @@
     "boundedCore31FullNativeSourceBuild": true
   },
   "remainingGates": [
-    "Complete genuine SDK/core-sdk/toolset source producer and full used-source/license audit",
+    "Qualify fresh original SDK/toolset/core-sdk producer after original assembly version generation, CLI branding, localization and complete used-source/license audit",
     "Complete Core3.1 managed framework/core-sdk/ASP.NET producer graph and independent Core3.0 native CLR/JIT/crossgen source build",
     "F# all13 original cultures and complete imported managed component corresponding-source/license mapping",
     "Normal optimization and native apphost in final SDK",
@@ -1958,5 +1958,373 @@
       "First cold fixture passed; crossgen help returned original usage status252. Replaced with real crossgen IL-to-R2R compilation and normal execution",
       "Zap enum original ABI control1 failed due read-only temporary folder; fresh control2 passed without source/ABI changes"
     ]
+  },
+  "freshPrivateSdkCheckpoint": {
+    "qualification": false,
+    "releaseAdmission": false,
+    "sourceSdkProduct": false,
+    "completeUsedSourceAudit": false,
+    "status": "fresh-private-original-sdk-composition-and-archive-consumers-pass-with-explicit-unqualified-inputs",
+    "architecture": "aarch64",
+    "alpine": "3.24.4",
+    "oldDeletedWslInputsReused": false,
+    "old855LayoutReused": false,
+    "images": {
+      "runtime": "3a12318a13d62172a6fc7404ae934e63f246ea5621d1b4ded36e7e620f1da195",
+      "tracing": "8e3f660d0213241e11b342c4322a37031d7a9057e510dda7f8e75d7cce541440",
+      "builder": "9e05963d169c92b85f488e56e164e661c435138d809e3f3e8bd77c34b5141cc2",
+      "helper": "52c3013b532a0dd4fce8c1e1b140b3e8cb7cbda893df2fdb7a2789ff64c812b6"
+    },
+    "imageRestoration": {
+      "path": ".build/wsl/legacy-image-restore-v1/results.json",
+      "bytes": 553,
+      "sha256": "4267c6dae36d28fa5f6f4225d3916c11e199a2bf1cb30797e7b97766bf280dfe"
+    },
+    "freshManaged61": {
+      "commands": 34,
+      "allExitZero": true,
+      "actualProjectAssets": 16,
+      "actualPackages": 273,
+      "usedPackageBindings": 1069,
+      "sourceToolsetArchiveBytes": 41702939
+    },
+    "originalCoreSdk62": {
+      "sourceCommit": "e81f6c85654f91c5eab0cb78386db4b32df63b4b",
+      "sourceBuildCommit": "ab8b115b5658237ee8916ae3586600b39fb2fd19",
+      "originalUpstreamPatches": 9,
+      "restoreAndBuildExitCodes": [
+        0,
+        0,
+        0
+      ],
+      "buildSeconds": 115.24,
+      "actualSourceCrossgenEnabled": true,
+      "actualFreshSourceToolsetConsumed": true
+    },
+    "platformAbstractions64": {
+      "sourceCommit": "f94bb2c3ff432dcc4a6229eca2f978197bf06150",
+      "originalProjectAndCSharpUnchanged": true,
+      "targetFrameworks": [
+        "netstandard1.3",
+        "netstandard2.0"
+      ],
+      "sourcePackageVersion": "3.1.32",
+      "packageVersionOverrideUsed": false,
+      "assemblyVersionOverrideUsed": false,
+      "actualPrivateAssemblyVersion": "42.42.42.42",
+      "privateTaskInfrastructureOnly": true
+    },
+    "archive65": {
+      "path": ".build/core3-musl-source-phase/coresdk-accounting-sixtyfive-v1/evidence/final-sdk.tar.gz",
+      "bytes": 143922130,
+      "sha256": "68f646bb6334fc921a7deb562c036ad69191112bd5240eac4f5613ecc6f85951",
+      "sha512": "41963fa79c5282cd54e66a46fc5c3ebd2e37e19d2aa79e2eff469076cd89a398db42aa239972b32295db8d1f6544ee9ee47e756ce5593b7c0e0f7f8cdf8ed91d",
+      "files": 1874,
+      "elfs": 19,
+      "r2rManagedAssemblies": 387,
+      "actualSourceNativeComponents": 5,
+      "actualSourceCrossgenJitBytesMatched": true,
+      "actualAssets": 20,
+      "actualPackages": 306,
+      "actualBindings": 1164,
+      "placeholderManagedAssemblies": 85,
+      "placeholderPrimaryAssemblies": 7
+    },
+    "actualAssetAccounting": {
+      "explicitSourceRoots": [
+        "bootstrap-resolver",
+        "cli31",
+        "msbuild31",
+        "toolset31",
+        "platformabstractions63/src",
+        "platformabstractions64/src",
+        "coresdk62/source"
+      ],
+      "embeddedNunitTemplateMetadataIsActualRestore": false,
+      "unchangedOriginalZipMemberVerified": true,
+      "foreignExternalPackageFoldersAccepted": false
+    },
+    "archiveConsumers66And67": {
+      "network": "none",
+      "normalReadyToRun": true,
+      "hostSdkUsed": false,
+      "runtimeOverlaysUsed": false,
+      "csharpBuildAndExecute": true,
+      "visualBasicBuildAndExecute": true,
+      "fsharpFsi": true,
+      "ordinaryFsharpBuildAndExecute": true,
+      "fsharpCoreDependency": "Unchanged public4.7.2 archive,3,055,855B,SHA256d5e0ded7ac3cfacc80df902dad289588c1d0620c01aa6755892e3209ae00319f; test-only feed,not part ofSDK,no template/version override",
+      "aspnetHttpStatus": 200,
+      "tlsClientAndServer": "Tls12",
+      "negativeOfflineFsharpAttemptPreserved": true
+    },
+    "archiveLttng68": {
+      "candidateSdkCompilesOwnGcProgram": true,
+      "extraSdkOrCompilerInImage": false,
+      "normalReadyToRun": true,
+      "runtimeOverlaysAccepted": false,
+      "securityOverrides": false,
+      "network": "none",
+      "dotnetEvents": 2541,
+      "gcStart": 80,
+      "gcEnd": 80,
+      "nativeControl": 1,
+      "managedStdout": [
+        "READY",
+        "DONE"
+      ]
+    },
+    "retainedEvidence": [
+      {
+        "path": ".build/core3-musl-source-phase/managed61-newhost-staging.json",
+        "bytes": 19958,
+        "sha256": "696dbc52ed9bd6aabab93314b5ff82e0a0ea01383795e452d9d23db68726192f"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/fresh-sdk-source-sixtyone-v2/invocation.json",
+        "bytes": 1612,
+        "sha256": "a7f4ff11cefac0ae2d0b41918bf2abc9ee1b2a5d315b28145b840e4db5a215a2"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/fresh-sdk-source-sixtyone-v2/execution.json",
+        "bytes": 40,
+        "sha256": "87bcfb56efb99728563c72cd68aba133cdda17bfdeb14ad2d76f8029cea0f4bc"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/fresh-sdk-source-sixtyone-v2/evidence/results.json",
+        "bytes": 55565,
+        "sha256": "bb62a9b2c5764f40c08666584ff6b8137c60c523aaa4be4000c8ff9818359a26"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/fresh-sdk-source-sixtyone-v2/evidence/recorded-command-progress.json",
+        "bytes": 53106,
+        "sha256": "2100b054205e855967dfcc2b05fd774c5266d6286afb6a38d8b1fc687bd5c78f"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/fresh-sdk-source-sixtyone-v2/evidence/source-toolset-archives.json",
+        "bytes": 304946,
+        "sha256": "22269d7c8b26e9a1b6c6368a11df7da64dc61fd29b6bc919b2232edbf12e40fb"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/fresh-sdk-source-sixtyone-v2/evidence/actual-component-restore-closure.json",
+        "bytes": 3259377,
+        "sha256": "29dae1296b5a9a62558c39415f9fbe0e2bff7b289bda7f2fae3ad8248ad0bbae"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/fresh-sdk-source-sixtyone-v2/evidence/cli31-actual-consumed-fresh-source-packages.json",
+        "bytes": 1615,
+        "sha256": "8dce691b16b2c61eacc540bd6f23e708e6313a9f4b01da0a1c3c565cdfa880cd"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/fresh-sdk-source-sixtyone-v2/evidence/toolset31-actual-consumed-fresh-source-packages.json",
+        "bytes": 3988,
+        "sha256": "c1cc45edcc2515439c457d791a749f9b8d3845faa10d49d4f2571d9b9cb2c83c"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/fresh-sdk-source-sixtyone-v2/evidence/actual-consumed-source-fsharp.json",
+        "bytes": 382,
+        "sha256": "ca17acc1266e433cbbcdcbdf46ebffa180aa29f62b64189328fec53e3781496d"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/fresh-sdk-source-sixtyone-v2/evidence/original-source-build-patch-chain.json",
+        "bytes": 7669,
+        "sha256": "28ecf692ce3bac13b519741d93358f382420b41e1ecedcbfab8a4313f89484f2"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/fresh-sdk-source-sixtyone-v2/evidence/imported-bootstrap.json",
+        "bytes": 449148,
+        "sha256": "864e966d25067a1a8f94cbdb8f45bcaa4eedc76c6c9116e09ad6d13d86d2f983"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/coresdk-composition-sixtytwo-preparation/results.json",
+        "bytes": 5603,
+        "sha256": "cb3162d01bc306ebaf417b2ee8205328100541a9faf2bb7b8459c9f2b61e3f2d"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/coresdk-composition-sixtytwo-v1/execution.json",
+        "bytes": 40,
+        "sha256": "abe27100c23f3bb19ac6bebd5d8ed6b043389b6afa3a399949c157d8f3b93e50"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/coresdk-composition-sixtytwo-v1/execution.log",
+        "bytes": 504,
+        "sha256": "d716811359c376f8696e2847d4cebb1d0ac3ff516e758e2a8e203972a48a2f06"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/coresdk-composition-sixtytwo-v2/evidence/command-progress.json",
+        "bytes": 12303,
+        "sha256": "7f5329633551e8c2cef6c5e88d2b4a2a638000a13cda16d982ea6101b9b92370"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/coresdk-composition-sixtytwo-v3/evidence/command-progress.json",
+        "bytes": 12615,
+        "sha256": "fded52f757949944f8dba521d4c0c8587bcf7b68dca278e023bed021111d3215"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/coresdk-composition-sixtytwo-v3/evidence/explicit-composition-inputs.json",
+        "bytes": 74402,
+        "sha256": "9d3438c7cfbd7d151f88c363a0f5f89c213bc403384887793bbbdd5c9f9bbe9b"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/coresdk-composition-sixtytwo-v3/evidence/evaluated-components.txt",
+        "bytes": 671,
+        "sha256": "be39b21af0faa7dfce575f43738cb826fef6aa6821f8e752d34c504e9640ed69"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/coresdk-composition-sixtytwo-v3/evidence/composition-properties.targets",
+        "bytes": 1478,
+        "sha256": "3d7cce051b320121ead38a1694f4595a581bdc0d3b4a6938d296cd991abd8f21"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/coresdk-composition-sixtytwo-v3/evidence/original-core-sdk-build.log",
+        "bytes": 17186,
+        "sha256": "5e5cd1f09ce3ab309d2b3301040785ce92d69b2201d86689827bc1dbdd73ec49"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/platformabstractions-source63-review/results.json",
+        "bytes": 3054,
+        "sha256": "d70fd40926937eff6ca78a81a023532f42cf4441fe4b82b0d45dea8dc899aa26"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/platformabstractions-source63-review/additional-original-source-inputs.json",
+        "bytes": 1029,
+        "sha256": "f821f57889d776a20d4a1bb66be0e724efec8fb0aeffb67cddf7ee9d36f628e9"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/platformabstractions-source-sixtyfour-v1/evidence/results.json",
+        "bytes": 9200,
+        "sha256": "7f1b27cae72afb13deb56176b95bc8b3200a10f75b12a5179e325882dc25c3ef"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/platformabstractions-source-sixtyfour-v1/evidence/source-package-assembly-identities.json",
+        "bytes": 3708,
+        "sha256": "266e6c4625779cc947bf591d3f56960ab629ae2edf3fc6350a5ceda3963b2ae5"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/coresdk-accounting-sixtyfive-v1/evidence/embedded-template-metadata.json",
+        "bytes": 909,
+        "sha256": "516c7fcf26be47e09e8b8db512e740e43027a82964280556dcb5669ae3885d16"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/coresdk-accounting-sixtyfive-v1/evidence/actual-component-restore-closure.json",
+        "bytes": 3584568,
+        "sha256": "0517df6102379a59a9e2ff187f95e7796898eb65101f39ff16c0d64463ec9d4f"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/coresdk-accounting-sixtyfive-completion-v2/evidence/results.json",
+        "bytes": 3030929,
+        "sha256": "4c7abf04159a5d08ef58d8e3163da5b3f55f94d2c8b091b2d10a11cac5e1940e"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/archive-sdk-consumer-sixtysix-v1/evidence/results.json",
+        "bytes": 5646,
+        "sha256": "00e4f28e9fb05b4f7291003f71b03d25074368cee9b2ae01cdb3782d4e0fe8b6"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/fsharp-core-test-input-sixtyseven/results.json",
+        "bytes": 7797,
+        "sha256": "612a434f4d277ba238063ee4d812aa0d39efdf844870b97c06d5d81a9fb93e87"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/archive-sdk-consumer-sixtyseven-v1/evidence/results.json",
+        "bytes": 2827,
+        "sha256": "b513af379b25641ef2b1e215d5efd8f74b349188bd6eb8bcf1a0b4e1ab78f172"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/archive-sdk-consumer-sixtyseven-v1/evidence/TLS.cs",
+        "bytes": 1563,
+        "sha256": "aa0edbabea85145d92bfcdbe955ecefff17ae53fe57db4ee60a86af76b3d42d6"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/archive-sdk-consumer-sixtyseven-v1/evidence/source-sdk-tls-execute.log",
+        "bytes": 116,
+        "sha256": "3b80ca00281b971619d422bf0f67d11ec696c35b2467340a4a1012e014456496"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/archive-sdk-consumer-sixtyseven-v1/evidence/web-runtime.log",
+        "bytes": 516,
+        "sha256": "d8b738ba1c4c7ff78ff82ac3103a2fc21cbe74174a826ef705ad4327dd0f327c"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/archive-lttng68-adapter.json",
+        "bytes": 515,
+        "sha256": "3929a7ec4f2f8b3a269c921a8033db6ed032a5986b4ffe7e96a7f974974b2a67"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/archive-sdk-lttng-sixtyeight-v1/invocation.json",
+        "bytes": 1251,
+        "sha256": "f983ddff745653f00f2fb2888a3e70853fdc2558ae9b5f59a9474ed91ade6164"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/archive-sdk-lttng-sixtyeight-v1/evidence/results.json",
+        "bytes": 6039,
+        "sha256": "9714f0c2d7f39da4b7955e7dabafe050f5acbd4bda279b5240ac8c78f352ce2e"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/archive-sdk-lttng-sixtyeight-v1/evidence/decoded.log",
+        "bytes": 3600432,
+        "sha256": "b417707a951ecdac9dcedbfe5858314fa5a426df2d13451f84d846d0e5341843"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/archive-sdk-lttng-sixtyeight-v1/evidence/managed.stdout.log",
+        "bytes": 11,
+        "sha256": "35c15a698aecce39532bf4f1f3cd49a842cce5aeb2abc411f8a1239b0e07379d"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/platformabstractions-source-sixtyfour-v1/evidence/source-built-feed/Microsoft.DotNet.PlatformAbstractions.3.1.32.nupkg",
+        "bytes": 30888,
+        "sha256": "d7e36b80e59cf78a0157e16fa63c1dbba138f192ddda87942c264d8c22a1389a"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/fresh-sdk-source-sixtyone-v2/evidence/source-toolset-archives/dotnet-toolset-internal-3.1.426-servicing.22567.2.zip",
+        "bytes": 34761581,
+        "sha256": "19a235bbdcbdde1eb84f3da684dcda733beb8f4ee3e970f24b0cd172813a1bf3"
+      },
+      {
+        "path": ".build/core3-musl-source-phase/fresh-sdk-source-sixtyone-v2/evidence/source-toolset-archives/dotnet-toolset-langpack-3.1.426-servicing.22567.2.zip",
+        "bytes": 6941358,
+        "sha256": "d3e0d685c833f7b0e432abf2e1b5c511413305bf87bdb8da680b386dfccd279c"
+      }
+    ],
+    "remainingGates": [
+      "Original dated official-build assembly version generation forCLI/SDKtasks and inheritedsatellites; noPErestamping",
+      "CLICommunityBuildbranding from original resources andFSharpall13cultureproof",
+      "Complete importedhost/framework/ASP.NET/package corresponding-source andlicenseclosure",
+      "Genuine independentCore3.0sourceproducer; nativeARM64/x64 normalGHAproducer/consumer qualification",
+      "All archive/APK/signing/OCI/installer/distribution admission"
+    ],
+    "historicalReaderBeforeScopedAssets": {
+      "receipt": {
+        "path": ".build/core3-musl-source-phase/reader-before-scoped-assets-20261108/provenance.json",
+        "bytes": 1462,
+        "sha256": "3124e0afea13a8d1394dbad48f68825496087af44343d5f1cf61a72990d2b644"
+      },
+      "files": [
+        {
+          "originalPath": "scripts/core3_musl_restore_inputs.py",
+          "sourceCommit": "1043adc9994011ca08d98d49c6e5bb8ca639e6b6",
+          "sourceBlob": "5cd95a3fd6ca7ae6950d72d6c1d1683158e35bc5",
+          "snapshot": {
+            "path": ".build/core3-musl-source-phase/reader-before-scoped-assets-20261108/core3_musl_restore_inputs.py",
+            "bytes": 7064,
+            "sha256": "e5d4b7e38e2eb08947b7241a3851707bdc489aa19ca30fbd197b24dec00e98c3"
+          },
+          "role": "Exact historical reader/test bytes used before explicit source asset scopes; completed old source/native evidence remains unchanged"
+        },
+        {
+          "originalPath": "tests/core3_musl_restore_inputs_test.py",
+          "sourceCommit": "1043adc9994011ca08d98d49c6e5bb8ca639e6b6",
+          "sourceBlob": "d858e726663feb3cc275f4d7186c569b5b88f7dd",
+          "snapshot": {
+            "path": ".build/core3-musl-source-phase/reader-before-scoped-assets-20261108/core3_musl_restore_inputs_test.py",
+            "bytes": 4968,
+            "sha256": "2a5ae187188c6bf515fc735cc65226af7e502a22929865428b8e8aec16f85ff2"
+          },
+          "role": "Exact historical reader/test bytes used before explicit source asset scopes; completed old source/native evidence remains unchanged"
+        }
+      ],
+      "completedOldEvidenceUnchanged": true,
+      "currentImplementationDescriptorsUpdated": true
+    }
   }
 }

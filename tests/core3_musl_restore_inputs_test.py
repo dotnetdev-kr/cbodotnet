@@ -83,7 +83,18 @@ class ActualCacheBoundary(unittest.TestCase):
                 libraries['package0/1.0.0']['path'] = '../cache0/package0/1.0.0'
             elif variant == 'outside-cache':
                 folders.append(str(root) + '/')
-            (work / 'project.assets.json').write_text(json.dumps(dict(packageFolders={path: {} for path in folders}, libraries=libraries)))
+            assets_root = work
+            if variant == 'embedded-publisher-assets':
+                assets_root = work / 'actual-source-project'
+                assets_root.mkdir()
+                embedded = work / 'cache0/package0/1.0.0/Content/example/obj/project.assets.json'
+                embedded.parent.mkdir(parents=True)
+                embedded.write_text(json.dumps(dict(packageFolders={'C:\\publisher\\.nuget\\packages\\': {}}, libraries={})))
+            (assets_root / 'project.assets.json').write_text(json.dumps(dict(packageFolders={path: {} for path in folders}, libraries=libraries)))
+            if variant == 'embedded-publisher-assets':
+                return C.snapshot(work, output, asset_roots=[assets_root])
+            if variant == 'outside-search-root':
+                return C.snapshot(work, output, asset_roots=[root])
             return C.snapshot(work, output)
 
     def test_each_used_package_is_bound_to_its_declared_actual_cache(self):
@@ -97,9 +108,15 @@ class ActualCacheBoundary(unittest.TestCase):
             self.assertNotEqual(base64.b64encode(bytes.fromhex(row['sha512'])).decode(), row['nugetContentHash'])
 
     def test_hash_forgery_missing_cache_and_path_escape_are_rejected(self):
-        for variant in ['forged-assets-hash', 'undeclared-cache', 'escape', 'outside-cache']:
+        for variant in ['forged-assets-hash', 'undeclared-cache', 'escape', 'outside-cache', 'outside-search-root']:
             with self.subTest(variant=variant), self.assertRaises(ValueError):
                 self.run_case(variant)
+
+    def test_cached_template_metadata_is_not_a_project_restore(self):
+        report = self.run_case('embedded-publisher-assets')
+        self.assertEqual(['actual-source-project'], report['assetSearchRoots'])
+        self.assertEqual(['actual-source-project/project.assets.json'], [row['path'] for row in report['assets']])
+        self.assertEqual(2, len(report['usedPackageBindings']))
 
 
 if __name__ == '__main__':

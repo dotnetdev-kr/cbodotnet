@@ -32,12 +32,19 @@ def write_new(path, raw):
         stream.write(raw)
 
 
-def snapshot(work, output):
+def snapshot(work, output, *, asset_roots=None):
     work, output = ordinary(work), ordinary(output)
     require(work.is_dir() and output.is_dir() and not output.is_relative_to(work),
             'separate existing work and evidence directories are required')
+    search_roots = [ordinary(root) for root in asset_roots] if asset_roots is not None else [work]
+    require(search_roots and all(root.is_relative_to(work) and root.is_dir() for root in search_roots),
+            'assets search roots must be existing directories inside the isolated worktree')
+    # Templates can contain their publisher's old obj/project.assets.json inside
+    # an unchanged package member. Callers composing an SDK declare their actual
+    # project roots rather than treating those cached examples as new restores.
+    paths = {path for root in search_roots for path in root.rglob('project.assets.json')}
     assets, roots, packages, native = [], set(), [], []
-    for path in sorted(work.rglob('project.assets.json')):
+    for path in sorted(paths):
         require(path.is_file() and not path.is_symlink(), 'an assets file is not an ordinary file')
         raw = path.read_bytes()
         require(len(raw) <= 32 * 1024 * 1024, 'an assets file exceeds the bound')
@@ -117,6 +124,7 @@ def snapshot(work, output):
     require(packages and bindings, 'no actual restored package bindings were found')
     record = dict(schemaVersion=2, qualification=False, releaseAdmission=False, sourceSdkProduct=False,
         scope='Actual assets content hashes are recomputed from unchanged retained package bytes. Whole-file fingerprints remain distinct from signed-package content hashes; no signature trust, corresponding-source closure or product qualification is inferred.',
+        assetSearchRoots=[root.relative_to(work).as_posix() for root in search_roots],
         assets=assets, cacheRoots=[root.relative_to(work).as_posix() for root in sorted(roots)],
         packages=packages, usedPackageBindings=bindings, elfs=native)
     write_new(output / 'actual-component-restore-closure.json', (json.dumps(record, indent=2) + '\n').encode())
