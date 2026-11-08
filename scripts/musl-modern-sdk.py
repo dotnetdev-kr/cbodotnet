@@ -23,6 +23,7 @@ import zipfile
 
 sys.dont_write_bytecode = True
 import musl_version_routes as R
+import musl_pinned_download as PINNED_DOWNLOAD
 
 ROOT = R.ROOT
 spec = importlib.util.spec_from_file_location('modern_musl_secure_primitives', ROOT / 'scripts/musl-sdk.py')
@@ -475,8 +476,7 @@ class Producer(P.Producer):
             # Download/preserve the pristine PSB before original prep replaces it.
             url = net8_source_built_artifacts_url(self.source / 'eng/Versions.props')
             original = self.inputs / 'original-psb.tar.gz'
-            with urllib.request.urlopen(url, timeout=120) as incoming, original.open('xb') as target:
-                shutil.copyfileobj(incoming, target, 1024 * 1024)
+            PINNED_DOWNLOAD.download_pinned(NET8_PSB, original, self.reports / 'prepare/net8-psb-download')
             write(self.reports / 'prepare/original-psb.json', net8_psb_record(original))
             # prep skips transformation when an archive already exists; leave its
             # destination absent and verify its download equals the preserved input.
