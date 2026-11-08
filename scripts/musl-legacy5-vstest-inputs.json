@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "5.0.214",
+  "sourceCommit": "99b911a57a02fc5d2eeef23e9ab8cbea4505678b",
+  "sourceVersion": "16.9.4-dev",
+  "managedPackageMembers": 339,
+  "sourceCommitAttributedMembers": 301,
+  "imports": {
+    "contentFiles/any/netcoreapp2.1/System.Diagnostics.TextWriterTraceListener.dll": {
+      "bytes": 27080,
+      "sha256": "8d1351f81bede931d5e985f4aa1e4aaadd75c7e0c0e7764f7baee32d278b72eb"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Threading.dll": {
+      "bytes": 50016,
+      "sha256": "74e07f71df0cc4b67b6bf32f7dd6a10d3f82ae8b5feefa45759ceea78e6aa301"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Runtime.Loader.dll": {
+      "bytes": 22232,
+      "sha256": "1cb1105462d67b9109ab719136d9695e9a9e61cc6f4870848eca284c05300d1a"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Linq.Expressions.dll": {
+      "bytes": 461184,
+      "sha256": "b5f9c9386d70e864c286e5c8524998f97acdf116476de35dc1795fdf267ee228"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Threading.ThreadPool.dll": {
+      "bytes": 22416,
+      "sha256": "536dfea38d7632c58fbee06f1d98bfb2f07c608b0a8ddd79b32e6ff64d5241a1"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Reflection.Emit.dll": {
+      "bytes": 22392,
+      "sha256": "c32a3929be9e28f0ed02fe68317e8135f8980a9a3ff073ee4707e39e2b6f52c3"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Dynamic.Runtime.dll": {
+      "bytes": 113368,
+      "sha256": "4a1321a3639f21b8fc075f7d4bcb6ca0cdfef1f4fd9842ff664741d2f7a0dfc2"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Reflection.Emit.ILGeneration.dll": {
+      "bytes": 22960,
+      "sha256": "e79b24b8018a01b9ba1c8a457296ab6233c66b96e0e766730e9fad695273f5f5"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Text.RegularExpressions.dll": {
+      "bytes": 114080,
+      "sha256": "7dfb9972ebd1aac688dcb46c3271e4d6511d767cc98a2c290cd97231392634e3"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Xml.XDocument.dll": {
+      "bytes": 111320,
+      "sha256": "2e47bea602f17f5f6f1de7ee62fcd300b8c35269c3082de6d19774a0c7c6ca38"
+    },
+    "contentFiles/any/netcoreapp2.1/NuGet.Frameworks.dll": {
+      "bytes": 108808,
+      "sha256": "bdef879f0a4ab2ad97fe934f54e30aee0d06ad06a3ef292933308fca34906ef8"
+    },
+    "contentFiles/any/netcoreapp2.1/Newtonsoft.Json.dll": {
+      "bytes": 468480,
+      "sha256": "5d96ee51b2aff592039eebc2ed203d9f55fddf9c0882fb34d3f0e078374954a5"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Reflection.Metadata.dll": {
+      "bytes": 576144,
+      "sha256": "2e180767f1415cb5bbed14450e1d4003cf56a9da6aeaf91ce969a4b9d2a54314"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Threading.Tasks.Extensions.dll": {
+      "bytes": 24328,
+      "sha256": "f073cef4f46d48eace4e9b8544925f2a22923f089024fc10e931c3bcce9d2871"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Xml.ReaderWriter.dll": {
+      "bytes": 606432,
+      "sha256": "90f7265c13e4342ccd4f0ad3970b37411a6d49bc911228e1cf500081996ba8db"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Reflection.TypeExtensions.dll": {
+      "bytes": 29608,
+      "sha256": "06fa3d813ad477355b15bba4f8fe8686e7f10740a1b3342874acebcf18a9eec8"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Runtime.CompilerServices.Unsafe.dll": {
+      "bytes": 23088,
+      "sha256": "d5b5be62ebbeaeb2f92eeeef2fa48d87b2db33d041c609f3507ec34364305cc5"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Reflection.Emit.Lightweight.dll": {
+      "bytes": 22952,
+      "sha256": "681c65cd30c1f43b634b312621f49da448a099b44c3bb7c9718ed4ed95a184df"
+    },
+    "contentFiles/any/netcoreapp2.1/System.ObjectModel.dll": {
+      "bytes": 49352,
+      "sha256": "d96d494773ccca9ebfd8640c466e7f06ec58e4a8dd261f71b28f637b01b8219e"
+    },
+    "contentFiles/any/netcoreapp2.1/Microsoft.Extensions.FileSystemGlobbing.dll": {
+      "bytes": 39416,
+      "sha256": "d485cef178eb4e1a64a2d13fae4c5744d99b4cc429b063e9cf39a6d66d12b713"
+    },
+    "contentFiles/any/netcoreapp2.1/Microsoft.Extensions.DependencyModel.dll": {
+      "bytes": 160840,
+      "sha256": "6ef18888f38be6a6203819bd96fca64101a5176ad5e0cf803558a550272383cb"
+    },
+    "contentFiles/any/netcoreapp2.1/System.IO.FileSystem.Primitives.dll": {
+      "bytes": 22432,
+      "sha256": "41827a243276042ff86263ce8a186b53f284a5660684bab98bbb0d1204de5c4a"
+    },
+    "contentFiles/any/netcoreapp2.1/Microsoft.CSharp.dll": {
+      "bytes": 450248,
+      "sha256": "2b7651bea68941feb337fce1fd0c20d4f6a9392617a24006edad54600677ab12"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Linq.dll": {
+      "bytes": 127304,
+      "sha256": "e2fd14b0f905b0e7e14bc1278f511e28ad1b976f5c4bf281f7366133c4e6bb4d"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Threading.Thread.dll": {
+      "bytes": 22400,
+      "sha256": "f3d77354a2b2c3b01cb24369c076b9568b95f52c28349541707741658aa173dd"
+    },
+    "contentFiles/any/netcoreapp2.1/System.Runtime.Serialization.Primitives.dll": {
+      "bytes": 29632,
+      "sha256": "f06f0988625afbd976840a446a29fbeb2a3917ec8370db25a4c0aadbc36c922c"
+    },
+    "contentFiles/any/netcoreapp2.1/Extensions/Microsoft.Diagnostics.NETCore.Client.dll": {
+      "bytes": 56696,
+      "sha256": "6126b5e6de0f4c42feb32bcfccc26e1e0c1ef6902d5b94690f4c4729e10bcca8"
+    },
+    "contentFiles/any/netcoreapp2.1/runtimes/unix/lib/netstandard1.1/System.Runtime.InteropServices.RuntimeInformation.dll": {
+      "bytes": 27112,
+      "sha256": "eec0ef81db7b838571b17b827a4a57db270bef84383d93292fa2ffdd491f91bb"
+    },
+    "contentFiles/any/netcoreapp2.1/runtimes/unix/lib/netstandard1.3/Microsoft.Win32.Registry.dll": {
+      "bytes": 24448,
+      "sha256": "81eb60bddefb24fbe88275e829b1490e6edce7b29d18ad00030e38079639385b"
+    },
+    "contentFiles/any/netcoreapp2.1/runtimes/unix/lib/netstandard1.3/System.Diagnostics.FileVersionInfo.dll": {
+      "bytes": 29096,
+      "sha256": "880ef6702446d5ae3e15ff5ebf9f84706d4f84699844cd4ce8fb8d2cbdbda621"
+    },
+    "contentFiles/any/netcoreapp2.1/runtimes/unix/lib/netstandard1.3/System.Diagnostics.TraceSource.dll": {
+      "bytes": 52632,
+      "sha256": "7f6f4ccc6a0cfd1155242c76b510b520453251bab818222551b2c95cc72364e8"
+    },
+    "contentFiles/any/netcoreapp2.1/runtimes/osx/lib/netstandard1.4/System.Diagnostics.Process.dll": {
+      "bytes": 87952,
+      "sha256": "b0e14911412564c90eea0090a78acfb52ef54fa95c21e0f2d1a828e3f53b714d"
+    },
+    "contentFiles/any/netcoreapp2.1/runtimes/win/lib/netstandard1.1/System.Runtime.InteropServices.RuntimeInformation.dll": {
+      "bytes": 33256,
+      "sha256": "5ce783b0ac5651d1009417519ac8912b7df64e4f4224291d1657461a3b778b70"
+    },
+    "contentFiles/any/netcoreapp2.1/runtimes/win/lib/netstandard1.4/System.Diagnostics.Process.dll": {
+      "bytes": 100232,
+      "sha256": "c2db64f2606b243174cc8d6d398547588e540015d3581340db0c96166ba3ffa2"
+    },
+    "contentFiles/any/netcoreapp2.1/runtimes/win/lib/netstandard1.3/Microsoft.Win32.Registry.dll": {
+      "bytes": 55680,
+      "sha256": "fed3bdb213896d4df9abff20314dad43211e3b28e27faf7bd172e03d1c4aba9f"
+    },
+    "contentFiles/any/netcoreapp2.1/runtimes/win/lib/netstandard1.3/System.Diagnostics.FileVersionInfo.dll": {
+      "bytes": 34728,
+      "sha256": "017b88720b22fd11e470ef6d7bf993dc8163f9c730763202d1dc61534e982d0c"
+    },
+    "contentFiles/any/netcoreapp2.1/runtimes/win/lib/netstandard1.3/System.Diagnostics.TraceSource.dll": {
+      "bytes": 58264,
+      "sha256": "7784d42befb91424cc961badae663aaedfb475fefa357502c7e356aadca28f76"
+    },
+    "contentFiles/any/netcoreapp2.1/runtimes/linux/lib/netstandard1.4/System.Diagnostics.Process.dll": {
+      "bytes": 88808,
+      "sha256": "0baa1a272a6eef77d9b71aae6ce7155888842d0aed821519bcd20cebbb96c6f9"
+    }
+  },
+  "compilerReferencePackage": {
+    "id": "Microsoft.NETFramework.ReferenceAssemblies.net451",
+    "version": "1.0.3",
+    "bytes": 19872410,
+    "sha256": "770b33dfa64dc430c9d9ba4e1438b920dee905f7ea60791147d70689f68692d3",
+    "sha512": "7d2d90c31c7725ba09d9a50292730674cd7749a60bb20bab5de86ff8ba799676e5fe52b0b47e794bfb88dcaeca4411f90aa1b12ea05f59626f033fde952f4008"
+  },
+  "importedDependenciesRequireSeparateSourceAttribution": true,
+  "localImportedDependencyBuildClaimed": false,
+  "qualificationAllowed": false,
+  "sourceAdmissionAllowed": false
+}

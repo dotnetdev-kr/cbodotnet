@@ -1,0 +1,25 @@
+--- a/src/redist/targets/Crossgen.targets
++++ b/src/redist/targets/Crossgen.targets
+@@ -141,6 +141,13 @@
+         DiasymReaderPath="@(DiasymReaderPath)"
+         PlatformAssemblyPaths="@(FSharpFolders);$(SharedFrameworkNameVersionPath)" />
+ 
++    <PropertyGroup>
++      <CommunityMuslRemainingCrossgenPaths>@(RemainingFolders);$(SharedFrameworkNameVersionPath)</CommunityMuslRemainingCrossgenPaths>
++      <CommunityMuslRemainingCrossgenPaths Condition="'$(CommunityMuslNativeCrossgenPath)' != ''">$(SharedFrameworkNameVersionPath);@(RemainingFolders)</CommunityMuslRemainingCrossgenPaths>
++    </PropertyGroup>
++    <Error Condition="'$(CommunityMuslNativeCrossgenPath)' != '' and !Exists('$(SharedFrameworkNameVersionPath)/System.Private.CoreLib.dll')"
++           Text="The matching target framework is required before compiling source-built SDK components" />
++
+     <Crossgen
+         SourceAssembly="%(RemainingTargets.FullPath)"
+         DestinationPath="%(RemainingTargets.FullPath)"
+@@ -149,7 +156,7 @@
+         ReadyToRun="True"
+         CreateSymbols="$(CreateCrossgenSymbols)"
+         DiasymReaderPath="@(DiasymReaderPath)"
+-        PlatformAssemblyPaths="@(RemainingFolders);$(SharedFrameworkNameVersionPath)" />
++        PlatformAssemblyPaths="$(CommunityMuslRemainingCrossgenPaths)" />
+ 
+ 
+     <ItemGroup>

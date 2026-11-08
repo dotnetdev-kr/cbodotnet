@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "5.0.214",
+  "kind": "version-isolated-sdk5-bootstrap-input-plan",
+  "stagingOrder": [
+    "clone exact5runtime/sdk/installer/Nuget/VStet sources and verify raw Git blobs",
+    "build SDK-free source5crypto and bootstrap-only source5trace provider",
+    "compose official5.0.401 plus official5.0.17 matching framework and explicitsource support",
+    "prepare separate official6.0.135 compiler bootstrap for the originalVStet5 graph",
+    "build genuine sourceNuget5/VStet5 then prime all24 exactlocal inputs through actualNuget restore",
+    "build all25 originalSDK products before explicit originalredist packaging",
+    "build optimized full native5 graph through original dated version producers",
+    "run originalinstaller with sourceCrossgen/JIT and framework-first binding",
+    "replay every actualprocess separately and retain source/compiler/constructor evidence",
+    "run finalarchive-only consumers and complete normal source/admission before anyrelease"
+  ],
+  "historicalSourceBuildBootstrap": "5.0.212",
+  "historicalBootstrapPreservedInDiagnosticProfiles": true,
+  "preservedUpstreamManagedMetadata": {
+    "company": "Microsoft Corporation",
+    "fileVersionMayUseOriginal42Placeholder": true,
+    "nativeDatedVersionRequirementSeparate": true
+  },
+  "brandingScope": "distribution-wrapper",
+  "qualifiedPayloadModifiedForBranding": false,
+  "qualificationAllowed": false,
+  "sourceAdmissionAllowed": false,
+  "releaseAvailabilityAllowed": false,
+  "vstest": {
+    "sdk": {
+      "linux-musl-arm64": {
+        "version": "6.0.135",
+        "rid": "linux-musl-arm64",
+        "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/6.0.135/dotnet-sdk-6.0.135-linux-musl-arm64.tar.gz",
+        "sha512": "dc9c3b959fd66424fb9c37557ff65db07edd5ec816bcd0524cd60f8a879025ae1b40ecb775792da377adcfc2230e5d20f72e68946414f318bb33901d5e628969"
+      },
+      "linux-musl-x64": {
+        "version": "6.0.135",
+        "rid": "linux-musl-x64",
+        "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/6.0.135/dotnet-sdk-6.0.135-linux-musl-x64.tar.gz",
+        "sha512": "e60f244b2c26d40bab9b7af4e5105c42d337f76f1d33371093db2c7ec0118ba665d95a09cd94a5de324f22ca445806b20fe10b30684406387323ad0fa222a057"
+      }
+    },
+    "sourceGlobalJsonChanged": false
+  },
+  "nativeSdkNugetAndInstaller": {
+    "sdk": {
+      "linux-musl-arm64": {
+        "version": "5.0.401",
+        "rid": "linux-musl-arm64",
+        "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/5.0.401/dotnet-sdk-5.0.401-linux-musl-arm64.tar.gz",
+        "sha512": "fe0ab5925fa4d963c31b80d7f71a785773c021d2401bf3f61b19e63a1f9a722e551d95c601d44a1b7d3f562fdeeb969dcc24ddead8df948ef3b1ca58163e6919"
+      },
+      "linux-musl-x64": {
+        "version": "5.0.401",
+        "rid": "linux-musl-x64",
+        "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/5.0.401/dotnet-sdk-5.0.401-linux-musl-x64.tar.gz",
+        "sha512": "a2077f4d1c9da9c69453b771cd239bad27f62379402cc5e1c74a1f2a960fd55efc85cc15eafbac11f17ea975895ce107fab4bbfc49880a0a14791e8ac13ca2de"
+      }
+    },
+    "matchingRuntime": {
+      "linux-musl-arm64": {
+        "version": "5.0.17",
+        "rid": "linux-musl-arm64",
+        "url": "https://builds.dotnet.microsoft.com/dotnet/Runtime/5.0.17/dotnet-runtime-5.0.17-linux-musl-arm64.tar.gz",
+        "sha512": "1c1495bf4a53a6d9b2be4c4b181946c3c5abd57ae6e10964924e3d650afba5e2986e555371b8134d0315a4054fc7d473ab4c8cc137f9e0569e8c67e46c4f559b"
+      },
+      "linux-musl-x64": {
+        "version": "5.0.17",
+        "rid": "linux-musl-x64",
+        "url": "https://builds.dotnet.microsoft.com/dotnet/Runtime/5.0.17/dotnet-runtime-5.0.17-linux-musl-x64.tar.gz",
+        "sha512": "e40ef40ebc7394cc7ef9eb9ce26b16a73bf99d597d98df009a06fff5d4fcec307e094ef6e780e8a2169351d9a93c92c18f20975fd1c6d75669218a29257fb6df"
+      }
+    },
+    "sourceNativeSupport": [
+      "matching-stock-OpenSSL3-crypto",
+      "matching-stock-LTTng-provider"
+    ],
+    "officialClrJitDebuggerBytesMustRemainUnchanged": true,
+    "oldPrivateSdkArchiveRequired": false
+  }
+}
