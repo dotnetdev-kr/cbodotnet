@@ -22,6 +22,13 @@ source roots. A missing source identity remains unresolved until its specific
 source chain or readable-data policy has been reviewed. Imported components
 are not described as locally rebuilt.
 
+The [additional SDK7 component registry](../scripts/musl-legacy-sdk7-component-sources.json)
+pins corresponding sources independently of their NuGet container. The
+[registration helper](../scripts/musl_legacy_component_sources.py) expands exact
+Git submodules before requesting another clone, then registers nested consumers
+before construction evidence is emitted. It uses the producer's recorded clone
+boundary. Existing exact submodule sources are reused without a duplicate clone.
+
 [`musl_legacy_manifest_inputs.py`](../scripts/musl_legacy_manifest_inputs.py)
 uses a [closed policy](../scripts/musl-legacy-workload-manifest-policy.json) for
 eight immutable SDK 7 workload-manifest packages. Only sixteen unchanged JSON

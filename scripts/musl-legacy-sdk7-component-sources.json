@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "7.0.120",
+  "scope": "Exact additional corresponding Git sources for reviewed imported managed components; no local compilation claim.",
+  "sources": [
+    {
+      "name": "legacy-component-command-line-api-c776cd4e906b",
+      "repository": "https://github.com/dotnet/command-line-api",
+      "commit": "c776cd4e906b669b9cce1017fee7d0ba9845d163",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-component-corefx-26264e3fd683",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "26264e3fd68356ff1a98375161b67b4426d02774",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-component-corefx-30ab651fcb43",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "30ab651fcb4354552bd4891619a0bdd81e0ebdbf",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-component-corefx-7601f4f62250",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-component-diagnostics-e3e1490a23f2",
+      "repository": "https://github.com/dotnet/diagnostics",
+      "commit": "e3e1490a23f27a6e0ed30d323035660c3ffc52cd",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-component-humanizer-3ebc38de585f",
+      "repository": "https://github.com/Humanizr/Humanizer",
+      "commit": "3ebc38de585fc641a04b0e78ed69468453b0f8a1",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-component-msbuildlocator-47281c3de1c8",
+      "repository": "https://github.com/microsoft/MSBuildLocator",
+      "commit": "47281c3de1c87a43ab946725d011b9dca4b6434a",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-component-runtime-06aceb7015f3",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "06aceb7015f3bd2ff019ef5920d2354eb2ea2c92",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-component-runtime-0a396acafe9a",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "0a396acafe9a7d46bce11f4338dbb3dd0d99b1b4",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-component-runtime-70ae3df4a6f3",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "70ae3df4a6f3c92fb6b315afc405edd10ff38579",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-component-runtime-c24d9a9c91c5",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "c24d9a9c91c5d04b7b4de71f1a9f33ac35e09663",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-component-runtime-cf258a14b70a",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "cf258a14b70ad9069470a108f13765e0e5988f51",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-component-standard-18a36291e488",
+      "repository": "https://github.com/dotnet/standard",
+      "commit": "18a36291e48808fa7ef2d00a764ceb1ec95645a5",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-component-symreader-636a10b9d0aa",
+      "repository": "https://github.com/dotnet/symreader",
+      "commit": "636a10b9d0aa317736c57d95f80e1c0849450715",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-import-deployment-tools-c3ad00ae8448",
+      "repository": "https://github.com/dotnet/deployment-tools",
+      "commit": "c3ad00ae84489071080a606f6a8e43c9a91a5cc2",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-import-nuget-client-112236f486dc",
+      "repository": "https://github.com/NuGet/NuGet.Client",
+      "commit": "112236f486dc18a9281226e342b458079441e403",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-import-roslyn-analyzers-596f8f422003",
+      "repository": "https://github.com/dotnet/roslyn-analyzers",
+      "commit": "596f8f422003d89b65e2bd50dc5a1aea7ce4ce91",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-import-runtime-4822e3c3aa77",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "4822e3c3aa77eb82b2fb33c9321f923cf11ddde6",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-import-runtime-55fb7ef977e7",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "55fb7ef977e7d120dc12f0960edcff0739d7ee0e",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-import-runtime-c76ac565499f",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "c76ac565499f3e7c657126d46c00b67a0d74832c",
+      "role": "source-for-serviced-imported-package"
+    }
+  ]
+}
