@@ -160,39 +160,38 @@
       ]
     },
     {
-      "name": "serviced-arcade-asn1",
+      "name": "serviced-bootstrap-runtime",
       "repository": "https://github.com/dotnet/runtime",
-      "commit": "eba546b0f0d448e0176a2222548fd7a2fbf464c0",
+      "commit": "1219a42122cf5190c7f512850557e38c422430dc",
       "role": "source-for-serviced-imported-package",
       "requiredNotices": [
         "LICENSE.TXT",
         "THIRD-PARTY-NOTICES.TXT"
       ],
+      "packageOrigin": {
+        "kind": "net8-original-source-built-artifacts",
+        "archive": {
+          "url": "https://builds.dotnet.microsoft.com/source-built-artifacts/assets/Private.SourceBuilt.Artifacts.8.0.131-servicing.26422.1.centos.9-x64.tar.gz",
+          "bytes": 728976053,
+          "sha256": "e39d2656832923af11d00a2bd32a10326ab84a0dfd20307a8491d8af3f9e720c",
+          "sha512": "07164022578785da51138e1201973163579da27fbe6e99645257ac39dcf68a1532a3646005b20e098e6fee90c8cb47c4a1b82dbc58ec73b6ca2a991e3a12c83a"
+        }
+      },
       "packages": [
         {
           "id": "system.formats.asn1",
           "version": "8.0.2",
-          "bytes": 328440,
-          "sha512": "5ff815d35c62ce56c3cc15dc3bbac3efca42e2469c49cc0ac358e9d9157982f755c53841dc7d4734fce03d009fdb4c3978facb5c4a5e208d9c4897f57b618e71",
+          "bytes": 116493,
+          "sha256": "5ebf92b9b87044389f450ca58bbff0393d1c88d5bb0939b2269d211ba9da0337",
+          "sha512": "86627826f025eaf40dbeff5ae72ba5ffe76936fe97130e1b945eb8e080b03d5510696dcbb9f4aa8c5bd05bd22783de5fd7406f8a7cc5108389e17d03ff9c5c26",
           "license": "MIT"
-        }
-      ]
-    },
-    {
-      "name": "serviced-deployment-json",
-      "repository": "https://github.com/dotnet/runtime",
-      "commit": "ef853a71052646a42abf17e888ec6d9a69614ad9",
-      "role": "source-for-serviced-imported-package",
-      "requiredNotices": [
-        "LICENSE.TXT",
-        "THIRD-PARTY-NOTICES.TXT"
-      ],
-      "packages": [
+        },
         {
           "id": "system.text.json",
           "version": "8.0.6",
-          "bytes": 1989416,
-          "sha512": "b38a6696de5da36d12837a1fe854a34a40a85751270a66938b5a040a7fe4194845018e03f1d607daafaa8ff27a5bfe6d3cbc6f5dfa50ed376394f0915aba06ed",
+          "bytes": 743852,
+          "sha256": "8149a8a315f2d593076200225f33027f4cd2a7f66cc5e3e605427af455ac2cd3",
+          "sha512": "1472b53623773b76f05d7e1a4c9a09a0f1ed2c352d6383cda41b77182fd82844d6630319c60d405fbe13b26ab251a1016963317047490dfe12cddead5f8dcb6e",
           "license": "MIT"
         }
       ]

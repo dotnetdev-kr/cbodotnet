@@ -1,7 +1,7 @@
 # Native Alpine SDK expansion
 
-SDK 10 remains the only qualified musl distribution and the only SDK admitted
-to the signed `cbodotnetup` musl catalog. Candidate profiles and successful
+SDK 10 and SDK 9 have qualified musl distributions; SDK 10 remains the only SDK
+admitted to the signed `cbodotnetup` musl catalog. Candidate profiles and successful
 component experiments do not activate a source producer, download, APK, OCI
 image, or installer catalog entry.
 
@@ -58,8 +58,15 @@ SDK 8's original Arcade implementation references are serviced from MSBuild
 a direct Asn1 8.0.2 reference prevents older NuGet dependencies selecting a
 vulnerable ASN.1 implementation. These changes apply only to Arcade build
 infrastructure. The product MSBuild source and the guarded signature reference
-graph remain intact. Eight exact package byte pins bind the publisher commits
-and licenses to three complete corresponding Git sources. Native compilation
+graph remain intact. Together with the shipping Json 8.0.6 dependency, nine
+exact package byte pins bind their commits and licenses to three complete
+corresponding Git sources. Asn1 and Json are the original source-built packages
+from the pinned SDK 8 bootstrap artifacts, both identifying runtime commit
+`1219a42122cf5190c7f512850557e38c422430dc`. Their unchanged bytes are extracted
+from the fully fingerprinted pristine archive, checked against their nuspec
+source and MIT license, and matched to actual restore records. NuGet.org
+packages with the same IDs and versions have different bytes and source
+commits and cannot substitute for these inputs. Native compilation
 checks use fatal auditing, including transitive dependencies; the full original
 two-CPU source build remains required for qualification.
 

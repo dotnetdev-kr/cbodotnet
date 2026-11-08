@@ -117,10 +117,13 @@ class NativeRoutes(unittest.TestCase):
         for arch in R.ARCHITECTURES:
             value = R.profile('8.0.133', arch)
             source = value['supplementalSourceGit'][-1]
-            self.assertEqual('serviced-deployment-json', source['name'])
-            self.assertEqual('ef853a71052646a42abf17e888ec6d9a69614ad9', source['commit'])
-            self.assertEqual([('system.text.json', '8.0.6', 'MIT')],
+            self.assertEqual('serviced-bootstrap-runtime', source['name'])
+            self.assertEqual('1219a42122cf5190c7f512850557e38c422430dc', source['commit'])
+            self.assertEqual([('system.formats.asn1', '8.0.2', 'MIT'), ('system.text.json', '8.0.6', 'MIT')],
                              [(p['id'], p['version'], p['license']) for p in source['packages']])
+            M.validate_net8_package_origin(source, '8.0.133')
+            with self.assertRaisesRegex(ValueError, 'origin'):
+                M.validate_net8_package_origin(source, '9.0.123')
             changed = copy.deepcopy(value)
             changed['supplementalSourceGit'][-1]['packages'][0]['version'] = '7.0.1'
             with mock.patch.object(R.json, 'loads', return_value=changed), self.assertRaisesRegex(ValueError, 'registry'):
@@ -160,6 +163,71 @@ class NativeRoutes(unittest.TestCase):
 
 
 class SourceAndArchiveSafety(unittest.TestCase):
+    def psb_fixture(self, root, mutation=None):
+        source = copy.deepcopy(R.profile('8.0.133', 'x64')['supplementalSourceGit'][-1])
+        rows = []
+        for package in source['packages']:
+            name = package['id'] + '.' + package['version'] + '.nupkg'
+            content = io.BytesIO()
+            with zipfile.ZipFile(content, 'w') as archive:
+                archive.writestr('Package.nuspec', '<package><metadata><id>' + package['id'] + '</id><version>'
+                    + package['version'] + '</version><license type="expression">MIT</license><repository url="'
+                    + source['repository'] + '" commit="' + source['commit'] + '" /></metadata></package>')
+            raw = content.getvalue()
+            package.update(bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest(), sha512=hashlib.sha512(raw).hexdigest())
+            rows.append((M.NET8_PSB_PACKAGE_MEMBERS[name], raw))
+        path = root / 'original.tar.gz'
+        with tarfile.open(path, 'w:gz') as archive:
+            for index, (name, raw) in enumerate(rows):
+                if index == 0 and mutation == 'missing':
+                    continue
+                if index == 0 and mutation in ('traversal', 'nested', 'backslash', 'case'):
+                    name = {'traversal': '../' + name, 'nested': 'nested/' + name,
+                            'backslash': '..\\' + name, 'case': name.lower()}[mutation]
+                member = tarfile.TarInfo(name); member.size = len(raw)
+                if index == 0 and mutation == 'link':
+                    member.type = tarfile.LNKTYPE; member.linkname = rows[1][0]; member.size = 0
+                archive.addfile(member, io.BytesIO(raw))
+                if index == 0 and mutation == 'duplicate':
+                    archive.addfile(member, io.BytesIO(raw))
+        directory = root / 'retained'; directory.mkdir()
+        return source, path, directory
+
+    def test_psb_extracts_only_exact_closed_members_without_nuget_download(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            source, path, directory = self.psb_fixture(Path(temporary))
+            with mock.patch.object(M, 'net8_psb_record') as pinned, mock.patch.object(M, 'download') as download:
+                M.extract_net8_psb_packages(path, directory, source, '8.0.133')
+            pinned.assert_called_once_with(path)
+            download.assert_not_called()
+            self.assertEqual(set(M.NET8_PSB_PACKAGE_MEMBERS), {p.name for p in directory.iterdir()})
+            for package in source['packages']:
+                row = M.serviced_package(directory / (package['id'] + '.' + package['version'] + '.nupkg'), source, package)
+                self.assertEqual(source['commit'], row['repositoryCommit'])
+
+    def test_psb_rejects_duplicate_redirected_missing_and_wrong_package_bytes(self):
+        for mutation in ('duplicate', 'traversal', 'nested', 'backslash', 'case', 'link', 'missing', 'sha256'):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as temporary:
+                source, path, directory = self.psb_fixture(Path(temporary), mutation)
+                if mutation == 'sha256':
+                    source['packages'][0]['sha256'] = '0' * 64
+                with mock.patch.object(M, 'net8_psb_record'), self.assertRaises(ValueError):
+                    M.extract_net8_psb_packages(path, directory, source, '8.0.133')
+
+    def test_psb_rejects_wrong_archive_origin_or_sdk_before_extraction(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            source, path, directory = self.psb_fixture(Path(temporary))
+            with mock.patch.object(M, 'net8_psb_record', side_effect=ValueError('input bytes differ')) as pinned:
+                with self.assertRaisesRegex(ValueError, 'input bytes'):
+                    M.extract_net8_psb_packages(path, directory, source, '8.0.133')
+            pinned.assert_called_once_with(path)
+            self.assertFalse(list(directory.iterdir()))
+            with self.assertRaisesRegex(ValueError, 'origin'):
+                M.extract_net8_psb_packages(path, directory, source, '9.0.123')
+            source['packageOrigin']['archive']['sha256'] = '0' * 64
+            with self.assertRaisesRegex(ValueError, 'origin'):
+                M.extract_net8_psb_packages(path, directory, source, '8.0.133')
+
     def test_corresponding_solution_serialization_accepts_only_exact_git_blob(self):
         with tempfile.TemporaryDirectory() as temporary:
             checkout = Path(temporary)

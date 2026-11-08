@@ -15,7 +15,10 @@ class Net8ServicingRegistry(unittest.TestCase):
         left = R.profile('8.0.133', 'x64')['supplementalSourceGit']
         right = R.profile('8.0.133', 'aarch64')['supplementalSourceGit']
         self.assertEqual(left, right)
-        self.assertEqual([5, 2, 1, 1], [len(source['packages']) for source in left])
+        self.assertEqual([5, 2, 2], [len(source['packages']) for source in left])
+        self.assertEqual('1219a42122cf5190c7f512850557e38c422430dc', left[-1]['commit'])
+        self.assertEqual('net8-original-source-built-artifacts', left[-1]['packageOrigin']['kind'])
+        self.assertEqual([116493, 743852], [p['bytes'] for p in left[-1]['packages']])
         packages = {package['id']: package['version'] for source in left for package in source['packages']}
         self.assertEqual({
             'microsoft.build': '17.8.43', 'microsoft.build.framework': '17.8.43',
@@ -27,7 +30,7 @@ class Net8ServicingRegistry(unittest.TestCase):
 
     def test_protected_profile_rejects_source_license_byte_or_coverage_changes(self):
         original = R.profile('8.0.133', 'aarch64')
-        for mutation in ('source', 'license', 'bytes', 'coverage'):
+        for mutation in ('source', 'license', 'bytes', 'coverage', 'origin'):
             changed = copy.deepcopy(original)
             sources = changed['supplementalSourceGit']
             if mutation == 'source':
@@ -36,6 +39,8 @@ class Net8ServicingRegistry(unittest.TestCase):
                 sources[1]['packages'][0]['license'] = 'Unlicense'
             elif mutation == 'bytes':
                 sources[2]['packages'][0]['sha512'] = '0' * 128
+            elif mutation == 'origin':
+                sources[-1]['packageOrigin']['archive']['sha256'] = '0' * 64
             else:
                 sources[0]['packages'].pop()
             with self.subTest(mutation=mutation), mock.patch.object(R.json, 'loads', return_value=changed):

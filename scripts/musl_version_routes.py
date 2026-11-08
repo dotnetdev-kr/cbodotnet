@@ -67,7 +67,7 @@ def profile(sdk, arch, root=ROOT):
             and kerberos[0]['repository'] == 'main', 'Native runtime Kerberos development input differs')
     supplemental = value.get('supplementalSourceGit', [])
     require(hashlib.sha256(json.dumps(supplemental, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
-        == ('f22feb4a02100eb4f76ef01e834114ed651ce839b772d78e8c7bbc9f69b1684a' if expected['sourceOnly']
+        == ('9598ccd3d31c11f7485e1638b9e1ea8c0a2a89d24d9bb77eca84020167a22695' if expected['sourceOnly']
             else '1d079cb10bdbdae5924077bbb8d7010e8e5a9e0e7a6cbd28103c51539cee7570'),
         'Reviewed serviced package/source/license registry differs')
     reference_audit = dict(path='scripts/musl-reference-audit-policy.json',

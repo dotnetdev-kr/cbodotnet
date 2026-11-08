@@ -35,6 +35,10 @@ NET8_PSB = dict(url='https://builds.dotnet.microsoft.com/source-built-artifacts/
     'Private.SourceBuilt.Artifacts.8.0.131-servicing.26422.1.centos.9-x64.tar.gz', bytes=728976053,
     sha256='e39d2656832923af11d00a2bd32a10326ab84a0dfd20307a8491d8af3f9e720c',
     sha512='07164022578785da51138e1201973163579da27fbe6e99645257ac39dcf68a1532a3646005b20e098e6fee90c8cb47c4a1b82dbc58ec73b6ca2a991e3a12c83a')
+NET8_PSB_PACKAGE_MEMBERS = {
+    'system.formats.asn1.8.0.2.nupkg': 'System.Formats.Asn1.8.0.2.nupkg',
+    'system.text.json.8.0.6.nupkg': 'System.Text.Json.8.0.6.nupkg',
+}
 
 
 def module(name, filename):
@@ -110,10 +114,45 @@ def validate_net8_psb_records(release):
                 'Reviewed NET8 PSB download/prep input identity differs')
 
 
+def validate_net8_package_origin(source, sdk):
+    require(sdk == '8.0.133' and source.get('packageOrigin') == dict(
+        kind='net8-original-source-built-artifacts', archive=NET8_PSB),
+        'Reviewed NET8 original PSB package origin required')
+    require({package['id'] + '.' + package['version'] + '.nupkg' for package in source['packages']}
+            == set(NET8_PSB_PACKAGE_MEMBERS), 'Closed NET8 original PSB package set required')
+
+
+def extract_net8_psb_packages(archive_path, directory, source, sdk):
+    """Retain exact original PSB inputs, without substituting NuGet wrappers."""
+    validate_net8_package_origin(source, sdk)
+    net8_psb_record(ordinary(archive_path))
+    expected = {package['id'] + '.' + package['version'] + '.nupkg': package for package in source['packages']}
+    contents = {}
+    with tarfile.open(archive_path, 'r|gz') as archive:
+        for member in archive:
+            name = member.name.replace('\\', '/').rsplit('/', 1)[-1].lower()
+            if name not in expected:
+                continue
+            require(member.name == NET8_PSB_PACKAGE_MEMBERS[name] and member.isfile()
+                    and not member.issym() and not member.islnk() and name not in contents
+                    and member.size == expected[name]['bytes'] and 0 < member.size < 1024**2,
+                    'Original PSB package member is redirected, duplicated or changed')
+            raw = archive.extractfile(member).read(member.size + 1)
+            require(len(raw) == member.size, 'Original PSB package member is truncated')
+            contents[name] = raw
+    require(set(contents) == set(expected), 'Original PSB package members are missing')
+    for name, raw in contents.items():
+        path = directory / name
+        with path.open('xb') as stream:
+            stream.write(raw)
+        serviced_package(path, source, expected[name])
+
+
 def serviced_package(path, source, package):
     """Bind each reviewed servicing input to its publisher's exact source."""
     actual = fingerprint(path)
-    require(all(actual[key] == package[key] for key in ('bytes', 'sha512')),
+    require(all(actual[key] == package[key] for key in ('bytes', 'sha512'))
+            and ('sha256' not in package or actual['sha256'] == package['sha256']),
             'Serviced package bytes differ: ' + package['id'])
     with zipfile.ZipFile(path) as archive:
         names = [name for name in archive.namelist() if name.lower().endswith('.nuspec')]
@@ -201,6 +240,11 @@ def validate_serviced_inputs(release, profile, source_manifest):
     require(set(notice_rows) == wanted, 'Corresponding serviced package licenses must be archived')
     for expected, actual in zip(sources, report['gitSources']):
         map_fields = {'publisher', 'publisherSourceManifest'} if 'publisher' in expected else set()
+        if 'packageOrigin' in expected:
+            validate_net8_package_origin(expected, profile['sdkVersion'])
+            validate_net8_psb_records(release)
+            require(actual.get('packageOrigin') == expected['packageOrigin'], 'Original PSB package origin differs')
+            map_fields.add('packageOrigin')
         require(set(actual) == {'name', 'repository', 'commit', 'role', 'requiredNotices', 'packages', 'tree', 'notices'} | map_fields
                 and all(actual[key] == expected[key] for key in ('name', 'repository', 'commit', 'role', 'requiredNotices')),
                 'Serviced package corresponding source identity differs')
@@ -208,7 +252,7 @@ def validate_serviced_inputs(release, profile, source_manifest):
         require(len(roots) == 1 and roots[0].get('commit') == expected['commit']
                 and roots[0].get('tree') == actual['tree'] and roots[0].get('role') == expected['role'],
                 'Complete exact serviced package Git source must be retained')
-        if map_fields:
+        if 'publisher' in expected:
             require(actual['publisher'] == expected['publisher'], 'Serviced publisher source map registry differs')
             descriptor = actual['publisherSourceManifest']
             relative = 'reports/serviced-inputs/source-maps/' + expected['name'] + '-source-manifest.json'
@@ -601,11 +645,14 @@ class Producer(P.Producer):
                         == publisher['identicalLibraryTree']['tree'], 'Original component library tree differs from reviewed publisher tree')
                 publisher_map['publisherSourceManifest'] = dict(path=mapping.relative_to(self.output).as_posix(), **fingerprint(mapping))
             imported = []
+            if 'packageOrigin' in source:
+                extract_net8_psb_packages(self.inputs / 'original-psb.tar.gz', packages, source, self.sdk)
             for package in source['packages']:
                 name = package['id'] + '.' + package['version'] + '.nupkg'
                 path = packages / name
-                download(dict(url='https://api.nuget.org/v3-flatcontainer/' + package['id'] + '/'
-                              + package['version'] + '/' + name, sha512=package['sha512']), path)
+                if 'packageOrigin' not in source:
+                    download(dict(url='https://api.nuget.org/v3-flatcontainer/' + package['id'] + '/'
+                                  + package['version'] + '/' + name, sha512=package['sha512']), path)
                 imported.append(dict(serviced_package(path, source, package), path=path.relative_to(self.output).as_posix()))
             rows.append(dict(source, tree=git(checkout, 'rev-parse', 'HEAD^{tree}'), notices=notices, packages=imported, **publisher_map))
         write(self.reports / 'prepare/serviced-inputs.json', dict(schemaVersion=1, sdkVersion=self.sdk, gitSources=rows))
