@@ -67,7 +67,7 @@ def profile(sdk, arch, root=ROOT):
             and kerberos[0]['repository'] == 'main', 'Native runtime Kerberos development input differs')
     supplemental = value.get('supplementalSourceGit', [])
     require(hashlib.sha256(json.dumps(supplemental, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
-        == ('2689b350bceb0b6a082a4d2dc9f79e828532f7fb3f1f869162bf440c254c02a8' if expected['sourceOnly']
+        == ('f22feb4a02100eb4f76ef01e834114ed651ce839b772d78e8c7bbc9f69b1684a' if expected['sourceOnly']
             else '1d079cb10bdbdae5924077bbb8d7010e8e5a9e0e7a6cbd28103c51539cee7570'),
         'Reviewed serviced package/source/license registry differs')
     reference_audit = dict(path='scripts/musl-reference-audit-policy.json',
@@ -84,7 +84,9 @@ def profile(sdk, arch, root=ROOT):
                          'patches/musl/net8/0002-service-arcade-build-dependencies.patch':
                          '639c9cb360475f35a87db9bd338c3165ab909f7d5d698b57df1e0d8edfc5a434',
                          'patches/musl/net8/0003-select-native-musl-aspnet-crossgen-host.patch':
-                         '8a2ef25b59eedac11d4b061048be3d4b93796399899e7bf9e1884d7220f9cec4'} if expected['sourceOnly'] else {
+                         '8a2ef25b59eedac11d4b061048be3d4b93796399899e7bf9e1884d7220f9cec4',
+                         'patches/musl/net8/0004-service-deployment-json.patch':
+                         '7f4c4a5da1b3e519dd88d36a5c0726557be676c4da30e140206bc107d58fb4ea'} if expected['sourceOnly'] else {
                          'patches/musl/net9/0001-use-fixed-build-helper-msbuild.patch':
                          '444916928c5c78a8232c3baba53b7d0c2d09ea4ad9bd4fe3536b1b11055b823e',
                          'patches/musl/net9/0002-use-fixed-build-helper-asn1.patch':

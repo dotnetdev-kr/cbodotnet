@@ -64,6 +64,11 @@
         "path": "patches/musl/net8/0003-select-native-musl-aspnet-crossgen-host.patch",
         "sha256": "8a2ef25b59eedac11d4b061048be3d4b93796399899e7bf9e1884d7220f9cec4",
         "purpose": "Select ASP.NET crossgen2 from the actual musl SDK host while preserving linux target OS, full ReadyToRun optimization and existing non-musl host behavior."
+      },
+      {
+        "path": "patches/musl/net8/0004-service-deployment-json.patch",
+        "sha256": "7f4c4a5da1b3e519dd88d36a5c0726557be676c4da30e140206bc107d58fb4ea",
+        "purpose": "Service the original shipping netstandard2.0 release-metadata library to fixed System.Text.Json8.0.6, retaining fatal auditing and exact package/publisher source/MIT notices."
       }
     ]
   },
@@ -164,6 +169,25 @@
           "version": "8.0.2",
           "bytes": 328440,
           "sha512": "5ff815d35c62ce56c3cc15dc3bbac3efca42e2469c49cc0ac358e9d9157982f755c53841dc7d4734fce03d009fdb4c3978facb5c4a5e208d9c4897f57b618e71",
+          "license": "MIT"
+        }
+      ]
+    },
+    {
+      "name": "serviced-deployment-json",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "ef853a71052646a42abf17e888ec6d9a69614ad9",
+      "role": "source-for-serviced-imported-package",
+      "requiredNotices": [
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT"
+      ],
+      "packages": [
+        {
+          "id": "system.text.json",
+          "version": "8.0.6",
+          "bytes": 1989416,
+          "sha512": "b38a6696de5da36d12837a1fe854a34a40a85751270a66938b5a040a7fe4194845018e03f1d607daafaa8ff27a5bfe6d3cbc6f5dfa50ed376394f0915aba06ed",
           "license": "MIT"
         }
       ]

@@ -1,0 +1,21 @@
+Subject: [PATCH] Service the shipping deployment release JSON dependency
+
+Use the fixed .NET8 servicing package for the original netstandard2.0
+release-metadata library. Preserve its TFM, source, and fatal NuGet auditing.
+Retain exact package bytes, publisher Git source and MIT notices.
+
+Advisory: https://github.com/dotnet/runtime/security/advisories/GHSA-hh2w-p6rv-4g7w
+Base-VMR: 7d1bf90885cff22e7da72b27e9848e42fd3cb1ae
+Base-DeploymentTools: 5255d40e228ea1d4b624781b5b97ec16484a3b4b
+
+--- a/src/deployment-tools/eng/Versions.props
++++ b/src/deployment-tools/eng/Versions.props
+@@ -32,7 +32,7 @@
+     <!-- Installer dependencies -->
+     <MicrosoftExtensionsDependencyModelVersion>3.1.0</MicrosoftExtensionsDependencyModelVersion>
+     <!-- Libraries dependencies -->
+-    <SystemTextJsonVersion>7.0.1</SystemTextJsonVersion>
++    <SystemTextJsonVersion>8.0.6</SystemTextJsonVersion>
+     <!-- Standard dependencies -->
+     <!-- MSBuild dependencies -->
+     <MicrosoftBuildTasksCoreVersion>16.8.0-preview-20453-01</MicrosoftBuildTasksCoreVersion>

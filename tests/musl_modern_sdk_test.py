@@ -81,6 +81,19 @@ class NativeRoutes(unittest.TestCase):
                 dumps = [value for value in options if value.startswith(('DOTNET_Dbg', 'DOTNET_CreateDump', 'DOTNET_EnableCrash'))]
                 self.assertEqual(5 if diagnostic else 0, len(dumps))
 
+    def test_net8_shipping_json_servicing_rejects_unreviewed_package_source(self):
+        for arch in R.ARCHITECTURES:
+            value = R.profile('8.0.133', arch)
+            source = value['supplementalSourceGit'][-1]
+            self.assertEqual('serviced-deployment-json', source['name'])
+            self.assertEqual('ef853a71052646a42abf17e888ec6d9a69614ad9', source['commit'])
+            self.assertEqual([('system.text.json', '8.0.6', 'MIT')],
+                             [(p['id'], p['version'], p['license']) for p in source['packages']])
+            changed = copy.deepcopy(value)
+            changed['supplementalSourceGit'][-1]['packages'][0]['version'] = '7.0.1'
+            with mock.patch.object(R.json, 'loads', return_value=changed), self.assertRaisesRegex(ValueError, 'registry'):
+                R.profile('8.0.133', arch)
+
     def test_version_specific_commands_keep_real_native_musl_graph(self):
         for sdk in R.VERSIONS:
             for arch, identity in R.ARCHITECTURES.items():
