@@ -1,0 +1,14 @@
+diff --git a/repo-projects/nuget-client.proj b/repo-projects/nuget-client.proj
+index d304670..582c1c4 100644
+--- a/repo-projects/nuget-client.proj
++++ b/repo-projects/nuget-client.proj
+@@ -8,6 +8,9 @@
+     <BuildActions></BuildActions>
+     <!-- Call into a custom build script as nuget-client doesn't use Arcade infra. -->
+     <BuildScript>$([MSBuild]::NormalizePath('$(ProjectDirectory)', 'eng', 'dotnet-build', 'build$(ShellExtension)'))</BuildScript>
++    <!-- Use the original release-version switch for the locally rebuilt NuGet
++         family consumed with stable, serviced templating dependencies. -->
++    <BuildArgs>$(BuildArgs) /p:BuildRTM=true</BuildArgs>
+     <!-- Passed for compatibility with new P4 SDK. -->
+     <BuildArgs>$(BuildArgs) /p:GenerateResourceUsePreserializedResources=true</BuildArgs>
+     <!-- Avoid passing -dotnetEngine msbuild switch, which nuget doesn't recognize. -->

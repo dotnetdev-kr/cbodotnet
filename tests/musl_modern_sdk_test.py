@@ -1,5 +1,6 @@
 """Version-specific native source routes and modern musl admission boundaries."""
 import copy
+import hashlib
 import importlib.util
 import io
 import json
@@ -273,6 +274,7 @@ class SourceAndArchiveSafety(unittest.TestCase):
                 record = json.loads((Path(temporary) / 'reports/feed-adjustments.json').read_text())
                 self.assertFalse(record['packageVersionsChanged'])
                 self.assertIn(b'maxHttpRequestsPerSource', (source / 'NuGet.config').read_bytes())
+                self.assertEqual('/inputs/nuget', ET.parse(source / 'NuGet.config').getroot().find("packageSources/add[@key='pinned-microsoft']").get('value'))
                 (source / 'NuGet.config').write_bytes(original + b'<!-- unreviewed -->')
                 with self.assertRaisesRegex(ValueError, 'preexisting'):
                     M.configure_feeds(source, Path(temporary) / 'other', '9.0.123')
@@ -302,6 +304,75 @@ class SourceAndArchiveSafety(unittest.TestCase):
                 (root / 'producer-validation.json').write_text(json.dumps(marker))
                 with self.subTest(marker=marker), self.assertRaisesRegex(ValueError, 'Diagnostic'):
                     M.validate(root)
+
+
+class AdditionalTargetingSupport(unittest.TestCase):
+    def fixture(self, release):
+        expected = copy.deepcopy(R.NET9_ADDITIONAL_PACKAGES[0])
+        path = release / 'pinned-inputs/nuget' / expected['fileName']
+        path.parent.mkdir(parents=True)
+        with zipfile.ZipFile(path, 'w') as archive:
+            archive.writestr('input.nuspec', '<package><metadata><id>' + expected['id'] + '</id><version>' + expected['version'] + '</version></metadata></package>')
+        expected.update(M.fingerprint(path))
+        bodies = {'LICENSE.TXT': b'original license', 'THIRD-PARTY-NOTICES.TXT': b'original notices',
+                  'netstandard.library.netframework.nuspec': b'original package project',
+                  'build/net461/lib/System.Runtime.il': b'original complete IL source'}
+        baseline = {name: dict(mode='100644', blob=hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest())
+                    for name, raw in bodies.items()}
+        packer = M.module('targeting_fixture_git_tree', 'package-used-source.py')
+        expected['correspondingSource']['tree'] = packer.baseline_tree(baseline)
+        prefix = 'vmr/' + expected['correspondingSource']['path'] + '/'
+        rows = [dict(path=prefix + name, baseline=baseline[name]) for name in bodies]
+        rows.append(dict(path='pinned-targeting-inputs/nuget/' + expected['fileName'], **M.fingerprint(path)))
+        (release / 'sources').mkdir()
+        (release / 'sources/index.jsonl').write_text(''.join(json.dumps(row) + '\n' for row in rows))
+        archive = release / 'sources/retained.tar.gz'
+        with tarfile.open(archive, 'w:gz') as stream:
+            for name, raw in bodies.items():
+                item = tarfile.TarInfo(prefix + name); item.size = len(raw)
+                stream.addfile(item, io.BytesIO(raw))
+        report = dict(feed='/inputs/nuget', packages=[dict(expected, sizeBytes=expected['bytes'], sha256Verified=True,
+            archiveIntegrityVerified=True, hashOrigin='Content fingerprint recorded from the public upstream URL, not a publisher signature')])
+        M.write(release / 'reports/prepare/pinned-inputs.json', report)
+        M.write(release / 'reports/restored-inputs.json', dict(packages=[dict(path=expected['fileName'], **M.fingerprint(path))]))
+        manifest = dict(roots=[dict(name='vmr', kind='git', commit=R.VERSIONS['9.0.123']['source'])],
+                        index=dict(path='index.jsonl'), archive=dict(path=archive.name))
+        return expected, dict(sdkVersion='9.0.123', additionalPackages=[expected]), manifest, rows
+
+    def test_exact_imported_package_complete_source_and_actual_restore_are_bound(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            release = Path(temporary)
+            expected, profile, manifest, rows = self.fixture(release)
+            with mock.patch.object(R, 'NET9_ADDITIONAL_PACKAGES', [expected]):
+                self.assertIsNone(M.validate_additional_inputs(release, profile))
+                proof = M.validate_additional_inputs(release, profile, manifest)
+                self.assertEqual(4, proof['packages'][0]['sourceFiles'])
+                self.assertFalse(proof['packages'][0]['localBuildClaimed'])
+                self.assertFalse(proof['packages'][0]['byteIdenticalCompilationClaimed'])
+                index = release / 'sources/index.jsonl'
+                original = index.read_bytes()
+                for selected in (rows[:-1], rows[1:]):
+                    index.write_text(''.join(json.dumps(row) + '\n' for row in selected))
+                    with self.assertRaisesRegex(ValueError, 'complete original targeting package|Complete original targeting package'):
+                        M.validate_additional_inputs(release, profile, manifest)
+                index.write_bytes(original)
+                (release / 'reports/restored-inputs.json').write_text('{"packages": []}')
+                with self.assertRaisesRegex(ValueError, 'actually restored unchanged'):
+                    M.validate_additional_inputs(release, profile, manifest)
+                path = release / 'pinned-inputs/nuget' / expected['fileName']
+                path.write_bytes(path.read_bytes() + b'changed input wrapper')
+                with self.assertRaisesRegex(ValueError, 'package bytes differ'):
+                    M.validate_additional_inputs(release, profile)
+
+    def test_sdk8_has_no_added_pinned_feed_or_input_requirement(self):
+        self.assertIsNone(M.validate_additional_inputs(Path('/not-read'), dict(sdkVersion='8.0.133', additionalPackages=[])))
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary) / 'source'; source.mkdir()
+            original = b'<configuration><packageSources><clear /></packageSources></configuration>'
+            (source / 'NuGet.config').write_bytes(original)
+            with mock.patch.object(M, 'git', return_value=R.VERSIONS['8.0.133']['source']), mock.patch.object(M.subprocess, 'check_output', side_effect=lambda argv: original if 'show' in argv else b'diff'):
+                M.configure_feeds(source, Path(temporary) / 'reports', '8.0.133')
+            self.assertIsNone(ET.parse(source / 'NuGet.config').getroot().find("packageSources/add[@key='pinned-microsoft']"))
 
 
 class OriginalTestGraph(unittest.TestCase):

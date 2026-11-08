@@ -20,6 +20,13 @@ ARCHITECTURES = {
     'x64': dict(machine='x86_64', image='amd64', upstream='x64', rid='linux-musl-x64'),
     'aarch64': dict(machine='aarch64', image='arm64', upstream='arm64', rid='linux-musl-arm64'),
 }
+NET9_ADDITIONAL_PACKAGES = [dict(id='NETStandard.Library.NETFramework', version='2.0.1-servicing-26011-01',
+    fileName='netstandard.library.netframework.2.0.1-servicing-26011-01.nupkg',
+    url='https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/flat2/netstandard.library.netframework/2.0.1-servicing-26011-01/netstandard.library.netframework.2.0.1-servicing-26011-01.nupkg',
+    bytes=1844646, sha256='218dd4c63d3f800de697bca41178827a52df0a9ec7a9b47520327d91ebc7051c',
+    sha512='714a0fad007482d3bdacd4e4d88460003c0dc2e97f326525bdddc5ac0a09151951a45817de436ceb753aa766f3b8ae421fefc074a617698291e3f663146930fc',
+    correspondingSource=dict(root='vmr', path='src/source-build-assets/src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01',
+                             tree='e149c55e5c641bbac5906cc12db0dbcfcbd778f9', kind='complete-upstream-il-and-msbuild-source'))]
 
 
 def require(value, message):
@@ -32,6 +39,8 @@ def profile(sdk, arch, root=ROOT):
     path = root / 'profiles' / ('dotnet-' + sdk + '-linux-musl-' + arch + '.json')
     value = json.loads(path.read_text(encoding='utf-8'))
     expected, target = VERSIONS[sdk], ARCHITECTURES[arch]
+    require(value.get('additionalPackages') == (NET9_ADDITIONAL_PACKAGES if sdk.startswith('9.') else []),
+            'Reviewed exact additional targeting input/source pin differs')
     require(value['sdkVersion'] == sdk and value['source']['commit'] == expected['source']
             and value['source']['tag'] == 'v' + sdk and value['source']['repository'] == 'https://github.com/dotnet/dotnet'
             and value['target'] == dict(rid=target['rid'], libc='musl')
@@ -57,9 +66,9 @@ def profile(sdk, arch, root=ROOT):
             and kerberos[0]['c'] == '92bc4f0d36aa5307e819fb57167fc19952cf515f'
             and kerberos[0]['repository'] == 'main', 'Native runtime Kerberos development input differs')
     supplemental = value.get('supplementalSourceGit', [])
-    require((not supplemental if expected['sourceOnly'] else hashlib.sha256(json.dumps(
-        supplemental, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
-        == '1d079cb10bdbdae5924077bbb8d7010e8e5a9e0e7a6cbd28103c51539cee7570'),
+    require(hashlib.sha256(json.dumps(supplemental, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+        == ('2689b350bceb0b6a082a4d2dc9f79e828532f7fb3f1f869162bf440c254c02a8' if expected['sourceOnly']
+            else '1d079cb10bdbdae5924077bbb8d7010e8e5a9e0e7a6cbd28103c51539cee7570'),
         'Reviewed serviced package/source/license registry differs')
     reference_audit = dict(path='scripts/musl-reference-audit-policy.json',
         sha256='a225d95dc15db8025320de1736a8d6ee68683894375168cca63057a28a9780ba')
@@ -71,7 +80,9 @@ def profile(sdk, arch, root=ROOT):
     expected_patches = ({'patches/net8/0002-preserve-portable-aspnetcore-target.patch':
                          'b03fab8085c959debc05892fb1920edaa8f514f90d4189994de23608abcc7d8a',
                          'patches/musl/net8/0001-retain-reference-audit-warnings.patch':
-                         'ab698abeac802febfd8dc1f27c7c05784911bed55c84d1df49f3de5e98f45daf'} if expected['sourceOnly'] else {
+                         'ab698abeac802febfd8dc1f27c7c05784911bed55c84d1df49f3de5e98f45daf',
+                         'patches/musl/net8/0002-service-arcade-build-dependencies.patch':
+                         '639c9cb360475f35a87db9bd338c3165ab909f7d5d698b57df1e0d8edfc5a434'} if expected['sourceOnly'] else {
                          'patches/musl/net9/0001-use-fixed-build-helper-msbuild.patch':
                          '444916928c5c78a8232c3baba53b7d0c2d09ea4ad9bd4fe3536b1b11055b823e',
                          'patches/musl/net9/0002-use-fixed-build-helper-asn1.patch':
@@ -83,7 +94,9 @@ def profile(sdk, arch, root=ROOT):
                          'patches/musl/net9/0005-preserve-native-aspnetcore-musl-target.patch':
                          '71bff321157426db0e31940b48816851e80146d8af5c4c80fde40f9e243574e5',
                          'patches/musl/net9/0006-use-maintained-fsharp-test-telemetry.patch':
-                         'a9c383a8f9d6b55c702698aec507025948cb21eeedb047801e7128eb84a7409f'})
+                         'a9c383a8f9d6b55c702698aec507025948cb21eeedb047801e7128eb84a7409f',
+                         'patches/musl/net9/0007-stabilize-locally-built-nuget-version.patch':
+                         '437746010a829cb1ec9be55e730c62a6c0a4ee0a0c600062340ff40accf71774'})
     require(len(build['patches']) == len(expected_patches)
             and {p['path'] for p in build['patches']} == set(expected_patches), 'Unreviewed source patch set')
     for patch in build['patches']:

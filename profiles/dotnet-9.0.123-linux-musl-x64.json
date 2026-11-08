@@ -70,6 +70,11 @@
         "path": "patches/musl/net9/0006-use-maintained-fsharp-test-telemetry.patch",
         "sha256": "a9c383a8f9d6b55c702698aec507025948cb21eeedb047801e7128eb84a7409f",
         "purpose": "Migrate only F# test utility tracing from unpatched deprecated Jaeger to security-fixed OTLP 1.15.3 with its required DiagnosticSource; preserve every test and retain exact complete package/source/license closure."
+      },
+      {
+        "path": "patches/musl/net9/0007-stabilize-locally-built-nuget-version.patch",
+        "sha256": "437746010a829cb1ec9be55e730c62a6c0a4ee0a0c600062340ff40accf71774",
+        "purpose": "Use the original NuGet BuildRTM switch for the genuinely rebuilt coherent 6.12.5 product family, satisfying stable serviced templating dependencies without suppressing downgrade errors."
       }
     ]
   },
@@ -79,7 +84,23 @@
     "runtime": "9.0.22",
     "sourceBuiltArtifactsRole": "Bootstrap compiler/tooling input; never claim this archive as a newly built musl SDK."
   },
-  "additionalPackages": [],
+  "additionalPackages": [
+    {
+      "id": "NETStandard.Library.NETFramework",
+      "version": "2.0.1-servicing-26011-01",
+      "fileName": "netstandard.library.netframework.2.0.1-servicing-26011-01.nupkg",
+      "url": "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/flat2/netstandard.library.netframework/2.0.1-servicing-26011-01/netstandard.library.netframework.2.0.1-servicing-26011-01.nupkg",
+      "bytes": 1844646,
+      "sha256": "218dd4c63d3f800de697bca41178827a52df0a9ec7a9b47520327d91ebc7051c",
+      "sha512": "714a0fad007482d3bdacd4e4d88460003c0dc2e97f326525bdddc5ac0a09151951a45817de436ceb753aa766f3b8ae421fefc074a617698291e3f663146930fc",
+      "correspondingSource": {
+        "root": "vmr",
+        "path": "src/source-build-assets/src/targetPacks/ILsrc/netstandard.library.netframework/2.0.1-servicing-26011-01",
+        "tree": "e149c55e5c641bbac5906cc12db0dbcfcbd778f9",
+        "kind": "complete-upstream-il-and-msbuild-source"
+      }
+    }
+  ],
   "apkIndexes": {
     "main": {
       "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/APKINDEX.tar.gz",

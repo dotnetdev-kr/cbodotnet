@@ -53,6 +53,16 @@ nested package DLLs. Signature stubs may ship as compilation references in
 `ref` directories; placing one in an SDK host/runtime path fails admission.
 This disposition never qualifies a vulnerable runtime implementation.
 
+SDK 8's original Arcade implementation references are serviced from MSBuild
+17.3.2 to 17.8.43. Its XML/CMS dependency chain uses Xml 8.0.5 and Pkcs 8.0.2;
+a direct Asn1 8.0.2 reference prevents older NuGet dependencies selecting a
+vulnerable ASN.1 implementation. These changes apply only to Arcade build
+infrastructure. The product MSBuild source and the guarded signature reference
+graph remain intact. Eight exact package byte pins bind the publisher commits
+and licenses to three complete corresponding Git sources. Native compilation
+checks use fatal auditing, including transitive dependencies; the full original
+two-CPU source build remains required for qualification.
+
 SDK 9's build-helper MSBuild reference is updated from 17.8.29 to 17.8.43.
 The helper's transitive ASN.1 reference is pinned to fixed 8.0.1. These minimal
 source patches address the upstream advisories

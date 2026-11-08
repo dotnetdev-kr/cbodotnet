@@ -209,6 +209,86 @@ def validate_serviced_inputs(release, profile, source_manifest):
                     for record in row['actualRestoreRecords']), 'Serviced package lacks actual restored-byte evidence')
 
 
+def validate_additional_inputs(release, profile, source_manifest=None):
+    """Authenticate the exact imported target-support package and retained IL.
+
+    The package is an unchanged upstream input. Its complete original IL,
+    project, nuspec and licenses are retained; no local rebuild is claimed.
+    """
+    packages = profile.get('additionalPackages', [])
+    if not packages:
+        return None
+    require(profile['sdkVersion'] == '9.0.123' and packages == R.NET9_ADDITIONAL_PACKAGES,
+            'Unreviewed additional targeting input')
+    report = load_json(release / 'reports/prepare/pinned-inputs.json')
+    require(set(report) == {'feed', 'packages'} and report['feed'] == '/inputs/nuget'
+            and len(report['packages']) == len(packages), 'Exact pinned targeting input report required')
+    for expected, observed in zip(packages, report['packages']):
+        require(observed == dict(expected, sizeBytes=expected['bytes'], sha256Verified=True,
+            archiveIntegrityVerified=True, hashOrigin='Content fingerprint recorded from the public upstream URL, not a publisher signature'),
+            'Pinned targeting input download/identity proof differs')
+        path = release / 'pinned-inputs/nuget' / expected['fileName']
+        require(fingerprint(path) == {key: expected[key] for key in ('bytes', 'sha256', 'sha512')},
+                'Retained exact targeting package bytes differ')
+        with zipfile.ZipFile(path) as archive:
+            require(archive.testzip() is None, 'Pinned targeting ZIP integrity differs')
+            names = [name for name in archive.namelist() if name.lower().endswith('.nuspec')]
+            require(len(names) == 1 and archive.getinfo(names[0]).file_size < 1024**2, 'One bounded targeting nuspec required')
+            raw = archive.read(names[0])
+            require(b'<!DOCTYPE' not in raw.upper() and b'<!ENTITY' not in raw.upper(), 'Unsafe targeting package metadata')
+            metadata = ET.fromstring(raw).find('{*}metadata')
+            require(metadata is not None and metadata.findtext('{*}id') == expected['id']
+                    and metadata.findtext('{*}version') == expected['version'], 'Pinned targeting package identity differs')
+    if source_manifest is None:
+        return None
+    restored = load_json(release / 'reports/restored-inputs.json')['packages']
+    roots = [row for row in source_manifest['roots'] if row['name'] == 'vmr']
+    require(len(roots) == 1 and roots[0]['kind'] == 'git' and roots[0]['commit'] == R.VERSIONS['9.0.123']['source'],
+            'Pinned targeting support needs its complete original VMR source')
+    proof = []
+    for expected in packages:
+        correspondence = expected['correspondingSource']
+        prefix = correspondence['root'] + '/' + correspondence['path'] + '/'
+        selected, retained = {}, []
+        with (release / 'sources' / source_manifest['index']['path']).open() as stream:
+            for line in stream:
+                row = json.loads(line)
+                if row['path'].startswith(prefix):
+                    name = row['path'][len(prefix):]
+                    require(name not in selected and row.get('baseline', {}).get('mode') in ('100644', '100755'),
+                            'Duplicate or non-ordinary corresponding targeting source')
+                    selected[name] = row
+                if row['path'] == 'pinned-targeting-inputs/nuget/' + expected['fileName']:
+                    retained.append({key: row[key] for key in ('bytes', 'sha256', 'sha512')})
+        fp = {key: expected[key] for key in ('bytes', 'sha256', 'sha512')}
+        packer = module('modern_targeting_source_tree', 'package-used-source.py')
+        require(retained == [fp] and selected and packer.baseline_tree({name: row['baseline'] for name, row in selected.items()}) == correspondence['tree'],
+                'Complete original targeting package and exact IL source Git tree must be retained')
+        actual = set()
+        with tarfile.open(release / 'sources' / source_manifest['archive']['path'], 'r|gz') as archive:
+            for entry in archive:
+                if not entry.name.startswith(prefix):
+                    continue
+                name = entry.name[len(prefix):]
+                if name not in selected:
+                    continue
+                require(entry.isfile() and entry.size <= 64 * 1024**2 and name not in actual,
+                        'Ordinary complete targeting source archive member required')
+                raw = archive.extractfile(entry).read()
+                require(hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest() == selected[name]['baseline']['blob'],
+                        'Corresponding targeting IL/project/license source differs from its pristine Git blob')
+                actual.add(name)
+        require(actual == selected.keys() and {'LICENSE.TXT', 'THIRD-PARTY-NOTICES.TXT',
+                'netstandard.library.netframework.nuspec'} <= actual, 'Complete original targeting code and notices are absent')
+        matches = [row for row in restored if Path(row['path']).name.lower() == expected['fileName']
+                   and all(row.get(key) == expected[key] for key in fp)]
+        require(matches, 'Pinned targeting package was not actually restored unchanged')
+        proof.append(dict(package=expected, actualRestoreRecords=matches, sourceFiles=len(selected),
+            sourceRoot='vmr', sourceCommit=roots[0]['commit'], sourceTree=correspondence['tree'],
+            localBuildClaimed=False, byteIdenticalCompilationClaimed=False))
+    return dict(schemaVersion=1, sdkVersion=profile['sdkVersion'], packages=proof)
+
+
 def configure_feeds(source, reports, sdk):
     """Record the same public mirror choice without using the SDK10-only helper."""
     require(git(source, 'rev-parse', 'HEAD') == R.VERSIONS[sdk]['source'], 'Pinned feed source commit differs')
@@ -225,6 +305,10 @@ def configure_feeds(source, reports, sdk):
         if document.find('packageSources') is None:
             continue
         text = text.replace(old, new)
+        if sdk.startswith('9.'):
+            require(document.find("packageSources/add[@key='pinned-microsoft']") is None,
+                    'Pinned source unexpectedly defines the downstream exact-package feed')
+            text = text.replace('</packageSources>', '    <add key="pinned-microsoft" value="/inputs/nuget" />\n  </packageSources>', 1)
         entry = '    <add key="maxHttpRequestsPerSource" value="8" />\n'
         limit = document.find("config/add[@key='maxHttpRequestsPerSource']")
         if limit is not None:
@@ -369,6 +453,12 @@ class Producer(P.Producer):
                 'Exact native bootstrap must resolve all 13 source translation cultures using full ICU')
         write(self.reports / 'prepare/official-sdk.json', download(upstream_sdk_record(self.sdk, self.args.arch),
                                                                   self.inputs / 'official-sdk.tar.gz'))
+        if self.sdk.startswith('9.'):
+            self.container(['python3', '/project/scripts/fetch-pinned-inputs.py', '--profile',
+                '/project/' + self.profile_path.relative_to(ROOT).as_posix(), '--inputs-dir', '/delivery/pinned-inputs',
+                '--reports-dir', '/delivery/reports/prepare'])
+            validate_additional_inputs(self.output, self.profile)
+            shutil.copytree(self.output / 'pinned-inputs/nuget', self.inputs / 'nuget')
         configure_feeds(self.source, self.reports / 'prepare/feeds', self.sdk)
         if self.route['sourceOnly']:
             # Download/preserve the pristine PSB before original prep replaces it.
@@ -607,6 +697,9 @@ class Producer(P.Producer):
         support = module('modern_consumer_roots', 'ci_vmr89_support.py')
         roots, ledger = support.consumer_roots(self.source, self.sdk.split('.')[0])
         roots[0]['role'] = 'built-sdk-vmr-source-and-corresponding-imported-input-source'
+        if self.sdk.startswith('9.'):
+            roots.append(dict(name='pinned-targeting-inputs', path=str(self.output / 'pinned-inputs'), kind='tree',
+                              role='actual-unchanged-imported-targeting-support-package-inputs'))
         sources = self.profile.get('supplementalSourceGit', [])
         if sources:
             servicing = load_json(self.reports / 'prepare/serviced-inputs.json')
@@ -633,8 +726,10 @@ class Producer(P.Producer):
         packer.pack(SimpleNamespace(project_root=ROOT, project_commit=self.project, output_dir=self.output / 'sources',
             roots_json=roots_file, sdk_version=self.sdk, target_rid=self.id['rid'], run_id=self.args.run_id,
             run_attempt=self.args.run_attempt))
-        packer.verify(SimpleNamespace(release_dir=self.output, expected_project_commit=self.project,
+        source_manifest = packer.verify(SimpleNamespace(release_dir=self.output, expected_project_commit=self.project,
             expected_run_id=self.args.run_id, expected_run_attempt=self.args.run_attempt, expected_target_rid=self.id['rid']))
+        if self.sdk.startswith('9.'):
+            write(self.reports / 'additional-inputs.json', validate_additional_inputs(self.output, self.profile, source_manifest))
         write(self.output / 'producer-sdk.json', dict(schemaVersion=1, kind='musl-sdk-build', producerRevision=1,
             sdkVersion=self.sdk, architecture=self.args.arch, targetRid=self.id['rid'], libc='musl',
             sourceCommit=self.route['source'], projectCommit=self.project, runId=self.args.run_id,
@@ -890,6 +985,9 @@ def validate(release):
     source_roots = [r for r in source_manifest['roots'] if r['name'] == 'vmr']
     require(len(source_roots) == 1 and source_roots[0]['commit'] == route['source'], 'Actual retained complete VMR source differs')
     validate_serviced_inputs(release, profile, source_manifest)
+    if sdk.startswith('9.'):
+        require(load_json(release / 'reports/additional-inputs.json') == validate_additional_inputs(release, profile, source_manifest),
+                'Independent additional targeting package/source interpretation differs')
     scan = load_json(release / 'reports/scan/pinned-source-inventory.json')
     require(scan.get('sourceCommit') == route['source'] and scan.get('pristineBefore') is True
             and scan.get('pristineAfter') is True and scan.get('sourceTree') == source_roots[0]['tree'],

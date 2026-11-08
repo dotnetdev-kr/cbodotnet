@@ -1,0 +1,64 @@
+Subject: [PATCH] Service the original Arcade implementation MSBuild and crypto inputs
+
+Upgrade the four coordinated MSBuild build-helper package properties from
+17.3.2 to 17.8.43. Keep XML/CMS and ASN.1 on their fixed .NET 8 servicing
+versions: Xml 8.0.5, transitive Pkcs 8.0.2 and Asn1 8.0.2. A direct common
+Asn1 reference prevents old NuGet.Packaging dependencies selecting Asn1 5.0.0.
+These references belong to Arcade build infrastructure; product MSBuild is
+still built from the pinned SDK sources. NuGet auditing remains enabled and
+all warnings remain fatal for implementation projects. Historical signature
+reference packages and their separately guarded audit disposition are intact.
+
+Complete exact package bytes, publisher source Git objects and licenses must
+be retained and checked against actual restore records by the producer.
+
+Advisories: https://github.com/dotnet/msbuild/security/advisories/GHSA-h4j7-5rxr-p4wc
+ https://github.com/dotnet/msbuild/security/advisories/GHSA-w3q9-fxm7-j8fq
+ https://github.com/dotnet/runtime/security/advisories/GHSA-846f-f764-76mx
+ https://github.com/dotnet/runtime/security/advisories/GHSA-447r-wph3-92pm
+Base-VMR: 7d1bf90885cff22e7da72b27e9848e42fd3cb1ae
+Base-Arcade: 659e244c0464986411ccd6ccf51084c96ae66091
+
+diff --git a/src/arcade/eng/Versions.props b/src/arcade/eng/Versions.props
+--- a/src/arcade/eng/Versions.props
++++ b/src/arcade/eng/Versions.props
+@@ -24,10 +24,10 @@
+     <MicrosoftSymbolUploaderBuildTaskVersion>2.0.0-preview.1.23470.14</MicrosoftSymbolUploaderBuildTaskVersion>
+     <MicrosoftSymbolUploaderVersion>2.0.0-preview.1.23470.14</MicrosoftSymbolUploaderVersion>
+     <!-- msbuild -->
+-    <MicrosoftBuildFrameworkVersion>17.3.2</MicrosoftBuildFrameworkVersion>
+-    <MicrosoftBuildTasksCoreVersion>17.3.2</MicrosoftBuildTasksCoreVersion>
+-    <MicrosoftBuildUtilitiesCoreVersion>17.3.2</MicrosoftBuildUtilitiesCoreVersion>
+-    <MicrosoftBuildVersion>17.3.2</MicrosoftBuildVersion>
++    <MicrosoftBuildFrameworkVersion>17.8.43</MicrosoftBuildFrameworkVersion>
++    <MicrosoftBuildTasksCoreVersion>17.8.43</MicrosoftBuildTasksCoreVersion>
++    <MicrosoftBuildUtilitiesCoreVersion>17.8.43</MicrosoftBuildUtilitiesCoreVersion>
++    <MicrosoftBuildVersion>17.8.43</MicrosoftBuildVersion>
+     <!-- netstandard -->
+     <NETStandardLibraryVersion>2.0.3</NETStandardLibraryVersion>
+     <!-- nuget -->
+@@ -62,8 +62,9 @@
+     <SystemIOPackagingVersion>7.0.0</SystemIOPackagingVersion>
+     <SystemReflectionMetadataVersion>7.0.0</SystemReflectionMetadataVersion>
+     <SystemSecurityCryptographyX509CertificatesVersion>4.3.2</SystemSecurityCryptographyX509CertificatesVersion>
+-    <!-- Do not move too far ahead of what Microsoft.Build.Tasks.Core depends on (currently >=6.0.0). -->
+-    <SystemSecurityCryptographyXmlVersion>6.0.1</SystemSecurityCryptographyXmlVersion>
++    <!-- Keep build-helper XML/CMS/ASN.1 inputs on the fixed .NET 8 servicing line. -->
++    <SystemSecurityCryptographyXmlVersion>8.0.5</SystemSecurityCryptographyXmlVersion>
++    <SystemFormatsAsn1Version>8.0.2</SystemFormatsAsn1Version>
+     <SystemTextEncodingsWebVersion>7.0.0</SystemTextEncodingsWebVersion>
+     <SystemTextJsonVersion>8.0.5</SystemTextJsonVersion>
+     <!-- sdk -->
+diff --git a/src/arcade/Directory.Build.targets b/src/arcade/Directory.Build.targets
+--- a/src/arcade/Directory.Build.targets
++++ b/src/arcade/Directory.Build.targets
+@@ -12,4 +12,9 @@
+                                  $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netstandard2.0'))" />
+   </ItemGroup>
+ 
++
++  <ItemGroup Condition="'$(TargetFramework)' != ''">
++    <!-- NuGet.Packaging's older transitive ASN.1 must not win over the fixed CMS dependency. -->
++    <PackageReference Include="System.Formats.Asn1" Version="$(SystemFormatsAsn1Version)" />
++  </ItemGroup>
+ </Project>

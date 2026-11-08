@@ -54,6 +54,11 @@
         "path": "patches/musl/net8/0001-retain-reference-audit-warnings.patch",
         "sha256": "ab698abeac802febfd8dc1f27c7c05784911bed55c84d1df49f3de5e98f45daf",
         "purpose": "Keep historical signature-only reference identities and visible audit warnings; independently reject unknown advisories and runtime stub placements."
+      },
+      {
+        "path": "patches/musl/net8/0002-service-arcade-build-dependencies.patch",
+        "sha256": "639c9cb360475f35a87db9bd338c3165ab909f7d5d698b57df1e0d8edfc5a434",
+        "purpose": "Service only original Arcade implementation MSBuild/XML/CMS/ASN.1 build inputs; preserve fatal NuGet auditing and exact package/source/license correspondence."
       }
     ]
   },
@@ -65,6 +70,100 @@
     "sourceBuiltArtifactsRid": "centos.9-x64",
     "bootstrapTransformation": "Original prep.sh transforms PSB artifacts using upstream portable packages, including both musl RIDs; preserve original and transformed bytes separately."
   },
+  "supplementalSourceGit": [
+    {
+      "name": "serviced-arcade-msbuild",
+      "repository": "https://github.com/dotnet/msbuild",
+      "commit": "f0cbb13971c30ad15a3f252a8d0171898a01ec11",
+      "role": "source-for-serviced-imported-package",
+      "requiredNotices": [
+        "LICENSE",
+        "THIRDPARTYNOTICES.txt"
+      ],
+      "packages": [
+        {
+          "id": "microsoft.build",
+          "version": "17.8.43",
+          "bytes": 4087750,
+          "sha512": "1027a472fcdd94de7c8df8c93223b215bc58c4cec5f4f7a7e8b60272443ce73fbcabc1c8b500996ef8e793d6bf11d22354049a5a617fe657a7c95da647f3bcdc",
+          "license": "MIT"
+        },
+        {
+          "id": "microsoft.build.framework",
+          "version": "17.8.43",
+          "bytes": 1024518,
+          "sha512": "e7cef0318323d3aca79ee7529f2e9c9abd99ad0294c40e66b2f238dcb78f6264a61a89a4cfb5f9e07bc21b079551abc68ae83784a008363b1800ea717fdda52f",
+          "license": "MIT"
+        },
+        {
+          "id": "microsoft.build.tasks.core",
+          "version": "17.8.43",
+          "bytes": 2305295,
+          "sha512": "73b0b8aaeda4f8f38b956a711afc5b492846b52028105be8ceadc43a6260ac94b1f32f9bb5dc8fdefdebc3a6380618e615f3f3d78eb390d2188a285fb3a7d6b9",
+          "license": "MIT"
+        },
+        {
+          "id": "microsoft.build.utilities.core",
+          "version": "17.8.43",
+          "bytes": 875561,
+          "sha512": "1186963ce964c546cba12733dd9bcb5a5a99f4579414a2326d5c7a2665562bc059b7ddec8dda71debc804984cf1d68e737ec806707fe99feb7a461779436c892",
+          "license": "MIT"
+        },
+        {
+          "id": "microsoft.net.stringtools",
+          "version": "17.8.43",
+          "bytes": 176196,
+          "sha512": "3b654a0b7ae14f77665027c1c55b0e8e031815f8ff710a4416b448b39622061ecf3e0684d012c313fa3612ed66db5d5f1b80ecdfb478f1eb751a4587a89ed733",
+          "license": "MIT"
+        }
+      ]
+    },
+    {
+      "name": "serviced-arcade-crypto",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "b9a49e4a6d3a444a3685e318c74a7892d01873f7",
+      "role": "source-for-serviced-imported-package",
+      "requiredNotices": [
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT"
+      ],
+      "packages": [
+        {
+          "id": "system.security.cryptography.xml",
+          "version": "8.0.5",
+          "bytes": 482518,
+          "sha512": "25e4f7c35870223409cbde629fa38ff597e9c5182b383916a9500867f85c9b4d9df3b7f1f498367978cc31517b60b5f5e2be6f7c4d4f132be97ad23b0596971f",
+          "license": "MIT"
+        },
+        {
+          "id": "system.security.cryptography.pkcs",
+          "version": "8.0.2",
+          "bytes": 1081001,
+          "sha512": "6fb6cbf867b8cac6beb53bcc982178907e1d57d7074dc85652058258ec04a68523127d234be60eb0a7a5bebb5d4c47a617dc3aa8226d82c3e83459ed0644ac46",
+          "license": "MIT"
+        }
+      ]
+    },
+    {
+      "name": "serviced-arcade-asn1",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "eba546b0f0d448e0176a2222548fd7a2fbf464c0",
+      "role": "source-for-serviced-imported-package",
+      "requiredNotices": [
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT"
+      ],
+      "packages": [
+        {
+          "id": "system.formats.asn1",
+          "version": "8.0.2",
+          "bytes": 328440,
+          "sha512": "5ff815d35c62ce56c3cc15dc3bbac3efca42e2469c49cc0ac358e9d9157982f755c53841dc7d4734fce03d009fdb4c3978facb5c4a5e208d9c4897f57b618e71",
+          "license": "MIT"
+        }
+      ]
+    }
+  ],
   "additionalPackages": [],
   "apkIndexes": {
     "main": {
