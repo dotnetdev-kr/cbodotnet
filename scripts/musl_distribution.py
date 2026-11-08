@@ -200,6 +200,20 @@ def apk_candidate(architecture, revision, workspace, output, *, sdk_version="10.
         '--output','/proof/lifecycle-report.json'])
     lifecycle=json.loads(ordinary_file(lifecycle_dir/'lifecycle-report.json').read_bytes())
     lifecycle['orchestration']=origin
+    if sdk_version != '10.0.403':
+        import musl_side_by_side as COEXIST
+        reference=COEXIST.prepare_reference(architecture,workspace/'coexistence-reference')
+        ARCHIVE.run(['docker','run','--rm','--network=none','-v',str(ROOT)+':/project:ro',
+            '-v',str(assembly)+':/candidate:ro','-v',reference['directory']+':/reference:ro',
+            '-v',str(lifecycle_dir)+':/proof','-e','PYTHONDONTWRITEBYTECODE=1','-w','/project',lifecycle_image,
+            'python3','scripts/musl_side_by_side.py','qualify','--build','/candidate/build',
+            '--upgrade-build','/candidate/upgrade','--arch',architecture,'--public-key','/candidate/build.rsa.pub',
+            '--reference','/reference','--output','/proof/coexistence-report.json'])
+        coexistence=json.loads(ordinary_file(lifecycle_dir/'coexistence-report.json').read_bytes())
+        COEXIST.validate(coexistence,json.loads(ordinary_file(assembly/'build/package-build.json').read_bytes()),
+            json.loads(ordinary_file(assembly/'upgrade/package-build.json').read_bytes()),reference['record'])
+        lifecycle['communitySeriesCoexistence']=coexistence
+        lifecycle['sideBySideScope']='Two independently qualified Community SDK series and the independent stock official SDK.'
     _export_apk_candidate(assembly,report,lifecycle,origin,output)
     return dict(status='validated-unpublished',architecture=architecture)
 

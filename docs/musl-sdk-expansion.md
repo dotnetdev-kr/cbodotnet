@@ -39,6 +39,17 @@ anonymous public checks on both CPUs; six exact public reports are bound by a
 separate signed final verification manifest before availability is activated.
 SDK 9 or 8 installer admission requires separate qualification.
 
+Expanded SDK APK candidates also receive the actual public SDK 10 r1 packages.
+The reference's signed metadata, approved key, index, package bytes and complete
+payload inventory are checked against the existing public receipt and original
+qualified SDK. A fresh offline container then exercises twelve transactions
+with both real Community series and the independent stock official SDK. It
+checks versioned commands, branding, highest-series selection, removal fallback,
+reinstall, upgrade and rollback, both complete immutable payloads, and unchanged
+official SDK files. Protected promotion replays the closed proof against the
+exact retained reference metadata and independently reconstructed candidate
+payload; a single Community series proof cannot qualify an expanded SDK.
+
 ## Existing installer releases
 
 Expanding the consumer helpers changes their source hashes without changing

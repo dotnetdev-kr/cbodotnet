@@ -175,7 +175,7 @@ def validate_native_report(report, build, origin, *, payload=None):
     return report
 
 
-def validate_lifecycle(report, build, upgrade, origin, public_key):
+def validate_lifecycle(report, build, upgrade, origin, public_key, *, payload=None):
     plan, next_plan = build['plan'], upgrade['plan']
     require(report.get('schemaVersion') == 1 and report.get('scope') == 'musl-apk-lifecycle'
         and report.get('status') == 'passed' and report.get('native') is True
@@ -200,6 +200,14 @@ def validate_lifecycle(report, build, upgrade, origin, public_key):
         and official.get('completeTreePreserved') is True and type(host.get('size')) is int and host['size'] > 0
         and re.fullmatch(r'[a-f0-9]{64}', host.get('sha256', '')),
         'APK lifecycle did not preserve the independent stock official SDK')
+    if plan['sdkVersion'] != '10.0.403':
+        import musl_side_by_side as COEXIST
+        proof=report.get('communitySeriesCoexistence')
+        require(isinstance(proof,dict) and isinstance(proof.get('referenceRecord'),dict),
+                'Expanded SDK APK lifecycle needs actual second Community series coexistence')
+        reference=COEXIST.authenticate_reference_record(proof['referenceRecord'],plan['architecture']['public'])
+        COEXIST.validate(proof,build,upgrade,reference,
+            candidate_payload=ARCHIVE.tools().snapshot(payload) if payload is not None else None)
     return report
 
 
@@ -298,7 +306,7 @@ def verify_candidate(directory, architecture, origin, inputs, revision=1):
             'APK lifecycle upgrade changed the unchanged qualified SDK')
         report = validate_native_report(load_json(directory / 'qualification-report.json'), first, origin, payload=payload)
         lifecycle = validate_lifecycle(load_json(directory / 'lifecycle-report.json'), first, second, origin,
-                                       APK.public_key_identity(public))
+                                       APK.public_key_identity(public), payload=payload)
     return first, second, report, lifecycle
 
 
