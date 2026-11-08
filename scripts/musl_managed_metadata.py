@@ -219,4 +219,8 @@ def inspect(data):
         assemblyVersion='.'.join(str(read('<H', at + 4 + index * 2, tables)) for index in range(4)),
         culture=text(number(s, at + 16 + b + s)),
         publicKeyToken=hashlib.sha1(public_key).digest()[-8:][::-1].hex() if public_key else '',
-        attributes=attributes, references=references)
+        attributes=attributes, references=references,
+        definitionCounts=dict(types=counts.get(2, 0), methods=counts.get(6, 0), fields=counts.get(4, 0),
+                              exportedTypes=counts.get(39, 0), files=counts.get(38, 0), resources=counts.get(40, 0)),
+        cliFlags=read('<I', cli + 16), entryPoint=read('<I', cli + 20),
+        managedNativeHeaderBytes=read('<I', cli + 68))

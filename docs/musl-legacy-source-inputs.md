@@ -40,5 +40,16 @@ when reviewed; no replacement commit was selected. Available upstream templates
 and repository facts remain separate investigation evidence. No workload binary
 or workload-support claim is authorized by this data policy.
 
+[`musl_legacy_msbuild_resources.py`](../scripts/musl_legacy_msbuild_resources.py)
+authenticates the immutable `Microsoft.Build.Localization` 17.4.8 package.
+Its 52 satellite assemblies contain resource data only. All 20,280 strings are
+compared with their own project's XLF targets from the complete original
+MSBuild `6918b863aa37ad0699f98482fbab9f7a52e65a92` source: 19,591 match
+exactly and 689 differ only by CRLF/LF. The package, original satellite bytes,
+nuspec and decoded text remain retained alongside 78 pinned original XLF files
+and the MIT license. Different projects cannot supply substitute translations.
+The package's missing repository field is preserved. This policy neither
+claims local compilation nor authorizes primary MSBuild implementation DLLs.
+
 The metadata layout follows [ECMA-335, Partition II](https://www.ecma-international.org/wp-content/uploads/ECMA-335_6th_edition_june_2012.pdf)
 and the pinned runtime's [metadata size calculations](https://github.com/dotnet/runtime/blob/0fb6ac59fb1edbe4ed3ad62661df0eb7eacd7903/src/libraries/System.Reflection.Metadata/src/System/Reflection/Metadata/Ecma335/MetadataSizes.cs).

@@ -59,6 +59,9 @@ class ManagedIdentityBoundary(unittest.TestCase):
             self.assertEqual('Sample', actual['assemblyName'])
             self.assertEqual('1.2.3.4', actual['assemblyVersion'])
             self.assertEqual('', actual['publicKeyToken'])
+            self.assertEqual(dict(types=1, methods=0, fields=0, exportedTypes=0, files=0, resources=0), actual['definitionCounts'])
+            self.assertEqual(0, actual['entryPoint'])
+            self.assertEqual(0, actual['managedNativeHeaderBytes'])
             self.assertEqual([version], actual['attributes']['System.Reflection.AssemblyInformationalVersionAttribute'])
             self.assertEqual([dict(name='System.Runtime', version='7.0.0.0')], actual['references'])
 
