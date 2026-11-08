@@ -61,8 +61,17 @@ def profile(sdk, arch, root=ROOT):
         supplemental, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
         == 'd3c607935519a6c23ef05969ab6b7bc6b2cbaa1f761c0b0e926d5e4ef796b116'),
         'Reviewed serviced package/source/license registry differs')
+    reference_audit = dict(path='scripts/musl-reference-audit-policy.json',
+        sha256='a225d95dc15db8025320de1736a8d6ee68683894375168cca63057a28a9780ba')
+    require(build.get('referenceAuditDisposition') == (reference_audit if expected['sourceOnly'] else None),
+            'Unreviewed reference-only audit disposition')
+    if expected['sourceOnly']:
+        require(hashlib.sha256((root / reference_audit['path']).read_bytes()).hexdigest() == reference_audit['sha256'],
+                'Reference-only audit policy bytes differ')
     expected_patches = ({'patches/net8/0002-preserve-portable-aspnetcore-target.patch':
-                         'b03fab8085c959debc05892fb1920edaa8f514f90d4189994de23608abcc7d8a'} if expected['sourceOnly'] else {
+                         'b03fab8085c959debc05892fb1920edaa8f514f90d4189994de23608abcc7d8a',
+                         'patches/musl/net8/0001-retain-reference-audit-warnings.patch':
+                         'e04d389af3fa0cf356ec23ad9de4e58a8204ac0660ee5386e7997283f880677c'} if expected['sourceOnly'] else {
                          'patches/musl/net9/0001-use-fixed-build-helper-msbuild.patch':
                          '444916928c5c78a8232c3baba53b7d0c2d09ea4ad9bd4fe3536b1b11055b823e',
                          'patches/musl/net9/0002-use-fixed-build-helper-asn1.patch':

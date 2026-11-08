@@ -418,6 +418,10 @@ class Producer(P.Producer):
 
     def build(self):
         self.container(self.build_command(), log=self.reports / 'build/build.log')
+        if self.route['sourceOnly']:
+            log = self.reports / 'build/reference-audit.log'
+            shutil.copyfile(self.source / 'artifacts/logs/source-build-assets.log', log)
+            module('modern_reference_audit', 'musl_reference_audit.py').warning_graph(log.read_text())
         if not self.route['sourceOnly']:
             # The NET9 tools traversal builds only its task/resolver projects;
             # its standalone original BinaryToolKit must be built explicitly.
@@ -484,6 +488,9 @@ class Producer(P.Producer):
         shutil.copyfile(upstream, self.archive)
         require(fingerprint(self.archive) == fp and fp['sha512'] != upstream_sdk_record(self.sdk, self.args.arch)['sha512'],
                 'SDK must be a newly built unchanged output, never the upstream comparison archive')
+        if self.route['sourceOnly']:
+            audit = module('modern_reference_payload_audit', 'musl_reference_audit.py')
+            write(self.reports / 'build/reference-audit.json', audit.report(self.output, self.archive))
         self.collect_construction()
         records = []
         for path in sorted((self.reports / 'restored-inputs').glob('*.json')):
@@ -744,6 +751,8 @@ def validate(release):
     name = 'cbodotnet-sdk-' + sdk + '-linux-musl-' + arch + '-build.' + result['runId'] + '.tar.gz'
     archive = release / name
     require(producer.get('sdk') == dict(name=name, **fingerprint(archive)), 'Actual newly built SDK bytes differ')
+    if route['sourceOnly']:
+        module('modern_reference_admission', 'musl_reference_audit.py').validate(release, archive)
     construction = load_json(release / 'reports/construction.json')
     require(construction.get('sdkSource') == route['source'] and construction.get('sourceOnly') is route['sourceOnly']
             and construction.get('crossBuild') is False and construction.get('runtimeVersion') == route['runtime']

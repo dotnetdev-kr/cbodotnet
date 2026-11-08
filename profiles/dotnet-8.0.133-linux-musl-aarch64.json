@@ -40,11 +40,20 @@
     "compiler": "/usr/bin/clang-20",
     "cxxCompiler": "/usr/bin/clang++-20",
     "sharedComponents": "Both frameworks require independent actual archive-origin and full byte comparison evidence.",
+    "referenceAuditDisposition": {
+      "path": "scripts/musl-reference-audit-policy.json",
+      "sha256": "a225d95dc15db8025320de1736a8d6ee68683894375168cca63057a28a9780ba"
+    },
     "patches": [
       {
         "path": "patches/net8/0002-preserve-portable-aspnetcore-target.patch",
         "sha256": "b03fab8085c959debc05892fb1920edaa8f514f90d4189994de23608abcc7d8a",
         "purpose": "Preserve the explicit portable musl ASP.NET Core target; no cross-build host patch is applied for this native build."
+      },
+      {
+        "path": "patches/musl/net8/0001-retain-reference-audit-warnings.patch",
+        "sha256": "e04d389af3fa0cf356ec23ad9de4e58a8204ac0660ee5386e7997283f880677c",
+        "purpose": "Keep historical signature-only reference identities and visible audit warnings; independently reject unknown advisories and runtime stub placements."
       }
     ]
   },

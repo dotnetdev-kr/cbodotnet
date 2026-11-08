@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "kind": "reviewed-reference-only-audit-disposition",
+  "sdkVersion": "8.0.133",
+  "sourceCommit": "7d1bf90885cff22e7da72b27e9848e42fd3cb1ae",
+  "component": "source-build-assets",
+  "componentCommit": "57bfccd8cd6091e138f487653e7eefcfef2e455a",
+  "scope": "src/referencePackages/",
+  "nuGetAuditEnabled": true,
+  "warningsRemainVisible": true,
+  "unknownAdvisoriesAllowed": false,
+  "referenceAssemblyIdentitiesUnchanged": true,
+  "referenceApiFilesMayShip": true,
+  "runtimeImplementationExceptionAllowed": false,
+  "reviewedNativeRunId": "42442312926",
+  "reviewedNativeRunAttempt": "1",
+  "records": [
+    {
+      "project": "src/referencePackages/src/microsoft.build.tasks.core/17.3.2/Microsoft.Build.Tasks.Core.17.3.2.csproj",
+      "code": "NU1903",
+      "packageId": "System.Security.Cryptography.Pkcs",
+      "packageVersion": "6.0.1",
+      "severity": "high",
+      "advisory": "https://github.com/advisories/GHSA-555c-2p6r-68mm"
+    },
+    {
+      "project": "src/referencePackages/src/microsoft.build.tasks.core/17.4.0/Microsoft.Build.Tasks.Core.17.4.0.csproj",
+      "code": "NU1903",
+      "packageId": "System.Security.Cryptography.Pkcs",
+      "packageVersion": "6.0.1",
+      "severity": "high",
+      "advisory": "https://github.com/advisories/GHSA-555c-2p6r-68mm"
+    },
+    {
+      "project": "src/referencePackages/src/microsoft.build/17.3.2/Microsoft.Build.17.3.2.csproj",
+      "code": "NU1903",
+      "packageId": "System.Text.Json",
+      "packageVersion": "6.0.0",
+      "severity": "high",
+      "advisory": "https://github.com/advisories/GHSA-8g4q-xg66-9fp4"
+    },
+    {
+      "project": "src/referencePackages/src/microsoft.build/17.3.4/Microsoft.Build.17.3.4.csproj",
+      "code": "NU1903",
+      "packageId": "System.Text.Json",
+      "packageVersion": "6.0.0",
+      "severity": "high",
+      "advisory": "https://github.com/advisories/GHSA-8g4q-xg66-9fp4"
+    },
+    {
+      "project": "src/referencePackages/src/microsoft.extensions.dependencymodel/6.0.0/Microsoft.Extensions.DependencyModel.6.0.0.csproj",
+      "code": "NU1903",
+      "packageId": "System.Text.Json",
+      "packageVersion": "6.0.0",
+      "severity": "high",
+      "advisory": "https://github.com/advisories/GHSA-8g4q-xg66-9fp4"
+    },
+    {
+      "project": "src/referencePackages/src/microsoft.extensions.logging.console/6.0.0/Microsoft.Extensions.Logging.Console.6.0.0.csproj",
+      "code": "NU1903",
+      "packageId": "System.Text.Json",
+      "packageVersion": "6.0.0",
+      "severity": "high",
+      "advisory": "https://github.com/advisories/GHSA-8g4q-xg66-9fp4"
+    },
+    {
+      "project": "src/referencePackages/src/system.security.cryptography.cng/5.0.0/System.Security.Cryptography.Cng.5.0.0.csproj",
+      "code": "NU1903",
+      "packageId": "System.Formats.Asn1",
+      "packageVersion": "5.0.0",
+      "severity": "high",
+      "advisory": "https://github.com/advisories/GHSA-447r-wph3-92pm"
+    },
+    {
+      "project": "src/referencePackages/src/system.security.cryptography.pkcs/5.0.0/System.Security.Cryptography.Pkcs.5.0.0.csproj",
+      "code": "NU1903",
+      "packageId": "System.Formats.Asn1",
+      "packageVersion": "5.0.0",
+      "severity": "high",
+      "advisory": "https://github.com/advisories/GHSA-447r-wph3-92pm"
+    },
+    {
+      "project": "src/referencePackages/src/system.security.cryptography.pkcs/7.0.0/System.Security.Cryptography.Pkcs.7.0.0.csproj",
+      "code": "NU1903",
+      "packageId": "System.Formats.Asn1",
+      "packageVersion": "7.0.0",
+      "severity": "high",
+      "advisory": "https://github.com/advisories/GHSA-447r-wph3-92pm"
+    },
+    {
+      "project": "src/referencePackages/src/system.security.cryptography.pkcs/7.0.2/System.Security.Cryptography.Pkcs.7.0.2.csproj",
+      "code": "NU1903",
+      "packageId": "System.Formats.Asn1",
+      "packageVersion": "7.0.0",
+      "severity": "high",
+      "advisory": "https://github.com/advisories/GHSA-447r-wph3-92pm"
+    },
+    {
+      "project": "src/referencePackages/src/system.security.cryptography.xml/6.0.1/System.Security.Cryptography.Xml.6.0.1.csproj",
+      "code": "NU1903",
+      "packageId": "System.Security.Cryptography.Pkcs",
+      "packageVersion": "6.0.1",
+      "severity": "high",
+      "advisory": "https://github.com/advisories/GHSA-555c-2p6r-68mm"
+    },
+    {
+      "project": "src/referencePackages/src/system.security.cryptography.xml/7.0.1/System.Security.Cryptography.Xml.7.0.1.csproj",
+      "code": "NU1903",
+      "packageId": "System.Security.Cryptography.Pkcs",
+      "packageVersion": "7.0.0",
+      "severity": "high",
+      "advisory": "https://github.com/advisories/GHSA-555c-2p6r-68mm"
+    },
+    {
+      "project": "src/referencePackages/src/system.text.json/4.6.0/System.Text.Json.4.6.0.csproj",
+      "code": "NU1904",
+      "packageId": "System.Text.Encodings.Web",
+      "packageVersion": "4.6.0",
+      "severity": "critical",
+      "advisory": "https://github.com/advisories/GHSA-ghhp-997w-qr28"
+    },
+    {
+      "project": "src/referencePackages/src/system.text.json/4.7.0/System.Text.Json.4.7.0.csproj",
+      "code": "NU1904",
+      "packageId": "System.Text.Encodings.Web",
+      "packageVersion": "4.7.0",
+      "severity": "critical",
+      "advisory": "https://github.com/advisories/GHSA-ghhp-997w-qr28"
+    },
+    {
+      "project": "src/referencePackages/src/system.xml.readerwriter/4.3.0/System.Xml.ReaderWriter.4.3.0.csproj",
+      "code": "NU1903",
+      "packageId": "System.Text.RegularExpressions",
+      "packageVersion": "4.3.0",
+      "severity": "high",
+      "advisory": "https://github.com/advisories/GHSA-cmhx-cq75-c4mj"
+    }
+  ]
+}

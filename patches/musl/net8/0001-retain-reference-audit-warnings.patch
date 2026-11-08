@@ -1,0 +1,18 @@
+--- a/src/source-build-assets/src/referencePackages/Directory.Build.props
++++ b/src/source-build-assets/src/referencePackages/Directory.Build.props
+@@ -26,6 +26,14 @@
+     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+     <WarningsAsErrors></WarningsAsErrors>
+     <CheckEolTargetFramework>false</CheckEolTargetFramework>
++
++    <!-- Preserve historical API identities for signature-only reference packages.
++         Keep auditing and all NU190x diagnostics visible. Only this reference
++         directory downgrades audit errors; the producer independently accepts
++         the closed reviewed advisory graph and rejects runtime stub placements.
++         Every implementation and other project retains its normal audit policy. -->
++    <NuGetAudit>true</NuGetAudit>
++    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+     
+     <Nullable>Disable</Nullable>
+     <LangVersion>latest</LangVersion>
+

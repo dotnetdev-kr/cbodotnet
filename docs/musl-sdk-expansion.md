@@ -21,6 +21,28 @@ framework producer and compares its complete file contents with the final
 SDK. SDK 8 retains both pristine and transformed source-built bootstrap inputs.
 The upstream comparison SDK is test input and must differ from the built SDK.
 
+SDK 8 also builds historical API-signature reference packages. Their exact
+identities are compilation contracts; changing a reference version to silence
+an advisory would change that contract. The pinned upstream
+[reference-package description](https://github.com/dotnet/dotnet/blob/7d1bf90885cff22e7da72b27e9848e42fd3cb1ae/src/source-build-assets/README.md)
+distinguishes these signatures from implementations. Auditing remains enabled
+and every warning remains visible. Only `source-build-assets/src/referencePackages`
+uses `WarningsNotAsErrors` for audit diagnostics. The producer independently
+requires the exact 15 project/package/version/advisory records observed on
+both native CPUs, as recorded in
+[the closed disposition](../scripts/musl-reference-audit-policy.json).
+An unknown or missing diagnostic fails verification. All other projects retain
+their normal audit errors.
+
+The actual ARM64 SDK 8.0.131 bootstrap was tested with a vulnerable package:
+the strict control failed, the reference-scoped property preserved its visible
+warning and succeeded, and a separate outside-scope control failed again.
+These are development diagnostics, not SDK qualification. Protected source
+admission reparses the actual build log and rechecks the final SDK, including
+nested package DLLs. Signature stubs may ship as compilation references in
+`ref` directories; placing one in an SDK host/runtime path fails admission.
+This disposition never qualifies a vulnerable runtime implementation.
+
 SDK 9's build-helper MSBuild reference is updated from 17.8.29 to 17.8.43.
 The helper's transitive ASN.1 reference is pinned to fixed 8.0.1. These minimal
 source patches address the upstream advisories
