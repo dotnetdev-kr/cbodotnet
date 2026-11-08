@@ -1227,5 +1227,36 @@ class NuGetEvidenceEmitter(unittest.TestCase):
                 N.feed_record(dict(diagnosticOnly=True, bootstrapFeedDir=str(root)), path, M.POLICIES['7.0.120']['nuget'])
 
 
+class ActualClosureBoundary(unittest.TestCase):
+    def fixture(self, root):
+        raw = bytearray(64); raw[:6] = b'\x7fELF\x02\x01'
+        struct.pack_into('<HH', raw, 16, 3, 183)
+        with tarfile.open(root / 'sdk.tar.gz', 'w:gz') as archive:
+            entry = tarfile.TarInfo('dotnet'); entry.size = len(raw)
+            archive.addfile(entry, io.BytesIO(raw))
+        record = dict(sdkVersion='7.0.120', architecture='aarch64', targetRid='linux-musl-arm64', sdk=dict(name='sdk.tar.gz'))
+        row = dict(path='dotnet', sha256=hashlib.sha256(raw).hexdigest(), interpreter=None)
+        closure = dict(schemaVersion=1, scope='musl-complete-payload-elf-closure', native=True, libc='musl',
+                       architecture='aarch64', targetRid='linux-musl-arm64', symlinks=[], hostElfCount=1, elfFiles=[copy.deepcopy(row)])
+        report = dict(violations=[], emulation=False, nativeArchitecture='aarch64', symlinks=[],
+                      files=[row], elfCount=1, closure=closure)
+        return record, report
+
+    def test_closure_leaf_binds_actual_archive_before_reading_dynamic_metadata(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); record, original = self.fixture(root)
+            omitted = copy.deepcopy(original); omitted['files'] = []; omitted['elfCount'] = 0
+            omitted['closure'].update(elfFiles=[], hostElfCount=0)
+            changed = copy.deepcopy(original)
+            for row in [changed['files'][0], changed['closure']['elfFiles'][0]]: row['sha256'] = '0' * 64
+            interpreter = copy.deepcopy(original)
+            for row in [interpreter['files'][0], interpreter['closure']['elfFiles'][0]]: row['interpreter'] = '/lib/ld-musl-aarch64.so.1'
+            for report in (omitted, changed, interpreter):
+                with self.subTest(report=report['elfCount']), mock.patch.object(M, 'elf_dynamic',
+                        side_effect=AssertionError('Unbound report reached dependency parser')):
+                    with self.assertRaisesRegex(ValueError, 'unchanged archive bytes and interpreter'):
+                        M.validate_elf_closure(root, record, {}, report)
+
+
 if __name__ == '__main__':
     unittest.main()

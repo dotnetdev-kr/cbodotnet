@@ -2699,6 +2699,10 @@ def validate_elf_closure(release, record, profile, report):
     payload = {row['path']: row for row in closure.get('elfFiles', [])}
     require(len(payload) == len(closure.get('elfFiles', [])) == closure.get('hostElfCount') == len(outer)
             and set(payload) == set(outer), 'Inner/outer native ELF inventories differ')
+    actual = P.sdk_elf_inventory(release / record['sdk']['name'], 62 if record['architecture'] == 'x64' else 183, loader)
+    require(len(outer) == len(actual) == report.get('elfCount') and outer.keys() == actual.keys()
+            and all(all(outer[name].get(key) == value for key, value in row.items()) for name, row in actual.items()),
+            'Every actual SDK ELF must bind its unchanged archive bytes and interpreter')
     abi = module('legacy_actual_elf_abi_policy', 'musl_archive.py')
     found = set()
     with tarfile.open(release / record['sdk']['name'], 'r:gz') as archive:
@@ -2861,11 +2865,6 @@ def validate(release):
             and elf.get('loader') == loader and elf.get('uid', 0) > 0 and elf.get('foreignTargetExceptions') == []
             and elf.get('closure', {}).get('status') == 'passed' and elf['closure'].get('nonHostElfCount') == 0,
             'Complete native stock-provider legacy ELF closure required')
-    actual = P.sdk_elf_inventory(release / descriptor['name'], 62 if arch == 'x64' else 183, loader)
-    rows = {row['path']: row for row in elf.get('files', [])}
-    require(len(rows) == len(actual) == elf.get('elfCount') and set(rows) == set(actual)
-            and all(all(rows[path].get(key) == value for key, value in item.items()) for path, item in actual.items()),
-            'Every actual legacy SDK ELF must bind unchanged archive bytes')
     validate_elf_closure(release, record, profile, elf)
     require(any('--network=none' in call and prepare['verificationImageId'] in call
                 for call in stages['verify']['commands']), 'Legacy final verification must use its frozen SDK-free image')
