@@ -9,6 +9,7 @@ import sys
 import subprocess
 import tarfile
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest import mock
 import xml.etree.ElementTree as ET
@@ -428,6 +429,42 @@ class OriginalTestGraph(unittest.TestCase):
             ET.ElementTree(root).write(trx)
             with self.assertRaises(ValueError):
                 R.parse_upstream_results('8.0.133', 'x64', trx)
+
+    def test_failed_net8_image_preparation_retains_unchanged_sdk_and_remains_failed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            sdk = root / 'actual-built-sdk.tar.gz'
+            sdk.write_bytes(b'unchanged actual producer output')
+            fingerprint = M.fingerprint(sdk)
+            producer = object.__new__(M.Producer)
+            producer.sdk = '8.0.133'
+            producer.args = SimpleNamespace(run_id='123', arch='aarch64')
+            producer.source = root / 'source'
+            producer.reports = root / 'reports'
+            producer.reports.mkdir()
+            producer.output = root
+            producer.image_context = root / 'image-context'
+            producer.image = 'sha256:' + 'a' * 64
+            producer.engine = ['docker']
+            producer.id = dict(rid='linux-musl-arm64', image='arm64')
+            producer.route = dict(sourceOnly=True, source='b' * 40)
+            producer.run = mock.Mock(side_effect=RuntimeError('derived image preparation failed'))
+            producer.container = mock.Mock()
+            collector = SimpleNamespace(select_sdk=lambda *args, **kwargs: (sdk, [fingerprint], None))
+            parent = SimpleNamespace(bind_parent=lambda *args: 'localhost/cbodotnet-musl-parent:123-aarch64-builder')
+            def module(name, filename):
+                return {'musl_local_image.py': parent, 'collect-artifacts.py': collector}[filename]
+            with mock.patch.object(M, 'module', side_effect=module):
+                with self.assertRaisesRegex(RuntimeError, 'derived image preparation failed'):
+                    producer.test()
+            retained = producer.reports / 'test/failure/sdk.tar.gz'
+            self.assertEqual(fingerprint, M.fingerprint(retained))
+            record = json.loads(retained.with_name('sdk.json').read_bytes())
+            self.assertFalse(record['qualificationAllowed'])
+            self.assertFalse(record['sourceAdmissionAllowed'])
+            self.assertFalse(record['releasePublished'])
+            self.assertFalse((root / 'producer-validation.json').exists())
+            producer.container.assert_not_called()
 
 
 if __name__ == '__main__':

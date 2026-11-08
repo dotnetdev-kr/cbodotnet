@@ -660,28 +660,29 @@ class Producer(P.Producer):
     def test(self):
         major = self.sdk.split('.')[0]
         test_image = self.image
-        if major == '8':
-            tag = 'localhost/cbodotnet-net8-musl-tests:' + self.args.run_id + '-' + self.args.arch
-            self.run(self.engine + ['build', '--network=host', '--file', str(ROOT / 'containers/net8-musl-smoke.Containerfile'),
-                '--build-arg', 'BUILDER_IMAGE=' + self.image, '--tag', tag, str(self.image_context)],
-                log=self.reports / 'test/image-build.log')
-            inspected = json.loads(self.run(self.engine + ['image', 'inspect', tag], capture=True))
-            require(len(inspected) == 1 and inspected[0]['Architecture'] == self.id['image']
-                    and inspected[0]['Os'] == 'linux', 'Original NET8 test image CPU differs')
-            test_image = inspected[0]['Id']
-            write(self.reports / 'test/image.json', inspected)
-            self.container(['python3', '-c', "import shutil; shutil.copytree('/cbodotnet-net8-test-apks', '/delivery/reports/test/apks')"],
-                image=test_image, log=self.reports / 'test/apk-retention.log')
-            self.container(['python3', '/project/scripts/prepare-net8-musl-tests.py', '--source', '/vmr',
-                '--reports', '/delivery/reports/test/native-inputs', '--arch', self.args.arch],
-                image=test_image, log=self.reports / 'test/native-inputs.log')
-        if major == '9':
-            self.container(['python3', '/project/scripts/prepare-scenario-report-fence.py', 'apply', '--version', '9',
-                '--source-dir', '/vmr', '--reports-dir', '/delivery/reports/test/scenario-report-fence'])
         try:
+            if major == '8':
+                tag = 'localhost/cbodotnet-net8-musl-tests:' + self.args.run_id + '-' + self.args.arch
+                parent = module('modern_local_image_parent', 'musl_local_image.py').bind_parent(self, self.image, 'builder')
+                self.run(self.engine + ['build', '--network=host', '--file', str(ROOT / 'containers/net8-musl-smoke.Containerfile'),
+                    '--build-arg', 'BUILDER_IMAGE=' + parent, '--tag', tag, str(self.image_context)],
+                    log=self.reports / 'test/image-build.log')
+                inspected = json.loads(self.run(self.engine + ['image', 'inspect', tag], capture=True))
+                require(len(inspected) == 1 and inspected[0]['Architecture'] == self.id['image']
+                        and inspected[0]['Os'] == 'linux', 'Original NET8 test image CPU differs')
+                test_image = inspected[0]['Id']
+                write(self.reports / 'test/image.json', inspected)
+                self.container(['python3', '-c', "import shutil; shutil.copytree('/cbodotnet-net8-test-apks', '/delivery/reports/test/apks')"],
+                    image=test_image, log=self.reports / 'test/apk-retention.log')
+                self.container(['python3', '/project/scripts/prepare-net8-musl-tests.py', '--source', '/vmr',
+                    '--reports', '/delivery/reports/test/native-inputs', '--arch', self.args.arch],
+                    image=test_image, log=self.reports / 'test/native-inputs.log')
+            if major == '9':
+                self.container(['python3', '/project/scripts/prepare-scenario-report-fence.py', 'apply', '--version', '9',
+                    '--source-dir', '/vmr', '--reports-dir', '/delivery/reports/test/scenario-report-fence'])
             self.container(self.build_command(True), image=test_image, log=self.reports / 'test/test.log')
         except Exception:
-            # Retain the real unchanged SDK for diagnosing failed original tests.
+            # Retain the unchanged SDK even when test-image preparation fails.
             # This is not collection, qualification, or a successful producer seal.
             try:
                 collector = module('modern_failed_test_sdk', 'collect-artifacts.py')

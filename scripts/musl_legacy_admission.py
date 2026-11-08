@@ -67,7 +67,8 @@ NATIVE_CORECLR_PATCHES = {
     'patches/net7-musl/0005-backport-metadata-local-allocation-marker.patch':
         ('f28a687f619d6baaa746f80469080fc5ed715a46f9a540cb80aee5bafe0fcf51', 'src/coreclr/md/runtime/metamodel.cpp'),
 }
-BUILT_ASSEMBLIES = {'dotnet.dll', 'Microsoft.NET.Build.Tasks.dll', 'Microsoft.DotNet.MSBuildSdkResolver.dll'}
+BUILT_ASSEMBLIES = {'dotnet.dll', 'Microsoft.NET.Build.Tasks.dll', 'Microsoft.DotNet.SdkResolver.dll',
+                    'Microsoft.NET.Sdk.WorkloadMSBuildSdkResolver.dll'}
 SDK7_IMPORT_SOURCES = {
     'nuget': ('NuGet.Build.Tasks', 'https://github.com/NuGet/NuGet.Client', '1653cf17925473602f5460c5e4682a0dab4c4d22'),
     'msbuild': ('Microsoft.Build', 'https://github.com/dotnet/msbuild', '6918b863aa37ad0699f98482fbab9f7a52e65a92'),

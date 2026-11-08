@@ -173,14 +173,15 @@ class Producer(P.Producer):
             require(len(inspected)==1 and inspected[0]['Architecture']==self.id['image'],'Native image CPU differs')
             setattr(self,field,inspected[0]['Id']);write(self.reports/'prepare'/(field+'.json'),inspected)
         tag='localhost/cbodotnet-legacy-musl-original-tests:'+self.args.run_id+'-'+self.args.arch
+        parent=module('legacy_local_image_parent','musl_local_image.py').bind_parent(self,self.verify_image,'runtime')
         self.run(self.engine+['build','--network=host','--file',str(ROOT/'containers/legacy-musl-smoke.Containerfile'),
-            '--build-arg','RUNTIME_IMAGE='+self.verify_image,'--tag',tag,str(self.image_context)],self.reports/'prepare/original-test-image.log')
+            '--build-arg','RUNTIME_IMAGE='+parent,'--tag',tag,str(self.image_context)],self.reports/'prepare/original-test-image.log')
         inspected=json.loads(self.run(self.engine+['image','inspect',tag],capture=True))
         require(len(inspected)==1 and inspected[0]['Architecture']==self.id['image'],'Original-test image CPU differs')
         self.test_image=inspected[0]['Id'];write(self.reports/'prepare/test-image.json',inspected)
         tag='localhost/cbodotnet-legacy-musl-tracing:'+self.args.run_id+'-'+self.args.arch
         self.run(self.engine+['build','--network=host','--file',str(ROOT/'containers/legacy-musl-tracing.Containerfile'),
-            '--build-arg','RUNTIME_IMAGE='+self.verify_image,'--tag',tag,str(self.image_context)],self.reports/'prepare/tracing-image.log')
+            '--build-arg','RUNTIME_IMAGE='+parent,'--tag',tag,str(self.image_context)],self.reports/'prepare/tracing-image.log')
         inspected=json.loads(self.run(self.engine+['image','inspect',tag],capture=True))
         require(len(inspected)==1 and inspected[0]['Architecture']==self.id['image'],'Tracing-test image CPU differs')
         self.tracing_image=inspected[0]['Id'];write(self.reports/'prepare/tracing-image.json',inspected)
