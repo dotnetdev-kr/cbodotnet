@@ -1,0 +1,1249 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "6.0.136",
+  "kind": "sdk6-source-msbuild-localization-policy",
+  "packageId": "Microsoft.Build.Localization",
+  "packageVersion": "17.0.4-cbodotnet.1",
+  "originalMissingPublisherPackageVersion": "17.0.4-preview-24422-07",
+  "originalPublisherVersionReused": false,
+  "sourceCSharpChanged": false,
+  "targetFrameworksChanged": false,
+  "sources": {
+    "msbuild": {
+      "repository": "https://github.com/dotnet/msbuild",
+      "commit": "85d71072f8fa22cc761d6b65954da263364bee4d",
+      "tree": "a2b95fa88ab6717fd358455d7ebba67fbd6269ca",
+      "files": {
+        "Directory.Build.props": {
+          "bytes": 4051,
+          "sha256": "e578e836199b87254460cab400cf1e628093fbcbba66dc538d0ee20cff0dd7ba",
+          "sha512": "4ba577bc9a55d27dcabd8c5ff2fdd290751839c238f9acf558f49515e2ed0f55fc25b137d5d6f31642f8707cae660183d37abce671b6fbf2e636c30c19750255",
+          "gitBlob": "587dd8e5cb397f95bd63b5b922f406bfe9ec4166"
+        },
+        "Directory.Build.targets": {
+          "bytes": 1397,
+          "sha256": "f2568cde4b1f4f05150e434a3eb966c8a225269905ad74bf2f4c8b64fc9fc760",
+          "sha512": "f049efdc5e79d23fff85975508fbb36c855b6b606af7bd20c150be63cf8cb8a2cbeefacd0f38bf17055bec5a4272d2e69dfe8b7f6f996e5d97bcdce02b49f2a0",
+          "gitBlob": "177373cd81e889f01e246eda80db79cf8f05bb17"
+        },
+        "LICENSE": {
+          "bytes": 1117,
+          "sha256": "9aebac42398b50e652a84a7b92d70e85cd1a9c8746558a743dc6cec11b8d7d3e",
+          "sha512": "82e5c6d07db001690df41b914b791f6b8cc561eec4cb6e704102ea145cb3e444420c0a185c3581c92ad2637ea9bc2d514fd0b1c819f66d7fb448bf99b4b5c52d",
+          "gitBlob": "55e3030dcb40eb191f0297f9e63714d81f7c8a9e"
+        },
+        "eng/Versions.props": {
+          "bytes": 3600,
+          "sha256": "524c35b9172832223ff4d296902d8f9671a9dd139d464d9bce7336cc0af38e20",
+          "sha512": "fd17cbc884ee6970f19f7e3efecbd019a9474ec7196227c17b539d60e617492e4a7ae4208b73cd7e76a212419348da95c60a6e2dc32a4812cb40832ac1b66c7f",
+          "gitBlob": "7a9903f7de09f71f62bee776efdb00aa49acdd09"
+        },
+        "global.json": {
+          "bytes": 339,
+          "sha256": "67440463beed19010cdd3167cff47a52ee6e62e0d124f685d5acc959ab4c5c77",
+          "sha512": "1b42a9c5665b661e1ee49e4d4b82f461f97dfbda7976983230f19c234339f31f83a35ec603284326601802b2aacd739b90e22ffb77f1e7605d6e9326efb38087",
+          "gitBlob": "e1455f72c8049c26cfb79b9ff7f8af7557f88d3e"
+        },
+        "src/Build/Resources/xlf/Strings.cs.xlf": {
+          "bytes": 186932,
+          "sha256": "544df7ee4ef4b25b61c3162ad77b9e66540860efe77d959670a13d08bd72df35",
+          "sha512": "2b7304d611230e42357236c98621cc9e55d7509ffe64d44612dd6b62575741badd8c4ee14d3db8c83dd235d08931eb0ca3ca283e91a3d4b2ac5fc852f19c2e6a",
+          "gitBlob": "bdf7ebe0340f56921d9aaec84e04f784196d5cb7"
+        },
+        "src/Build/Resources/xlf/Strings.de.xlf": {
+          "bytes": 191819,
+          "sha256": "da7da8c54c9f1275ec1216b6c3dcdccce75373704cc978dbda118c13074d5a4d",
+          "sha512": "29e4a25ca32f5f13dc69eb364e17bc89236cb7ac75dcb3ef29833b96d79e42443950439fcc28070622bd2e690ca7f788b1cc8cd2cf77b9c95523a36408509e4c",
+          "gitBlob": "189016ff8b63a99d3d1a2146cca38ea902999c75"
+        },
+        "src/Build/Resources/xlf/Strings.es.xlf": {
+          "bytes": 190038,
+          "sha256": "c44f8ecbc4934894a6f5adcea4d2b3f9d0d844e152090cd648785d1df1598d91",
+          "sha512": "76c25e3d21a64bf2e5e706e5c9fc4348d1ea47967609611a07dc49a6981a29e11bff8cf0fce69607ce45d4244fb6cd43304fe83d583b5730ca096082ae6b1f08",
+          "gitBlob": "01daa41d62b023eca69b90e0284ee03c94bd6136"
+        },
+        "src/Build/Resources/xlf/Strings.fr.xlf": {
+          "bytes": 191441,
+          "sha256": "58248bb690887f52da90b2396ae6c0a6e8c5c244de1b3cb510dd6c0d42ed792a",
+          "sha512": "b20eb1badf620c2654b5c44a760c2fef4b52bae43c581beecd49f516d3a9553b4ad268d593f1d0068a04255690f746b792669350a0552d747da669219684762f",
+          "gitBlob": "84593fc74d68005bd56b671de2f648f5cdda6c21"
+        },
+        "src/Build/Resources/xlf/Strings.it.xlf": {
+          "bytes": 190941,
+          "sha256": "d5d8eafbac26fe3898b91a7051fe730c393f4b6ce290c3e02bec0d1c631f903c",
+          "sha512": "c2fbe3c85483a4ed3e72fa1bb83bd6c85015fd0e3c3e44d16d9ca687797e58c37b00e8d01e5d1428391b29395c40adbccbf76a2dd9d2d070940ea26e58244fa5",
+          "gitBlob": "a3c2a92531ea7399a16a117eab0427a2056197e5"
+        },
+        "src/Build/Resources/xlf/Strings.ja.xlf": {
+          "bytes": 201777,
+          "sha256": "e73f6684782f01310e9c764549f6b0ab60a63343eed850e9f1ffe7918e44152f",
+          "sha512": "e3ed2d82a62951aaad83ce13fb306a9cdf84bc0162215f62548b37be03116171489a2483ecd9dd4d82ea88b3b4316ce28b422a7b5bf2055ecc651472047c52f6",
+          "gitBlob": "66e3a864ded10d8a7da7853fe41a9de54e801007"
+        },
+        "src/Build/Resources/xlf/Strings.ko.xlf": {
+          "bytes": 191638,
+          "sha256": "4bd31b2ff3139925030eefc278e6a1b7d812840deccac5bf8f2ddb5efece3158",
+          "sha512": "0406ab1b7c6e28ac425b1c10a16b7d3b2feada49581ab382a38d9e4ffcdaad86140492060682ed12ab30c8339c57c4cd936de2af474b5d001abe1e2d26745d7a",
+          "gitBlob": "a7d18597b51349b5ffd6895291bcf243b5f2810f"
+        },
+        "src/Build/Resources/xlf/Strings.pl.xlf": {
+          "bytes": 193282,
+          "sha256": "1a9a4bd694066f12608ad22ae23ecc7db316b454c43e6e8d3a3c72e644883ef9",
+          "sha512": "f99af33b74550ff6e59f3e1fbfca5d2dd58fd91eb4e9cc952369061d32d432874c6eac3a408ccf9a53dff1902b4b2e378acf7bbc214f42ff1989c47d7716f310",
+          "gitBlob": "7430b42c9b1ce3621bbf52c4f7adfe95b0b470a4"
+        },
+        "src/Build/Resources/xlf/Strings.pt-BR.xlf": {
+          "bytes": 188195,
+          "sha256": "5c0e4e2a1738a8cde34a1fb51ae3a50cef16cd4d97139542c86cda6dc75bad67",
+          "sha512": "3af71fad0248d84fe9f30b908df8778ec42e2ee2978a147b7d98c00f00d85f3c5dde081d67018a0f3696a8052e77dd093368454105d5c9d57ed2e4680d46236b",
+          "gitBlob": "511d8aa41d5bb1159a6bb039007c5c943d1802f0"
+        },
+        "src/Build/Resources/xlf/Strings.ru.xlf": {
+          "bytes": 214780,
+          "sha256": "73962719cdd947ffb9519ccbf921f1ad505cafddd506c34768a0927d6f15175b",
+          "sha512": "cd754475b6712c745234bf355008742a47f5d8b0aa8d384fdd8f5d787b00042cd4e7f645db7e5fb0eaaa68e556ad78aea9e643d182f14a4b51b7e350f892e59b",
+          "gitBlob": "f19945c22408be66286653aa0a0b5ba74c225c88"
+        },
+        "src/Build/Resources/xlf/Strings.tr.xlf": {
+          "bytes": 187625,
+          "sha256": "074bf72bc12f3e1e40b024551065e41be10b2911ff9d3b6a41eeee4d57bb8579",
+          "sha512": "b240cad33a50c91cd9ccc2f2353e9646d295c860dc054d075439be7b7231b09fe9fbb07f1bd46eea95b93d4c5df0c9e60f0d3b4ad41a4d33307261916ba7933a",
+          "gitBlob": "6ba8540f3447661a9fd8c431145ccefa20e17d23"
+        },
+        "src/Build/Resources/xlf/Strings.zh-Hans.xlf": {
+          "bytes": 180214,
+          "sha256": "96b4117a4c4b6f0b9d347a7c1fc332f857daad8788a316920b786db81a185092",
+          "sha512": "a94c4ad486c6b9a9164b1bf224b8c81b373a1b4cd6ef34dba7405828ed8743141e3f16ac0e7f043d81e012ede89ceea81461caaf4b7776a5e5b2a3b61fb34736",
+          "gitBlob": "bed465c1a19b3ec17beb57646e35200bf46b988c"
+        },
+        "src/Build/Resources/xlf/Strings.zh-Hant.xlf": {
+          "bytes": 178950,
+          "sha256": "3567b19977b60e424e20045a83bd25b1002ae6c4a01d462666b0e1678ffe6893",
+          "sha512": "343f28eca316a2a57a3bc3dffeb26a02550075e0747fec9ed02b3074e43e1bdabe0a36669a8317b38ad6449aa1710fed044e3acf930950564fc3193f336c822a",
+          "gitBlob": "fa8a07b3ae341ff6ef7601bddc84f93458426422"
+        },
+        "src/MSBuild/Resources/xlf/Strings.cs.xlf": {
+          "bytes": 110811,
+          "sha256": "b25c6783f22980177ae4b33e26d8196fa8162608e26e5e1ca50e75e0dcc8cc44",
+          "sha512": "e5e154233072d86fff96efb96754d316579be57e6ea5b08bd2796e38d6ecd32bd5beaad808f0b1427251ed0100e04496da91dc617922dc12035b607e2cbb2f90",
+          "gitBlob": "5769d82fa591de61fe5301be27a5c5522d9a0ff3"
+        },
+        "src/MSBuild/Resources/xlf/Strings.de.xlf": {
+          "bytes": 111579,
+          "sha256": "665443014d29186a9b166077e0e9b11748a4beb306d9de4e6d1cb6e5a69c6455",
+          "sha512": "7313faeaa6a7e390873ad7581ef1aaeb4d96df473dcc2fbc51e44c3123e7435d38751e0024d0930da7d054589b2d2f463cf4f03ad359a7279ee235cdaf3521be",
+          "gitBlob": "9ccad6d18017d55625ec7f19476e4d46322f8b9a"
+        },
+        "src/MSBuild/Resources/xlf/Strings.es.xlf": {
+          "bytes": 111162,
+          "sha256": "55cb273f943e28eabc02b97a0ecf8ac03ac2bbdb7dcdc59db31a825c72f3e225",
+          "sha512": "f1cc8723475e471bf37b6b3820aa5f1cd1133c8ea49677d4dcff98689484dbaced7073ffe12ffd540960d336ba8afcbe248aced36b8775b4724e0a43e829f162",
+          "gitBlob": "e36eec845fb06cbd52c3fb3ec41a4e2919855f8c"
+        },
+        "src/MSBuild/Resources/xlf/Strings.fr.xlf": {
+          "bytes": 109606,
+          "sha256": "9e5d442bf3bad0a76900e8ba19fadb8d16c6b06f425c48598eea0512c41f99cb",
+          "sha512": "0fa3bb7f771b711a43a35b486da921f86281c3ec69c04c13d115cdb07e3d9bb0e621634f3a15109cce78dc38bb7704eeb821b8ec1984847eb7af933c228dc5f6",
+          "gitBlob": "ecd04ae29abecc290e34f18eeacadb1a91b8c600"
+        },
+        "src/MSBuild/Resources/xlf/Strings.it.xlf": {
+          "bytes": 110978,
+          "sha256": "29aff21f6b40e5e927b2af2290e19cac46c0f282430ff39c1bbca28b35ad29e0",
+          "sha512": "10c5d3c0a637418414afcb73ed64777a2731b8fccbcc6cf1ea561f944ddc29c080b05f141cea020eafd2c30cdfe65c57a6fdb17dec85d5a2f3468b09a86fb8da",
+          "gitBlob": "c37e60c4dc4bbe63b202a3ea7eb238d3cde6dcc0"
+        },
+        "src/MSBuild/Resources/xlf/Strings.ja.xlf": {
+          "bytes": 114487,
+          "sha256": "8fd81c7c75b298335118d194a8d94f7f1f8115e8f2fa966dcf9c6d5b3f5c3265",
+          "sha512": "b0a7236ec8e4ee40ae3a5508e1c89aa761a3eb712be9174e39fb1ae493fd5f22a99de2932cb43e9568e3e27529d39cb3a9ab4329c81c476351ea65c174a0778f",
+          "gitBlob": "58adc2124db03268d34cee27397afeeeabc24d5c"
+        },
+        "src/MSBuild/Resources/xlf/Strings.ko.xlf": {
+          "bytes": 111455,
+          "sha256": "b2443fb9728b5394373933491e9abb25e992f777569a0462b0ddf98274883365",
+          "sha512": "3e6d03924eae30c54c914a38aa3d99308ebf73b460848004b3a183693a6bb9d1c37ef4e077e92b8b6fe1761188561b6452d0908c63b185b39a533fbd6dc47afb",
+          "gitBlob": "4e641e8d1e0b159208ccdc9ec54f70ae3b45c576"
+        },
+        "src/MSBuild/Resources/xlf/Strings.pl.xlf": {
+          "bytes": 111592,
+          "sha256": "e599e4cefbac5ed9e0b326dbc1017ecb52902a18d1733702aa02bded880998e4",
+          "sha512": "baea1cbf9747fbfab135dd7b51b812443f43b36875dad2af584a9b324a817a1ce2c85917d1c58bdd072a0138e0b37af3c8caa2c5bccaf60b5a0578c0c16a399d",
+          "gitBlob": "548f0673c44d9cc5c2566c20b50b480bbdb77bf8"
+        },
+        "src/MSBuild/Resources/xlf/Strings.pt-BR.xlf": {
+          "bytes": 109958,
+          "sha256": "8a13b83f70d81a4c011f1ab397ee19e7158af6da99ec7a45292a9151d8a748bd",
+          "sha512": "710fb28bc7e077eb60a57d73862d8ff4a5d7502fe5d19321f2baf7cec0f6742338a37ecfa8d047bd735bc1cbafd16804734a4c5efb22dc3300f08cd1c028c186",
+          "gitBlob": "e41b484c1a6263047898407c613d2f9fa5872566"
+        },
+        "src/MSBuild/Resources/xlf/Strings.ru.xlf": {
+          "bytes": 122484,
+          "sha256": "1d1d10074ed3723f23823175aa0fb92b83979508c6e7cb17a24b965e6cea2e66",
+          "sha512": "b587a7c2b6f7a1c53cabf677f66343d7a0e9267e53856f06e881730038861e5bb4cd062469bce982f674a8f1e8e260bd87bc6c8f9dc3921a2eb7124886bc0e32",
+          "gitBlob": "4ef8b52a05a7761ff51a38da19ebaebacfc8953b"
+        },
+        "src/MSBuild/Resources/xlf/Strings.tr.xlf": {
+          "bytes": 110488,
+          "sha256": "f98ed40545607c8ef5f41840335d080818c47ed262d8cbb85c7405544ce027c3",
+          "sha512": "023ba28f8248e36fd4a86bf0984dc7c7c0a6f460b698a996dad0d95ddc7a533c6471aa17edf5dcb7080913e1062b13753794b2b668a10bf85c91f826c401edd6",
+          "gitBlob": "8bed4f53eff0e0463d6f37fb14c686d0b9a3bf6a"
+        },
+        "src/MSBuild/Resources/xlf/Strings.zh-Hans.xlf": {
+          "bytes": 104618,
+          "sha256": "1877979fe6e056c4be7e50f8fa256cda7207a264cadd401388877b3e205391a4",
+          "sha512": "9ae8be895a83dcb6612696dbf9dfa2b6e9e45f14e355cfbad821277de92b242c6a3de7ada650a1b462a8cfe5c713af3211b96ce3a02c66ba3db849d1080297dc",
+          "gitBlob": "011389fa1a6a4ce6566226da25959323cabbd2d7"
+        },
+        "src/MSBuild/Resources/xlf/Strings.zh-Hant.xlf": {
+          "bytes": 106259,
+          "sha256": "8cb1a1c9a8eba59d36ae217d057e7aac38860bb331a2c926e5c1ab1c0070f35a",
+          "sha512": "09c6bc112d4de0693f5439938c401c1fce669c8a6f269bdbb6bddcc93aea23c8e2ce246c36b86d03af7720cdb7a996403472beec90047a0ae47ba73ebb90dfcd",
+          "gitBlob": "a3b1e39cf0349c393f45c8ef69d6cbf28ffe3dfe"
+        },
+        "src/Package/Localization/Localization.csproj": {
+          "bytes": 685,
+          "sha256": "63bbe793ce3bde530507e1d908b1cfa96d3db7fd52d42af664afb381def0b828",
+          "sha512": "b7c3937cc6d7320f18ba70200a3cc5501b1bf6204dc61c5e4ad91c344b685a853a9b459736c8ef908cb2d36c1f59245f193520dcb9405182e78639735db068c3",
+          "gitBlob": "e15af6ed02a0d3a3ecf82072dbf7159f16a6d379"
+        },
+        "src/Shared/Resources/xlf/Strings.shared.cs.xlf": {
+          "bytes": 26277,
+          "sha256": "e7d9c23e1538712806a6fa9e00212b6f3ec48a39fb28b03e472cd98de76ab4c5",
+          "sha512": "0d979aadce7cc1b514a6354e55589afd7802f1685c9d91da6c39ae9ff4cb978bd9ec09a0642b13d5cfa135a1f75db72712d49e1a07787da3bdb588d7fe04e116",
+          "gitBlob": "80de31cf3549090c4dfe3c4f824a244c53fa2e4d"
+        },
+        "src/Shared/Resources/xlf/Strings.shared.de.xlf": {
+          "bytes": 26876,
+          "sha256": "a1e6316488df7181938776a59aa0b9563f3ef03542b3aa1ab30a5625dfccf83c",
+          "sha512": "ca2d6dc78808f01b5418a0a38a365dcd1441672749dc3db4d13b89189407f4969acd96ce972e26206b879c91c3b715c1ca22ad083a3c8ef6b1eedc23ec39aae8",
+          "gitBlob": "28e73b49c1a7fa245f56a51275c37dd0fe01ac6c"
+        },
+        "src/Shared/Resources/xlf/Strings.shared.es.xlf": {
+          "bytes": 26599,
+          "sha256": "dd275580e954b309063f1ae03c564a3cb92ed27d5cdb2ee3dce8f76dea15b110",
+          "sha512": "da64366db59be2449495f2ffed71f82790504b278a6436158f47bc3fd8b9d48f376bb18f6df99635072835f01a8a14ca421356b44ae0bd4301c00d99c4c84dba",
+          "gitBlob": "332d51f79619d99516b0da2453dc87312484d45b"
+        },
+        "src/Shared/Resources/xlf/Strings.shared.fr.xlf": {
+          "bytes": 26782,
+          "sha256": "bc1e2b5fbd0a81585d63cc6b4224fb20f8d44fd404990b12fe76f7aa72edbe3f",
+          "sha512": "bdd31128777f07b8aa6f4e7a48927b0a771e5a36484a9120fb0f96b2d90550f2cc159deca0b7ac6c395c118d5f31ccdd40bf0cffe907fac3ce3dcd3e25471500",
+          "gitBlob": "98d0ecd23448a89eee8c75a591d2ea7b98ed94fc"
+        },
+        "src/Shared/Resources/xlf/Strings.shared.it.xlf": {
+          "bytes": 26723,
+          "sha256": "2b2451c058e0bfd5eccb89104f12e77c00c318585f4c85b559321622eed49e6b",
+          "sha512": "d83964a7b3a80a4ad738114e8c01c5691b7caf0055c555bd53262bff8c0aaa8d5701e4b228e22c58e540dda033eb7a239a1b97801c4ff6670847c494ad126b98",
+          "gitBlob": "31c10bd56ca506220a11ccd89e18f6b7d96360b7"
+        },
+        "src/Shared/Resources/xlf/Strings.shared.ja.xlf": {
+          "bytes": 28488,
+          "sha256": "2a5766627fc23082aa6dba6894e75ffc4c8ae8bee38f0f44b9a47cc62fafe3c7",
+          "sha512": "d9cd3ed5c35aefe7a185ea0fead542abf29fc291a41715088ba0c77f6a7b95609838b6ebcd5c14b973eba5997e575753e2ed90e7875a3d16f5398041212b7879",
+          "gitBlob": "762d7780a9bb6bb09fca5268aed364ded8a1bdf1"
+        },
+        "src/Shared/Resources/xlf/Strings.shared.ko.xlf": {
+          "bytes": 27132,
+          "sha256": "64b5df87764d40056a0947e57461729ca84adcafee5a895d64f5eb29011ec6a1",
+          "sha512": "57314081f4700e17433242a2ccc2e01008b5ae3b8e5bc2acf3ae6fef9deb0761f066c2750ac16a4978647342abc249f94fa8961ff3be29342c1106f77f01d337",
+          "gitBlob": "7cd5d631a665356c145bca6572f9516ff918a03c"
+        },
+        "src/Shared/Resources/xlf/Strings.shared.pl.xlf": {
+          "bytes": 26997,
+          "sha256": "c684fcf8a4ebd26007417738dbfac181ea1e098a5bb2bf5266143ee5f9c5d892",
+          "sha512": "8bf7317b15dbf326a14bc47fd512f6df842d6641a08a712de40c11435aee00e3b373c14ab46aa15754772f683119bda971076239d99c07703357ed6dc6f343d4",
+          "gitBlob": "3755284c24a70a393f7c74ae395d82a229434b3b"
+        },
+        "src/Shared/Resources/xlf/Strings.shared.pt-BR.xlf": {
+          "bytes": 26351,
+          "sha256": "26568dc054bccafd772cddb376b592fb3463ef54096063b77429f6c546735372",
+          "sha512": "e79c2f5e15a974c6db00ee039c12683e531ea90afc33a1a97f5a4e16400a4a243c512ded5b5c671b5379811d5cfe2633dfe542959dc0186b323e47ea72c95bfc",
+          "gitBlob": "6fd1b77903b7debec951cee76fbcde36769346ff"
+        },
+        "src/Shared/Resources/xlf/Strings.shared.ru.xlf": {
+          "bytes": 29612,
+          "sha256": "9de6bcd4cc86a622acfc40bbe3df2f1cd1b0b0627b2ca70c8ff9b0fc0bdfbdd6",
+          "sha512": "ed73200c7b6fde4f92316cb3152eb645fbc026ec0654e100a6da5c1f779ffed23017bb38e0cf430fba100c7dbff9a7837705a750b1f0d6a9920670b5702618fc",
+          "gitBlob": "3570539b1f8e95092c9ba6f4b563594f2e5b81d6"
+        },
+        "src/Shared/Resources/xlf/Strings.shared.tr.xlf": {
+          "bytes": 26247,
+          "sha256": "26b0f3abe43933480572e64df0c43534b0a623b5f1dcc022e83d3a2d351f9469",
+          "sha512": "6703d4a3c5ac879f2c91541968d5c2f23bc494c013cc1971de769f1e285bece88657ecf29e80486e8ef87edf81ae19d63b3bb337d55f7abb8efcecd981134650",
+          "gitBlob": "d6831788b9038866df8304bde613c5ccd0ebe24e"
+        },
+        "src/Shared/Resources/xlf/Strings.shared.zh-Hans.xlf": {
+          "bytes": 25296,
+          "sha256": "a28819744fd2fa91bc233f5f3bca4f029dec285e590b21fedf6ee3560a69b794",
+          "sha512": "0cc1c17a4f61af3d0c10aea4a14d278088babcb66ef89783ad0e7b43d80f7754a3c92b66bf4f1daca8461210ee5483565f27162c60b279f0122c2268243e0ead",
+          "gitBlob": "b5468e75bcb454525ca04cbe1e4569b7930f31ca"
+        },
+        "src/Shared/Resources/xlf/Strings.shared.zh-Hant.xlf": {
+          "bytes": 25166,
+          "sha256": "a2f2ca91f525aacee1ff1047dae4c51caf543a64d9ff193ab7c6daae6abaa4a0",
+          "sha512": "5605cc1656402a0ba625c873d6a87d1e51e2d8e50263d6a1576407f7169c9204f52e37d86606ac70a3306463300782464567bb9753d668a387c912a99d1cb3d8",
+          "gitBlob": "893e286184a34ef59a75fa791ba42a17c9f33337"
+        },
+        "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.cs.xlf": {
+          "bytes": 5197,
+          "sha256": "92f445441c14573583edee8c4deeee75088d69ced3a763ff63a80e33112657bf",
+          "sha512": "32de79f06c9133b88272dc9f5e26357f90e8678ca8457d148a4f442a1be122ee79c86060d05b09458ce4609692c135adb34f5382967bf3c125806c130ee1dcb7",
+          "gitBlob": "3bf7999b354e9fc0176f504a0040ffea5a80c527"
+        },
+        "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.de.xlf": {
+          "bytes": 5284,
+          "sha256": "76c986c5630990839e1bbc4119628a3dd8413069b85303b736ea7387a347e85a",
+          "sha512": "2f367d6a860aa39b2a9da4638fcbdb714b2d1e0ba827fd838505a8e2136e62e312a680780792d96a7dbf8a62baa39ad672cbf4f949cac5adc04d61c3f2a27cc8",
+          "gitBlob": "9f66f88c3fa2138867fab3ac37e7f325679a6f60"
+        },
+        "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.es.xlf": {
+          "bytes": 5244,
+          "sha256": "f6c8be85dd4a259b54d106780d297be2fcb9e791c4367f34c03cd3f3908327ca",
+          "sha512": "810ec05244ed92e9fd301dd56eac8f4eefcb5fe202d27b0bf2ad2edae24ffe3f6d87e02893f7f6c9a6cee12481b792e2809ff6c3ceb88bc222ed4dfe9fa27829",
+          "gitBlob": "686873135160514e91c0f8cf4199d92a82162090"
+        },
+        "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.fr.xlf": {
+          "bytes": 5246,
+          "sha256": "bff922b7546f9605174215201a74e984cd2d33acb69192c793e5f026e34f234c",
+          "sha512": "af602b8b75d6af21ef62ea7c931bfb2045a0988bfcc478ec7532abd2276451a09a5fbacb8933961b58c176ebde2c0d4c4c618842db8298050907af88389ae544",
+          "gitBlob": "4bf2b6da34cf57cae547a118e0608db7449e78d9"
+        },
+        "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.it.xlf": {
+          "bytes": 5252,
+          "sha256": "5cce10ea0f53072c8654f8e579bab32ef7dd07a65c6fe6d810e4bad30786822d",
+          "sha512": "ec65c8e9a3793f55a51d8445a79e367b82cac7b63a9c6efb3b222f7e8d193e502802d4745909324cb5401f4d2a8aa730008956d1c257d0e15e28af4925b4be21",
+          "gitBlob": "240fd5b3c6a2b744d45e1a6446423a0d5896d68d"
+        },
+        "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.ja.xlf": {
+          "bytes": 5524,
+          "sha256": "6fb5f72b33455181277f9be2489592276a98eac23978191413ab2ef5f23382ac",
+          "sha512": "61a7a72165b8cc72fd9505ed6e7c0305d298a4241b6217a919b1c5f817abbbd86bf62d51b7374f30fc62b90259fa2d02f144bae0a0a6008de105125ee6c72bb0",
+          "gitBlob": "490d216e2a2f729e1743c5c1fff5d3900c2e358d"
+        },
+        "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.ko.xlf": {
+          "bytes": 5309,
+          "sha256": "2f5a36e177e2bba26e7b6f8045c4e4886f5c29806d9fb476d71e7cefbc837614",
+          "sha512": "5667383899fa02ad6631851c637d2c2e1f582dab170de44aaea54a37ae072d8e94fecc6e36caa605828fa147e522bb670e6db3050287d2a5a4c079af1b531f0a",
+          "gitBlob": "209e19a5df2818f1b0b62d00415b59a3f64fa6b7"
+        },
+        "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.pl.xlf": {
+          "bytes": 5201,
+          "sha256": "9a5edc1a238cc5f69b7bf16e1d07767a477418be581a27b4005dd8ba69812fe9",
+          "sha512": "6ce4a6ae841b1f38bb2b5ff7ba5751eafed3ea9b32885b56cb046d2b20fbdb5f40e0fc0572776a8c8850414093dd8fefd32fcbfe2c6d80d120a6a318eb9d85b3",
+          "gitBlob": "c508641e86ec6bfc0166ba48022cf504492341a0"
+        },
+        "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.pt-BR.xlf": {
+          "bytes": 5219,
+          "sha256": "072a6b31f6d5efbb303ae76f68f1aeedb7ecd56a4cc75adfd1090396b32c5888",
+          "sha512": "bd83426e9d533c275c011247a81a2c20ac1e825b7dcad735ffd1df63a3237e8b936f49c31d39584425b054f3e364e98f6866c093e1be74ec300656b3eb054c30",
+          "gitBlob": "ae82760a21983fd06b24cc48682f38e601f89077"
+        },
+        "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.ru.xlf": {
+          "bytes": 5784,
+          "sha256": "99bb7eb6ba59e4102100ab9ffaab23cd2320ed74fb4b7e4c4cf4adc2c8b83d9a",
+          "sha512": "66d0e7945671c86ef13ce4e3c498728eef8589ab62e6c4000f3677921a373ef6691e067df41382a10794d88f98a3c7cd26058feb6541f83813002be3506850e6",
+          "gitBlob": "49836e05fc1a2028785bf208aca15fbe9cb3d9cd"
+        },
+        "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.tr.xlf": {
+          "bytes": 5158,
+          "sha256": "453b857443cab8ba79e381282ca80ea026d16bbb778eea7810e922afc9a2514a",
+          "sha512": "66aeae454f26559cebfe7f7f4d64ae5cd1e0c3afeb35509eee721273eb3910efd93486f6a44c668646001a0257919f70cc9aa1f34135eff4cdd77fc2e0870d16",
+          "gitBlob": "a44543a8734928f9fd2057eccd9f110e63a94606"
+        },
+        "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.zh-Hans.xlf": {
+          "bytes": 4958,
+          "sha256": "7ff382a3a32a9d78e22030befd341a22f43f61e4d3210a3ef728ec808a04c234",
+          "sha512": "97417c75ca163a4145c234f38917f279343f18f3669dcc90bc62f02ad0b567e03f7c77e77bc4a2cd61530971d27b7b84abb00b1ad258092db49b33fdf0794224",
+          "gitBlob": "f962020b89afcce7723fea6284ad0a560d807bdb"
+        },
+        "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.zh-Hant.xlf": {
+          "bytes": 4927,
+          "sha256": "345ed48db908ade1abf0657c658f00dedd040143611bf500139ac5517086e0de",
+          "sha512": "a5f24eaa7243620aeb4210dc672de4547788e0a2ea3e42ca5f47332557f89092d38a9526315f14c1dcaeb7d26d89bcf48f9948e4f1ce510c39e00e7f08b45984",
+          "gitBlob": "37d5db669faa0fafe72b58728a2ed5b29cbec9d5"
+        },
+        "src/Tasks/Resources/xlf/Strings.cs.xlf": {
+          "bytes": 264022,
+          "sha256": "a190dd43aee06cf3afdb8fb8859c78336821b6b268a544cd100f312eece744f1",
+          "sha512": "aa65ad2e433098bcf0bc222482ccfcc289e2f16b621b69d69db47d01bdf2b4cd043f0a5e1e01544499c5f66729debef3ac3c7f015669969f3f356af86e59d765",
+          "gitBlob": "fc9e3d05a392eab66b7fdb44012c42b8f2d8c4d5"
+        },
+        "src/Tasks/Resources/xlf/Strings.de.xlf": {
+          "bytes": 269101,
+          "sha256": "478ff1785f7374d20fbb3130ca914f022b792f6bbafedbfb774fc3981c4d2663",
+          "sha512": "59b0c238ba9f2643ac5a6db249127de4c091058e1de09a78d6cbeefd481dd0588194f971c166aaa603b0fc8a130d684281bce2d153df29d6c025b4831df26cf9",
+          "gitBlob": "f832317620110cae5f35544ea67bffce7af6173d"
+        },
+        "src/Tasks/Resources/xlf/Strings.es.xlf": {
+          "bytes": 265923,
+          "sha256": "7f733a038ea5f4e371c3711a8639b44b8574c83024a9c86c357e663dfdc6aacc",
+          "sha512": "a00da3c294e0597f0eaab8884482490460632915396b300423d5c814df134bfc058a40b0e3d7d1fba5fca1d891fccf8b204c09ce19e54c36f28b348e4fe9a961",
+          "gitBlob": "b8c5ecc2222ddc3217b39d93a5ca4a6447a9881f"
+        },
+        "src/Tasks/Resources/xlf/Strings.fr.xlf": {
+          "bytes": 269126,
+          "sha256": "5f77d8bec4b191a33cbc59348b12477de54c9477c671bc30bf70ca80a1bab657",
+          "sha512": "7dedf4beb76582b337c41bf88d18e01905d6adb6c6d3449de2c1263d3fd2d3f76f7e0cd9abd86ca21ca6191756cab6dbd3cc43786886bb20c84aaa2f00320291",
+          "gitBlob": "13ea194a499f0eac1635a4887274cfe31941cab4"
+        },
+        "src/Tasks/Resources/xlf/Strings.it.xlf": {
+          "bytes": 267462,
+          "sha256": "f0a4519b2bb297213bc2c886fb7af599ae309b5f98051a413a7e665af766c491",
+          "sha512": "45bba7c53ad14493a8456d2c5c834899147235562d85f53315dbe6ae228d06bfa091ffd71e94c9d78be63d7ab80af691eece76820c4479d72b58dd4461cf5a64",
+          "gitBlob": "a88e7c3eb65293a528c5d0532696762767daf4bf"
+        },
+        "src/Tasks/Resources/xlf/Strings.ja.xlf": {
+          "bytes": 284813,
+          "sha256": "e8339c780ad89998de34d4b1f3f407ca8615a2e4ce73edd8e6331c7e5a7d75b1",
+          "sha512": "c70ef72ba1345a6270ead857a53fbfab8ccec3114bc095d41a606aa30b7880fc834f66bb6b09f4609f85bc9a803c261e7b5e6dcae4914e2a94148a6c70ce56c4",
+          "gitBlob": "72cf459282698ce0d062af4eaf70369ba83d8f59"
+        },
+        "src/Tasks/Resources/xlf/Strings.ko.xlf": {
+          "bytes": 271921,
+          "sha256": "221b478ef953fee8858055a4fe51578fe53939f83a04b5d4419d1ead65a2b213",
+          "sha512": "1fc49817057826b4accfd63a497e20a3b9f99be6a7e01a1ab6785757dac94260c700468e74692d11e761227f8d5c9731ab82a904e58c7dea75590ae7780b715e",
+          "gitBlob": "f856969c0a1bcda48bff0b792ef0eac4185386b6"
+        },
+        "src/Tasks/Resources/xlf/Strings.pl.xlf": {
+          "bytes": 269845,
+          "sha256": "580b7816ffa1ce13b90a0402b20829b1f6cb159f258654642cbb5b5069156472",
+          "sha512": "2b6857627bfa95f04641b75ddd2fbdadec082d90a93a4c317b965f78566d2a6c46677b5219c1fa68193ffec8ed404d27b1e5bee31a9030d16b6fad2b8c561338",
+          "gitBlob": "e11f796daf7fb17b25362426db166a21f80eb6e5"
+        },
+        "src/Tasks/Resources/xlf/Strings.pt-BR.xlf": {
+          "bytes": 264813,
+          "sha256": "937669f091bf55aa2981528888bfb065b6d26bd1c2390731ee40cc4c1c5b819f",
+          "sha512": "005b95ba36863068bc2387146c0fd0d3fc0690d9697f11263af71058fe987da7b90dcb39c31d69dd8f3e00ae0a144c8487912922aa0e1d2672afae63521950f6",
+          "gitBlob": "68f71465eba94e008aa46976159bd46d7ee73678"
+        },
+        "src/Tasks/Resources/xlf/Strings.ru.xlf": {
+          "bytes": 305884,
+          "sha256": "c8f523f1341dcb005a244bfe34e7941fb58273932ea6d4675d28d5f4940cbcbd",
+          "sha512": "2418abe5ccca39b0040f06a1083a624fff9bb67738615e7dc2b39cee8563e727b28fba8a06797c52ca7a2d0c432916f108f8d39dbaf6cd4892fde6f1ebe00f2d",
+          "gitBlob": "1b6cb3afb2de406f91ae73194b4189ba176f9982"
+        },
+        "src/Tasks/Resources/xlf/Strings.tr.xlf": {
+          "bytes": 263197,
+          "sha256": "23e415a6c882f35c677c60b2e494e5946523d58fc01e42cccd120154dcf0e83f",
+          "sha512": "db11b6291dc38425c3d82f75ca427a8d4b6df81193361b03726ea1e9a7bae17f68114471a4c496c540a3d4aa03d36e9a8be9a211f50d9e0ded143f65b7435fa9",
+          "gitBlob": "7eedc3d6c70767c75dba7da67ad0f691ad669e9a"
+        },
+        "src/Tasks/Resources/xlf/Strings.zh-Hans.xlf": {
+          "bytes": 252475,
+          "sha256": "fb6d16838ea8ef4a487c5bd9dcac944bbf13e754a2d8a66ead961be9e83253e6",
+          "sha512": "4eeed8e20cb96b1ab098755ea017a07a9fe6c58a6da25ff41526c84a40286a5304004100052483c529ee9bde3cfe17864dd1d670554c1d392c235c2247a8c5a9",
+          "gitBlob": "dff102f40f0102f5940a01cb65089f53e4f10fc7"
+        },
+        "src/Tasks/Resources/xlf/Strings.zh-Hant.xlf": {
+          "bytes": 250956,
+          "sha256": "ecefca825a93b570a1552196919909a1c3b2f931c3aa0ca529a43ba21ebd2315",
+          "sha512": "b3b268bfc539e6a1d6a209db6ee9cbc89fd3fe626e23bba4e3a3334c0583b75465dc35540b7da29c308a1a15190d5da9a7a2940c802f35b9f5aa6b3e888a276f",
+          "gitBlob": "21b825d4ad047b89bc852616be09ce8722b056f3"
+        },
+        "src/Utilities/Resources/xlf/Strings.cs.xlf": {
+          "bytes": 18630,
+          "sha256": "862d3683102f200597079adb1cf7fc692cf1b210a2ea444f36f12d17dd9dbf72",
+          "sha512": "aac6dc1abed29210b663a67f85a0c9a8dbc0c567ca736c58dd65e2e3e58d832ae41e8a72d0514d7811a8e7cf1c934ec08b7f4c80098ba32790b816380a20186b",
+          "gitBlob": "360283f57db7d6af56fbad9a9fba4de0755fe35c"
+        },
+        "src/Utilities/Resources/xlf/Strings.de.xlf": {
+          "bytes": 18691,
+          "sha256": "597288823eecf08fbda938eccd8c56d22bbfcbf74985a6a47a269469c31d115a",
+          "sha512": "f7ed047f431c5feb55fd523e2f8d19235b4425e82c1b0b56b79052b0c718b7d316c36ba6e4e72ca80f15efb7a1addd46086fa7e40b20e20f57501fb236d960e6",
+          "gitBlob": "41f19b468c6bcccf06a907e4a3a24824723b5db2"
+        },
+        "src/Utilities/Resources/xlf/Strings.es.xlf": {
+          "bytes": 18822,
+          "sha256": "15e5509ef9123340a6038ea86a002144734b8c87324b628b21e5af750957b360",
+          "sha512": "cc39434b2805436df61d4fb54c1c77a47e013e9f5c0a449f5c31bc112b89040061343c6822dbded44f165c7ac39a6fafe9faa9a154bfa811fb71740ca9d2dce7",
+          "gitBlob": "336a4bf92f92fb615a1a72e2b1a1dbdd0a681fec"
+        },
+        "src/Utilities/Resources/xlf/Strings.fr.xlf": {
+          "bytes": 18863,
+          "sha256": "6782d5bb60cfac1e8b993408797c2c768382e58848962f0848bf5c20a74db9ae",
+          "sha512": "1850cd9d0aa23ee2a5bc3be6bbdb1c264c2df5ebf27518c8f4897e43877adc3ba974dac7974b02324628689ee2551a62a003ef2c065fc281c162e6ccdd0aab02",
+          "gitBlob": "28e1d87d3d2557e60f76a6a38a9588202b912c77"
+        },
+        "src/Utilities/Resources/xlf/Strings.it.xlf": {
+          "bytes": 18885,
+          "sha256": "6be9b400783fc93413020b0da4643f2f58424af272181255e86cd9148e92ee09",
+          "sha512": "ce62bc2af21d7455e327196448665a6548a7518fa03b4fe6450e410c08135f63cf0979af9ac293f7adf9b776704fc675cfd9b580d175247963193eed94dd24cf",
+          "gitBlob": "e9a5e77d26762d424cbfea7330724ccf21e62aa3"
+        },
+        "src/Utilities/Resources/xlf/Strings.ja.xlf": {
+          "bytes": 19555,
+          "sha256": "6ebfc24da6aedb6921c2ae683fdf1f3f602df5de8b390a13d893975099bab622",
+          "sha512": "84cd0116810a16e7caa1819f85c2f716d5f7c41d6b7d8b19114bad3dd8d1bd40d3ffa627c358ba96c8ac6984917d21a98c4af2ff71662d194379fe60a447b240",
+          "gitBlob": "2a40fcbc8a8748d375af721e480f1a4c46ad1ab1"
+        },
+        "src/Utilities/Resources/xlf/Strings.ko.xlf": {
+          "bytes": 18827,
+          "sha256": "4967ac7d36bdfd0c3316cb1b505445e14c29fc52cbdcfea2b0f00dd5fc31f8b2",
+          "sha512": "b3b0adc1ec7977dff58bd8417725130ab5630afa28221c55573dc27b8b0acf0a6874d25bb634a9dc37fd9a6eb18e6c3f48de82a780c7c3b630e65a655cbcc689",
+          "gitBlob": "bf7f4d789a242f356a066f9f755c2269824acc8b"
+        },
+        "src/Utilities/Resources/xlf/Strings.pl.xlf": {
+          "bytes": 19038,
+          "sha256": "a1977728dd62c9bf7e6f5e56d90f7090bcfc8a8768aa623bdc78e02735203ff0",
+          "sha512": "2e20ac640be8d54a7556b146eeda1d016965df833be23abc4d534f36c16228e70b170cf46a0d57b228115c7055f6e4d79a7caaac22d70e3020b20540e7c4bea5",
+          "gitBlob": "2189f7d3a20bebefde338b843d38094ce93c45d8"
+        },
+        "src/Utilities/Resources/xlf/Strings.pt-BR.xlf": {
+          "bytes": 18481,
+          "sha256": "2fa50595a86465fe39d67759c48bf9aa98dbad56665ed5df0b83051b9c25b76e",
+          "sha512": "2dcfa1c7ce76b67351ec905d492acf2811a20470e701574e5f21d747c46b8574d7a494d5adf01aa3103e0cce0c3baab603757d5a62ea9c972b8822d6f2ea18cc",
+          "gitBlob": "b54d2b7acf6d83778e0c7443395224eb49f8f5e1"
+        },
+        "src/Utilities/Resources/xlf/Strings.ru.xlf": {
+          "bytes": 21811,
+          "sha256": "9448e03070939797cdc4421004dc0eeeba4491cb0db6b57658e97c9ef868ed35",
+          "sha512": "05b07cef8dcaa769ca66a40c812af75b41f66172d925d823d2af1b0e9c400f883afe01722ed9a320454cfe063d4e7cf559c6ad50710f9a890430668dc7794aa6",
+          "gitBlob": "368b83f254096cee43e9c447e7d71dab420a55af"
+        },
+        "src/Utilities/Resources/xlf/Strings.tr.xlf": {
+          "bytes": 18438,
+          "sha256": "5309c4ddd2ca00e8c2dab94b4400baad5bf46ab2a3f8c48c999f738817c7307d",
+          "sha512": "2e1608ef8ee84f372eaa732f5f81b2e9be303f957fb0a5b21f7f556e6b3fdbb398139e28dd3c416c222dcc5c16bb8a53669a6ccf0dcdb72349889452f9b96292",
+          "gitBlob": "44ffff6ac3e8bee9020b20da1ee07ceb17de1cbf"
+        },
+        "src/Utilities/Resources/xlf/Strings.zh-Hans.xlf": {
+          "bytes": 17578,
+          "sha256": "e84371dc6c5cd304f43f0ca5aac60ccd1f68b0e7fca413344844ef46619504d5",
+          "sha512": "3754502446b559f0877449b87bbfcf1b611b1776d0584be6fced9b2323e5542698066c7512c2ca805f5b66c549dfc65e25f7689a0756523cf2aea3b1310b5c21",
+          "gitBlob": "b9816891b016233667f2617988a707bf47b76be4"
+        },
+        "src/Utilities/Resources/xlf/Strings.zh-Hant.xlf": {
+          "bytes": 17597,
+          "sha256": "86372d7fe67c301a2f5257c0f6a1de9c4743e07ac264b6f56c2ad9009d0dd6da",
+          "sha512": "d0d8b16915eed4c8ad3ecf098e96028c66c4b99bc66901c6b41d1ec5086107dad46ac1ede7cf552fad8ea6d5ab3dbc78ebf11c27b0092112e380b4c19a8de7c2",
+          "gitBlob": "3feb3149cf9e3db162c9e6b4406b59f5b4406a5e"
+        }
+      }
+    },
+    "arcade": {
+      "repository": "https://github.com/dotnet/arcade",
+      "commit": "bd9b4590681e602535ed414e98a17e6ba121dca4",
+      "tree": "2a5ac24f25492d6e7fe7e5d0a155dbd4a68808b4",
+      "files": {
+        "LICENSE.TXT": {
+          "bytes": 1115,
+          "sha256": "ae48df11a335dc1a615f4f938b69cba73bcf4485c4f97af49b38efb0f216353b",
+          "sha512": "6510254503f741df06fbf015890b24cc49592ff3e7945114db6a8fa57a6bc9acb1655980339be6ab0bdec0617efde3e65816c3074612d5f8da2ca60f8bf3b0e8",
+          "gitBlob": "a616ed188dfce68ee308f674350ad242d8588c2b"
+        },
+        "eng/Versions.props": {
+          "bytes": 5720,
+          "sha256": "903fb930a094083d1365ff3e2e8b1424ff2b8e3197210adf7f990e714dcc37a6",
+          "sha512": "7059b487c9a38e78b5638517e23ce806dd6de3a4d8dadd366b9b9e527b76d7c8c4f6296400845ef6b0eb7ada92f767aac33a701ea41e66c5afc9ee5c60d15ec5",
+          "gitBlob": "7f19025f7c5d45a66dae7a1d637dbd0188a612a2"
+        },
+        "src/Microsoft.DotNet.Arcade.Sdk/Microsoft.DotNet.Arcade.Sdk.csproj": {
+          "bytes": 5226,
+          "sha256": "2d5dd7ed7b9362224cfd9a86ec59e7d450112db1eeb0aaa141adde25adc60419",
+          "sha512": "6144c35b09323a0c9145503061eeaaca84c4ec17c9b54f22c0bde45caacb3a79417b6cf5cbf7b6b1dcb2ba5827ed5ab7b3d8b72682656bbf713873ff889b727c",
+          "gitBlob": "63544dd9c13d6aa99122a53b9929743340483ec9"
+        }
+      }
+    }
+  },
+  "resources": {
+    "lib/netstandard1.3/cs/MSBuild.resources.dll": {
+      "MSBuild.Strings.cs.resources": {
+        "sourceXlf": "src/MSBuild/Resources/xlf/Strings.cs.xlf",
+        "keyCount": 119,
+        "keysSha256": "36f021c0e1f48e178d73215844f3df11ffaa00404495bd60099b1b8075af93d3"
+      },
+      "MSBuild.Strings.shared.cs.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.cs.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/cs/Microsoft.Build.Tasks.Core.resources.dll": {
+      "Microsoft.Build.Tasks.Core.Strings.cs.resources": {
+        "sourceXlf": "src/Tasks/Resources/xlf/Strings.cs.xlf",
+        "keyCount": 660,
+        "keysSha256": "c869e3dd7811af10f07814f9d0d72505bd015c880852efc3d45040e9e2057106"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.shared.cs.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.cs.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.ManifestUtilities.cs.resources": {
+        "sourceXlf": "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.cs.xlf",
+        "keyCount": 14,
+        "keysSha256": "d121d86e898682a4cf01e72d03491b2841145233b04d191a5905e9f5ab58c1b4"
+      }
+    },
+    "lib/netstandard1.3/cs/Microsoft.Build.Utilities.Core.resources.dll": {
+      "Microsoft.Build.Utilities.Core.Strings.cs.resources": {
+        "sourceXlf": "src/Utilities/Resources/xlf/Strings.cs.xlf",
+        "keyCount": 55,
+        "keysSha256": "9dd88064dfdaeb745c65ab0d7bf1aea045c03127fce57fff5f1bcae5482a774a"
+      },
+      "Microsoft.Build.Utilities.Core.Strings.shared.cs.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.cs.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/cs/Microsoft.Build.resources.dll": {
+      "Microsoft.Build.Strings.cs.resources": {
+        "sourceXlf": "src/Build/Resources/xlf/Strings.cs.xlf",
+        "keyCount": 449,
+        "keysSha256": "f8f0fb85f6c000a9d666f2021e7b7960b11edfe7a1a5465076775179fd323249"
+      },
+      "Microsoft.Build.Strings.shared.cs.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.cs.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/de/MSBuild.resources.dll": {
+      "MSBuild.Strings.de.resources": {
+        "sourceXlf": "src/MSBuild/Resources/xlf/Strings.de.xlf",
+        "keyCount": 119,
+        "keysSha256": "36f021c0e1f48e178d73215844f3df11ffaa00404495bd60099b1b8075af93d3"
+      },
+      "MSBuild.Strings.shared.de.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.de.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/de/Microsoft.Build.Tasks.Core.resources.dll": {
+      "Microsoft.Build.Tasks.Core.Strings.de.resources": {
+        "sourceXlf": "src/Tasks/Resources/xlf/Strings.de.xlf",
+        "keyCount": 660,
+        "keysSha256": "c869e3dd7811af10f07814f9d0d72505bd015c880852efc3d45040e9e2057106"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.shared.de.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.de.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.ManifestUtilities.de.resources": {
+        "sourceXlf": "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.de.xlf",
+        "keyCount": 14,
+        "keysSha256": "d121d86e898682a4cf01e72d03491b2841145233b04d191a5905e9f5ab58c1b4"
+      }
+    },
+    "lib/netstandard1.3/de/Microsoft.Build.Utilities.Core.resources.dll": {
+      "Microsoft.Build.Utilities.Core.Strings.de.resources": {
+        "sourceXlf": "src/Utilities/Resources/xlf/Strings.de.xlf",
+        "keyCount": 55,
+        "keysSha256": "9dd88064dfdaeb745c65ab0d7bf1aea045c03127fce57fff5f1bcae5482a774a"
+      },
+      "Microsoft.Build.Utilities.Core.Strings.shared.de.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.de.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/de/Microsoft.Build.resources.dll": {
+      "Microsoft.Build.Strings.de.resources": {
+        "sourceXlf": "src/Build/Resources/xlf/Strings.de.xlf",
+        "keyCount": 449,
+        "keysSha256": "f8f0fb85f6c000a9d666f2021e7b7960b11edfe7a1a5465076775179fd323249"
+      },
+      "Microsoft.Build.Strings.shared.de.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.de.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/es/MSBuild.resources.dll": {
+      "MSBuild.Strings.es.resources": {
+        "sourceXlf": "src/MSBuild/Resources/xlf/Strings.es.xlf",
+        "keyCount": 119,
+        "keysSha256": "36f021c0e1f48e178d73215844f3df11ffaa00404495bd60099b1b8075af93d3"
+      },
+      "MSBuild.Strings.shared.es.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.es.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/es/Microsoft.Build.Tasks.Core.resources.dll": {
+      "Microsoft.Build.Tasks.Core.Strings.es.resources": {
+        "sourceXlf": "src/Tasks/Resources/xlf/Strings.es.xlf",
+        "keyCount": 660,
+        "keysSha256": "c869e3dd7811af10f07814f9d0d72505bd015c880852efc3d45040e9e2057106"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.shared.es.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.es.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.ManifestUtilities.es.resources": {
+        "sourceXlf": "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.es.xlf",
+        "keyCount": 14,
+        "keysSha256": "d121d86e898682a4cf01e72d03491b2841145233b04d191a5905e9f5ab58c1b4"
+      }
+    },
+    "lib/netstandard1.3/es/Microsoft.Build.Utilities.Core.resources.dll": {
+      "Microsoft.Build.Utilities.Core.Strings.es.resources": {
+        "sourceXlf": "src/Utilities/Resources/xlf/Strings.es.xlf",
+        "keyCount": 55,
+        "keysSha256": "9dd88064dfdaeb745c65ab0d7bf1aea045c03127fce57fff5f1bcae5482a774a"
+      },
+      "Microsoft.Build.Utilities.Core.Strings.shared.es.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.es.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/es/Microsoft.Build.resources.dll": {
+      "Microsoft.Build.Strings.es.resources": {
+        "sourceXlf": "src/Build/Resources/xlf/Strings.es.xlf",
+        "keyCount": 449,
+        "keysSha256": "f8f0fb85f6c000a9d666f2021e7b7960b11edfe7a1a5465076775179fd323249"
+      },
+      "Microsoft.Build.Strings.shared.es.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.es.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/fr/MSBuild.resources.dll": {
+      "MSBuild.Strings.fr.resources": {
+        "sourceXlf": "src/MSBuild/Resources/xlf/Strings.fr.xlf",
+        "keyCount": 119,
+        "keysSha256": "36f021c0e1f48e178d73215844f3df11ffaa00404495bd60099b1b8075af93d3"
+      },
+      "MSBuild.Strings.shared.fr.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.fr.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/fr/Microsoft.Build.Tasks.Core.resources.dll": {
+      "Microsoft.Build.Tasks.Core.Strings.fr.resources": {
+        "sourceXlf": "src/Tasks/Resources/xlf/Strings.fr.xlf",
+        "keyCount": 660,
+        "keysSha256": "c869e3dd7811af10f07814f9d0d72505bd015c880852efc3d45040e9e2057106"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.shared.fr.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.fr.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.ManifestUtilities.fr.resources": {
+        "sourceXlf": "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.fr.xlf",
+        "keyCount": 14,
+        "keysSha256": "d121d86e898682a4cf01e72d03491b2841145233b04d191a5905e9f5ab58c1b4"
+      }
+    },
+    "lib/netstandard1.3/fr/Microsoft.Build.Utilities.Core.resources.dll": {
+      "Microsoft.Build.Utilities.Core.Strings.fr.resources": {
+        "sourceXlf": "src/Utilities/Resources/xlf/Strings.fr.xlf",
+        "keyCount": 55,
+        "keysSha256": "9dd88064dfdaeb745c65ab0d7bf1aea045c03127fce57fff5f1bcae5482a774a"
+      },
+      "Microsoft.Build.Utilities.Core.Strings.shared.fr.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.fr.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/fr/Microsoft.Build.resources.dll": {
+      "Microsoft.Build.Strings.fr.resources": {
+        "sourceXlf": "src/Build/Resources/xlf/Strings.fr.xlf",
+        "keyCount": 449,
+        "keysSha256": "f8f0fb85f6c000a9d666f2021e7b7960b11edfe7a1a5465076775179fd323249"
+      },
+      "Microsoft.Build.Strings.shared.fr.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.fr.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/it/MSBuild.resources.dll": {
+      "MSBuild.Strings.it.resources": {
+        "sourceXlf": "src/MSBuild/Resources/xlf/Strings.it.xlf",
+        "keyCount": 119,
+        "keysSha256": "36f021c0e1f48e178d73215844f3df11ffaa00404495bd60099b1b8075af93d3"
+      },
+      "MSBuild.Strings.shared.it.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.it.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/it/Microsoft.Build.Tasks.Core.resources.dll": {
+      "Microsoft.Build.Tasks.Core.Strings.it.resources": {
+        "sourceXlf": "src/Tasks/Resources/xlf/Strings.it.xlf",
+        "keyCount": 660,
+        "keysSha256": "c869e3dd7811af10f07814f9d0d72505bd015c880852efc3d45040e9e2057106"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.shared.it.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.it.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.ManifestUtilities.it.resources": {
+        "sourceXlf": "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.it.xlf",
+        "keyCount": 14,
+        "keysSha256": "d121d86e898682a4cf01e72d03491b2841145233b04d191a5905e9f5ab58c1b4"
+      }
+    },
+    "lib/netstandard1.3/it/Microsoft.Build.Utilities.Core.resources.dll": {
+      "Microsoft.Build.Utilities.Core.Strings.it.resources": {
+        "sourceXlf": "src/Utilities/Resources/xlf/Strings.it.xlf",
+        "keyCount": 55,
+        "keysSha256": "9dd88064dfdaeb745c65ab0d7bf1aea045c03127fce57fff5f1bcae5482a774a"
+      },
+      "Microsoft.Build.Utilities.Core.Strings.shared.it.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.it.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/it/Microsoft.Build.resources.dll": {
+      "Microsoft.Build.Strings.it.resources": {
+        "sourceXlf": "src/Build/Resources/xlf/Strings.it.xlf",
+        "keyCount": 449,
+        "keysSha256": "f8f0fb85f6c000a9d666f2021e7b7960b11edfe7a1a5465076775179fd323249"
+      },
+      "Microsoft.Build.Strings.shared.it.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.it.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/ja/MSBuild.resources.dll": {
+      "MSBuild.Strings.ja.resources": {
+        "sourceXlf": "src/MSBuild/Resources/xlf/Strings.ja.xlf",
+        "keyCount": 119,
+        "keysSha256": "36f021c0e1f48e178d73215844f3df11ffaa00404495bd60099b1b8075af93d3"
+      },
+      "MSBuild.Strings.shared.ja.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.ja.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/ja/Microsoft.Build.Tasks.Core.resources.dll": {
+      "Microsoft.Build.Tasks.Core.Strings.ja.resources": {
+        "sourceXlf": "src/Tasks/Resources/xlf/Strings.ja.xlf",
+        "keyCount": 660,
+        "keysSha256": "c869e3dd7811af10f07814f9d0d72505bd015c880852efc3d45040e9e2057106"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.shared.ja.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.ja.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.ManifestUtilities.ja.resources": {
+        "sourceXlf": "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.ja.xlf",
+        "keyCount": 14,
+        "keysSha256": "d121d86e898682a4cf01e72d03491b2841145233b04d191a5905e9f5ab58c1b4"
+      }
+    },
+    "lib/netstandard1.3/ja/Microsoft.Build.Utilities.Core.resources.dll": {
+      "Microsoft.Build.Utilities.Core.Strings.ja.resources": {
+        "sourceXlf": "src/Utilities/Resources/xlf/Strings.ja.xlf",
+        "keyCount": 55,
+        "keysSha256": "9dd88064dfdaeb745c65ab0d7bf1aea045c03127fce57fff5f1bcae5482a774a"
+      },
+      "Microsoft.Build.Utilities.Core.Strings.shared.ja.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.ja.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/ja/Microsoft.Build.resources.dll": {
+      "Microsoft.Build.Strings.ja.resources": {
+        "sourceXlf": "src/Build/Resources/xlf/Strings.ja.xlf",
+        "keyCount": 449,
+        "keysSha256": "f8f0fb85f6c000a9d666f2021e7b7960b11edfe7a1a5465076775179fd323249"
+      },
+      "Microsoft.Build.Strings.shared.ja.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.ja.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/ko/MSBuild.resources.dll": {
+      "MSBuild.Strings.ko.resources": {
+        "sourceXlf": "src/MSBuild/Resources/xlf/Strings.ko.xlf",
+        "keyCount": 119,
+        "keysSha256": "36f021c0e1f48e178d73215844f3df11ffaa00404495bd60099b1b8075af93d3"
+      },
+      "MSBuild.Strings.shared.ko.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.ko.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/ko/Microsoft.Build.Tasks.Core.resources.dll": {
+      "Microsoft.Build.Tasks.Core.Strings.ko.resources": {
+        "sourceXlf": "src/Tasks/Resources/xlf/Strings.ko.xlf",
+        "keyCount": 660,
+        "keysSha256": "c869e3dd7811af10f07814f9d0d72505bd015c880852efc3d45040e9e2057106"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.shared.ko.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.ko.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.ManifestUtilities.ko.resources": {
+        "sourceXlf": "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.ko.xlf",
+        "keyCount": 14,
+        "keysSha256": "d121d86e898682a4cf01e72d03491b2841145233b04d191a5905e9f5ab58c1b4"
+      }
+    },
+    "lib/netstandard1.3/ko/Microsoft.Build.Utilities.Core.resources.dll": {
+      "Microsoft.Build.Utilities.Core.Strings.ko.resources": {
+        "sourceXlf": "src/Utilities/Resources/xlf/Strings.ko.xlf",
+        "keyCount": 55,
+        "keysSha256": "9dd88064dfdaeb745c65ab0d7bf1aea045c03127fce57fff5f1bcae5482a774a"
+      },
+      "Microsoft.Build.Utilities.Core.Strings.shared.ko.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.ko.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/ko/Microsoft.Build.resources.dll": {
+      "Microsoft.Build.Strings.ko.resources": {
+        "sourceXlf": "src/Build/Resources/xlf/Strings.ko.xlf",
+        "keyCount": 449,
+        "keysSha256": "f8f0fb85f6c000a9d666f2021e7b7960b11edfe7a1a5465076775179fd323249"
+      },
+      "Microsoft.Build.Strings.shared.ko.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.ko.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/pl/MSBuild.resources.dll": {
+      "MSBuild.Strings.pl.resources": {
+        "sourceXlf": "src/MSBuild/Resources/xlf/Strings.pl.xlf",
+        "keyCount": 119,
+        "keysSha256": "36f021c0e1f48e178d73215844f3df11ffaa00404495bd60099b1b8075af93d3"
+      },
+      "MSBuild.Strings.shared.pl.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.pl.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/pl/Microsoft.Build.Tasks.Core.resources.dll": {
+      "Microsoft.Build.Tasks.Core.Strings.pl.resources": {
+        "sourceXlf": "src/Tasks/Resources/xlf/Strings.pl.xlf",
+        "keyCount": 660,
+        "keysSha256": "c869e3dd7811af10f07814f9d0d72505bd015c880852efc3d45040e9e2057106"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.shared.pl.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.pl.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.ManifestUtilities.pl.resources": {
+        "sourceXlf": "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.pl.xlf",
+        "keyCount": 14,
+        "keysSha256": "d121d86e898682a4cf01e72d03491b2841145233b04d191a5905e9f5ab58c1b4"
+      }
+    },
+    "lib/netstandard1.3/pl/Microsoft.Build.Utilities.Core.resources.dll": {
+      "Microsoft.Build.Utilities.Core.Strings.pl.resources": {
+        "sourceXlf": "src/Utilities/Resources/xlf/Strings.pl.xlf",
+        "keyCount": 55,
+        "keysSha256": "9dd88064dfdaeb745c65ab0d7bf1aea045c03127fce57fff5f1bcae5482a774a"
+      },
+      "Microsoft.Build.Utilities.Core.Strings.shared.pl.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.pl.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/pl/Microsoft.Build.resources.dll": {
+      "Microsoft.Build.Strings.pl.resources": {
+        "sourceXlf": "src/Build/Resources/xlf/Strings.pl.xlf",
+        "keyCount": 449,
+        "keysSha256": "f8f0fb85f6c000a9d666f2021e7b7960b11edfe7a1a5465076775179fd323249"
+      },
+      "Microsoft.Build.Strings.shared.pl.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.pl.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/pt-BR/MSBuild.resources.dll": {
+      "MSBuild.Strings.pt-BR.resources": {
+        "sourceXlf": "src/MSBuild/Resources/xlf/Strings.pt-BR.xlf",
+        "keyCount": 119,
+        "keysSha256": "36f021c0e1f48e178d73215844f3df11ffaa00404495bd60099b1b8075af93d3"
+      },
+      "MSBuild.Strings.shared.pt-BR.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.pt-BR.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/pt-BR/Microsoft.Build.Tasks.Core.resources.dll": {
+      "Microsoft.Build.Tasks.Core.Strings.pt-BR.resources": {
+        "sourceXlf": "src/Tasks/Resources/xlf/Strings.pt-BR.xlf",
+        "keyCount": 660,
+        "keysSha256": "c869e3dd7811af10f07814f9d0d72505bd015c880852efc3d45040e9e2057106"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.shared.pt-BR.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.pt-BR.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.ManifestUtilities.pt-BR.resources": {
+        "sourceXlf": "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.pt-BR.xlf",
+        "keyCount": 14,
+        "keysSha256": "d121d86e898682a4cf01e72d03491b2841145233b04d191a5905e9f5ab58c1b4"
+      }
+    },
+    "lib/netstandard1.3/pt-BR/Microsoft.Build.Utilities.Core.resources.dll": {
+      "Microsoft.Build.Utilities.Core.Strings.pt-BR.resources": {
+        "sourceXlf": "src/Utilities/Resources/xlf/Strings.pt-BR.xlf",
+        "keyCount": 55,
+        "keysSha256": "9dd88064dfdaeb745c65ab0d7bf1aea045c03127fce57fff5f1bcae5482a774a"
+      },
+      "Microsoft.Build.Utilities.Core.Strings.shared.pt-BR.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.pt-BR.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/pt-BR/Microsoft.Build.resources.dll": {
+      "Microsoft.Build.Strings.pt-BR.resources": {
+        "sourceXlf": "src/Build/Resources/xlf/Strings.pt-BR.xlf",
+        "keyCount": 449,
+        "keysSha256": "f8f0fb85f6c000a9d666f2021e7b7960b11edfe7a1a5465076775179fd323249"
+      },
+      "Microsoft.Build.Strings.shared.pt-BR.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.pt-BR.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/ru/MSBuild.resources.dll": {
+      "MSBuild.Strings.ru.resources": {
+        "sourceXlf": "src/MSBuild/Resources/xlf/Strings.ru.xlf",
+        "keyCount": 119,
+        "keysSha256": "36f021c0e1f48e178d73215844f3df11ffaa00404495bd60099b1b8075af93d3"
+      },
+      "MSBuild.Strings.shared.ru.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.ru.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/ru/Microsoft.Build.Tasks.Core.resources.dll": {
+      "Microsoft.Build.Tasks.Core.Strings.ru.resources": {
+        "sourceXlf": "src/Tasks/Resources/xlf/Strings.ru.xlf",
+        "keyCount": 660,
+        "keysSha256": "c869e3dd7811af10f07814f9d0d72505bd015c880852efc3d45040e9e2057106"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.shared.ru.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.ru.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.ManifestUtilities.ru.resources": {
+        "sourceXlf": "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.ru.xlf",
+        "keyCount": 14,
+        "keysSha256": "d121d86e898682a4cf01e72d03491b2841145233b04d191a5905e9f5ab58c1b4"
+      }
+    },
+    "lib/netstandard1.3/ru/Microsoft.Build.Utilities.Core.resources.dll": {
+      "Microsoft.Build.Utilities.Core.Strings.ru.resources": {
+        "sourceXlf": "src/Utilities/Resources/xlf/Strings.ru.xlf",
+        "keyCount": 55,
+        "keysSha256": "9dd88064dfdaeb745c65ab0d7bf1aea045c03127fce57fff5f1bcae5482a774a"
+      },
+      "Microsoft.Build.Utilities.Core.Strings.shared.ru.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.ru.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/ru/Microsoft.Build.resources.dll": {
+      "Microsoft.Build.Strings.ru.resources": {
+        "sourceXlf": "src/Build/Resources/xlf/Strings.ru.xlf",
+        "keyCount": 449,
+        "keysSha256": "f8f0fb85f6c000a9d666f2021e7b7960b11edfe7a1a5465076775179fd323249"
+      },
+      "Microsoft.Build.Strings.shared.ru.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.ru.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/tr/MSBuild.resources.dll": {
+      "MSBuild.Strings.tr.resources": {
+        "sourceXlf": "src/MSBuild/Resources/xlf/Strings.tr.xlf",
+        "keyCount": 119,
+        "keysSha256": "36f021c0e1f48e178d73215844f3df11ffaa00404495bd60099b1b8075af93d3"
+      },
+      "MSBuild.Strings.shared.tr.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.tr.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/tr/Microsoft.Build.Tasks.Core.resources.dll": {
+      "Microsoft.Build.Tasks.Core.Strings.tr.resources": {
+        "sourceXlf": "src/Tasks/Resources/xlf/Strings.tr.xlf",
+        "keyCount": 660,
+        "keysSha256": "c869e3dd7811af10f07814f9d0d72505bd015c880852efc3d45040e9e2057106"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.shared.tr.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.tr.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.ManifestUtilities.tr.resources": {
+        "sourceXlf": "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.tr.xlf",
+        "keyCount": 14,
+        "keysSha256": "d121d86e898682a4cf01e72d03491b2841145233b04d191a5905e9f5ab58c1b4"
+      }
+    },
+    "lib/netstandard1.3/tr/Microsoft.Build.Utilities.Core.resources.dll": {
+      "Microsoft.Build.Utilities.Core.Strings.tr.resources": {
+        "sourceXlf": "src/Utilities/Resources/xlf/Strings.tr.xlf",
+        "keyCount": 55,
+        "keysSha256": "9dd88064dfdaeb745c65ab0d7bf1aea045c03127fce57fff5f1bcae5482a774a"
+      },
+      "Microsoft.Build.Utilities.Core.Strings.shared.tr.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.tr.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/tr/Microsoft.Build.resources.dll": {
+      "Microsoft.Build.Strings.tr.resources": {
+        "sourceXlf": "src/Build/Resources/xlf/Strings.tr.xlf",
+        "keyCount": 449,
+        "keysSha256": "f8f0fb85f6c000a9d666f2021e7b7960b11edfe7a1a5465076775179fd323249"
+      },
+      "Microsoft.Build.Strings.shared.tr.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.tr.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/zh-Hans/MSBuild.resources.dll": {
+      "MSBuild.Strings.zh-Hans.resources": {
+        "sourceXlf": "src/MSBuild/Resources/xlf/Strings.zh-Hans.xlf",
+        "keyCount": 119,
+        "keysSha256": "36f021c0e1f48e178d73215844f3df11ffaa00404495bd60099b1b8075af93d3"
+      },
+      "MSBuild.Strings.shared.zh-Hans.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.zh-Hans.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/zh-Hans/Microsoft.Build.Tasks.Core.resources.dll": {
+      "Microsoft.Build.Tasks.Core.Strings.zh-Hans.resources": {
+        "sourceXlf": "src/Tasks/Resources/xlf/Strings.zh-Hans.xlf",
+        "keyCount": 660,
+        "keysSha256": "c869e3dd7811af10f07814f9d0d72505bd015c880852efc3d45040e9e2057106"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.shared.zh-Hans.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.zh-Hans.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.ManifestUtilities.zh-Hans.resources": {
+        "sourceXlf": "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.zh-Hans.xlf",
+        "keyCount": 14,
+        "keysSha256": "d121d86e898682a4cf01e72d03491b2841145233b04d191a5905e9f5ab58c1b4"
+      }
+    },
+    "lib/netstandard1.3/zh-Hans/Microsoft.Build.Utilities.Core.resources.dll": {
+      "Microsoft.Build.Utilities.Core.Strings.zh-Hans.resources": {
+        "sourceXlf": "src/Utilities/Resources/xlf/Strings.zh-Hans.xlf",
+        "keyCount": 55,
+        "keysSha256": "9dd88064dfdaeb745c65ab0d7bf1aea045c03127fce57fff5f1bcae5482a774a"
+      },
+      "Microsoft.Build.Utilities.Core.Strings.shared.zh-Hans.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.zh-Hans.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/zh-Hans/Microsoft.Build.resources.dll": {
+      "Microsoft.Build.Strings.zh-Hans.resources": {
+        "sourceXlf": "src/Build/Resources/xlf/Strings.zh-Hans.xlf",
+        "keyCount": 449,
+        "keysSha256": "f8f0fb85f6c000a9d666f2021e7b7960b11edfe7a1a5465076775179fd323249"
+      },
+      "Microsoft.Build.Strings.shared.zh-Hans.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.zh-Hans.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/zh-Hant/MSBuild.resources.dll": {
+      "MSBuild.Strings.zh-Hant.resources": {
+        "sourceXlf": "src/MSBuild/Resources/xlf/Strings.zh-Hant.xlf",
+        "keyCount": 119,
+        "keysSha256": "36f021c0e1f48e178d73215844f3df11ffaa00404495bd60099b1b8075af93d3"
+      },
+      "MSBuild.Strings.shared.zh-Hant.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.zh-Hant.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/zh-Hant/Microsoft.Build.Tasks.Core.resources.dll": {
+      "Microsoft.Build.Tasks.Core.Strings.zh-Hant.resources": {
+        "sourceXlf": "src/Tasks/Resources/xlf/Strings.zh-Hant.xlf",
+        "keyCount": 660,
+        "keysSha256": "c869e3dd7811af10f07814f9d0d72505bd015c880852efc3d45040e9e2057106"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.shared.zh-Hant.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.zh-Hant.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      },
+      "Microsoft.Build.Tasks.Core.Strings.ManifestUtilities.zh-Hant.resources": {
+        "sourceXlf": "src/Tasks/ManifestUtil/Resources/xlf/Strings.ManifestUtilities.zh-Hant.xlf",
+        "keyCount": 14,
+        "keysSha256": "d121d86e898682a4cf01e72d03491b2841145233b04d191a5905e9f5ab58c1b4"
+      }
+    },
+    "lib/netstandard1.3/zh-Hant/Microsoft.Build.Utilities.Core.resources.dll": {
+      "Microsoft.Build.Utilities.Core.Strings.zh-Hant.resources": {
+        "sourceXlf": "src/Utilities/Resources/xlf/Strings.zh-Hant.xlf",
+        "keyCount": 55,
+        "keysSha256": "9dd88064dfdaeb745c65ab0d7bf1aea045c03127fce57fff5f1bcae5482a774a"
+      },
+      "Microsoft.Build.Utilities.Core.Strings.shared.zh-Hant.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.zh-Hant.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    },
+    "lib/netstandard1.3/zh-Hant/Microsoft.Build.resources.dll": {
+      "Microsoft.Build.Strings.zh-Hant.resources": {
+        "sourceXlf": "src/Build/Resources/xlf/Strings.zh-Hant.xlf",
+        "keyCount": 449,
+        "keysSha256": "f8f0fb85f6c000a9d666f2021e7b7960b11edfe7a1a5465076775179fd323249"
+      },
+      "Microsoft.Build.Strings.shared.zh-Hant.resources": {
+        "sourceXlf": "src/Shared/Resources/xlf/Strings.shared.zh-Hant.xlf",
+        "keyCount": 59,
+        "keysSha256": "819805c09d28c450abc7f40251a926c216c18cb378d62c3e8105498c3e8278e9"
+      }
+    }
+  },
+  "originalArcade": "6.0.0-beta.24176.9",
+  "actualArcade": {
+    "version": "6.0.0-beta.24204.4",
+    "bytes": 1480019,
+    "sha256": "229f0cde9a9a8f3dc919ed2b8cdfb093bb540c8eaa9e337e739c55316ed1fdf2",
+    "sha512": "55cce6765b0c023a9b93dc25cb5080f4a23f5881f3ef84549c56cb886037c9c3981e29b0c99e799a2b990b72db47faea5cdbd477ddfa93d5dc2d990a7a468389",
+    "repository": "https://github.com/dotnet/arcade",
+    "commit": "bd9b4590681e602535ed414e98a17e6ba121dca4"
+  }
+}
