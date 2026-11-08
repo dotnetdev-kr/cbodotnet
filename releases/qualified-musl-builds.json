@@ -39,6 +39,46 @@
       "sourceManifestSha256": "04b3ff71eec9a508c65bf5c22c13f189def3ba576e55f5593cff7378224c3344",
       "sourceReleaseTag": "musl-sdk-10.0.403-r1",
       "target": "net10-musl"
+    },
+    {
+      "architectures": {
+        "aarch64": {
+          "artifactId": "13625878701",
+          "aspnetSourceCommit": "5aeb916d29e761492c987f1c09895c3ba9cbe1ac",
+          "bootstrapSdk": "9.0.121",
+          "libc": "musl",
+          "projectCommit": "9654b71127ae0b79d4ca81dbdf6a3e7102ed9709",
+          "runAttempt": "1",
+          "runId": "42494792030",
+          "runtimeSourceCommit": "faaecba82df8933d7af60972138ce25f9c776cbd",
+          "runtimeVersion": "9.0.22",
+          "sourceCommit": "9f04b57d1366e21b3178648493d6edffeff2216e",
+          "targetRid": "linux-musl-arm64",
+          "workflow": ".github/workflows/musl-sdk-expand.yml",
+          "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42494792030"
+        },
+        "x64": {
+          "artifactId": "13627315514",
+          "aspnetSourceCommit": "5aeb916d29e761492c987f1c09895c3ba9cbe1ac",
+          "bootstrapSdk": "9.0.121",
+          "libc": "musl",
+          "projectCommit": "9654b71127ae0b79d4ca81dbdf6a3e7102ed9709",
+          "runAttempt": "1",
+          "runId": "42494792030",
+          "runtimeSourceCommit": "faaecba82df8933d7af60972138ce25f9c776cbd",
+          "runtimeVersion": "9.0.22",
+          "sourceCommit": "9f04b57d1366e21b3178648493d6edffeff2216e",
+          "targetRid": "linux-musl-x64",
+          "workflow": ".github/workflows/musl-sdk-expand.yml",
+          "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42494792030"
+        }
+      },
+      "libc": "musl",
+      "producerRevision": 1,
+      "sdkVersion": "9.0.123",
+      "sourceManifestSha256": "4ae52644bcdd6841f6d613c2c6d1e64719d9f7dbde45c4b650b85ae08c74b21a",
+      "sourceReleaseTag": "musl-sdk-9.0.123-r1",
+      "target": "net9-musl"
     }
   ],
   "kind": "qualified-musl-sdk-producers",

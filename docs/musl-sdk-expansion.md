@@ -95,6 +95,19 @@ anonymous public checks on both CPUs; six exact public reports are bound by a
 separate signed final verification manifest before availability is activated.
 SDK 9 or 8 installer admission requires separate qualification.
 
+SDK9's first complete native two-CPU producer is
+[42494792030/1](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42494792030),
+from orchestration commit `9654b71127ae0b79d4ca81dbdf6a3e7102ed9709`.
+The protected independent revalidation and source publication
+[42506108850/1](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42506108850)
+passed. Its manifest-pinned public source release is
+[`musl-sdk-9.0.123-r1`](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/musl-sdk-9.0.123-r1).
+The exact reviewed manifest SHA-256 is
+`4ae52644bcdd6841f6d613c2c6d1e64719d9f7dbde45c4b650b85ae08c74b21a`.
+The producer catalog preserves both original artifact/run/source identities.
+This producer admission permits the separate native consumer workflows; it
+does not activate download availability or installer admission.
+
 SDK 9's F# test tracing uses the maintained OTLP 1.15.3 exporter because the
 deprecated Jaeger exporter has no fixed release for its advisory. The original
 test graph, compiler activity source, spans, tags and flush/disposal lifecycle
