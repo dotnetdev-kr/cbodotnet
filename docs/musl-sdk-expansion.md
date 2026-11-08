@@ -27,16 +27,25 @@ an advisory would change that contract. The pinned upstream
 [reference-package description](https://github.com/dotnet/dotnet/blob/7d1bf90885cff22e7da72b27e9848e42fd3cb1ae/src/source-build-assets/README.md)
 distinguishes these signatures from implementations. Auditing remains enabled
 and every warning remains visible. Only `source-build-assets/src/referencePackages`
-uses `WarningsNotAsErrors` for audit diagnostics. The producer independently
+uses `WarningsNotAsErrors` for audit diagnostics. Its `eng/Build.props` also
+forwards `MSBuildWarningsNotAsErrors` into Arcade's separate bulk restore
+project, so global `/warnaserror` preserves these warnings. The engine
+exception applies to restore; NuGet's literal audit errors from other
+projects remain fatal. The producer independently
 requires the exact 15 project/package/version/advisory records observed on
 both native CPUs, as recorded in
 [the closed disposition](../scripts/musl-reference-audit-policy.json).
 An unknown or missing diagnostic fails verification. All other projects retain
 their normal audit errors.
 
-The actual ARM64 SDK 8.0.131 bootstrap was tested with a vulnerable package:
-the strict control failed, the reference-scoped property preserved its visible
-warning and succeeded, and a separate outside-scope control failed again.
+The actual ARM64 SDK 8.0.131 bootstrap was tested with a vulnerable package
+through the pinned Arcade `Build.proj` and its original bulk `NuGet.targets`
+restore task, using `/warnaserror` and `TreatWarningsAsErrors=true` together.
+Strict, reference NuGet-property-only, and parent engine-property-only
+controls failed. Explicit forwarding preserved the visible reference warning
+and succeeded; an outside-reference runtime audit error still failed.
+The fixture substituted one project for the complete source graph and skipped
+only Arcade's built-in infrastructure tool restore.
 These are development diagnostics, not SDK qualification. Protected source
 admission reparses the actual build log and rechecks the final SDK, including
 nested package DLLs. Signature stubs may ship as compilation references in

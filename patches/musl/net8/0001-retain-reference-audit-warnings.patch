@@ -1,3 +1,21 @@
+--- a/src/source-build-assets/eng/Build.props
++++ b/src/source-build-assets/eng/Build.props
+@@ -1,5 +1,15 @@
+ <Project>
+ 
++  <!-- Arcade restores the project graph through a separate NuGet.targets
++       project. Forward the engine exception to that bulk restore context;
++       /warnaserror otherwise promotes the visible reference warnings again.
++       Only referencePackages converts NuGet audit errors into warnings.
++       Literal audit errors from other projects remain fatal, and the producer
++       independently rejects every diagnostic outside the closed reference graph. -->
++  <ItemGroup>
++    <_SolutionRestoreProps Include="MSBuildWarningsNotAsErrors=$([MSBuild]::Escape('$(MSBuildWarningsNotAsErrors);NU1901;NU1902;NU1903;NU1904'))" />
++  </ItemGroup>
++
+   <ItemGroup Condition="'$(GeneratePackageSource)' == 'true'">
+     <ProjectToBuild Include="$(RepoRoot)src\packageSourceGenerator\PackageSourceGenerator.proj" />
+   </ItemGroup>
 --- a/src/source-build-assets/src/referencePackages/Directory.Build.props
 +++ b/src/source-build-assets/src/referencePackages/Directory.Build.props
 @@ -26,6 +26,14 @@

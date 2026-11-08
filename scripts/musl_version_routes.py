@@ -71,7 +71,7 @@ def profile(sdk, arch, root=ROOT):
     expected_patches = ({'patches/net8/0002-preserve-portable-aspnetcore-target.patch':
                          'b03fab8085c959debc05892fb1920edaa8f514f90d4189994de23608abcc7d8a',
                          'patches/musl/net8/0001-retain-reference-audit-warnings.patch':
-                         'e04d389af3fa0cf356ec23ad9de4e58a8204ac0660ee5386e7997283f880677c'} if expected['sourceOnly'] else {
+                         '1bb226434a9c4358fe2446af35956c75d2185659e13c68f884f097320fad7e7f'} if expected['sourceOnly'] else {
                          'patches/musl/net9/0001-use-fixed-build-helper-msbuild.patch':
                          '444916928c5c78a8232c3baba53b7d0c2d09ea4ad9bd4fe3536b1b11055b823e',
                          'patches/musl/net9/0002-use-fixed-build-helper-asn1.patch':
