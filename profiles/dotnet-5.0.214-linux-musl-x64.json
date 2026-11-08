@@ -137,6 +137,37 @@
       "nativeOpenSsl3InvalidCa": 79,
       "nativeArm64Experiment": "passed",
       "nativeX64Experiment": "not-executed"
+    },
+    "coreclr": {
+      "action": "rebuild-own-exact-runtime-source-native-coreclr-jit-dac-debugger",
+      "sourceCommit": "6a984143635bde23e728abaaccbde52f5ea8fa3e",
+      "configuration": "Release",
+      "upstreamMetadataBackport": "35a39e97345abfda05e14f609759760b37ddeb4d",
+      "upstreamClang13Backport": "f86caa54678535ead8e1977da37025a96e2afe8a",
+      "requiredUpstreamPatch": {
+        "path": "patches/net5-musl/0006-backport-upstream-clang13-alignment-and-aliasing.patch",
+        "bytes": 2287,
+        "sha256": "db205750ee5ad54be0c7e2154b339fd82df9d05edd9719bf147623348a107149",
+        "sha512": "16ddfa9e378406f60f310d948dccbe68df1d42dd1b7398a2b0c99fc025037cf3bbf7a0f29eebe2da877ff923f982a6619b5e8a14bc278be10efd0fb013a8c499"
+      },
+      "requiredSemanticWorker": {
+        "path": "scripts/musl-legacy-runtime-semantics5.py",
+        "bytes": 9750,
+        "sha256": "3dc448840d3bff1addecb8d29e200df21a82736944fcd88b9db3fe9fa01646d7",
+        "sha512": "51b9fb34d88d9d80d7ad78db25fe1de01a1c124ec44dbcaec1455a225151c5e05ab2bc387045c5eb3d01acb89472057d94ad71fd04c98a06f80dab959f408677"
+      },
+      "requiredSemanticFixture": {
+        "path": "scripts/musl-runtime-semantics5.cs",
+        "bytes": 4421,
+        "sha256": "2692214626b3ff20d5c477094911ff581f82b8f1c1727d6870e9dcd610e18572",
+        "sha512": "f08c578b163aa8bb10c8cd8f907ce601f7f7edd36896e3f6db8fefb60190aca0dffc3afc3f807d12586d8a4def5aff4ed82a49632b6bb5e806e77b32f38ab42c"
+      },
+      "nativeCompletedArchiveExperiment": "not-executed",
+      "normalProducerQualified": false,
+      "sourceClosureComplete": false,
+      "optimizationDisabled": false,
+      "tracingDisabled": false,
+      "readyToRunDisabled": false
     }
   }
 }

@@ -1,0 +1,60 @@
+From: cbodotnet source compatibility review
+Subject: Backport upstream f86caa Clang13 alignment and aliasing corrections
+
+Upstream: https://github.com/dotnet/runtime/commit/f86caa54678535ead8e1977da37025a96e2afe8a
+Original source hunks; only the NET5 src/coreclr/src path prefix is adapted.
+
+diff --git a/src/coreclr/src/inc/corhlpr.h b/src/coreclr/src/inc/corhlpr.h
+--- a/src/coreclr/src/inc/corhlpr.h
++++ b/src/coreclr/src/inc/corhlpr.h
+@@ -336,7 +336,7 @@ struct COR_ILMETHOD_SECT
+     const COR_ILMETHOD_SECT* Next() const
+     {
+         if (!More()) return(0);
+-        return ((COR_ILMETHOD_SECT*)(((BYTE *)this) + DataSize()))->Align();
++        return ((COR_ILMETHOD_SECT*)Align(((BYTE *)this) + DataSize()));
+     }
+ 
+     const BYTE* Data() const
+@@ -374,9 +374,9 @@ struct COR_ILMETHOD_SECT
+         return((AsSmall()->Kind & CorILMethod_Sect_FatFormat) != 0);
+     }
+ 
+-    const COR_ILMETHOD_SECT* Align() const
++    static const void* Align(const void* p)
+     {
+-        return((COR_ILMETHOD_SECT*) ((((UINT_PTR) this) + 3) & ~3));
++        return((void*) ((((UINT_PTR) p) + 3) & ~3));
+     }
+ 
+ protected:
+@@ -579,7 +579,7 @@ typedef struct tagCOR_ILMETHOD_FAT : IMAGE_COR_ILMETHOD_FAT
+ 
+     const COR_ILMETHOD_SECT* GetSect() const {
+         if (!More()) return (0);
+-        return(((COR_ILMETHOD_SECT*) (GetCode() + GetCodeSize()))->Align());
++        return(((COR_ILMETHOD_SECT*) COR_ILMETHOD_SECT::Align(GetCode() + GetCodeSize())));
+     }
+ } COR_ILMETHOD_FAT;
+ 
+diff --git a/src/coreclr/src/jit/bitsetasshortlong.h b/src/coreclr/src/jit/bitsetasshortlong.h
+--- a/src/coreclr/src/jit/bitsetasshortlong.h
++++ b/src/coreclr/src/jit/bitsetasshortlong.h
+@@ -345,7 +345,7 @@ class BitSetOps</*BitSetType*/ BitSetShortLongRep,
+     {
+         if (IsShort(env))
+         {
+-            (size_t&)out = (size_t)out & ((size_t)gen | (size_t)in);
++            out = (BitSetShortLongRep)((size_t)out & ((size_t)gen | (size_t)in));
+         }
+         else
+         {
+@@ -361,7 +361,7 @@ class BitSetOps</*BitSetType*/ BitSetShortLongRep,
+     {
+         if (IsShort(env))
+         {
+-            (size_t&)in = (size_t)use | ((size_t)out & ~(size_t)def);
++            in = (BitSetShortLongRep)((size_t)use | ((size_t)out & ~(size_t)def));
+         }
+         else
+         {

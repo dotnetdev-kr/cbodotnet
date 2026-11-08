@@ -3,7 +3,7 @@
   "kind": "legacy-musl-diagnostic-profile",
   "selectedAt": "2026-11-08",
   "sdkVersion": "5.0.214",
-  "status": "native-arm64-genuine-sdk-original68-minimal-runtime-passed-fullruntimequalification-pending",
+  "status": "native-arm64-source-coreclr-original68-semantics-passed-source-closure-pending",
   "qualificationAllowed": false,
   "sourceAdmissionAllowed": false,
   "releaseAvailabilityAllowed": false,
@@ -154,6 +154,37 @@
       "nativeOpenSsl3InvalidCa": 79,
       "nativeArm64Experiment": "passed",
       "nativeX64Experiment": "not-executed"
+    },
+    "coreclr": {
+      "action": "rebuild-own-exact-runtime-source-native-coreclr-jit-dac-debugger",
+      "sourceCommit": "6a984143635bde23e728abaaccbde52f5ea8fa3e",
+      "configuration": "Release",
+      "upstreamMetadataBackport": "35a39e97345abfda05e14f609759760b37ddeb4d",
+      "upstreamClang13Backport": "f86caa54678535ead8e1977da37025a96e2afe8a",
+      "requiredUpstreamPatch": {
+        "path": "patches/net5-musl/0006-backport-upstream-clang13-alignment-and-aliasing.patch",
+        "bytes": 2287,
+        "sha256": "db205750ee5ad54be0c7e2154b339fd82df9d05edd9719bf147623348a107149",
+        "sha512": "16ddfa9e378406f60f310d948dccbe68df1d42dd1b7398a2b0c99fc025037cf3bbf7a0f29eebe2da877ff923f982a6619b5e8a14bc278be10efd0fb013a8c499"
+      },
+      "requiredSemanticWorker": {
+        "path": "scripts/musl-legacy-runtime-semantics5.py",
+        "bytes": 9750,
+        "sha256": "3dc448840d3bff1addecb8d29e200df21a82736944fcd88b9db3fe9fa01646d7",
+        "sha512": "51b9fb34d88d9d80d7ad78db25fe1de01a1c124ec44dbcaec1455a225151c5e05ab2bc387045c5eb3d01acb89472057d94ad71fd04c98a06f80dab959f408677"
+      },
+      "requiredSemanticFixture": {
+        "path": "scripts/musl-runtime-semantics5.cs",
+        "bytes": 4421,
+        "sha256": "2692214626b3ff20d5c477094911ff581f82b8f1c1727d6870e9dcd610e18572",
+        "sha512": "f08c578b163aa8bb10c8cd8f907ce601f7f7edd36896e3f6db8fefb60190aca0dffc3afc3f807d12586d8a4def5aff4ed82a49632b6bb5e806e77b32f38ab42c"
+      },
+      "nativeCompletedArchiveExperiment": "passed",
+      "normalProducerQualified": false,
+      "sourceClosureComplete": false,
+      "optimizationDisabled": false,
+      "tracingDisabled": false,
+      "readyToRunDisabled": false
     }
   },
   "localDiagnosticEvidence": {
@@ -173,5 +204,195 @@
       "trace5.0.17 current stockLTTng"
     ],
     "qualificationAllowed": false
+  },
+  "nativeRuntimeDiagnosticEvidence": {
+    "kind": "private-native-arm64-final-archive-functional-evidence",
+    "architecture": "aarch64",
+    "sdkVersion": "5.0.214",
+    "runtimeVersion": "5.0.17",
+    "archive": {
+      "bytes": 130231821,
+      "sha256": "0259d03e96809f8e99aa5ad053e925ee2b024f18f81f11564e7892c4ae2e13be",
+      "sha512": "9736fa80b6e191135b23dd41ef9851812e04ce95ee848cff01b7c782b77fa53bf9d565a68d323b39e142ac2ef4887ca9ab9d35666f642159be7f944896eab066"
+    },
+    "originalTemplateCases": 68,
+    "semanticCommands": 14,
+    "decodedGcStartEvents": 80,
+    "decodedGcEndEvents": 80,
+    "nativeControlEvents": 1,
+    "normalProducerQualified": false,
+    "sourceClosureComplete": false,
+    "qualificationAllowed": false,
+    "sourceAdmissionAllowed": false,
+    "document": {
+      "path": "docs/musl-sdk5-clang13-backport.md",
+      "bytes": 6458,
+      "sha256": "b779003acaee0f58e37f1cc60f0ca0696879ae64dd4da75626fcdb2d993801c5",
+      "sha512": "4b83f66cc00aea796e24ad841dfc50c36105ae32ef948b8185098318977e09a2eaaf7cd0d897c622a6a62a014dfb4955191502e960e68d6a268e26d0c583a499"
+    },
+    "receipts": [
+      {
+        "path": ".build/sdk5-clang-alignment-upstream-review/upstream-f86caa5.json",
+        "bytes": 3088,
+        "sha256": "213dadbffd38a00711ef9a0406d020f7c3c3441f6582dced093adc6a98d2f7d0",
+        "sha512": "67e8f91e2d701d2c1a9e887b39afc7ac243f6f710a484bc654140323f28664ab45d6073767c646d18bda67a505de9df44f74986e7041c67695a479bcf93a5f74"
+      },
+      {
+        "path": ".build/sdk5-clang-backport-root-review-v1.json",
+        "bytes": 13055,
+        "sha256": "6fb538c1d9dd371ca5530123b5766907a9e0281992fb67839df7622b390f8e2a",
+        "sha512": "0ff33864d00e6619b58e961f65947acfebee37eefa658a6a7f9ecd59f32fb27078a77b394b80e20190d2151ff4d865785db8893115b04ed11fec34366a6ca0c1"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/native-clr5-alignment-probe-v21/results.json",
+        "bytes": 7026,
+        "sha256": "c6827cea2b475fe07f7340e9b96140b7a78c45a422dc83b77be2e34939f106c2",
+        "sha512": "df020bbd575872b3c349bb83818d352913bc4bbf24e87d030dde5d1eaa1be3ce9e228966f3f80641dee5aa65aa308e0dca88471c19c444abda184037dafb1f57"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/native-clr5-clang13-backport-v22/source-backport.json",
+        "bytes": 2408,
+        "sha256": "1ff58ca35b3a9e1fc2ca54102b46f1256133a261f40f193d520644ec2cbd9a8d",
+        "sha512": "958830944cf21dd0d9951f898c5e879d456212f0cf4d93d7fe78abbcad8b0b0cb036b7bd8443b2cd110388e6d8a10077ae7b11f5556064ad86eebf35c145858d"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/native-clr5-clang13-backport-v22/results.json",
+        "bytes": 12382,
+        "sha256": "a96e082e428bab926521406d61837eff07571dc3b8ead08cd04817ac11bdd5fd",
+        "sha512": "8c233f55dc7cde4b04d2a4f89635dbe7f360fe426a293854a217c140801a30be8a6826de5c0c33f11b94d0b92321b54b5a39d896734d71b8d2b2ed84f791aad0"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/native-clr5-fixed-core-consumer-v23/results.json",
+        "bytes": 7647,
+        "sha256": "29d16cc4cdbbbd0a2f3357e583cfe02b809c393da2458e2d158fe384b5f736bf",
+        "sha512": "7f0f844ea37649a4d88ea7e4e3aacb25c9638d4eec2ed9e5b93207116fa5e06f968aa5a8d7af74c35338d94996af2ce4fd5563b8bc7ea82b5892e44e93e855e8"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/native-clr5-fixed-cold-v24/results.json",
+        "bytes": 14539,
+        "sha256": "b9824843d35faf0afa9883fcf8d97f63eb4e7201036b3fe4674e1db78d5cbaca",
+        "sha512": "be9be91fcafe9dbd18ddbc8d60756d4cdd7be832c0db0aa9936c81295a3e7bf8e4afe62d8f05cf6c9e1afd6331773f7670e52e452d61df2aa87eab980b4309d2"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/native-clr5-fixed-synchronization-v24/results.json",
+        "bytes": 6725,
+        "sha256": "0703236196813b810efdc6102ba98ecedf3f69a23c5dc2b144fb6669d241f3c4",
+        "sha512": "1c361a9e6a38cfea57e9617d3da3c09eee11b8c5dc65e27c4593c4e40a1eaf91ae4f8ce82ee1fa4da13ff4a3a73841cceb64935e9a816b13883b147829db57cd"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/native-clr5-fixed-lttng-v24/result.json",
+        "bytes": 15854,
+        "sha256": "3479cd9c12a8979c2ab9de7b9a4d5150d563040c8a3a4e145624a3e15aa911cd",
+        "sha512": "a5b86f677680b914341f364025a135e6d49ee7a9a8d8fe314ed1e8be87f8576143f62d9138bf39455d1eb9fbddb0a665e50210ce0b3d64dc4d07d646bb74a328"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-fixed-native-v2/archive.json",
+        "bytes": 3534,
+        "sha256": "99ca78757ba0be86760070174144d95268f64fbe893e9600360779ecc3d91014",
+        "sha512": "e44d3b0aceb35b1b9666ac6ce942ae7d5714f457b6d6a8c853800703636545d6ef55ce84302242633154a6eeb29b50ed7799af80ef6e7f9b32fc5e75999c37c7"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-fixed-native-v2/archive-inventory.json",
+        "bytes": 874100,
+        "sha256": "b19990151621dec5107672bb70fe81360fbfa1015c8bc0558de0f7d52f4612e4",
+        "sha512": "1dfbde674a4a172eedad6c1bdd3ebdea3e626ebfdc262b958556c0a7a3bdb45402b1ac5fa67a59aaa22696864f39ee1e73bb3545d103edbcefb879256dfa8548"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-fixed-native-v2/invocation.json",
+        "bytes": 2939,
+        "sha256": "c49c033aa2d3494dd193f01a381cccf21cc3db1c2edef7a6e0a30d41af4fbed6",
+        "sha512": "5aaa7a02a7a6f1aa82e83f4175bd7935ea98cc58cc025b998f0ffe4ea3dcf669258de0837646be379b1ca07cfb90e2ffaafacc155ce6b321c27d47e0f4aa1a31"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-fixed-native-v2/execution.json",
+        "bytes": 60,
+        "sha256": "6a79558cb9bde51c2ff13b4d9dd2e21a9a0fcfef41385c9b0e026a689e383742",
+        "sha512": "46a5f6aafd483f6f964d400e36230440669993213b82d9c0f19a663445b4e4a86c2b373e9a7faff1618ed9b8706cad6f38d2a08e9521528339440094f412b140"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-fixed-native-v2/component-filename-mappings.json",
+        "bytes": 994,
+        "sha256": "271d29bcaa61866f0d9ffa7048bdddcee46cbd25840ec8d1100c901124fb98fb",
+        "sha512": "a8f0805daded6c8e3d1353f126d8e2ad2f434229b5045197ce127a1f2eb9980d1a5e11d8ea30e2d1af438436054fc8ea6caa74200cd61c45a06a49f20dd0193c"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-fixed-native-v2/original68/summary.json",
+        "bytes": 596,
+        "sha256": "09b4fce984ddb55ef2dff5b4b1d73ec74b4042fc28d8b880e2f01ace4cacd4ac",
+        "sha512": "b4b34885f448584801f55a6036477414dd6a70c2680d50c3defaa209f477f10a1da625664d160094e8a42a243c3673faac817a5459555c553eac3a611f19efb1"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-fixed-native-v2/original68/identity.json",
+        "bytes": 1719,
+        "sha256": "0605fdd3954351cc48845fa1229e0737169c0205c82b134acf100fa1925722fd",
+        "sha512": "b2a6faeaea61fa6de24daeb6c64e10529b1e7b8675d921afcce70e64590aaa574b985d6adf3490b1dc69761f16fb897badd73c04dd99f4ecb292dc98f4fac5b4"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-fixed-native-v2/archive-leaves-v2/results.json",
+        "bytes": 547,
+        "sha256": "865c6383ef42eb08134350015b30fe7601b35a2833fb12628fd7077f000d3ce1",
+        "sha512": "7c78be4714b7b5857cc690f3fa2b864b81278a1d0434bdff728bddd12e5905e202ae0c084839acf83d8923339771384edb8fa3b70a5ee753c1642ee57b08e5ad"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-fixed-native-v2/archive-leaves-v2/functional/offline-summary.json",
+        "bytes": 288,
+        "sha256": "c550adea8c82200a807587e4023333a1f2acb1e3207faf752c539b472944f4d5",
+        "sha512": "74e59d2bca00976dd8b36a66f0f14118d16169b07a36d00f8608a10bae960f845b7c83d2115edcf0c762de6d0e1921cd90b06b867836f7144d9a6d5c85ff297d"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-fixed-native-v2/archive-leaves-v2/functional/negative-certificates.json",
+        "bytes": 979,
+        "sha256": "813da4a9c3e41b54a113e1b46461ebee8c24d54062aeb6d3d57bece1dadb8b21",
+        "sha512": "8e2ff914ab3454ff72097f23f5cc80cb909b5aa16a717c4da2d4e2282ee5662596f3fd00350c4a88030587e8bd212e79bc281bb405813a3602f5c70152fcde83"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-fixed-native-v2/archive-leaves-v2/functional/tls.json",
+        "bytes": 121,
+        "sha256": "9500ffad9cad3b6e41cc34ffececaf443241389ee80ca251d99a88a7d2f415a2",
+        "sha512": "9c0083a6e0f490dbd83cafe773d46d0d5416827eb65a3e523fa2f1b32bb63224abd000b8d8e51351cd12d0028ab16287a4482d8fd985ee7e8d7965cb424e984f"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-fixed-native-v2/archive-leaves-v2/elf.json",
+        "bytes": 87374,
+        "sha256": "293ded3f73d26bdb68a285695bd02fbdc6aa4ef7bc7cf91d3bac49905cb43530",
+        "sha512": "9df5beed6c4c65b5ce0eaca4446c726a1de0000d2c6a48baa6c909b6950face9c1262e8f34b0024679f653052a5c4f360dc01d5b6edcee9689c5a25359bff183"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-fixed-native-v2/archive-leaves-v2/archive-lttng/results.json",
+        "bytes": 6035,
+        "sha256": "7e58e5a1155cdd2763050a3c85147d40e5a4871cc73d5b3e2b3eacf1df6670d7",
+        "sha512": "4ac5a4f9e4ea5b3320dde339e46d7bc56cf0690df4e36262d7fba2936d0916b93239f4a09a9194e3785f0db45356c5767bba9cb3991999616698a85e8093910c"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-fixed-native-v2/runtime-semantics-prototype-v5/results.json",
+        "bytes": 9958,
+        "sha256": "7f2678833b3c997755942bb6601077cc1d4d8eb1fcdccf34c9cdae906bcb18b2",
+        "sha512": "d732ffa73d46d58fdbcbe4135c21ff9c9408ed5036fd3551fd9f44849718f9ede660ee2d2bbd4dc9446e0d85559d65a51d750009a9b76ef041d70c36c78f702f"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-fixed-native-v2/installer-replay-status.json",
+        "bytes": 2552,
+        "sha256": "c82d3a6e5976a8639b6125910f8e85d2cba5e2eda0f63cf46ce10e8854a7bb68",
+        "sha512": "fcd915b630b625ac1aa4b3014d7de7d4d49ab903f528dc8cdfbda0c06dd4c248cd44b3bce53e705a848619adedbe6b928c9cf1e3c0f0dc5bfd240becc8e29546"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-fixed-native-v2/installer-replay-review.json",
+        "bytes": 788,
+        "sha256": "595dd373b8b61b8006b7c594863dcbc0fe5740468e4b38923a5555e52a7221f0",
+        "sha512": "73de65c46d1d4787386768be9722f85191ac74a197bdcee4d04d6f3bcc6849b8a27aaaa71ab9255c000cad946910e6febaeccca54dc4e6ff867bcc3740fe20b4"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/genuine-sdk5-fixed-native-v2/installer-compiler-inputs/compiler-inputs.json",
+        "bytes": 1942,
+        "sha256": "660b781a7db6b0f478bb6cfe76e95473429f84a2a990b2555ab84811dcf21ca6",
+        "sha512": "87c075e33c875bd87ab1b15fa5a9af67504f505fdb5eb0bd3eb33a36be1c4b5c22ffbde1fc5ba91a9508a5bc1c302e147d0779d78d511ffab461925fbc96345c"
+      },
+      {
+        "path": ".build/musl-legacy-assessment-20261108/native-clr5-normal-version-probe-v1/results.json",
+        "bytes": 161,
+        "sha256": "a276830c3d5201c95a5a666ee13caf2cd9453aca293603af645af04e4709bdca",
+        "sha512": "58b7e2b50746181a427a288469479a118a00d6d79b18ac8359c0ec7cb34acaf5a570d7b4f91a92a51a3b4c94932d06b0aaf8585abc6637aa2b93109411f730a9"
+      }
+    ]
   }
 }
