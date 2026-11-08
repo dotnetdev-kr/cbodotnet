@@ -86,7 +86,9 @@ def profile(sdk, arch, root=ROOT):
                          'patches/musl/net8/0003-select-native-musl-aspnet-crossgen-host.patch':
                          '8a2ef25b59eedac11d4b061048be3d4b93796399899e7bf9e1884d7220f9cec4',
                          'patches/musl/net8/0004-service-deployment-json.patch':
-                         '7f4c4a5da1b3e519dd88d36a5c0726557be676c4da30e140206bc107d58fb4ea'} if expected['sourceOnly'] else {
+                         '7f4c4a5da1b3e519dd88d36a5c0726557be676c4da30e140206bc107d58fb4ea',
+                         'patches/musl/net8/0005-preserve-musl-installer-os-name.patch':
+                         '36f809d0a77551b01f8ba3b8a6b144be746436d95398095e3e2db895582ea6b3'} if expected['sourceOnly'] else {
                          'patches/musl/net9/0001-use-fixed-build-helper-msbuild.patch':
                          '444916928c5c78a8232c3baba53b7d0c2d09ea4ad9bd4fe3536b1b11055b823e',
                          'patches/musl/net9/0002-use-fixed-build-helper-asn1.patch':

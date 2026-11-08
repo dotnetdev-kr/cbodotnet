@@ -69,6 +69,11 @@
         "path": "patches/musl/net8/0004-service-deployment-json.patch",
         "sha256": "7f4c4a5da1b3e519dd88d36a5c0726557be676c4da30e140206bc107d58fb4ea",
         "purpose": "Service the original shipping netstandard2.0 release-metadata library to fixed System.Text.Json8.0.6, retaining fatal auditing and exact package/publisher source/MIT notices."
+      },
+      {
+        "path": "patches/musl/net8/0005-preserve-musl-installer-os-name.patch",
+        "sha256": "36f809d0a77551b01f8ba3b8a6b144be746436d95398095e3e2db895582ea6b3",
+        "purpose": "Preserve linux-musl when the original installer recomputes its archive and SDK runtime identifiers from the OS name; keep runtime/ASP.NET RID forwarding and ReadyToRun unchanged."
       }
     ]
   },

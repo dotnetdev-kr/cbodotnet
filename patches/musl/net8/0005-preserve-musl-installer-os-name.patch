@@ -1,0 +1,24 @@
+From: cbodotnet source compatibility review
+Subject: Preserve the complete OS prefix when deriving the installer OS name
+
+Base-VMR: 7d1bf90885cff22e7da72b27e9848e42fd3cb1ae
+Original-Blob: 756a7f0a50eec2e69c15ebb0f52feb9966296b75
+
+The installer recomputes Rid from OSName and Architecture. Splitting at the
+first dash turns linux-musl-arm64 into OSName=linux, losing musl in both the
+archive name and generated SDK runtime identifier. Split off only the final
+architecture component, matching the original SDK wrapper's portable RID rule.
+Runtime/ASP.NET RID forwarding and ReadyToRun settings remain unchanged.
+
+diff --git a/repo-projects/installer.proj b/repo-projects/installer.proj
+--- a/repo-projects/installer.proj
++++ b/repo-projects/installer.proj
+@@ -10,7 +10,7 @@
+     <OverrideTargetRid Condition="'$(TargetOS)' == 'OSX'">osx-$(Platform)</OverrideTargetRid>
+     <OverrideTargetRid Condition="'$(TargetOS)' == 'FreeBSD'">freebsd-$(Platform)</OverrideTargetRid>
+     <OverrideTargetRid Condition="'$(TargetOS)' == 'Windows_NT'">win-$(Platform)</OverrideTargetRid>
+-    <OSNameOverride>$(OverrideTargetRid.Substring(0, $(OverrideTargetRid.IndexOf("-"))))</OSNameOverride>
++    <OSNameOverride>$(OverrideTargetRid.Substring(0, $(OverrideTargetRid.LastIndexOf("-"))))</OSNameOverride>
+ 
+     <!-- Determine target portable rid based on bootstrap SDK's portable rid -->
+     <_platformIndex>$(NETCoreSdkPortableRuntimeIdentifier.LastIndexOf('-'))</_platformIndex>

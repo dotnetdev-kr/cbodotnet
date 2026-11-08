@@ -158,10 +158,30 @@ because the original debug-symbol case requires `eu-readelf`.
 The native two-CPU build from run 42468773276 completed, but its original suite
 failed (21 passed, 23 failed, 2 original skips). Besides these test input gaps,
 generated apphost launch failures remain under investigation. The failed run
-is not qualified. Subsequent failed tests retain the unchanged actual output
+is not qualified. Failure handling attempts to retain the unchanged actual output
 SDK and original TRX as diagnostics, preserving the failing exit status. SDK 8
 collection follows its original `artifacts/<cpu>/Release` output layout;
 SDK 9 continues to use `artifacts/assets/Release`.
+
+SDK8 run 42487293111 ARM64 improves to 33 passed, 11 failed and 2 original
+skips. The retained TRX identifies its actual SDK archive as
+`dotnet-sdk-8.0.133-linux-arm64.tar.gz`. Strict musl archive selection correctly
+rejects that name, so this failed transport contains the original TRX but no
+SDK payload. It cannot establish the actual apphost ELF identity.
+
+The exact original `repo-projects/installer.proj` derives `OSNameOverride` from
+the first dash in `linux-musl-arm64`, yielding `linux`. The installer's original
+`GetRuntimeInformation` target then recomputes its RID, archive name and SDK
+runtime identifier as `linux-arm64`, even though the outer invocation forwards
+a musl RID. The pinned
+[OS-name patch](../patches/musl/net8/0005-preserve-musl-installer-os-name.patch)
+splits at the final dash to preserve `linux-musl`. Seven original/patched
+boundary cases, using 28 actual MSBuild executions, reproduce the original
+ARM64 archive name and correct both musl CPUs while leaving ordinary Linux,
+Windows, macOS and FreeBSD controls unchanged. Runtime/ASP.NET RID forwarding,
+the native host OS and ReadyToRun settings are unchanged. A fresh complete
+source producer, original tests and all strict source/public gates remain
+required.
 
 ## Existing installer releases
 
