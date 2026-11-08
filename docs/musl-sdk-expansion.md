@@ -122,6 +122,15 @@ official SDK files. Protected promotion replays the closed proof against the
 exact retained reference metadata and independently reconstructed candidate
 payload; a single Community series proof cannot qualify an expanded SDK.
 
+The SDK 9 regular adapter invokes its original `eng/common/build.sh -bl`, whose
+pinned scripts write `src/sdk/artifacts/log/Release/Build.binlog`. This differs
+from SDK 8's nested source-only installer log. Construction replay selects
+these two exact original paths and rejects absent or empty logs; it does not
+search for a convenient substitute. In run 42472010103 ARM64, the source build,
+original BinaryToolKit scan, all 522 common cases and all 34 scenario results
+(32 passed, 2 original skips) completed before the former log-path assumption
+stopped collection. The failed producer still needs a fresh complete run.
+
 ## Original SDK 8 musl test inputs
 
 The original SDK 8 `Config.TargetArchitecture` takes the second RID component,

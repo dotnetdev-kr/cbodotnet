@@ -40,6 +40,15 @@ def module(name, filename):
     return P.module(name, filename)
 
 
+def consumer_binlog(source, sdk):
+    require(sdk in R.VERSIONS, 'Unreviewed original SDK consumer log route')
+    relative = ('src/installer/artifacts/source-build/self/src/artifacts/sourcebuild.binlog'
+                if sdk.startswith('8.') else 'src/sdk/artifacts/log/Release/Build.binlog')
+    path = ordinary(source / relative)
+    require(path.is_file() and path.stat().st_size > 0, 'Actual original SDK consumer binlog required')
+    return path
+
+
 def download(record, path):
     with urllib.request.urlopen(record['url'], timeout=120) as incoming, path.open('xb') as target:
         shutil.copyfileobj(incoming, target, 1024 * 1024)
@@ -856,11 +865,7 @@ class Producer(P.Producer):
 
     def replay_construction(self):
         """Retain/replay actual installer DownloadFile tasks using the native bootstrap."""
-        relative = ('src/installer/artifacts/source-build/self/src/artifacts/sourcebuild.binlog'
-                    if self.route['sourceOnly'] else 'src/sdk/artifacts/buildLogs/log/Release/source-inner-build.binlog')
-        source = self.source / relative
-        require(source.is_file() and source.stat().st_size > 0 and not source.is_symlink(),
-                'Actual original SDK consumer binlog required')
+        source = consumer_binlog(self.source, self.sdk)
         report = self.reports / 'construction'
         report.mkdir(parents=True)
         shutil.copyfile(source, report / 'consumer.binlog')

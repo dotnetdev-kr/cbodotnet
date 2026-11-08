@@ -389,6 +389,27 @@ class AdditionalTargetingSupport(unittest.TestCase):
 
 
 class OriginalTestGraph(unittest.TestCase):
+    def test_consumer_log_uses_original_regular_or_source_only_build_layout(self):
+        paths = {'9.0.123': 'src/sdk/artifacts/log/Release/Build.binlog',
+                 '8.0.133': 'src/installer/artifacts/source-build/self/src/artifacts/sourcebuild.binlog'}
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            wrong = root / 'src/sdk/artifacts/buildLogs/log/Release/source-inner-build.binlog'
+            wrong.parent.mkdir(parents=True)
+            wrong.write_bytes(b'wrong-build-route')
+            for sdk, relative in paths.items():
+                with self.assertRaisesRegex(ValueError, 'Actual original SDK consumer'):
+                    M.consumer_binlog(root, sdk)
+                expected = root / relative
+                expected.parent.mkdir(parents=True)
+                expected.touch()
+                with self.assertRaisesRegex(ValueError, 'Actual original SDK consumer'):
+                    M.consumer_binlog(root, sdk)
+                expected.write_bytes(b'actual-original-build-log')
+                self.assertEqual(expected, M.consumer_binlog(root, sdk))
+            with self.assertRaisesRegex(ValueError, 'Unreviewed'):
+                M.consumer_binlog(root, '7.0.120')
+
     def test_net8_missing_tests_or_new_skips_fail(self):
         with tempfile.TemporaryDirectory() as temporary:
             trx = Path(temporary) / 'test.trx'
