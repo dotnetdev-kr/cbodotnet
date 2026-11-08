@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "kind": "core3-musl-source-investigation",
+  "issue": 35,
+  "qualification": false,
+  "releaseAdmission": false,
+  "candidateAlpine": "3.24.4",
+  "nativeArchitectures": ["x64", "aarch64"],
+  "probeDependencies": {
+    "cmake": "4.2.3-r0",
+    "clang20": "20.1.8-r3",
+    "openssl-dev": "3.5.9-r0",
+    "icu-dev": "78.1-r0",
+    "libunwind-dev": "1.8.3-r0",
+    "gettext-dev": "1.0-r0",
+    "curl-dev": "8.23.0-r0",
+    "linux-headers": "7.0.0-r1",
+    "patch": "2.8.1-r0"
+  },
+  "candidatePatches": [
+    {"component": "corefx", "path": "patches/core3-musl/0001-branch-native-openssl3.patch", "sha256": "f030e8e8566a246ce7e279bc1254fde9bae4bfafe29aee68cbb3c4e795d57e2d", "purpose": "Direct-link branch-native OpenSSL3; backport upstream OID parsing and preserve the old managed X509 error ABI in both directions."},
+    {"component": "coreclr", "path": "patches/core3-musl/0002-clang20-typed-null.patch", "sha256": "5d33d0d85c9d7007c99af8327a8d8ab338fcdf92258ed437572573d5f0bb8a5f", "purpose": "Preserve pointer types for two NULL arguments when current musl headers and Clang20 perform template deduction."}
+  ],
+  "traceDependencies": {"lttng-ust-dev": "2.14.2-r0"},
+  "additionalRuntimePackageRoots": {"libcurl": "8.23.0-r0", "libintl": "1.0-r0"},
+  "portDonor": {"name": "runtime6-donor", "repository": "dotnet/runtime", "commit": "f1dd57165bfd91875761329ac3a8b17f6606ad18", "tag": "v6.0.36", "bytes": 79523055, "sha256": "7839038a0315f8c7667b70bca086ced2aaf2371cae26d321b772fce2a1e21a29", "usedPath": "src/libraries/Native/Unix/System.Security.Cryptography.Native/openssl.c", "usedFunction": "CryptoNative_LookupFriendlyNameByOid"},
+  "bootstrapProbeInputs": [
+    {"name": "bootstrap-runtime.tar.gz", "url": "https://builds.dotnet.microsoft.com/dotnet/Runtime/3.1.28/dotnet-runtime-3.1.28-linux-musl-arm64.tar.gz", "bytes": 30434900, "sha256": "9571cc42c453b0f76497c36f8f05bff8fca2dd1284fdb7919001d78acb0fc667", "sha512": "e679a1d9831d8a1d74aabfb6ac13123eac5af75d46bba361b7658575286ad79b8cc7d1715731998e3f2d8906e5c0963946a60a619974b3584c00835743986f99", "role": "Imported official native ARM64 musl bootstrap runtime; all original notices retained."},
+    {"name": "bootstrap-sdk.tar.gz", "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/3.1.422/dotnet-sdk-3.1.422-linux-arm64.tar.gz", "bytes": 123321453, "sha256": "3687d6544df0d8e76c8ea3f8bce6c10c5a936ef80128ce6de41fe7a7fc86020d", "sha512": "3eb7e066568dfc0135f2b3229d0259db90e1920bb413f7e175c9583570146ad593b50ac39c77fb67dd3f460b4621137f277c3b66c44206767b1d28e27bf47deb", "role": "Imported upstream SDK data/PE inputs for a private bootstrap experiment. Root/shared payloads and every ELF are excluded; ReadyToRun is disabled. Not a redistributable musl SDK."}
+  ],
+  "bootstrapCore30Inputs": [
+    {"name": "bootstrap-sdk30.tar.gz", "role": "managed-sdk", "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/3.0.100/dotnet-sdk-3.0.100-linux-arm64.tar.gz", "bytes": 113669548, "sha256": "ffcd9db434dab9f068bbf229a4e20f935cab0b48b28e4a83c114c6c1f0f5f6f6", "sha512": "18c3bc07c4486381f54d4b40eb8401bf56c14fef5febc4639e3134d74ce66172d1e66c2dea9684ad727f08e9dd7e89d74535a8642fb2a2203445483293f3b3c3"},
+    {"name": "microsoft.netcore.app.runtime.linux-musl-arm64.3.0.0.nupkg", "role": "runtime-pack", "url": "https://api.nuget.org/v3-flatcontainer/microsoft.netcore.app.runtime.linux-musl-arm64/3.0.0/microsoft.netcore.app.runtime.linux-musl-arm64.3.0.0.nupkg", "bytes": 36058307, "sha256": "2b88163deab0029618619ce0c17a29873a50107068df4af82a7383d83308d5c9", "sha512": "6c02d2bcee8a6e3f53262873ca9a9bd789aff9480afc253ec66220097f41b83efb646458818a06edfd6f5e8063fe32f65aa4d23dcea288f39b281a4a1aa3d870", "sourceAttribution": "dotnet/core-setup 7d57652f33493fa022125b7f63aad0d70c52d810 (original nuspec); original NuGet catalog SHA512 verified"},
+    {"name": "runtime.linux-musl-arm64.microsoft.netcore.dotnethost.3.0.0.nupkg", "role": "dotnet-host", "url": "https://api.nuget.org/v3-flatcontainer/runtime.linux-musl-arm64.microsoft.netcore.dotnethost/3.0.0/runtime.linux-musl-arm64.microsoft.netcore.dotnethost.3.0.0.nupkg", "bytes": 55275, "sha256": "259854c8bc3e07714e99feabe268f8658ed15c1eba81e958d485b754e0c52b6c", "sha512": "ed06d5ea44c5d71bf0f87b82d9f173f9abe189ccdb2f76b8f60e41246406bf1fbb56cf4afc730a5a9ae27be6f5fcbfd21f1cbc10d9e51cab5926e2903e691705", "sourceAttribution": "dotnet/core-setup 7d57652f33493fa022125b7f63aad0d70c52d810; original NuGet catalog SHA512 verified"},
+    {"name": "runtime.linux-musl-arm64.microsoft.netcore.dotnethostresolver.3.0.0.nupkg", "role": "hostfxr", "url": "https://api.nuget.org/v3-flatcontainer/runtime.linux-musl-arm64.microsoft.netcore.dotnethostresolver/3.0.0/runtime.linux-musl-arm64.microsoft.netcore.dotnethostresolver.3.0.0.nupkg", "bytes": 169939, "sha256": "94a8c9e864776d71b6071747c9986f040c0405ac82287d077ccef2daa2f9cb43", "sha512": "1bf91f1448ec833c2c3de35c3e016dc872bbb73f151d4c75b955bceebf659bc41b74c988596ac973f00ffd85c6838aee6f832d353c8fc1d7fe6a63ca434eda03", "sourceAttribution": "dotnet/core-setup 7d57652f33493fa022125b7f63aad0d70c52d810; original NuGet catalog SHA512 verified"}
+  ],
+  "bootstraps": [
+    {"sdkVersion": "3.1.426", "rootSdk": "3.1.422", "rootArcade": "1.0.0-beta.20113.5", "componentSdk": "3.1.425", "componentArcade": "1.0.0-beta.22558.6", "rootSdkMuslArm64Published": false, "rootRuntime": "3.1.28", "rootRuntimeMuslArm64ArchiveListed": true, "rootRuntimeMuslArm64NugetPublished": true, "productRuntime": "3.1.32", "productRuntimeAndAspNetMuslArm64ArchiveListed": true},
+    {"sdkVersion": "3.0.103", "rootSdk": "3.0.100", "rootArcade": "1.0.0-beta.19359.6", "componentSdk": "3.0.101 / 3.0.103-servicing-014446", "componentArcade": "1.0.0-beta.19607.3", "rootSdkMuslArm64Published": false, "rootRuntime": "3.0.0", "rootRuntimeMuslArm64ArchiveListed": false, "rootRuntimeMuslArm64NugetPublished": true, "productRuntime": "3.0.3", "productRuntimeAndAspNetMuslArm64ArchiveListed": false, "productRuntimeAndAspNetMuslArm64NugetPublished": true}
+  ],
+  "sourceInputs": [
+    {"name": "source-build31", "repository": "dotnet/source-build", "commit": "ab8b115b5658237ee8916ae3586600b39fb2fd19", "bytes": 372407, "sha256": "67604043ce492fa7d201cff4c0374835323992b05cdb202baf890c9fab9ba5d8"},
+    {"name": "coreclr31", "repository": "dotnet/coreclr", "commit": "c17d273aa03d4b9d14c92248a91f0d0faa881b98", "bytes": 42793586, "sha256": "652c190d653f38019a9c5b24d904776c062642bcb6e75c8524ffb04c5375e910"},
+    {"name": "corefx31", "repository": "dotnet/corefx", "commit": "b58ef0a19eca6269799664d6288be14b7f0cef3e", "bytes": 28703624, "sha256": "71aa57aa142546c5f076d471715223393880f7d05a2379f1d01afd4edfa0d82a"},
+    {"name": "core-setup31", "repository": "dotnet/core-setup", "commit": "f94bb2c3ff432dcc4a6229eca2f978197bf06150", "bytes": 867498, "sha256": "7f5610383a7b266fb3dbe7a88fe9a25ae103f465c085028530aa6eef4d1d1a5d"},
+    {"name": "aspnetcore31", "repository": "dotnet/aspnetcore", "commit": "3eeb12e106b9e913c3a4dec1a7d16da7b74149eb", "bytes": 22886576, "sha256": "56b49456918b9bad16450e2cd808e51e39992c06e2afd54f8a08390d8bbad11a"},
+    {"name": "sdk31", "repository": "dotnet/sdk", "commit": "eb0cfa780959c0c63217a7d8225dc260e7f6ce65", "bytes": 744139, "sha256": "5609b7399f486be1249b188d96eab5399537b6409a60dd1cf62492c32e53d40b"},
+    {"name": "core-sdk31", "repository": "dotnet/core-sdk", "commit": "e81f6c85654f91c5eab0cb78386db4b32df63b4b", "bytes": 256933, "sha256": "bddadfc3d00fa511e6a5df9eacc62cb77cd84fd2d7ead194078982ea85ffcfa8"},
+    {"name": "source-build30", "repository": "dotnet/source-build", "commit": "40de72d1087a1d05dfd39c87f888a0611ec6c60f", "bytes": 294325, "sha256": "92120767d927426d5d916275e687dd164f47e97cf1a66efa5c30439abdae0f58"},
+    {"name": "coreclr30", "repository": "dotnet/coreclr", "commit": "259ce7d4619478cfefe7b0c0f6fa765f765f7e37", "bytes": 42711125, "sha256": "54754dd1dc80bc752f86e2dfdcabc90f8da670ce79235b48e4a6e7cf6e0282b2"},
+    {"name": "corefx30", "repository": "dotnet/corefx", "commit": "a4238c9819075be9bff74e009da802ce47233f38", "bytes": 28588267, "sha256": "028f5c600b2ee9c1b47adc7a764ae5ee8202c0c6da1990de6eff2bee79b70474"},
+    {"name": "core-setup30", "repository": "dotnet/core-setup", "commit": "c03f2fe62663edec83d1bc12b4e9f11bd3de5d0e", "bytes": 847814, "sha256": "f9277f4b6d824c9b6b4903b4c369f986f480bc88a7fd9c134a81d51d826ab977"},
+    {"name": "aspnetcore30", "repository": "dotnet/aspnetcore", "commit": "bd1e14b7d16b798de8a874189c89afed755a266c", "bytes": 22267158, "sha256": "0c1b1482685e7a38c59d3d384d4605e9f82c29eb9aed5397b3bfacefc7770d8f"},
+    {"name": "sdk30", "repository": "dotnet/sdk", "commit": "8dcd59d6e006679f7c1932801f733a72e5a3f221", "bytes": 728238, "sha256": "bd1b43faa95613b54c2e8d7ca53daa31a610f5693d11c1b133a7c6c21be5ad32"},
+    {"name": "core-sdk30", "repository": "dotnet/core-sdk", "commit": "ca71659745c368343b726acc43e6f332f000b0ff", "bytes": 244565, "sha256": "4f43d9d717d7cbe4d2c255124c6bb918f4578c25641f9eeeae98dc782d12ea3a"}
+  ]
+}

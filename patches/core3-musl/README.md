@@ -1,0 +1,7 @@
+These are unpublished source-port candidates for issue #35. They do not qualify a runtime or SDK.
+
+`0001-branch-native-openssl3.patch` applies to the exact CoreFX commits in `profiles/experimental/core3-musl.json`. Build with `FEATURE_DISTRO_AGNOSTIC_SSL=OFF` against the pinned Alpine OpenSSL3 headers/libraries. The OID parsing implementation comes from `CryptoNative_LookupFriendlyNameByOid` in [dotnet/runtime f1dd57165bfd91875761329ac3a8b17f6606ad18](https://github.com/dotnet/runtime/blob/f1dd57165bfd91875761329ac3a8b17f6606ad18/src/libraries/Native/Unix/System.Security.Cryptography.Native/openssl.c). The X509 changes preserve the old managed INVALID_CA value 24 while translating OpenSSL3's value 79 in both directions. This is an API adaptation; it does not provide another SSL library or change a loader/soname.
+
+`0002-clang20-typed-null.patch` makes two existing pointer arguments explicit for modern musl headers and Clang20 template deduction. It changes no CPU feature selection or pointer value.
+
+The original .NET Foundation MIT licenses/notices remain in the complete CoreFX/CoreCLR/runtime donor archives. The investigation helper retains and hashes every notice in those archives. Keep those source archives with generated source, patch receipts, native artifacts and probe logs. No clean-bootstrap, extra security maintenance, Microsoft support, or release qualification is claimed.

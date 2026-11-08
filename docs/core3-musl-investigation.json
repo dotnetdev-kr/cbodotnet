@@ -1,0 +1,675 @@
+{
+  "schemaVersion": 1,
+  "kind": "core3-musl-native-feasibility",
+  "issue": 35,
+  "recordedAtUtc": "2026-11-08T02:33:43.375271+00:00",
+  "qualification": false,
+  "releaseAdmission": false,
+  "sdkSourceGraphBuilt": false,
+  "sdkSourceProductProduced": false,
+  "twoCpuQualification": false,
+  "proposedDisposition": "go-for-genuine-source-producer-and-two-CPU-qualification",
+  "scopeDecisionRequiresRootReview": false,
+  "localHost": {
+    "architecture": "aarch64",
+    "native": true,
+    "emulation": false,
+    "platform": "WSL2",
+    "containerEngine": "rootful Podman diagnostic only",
+    "alpine": "3.24.4",
+    "finalGithubDockerQualification": false
+  },
+  "sourceRetention": {
+    "completeOriginalComponentArchives": 14,
+    "completeDonorArchives": 1,
+    "profile": "profiles/experimental/core3-musl.json",
+    "sources": [
+      {
+        "name": "source-build31",
+        "repository": "dotnet/source-build",
+        "commit": "ab8b115b5658237ee8916ae3586600b39fb2fd19",
+        "bytes": 372407,
+        "sha256": "67604043ce492fa7d201cff4c0374835323992b05cdb202baf890c9fab9ba5d8"
+      },
+      {
+        "name": "coreclr31",
+        "repository": "dotnet/coreclr",
+        "commit": "c17d273aa03d4b9d14c92248a91f0d0faa881b98",
+        "bytes": 42793586,
+        "sha256": "652c190d653f38019a9c5b24d904776c062642bcb6e75c8524ffb04c5375e910"
+      },
+      {
+        "name": "corefx31",
+        "repository": "dotnet/corefx",
+        "commit": "b58ef0a19eca6269799664d6288be14b7f0cef3e",
+        "bytes": 28703624,
+        "sha256": "71aa57aa142546c5f076d471715223393880f7d05a2379f1d01afd4edfa0d82a"
+      },
+      {
+        "name": "core-setup31",
+        "repository": "dotnet/core-setup",
+        "commit": "f94bb2c3ff432dcc4a6229eca2f978197bf06150",
+        "bytes": 867498,
+        "sha256": "7f5610383a7b266fb3dbe7a88fe9a25ae103f465c085028530aa6eef4d1d1a5d"
+      },
+      {
+        "name": "aspnetcore31",
+        "repository": "dotnet/aspnetcore",
+        "commit": "3eeb12e106b9e913c3a4dec1a7d16da7b74149eb",
+        "bytes": 22886576,
+        "sha256": "56b49456918b9bad16450e2cd808e51e39992c06e2afd54f8a08390d8bbad11a"
+      },
+      {
+        "name": "sdk31",
+        "repository": "dotnet/sdk",
+        "commit": "eb0cfa780959c0c63217a7d8225dc260e7f6ce65",
+        "bytes": 744139,
+        "sha256": "5609b7399f486be1249b188d96eab5399537b6409a60dd1cf62492c32e53d40b"
+      },
+      {
+        "name": "core-sdk31",
+        "repository": "dotnet/core-sdk",
+        "commit": "e81f6c85654f91c5eab0cb78386db4b32df63b4b",
+        "bytes": 256933,
+        "sha256": "bddadfc3d00fa511e6a5df9eacc62cb77cd84fd2d7ead194078982ea85ffcfa8"
+      },
+      {
+        "name": "source-build30",
+        "repository": "dotnet/source-build",
+        "commit": "40de72d1087a1d05dfd39c87f888a0611ec6c60f",
+        "bytes": 294325,
+        "sha256": "92120767d927426d5d916275e687dd164f47e97cf1a66efa5c30439abdae0f58"
+      },
+      {
+        "name": "coreclr30",
+        "repository": "dotnet/coreclr",
+        "commit": "259ce7d4619478cfefe7b0c0f6fa765f765f7e37",
+        "bytes": 42711125,
+        "sha256": "54754dd1dc80bc752f86e2dfdcabc90f8da670ce79235b48e4a6e7cf6e0282b2"
+      },
+      {
+        "name": "corefx30",
+        "repository": "dotnet/corefx",
+        "commit": "a4238c9819075be9bff74e009da802ce47233f38",
+        "bytes": 28588267,
+        "sha256": "028f5c600b2ee9c1b47adc7a764ae5ee8202c0c6da1990de6eff2bee79b70474"
+      },
+      {
+        "name": "core-setup30",
+        "repository": "dotnet/core-setup",
+        "commit": "c03f2fe62663edec83d1bc12b4e9f11bd3de5d0e",
+        "bytes": 847814,
+        "sha256": "f9277f4b6d824c9b6b4903b4c369f986f480bc88a7fd9c134a81d51d826ab977"
+      },
+      {
+        "name": "aspnetcore30",
+        "repository": "dotnet/aspnetcore",
+        "commit": "bd1e14b7d16b798de8a874189c89afed755a266c",
+        "bytes": 22267158,
+        "sha256": "0c1b1482685e7a38c59d3d384d4605e9f82c29eb9aed5397b3bfacefc7770d8f"
+      },
+      {
+        "name": "sdk30",
+        "repository": "dotnet/sdk",
+        "commit": "8dcd59d6e006679f7c1932801f733a72e5a3f221",
+        "bytes": 728238,
+        "sha256": "bd1b43faa95613b54c2e8d7ca53daa31a610f5693d11c1b133a7c6c21be5ad32"
+      },
+      {
+        "name": "core-sdk30",
+        "repository": "dotnet/core-sdk",
+        "commit": "ca71659745c368343b726acc43e6f332f000b0ff",
+        "bytes": 244565,
+        "sha256": "4f43d9d717d7cbe4d2c255124c6bb918f4578c25641f9eeeae98dc782d12ea3a"
+      }
+    ],
+    "donor": {
+      "name": "runtime6-donor",
+      "repository": "dotnet/runtime",
+      "commit": "f1dd57165bfd91875761329ac3a8b17f6606ad18",
+      "tag": "v6.0.36",
+      "bytes": 79523055,
+      "sha256": "7839038a0315f8c7667b70bca086ced2aaf2371cae26d321b772fce2a1e21a29",
+      "usedPath": "src/libraries/Native/Unix/System.Security.Cryptography.Native/openssl.c",
+      "usedFunction": "CryptoNative_LookupFriendlyNameByOid"
+    },
+    "licensesAndNoticesRetained": true
+  },
+  "construction": {
+    "locallyRebuilt": [
+      "CoreFX3.1.32/OpenSSL3 candidate",
+      "CoreFX3.0.3/OpenSSL3 candidate",
+      "CoreCLR3.1.32 standalone PAL",
+      "CoreCLR3.0.3 standalone PAL",
+      "CoreCLR3.1.32 original-manifest trace provider",
+      "CoreCLR3.0.3 original-manifest trace provider"
+    ],
+    "fullClrJitRebuild": false,
+    "importedNative": [
+      "official ARM64 musl3.1.28 runtime",
+      "official ARM64 musl3.1.32 runtime/ASP.NET",
+      "catalog-verified ARM64 musl3.0.0 NuGet runtime/host/resolver",
+      "catalog-verified ARM64 musl apphost3.1.32"
+    ],
+    "importedSdkPeData": [
+      "SDK3.1.422-linux-arm64",
+      "SDK3.0.100-linux-arm64"
+    ],
+    "everyImportedSdkElfExcluded": true,
+    "importedPrivateBootstrapReadyToRunDisabled": true,
+    "consumerNormalReadyToRunEnabled": true,
+    "finalSdkNormalOptimizationRequired": true
+  },
+  "actualChecks": {
+    "nativeSourceCandidate": true,
+    "nativeTraceProviders": true,
+    "core31PrivateBootstrap": {
+      "sdk": "3.1.422",
+      "runtime": "3.1.28",
+      "nativeClosure": "passed",
+      "expectedOriginalCryptoFailure": "msbuild-before-openssl3-port",
+      "targetExitCodes": {
+        "native-host-info": 0,
+        "sdk-default-icu": 0,
+        "sdk-icu78": 0,
+        "msbuild-before-openssl3-port": -6,
+        "msbuild-after-openssl3-port": 0,
+        "compile-managed-probe": 0,
+        "managed-crypto-globalization": 0,
+        "managed-system-trust-tls": 0,
+        "sdk-project-offline-restore": 0,
+        "sdk-project-offline-build": 0,
+        "sdk-project-native-run": 0
+      }
+    },
+    "core30PrivateBootstrap": {
+      "sdk": "3.0.100",
+      "runtime": "3.0.0",
+      "nativeClosure": "passed",
+      "generatedFrameworkMetadata": "explicit private RID adaptation; source producer must generate its own metadata",
+      "foreignCrossJitExcluded": true,
+      "targetExitCodes": {
+        "native-host-info": 0,
+        "sdk-default-icu": 0,
+        "sdk-icu78": 0,
+        "msbuild-before-openssl3-port": -6,
+        "msbuild-after-openssl3-port": 0,
+        "compile-managed-probe": 0,
+        "managed-crypto-globalization": 0,
+        "sdk-project-offline-restore": 0,
+        "sdk-project-offline-build": 0,
+        "sdk-project-native-run": 0
+      }
+    },
+    "core31MinimalConsumer": {
+      "noSdk": true,
+      "noCompiler": true,
+      "noDevelopmentPackages": true,
+      "noCurlCli": true,
+      "noGawk": true,
+      "explicitAdditionalRuntimeRoots": {
+        "libcurl": "8.23.0-r0",
+        "libintl": "1.0-r0"
+      },
+      "offlineApphostAndAspNetPassed": true,
+      "systemTrustHttpsPassed": true,
+      "normalReadyToRunEnabled": true,
+      "completeClosurePassed": true
+    },
+    "core30MinimalConsumer": {
+      "privateBootstrapAndClosurePassed": true,
+      "apphostAndAspNetConsumerNotYetQualified": true
+    },
+    "nativeCryptoAndManagedPositiveChecks": [
+      "SHA256 known vector",
+      "secure RNG",
+      "RSA sign/verify",
+      "ECDSA sign/verify",
+      "AES-GCM roundtrip",
+      "X509 construction",
+      "full ICU French/Turkish",
+      "system-trust HTTPS"
+    ],
+    "negativeCertificateQualification": {
+      "untrustedSelfSigned": false,
+      "expired": false,
+      "wrongHost": false,
+      "invalidCaChain": false,
+      "native79To24AndErrorStringAbiOnly": true
+    }
+  },
+  "runtimePolicyCandidate": {
+    "existingSdk10RootsUnchanged": true,
+    "additionalCore3Roots": {
+      "libcurl": "8.23.0-r0",
+      "libintl": "1.0-r0"
+    },
+    "signedIndexes": [
+      {
+        "channel": "main",
+        "sha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "channel": "community",
+        "sha256": "ad8f92f7111c96240bc7ec595d78201a74e4fc1ef2d50658f3136a446e0c7f08"
+      }
+    ],
+    "actualNativeProviders": [
+      {
+        "package": "brotli-libs",
+        "version": "1.2.1-r0",
+        "origin": "brotli",
+        "license": "MIT",
+        "checksum": "Q1rHqiZlNF678/d2WvcEx5SLmN5js=",
+        "dependencyDeclarations": "so:libc.musl-aarch64.so.1",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "c-ares",
+        "version": "1.34.9-r0",
+        "origin": "c-ares",
+        "license": "MIT",
+        "checksum": "Q1FRiuyy5jodNGsSaKP46XYrNSp3A=",
+        "dependencyDeclarations": "so:libc.musl-aarch64.so.1",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "keyutils-libs",
+        "version": "1.6.3-r4",
+        "origin": "keyutils",
+        "license": "GPL-2.0-or-later AND LGPL-2.0-or-later",
+        "checksum": "Q1Juh2z3Zsr91DNwkzySscDpkwRKo=",
+        "dependencyDeclarations": "so:libc.musl-aarch64.so.1",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "krb5-libs",
+        "version": "1.22.2-r1",
+        "origin": "krb5",
+        "license": "MIT",
+        "checksum": "Q1PqtOIvG5QM6aniGYycm3K1JiXPo=",
+        "dependencyDeclarations": "krb5-conf so:libc.musl-aarch64.so.1 so:libcom_err.so.2 so:libcrypto.so.3 so:libkeyutils.so.1 so:libssl.so.3 so:libverto.so.1",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "libcom_err",
+        "version": "1.47.4-r0",
+        "origin": "e2fsprogs",
+        "license": "GPL-2.0-or-later AND LGPL-2.0-or-later AND BSD-3-Clause AND MIT",
+        "checksum": "Q1SFJf5C4Zg5AwT77WolxGkRLj06M=",
+        "dependencyDeclarations": "so:libc.musl-aarch64.so.1",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "libcrypto3",
+        "version": "3.5.9-r0",
+        "origin": "openssl",
+        "license": "Apache-2.0",
+        "checksum": "Q1nd3DZ6uRv/vKf+I4jGECIMBUisw=",
+        "dependencyDeclarations": "so:libc.musl-aarch64.so.1",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "libcurl",
+        "version": "8.23.0-r0",
+        "origin": "curl",
+        "license": "curl",
+        "checksum": "Q1lexUIXAwSTJlGbHXmcyzQLluXkE=",
+        "dependencyDeclarations": "ca-certificates-bundle so:libbrotlidec.so.1 so:libc.musl-aarch64.so.1 so:libcares.so.2 so:libcrypto.so.3 so:libidn2.so.0 so:libnghttp2.so.14 so:libpsl.so.5 so:libssl.so.3 so:libz.so.1 so:libzstd.so.1",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "libgcc",
+        "version": "15.2.0-r5",
+        "origin": "gcc",
+        "license": "GPL-2.0-or-later AND LGPL-2.1-or-later",
+        "checksum": "Q1JLUL+2dMZ+EpWBoaIsHD7VI7bUg=",
+        "dependencyDeclarations": "so:libc.musl-aarch64.so.1",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "libidn2",
+        "version": "2.3.8-r0",
+        "origin": "libidn2",
+        "license": "GPL-2.0-or-later OR LGPL-3.0-or-later",
+        "checksum": "Q1zvilitDGXxjOFoXaG8ZJKsSrCeM=",
+        "dependencyDeclarations": "so:libc.musl-aarch64.so.1 so:libunistring.so.5",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "libintl",
+        "version": "1.0-r0",
+        "origin": "gettext",
+        "license": "LGPL-2.1-or-later",
+        "checksum": "Q1BIfqVgHJRKhMQ+eM1LTUYlY24q8=",
+        "dependencyDeclarations": "so:libc.musl-aarch64.so.1",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "libpsl",
+        "version": "0.21.5-r3",
+        "origin": "libpsl",
+        "license": "MIT",
+        "checksum": "Q1H8lLDChibFToqCKIZfSVqiTlq2c=",
+        "dependencyDeclarations": "so:libc.musl-aarch64.so.1 so:libidn2.so.0 so:libunistring.so.5",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "libssl3",
+        "version": "3.5.9-r0",
+        "origin": "openssl",
+        "license": "Apache-2.0",
+        "checksum": "Q1fPvgmLY6scIS37WtG8V+V3AmPLY=",
+        "dependencyDeclarations": "libcrypto3=3.5.9-r0 so:libc.musl-aarch64.so.1 so:libcrypto.so.3",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "libstdc++",
+        "version": "15.2.0-r5",
+        "origin": "gcc",
+        "license": "GPL-2.0-or-later AND LGPL-2.1-or-later",
+        "checksum": "Q16WWaNCGe8kVn4lkwb/3DGo6OyqY=",
+        "dependencyDeclarations": "so:libc.musl-aarch64.so.1 so:libgcc_s.so.1",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "libunistring",
+        "version": "1.4.2-r0",
+        "origin": "libunistring",
+        "license": "GPL-2.0-or-later OR LGPL-3.0-or-later",
+        "checksum": "Q1iQdlV+ylR4F/KgWhQ4xXrXvpq1Y=",
+        "dependencyDeclarations": "so:libc.musl-aarch64.so.1",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "lttng-ust",
+        "version": "2.14.2-r0",
+        "origin": "lttng-ust",
+        "license": "LGPL-2.1-only AND GPL-2.0-only AND MIT",
+        "checksum": "Q1/uwDiC/J8TEUp7FKWL3gqAdUvNc=",
+        "dependencyDeclarations": "so:libc.musl-aarch64.so.1",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "musl",
+        "version": "1.2.6-r3",
+        "origin": "musl",
+        "license": "MIT",
+        "checksum": "Q1LxWdAiUjx6a3hymmYymFy3cU++Y=",
+        "dependencyDeclarations": null,
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "nghttp2-libs",
+        "version": "1.70.0-r0",
+        "origin": "nghttp2",
+        "license": "MIT",
+        "checksum": "Q1oTifXm7i5p3OauTSX1L9ZHst41g=",
+        "dependencyDeclarations": "so:libc.musl-aarch64.so.1",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "zlib",
+        "version": "1.4-r0",
+        "origin": "zlib",
+        "license": "Zlib",
+        "checksum": "Q1cAnIFG+QhV4gjN8LYPNd8Iv+wcM=",
+        "dependencyDeclarations": "so:libc.musl-aarch64.so.1",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "zstd-libs",
+        "version": "1.5.7-r2",
+        "origin": "zstd",
+        "license": "BSD-3-Clause OR GPL-2.0-or-later",
+        "checksum": "Q1UrGFE6B78rsNBjRohoH37c42uco=",
+        "dependencyDeclarations": "so:libc.musl-aarch64.so.1",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      }
+    ],
+    "extraRootMetadata": [
+      {
+        "package": "libcurl",
+        "version": "8.23.0-r0",
+        "origin": "curl",
+        "license": "curl",
+        "checksum": "Q1lexUIXAwSTJlGbHXmcyzQLluXkE=",
+        "dependencyDeclarations": "ca-certificates-bundle so:libbrotlidec.so.1 so:libc.musl-aarch64.so.1 so:libcares.so.2 so:libcrypto.so.3 so:libidn2.so.0 so:libnghttp2.so.14 so:libpsl.so.5 so:libssl.so.3 so:libz.so.1 so:libzstd.so.1",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      },
+      {
+        "package": "libintl",
+        "version": "1.0-r0",
+        "origin": "gettext",
+        "license": "LGPL-2.1-or-later",
+        "checksum": "Q1BIfqVgHJRKhMQ+eM1LTUYlY24q8=",
+        "dependencyDeclarations": "so:libc.musl-aarch64.so.1",
+        "repository": "main",
+        "signedIndexSha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540"
+      }
+    ]
+  },
+  "images": {
+    "nativeWorker": "2798f0868a54b55fff4b60ced515c21f966c6793427d83f0394381208061d5d9",
+    "newWorkerRecipe": "94ff1d9ff574e99b27d367d9ef1854476f5b92cab47e6d84aab74e06e0774dd9",
+    "minimalConsumer": "2bf31f6f286274c456ef35482b34665714feaef8e66b7da6bc187653efddaa33"
+  },
+  "remainingGates": [
+    "Compile exact SDK/core-sdk source graph; imported managed SDK is bootstrap only",
+    "Native x64 and ARM64 Docker-default qualification",
+    "Managed negative certificate fail-closed cases",
+    "Per-version stock runtime dependency policy and complete source/input/license audit",
+    "Source-produced native apphost/ASP.NET/normal optimizations and SDK-free offline checks",
+    "Archives/APK lifecycle/signing/OCI/public verification and separate installer admission"
+  ],
+  "upstreamEol": {
+    "core31": "2022-12-13",
+    "core30": "2020-03-03",
+    "extraSecurityMaintenanceClaim": false,
+    "microsoftSupportClaim": false
+  },
+  "evidence": [
+    {
+      "path": ".build/core3-musl-investigation/candidate-verified/results.json",
+      "bytes": 8632,
+      "sha256": "5ea3c857bea0ee10fb4512f0d2df1480f4e9fbd79b5e506edbd2b957406a375a"
+    },
+    {
+      "path": ".build/core3-musl-investigation/candidate-verified/invocation.json",
+      "bytes": 4493,
+      "sha256": "d21b5bd803f6c506bb7a4d7ae592bdb089330325e5099f57648352fd08f44713"
+    },
+    {
+      "path": ".build/core3-musl-investigation/candidate-verified/used-source-inputs.json",
+      "bytes": 23452,
+      "sha256": "cf65e90ffe91675f47669643afdcbe8bb5ae4d513b3e57f5d0101edc25805a7f"
+    },
+    {
+      "path": ".build/core3-musl-investigation/candidate-verified/port-donor-source.json",
+      "bytes": 11227,
+      "sha256": "05d099d9b9c936af198f957b0fd3725d1409184b018fdb34dfdc1cfd2180aea4"
+    },
+    {
+      "path": ".build/core3-musl-investigation/trace-verified/results.json",
+      "bytes": 4197,
+      "sha256": "46aec934bdbb3b0f6cce61b50ee0e778496116f92f9dc31c1dcb3bf29bdc074d"
+    },
+    {
+      "path": ".build/core3-musl-investigation/trace-verified/used-source-inputs.json",
+      "bytes": 9494,
+      "sha256": "2cabcbf2981e0a1da03c4e81f0c56756c6d9555b4f377ff8d115c1ab45a45f3a"
+    },
+    {
+      "path": ".build/core3-musl-investigation/bootstrap-verified/results.json",
+      "bytes": 5693,
+      "sha256": "9158a9823c3a0fc4bf9e024bbef7f6e34a8928ee08f2dbb318e0d3e06d3faea9"
+    },
+    {
+      "path": ".build/core3-musl-investigation/bootstrap-verified/elf-audit.json",
+      "bytes": 76769,
+      "sha256": "b8ea940a5f548e099c23163dcf78a44261a02abbad13c2f132f9766488958567"
+    },
+    {
+      "path": ".build/core3-musl-investigation/bootstrap30-verified/results.json",
+      "bytes": 5277,
+      "sha256": "e40f846de84675fc4207716b802ed1efa9ac26492e9e6b3023f1cf03015b3c3b"
+    },
+    {
+      "path": ".build/core3-musl-investigation/bootstrap30-verified/elf-audit.json",
+      "bytes": 79445,
+      "sha256": "9e4835414e00a23ca929bb210fe0f6970010b02d9f55fbf1bfc9698b025e0c10"
+    },
+    {
+      "path": ".build/core3-musl-investigation/bootstrap30-verified/framework-composition.json",
+      "bytes": 1166,
+      "sha256": "2d9945424e84195d08339614291f800c7870e9a6036a0ef1b75eeaf8569d7d8d"
+    },
+    {
+      "path": ".build/core3-musl-investigation/consumer31-offline/results.json",
+      "bytes": 658,
+      "sha256": "d5fbc7ba0475f8dc44e0c34d2ecb749fe167871b797cd3ca17193095a03b8a77"
+    },
+    {
+      "path": ".build/core3-musl-investigation/consumer31-offline/runtime-elf-closure.json",
+      "bytes": 60285,
+      "sha256": "be78affc3ad8d7918ca065f66192e5db8a28b57c44a5fdd4eabafdbf8f148634"
+    },
+    {
+      "path": ".build/core3-musl-investigation/consumer31-offline/apphost-elf-closure.json",
+      "bytes": 5452,
+      "sha256": "860e9480dae788dea7519b80739d0bf00ae59fef2d429156c5130c706bb73340"
+    },
+    {
+      "path": ".build/core3-musl-investigation/consumer31-offline/runtime-stock-policy.json",
+      "bytes": 14249,
+      "sha256": "ae7835e978c2cb66b5acd2e6637e59ac369e6a425c6498a762932ead15709c83"
+    },
+    {
+      "path": ".build/core3-musl-investigation/consumer31-online/results.json",
+      "bytes": 883,
+      "sha256": "a796858899670d9364dedba5b982dee23b7471a3e84dd49930043f3d14455b31"
+    },
+    {
+      "path": ".build/core3-musl-investigation/core30-nuget-assessment.json",
+      "bytes": 8777,
+      "sha256": "a17e1480e0964da1610a5785cea6b9e1277c81cd943ccefa7e3234a3e3d7a102"
+    },
+    {
+      "path": ".build/core3-musl-investigation/core30-components.json",
+      "bytes": 44958,
+      "sha256": "4e0930bb0b30b874f59eae4d091b38b252d3281b10863919965815636699a0b6"
+    },
+    {
+      "path": ".build/core3-musl-investigation/apphost-asp-inputs.json",
+      "bytes": 4826,
+      "sha256": "b1a4846ad13542cad8ee1fb68fc407457f329186e1fa0071499aa2b8f4c05b7f"
+    },
+    {
+      "path": ".build/core3-musl-investigation/apphost-catalog-3.1.32.json",
+      "bytes": 5763,
+      "sha256": "91f05a03d6a469f37eab82eecb73312b944c62ac9d8ad49f55361c42349f9447"
+    },
+    {
+      "path": ".build/core3-musl-investigation/apphost-asp31-v2/apphost-project.assets.json",
+      "bytes": 1758,
+      "sha256": "f670263160897445d733d57a5f205c973958c5c3a04a7937d07944d54d802c27"
+    },
+    {
+      "path": ".build/core3-musl-investigation/apphost-asp31-v2/results.json",
+      "bytes": 6620,
+      "sha256": "2bc0155c384c351074877fd03af5f5586eb4e5f3f8180f8b0a65fa2666a7f011"
+    },
+    {
+      "path": ".build/core3-musl-investigation/worker-recipe-build.log",
+      "bytes": 10771,
+      "sha256": "e60d76433510ef7134c831ef5b10d400d466fa5857581dca4b5d7bb795007e29"
+    },
+    {
+      "path": ".build/core3-musl-investigation/consumer-image-build.log",
+      "bytes": 5839,
+      "sha256": "50d9f47a5f7ebc014b57e41ce9bbff002617683e1834f535138330beb48029b3"
+    }
+  ],
+  "reviewableFiles": [
+    {
+      "path": "scripts/core3-musl-probe.py",
+      "bytes": 26423,
+      "sha256": "5c3c27ad8a67b6bf38702b91c7c101d88db2388e970bd88bec37ff36b439c0d7"
+    },
+    {
+      "path": "scripts/core3-musl-bootstrap-probe.py",
+      "bytes": 15460,
+      "sha256": "e8577d5bc702859542542efa5c503eac5259bb556d20ca12564a751498973551"
+    },
+    {
+      "path": "scripts/core3-musl-consumer-probe.py",
+      "bytes": 5657,
+      "sha256": "7a540d580df2eeab809ec3aecd8fb153815cb15aabd7da93233b987c6db1c6ae"
+    },
+    {
+      "path": "profiles/experimental/core3-musl.json",
+      "bytes": 8997,
+      "sha256": "38729f9e3cce5d97f94846bd09cd1a93d2b7ab261b0c59f8e3672cc43744dbc6"
+    },
+    {
+      "path": "containers/core3-musl-probe.Containerfile",
+      "bytes": 1875,
+      "sha256": "3ac596a91c6aeac956d6d3e164c4900c5cfe4045dd91a7637d52cde9b1ad2693"
+    },
+    {
+      "path": "containers/core3-musl-consumer-probe.Containerfile",
+      "bytes": 1741,
+      "sha256": "3592851b6bf38741a948b0ea55d7dfdd1d684970d93bed504e5e9d1d57f5e0f1"
+    },
+    {
+      "path": "patches/core3-musl/0001-branch-native-openssl3.patch",
+      "bytes": 2952,
+      "sha256": "f030e8e8566a246ce7e279bc1254fde9bae4bfafe29aee68cbb3c4e795d57e2d"
+    },
+    {
+      "path": "patches/core3-musl/0002-clang20-typed-null.patch",
+      "bytes": 1115,
+      "sha256": "5d33d0d85c9d7007c99af8327a8d8ab338fcdf92258ed437572573d5f0bb8a5f"
+    },
+    {
+      "path": "patches/core3-musl/README.md",
+      "bytes": 1405,
+      "sha256": "eecf815c6d3012d1b1f833f4128f8df874c6189b320db287101cde335e10e9b9"
+    },
+    {
+      "path": "docs/core3-musl-investigation.md",
+      "bytes": 10246,
+      "sha256": "3ea706506c14a8b03e1f6b4aaeb553f751fc44b6b5f6732c2be7437720c66d07"
+    }
+  ],
+  "rootReview": {
+    "type": "automated-engineering-review",
+    "observedAtUtc": "2026-11-08T02:39:36.253034+00:00",
+    "checkedEvidenceFiles": 24,
+    "checkedImplementationFiles": 10,
+    "disposition": "go-for-genuine-source-producer-and-two-CPU-qualification",
+    "qualification": false,
+    "releaseAdmission": false,
+    "decision": "Proceed with genuine SDK/core-sdk source producer implementation; retain all remaining release gates. Imported managed SDKs are private bootstrap inputs only."
+  }
+}
