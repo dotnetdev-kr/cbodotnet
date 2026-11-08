@@ -1,0 +1,1545 @@
+{
+  "schemaVersion": 1,
+  "kind": "literal-type-forwarder-metadata-policy",
+  "sdkVersion": "7.0.120",
+  "package": {
+    "path": "microsoft.net.build.extensions/7.0.120-servicing.24272.7/microsoft.net.build.extensions.7.0.120-servicing.24272.7.nupkg",
+    "fingerprint": {
+      "sha256": "6cf5b9719e6f7e2a078fe28db1f6d28fd7e2e48ecfa53c6d6d1c17b0cf3300ad",
+      "bytes": 2648249,
+      "sha512": "9939679b75aa00bae9e5a46cd7be07336d6da3c2d425ff821dcd08540a5ac8ed223321d12efb73fb30f387b62125ebb312ca50c341d861741119e4e87fadf1bf"
+    },
+    "id": "Microsoft.NET.Build.Extensions",
+    "version": "7.0.120-servicing.24272.7",
+    "license": "MIT",
+    "licenseUrl": "https://licenses.nuget.org/MIT",
+    "embeddedLegalFiles": []
+  },
+  "layout": [
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/Microsoft.Win32.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21216,
+        "sha256": "5eaa2e82a26b0b302280d08f54dc9da25165dd0e286be52440a271285d63f695",
+        "sha512": "3b510cdc45c94be383c91687c2cb01a501ba34e3fbb66346214fc576d6f0e63c77d1d09c6419fc907f5b083387a7046c0670377ad2e00c3ec2e731275739f9c7"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/Microsoft.Win32.Primitives.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.AppContext.dll",
+      "fingerprint": {
+        "bytes": 21176,
+        "sha256": "9dc115ac4aadd6a94d87c7a8a3f61803cc25a3d73501d7534867df6b0d8a0d39",
+        "sha512": "e4da7e3ae5ca31e566ea0475e83d69d998253fb6d689970703a5ad354a2aad1bb78d49a2c038f0a3c84a188d091696191b04e4a39253deb3b6cb310b72f02f97"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.AppContext.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Collections.Concurrent.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "cc62f3b867d50083c2932061f20662c698d2e1a741c4d2f9df1fd2d435e3ef3c",
+        "sha512": "e241c16869d1cdbb2c6482a7c5b2af93de4ba0cef8185b8826eee35ecb174f35f7585c8ae0320f7f4f6b80f3bb5b3edae2383760f2f35637f03c3a0e38e0875c"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Collections.Concurrent.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Collections.NonGeneric.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "529943c0cdf24f57e94bf03fac5f40b94a638625027a02df79e1e8cb5d9bc696",
+        "sha512": "29684ac5391268eaa276196a6249364f6d23abfe59bdc304a561cf326cea6cd662fa04c05e15924fd6d3f9e9d1607992b8dcad3f817cfe891580f9d9462fe9b7"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Collections.NonGeneric.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Collections.Specialized.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "938da38561da54793944e95e94b6e11cf83aacd667487297d428fbce1c06dc9c",
+        "sha512": "287f08ab07827570f9f3ef48a6d7e5c186899a2704fb3dbaf36975f6be7b29fb6695a69fab85a6f09bddefb60c79052c3a33cf862651f892eb9d773d880b3af8"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Collections.Specialized.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Collections.dll",
+      "fingerprint": {
+        "bytes": 21696,
+        "sha256": "c2250e9e51b44d8ab8c5b892592766925f6580ee00b95026621d0afb037c2707",
+        "sha512": "99e4a226e1fabb348e7ef7c6fa56ad0ce4e4cf5d8569ce21881703dca8d83a1c113fd5f440a4fc9e9b99a04ae8cf4490e17d62ffc09cfac5a45678a4419efdbb"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Collections.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ComponentModel.EventBasedAsync.dll",
+      "fingerprint": {
+        "bytes": 21768,
+        "sha256": "22108e32e0b6e42f5f52a4cb17b9b6fa3dfd547ecd9eef9c67226dbec54d23e5",
+        "sha512": "9f3e834b8342e0c7aa5ccc993b520d664b03f1f0091066c66067923e1d4991efa03f63908552538c05f423aa2b696de7c76993f71a7564f3e87662cb0fc00726"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ComponentModel.EventBasedAsync.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ComponentModel.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21752,
+        "sha256": "bfcd867f71c887429dfe008d7ec5d1853d15b3932d4ce8991694293477b5be37",
+        "sha512": "9769e59279a32f29c2f2c6970c81d3ed76fe3421b819ddffc8fa98329f1b45300c737fdf71956672f80f69b3a75727d184f8c421e00b84e94163a86cb744a991"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ComponentModel.Primitives.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ComponentModel.TypeConverter.dll",
+      "fingerprint": {
+        "bytes": 22784,
+        "sha256": "0dbb92ecd5dfa7fc258bc6deed4cecf1b37f895457fd06976496926abdb317bb",
+        "sha512": "4fef3e1535f546ffdde0683f32a069beeffe89096524c7068f1f5ce8377824f82ae530d3990c9dd51bccaa9e53fded5613fa1174013325808059276dee771187"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ComponentModel.TypeConverter.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ComponentModel.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "5e61d755616cb10524f5f31e9b70c65a7fff8e30e25ce711ac8b354d657ab479",
+        "sha512": "9ba5cc82573308e5d995ba05bc660fc1c087eb91d8bd7efca6ff838a3c47bd6118d9c92919b2e0dac11a5a27977318c5c819499dc19cd5d6e57122a0749858c6"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ComponentModel.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Console.dll",
+      "fingerprint": {
+        "bytes": 21160,
+        "sha256": "b537313413f80105f143cc144feeae2ac93f44747727de309a71d57d2650034a",
+        "sha512": "18d1bb2d5c469644078d75766dbf04addf7d0c543f7ed15ff522ceeaef960900dd8ec68172f5d684b76b0aa6946bb38d641f021ec04c70ad66a6062c10412e0a"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Console.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.Contracts.dll",
+      "fingerprint": {
+        "bytes": 21736,
+        "sha256": "9c4ae61e0e8365762efe3d34c5595029f2c12e0079e6070720e2cef0882c84e5",
+        "sha512": "e96f8fdd6ffb702d344746ce82de576bba8636ede3e39a7da18ccf8a0178b8346fd31140760b864f1487d7804d931ff1a18de07a4cafa0cf79bdb340421fc03f"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.Contracts.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.Debug.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "55a30d92d163cf1807bea6dc13b4c13e70aebbb034dc77eaef4f4394730dcd8e",
+        "sha512": "d03f450a3a19320de71145e48cd7c088d9b50d0a683cc9a79d8967dce085a6f63cbe537fca1c6208865eb52eafb10189613c7233047318caeb2fb2c23c34a269"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.Debug.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.FileVersionInfo.dll",
+      "fingerprint": {
+        "bytes": 21248,
+        "sha256": "7c25a74772e135257235640a0264ddc05235e14f3627896cfe735e9955155f83",
+        "sha512": "fd4560cdf01de237ddf797a33c5dbc220d3fcae07ede17d43c39f5562e36e03646676a87e20699d7603fca6d84f66c8756eb863dd4727b7e1a499619bb88dde1"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.FileVersionInfo.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.Process.dll",
+      "fingerprint": {
+        "bytes": 21728,
+        "sha256": "28b165cddb82a2507114394ae398995ef8a50c549214f8678aa66054f6927754",
+        "sha512": "5959e1129c983825233a07869dd1b2b1db32830d2b5f6b7f8d869c39a76a241f88f76d37341fdfbf56f000fc6acba19aeb36a7efb94721494b41b65bf4978651"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.Process.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.TextWriterTraceListener.dll",
+      "fingerprint": {
+        "bytes": 21280,
+        "sha256": "63eab38ee9f4dcd686c8e6a4f01e1e2a9bb91e52b20ab4dde0c28061e9261860",
+        "sha512": "7352368b68835ecc9c5943ae2f2bd5cab775a7fbb018af7683e74fad1731a9738ae14ebe0bccd854a223ab762fca7ec11411fdae865c5c6ddd034900fa55cfd0"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.TextWriterTraceListener.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.Tools.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "260c6250ef9b57dca99b4cecc533f9a34857b5a32b5351202f776163841200aa",
+        "sha512": "393d1747911a7f91f4c4f4f363a3782f24e00431478088da454823a223a4e75e51d9b010fc5d9746e2bf0185be90071b6cb70c777337d718b39151eef6b486aa"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.Tools.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.TraceSource.dll",
+      "fingerprint": {
+        "bytes": 21744,
+        "sha256": "c81a57d0634c462a6cf49844059e9b170f650ccdf0789519ffd4ae7d28e2718d",
+        "sha512": "cedac24f414cce5053fdf10779dbd153fcebad69b3960f75a5ab1110da18799c79dc01b30269641022fcd874a331bc2dc7ce1a7d1a60dc90e109dd55b58665db"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.TraceSource.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Drawing.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "2805a18724a24034ad6acb315dac516e479cecc5f3753204052657e560932d5d",
+        "sha512": "17558306a611bfac6982d5650335b05ea407191290b653c028896142ebee2abceb22f7d71926fbbcc3fab8227c61a5fda0e770abfca021ac7f891c9c7ee42e81"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Drawing.Primitives.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Dynamic.Runtime.dll",
+      "fingerprint": {
+        "bytes": 22224,
+        "sha256": "f600acc811720183c639cebe5618baf9c8135b85b9cbdc0758bc9b2dcc6dd7a9",
+        "sha512": "6bd6e482533b9ff8fff8823f84cde7191a0fd5575f76891a95e99cd1f5c1122ef92b436745ec9583089445fd5eac795181759080b1d83ccfa1eed31d9cce3af0"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Dynamic.Runtime.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Globalization.Calendars.dll",
+      "fingerprint": {
+        "bytes": 21744,
+        "sha256": "b56ffb65b842daae13f3020b0b04646db92f89801d2a2f89087d145a996d43f7",
+        "sha512": "dc3e9c3b4d732801dcf43cfd6cdd2672f01e03cb99d804a3f4803fddb9ca9817bcfd2f96fd94b7b33db0994f5478ce200c048db5dbb78d3b24e950262ebf4d28"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Globalization.Calendars.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Globalization.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "56bd0c02c734abf4d7fd1ef2e8b6a9e4bf5e4bab4e606cd1023d63b02852fa61",
+        "sha512": "62305027ae8bb5b830630fe54f2cf9e607f9b97ffe28912c2cb15d429252668f17eaf2d7ceecf5601c889d5ea52e0b9100f115173bb11b5d6208171792833c85"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Globalization.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.Compression.ZipFile.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "7720ee13405ea8a3c204703a181e67dc6d66835e9df263c09d04d8b48b41eb26",
+        "sha512": "9288148ec879ebeafd53c225854ee3bd3768ba5c7b829d6af1251d20ac301fc27a04bebb603fe2cde6949bc5968fde717e8b747337c1ad872450d26f7c36f515"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.Compression.ZipFile.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.FileSystem.DriveInfo.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "984575c44cab17d46587af6cc8c22c409b79bec280fd771e6af93a0a0c20e5b0",
+        "sha512": "1527a426f8ec9931573468929966e102012b630ec4aa370c196b2b87472bcee696b00355adaeb39b4151b986470f7dada415e3f930d9678b68d3c531c8ac9b52"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.FileSystem.DriveInfo.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.FileSystem.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "5c84dd40d67c0e59906511d2b09da8e28c454b5979eb5fde74213f9d4bdbc564",
+        "sha512": "099ec1b84fcf6bf07142ad8cd34307c80f19a64c754ade505ab55707075a764fbe7bfa4ce2fbaeaa09b3e61ebdb6e3d116608df0cf77bc076c7b3119db37a324"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.FileSystem.Primitives.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.FileSystem.Watcher.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "c9e2562f1a1b86acdb6957cf916aced9c4f8b71ebb16dfa0050252146205ad37",
+        "sha512": "245f12b4926114ebdb39a54628a1df2501c4a27abd531172cc63bc96298ee0f4be5658ae95fe730c063eadfb1b664c7d201c69c2246cfba23ed5a4fe7ef3d14e"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.FileSystem.Watcher.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.FileSystem.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "9a4595dbb128e2d8f373b3ac45478e7131f4d181b50ec821ec8cb88bd46bd5b8",
+        "sha512": "58d7e8d6fa237a6eac018c0a88d6bf76ad9ee49b6a6790b64e68c33ebf80afcb4223881aac6821132b877e7d848bc917eb9490590cdb297f362c9b43143d6713"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.FileSystem.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.IsolatedStorage.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "0e80a2e256d16e487bc847d1857ed7cd088f176254ba2a385d675338b836b0fc",
+        "sha512": "443dd75234c043de736423466c1fc2ff2bd9b6b9fe753521c3c225de99f5a7d3828a470cf8ea54678a86681949e5dcd1de1eab35bf0f348f758fa099a9092f54"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.IsolatedStorage.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.MemoryMappedFiles.dll",
+      "fingerprint": {
+        "bytes": 21216,
+        "sha256": "81b6527ac2d18782ac24ae463c11dd1d70ab1bc89f626b7347a592229b371a1d",
+        "sha512": "aa339f2489ca9bc9ef7f6121c9586dbd8f5ad2ca5a160a3bcac74b908570ec2fc0bc24e0ec33ae9de9d6a6c3557ec2816fe8e89ffca93e310503f6f83a691f6d"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.MemoryMappedFiles.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.Pipes.dll",
+      "fingerprint": {
+        "bytes": 21168,
+        "sha256": "80a229b2917fc3a5d941ff9745a6be0065028afdf9509300410d2721c71f1198",
+        "sha512": "18736ecfe0ef0c477bf64f89ca97af4578defc996f0a5bad33d7a29af6e09745e4b10d6d543243b9664e40169ee550c996e783c5ffbb0fc767da7ffc63e13fb6"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.Pipes.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.UnmanagedMemoryStream.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "86f1f12e47f260985b08bb966598123578eb5e48bef9bb086f04e16e9d53bb32",
+        "sha512": "cdc5d49fcf0249c539e45c9917c152f130c8fee975d97c2f62526f474cb779b2bf273195f4aa7a64f76dd2496528c0d021b56e60aae2635606f9f55092cb47f4"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.UnmanagedMemoryStream.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.dll",
+      "fingerprint": {
+        "bytes": 21144,
+        "sha256": "c191a43029edd4eb8eee003356f1fe79aa45071c25433a7a3589590e9089eed9",
+        "sha512": "5232b7ef2b60a99be2b027112078a7debf58bfa4308f4ae53dd9a96fa7bccbb0927beb7148e7a3944173f7820f9f519767539d1fdfef848b6f1d6668be11fc15"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Linq.Expressions.dll",
+      "fingerprint": {
+        "bytes": 22224,
+        "sha256": "bf97f67165231c2a42b95f11d80337b082e2b2be54351da44c8a10c06194b369",
+        "sha512": "0fe87438acd6c14401523987be617a83ddfd2b42938fc52e0da5f941f7dc70686cc6436edd41c4998fd56d5f52d64acfab5010b96b1e80c084c4ab9f546202a8"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Linq.Expressions.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Linq.Parallel.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "30a49d16436e3a05569c99a0c2d21755c2fa323c5b925f9f21c10287cc97d9c9",
+        "sha512": "057f21a7e7496343c06cc497a24e46e59218eae1838885eeef7391285cde243afe853155f52933959b40f40aa7028a289d15d279833208bba42bf853d4df91c6"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Linq.Parallel.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Linq.Queryable.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "719ac73bb261e0a13574f5a198126ccf40352264958defb555280d005134c704",
+        "sha512": "257fb07c0d86e292fe6fa88e03b29994cb9864c17a535ce7b366a728eaa4b3a803d88a23157caa457d0b681a2c0d97dd7d9a2754300b73030d9a09c4e9004772"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Linq.Queryable.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Linq.dll",
+      "fingerprint": {
+        "bytes": 21152,
+        "sha256": "349c7fbe9ae2b78c2f90239bddfcea5b16a0faac1fe83553a816c50c3e9089b1",
+        "sha512": "8f87b5013e0cf3a776bfb1f1a68f316a28af3cb6c74f0adf3ead6d5063525c6668b42c077549f66267130959a9cb986bf5f8e4242fc4ef36c356d6927f587a0f"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Linq.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.NameResolution.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "222bd77c5692c2961e8c3638f6511d6f7cbeb9e0977e2d5c3bca6739a5311f37",
+        "sha512": "03f132e1bac629a394a093d59550b22d5fd4c4d6f244697173229282741a9cd6669c4256c024467ce94293c74f304560066711c35620ab4750621502aa67b5b1"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.NameResolution.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.NetworkInformation.dll",
+      "fingerprint": {
+        "bytes": 22248,
+        "sha256": "2e2d28a0802d8c8c08c0d422f48733ad8bf1dfae75f5682a4a3df8898e7e819f",
+        "sha512": "25fc9d4254de0afab9ae3e19b8b225e1d875dcace6ca2c83f768b62c0e2b331cc9dd2988dff7994b5819fb0dd7a89a49fd19e653fc2e4ee656182e08a969a93d"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.NetworkInformation.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Ping.dll",
+      "fingerprint": {
+        "bytes": 21168,
+        "sha256": "4d97e8481b9a27042bb903245625735d82ff627c66797de619303c1e705d0d6a",
+        "sha512": "28dcb8b6e306015d2004ec00443652ce986ab8e09fb09eb82193bfb0604268ca63c527ff64b6364f63c3adbcdaf5fcdf4d1494243bfc8f6bb629bd213073bd7c"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Ping.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Primitives.dll",
+      "fingerprint": {
+        "bytes": 22216,
+        "sha256": "9a8ba725f8e953c933285065228a9409036f9137d03016b127ccea8a19452466",
+        "sha512": "fde868018d24fd72177ede58952325b52561f9d44ae02a4a2268e445f47abf3b81b809f443d362df83bd6667b5988ac2ca15242b9f76a0b5fb5b444fada1bf26"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Primitives.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Requests.dll",
+      "fingerprint": {
+        "bytes": 21184,
+        "sha256": "f2e74a3ec2dc753c9a48fa9a677775f949eb1e02fc1bb8bf38c39e8d2ab147eb",
+        "sha512": "cd44e789a6c04e2bc3b07810b57cc83787f06530065fdce069d89e42557f40770923cc705e73b7699731166f19fd7133fbdd8edd578d308a4f72cbb29e76939f"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Requests.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Security.dll",
+      "fingerprint": {
+        "bytes": 21696,
+        "sha256": "d0d90152136a0acf340fb345098f2e5c718bb13f3b5a809d7be4d9948b8574d4",
+        "sha512": "991fc952b452446255963aeb4f11c74e7116e15b666924452f3c0d15517322ef1d925dc44bc1f003e8483b5c0b34ad71d54ecaee360fd9e942664fdec4e37e99"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Security.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.WebHeaderCollection.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "69b48ff8e6f40b84cdddb95bcdbb34e1184a2e29cb4ccc0fc9f1a2493648ee37",
+        "sha512": "9c0e69c07b2ed6caa9bb3ffd9eba6c82a0b763f2dfb06341f6343c54dbc254505cc0350b96b79dc4062d8d28d47c79824e98bb293c8c85203e827164af862b5a"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.WebHeaderCollection.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.WebSockets.Client.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "19766a20b62b038abc3e863f2d6e7b55fabee4d9cbcad3eb1d7bd3ebfe8d023a",
+        "sha512": "69c6d8d5f8835da31d36940f0ae793bd00d87e9cb9380c3a7b21fe3e315f192f95b8e63c8f9d0a3737c73673a0aeac41fc728fb7b236f12453a953066f9e53e7"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.WebSockets.Client.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.WebSockets.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "99920ce34a01a0c07efd86d6e134bb401993515d001b7567a4116ad222993a63",
+        "sha512": "5a8c41f32598bcf8c8e315b18ad5f1bbc377d7b638dc05caa3cc47e988536aa0ebe4718d73aee39ed5004328be3a9de9722d8759e5dfd500038e7139dadf9638"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.WebSockets.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ObjectModel.dll",
+      "fingerprint": {
+        "bytes": 21696,
+        "sha256": "870ee1141cb61abfce44507e39bfdd734f2335e34d89ecfffb13838195a6b936",
+        "sha512": "5338b067297b8cb157c5389d79d0440a6492841c85794ea15b805b5f71cfed445efa9099c95e5bdef8cf3902a6b10f032bfc356b0598dde4f89fa5b349737907"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ObjectModel.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Reflection.Extensions.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "3d2551d6458b84566025fddfe5dad479cab5785428efd6814860d36ad1811c9a",
+        "sha512": "1b13c70f05d56871008d5c8752bc93c8fb590d5f89b4e97264f592cdfd772cbbcce8380d255f8bb305bc25bcddea21e422617fa614dffd3ddcc9a1d4be6c54a5"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Reflection.Extensions.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Reflection.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21736,
+        "sha256": "0383dc02fdf0b5d4612d8caaad13d594cac1609c8240b73dfd6ea5803f5e17ea",
+        "sha512": "5c67456a65fd051147281e14041f5165c1852fd6519dfc8dfcf9c86f20217cdad9e2d26f815b557b99e2db3500af47b2df8a1225a659fa1069815cd62302458f"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Reflection.Primitives.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Reflection.dll",
+      "fingerprint": {
+        "bytes": 22200,
+        "sha256": "63aaf632ee7f3bc852c4d71c742cf1d26f18f784f6c89113e056b2599ba8f514",
+        "sha512": "d991298419fb5290d6906a1f9fccef56bb3e17506e235c85b4d979ebc49abd4f4b3123697e675346b57829c3efdeed6291a155d69348cd55b8b6b2eec9f804a1"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Reflection.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Resources.Reader.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "e3036362506d96c9c00ed6393a2afcacd9f2e71cd2a35c1d638a61e85d2fb040",
+        "sha512": "4c931389035df21ae67810d8c8e95cb613d9495e2392b11e34d84f624f90c78c541b14fb0d6fe7f0f89799aad4b34e91fb6f73978ae38231840f047915e6eb5b"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Resources.Reader.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Resources.ResourceManager.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "62dce4679e33c079e11f41b096bc803b30b1d963a1ea79efa84187cebbc06afe",
+        "sha512": "ff8cdc0287e510f859f46c1e35f9b0fb42ead907b1eaa42c90c84b31cf6c2d4638cf682777f359b8611dd22062c1a5fa71f7fb667b7a3903783673e678098515"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Resources.ResourceManager.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Resources.Writer.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "daaabd07f1b94be19d72913360286e469f454886850afcc603506eaab03150e4",
+        "sha512": "8e65ff1909ac8d65f599062e61ac935a919d43404c357dbc6ad628923b0c7ed7158862ddd272cfc1c2a8cec393d48a57bc4d69ce7706eef1bb6838826b1afae3"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Resources.Writer.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.CompilerServices.VisualC.dll",
+      "fingerprint": {
+        "bytes": 21784,
+        "sha256": "18a610b8bad43cf784cde4d4902a238f2281c2a677daae790cab55f6da915979",
+        "sha512": "d3696d4d60cfc5aa5834f60a0b97a4f3a3f8ec3fb05beb3c3d927426b72b3e5463c628c7df950e43ff1344823b8c2d39730ba47ba0f2fec7a0cfcdc237a5bcc6"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.CompilerServices.VisualC.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Extensions.dll",
+      "fingerprint": {
+        "bytes": 21720,
+        "sha256": "f9feb277f86241f55425182a26decf50a210675d4f040ec542af3fb3dd287de6",
+        "sha512": "916a465236f11ff6e421800961b20cb80a320176da8c58002f6742040ce33c5207d378667a584c5d8e35cf8cfc19ac54504b3f6129e489eeabd86a5b4e7d8c77"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Extensions.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Handles.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "7a81d2a001b543b2a55c9affc845a5df7edab1fd308c6979bbd982b1b826b57c",
+        "sha512": "43607aebbb0a3f2d437c7de77785cd6c9f49411e1d4efe41eccd93d7fcca197dabd4e15f45fbc4fbff27c202fec96b79f82202afc88b59c20ed5e7912bcdc6d3"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Handles.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.InteropServices.dll",
+      "fingerprint": {
+        "bytes": 24296,
+        "sha256": "383a1f9dac655c6805c24d4a03bc5fbeb9abd1536de5510f5756259eefcb4871",
+        "sha512": "b7e76b65406904f092fe96ded558a94ea53fa40bec500efcdcdebf124921f4526de2f239cd25bae1801692dd6dfe5652ffd46b2aa4325133c7127d27f626bb9b"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.InteropServices.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Numerics.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "16e7efd6c19b2e3e516ae1bc7b3175d0e22f1ad357701f229e353da348eee182",
+        "sha512": "8505479031a0a5caeeee1a8a60aa35d7e0c332bbfdde61193b615e242c127780e55f404289f26930e9ec9e53fccf436b1a991ba2c8a9177163b41aaaf6be0d32"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Numerics.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Serialization.Formatters.dll",
+      "fingerprint": {
+        "bytes": 21264,
+        "sha256": "c343f7bf08a4c97a90ba607a492c721533333173fa63f65f6e5de9ceee65fc16",
+        "sha512": "5c2de8f18cb9b367d7de88a2af8a7fd538486b9ffb393972fbdff42cd2899d6679fd8d7076fe37954d5e8eab6c5041f19edad32659c5cceec1c2ba35e6f8982a"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Serialization.Formatters.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Serialization.Json.dll",
+      "fingerprint": {
+        "bytes": 21240,
+        "sha256": "e8d531f0aaa674f794b7f43ec76e4e32ad93f3c136020cf4b6e3433832f9c0df",
+        "sha512": "ddf9d6e05d9566c9e02295a061756ff164c408ea211d016023edbfa91bba4d0d7dff293d2bf4d87c25fe923500c7535e4a21b6a8d4b18fd9505f8e5c635f9c95"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Serialization.Json.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.dll",
+      "fingerprint": {
+        "bytes": 29360,
+        "sha256": "50ad612d4cf6113de26b2870da099c4817f59e64a2da98f05803b4a2e2304919",
+        "sha512": "2498811f4aac308cdc55c3406bea4fef5dc9e6f23559b09fb181f7447474ef586f00038282ddc39c241490b5dc2bca7f41f19bd3e1bb00890da29df6489bb151"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Claims.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "8270d1248950ee8aee5c2ac2e321df07e65c7a94004ae03c857deacd231a5542",
+        "sha512": "be6dee6e7030b400eac68ac289ec9b74bfe0140ee59af5e68bf43a63a821c6f6ad9ca03c501896a6c92464bf8116d7996ffe640ab51bd9fa96673d9794ac82cd"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Claims.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Cryptography.Csp.dll",
+      "fingerprint": {
+        "bytes": 21240,
+        "sha256": "566775f5502c3c1fa70acade145293df5d02c1a9f031820d429605e9b4584b44",
+        "sha512": "bd23571bf9d0fe62bbf5fddcaff6b8f383ccc728afbceebcad8404d68c02ea1f55d4a22306bfc86c30172e70c6cf5425f2ff8877aaa8758a51c48cf4303bd2ab"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Cryptography.Csp.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Cryptography.Encoding.dll",
+      "fingerprint": {
+        "bytes": 21256,
+        "sha256": "1f5c1abe1b2720680170388569354d8cda9d558b53aff7caf175ce0f7e3733e5",
+        "sha512": "65ed3aff2424e7560fcc44380dc719bf200d444f9b06af7f916d52152c330d55a7f4b96d0c1d2b291b07d82805c71dd9850f2f5f612f00adfca1cdf117c6b14a"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Cryptography.Encoding.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Cryptography.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21784,
+        "sha256": "b755d0b55a465d07c9dd3fc11822487d1e649b684aef91a4ce9b935b416a01b9",
+        "sha512": "6147f18bd9c49727251cbea7a3168e3b19f34056de5a9898571ecdec85d424627a72968072449c81f97f95330baed7e2ed0f6fdba7e2f79b59b9352ab11003cf"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Cryptography.Primitives.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Cryptography.X509Certificates.dll",
+      "fingerprint": {
+        "bytes": 22832,
+        "sha256": "3c8630acb43c12a6a317227ff2922056ecd991fe945464fdf7ea81f1293a479f",
+        "sha512": "f3e5e97aaf3d26ea62c64787198cce6df703ea3a4ebb389bebc84b424c8129a0181142a4fa5d965ca3106758a047d0e1a723f181ad293fd389c4f1b8d290b5a5"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Cryptography.X509Certificates.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Principal.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "02416bc542be82002b8b81adbbbcdcc8d098104020d09b571dc674b5bc19a177",
+        "sha512": "2566f369edee9313e823aa2667cb95977f0db57b4b47da62f44850811f524d0598fde6f5bb082bb3325789e4b256e970603b4297d3586f1c435498430723a38b"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Principal.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Text.Encoding.Extensions.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "cbe29672cd2b6a0ea97b55f3844fbede3e591996f39c3aa1f829f2fa50551fa9",
+        "sha512": "322f82aeb9eb9da22257ac9fe835bf1c54c1bb268d37f0f97a4ca52bb42f6accca9c8dbdb96d6d695fa69c24f5069978a4b6f1e960ee81d9ea671ccd30a348d3"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Text.Encoding.Extensions.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Text.Encoding.dll",
+      "fingerprint": {
+        "bytes": 21696,
+        "sha256": "0ab1f7f87b7c2afca57d394e4f4e262c82ba3209cb0a750cd66401fb33f21eca",
+        "sha512": "ff7d953ec4b82c10e64fc85d3afc8a1a58582170ef1752d4688fa1d48efc490dba5f0a784e748f7902e96fd885ea868b1a84de44f48cf071975f3cd3f8e52c6a"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Text.Encoding.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Text.RegularExpressions.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "c98a52bd017df01aea7b955e6f219537d391a62c2c2b976684da282f9cd7cacf",
+        "sha512": "79ed01c6d1cea3dba6b3566e03d05a971745e221be9330f6800a249d1b239e092d3ff704e7403e7ecd6b7709b24b0cdd7e518f2ee5da38019e7139d80594173e"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Text.RegularExpressions.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.Tasks.Parallel.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "3468e0c875db94a8f45d56ab76bbcc677b942ca51a23649ba3c5ad1b20e391f1",
+        "sha512": "23dcf5819996ee0f0c8fe044d6642a12e98a40309ce1f3f74688cf8e3dd6f6ed230aec391fe7e511e15fbbbf14bff09f976e923f22f2d68ad816d8ffad17f101"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.Tasks.Parallel.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.Tasks.dll",
+      "fingerprint": {
+        "bytes": 22224,
+        "sha256": "0110616dfe870b8bcf25df8f6ce38ef5aac39e728ddaa3420ea199f5a7e80a16",
+        "sha512": "c66fc92435c399804d8a8c1c836e5648725dda8a55d7acd897ae719ca231d89251a0d9a293a67f079e345709cfda83dcc693ad41a28d13661a55459f94fe33e0"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.Tasks.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.Thread.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "9d4faea9892d4ecfabf61986687fc6cb30f5f51a6b62819b9571ff58e04c4dd5",
+        "sha512": "cbd8370f3cb84cb9eb8bf3a7392245d6a90ce1a324971ea96170974da092bdfc3db2196f66958ca5d5000f13b18afab44ff82d50c5b9a625aa1b7a4af17717de"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.Thread.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.ThreadPool.dll",
+      "fingerprint": {
+        "bytes": 21216,
+        "sha256": "3d9ebc81b1bd3234666c8ce403a5f17a726867c68ffa5de4ec8ee92599335658",
+        "sha512": "0c027440ef6f6c105b0bf9319f4e0ea421fd310699028af0a159300145c662e74b4b5d969663e3b52cda7f9934a6ab93bbae9bcd1bd39aaac24fcba7ec451156"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.ThreadPool.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.Timer.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "04b9235f64c9c846f8a767230714895da87c7ae2cd0105e9d14835ae46f0fed8",
+        "sha512": "f475dcd2cc23fdfb017688713170fcaf8fea05869a680613ea4ad84cb358ed0f2442db0ff0dcbd739e3cc3db7128a8f4a568ae8e5af6a8840319b02630e420b9"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.Timer.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.dll",
+      "fingerprint": {
+        "bytes": 22192,
+        "sha256": "4dc8d588ec63641c28422d648e8de5e2c030eb7afec2071a99dd3bd9a204557f",
+        "sha512": "fb7c628b796a321ad9ecbf01d165e24f151c99d7e60a65d0af52f779ad60a3203f47b247d44fc47044a68790d1ea4ee458a7bc8df7ebe9d42c2275a9c11bc324"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.ReaderWriter.dll",
+      "fingerprint": {
+        "bytes": 21712,
+        "sha256": "5f560e1dd529bb2529d7052e04008449f58d0439c2bb43437d7b5d39f84f949f",
+        "sha512": "fdac43d0a18d9158db4438349a7a550557a36e6ed0665efcb65a046a5beb5c38181996cbf6d860b8ad01c19e35315bb61ae766caf06b23985e046484dab45256"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.ReaderWriter.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.XDocument.dll",
+      "fingerprint": {
+        "bytes": 21696,
+        "sha256": "4f6a14e4ba2a2b26b8b8433d5f82f75a96af5a4f036d9447373b07271493917b",
+        "sha512": "f59faa6319fe2afebccbd643e20c1edb75db74e9271354bd86dac3bea2cc59452ee024dc26b517ae88254a7c90dbe0e6c19a7b5ab3bfe9159d986d6c53ca5521"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.XDocument.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.XPath.dll",
+      "fingerprint": {
+        "bytes": 21176,
+        "sha256": "24daa1faee0478ba58febe8ee789eb88be0a14d350b57ad8b10690c55976b2e1",
+        "sha512": "55b5c22b87f21df89d0514ae05c9433b65a3c7532845fdfc4c2c5c5e2c3929d70143d84698fdb4dc13ec01895b1022cf0e5e76e12102739530b54150932a7b07"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.XPath.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.XmlDocument.dll",
+      "fingerprint": {
+        "bytes": 21712,
+        "sha256": "8957f0bcea6ab8a011a53ae62466505199f11a228f87f3809931d974f87078ce",
+        "sha512": "16569ecb727ada36811e72ffc925f07aa21b8a627be45f1eda18cf2b759939591dcafcb2d087596ee903c5abffaf19f56f25e9710ef22874c934cad19537b798"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.XmlDocument.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.XmlSerializer.dll",
+      "fingerprint": {
+        "bytes": 21712,
+        "sha256": "21493f7f615a099e795f7fae7ecce6082414d1d427790bdf4b103623a3ab34eb",
+        "sha512": "de5546ff103ccc6aa38e254039a372697a193f9c44d0a44f0be3b242d9eef63023dc3fd0c6e8e0d2363177f9230a4e7200d4c32591b398269a1cee9bc47a99fc"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.XmlSerializer.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/netfx.force.conflicts.dll",
+      "fingerprint": {
+        "bytes": 25440,
+        "sha256": "8e251da213b4cf9778c3879c7bbde705c4a3f7c3f952d488f3cf54bd356be40a",
+        "sha512": "70af244ce0ac28da16ca4749b296fe746fd712647566090ffcce62902bdd260f105cad026151ec4de57e106eb55a7392f2b84ceac0bb34a7aefcf1bbf1d95202"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/netfx.force.conflicts.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/netstandard.dll",
+      "fingerprint": {
+        "bytes": 98616,
+        "sha256": "8be4a2270f8b2bea40f33f79869fdcca34e07bb764e63b81ded49d90d2b720dd",
+        "sha512": "f81ac2895048333ac50e550d2b03e90003865f18058ce4a1dfba9455a5bda2485a2d31b0fdc77f6cbdfb1bb2e32d9f8ab81b3201d96d56e060e4a440719502d6"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/netstandard.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Diagnostics.StackTrace.dll",
+      "fingerprint": {
+        "bytes": 23264,
+        "sha256": "e932b25f50e3b09dd7759ff5b9e9abfa8fc115ea171b768164ae21387feac7e8",
+        "sha512": "422f8f7a50f457eb979652b14a6c06a51a6a94c7eb9f56045a4b944acbe3026580465aefffd9f30a4334a556fa1eed8488db0766c16d637023e72b579a26dfcf"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Diagnostics.StackTrace.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Net.Sockets.dll",
+      "fingerprint": {
+        "bytes": 23224,
+        "sha256": "a4b4bb8b9be478600f48e43ae8571e6c123f8130923067f10fc92546d0900fb6",
+        "sha512": "4e0104c8a650943d8680f0bd449d4b953b25ff909bf50be19772e88295f9ce7542f29211528e20b4ad798d26251a50211eeea8685e3d81fab72df1380ca6b984"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Net.Sockets.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Security.SecureString.dll",
+      "fingerprint": {
+        "bytes": 22240,
+        "sha256": "9239de3543ea4dcf71ad86f16aa23eeb760566bc69078925900d0e41eec859ac",
+        "sha512": "3ec05a1de21ec4c96d6137788a868342aade033b2d6e9ed7972c8fbef3503cd03dd4728ba34e37c577ac301c056bb8c142516332c31d2f131599021a307da86b"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Security.SecureString.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Xml.XPath.XDocument.dll",
+      "fingerprint": {
+        "bytes": 22744,
+        "sha256": "05df614f3252b522d2aa078585dcddd502a25bdb06ca3a44b1c0d24c1adb85a2",
+        "sha512": "12ea4ffbcd243f3db5fec4d4901f5550f044e49478a909416e7b588eb15e9c6dd005d8255ed8235e803c76b57fbeeba6fc9b0b85a8155787c1d885537eb87611"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net471/lib/System.Xml.XPath.XDocument.dll"
+    },
+    {
+      "path": "sdk/7.0.120/Microsoft/Microsoft.NET.Build.Extensions/net471/lib/netfx.force.conflicts.dll",
+      "fingerprint": {
+        "bytes": 22208,
+        "sha256": "630842e814eba133468271beb4e386e4e4f21063f4831660ae08bd37e3b8250c",
+        "sha512": "6f43427dd8711c62d09b201e7d61504f89a648cad5480d83c23f6cfd043e90b6a595e92c4c32ca311dc5ebf64911db44ac34baae4ee04d9a767b42a3248cdf7e"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net471/lib/netfx.force.conflicts.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/Microsoft.Win32.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21216,
+        "sha256": "5eaa2e82a26b0b302280d08f54dc9da25165dd0e286be52440a271285d63f695",
+        "sha512": "3b510cdc45c94be383c91687c2cb01a501ba34e3fbb66346214fc576d6f0e63c77d1d09c6419fc907f5b083387a7046c0670377ad2e00c3ec2e731275739f9c7"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/Microsoft.Win32.Primitives.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.AppContext.dll",
+      "fingerprint": {
+        "bytes": 21176,
+        "sha256": "9dc115ac4aadd6a94d87c7a8a3f61803cc25a3d73501d7534867df6b0d8a0d39",
+        "sha512": "e4da7e3ae5ca31e566ea0475e83d69d998253fb6d689970703a5ad354a2aad1bb78d49a2c038f0a3c84a188d091696191b04e4a39253deb3b6cb310b72f02f97"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.AppContext.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Collections.Concurrent.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "cc62f3b867d50083c2932061f20662c698d2e1a741c4d2f9df1fd2d435e3ef3c",
+        "sha512": "e241c16869d1cdbb2c6482a7c5b2af93de4ba0cef8185b8826eee35ecb174f35f7585c8ae0320f7f4f6b80f3bb5b3edae2383760f2f35637f03c3a0e38e0875c"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Collections.Concurrent.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Collections.NonGeneric.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "529943c0cdf24f57e94bf03fac5f40b94a638625027a02df79e1e8cb5d9bc696",
+        "sha512": "29684ac5391268eaa276196a6249364f6d23abfe59bdc304a561cf326cea6cd662fa04c05e15924fd6d3f9e9d1607992b8dcad3f817cfe891580f9d9462fe9b7"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Collections.NonGeneric.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Collections.Specialized.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "938da38561da54793944e95e94b6e11cf83aacd667487297d428fbce1c06dc9c",
+        "sha512": "287f08ab07827570f9f3ef48a6d7e5c186899a2704fb3dbaf36975f6be7b29fb6695a69fab85a6f09bddefb60c79052c3a33cf862651f892eb9d773d880b3af8"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Collections.Specialized.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Collections.dll",
+      "fingerprint": {
+        "bytes": 21696,
+        "sha256": "c2250e9e51b44d8ab8c5b892592766925f6580ee00b95026621d0afb037c2707",
+        "sha512": "99e4a226e1fabb348e7ef7c6fa56ad0ce4e4cf5d8569ce21881703dca8d83a1c113fd5f440a4fc9e9b99a04ae8cf4490e17d62ffc09cfac5a45678a4419efdbb"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Collections.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.ComponentModel.EventBasedAsync.dll",
+      "fingerprint": {
+        "bytes": 21768,
+        "sha256": "22108e32e0b6e42f5f52a4cb17b9b6fa3dfd547ecd9eef9c67226dbec54d23e5",
+        "sha512": "9f3e834b8342e0c7aa5ccc993b520d664b03f1f0091066c66067923e1d4991efa03f63908552538c05f423aa2b696de7c76993f71a7564f3e87662cb0fc00726"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ComponentModel.EventBasedAsync.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.ComponentModel.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21752,
+        "sha256": "bfcd867f71c887429dfe008d7ec5d1853d15b3932d4ce8991694293477b5be37",
+        "sha512": "9769e59279a32f29c2f2c6970c81d3ed76fe3421b819ddffc8fa98329f1b45300c737fdf71956672f80f69b3a75727d184f8c421e00b84e94163a86cb744a991"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ComponentModel.Primitives.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.ComponentModel.TypeConverter.dll",
+      "fingerprint": {
+        "bytes": 22784,
+        "sha256": "0dbb92ecd5dfa7fc258bc6deed4cecf1b37f895457fd06976496926abdb317bb",
+        "sha512": "4fef3e1535f546ffdde0683f32a069beeffe89096524c7068f1f5ce8377824f82ae530d3990c9dd51bccaa9e53fded5613fa1174013325808059276dee771187"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ComponentModel.TypeConverter.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.ComponentModel.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "5e61d755616cb10524f5f31e9b70c65a7fff8e30e25ce711ac8b354d657ab479",
+        "sha512": "9ba5cc82573308e5d995ba05bc660fc1c087eb91d8bd7efca6ff838a3c47bd6118d9c92919b2e0dac11a5a27977318c5c819499dc19cd5d6e57122a0749858c6"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ComponentModel.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Console.dll",
+      "fingerprint": {
+        "bytes": 21160,
+        "sha256": "b537313413f80105f143cc144feeae2ac93f44747727de309a71d57d2650034a",
+        "sha512": "18d1bb2d5c469644078d75766dbf04addf7d0c543f7ed15ff522ceeaef960900dd8ec68172f5d684b76b0aa6946bb38d641f021ec04c70ad66a6062c10412e0a"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Console.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Diagnostics.Contracts.dll",
+      "fingerprint": {
+        "bytes": 21736,
+        "sha256": "9c4ae61e0e8365762efe3d34c5595029f2c12e0079e6070720e2cef0882c84e5",
+        "sha512": "e96f8fdd6ffb702d344746ce82de576bba8636ede3e39a7da18ccf8a0178b8346fd31140760b864f1487d7804d931ff1a18de07a4cafa0cf79bdb340421fc03f"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.Contracts.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Diagnostics.Debug.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "55a30d92d163cf1807bea6dc13b4c13e70aebbb034dc77eaef4f4394730dcd8e",
+        "sha512": "d03f450a3a19320de71145e48cd7c088d9b50d0a683cc9a79d8967dce085a6f63cbe537fca1c6208865eb52eafb10189613c7233047318caeb2fb2c23c34a269"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.Debug.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Diagnostics.FileVersionInfo.dll",
+      "fingerprint": {
+        "bytes": 21248,
+        "sha256": "7c25a74772e135257235640a0264ddc05235e14f3627896cfe735e9955155f83",
+        "sha512": "fd4560cdf01de237ddf797a33c5dbc220d3fcae07ede17d43c39f5562e36e03646676a87e20699d7603fca6d84f66c8756eb863dd4727b7e1a499619bb88dde1"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.FileVersionInfo.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Diagnostics.Process.dll",
+      "fingerprint": {
+        "bytes": 21728,
+        "sha256": "28b165cddb82a2507114394ae398995ef8a50c549214f8678aa66054f6927754",
+        "sha512": "5959e1129c983825233a07869dd1b2b1db32830d2b5f6b7f8d869c39a76a241f88f76d37341fdfbf56f000fc6acba19aeb36a7efb94721494b41b65bf4978651"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.Process.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Diagnostics.TextWriterTraceListener.dll",
+      "fingerprint": {
+        "bytes": 21280,
+        "sha256": "63eab38ee9f4dcd686c8e6a4f01e1e2a9bb91e52b20ab4dde0c28061e9261860",
+        "sha512": "7352368b68835ecc9c5943ae2f2bd5cab775a7fbb018af7683e74fad1731a9738ae14ebe0bccd854a223ab762fca7ec11411fdae865c5c6ddd034900fa55cfd0"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.TextWriterTraceListener.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Diagnostics.Tools.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "260c6250ef9b57dca99b4cecc533f9a34857b5a32b5351202f776163841200aa",
+        "sha512": "393d1747911a7f91f4c4f4f363a3782f24e00431478088da454823a223a4e75e51d9b010fc5d9746e2bf0185be90071b6cb70c777337d718b39151eef6b486aa"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.Tools.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Diagnostics.TraceSource.dll",
+      "fingerprint": {
+        "bytes": 21744,
+        "sha256": "c81a57d0634c462a6cf49844059e9b170f650ccdf0789519ffd4ae7d28e2718d",
+        "sha512": "cedac24f414cce5053fdf10779dbd153fcebad69b3960f75a5ab1110da18799c79dc01b30269641022fcd874a331bc2dc7ce1a7d1a60dc90e109dd55b58665db"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Diagnostics.TraceSource.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Drawing.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "2805a18724a24034ad6acb315dac516e479cecc5f3753204052657e560932d5d",
+        "sha512": "17558306a611bfac6982d5650335b05ea407191290b653c028896142ebee2abceb22f7d71926fbbcc3fab8227c61a5fda0e770abfca021ac7f891c9c7ee42e81"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Drawing.Primitives.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Dynamic.Runtime.dll",
+      "fingerprint": {
+        "bytes": 22224,
+        "sha256": "f600acc811720183c639cebe5618baf9c8135b85b9cbdc0758bc9b2dcc6dd7a9",
+        "sha512": "6bd6e482533b9ff8fff8823f84cde7191a0fd5575f76891a95e99cd1f5c1122ef92b436745ec9583089445fd5eac795181759080b1d83ccfa1eed31d9cce3af0"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Dynamic.Runtime.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Globalization.Calendars.dll",
+      "fingerprint": {
+        "bytes": 21744,
+        "sha256": "b56ffb65b842daae13f3020b0b04646db92f89801d2a2f89087d145a996d43f7",
+        "sha512": "dc3e9c3b4d732801dcf43cfd6cdd2672f01e03cb99d804a3f4803fddb9ca9817bcfd2f96fd94b7b33db0994f5478ce200c048db5dbb78d3b24e950262ebf4d28"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Globalization.Calendars.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Globalization.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "56bd0c02c734abf4d7fd1ef2e8b6a9e4bf5e4bab4e606cd1023d63b02852fa61",
+        "sha512": "62305027ae8bb5b830630fe54f2cf9e607f9b97ffe28912c2cb15d429252668f17eaf2d7ceecf5601c889d5ea52e0b9100f115173bb11b5d6208171792833c85"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Globalization.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.IO.Compression.ZipFile.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "7720ee13405ea8a3c204703a181e67dc6d66835e9df263c09d04d8b48b41eb26",
+        "sha512": "9288148ec879ebeafd53c225854ee3bd3768ba5c7b829d6af1251d20ac301fc27a04bebb603fe2cde6949bc5968fde717e8b747337c1ad872450d26f7c36f515"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.Compression.ZipFile.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.IO.FileSystem.DriveInfo.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "984575c44cab17d46587af6cc8c22c409b79bec280fd771e6af93a0a0c20e5b0",
+        "sha512": "1527a426f8ec9931573468929966e102012b630ec4aa370c196b2b87472bcee696b00355adaeb39b4151b986470f7dada415e3f930d9678b68d3c531c8ac9b52"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.FileSystem.DriveInfo.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.IO.FileSystem.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "5c84dd40d67c0e59906511d2b09da8e28c454b5979eb5fde74213f9d4bdbc564",
+        "sha512": "099ec1b84fcf6bf07142ad8cd34307c80f19a64c754ade505ab55707075a764fbe7bfa4ce2fbaeaa09b3e61ebdb6e3d116608df0cf77bc076c7b3119db37a324"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.FileSystem.Primitives.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.IO.FileSystem.Watcher.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "c9e2562f1a1b86acdb6957cf916aced9c4f8b71ebb16dfa0050252146205ad37",
+        "sha512": "245f12b4926114ebdb39a54628a1df2501c4a27abd531172cc63bc96298ee0f4be5658ae95fe730c063eadfb1b664c7d201c69c2246cfba23ed5a4fe7ef3d14e"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.FileSystem.Watcher.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.IO.FileSystem.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "9a4595dbb128e2d8f373b3ac45478e7131f4d181b50ec821ec8cb88bd46bd5b8",
+        "sha512": "58d7e8d6fa237a6eac018c0a88d6bf76ad9ee49b6a6790b64e68c33ebf80afcb4223881aac6821132b877e7d848bc917eb9490590cdb297f362c9b43143d6713"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.FileSystem.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.IO.IsolatedStorage.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "0e80a2e256d16e487bc847d1857ed7cd088f176254ba2a385d675338b836b0fc",
+        "sha512": "443dd75234c043de736423466c1fc2ff2bd9b6b9fe753521c3c225de99f5a7d3828a470cf8ea54678a86681949e5dcd1de1eab35bf0f348f758fa099a9092f54"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.IsolatedStorage.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.IO.MemoryMappedFiles.dll",
+      "fingerprint": {
+        "bytes": 21216,
+        "sha256": "81b6527ac2d18782ac24ae463c11dd1d70ab1bc89f626b7347a592229b371a1d",
+        "sha512": "aa339f2489ca9bc9ef7f6121c9586dbd8f5ad2ca5a160a3bcac74b908570ec2fc0bc24e0ec33ae9de9d6a6c3557ec2816fe8e89ffca93e310503f6f83a691f6d"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.MemoryMappedFiles.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.IO.Pipes.dll",
+      "fingerprint": {
+        "bytes": 21168,
+        "sha256": "80a229b2917fc3a5d941ff9745a6be0065028afdf9509300410d2721c71f1198",
+        "sha512": "18736ecfe0ef0c477bf64f89ca97af4578defc996f0a5bad33d7a29af6e09745e4b10d6d543243b9664e40169ee550c996e783c5ffbb0fc767da7ffc63e13fb6"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.Pipes.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.IO.UnmanagedMemoryStream.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "86f1f12e47f260985b08bb966598123578eb5e48bef9bb086f04e16e9d53bb32",
+        "sha512": "cdc5d49fcf0249c539e45c9917c152f130c8fee975d97c2f62526f474cb779b2bf273195f4aa7a64f76dd2496528c0d021b56e60aae2635606f9f55092cb47f4"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.UnmanagedMemoryStream.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.IO.dll",
+      "fingerprint": {
+        "bytes": 21144,
+        "sha256": "c191a43029edd4eb8eee003356f1fe79aa45071c25433a7a3589590e9089eed9",
+        "sha512": "5232b7ef2b60a99be2b027112078a7debf58bfa4308f4ae53dd9a96fa7bccbb0927beb7148e7a3944173f7820f9f519767539d1fdfef848b6f1d6668be11fc15"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.IO.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Linq.Expressions.dll",
+      "fingerprint": {
+        "bytes": 22224,
+        "sha256": "bf97f67165231c2a42b95f11d80337b082e2b2be54351da44c8a10c06194b369",
+        "sha512": "0fe87438acd6c14401523987be617a83ddfd2b42938fc52e0da5f941f7dc70686cc6436edd41c4998fd56d5f52d64acfab5010b96b1e80c084c4ab9f546202a8"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Linq.Expressions.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Linq.Parallel.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "30a49d16436e3a05569c99a0c2d21755c2fa323c5b925f9f21c10287cc97d9c9",
+        "sha512": "057f21a7e7496343c06cc497a24e46e59218eae1838885eeef7391285cde243afe853155f52933959b40f40aa7028a289d15d279833208bba42bf853d4df91c6"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Linq.Parallel.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Linq.Queryable.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "719ac73bb261e0a13574f5a198126ccf40352264958defb555280d005134c704",
+        "sha512": "257fb07c0d86e292fe6fa88e03b29994cb9864c17a535ce7b366a728eaa4b3a803d88a23157caa457d0b681a2c0d97dd7d9a2754300b73030d9a09c4e9004772"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Linq.Queryable.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Linq.dll",
+      "fingerprint": {
+        "bytes": 21152,
+        "sha256": "349c7fbe9ae2b78c2f90239bddfcea5b16a0faac1fe83553a816c50c3e9089b1",
+        "sha512": "8f87b5013e0cf3a776bfb1f1a68f316a28af3cb6c74f0adf3ead6d5063525c6668b42c077549f66267130959a9cb986bf5f8e4242fc4ef36c356d6927f587a0f"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Linq.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Net.NameResolution.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "222bd77c5692c2961e8c3638f6511d6f7cbeb9e0977e2d5c3bca6739a5311f37",
+        "sha512": "03f132e1bac629a394a093d59550b22d5fd4c4d6f244697173229282741a9cd6669c4256c024467ce94293c74f304560066711c35620ab4750621502aa67b5b1"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.NameResolution.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Net.NetworkInformation.dll",
+      "fingerprint": {
+        "bytes": 22248,
+        "sha256": "2e2d28a0802d8c8c08c0d422f48733ad8bf1dfae75f5682a4a3df8898e7e819f",
+        "sha512": "25fc9d4254de0afab9ae3e19b8b225e1d875dcace6ca2c83f768b62c0e2b331cc9dd2988dff7994b5819fb0dd7a89a49fd19e653fc2e4ee656182e08a969a93d"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.NetworkInformation.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Net.Ping.dll",
+      "fingerprint": {
+        "bytes": 21168,
+        "sha256": "4d97e8481b9a27042bb903245625735d82ff627c66797de619303c1e705d0d6a",
+        "sha512": "28dcb8b6e306015d2004ec00443652ce986ab8e09fb09eb82193bfb0604268ca63c527ff64b6364f63c3adbcdaf5fcdf4d1494243bfc8f6bb629bd213073bd7c"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Ping.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Net.Primitives.dll",
+      "fingerprint": {
+        "bytes": 22216,
+        "sha256": "9a8ba725f8e953c933285065228a9409036f9137d03016b127ccea8a19452466",
+        "sha512": "fde868018d24fd72177ede58952325b52561f9d44ae02a4a2268e445f47abf3b81b809f443d362df83bd6667b5988ac2ca15242b9f76a0b5fb5b444fada1bf26"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Primitives.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Net.Requests.dll",
+      "fingerprint": {
+        "bytes": 21184,
+        "sha256": "f2e74a3ec2dc753c9a48fa9a677775f949eb1e02fc1bb8bf38c39e8d2ab147eb",
+        "sha512": "cd44e789a6c04e2bc3b07810b57cc83787f06530065fdce069d89e42557f40770923cc705e73b7699731166f19fd7133fbdd8edd578d308a4f72cbb29e76939f"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Requests.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Net.Security.dll",
+      "fingerprint": {
+        "bytes": 21696,
+        "sha256": "d0d90152136a0acf340fb345098f2e5c718bb13f3b5a809d7be4d9948b8574d4",
+        "sha512": "991fc952b452446255963aeb4f11c74e7116e15b666924452f3c0d15517322ef1d925dc44bc1f003e8483b5c0b34ad71d54ecaee360fd9e942664fdec4e37e99"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.Security.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Net.WebHeaderCollection.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "69b48ff8e6f40b84cdddb95bcdbb34e1184a2e29cb4ccc0fc9f1a2493648ee37",
+        "sha512": "9c0e69c07b2ed6caa9bb3ffd9eba6c82a0b763f2dfb06341f6343c54dbc254505cc0350b96b79dc4062d8d28d47c79824e98bb293c8c85203e827164af862b5a"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.WebHeaderCollection.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Net.WebSockets.Client.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "19766a20b62b038abc3e863f2d6e7b55fabee4d9cbcad3eb1d7bd3ebfe8d023a",
+        "sha512": "69c6d8d5f8835da31d36940f0ae793bd00d87e9cb9380c3a7b21fe3e315f192f95b8e63c8f9d0a3737c73673a0aeac41fc728fb7b236f12453a953066f9e53e7"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.WebSockets.Client.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Net.WebSockets.dll",
+      "fingerprint": {
+        "bytes": 21192,
+        "sha256": "99920ce34a01a0c07efd86d6e134bb401993515d001b7567a4116ad222993a63",
+        "sha512": "5a8c41f32598bcf8c8e315b18ad5f1bbc377d7b638dc05caa3cc47e988536aa0ebe4718d73aee39ed5004328be3a9de9722d8759e5dfd500038e7139dadf9638"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Net.WebSockets.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.ObjectModel.dll",
+      "fingerprint": {
+        "bytes": 21696,
+        "sha256": "870ee1141cb61abfce44507e39bfdd734f2335e34d89ecfffb13838195a6b936",
+        "sha512": "5338b067297b8cb157c5389d79d0440a6492841c85794ea15b805b5f71cfed445efa9099c95e5bdef8cf3902a6b10f032bfc356b0598dde4f89fa5b349737907"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.ObjectModel.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Reflection.Extensions.dll",
+      "fingerprint": {
+        "bytes": 21224,
+        "sha256": "3d2551d6458b84566025fddfe5dad479cab5785428efd6814860d36ad1811c9a",
+        "sha512": "1b13c70f05d56871008d5c8752bc93c8fb590d5f89b4e97264f592cdfd772cbbcce8380d255f8bb305bc25bcddea21e422617fa614dffd3ddcc9a1d4be6c54a5"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Reflection.Extensions.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Reflection.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21736,
+        "sha256": "0383dc02fdf0b5d4612d8caaad13d594cac1609c8240b73dfd6ea5803f5e17ea",
+        "sha512": "5c67456a65fd051147281e14041f5165c1852fd6519dfc8dfcf9c86f20217cdad9e2d26f815b557b99e2db3500af47b2df8a1225a659fa1069815cd62302458f"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Reflection.Primitives.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Reflection.dll",
+      "fingerprint": {
+        "bytes": 22200,
+        "sha256": "63aaf632ee7f3bc852c4d71c742cf1d26f18f784f6c89113e056b2599ba8f514",
+        "sha512": "d991298419fb5290d6906a1f9fccef56bb3e17506e235c85b4d979ebc49abd4f4b3123697e675346b57829c3efdeed6291a155d69348cd55b8b6b2eec9f804a1"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Reflection.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Resources.Reader.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "e3036362506d96c9c00ed6393a2afcacd9f2e71cd2a35c1d638a61e85d2fb040",
+        "sha512": "4c931389035df21ae67810d8c8e95cb613d9495e2392b11e34d84f624f90c78c541b14fb0d6fe7f0f89799aad4b34e91fb6f73978ae38231840f047915e6eb5b"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Resources.Reader.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Resources.ResourceManager.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "62dce4679e33c079e11f41b096bc803b30b1d963a1ea79efa84187cebbc06afe",
+        "sha512": "ff8cdc0287e510f859f46c1e35f9b0fb42ead907b1eaa42c90c84b31cf6c2d4638cf682777f359b8611dd22062c1a5fa71f7fb667b7a3903783673e678098515"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Resources.ResourceManager.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Resources.Writer.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "daaabd07f1b94be19d72913360286e469f454886850afcc603506eaab03150e4",
+        "sha512": "8e65ff1909ac8d65f599062e61ac935a919d43404c357dbc6ad628923b0c7ed7158862ddd272cfc1c2a8cec393d48a57bc4d69ce7706eef1bb6838826b1afae3"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Resources.Writer.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Runtime.CompilerServices.VisualC.dll",
+      "fingerprint": {
+        "bytes": 21784,
+        "sha256": "18a610b8bad43cf784cde4d4902a238f2281c2a677daae790cab55f6da915979",
+        "sha512": "d3696d4d60cfc5aa5834f60a0b97a4f3a3f8ec3fb05beb3c3d927426b72b3e5463c628c7df950e43ff1344823b8c2d39730ba47ba0f2fec7a0cfcdc237a5bcc6"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.CompilerServices.VisualC.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Runtime.Extensions.dll",
+      "fingerprint": {
+        "bytes": 21720,
+        "sha256": "f9feb277f86241f55425182a26decf50a210675d4f040ec542af3fb3dd287de6",
+        "sha512": "916a465236f11ff6e421800961b20cb80a320176da8c58002f6742040ce33c5207d378667a584c5d8e35cf8cfc19ac54504b3f6129e489eeabd86a5b4e7d8c77"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Extensions.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Runtime.Handles.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "7a81d2a001b543b2a55c9affc845a5df7edab1fd308c6979bbd982b1b826b57c",
+        "sha512": "43607aebbb0a3f2d437c7de77785cd6c9f49411e1d4efe41eccd93d7fcca197dabd4e15f45fbc4fbff27c202fec96b79f82202afc88b59c20ed5e7912bcdc6d3"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Handles.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Runtime.InteropServices.dll",
+      "fingerprint": {
+        "bytes": 24296,
+        "sha256": "383a1f9dac655c6805c24d4a03bc5fbeb9abd1536de5510f5756259eefcb4871",
+        "sha512": "b7e76b65406904f092fe96ded558a94ea53fa40bec500efcdcdebf124921f4526de2f239cd25bae1801692dd6dfe5652ffd46b2aa4325133c7127d27f626bb9b"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.InteropServices.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Runtime.Numerics.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "16e7efd6c19b2e3e516ae1bc7b3175d0e22f1ad357701f229e353da348eee182",
+        "sha512": "8505479031a0a5caeeee1a8a60aa35d7e0c332bbfdde61193b615e242c127780e55f404289f26930e9ec9e53fccf436b1a991ba2c8a9177163b41aaaf6be0d32"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Numerics.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Runtime.Serialization.Formatters.dll",
+      "fingerprint": {
+        "bytes": 21264,
+        "sha256": "c343f7bf08a4c97a90ba607a492c721533333173fa63f65f6e5de9ceee65fc16",
+        "sha512": "5c2de8f18cb9b367d7de88a2af8a7fd538486b9ffb393972fbdff42cd2899d6679fd8d7076fe37954d5e8eab6c5041f19edad32659c5cceec1c2ba35e6f8982a"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Serialization.Formatters.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Runtime.Serialization.Json.dll",
+      "fingerprint": {
+        "bytes": 21240,
+        "sha256": "e8d531f0aaa674f794b7f43ec76e4e32ad93f3c136020cf4b6e3433832f9c0df",
+        "sha512": "ddf9d6e05d9566c9e02295a061756ff164c408ea211d016023edbfa91bba4d0d7dff293d2bf4d87c25fe923500c7535e4a21b6a8d4b18fd9505f8e5c635f9c95"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.Serialization.Json.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Runtime.dll",
+      "fingerprint": {
+        "bytes": 29360,
+        "sha256": "50ad612d4cf6113de26b2870da099c4817f59e64a2da98f05803b4a2e2304919",
+        "sha512": "2498811f4aac308cdc55c3406bea4fef5dc9e6f23559b09fb181f7447474ef586f00038282ddc39c241490b5dc2bca7f41f19bd3e1bb00890da29df6489bb151"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Runtime.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Security.Claims.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "8270d1248950ee8aee5c2ac2e321df07e65c7a94004ae03c857deacd231a5542",
+        "sha512": "be6dee6e7030b400eac68ac289ec9b74bfe0140ee59af5e68bf43a63a821c6f6ad9ca03c501896a6c92464bf8116d7996ffe640ab51bd9fa96673d9794ac82cd"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Claims.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Security.Cryptography.Csp.dll",
+      "fingerprint": {
+        "bytes": 21240,
+        "sha256": "566775f5502c3c1fa70acade145293df5d02c1a9f031820d429605e9b4584b44",
+        "sha512": "bd23571bf9d0fe62bbf5fddcaff6b8f383ccc728afbceebcad8404d68c02ea1f55d4a22306bfc86c30172e70c6cf5425f2ff8877aaa8758a51c48cf4303bd2ab"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Cryptography.Csp.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Security.Cryptography.Encoding.dll",
+      "fingerprint": {
+        "bytes": 21256,
+        "sha256": "1f5c1abe1b2720680170388569354d8cda9d558b53aff7caf175ce0f7e3733e5",
+        "sha512": "65ed3aff2424e7560fcc44380dc719bf200d444f9b06af7f916d52152c330d55a7f4b96d0c1d2b291b07d82805c71dd9850f2f5f612f00adfca1cdf117c6b14a"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Cryptography.Encoding.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Security.Cryptography.Primitives.dll",
+      "fingerprint": {
+        "bytes": 21784,
+        "sha256": "b755d0b55a465d07c9dd3fc11822487d1e649b684aef91a4ce9b935b416a01b9",
+        "sha512": "6147f18bd9c49727251cbea7a3168e3b19f34056de5a9898571ecdec85d424627a72968072449c81f97f95330baed7e2ed0f6fdba7e2f79b59b9352ab11003cf"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Cryptography.Primitives.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Security.Cryptography.X509Certificates.dll",
+      "fingerprint": {
+        "bytes": 22832,
+        "sha256": "3c8630acb43c12a6a317227ff2922056ecd991fe945464fdf7ea81f1293a479f",
+        "sha512": "f3e5e97aaf3d26ea62c64787198cce6df703ea3a4ebb389bebc84b424c8129a0181142a4fa5d965ca3106758a047d0e1a723f181ad293fd389c4f1b8d290b5a5"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Cryptography.X509Certificates.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Security.Principal.dll",
+      "fingerprint": {
+        "bytes": 21208,
+        "sha256": "02416bc542be82002b8b81adbbbcdcc8d098104020d09b571dc674b5bc19a177",
+        "sha512": "2566f369edee9313e823aa2667cb95977f0db57b4b47da62f44850811f524d0598fde6f5bb082bb3325789e4b256e970603b4297d3586f1c435498430723a38b"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Security.Principal.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Text.Encoding.Extensions.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "cbe29672cd2b6a0ea97b55f3844fbede3e591996f39c3aa1f829f2fa50551fa9",
+        "sha512": "322f82aeb9eb9da22257ac9fe835bf1c54c1bb268d37f0f97a4ca52bb42f6accca9c8dbdb96d6d695fa69c24f5069978a4b6f1e960ee81d9ea671ccd30a348d3"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Text.Encoding.Extensions.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Text.Encoding.dll",
+      "fingerprint": {
+        "bytes": 21696,
+        "sha256": "0ab1f7f87b7c2afca57d394e4f4e262c82ba3209cb0a750cd66401fb33f21eca",
+        "sha512": "ff7d953ec4b82c10e64fc85d3afc8a1a58582170ef1752d4688fa1d48efc490dba5f0a784e748f7902e96fd885ea868b1a84de44f48cf071975f3cd3f8e52c6a"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Text.Encoding.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Text.RegularExpressions.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "c98a52bd017df01aea7b955e6f219537d391a62c2c2b976684da282f9cd7cacf",
+        "sha512": "79ed01c6d1cea3dba6b3566e03d05a971745e221be9330f6800a249d1b239e092d3ff704e7403e7ecd6b7709b24b0cdd7e518f2ee5da38019e7139d80594173e"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Text.RegularExpressions.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Threading.Tasks.Parallel.dll",
+      "fingerprint": {
+        "bytes": 21232,
+        "sha256": "3468e0c875db94a8f45d56ab76bbcc677b942ca51a23649ba3c5ad1b20e391f1",
+        "sha512": "23dcf5819996ee0f0c8fe044d6642a12e98a40309ce1f3f74688cf8e3dd6f6ed230aec391fe7e511e15fbbbf14bff09f976e923f22f2d68ad816d8ffad17f101"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.Tasks.Parallel.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Threading.Tasks.dll",
+      "fingerprint": {
+        "bytes": 22224,
+        "sha256": "0110616dfe870b8bcf25df8f6ce38ef5aac39e728ddaa3420ea199f5a7e80a16",
+        "sha512": "c66fc92435c399804d8a8c1c836e5648725dda8a55d7acd897ae719ca231d89251a0d9a293a67f079e345709cfda83dcc693ad41a28d13661a55459f94fe33e0"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.Tasks.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Threading.Thread.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "9d4faea9892d4ecfabf61986687fc6cb30f5f51a6b62819b9571ff58e04c4dd5",
+        "sha512": "cbd8370f3cb84cb9eb8bf3a7392245d6a90ce1a324971ea96170974da092bdfc3db2196f66958ca5d5000f13b18afab44ff82d50c5b9a625aa1b7a4af17717de"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.Thread.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Threading.ThreadPool.dll",
+      "fingerprint": {
+        "bytes": 21216,
+        "sha256": "3d9ebc81b1bd3234666c8ce403a5f17a726867c68ffa5de4ec8ee92599335658",
+        "sha512": "0c027440ef6f6c105b0bf9319f4e0ea421fd310699028af0a159300145c662e74b4b5d969663e3b52cda7f9934a6ab93bbae9bcd1bd39aaac24fcba7ec451156"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.ThreadPool.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Threading.Timer.dll",
+      "fingerprint": {
+        "bytes": 21200,
+        "sha256": "04b9235f64c9c846f8a767230714895da87c7ae2cd0105e9d14835ae46f0fed8",
+        "sha512": "f475dcd2cc23fdfb017688713170fcaf8fea05869a680613ea4ad84cb358ed0f2442db0ff0dcbd739e3cc3db7128a8f4a568ae8e5af6a8840319b02630e420b9"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.Timer.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Threading.dll",
+      "fingerprint": {
+        "bytes": 22192,
+        "sha256": "4dc8d588ec63641c28422d648e8de5e2c030eb7afec2071a99dd3bd9a204557f",
+        "sha512": "fb7c628b796a321ad9ecbf01d165e24f151c99d7e60a65d0af52f779ad60a3203f47b247d44fc47044a68790d1ea4ee458a7bc8df7ebe9d42c2275a9c11bc324"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Threading.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Xml.ReaderWriter.dll",
+      "fingerprint": {
+        "bytes": 21712,
+        "sha256": "5f560e1dd529bb2529d7052e04008449f58d0439c2bb43437d7b5d39f84f949f",
+        "sha512": "fdac43d0a18d9158db4438349a7a550557a36e6ed0665efcb65a046a5beb5c38181996cbf6d860b8ad01c19e35315bb61ae766caf06b23985e046484dab45256"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.ReaderWriter.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Xml.XDocument.dll",
+      "fingerprint": {
+        "bytes": 21696,
+        "sha256": "4f6a14e4ba2a2b26b8b8433d5f82f75a96af5a4f036d9447373b07271493917b",
+        "sha512": "f59faa6319fe2afebccbd643e20c1edb75db74e9271354bd86dac3bea2cc59452ee024dc26b517ae88254a7c90dbe0e6c19a7b5ab3bfe9159d986d6c53ca5521"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.XDocument.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Xml.XPath.dll",
+      "fingerprint": {
+        "bytes": 21176,
+        "sha256": "24daa1faee0478ba58febe8ee789eb88be0a14d350b57ad8b10690c55976b2e1",
+        "sha512": "55b5c22b87f21df89d0514ae05c9433b65a3c7532845fdfc4c2c5c5e2c3929d70143d84698fdb4dc13ec01895b1022cf0e5e76e12102739530b54150932a7b07"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.XPath.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Xml.XmlDocument.dll",
+      "fingerprint": {
+        "bytes": 21712,
+        "sha256": "8957f0bcea6ab8a011a53ae62466505199f11a228f87f3809931d974f87078ce",
+        "sha512": "16569ecb727ada36811e72ffc925f07aa21b8a627be45f1eda18cf2b759939591dcafcb2d087596ee903c5abffaf19f56f25e9710ef22874c934cad19537b798"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.XmlDocument.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/System.Xml.XmlSerializer.dll",
+      "fingerprint": {
+        "bytes": 21712,
+        "sha256": "21493f7f615a099e795f7fae7ecce6082414d1d427790bdf4b103623a3ab34eb",
+        "sha512": "de5546ff103ccc6aa38e254039a372697a193f9c44d0a44f0be3b242d9eef63023dc3fd0c6e8e0d2363177f9230a4e7200d4c32591b398269a1cee9bc47a99fc"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/System.Xml.XmlSerializer.dll"
+    },
+    {
+      "path": "sdk/7.0.120/TestHostNetFramework/netstandard.dll",
+      "fingerprint": {
+        "bytes": 98616,
+        "sha256": "8be4a2270f8b2bea40f33f79869fdcca34e07bb764e63b81ded49d90d2b720dd",
+        "sha512": "f81ac2895048333ac50e550d2b03e90003865f18058ce4a1dfba9455a5bda2485a2d31b0fdc77f6cbdfb1bb2e32d9f8ab81b3201d96d56e060e4a440719502d6"
+      },
+      "packageMember": "msbuildExtensions/Microsoft/Microsoft.NET.Build.Extensions/net461/lib/netstandard.dll"
+    }
+  ],
+  "uniquePEs": 87,
+  "licenseSource": {
+    "path": "sdk/LICENSE.TXT",
+    "sourceCommit": "a06803c09702777c6550fede13c8bdc52d780191",
+    "bytes": 1116,
+    "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+    "sha512": "27f511fefea2390347bb7ea63f7795a26780ad43eca80d717c92c70a434d28fdf136c4b902750b52813ed9cf0d3c51af206062323a0496459461d985a34ac5c7",
+    "gitBlob": "984713a49622a96da110443c15477613bc12656b"
+  },
+  "sourceClaim": "Complete derived literal type-forwarding metadata and readable declarations; original unavailable Git is not asserted.",
+  "localBuildClaimed": false,
+  "originalGitSourceClaimed": false,
+  "byteIdenticalCompilationClaimed": false
+}

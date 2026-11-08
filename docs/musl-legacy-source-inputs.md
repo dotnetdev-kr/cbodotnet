@@ -72,8 +72,28 @@ for a primary shipping implementation.
 The musl CLI uses the .NET MSBuild host. Its scoped layout excludes the two
 Full MSBuild `net472` task directories from the SDK and Razor SDK. Mono/Full
 MSBuild host task execution is outside this layout's scope. Cross-target
-reference packs, `Microsoft.NET.Build.Extensions/net46*/lib` inputs and the
-test-platform source layout retain their separate reviewed dispositions.
+reference packs and `Microsoft.NET.Build.Extensions/net46*/lib` inputs retain
+their separate reviewed dispositions. The original VSTest source-build package
+targets the Core VSTest host and substitutes its Core `TestHost` layout for the
+publisher's `TestHostNetFramework` layout. Full/Mono .NET Framework test execution
+is outside this Alpine distribution's scope. This is the original source-build
+package's TFM selection; equivalent publisher-wide test-host support is not
+claimed. All 114 original Build.Extensions target-library files remain
+unchanged in the scoped SDK candidate.
+
+[`musl_legacy_facade_inputs.py`](../scripts/musl_legacy_facade_inputs.py)
+uses a [closed literal metadata policy](../scripts/musl-legacy-facade-policy.json)
+for 87 unique method-free type-forwarding assemblies from one immutable,
+actually restored Build.Extensions package. It retains the original package,
+PEs, complete metadata, decoded declarations, readable forwarding IL and MIT
+text. Data has a distinct source role with no Git commit or local compilation
+claim. A missing original Git object is not replaced with another commit.
+Historical layout paths include duplicate Framework test-host locations; only
+present, exact reviewed products can use this correspondence. Real executable
+implementations, linked resources, methods, fields and native CLI bodies fail
+the data-only boundary. Independent comparison with the framework PEReader
+matches all 87 metadata blocks, 3,881 exported-type declarations and 1,143
+custom attributes, including complete references and scope handles.
 
 The metadata layout follows [ECMA-335, Partition II](https://www.ecma-international.org/wp-content/uploads/ECMA-335_6th_edition_june_2012.pdf)
 and the pinned runtime's [metadata size calculations](https://github.com/dotnet/runtime/blob/0fb6ac59fb1edbe4ed3ad62661df0eb7eacd7903/src/libraries/System.Reflection.Metadata/src/System/Reflection/Metadata/Ecma335/MetadataSizes.cs).
