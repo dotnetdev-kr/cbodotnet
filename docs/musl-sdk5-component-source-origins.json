@@ -1,0 +1,2075 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdk5-actual-embedded-source-origin-analysis",
+  "sdkVersion": "5.0.214",
+  "archive": {
+    "bytes": 131955822,
+    "sha256": "428abb8e7ea80c768c48c0480520409152309d50309ad8f2033e5d9fbba09e83",
+    "sha512": "6483c63e581d8129f467fbbe8945de45edf59a7135e4837eeea8db3e82126ea808a30b7819266c453355c38b86d4fecab3d1f54e09cb6b2c20e9224b8e163c58"
+  },
+  "sources": [
+    {
+      "name": "sdk5-source-corefx-02b11eeee1fb",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "02b11eeee1fbc5f3ef43a1452fe07efd25fa1715",
+      "observedManagedMembers": 2,
+      "sourceBasis": {
+        "kind": "previously-reviewed-exact-same-Git-commit-and-repository",
+        "executesSdk6Policy": false
+      }
+    },
+    {
+      "name": "sdk5-source-aspnetcore-02c6de4ba602",
+      "repository": "https://github.com/dotnet/aspnetcore",
+      "commit": "02c6de4ba6022025fcda7581415f310f8c73cdc3",
+      "observedManagedMembers": 105,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "https://github.com/dotnet/aspnetcore",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.AspNetCore.Analyzers",
+            "version": "5.0.17-servicing.22215.7",
+            "sha256": "4af46820acdabcb02d9bdd0c7f517606e5e6bdaa4218ae739709c5cc8dfc2711"
+          },
+          {
+            "repository": "https://github.com/dotnet/aspnetcore",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.AspNetCore.Components.Analyzers",
+            "version": "5.0.17",
+            "sha256": "0a49cbc76c99c2aafbcdd23f337e92a8572f454ff9138ef3c1e35a2d6e3e705b"
+          },
+          {
+            "repository": "https://github.com/dotnet/aspnetcore",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.AspNetCore.DeveloperCertificates.XPlat",
+            "version": "5.0.17-servicing.22215.7",
+            "sha256": "b64ffc99d512f4cc66b91d3bb19d4ad9ad6dbdd5d2785ba20f8cb30830a87817"
+          },
+          {
+            "repository": "https://github.com/dotnet/aspnetcore",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.AspNetCore.Mvc.Analyzers",
+            "version": "5.0.17-servicing.22215.7",
+            "sha256": "436d563bd630e96c90cd82617ab2aed6a56cd10685c3abd8e5b1e053e3756e7c"
+          },
+          {
+            "repository": "https://github.com/dotnet/aspnetcore",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.AspNetCore.Mvc.Api.Analyzers",
+            "version": "5.0.17-servicing.22215.7",
+            "sha256": "28ac90fff05fbdcdcd70fb2093aea317c0af97670c9111fee7c7664ac2fef43d"
+          },
+          {
+            "repository": "https://github.com/dotnet/aspnetcore",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.NET.Sdk.BlazorWebAssembly",
+            "version": "5.0.17-servicing.22215.7",
+            "sha256": "31c7ea4777b73fde266605feb36fdf59f5798fea9c7733941c90c24da9c7cb0b"
+          },
+          {
+            "repository": "https://github.com/dotnet/aspnetcore",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.NET.Sdk.Razor",
+            "version": "5.0.17-servicing.22215.7",
+            "sha256": "4c4d1c73498365d4fc41bb6d3e5e4dee1884b3584cbb7eb420486a606f7f4c42"
+          },
+          {
+            "repository": "https://github.com/dotnet/aspnetcore",
+            "evidence": "actual-nuspec",
+            "package": "dotnet-dev-certs",
+            "version": "5.0.17-servicing.22215.7",
+            "sha256": "3f1dc8597b592509fc4078e53f3db62834dfd53c5a621da8108ec102dc26c107"
+          },
+          {
+            "repository": "https://github.com/dotnet/aspnetcore",
+            "evidence": "actual-nuspec",
+            "package": "dotnet-user-secrets",
+            "version": "5.0.17-servicing.22215.7",
+            "sha256": "2f479840bf9b6eaaa28345280fab2628a94622611e0822b544e4043e3c8783fe"
+          },
+          {
+            "repository": "https://github.com/dotnet/aspnetcore",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.DotNet.Web.ItemTemplates",
+            "version": "5.0.17",
+            "sha256": "e2e15d367b1306d7de0e3dabc7dd7b9ef7b26fc62bb05cd18b7043656c3f4065"
+          },
+          {
+            "repository": "https://github.com/dotnet/aspnetcore",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.DotNet.Web.ProjectTemplates.5.0",
+            "version": "5.0.17",
+            "sha256": "f1fb942e7758adf3f1881666d238d1e6c33ba462a9fc5c4d50df9b6fa0395259"
+          },
+          {
+            "repository": "https://github.com/dotnet/aspnetcore",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.DotNet.Web.Spa.ProjectTemplates.5.0",
+            "version": "5.0.17",
+            "sha256": "cf9dad5cee4e06cc2f82e832192b36347822fadb5afbebee2a4abceb824c9c07"
+          },
+          {
+            "repository": "https://dev.azure.com/dnceng/internal/_git/dotnet-aspnetcore",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.AspNetCore.DeveloperCertificates.XPlat"
+          },
+          {
+            "repository": "https://dev.azure.com/dnceng/internal/_git/dotnet-aspnetcore",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.AspNetCore.TestHost"
+          },
+          {
+            "repository": "https://dev.azure.com/dnceng/internal/_git/dotnet-aspnetcore",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.NET.Sdk.Razor"
+          },
+          {
+            "repository": "https://dev.azure.com/dnceng/internal/_git/dotnet-aspnetcore",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.NET.Sdk.BlazorWebAssembly"
+          },
+          {
+            "repository": "https://dev.azure.com/dnceng/internal/_git/dotnet-aspnetcore",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.AspNetCore.App.Runtime.win-x64"
+          },
+          {
+            "repository": "https://dev.azure.com/dnceng/internal/_git/dotnet-aspnetcore",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "dotnet-dev-certs"
+          },
+          {
+            "repository": "https://dev.azure.com/dnceng/internal/_git/dotnet-aspnetcore",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "dotnet-user-secrets"
+          },
+          {
+            "repository": "https://dev.azure.com/dnceng/internal/_git/dotnet-aspnetcore",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.AspNetCore.Analyzers"
+          },
+          {
+            "repository": "https://dev.azure.com/dnceng/internal/_git/dotnet-aspnetcore",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.AspNetCore.Components.Analyzers"
+          },
+          {
+            "repository": "https://dev.azure.com/dnceng/internal/_git/dotnet-aspnetcore",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.AspNetCore.Mvc.Analyzers"
+          },
+          {
+            "repository": "https://dev.azure.com/dnceng/internal/_git/dotnet-aspnetcore",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.AspNetCore.Mvc.Api.Analyzers"
+          },
+          {
+            "repository": "https://dev.azure.com/dnceng/internal/_git/dotnet-aspnetcore",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "VS.Redist.Common.AspNetCore.SharedFramework.x64.5.0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-command-line-api-0581713635ab",
+      "repository": "https://github.com/dotnet/command-line-api",
+      "commit": "0581713635ab5930125c47d8a384d6594679849e",
+      "observedManagedMembers": 1,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "https://github.com/dotnet/command-line-api",
+            "evidence": "actual-nuspec",
+            "package": "System.CommandLine",
+            "version": "2.0.0-beta1.20574.7",
+            "sha256": "f4889d04538c975967bca8d234ed0df986d32a2c0210602e3de25b08364ce268"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-clicommandlineparser-0e89c2116ad2",
+      "repository": "https://github.com/dotnet/clicommandlineparser",
+      "commit": "0e89c2116ad28e404ba56c14d1c3f938caa25a01",
+      "observedManagedMembers": 1,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "https://github.com/dotnet/cliCommandLineParser",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.DotNet.Cli.CommandLine",
+            "version": "1.0.0-preview.19208.1",
+            "sha256": "a3ae4b2143b805ebe34f9e6f23564fbd1a7f70da6c20039c3f0044a086072855"
+          },
+          {
+            "repository": "https://github.com/dotnet/CliCommandLineParser",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.DotNet.Cli.CommandLine"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-corefx-0f7f38c4fd32",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "observedManagedMembers": 15,
+      "sourceBasis": {
+        "kind": "previously-reviewed-exact-same-Git-commit-and-repository",
+        "executesSdk6Policy": false
+      }
+    },
+    {
+      "name": "sdk5-source-standard-18a36291e488",
+      "repository": "https://github.com/dotnet/standard",
+      "commit": "18a36291e48808fa7ef2d00a764ceb1ec95645a5",
+      "observedManagedMembers": 2,
+      "sourceBasis": {
+        "kind": "previously-reviewed-exact-same-Git-commit-and-repository",
+        "executesSdk6Policy": false
+      }
+    },
+    {
+      "name": "sdk5-source-roslyn-analyzers-294f95cd91a3",
+      "repository": "https://github.com/dotnet/roslyn-analyzers",
+      "commit": "294f95cd91a33365aa80117421aed139d8fe5a75",
+      "observedManagedMembers": 16,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "https://github.com/dotnet/roslyn-analyzers",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.CodeAnalysis.NetAnalyzers",
+            "version": "5.0.2",
+            "sha256": "95b2cb23c1b7d583597c23f5866099ec15c397f231d3de7ca016735e660aa270"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-runtime-2f740adc1457",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "2f740adc1457e8a28c1c072993b66f515977eb51",
+      "observedManagedMembers": 2,
+      "sourceBasis": {
+        "kind": "previously-reviewed-exact-same-Git-commit-and-repository",
+        "executesSdk6Policy": false
+      }
+    },
+    {
+      "name": "sdk5-source-runtime-3065735be79d",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "3065735be79d6b7d17e8e3a723115810b43c9b3a",
+      "observedManagedMembers": 1,
+      "sourceBasis": {
+        "kind": "actual-embedded-commit-and-primary-Git-commit-object",
+        "primarySource": "https://api.github.com/repos/dotnet/runtime/git/commits/3065735be79d6b7d17e8e3a723115810b43c9b3a",
+        "tree": "560d5ec8dc053ae0e391bd1600f099714f6bd286",
+        "originalAspnetDependencies": [
+          {
+            "name": "System.IO.Pipelines",
+            "version": "5.0.2",
+            "uri": "https://dev.azure.com/dnceng/internal/_git/dotnet-runtime",
+            "sha": "3065735be79d6b7d17e8e3a723115810b43c9b3a"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-corefx-30ab651fcb43",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "30ab651fcb4354552bd4891619a0bdd81e0ebdbf",
+      "observedManagedMembers": 3,
+      "sourceBasis": {
+        "kind": "previously-reviewed-exact-same-Git-commit-and-repository",
+        "executesSdk6Policy": false
+      }
+    },
+    {
+      "name": "sdk5-source-runtime-35964c921561",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "35964c9215613d66a687ebcb2d7fcd9496390ee7",
+      "observedManagedMembers": 1,
+      "sourceBasis": {
+        "kind": "actual-embedded-commit-and-primary-Git-commit-object",
+        "primarySource": "https://api.github.com/repos/dotnet/runtime/git/commits/35964c9215613d66a687ebcb2d7fcd9496390ee7",
+        "tree": "07ef5cb173c923fc41ed988e8fe2059cc097af0d",
+        "originalAspnetDependencies": [
+          {
+            "name": "Microsoft.Extensions.DependencyInjection",
+            "version": "5.0.2",
+            "uri": "https://dev.azure.com/dnceng/internal/_git/dotnet-runtime",
+            "sha": "35964c9215613d66a687ebcb2d7fcd9496390ee7"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-aspnetcore-371a26f07b23",
+      "repository": "https://github.com/dotnet/aspnetcore",
+      "commit": "371a26f07b23ad77c636332c2dfc0cbd1d8137ba",
+      "observedManagedMembers": 89,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "https://github.com/dotnet/aspnetcore",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.AspNetCore.App.Ref",
+            "version": "5.0.0",
+            "sha256": "cf6d990e57682250d461e17d4637b46953e560018a229763e700f39f5096fa34"
+          },
+          {
+            "repository": "https://github.com/dotnet/aspnetcore",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.AspNetCore.App.Ref"
+          },
+          {
+            "repository": "https://github.com/dotnet/aspnetcore",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.AspNetCore.App.Ref.Internal"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-diagnostics-47296ca69bb6",
+      "repository": "https://github.com/dotnet/diagnostics",
+      "commit": "47296ca69bb66180c132f3b16667f904dfc7c6c7",
+      "observedManagedMembers": 1,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "https://github.com/dotnet/diagnostics",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.Diagnostics.NETCore.Client",
+            "version": "0.2.0-preview.20419.2",
+            "sha256": "d703e165238b10a7915efc56cb53cb1c632a1b75837c9c2a629055a7935825f8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-newtonsoft.json-4ab34b0461fb",
+      "repository": "https://github.com/JamesNK/Newtonsoft.Json",
+      "commit": "4ab34b0461fb595805d092a46a58f35f66c84d6a",
+      "observedManagedMembers": 2,
+      "sourceBasis": {
+        "kind": "actual-embedded-commit-and-primary-Git-commit-object",
+        "primarySource": "https://api.github.com/repos/JamesNK/Newtonsoft.Json/git/commits/4ab34b0461fb595805d092a46a58f35f66c84d6a",
+        "tree": "07fe8c8e5527bb061eef1fce578af556411c8687"
+      }
+    },
+    {
+      "name": "sdk5-source-corefx-4ac4c0367003",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "4ac4c0367003fe3973a3648eb0715ddb0e3bbcea",
+      "observedManagedMembers": 1,
+      "sourceBasis": {
+        "kind": "previously-reviewed-exact-same-Git-commit-and-repository",
+        "executesSdk6Policy": false
+      }
+    },
+    {
+      "name": "sdk5-source-roslyn-4c195c3ac197",
+      "repository": "https://github.com/dotnet/roslyn",
+      "commit": "4c195c3ac1974edcefa76774d7a59a2350ec55fa",
+      "observedManagedMembers": 112,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "https://github.com/dotnet/roslyn",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.CodeAnalysis.CSharp.CodeStyle",
+            "version": "3.8.0-5.20519.18",
+            "sha256": "61ec71f08293409581cffc207f6b9b88a3c6df345cb8f63d920b948c5a2ded24"
+          },
+          {
+            "repository": "https://github.com/dotnet/roslyn",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.CodeAnalysis.VisualBasic.CodeStyle",
+            "version": "3.8.0-5.20519.18",
+            "sha256": "4a39d7007fc1c744feb4e892ce38fed03929205110015738a49120a3487598fe"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-corefx-4d1af962ca0f",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "4d1af962ca0fede10beb01d197367c2f90e92c97",
+      "observedManagedMembers": 3,
+      "sourceBasis": {
+        "kind": "previously-reviewed-exact-same-Git-commit-and-repository",
+        "executesSdk6Policy": false
+      }
+    },
+    {
+      "name": "sdk5-source-common-4f17c0aaa62b",
+      "repository": "https://github.com/aspnet/common",
+      "commit": "4f17c0aaa62b4608ee9ae8c33dee3944383d36f2",
+      "observedManagedMembers": 1,
+      "sourceBasis": {
+        "kind": "previously-reviewed-exact-same-Git-commit-and-repository",
+        "executesSdk6Policy": false
+      }
+    },
+    {
+      "name": "sdk5-source-msbuild-57a23d249aaf",
+      "repository": "https://github.com/microsoft/msbuild",
+      "commit": "57a23d249aafe6409b3e24836a486f769cb74c2c",
+      "observedManagedMembers": 9,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "https://github.com/microsoft/msbuild",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.Build",
+            "version": "16.9.0",
+            "sha256": "b770004cc1878b7c61a3ddabf72dced21944220fecbd54d470a8b08ae3e8ee4d"
+          },
+          {
+            "repository": "https://github.com/microsoft/msbuild",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.Build.Framework",
+            "version": "16.9.0",
+            "sha256": "8e91a55b97d459f5cba8cb7d275465cd502058fc70e0c6cc44e20a8483c0adf9"
+          },
+          {
+            "repository": "https://github.com/microsoft/msbuild",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.Build.Runtime",
+            "version": "16.9.0",
+            "sha256": "0dec9b7546f3968effab71b17baf6d00ddd68560137e11447915aea4b911da5b"
+          },
+          {
+            "repository": "https://github.com/microsoft/msbuild",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.Build.Tasks.Core",
+            "version": "16.9.0",
+            "sha256": "fcb72568503ff2e2885a0d038b0da40ff934a39cb6b4a140fc7cf3ac0150f9be"
+          },
+          {
+            "repository": "https://github.com/microsoft/msbuild",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.Build.Utilities.Core",
+            "version": "16.9.0",
+            "sha256": "4c745be28c4af051b2266333ad010e5ae35b7855bafcf6a29d6b0cf96f85053c"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-templating-5a6c095df390",
+      "repository": "https://github.com/dotnet/templating",
+      "commit": "5a6c095df390fbb5c3f232ab0adedda53d4e2206",
+      "observedManagedMembers": 8,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.TemplateEngine.Abstractions",
+            "version": "5.0.207",
+            "sha256": "a03793d6928fc7ab4d9aa9eef3cb8711d0f512d8d8bed998ef8b48488d82d22d"
+          },
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.TemplateEngine.Cli",
+            "version": "5.0.207-servicing.21404.15",
+            "sha256": "73657533c8d698ca97517f9165fec8168ed942cca96ee183dba897aeadb726b1"
+          },
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.TemplateEngine.Cli.Localization",
+            "version": "5.0.207-servicing.21404.15",
+            "sha256": "71e56ec4df41142eb66f7d2e5dfed31610f73c3e5db95e177be6b7096697f384"
+          },
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.TemplateEngine.Core",
+            "version": "5.0.207",
+            "sha256": "90a8159d38307527b293495d84ac0ba2493222519f65c2d620a339a3f948b1aa"
+          },
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.TemplateEngine.Core.Contracts",
+            "version": "5.0.207",
+            "sha256": "ff5fb221172fba034e9115f57d29dc0c27050c0e6e7f73fee005af5224f412d4"
+          },
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.TemplateEngine.Edge",
+            "version": "5.0.207",
+            "sha256": "a3ddbb7756acef6dc15f1f0935caec8477289ccce11ae06de1d4d1c908b664af"
+          },
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.TemplateEngine.Orchestrator.RunnableProjects",
+            "version": "5.0.207",
+            "sha256": "278e4ccd13305eb0883cc6f8461c28a7e1c2380f4c219809eef8cbc2e332186f"
+          },
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.TemplateEngine.Utils",
+            "version": "5.0.207",
+            "sha256": "dc9adea56bb90eae419f04030694ef1eea72d565ef251a02179fcf7fc7e43e1e"
+          },
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.TemplateSearch.Common",
+            "version": "5.0.207",
+            "sha256": "85f92b32ea480aec218dc76085095505a32084a70473ba107b6857772f827633"
+          },
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.DotNet.Common.ItemTemplates",
+            "version": "5.0.207",
+            "sha256": "664c30c5033c983ede81d7b9ec803d061222afd23f30b92d14e8c9c812bc4b98"
+          },
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.DotNet.Common.ProjectTemplates.5.0",
+            "version": "5.0.207",
+            "sha256": "fb057a8775c318c32db6c89b2d59d29afe8d59af446246272cf5fbc6723ddab3"
+          },
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.TemplateEngine.Cli"
+          },
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.TemplateEngine.Abstractions"
+          },
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.TemplateEngine.Cli.Localization"
+          },
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.TemplateEngine.Orchestrator.RunnableProjects"
+          },
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.TemplateEngine.Utils"
+          },
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.TemplateSearch.Common"
+          },
+          {
+            "repository": "https://github.com/dotnet/templating",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.DotNet.Common.ItemTemplates"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-xdt-5b67dee04d86",
+      "repository": "https://github.com/dotnet/xdt",
+      "commit": "5b67dee04d86740575f0f5022b79833213cc024a",
+      "observedManagedMembers": 1,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "https://github.com/dotnet/xdt",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.Web.Xdt",
+            "version": "3.1.0",
+            "sha256": "38ece8d6523710f474391b03c824b66f5192c2a667940dbaa3f895b464c37e72"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-msbuild-5e4b48a27efc",
+      "repository": "https://github.com/dotnet/msbuild",
+      "commit": "5e4b48a27efce55a613664b58d353ab4c8d1f6c1",
+      "observedManagedMembers": 56,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "https://github.com/dotnet/msbuild",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.Build"
+          },
+          {
+            "repository": "https://github.com/dotnet/msbuild",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.Build.Localization"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-msbuild-5ff7b0c9e829",
+      "repository": "https://github.com/microsoft/msbuild",
+      "commit": "5ff7b0c9e829bb22e21e1738b42c7fcef051dfb2",
+      "observedManagedMembers": 3,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "https://github.com/microsoft/msbuild",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.Build.Framework",
+            "version": "16.6.0",
+            "sha256": "5e5c22a8228befbe9f3b94a529a66deb653edbde09078c8a586aa7c97e205481"
+          },
+          {
+            "repository": "https://github.com/microsoft/msbuild",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.Build.Tasks.Core",
+            "version": "16.6.0",
+            "sha256": "d58ca8c0d9dca14ca932b776003c7d926f27e27ff4b645e454de716b8d5cf224"
+          },
+          {
+            "repository": "https://github.com/microsoft/msbuild",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.Build.Utilities.Core",
+            "version": "16.6.0",
+            "sha256": "080d04314354aca73ba9faa8387fd161960566174153e352f5bf667d655c6a14"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-runtime-6a984143635b",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "6a984143635bde23e728abaaccbde52f5ea8fa3e",
+      "observedManagedMembers": 165,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.NET.HostModel",
+            "version": "5.0.17-servicing.22213.14",
+            "sha256": "261e73565d2e2bad711834bc3b4d2ed61fca07a4f9ec4f44641363fe423d0697"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.NETCore.DotNetAppHost",
+            "version": "5.0.17",
+            "sha256": "374089fddb20ad9f50c465b7610f783e61486d1ed494fbc8752ec5a1d6ed1b6e"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.NETCore.DotNetHostResolver",
+            "version": "5.0.17",
+            "sha256": "1525aac1165cb286500a51ec2d0c2bdb1a5a88aada36114fc0e94e4d406006c6"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.NETCore.App.Host.linux-musl-arm64",
+            "version": "5.0.17",
+            "sha256": "5767a6d438af01e8638bcf5566b5eece1499261ca5240e87d161c0afe0a77f69"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.NETCore.App.Runtime.linux-musl-arm64",
+            "version": "5.0.17",
+            "sha256": "140178dfcb318cc6ed148793410dd47867ab04d88f038416a4c709bb31b75bfd"
+          },
+          {
+            "repository": "https://dev.azure.com/dnceng/internal/_git/dotnet-runtime",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.NETCore.App.Internal"
+          },
+          {
+            "repository": "https://dev.azure.com/dnceng/internal/_git/dotnet-runtime",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.NETCore.App.Runtime.win-x64"
+          },
+          {
+            "repository": "https://dev.azure.com/dnceng/internal/_git/dotnet-runtime",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.NETCore.App.Host.win-x64"
+          },
+          {
+            "repository": "https://dev.azure.com/dnceng/internal/_git/dotnet-runtime",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.NET.HostModel"
+          },
+          {
+            "repository": "https://dev.azure.com/dnceng/internal/_git/dotnet-runtime",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.NETCore.DotNetHostResolver"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-runtime-7211aa01b34b",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "7211aa01b34bb55ca67bdddd6e80ce23ee201bd2",
+      "observedManagedMembers": 1,
+      "sourceBasis": {
+        "kind": "actual-embedded-commit-and-primary-Git-commit-object",
+        "primarySource": "https://api.github.com/repos/dotnet/runtime/git/commits/7211aa01b34bb55ca67bdddd6e80ce23ee201bd2",
+        "tree": "f02d0e11ff46947fc9c507ef16cb06121b194850",
+        "originalAspnetDependencies": [
+          {
+            "name": "System.Drawing.Common",
+            "version": "5.0.3",
+            "uri": "https://dev.azure.com/dnceng/internal/_git/dotnet-runtime",
+            "sha": "7211aa01b34bb55ca67bdddd6e80ce23ee201bd2"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-corefx-7601f4f62250",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
+      "observedManagedMembers": 3,
+      "sourceBasis": {
+        "kind": "previously-reviewed-exact-same-Git-commit-and-repository",
+        "executesSdk6Policy": false
+      }
+    },
+    {
+      "name": "sdk5-source-fsharp-7ce7132f1459",
+      "repository": "https://github.com/dotnet/fsharp",
+      "commit": "7ce7132f1459095e635194d09d6f73265352029a",
+      "observedManagedMembers": 86,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "https://github.com/dotnet/fsharp",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.FSharp.Compiler",
+            "version": "11.3.2-beta.21102.9",
+            "sha256": "e2a9352e0e6770c811659052e71ea52731832d9a236a91ea52d40fc810a495dc"
+          },
+          {
+            "repository": "https://github.com/dotnet/fsharp",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.FSharp.Compiler"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-corefx-8321c729934c",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "8321c729934c0f8be754953439b88e6e1c120c24",
+      "observedManagedMembers": 5,
+      "sourceBasis": {
+        "kind": "previously-reviewed-exact-same-Git-commit-and-repository",
+        "executesSdk6Policy": false
+      }
+    },
+    {
+      "name": "sdk5-source-roslyn-8de9e4b2beba",
+      "repository": "https://github.com/dotnet/roslyn",
+      "commit": "8de9e4b2beba5b7c0edd6f1e6a4f192a51fdc872",
+      "observedManagedMembers": 4,
+      "sourceBasis": {
+        "kind": "actual-embedded-commit-and-primary-Git-commit-object",
+        "primarySource": "https://api.github.com/repos/dotnet/roslyn/git/commits/8de9e4b2beba5b7c0edd6f1e6a4f192a51fdc872",
+        "tree": "21f2a3ce6e3dfc87c2c40f7855f4c10daa30aa11"
+      }
+    },
+    {
+      "name": "sdk5-source-corefx-9688ddbb62c0",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "9688ddbb62c04189cac4c4a06e31e93377dccd41",
+      "observedManagedMembers": 28,
+      "sourceBasis": {
+        "kind": "actual-embedded-commit-and-primary-Git-commit-object",
+        "primarySource": "https://api.github.com/repos/dotnet/corefx/git/commits/9688ddbb62c04189cac4c4a06e31e93377dccd41",
+        "tree": "8ca9825a77cd229f9064125ae47359f42c3c4610"
+      }
+    },
+    {
+      "name": "sdk5-source-filesystem-96bf83a6c1ab",
+      "repository": "https://github.com/aspnet/filesystem",
+      "commit": "96bf83a6c1ab6f6801130150c27282c49030c8e1",
+      "observedManagedMembers": 1,
+      "sourceBasis": {
+        "kind": "previously-reviewed-exact-same-Git-commit-and-repository",
+        "executesSdk6Policy": false
+      }
+    },
+    {
+      "name": "sdk5-source-vstest-99b911a57a02",
+      "repository": "https://github.com/microsoft/vstest",
+      "commit": "99b911a57a02fc5d2eeef23e9ab8cbea4505678b",
+      "observedManagedMembers": 301,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "https://github.com/microsoft/vstest",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.TestPlatform.Build",
+            "version": "16.9.4",
+            "sha256": "698dfd93e6b1758d1f264d596f20bb30acbecdd0c27fa6adfcfa813fe3fde5ac"
+          },
+          {
+            "repository": "https://github.com/microsoft/vstest",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.TestPlatform.Build",
+            "version": "16.9.4-dev",
+            "sha256": "cb201fec17a544c9a839da3a389dd3965ee4605c86770eea8f0b7b872fd4169e"
+          },
+          {
+            "repository": "https://github.com/microsoft/vstest",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.TestPlatform.CLI",
+            "version": "16.9.4",
+            "sha256": "cbe7580ec1996d0b243d7616d7269ff0b7af89270cd5d8a3fe7d3634b85df5a0"
+          },
+          {
+            "repository": "https://github.com/microsoft/vstest",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.TestPlatform.CLI",
+            "version": "16.9.4-dev",
+            "sha256": "42cf8fc23db8701e795bdc506a2b94b2556d5f2b11a414b159b4c6cb9b7547c5"
+          },
+          {
+            "repository": "https://github.com/microsoft/vstest",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.NET.Test.Sdk"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-linker-a3cca7a168d8",
+      "repository": "https://github.com/dotnet/linker",
+      "commit": "a3cca7a168d83444e833eceac61e721f97d5cfb2",
+      "observedManagedMembers": 3,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "https://github.com/dotnet/linker",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.NET.ILLink.Tasks",
+            "version": "5.0.0-rtm.21519.5",
+            "sha256": "d09c32035492de2cd606eef4bc63faa1605c951f534a19ba710bb6f11f94e0bb"
+          },
+          {
+            "repository": "https://github.com/dotnet/linker",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.NET.ILLink.Tasks"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-standard-a5b5f2e1e369",
+      "repository": "https://github.com/dotnet/standard",
+      "commit": "a5b5f2e1e369972c8ff1e2183979fab6099f52ef",
+      "observedManagedMembers": 121,
+      "sourceBasis": {
+        "kind": "previously-reviewed-exact-same-Git-commit-and-repository",
+        "executesSdk6Policy": false
+      }
+    },
+    {
+      "name": "sdk5-source-runtime-b02e13abab3d",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "b02e13abab3d6f499751af2ad1ae6333fb4e633d",
+      "observedManagedMembers": 1,
+      "sourceBasis": {
+        "kind": "previously-reviewed-exact-same-Git-commit-and-repository",
+        "executesSdk6Policy": false
+      }
+    },
+    {
+      "name": "sdk5-source-runtime-b143003882d7",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "b143003882d7fd3e93927363c3f4ac33b340bf65",
+      "observedManagedMembers": 4,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "System.Security.Cryptography.ProtectedData",
+            "version": "5.0.0-preview.7.20307.4",
+            "sha256": "f5b0074909943de5d2b4e12b72750b2cdc918df80b12380e49c7d5a667845558"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-runtime-c636bbdc8a2d",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "c636bbdc8a2d393d07c0e9407a4f8923ba1a21cb",
+      "observedManagedMembers": 1,
+      "sourceBasis": {
+        "kind": "actual-embedded-commit-and-primary-Git-commit-object",
+        "primarySource": "https://api.github.com/repos/dotnet/runtime/git/commits/c636bbdc8a2d393d07c0e9407a4f8923ba1a21cb",
+        "tree": "8c7d3457221868adbe6b86ab694def3072c0db55",
+        "originalAspnetDependencies": [
+          {
+            "name": "System.Diagnostics.EventLog",
+            "version": "5.0.1",
+            "uri": "https://dev.azure.com/dnceng/internal/_git/dotnet-runtime",
+            "sha": "c636bbdc8a2d393d07c0e9407a4f8923ba1a21cb"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-runtime-cf258a14b70a",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "cf258a14b70ad9069470a108f13765e0e5988f51",
+      "observedManagedMembers": 253,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.Bcl.AsyncInterfaces",
+            "version": "5.0.0",
+            "sha256": "6e92637094944991f419e397a19235db151039fd9246dc46eec655d1d592e532"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.Extensions.DependencyModel",
+            "version": "5.0.0",
+            "sha256": "bd4c0058cc5788c5be24e8901397dc27270e7c92733bcec449802c10fb0faad6"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "System.Collections.Immutable",
+            "version": "5.0.0",
+            "sha256": "19dc122232cc334b957c4e7a55448b54d8295b407ffe809e4858fcfe14a56ccf"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "System.Reflection.Metadata",
+            "version": "5.0.0",
+            "sha256": "5a8f8c8aa85c3fd750e8db851ab413c3a8696c9391170a7e4c1353ab6ca11a9f"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "System.Runtime.CompilerServices.Unsafe",
+            "version": "5.0.0",
+            "sha256": "9de0114a92cf5333f110a849470a01ce13f12be70a222b4bc7b58162772c620a"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.NETCore.Platforms",
+            "version": "5.0.0",
+            "sha256": "2c8720d52b437102cf380069e0945722cf37eddef3d226bafbefb7485de39757"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "System.CodeDom",
+            "version": "5.0.0",
+            "sha256": "50dab23eb2bd7ac854e64809ba4bcf6a691ac4b029f41991fc9db63a3117fa93"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "System.Formats.Asn1",
+            "version": "5.0.0",
+            "sha256": "f672f774de30fdd678f56d690a44e346a666e8387498c544c4dba781c047acab"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "System.Resources.Extensions",
+            "version": "5.0.0",
+            "sha256": "d2766cfee9b78efbc1f93a5198b9bbc40a70d5e24db42ce11fc44f6c2f6f5f6c"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "System.Security.Cryptography.Cng",
+            "version": "5.0.0",
+            "sha256": "9ce24fdef76641a600d3b4c8dfbdcebd95fab96b211138a9be2e4aa4bee8131a"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "System.Security.Cryptography.Pkcs",
+            "version": "5.0.0",
+            "sha256": "92afedbd84126b6e26292be29052b67ca5009dec522f83cee0b90fa69aad6241"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "System.Text.Encoding.CodePages",
+            "version": "5.0.0",
+            "sha256": "609e6326a9153e9fba7c4cd25ce9b0d6c352772801e51c7b4c9d13acd4bfc2ae"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "System.Text.Encodings.Web",
+            "version": "5.0.0",
+            "sha256": "21872d0447a59c341b0d33c9874c9f151b9c010bcf9176b29a6b30598c7f9790"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "System.Text.Json",
+            "version": "5.0.0",
+            "sha256": "7a92fc825099667b205be75c995b6c617d2e674f09be1933ae2f63f351a0efbe"
+          },
+          {
+            "repository": "git://github.com/dotnet/runtime",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.NETCore.App.Ref",
+            "version": "5.0.0",
+            "sha256": "910f30a51e1cad6a2acbf8ebb246addf863736bde76f1a12a443cc9f1c9cc2dc"
+          },
+          {
+            "repository": "https://github.com/dotnet/runtime",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.NETCore.App.Ref"
+          },
+          {
+            "repository": "https://github.com/dotnet/runtime",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "VS.Redist.Common.NetCore.TargetingPack.x64.5.0"
+          },
+          {
+            "repository": "https://github.com/dotnet/runtime",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.Extensions.DependencyModel"
+          },
+          {
+            "repository": "https://github.com/dotnet/runtime",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "System.CodeDom"
+          },
+          {
+            "repository": "https://github.com/dotnet/runtime",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "System.Security.Cryptography.ProtectedData"
+          },
+          {
+            "repository": "https://github.com/dotnet/runtime",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "System.Text.Encoding.CodePages"
+          },
+          {
+            "repository": "https://github.com/dotnet/runtime",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "System.Resources.Extensions"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-nuget.client-d525b0e670f3",
+      "repository": "https://github.com/nuget/nuget.client",
+      "commit": "d525b0e670f3b6cbd5c73a35f04730a9f658c852",
+      "observedManagedMembers": 59,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.Build.NuGetSdkResolver",
+            "version": "5.9.1-rc.8",
+            "sha256": "c65b07aa5aa271c9bc2e8dc49b8e4c8213b5e93895832268388f9daac1261a3e"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.Build.Tasks",
+            "version": "5.9.1-rc.8",
+            "sha256": "afdb634f8c480eae317bb4215a3dfe6ae82f6a1918493f8b167bbfac06c820ef"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.Build.Tasks.Console",
+            "version": "5.9.1-rc.8",
+            "sha256": "3481cc88957bba3b303ce51ead94a997bcc7b78a85929c0a2d1dbe99bff88229"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.Build.Tasks.Pack",
+            "version": "5.9.1-rc.8",
+            "sha256": "660e5c1169cec105483de791513997a4648ee6b43f9c3d130da137211dcf7bf2"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.CommandLine.XPlat",
+            "version": "5.9.1-rc.8",
+            "sha256": "9a8ec13cac6cb58d8e59b7562b4a3555a857c6a60d4e8d7213852e5e6bc43660"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.Commands",
+            "version": "5.9.1-rc.8",
+            "sha256": "2c8bfc2ac3527ab3a9a9167e36bf474d69e13cd3f5256975b3e40d3b1ba2b488"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.Common",
+            "version": "5.9.1-rc.8",
+            "sha256": "aadd6c8a07c42c82e787f815bd707a4c20a17fb3b3c62d7f45e8faeacb981db2"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.Configuration",
+            "version": "5.9.1-rc.8",
+            "sha256": "ec326bb9a80369647b6529bf294f6eca4ceb5f216132d584513d157f06c46820"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.Credentials",
+            "version": "5.9.1-rc.8",
+            "sha256": "d6fc6f99c64ca641773d5788efd1532a25414e46ef6451e1ab5e2fd2fc1997e6"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.DependencyResolver.Core",
+            "version": "5.9.1-rc.8",
+            "sha256": "e532913abcd389c6b7e015df7dc86e5b1858807045dc90d764d298c5b75537b9"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.Frameworks",
+            "version": "5.9.1-rc.8",
+            "sha256": "515b18a28c3c43d4e155221b8b708b51d322137e43ea87afbd65a1fe941ce696"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.LibraryModel",
+            "version": "5.9.1-rc.8",
+            "sha256": "bebcfeb980de2c7a294dc85b5ff92fd7c8930ec333625f0da51a99c4f8d75582"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.PackageManagement",
+            "version": "5.9.1-rc.8",
+            "sha256": "86852d208d95501f0bf9298170f8daaefef6763c197beb281e22689f3815b345"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.Packaging",
+            "version": "5.9.1-rc.8",
+            "sha256": "ce68775c4f6453a76a2d0ebb89f0886a4c2256b53352d8623e00edc93a5d6295"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.Packaging.Core",
+            "version": "5.9.1-rc.8",
+            "sha256": "ddd5bb3ef3e84f5fa3b26b70f61e58966ebeacc1250af9cfe0c77c6906e7e650"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.ProjectModel",
+            "version": "5.9.1-rc.8",
+            "sha256": "0a91b8bae7edc76567e838134bb96cab83b028373daacf601c46fb6341c27817"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.Protocol",
+            "version": "5.9.1-rc.8",
+            "sha256": "370a04901c05adeb952aabf17da3b93f036767b5e71a86a6d373b496f0359472"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.Resolver",
+            "version": "5.9.1-rc.8",
+            "sha256": "db6ebba56bdd50673bc97ddd6443edbf442daa9cb5a8f9f99a651cbf8e6331e3"
+          },
+          {
+            "repository": "https://github.com/NuGet/NuGet.Client",
+            "evidence": "actual-nuspec",
+            "package": "NuGet.Versioning",
+            "version": "5.9.1-rc.8",
+            "sha256": "00f32192d29977cabe1982c1eab3c81ae09f8b7df3ed4a94160d7130ef1745b7"
+          },
+          {
+            "repository": "https://github.com/nuget/nuget.client",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "NuGet.Build.Tasks"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sdk5-source-roslyn-f8111b17631a",
+      "repository": "https://github.com/dotnet/roslyn",
+      "commit": "f8111b17631aa5e2703dc11acd671c6ea22c3af1",
+      "observedManagedMembers": 59,
+      "sourceBasis": {
+        "kind": "actual-nuspec-or-original-sdk-Version.Details",
+        "declarations": [
+          {
+            "repository": "https://github.com/dotnet/roslyn",
+            "evidence": "actual-nuspec",
+            "package": "Microsoft.Net.Compilers.Toolset",
+            "version": "3.9.0-6.21273.1",
+            "sha256": "a6cb4b5ef2d176e27325bedebc710062e71c4554eac859bf604a1b9852fed7ba"
+          },
+          {
+            "repository": "https://github.com/dotnet/roslyn",
+            "evidence": "sdk-Version.Details.xml",
+            "package": "Microsoft.Net.Compilers.Toolset"
+          }
+        ]
+      }
+    }
+  ],
+  "excludedNonGitMarkers": [
+    {
+      "commit": "b7f182415927d3b98445d043e1680c56b9d1f17c",
+      "files": 80,
+      "reason": "Framework implementation/forwarder package marker; requires its own exact package/member/preferred-source evidence, not an invented Git commit"
+    }
+  ],
+  "metadataAbsentMembersRequireOwnEvidence": true,
+  "packageRepositoryMetadataAloneEstablishesCodeSource": false,
+  "sourceAdmissionAllowed": false,
+  "qualificationAllowed": false,
+  "acquisition": {
+    "primaryRoots": 40,
+    "recursiveRoots": 48,
+    "originalFiles": 764885,
+    "compilerWorktreesRewritten": false,
+    "sourceRoots": [
+      {
+        "name": "sdk5-source-aspnetcore-02c6de4ba602",
+        "commit": "02c6de4ba6022025fcda7581415f310f8c73cdc3",
+        "tree": "5f3c6a22910816d0aaa6475c8d8ee7d90957c3a4",
+        "files": 19801,
+        "licenses": [
+          {
+            "path": "LICENSE.txt",
+            "bytes": 11357,
+            "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.txt",
+            "bytes": 15732,
+            "sha256": "700e0a954f6bec7aa98eb1399931145a4a7e95ca0acf81220282ca50bc5b6ba4"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-aspnetcore-02c6de4ba602-sub-bbfb13e4bdb2",
+        "commit": "1fd19e6cc1a58bce9153933324164ec80ed560cf",
+        "tree": "a3f0c98a7b5228bd492d8ea3ddc4b65a8f2c3bd1",
+        "files": 480,
+        "licenses": [
+          {
+            "path": "LICENSE",
+            "bytes": 2418,
+            "sha256": "0f23b145dc37db212c51c77877e0959d46e6b5b41d94ab643eb5c77b61a0d2cb"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-aspnetcore-02c6de4ba602-sub-a49bbad444d4",
+        "commit": "af29db7ec28d6df1c7f0f745186884091e602e07",
+        "tree": "09d0515602204655c233d87c6e19d4f609b3486a",
+        "files": 242,
+        "licenses": [
+          {
+            "path": "LICENSE",
+            "bytes": 1475,
+            "sha256": "9702de7e4117a8e2b20dafab11ffda58c198aede066406496bef670d40a22138"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-aspnetcore-371a26f07b23",
+        "commit": "371a26f07b23ad77c636332c2dfc0cbd1d8137ba",
+        "tree": "346e94f352aab63ced4a00523ff3ae523eb5a633",
+        "files": 19930,
+        "licenses": [
+          {
+            "path": "LICENSE.txt",
+            "bytes": 11357,
+            "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.txt",
+            "bytes": 15732,
+            "sha256": "700e0a954f6bec7aa98eb1399931145a4a7e95ca0acf81220282ca50bc5b6ba4"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-aspnetcore-371a26f07b23-sub-bbfb13e4bdb2",
+        "commit": "a4a14ce447e4ef694af1a485fb672db35e766111",
+        "tree": "068350b699a0e205f0e816c0e6abcf518dc61ff5",
+        "files": 481,
+        "licenses": [
+          {
+            "path": "LICENSE",
+            "bytes": 2418,
+            "sha256": "0f23b145dc37db212c51c77877e0959d46e6b5b41d94ab643eb5c77b61a0d2cb"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-aspnetcore-371a26f07b23-sub-a49bbad444d4",
+        "commit": "4e4df226fc197c0dda6e37f5c8c3845ca1e73a49",
+        "tree": "4a2d3a55fe9a6117f12922522adc91057226c437",
+        "files": 318,
+        "licenses": [
+          {
+            "path": "LICENSE",
+            "bytes": 1475,
+            "sha256": "9702de7e4117a8e2b20dafab11ffda58c198aede066406496bef670d40a22138"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-clicommandlineparser-0e89c2116ad2",
+        "commit": "0e89c2116ad28e404ba56c14d1c3f938caa25a01",
+        "tree": "9609784d07812d68cf4b8609a75062b4978f1ca0",
+        "files": 146,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1104,
+            "sha256": "37b5632ea7e540ae00162ce68d560665cbecf4199a17f01f7d4f703b83d8961e"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-command-line-api-0581713635ab",
+        "commit": "0581713635ab5930125c47d8a384d6594679849e",
+        "tree": "935ec1780473672b9a51e1d39447f4730ba90323",
+        "files": 541,
+        "licenses": [
+          {
+            "path": "LICENSE.md",
+            "bytes": 1115,
+            "sha256": "58fd5ebf25d75b5bb5f4cd407a9fef3befd3641e1af90a1d0716618e6430fc19"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-common-4f17c0aaa62b",
+        "commit": "4f17c0aaa62b4608ee9ae8c33dee3944383d36f2",
+        "tree": "826dae2a9bd5fbfae9d7c2b7463dc0d9140f1898",
+        "files": 118,
+        "licenses": [
+          {
+            "path": "LICENSE.txt",
+            "bytes": 575,
+            "sha256": "6c9045c1cf391713484e2b7ee3e766ceae5f4696c111abaf53ed5e23e129ce24"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-corefx-02b11eeee1fb",
+        "commit": "02b11eeee1fbc5f3ef43a1452fe07efd25fa1715",
+        "tree": "16ba0636a1eb15622275cf6332a53b0f5c412544",
+        "files": 18683,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1116,
+            "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 15526,
+            "sha256": "06cf69d8c3f1170895d57ce881d3e0ab22676fc2cfa41459d035c4f699f2fa83"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-corefx-0f7f38c4fd32",
+        "commit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+        "tree": "4ccff6a4546fb54fe63c8a4ee6bd5110b4bd22e0",
+        "files": 20830,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1116,
+            "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 18511,
+            "sha256": "c5859ea3599a4fab9ab4d490b8e342fbc1ecd009bd73421c94eecaec3f8e87e5"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-corefx-30ab651fcb43",
+        "commit": "30ab651fcb4354552bd4891619a0bdd81e0ebdbf",
+        "tree": "8fc3ff70e6889bb67b3c86eafabc8c7ec4d2fcc0",
+        "files": 18677,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1116,
+            "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 15526,
+            "sha256": "06cf69d8c3f1170895d57ce881d3e0ab22676fc2cfa41459d035c4f699f2fa83"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-corefx-4ac4c0367003",
+        "commit": "4ac4c0367003fe3973a3648eb0715ddb0e3bbcea",
+        "tree": "6678bf2e078a916d75d17ddb219d590475022476",
+        "files": 20822,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1116,
+            "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 18511,
+            "sha256": "c5859ea3599a4fab9ab4d490b8e342fbc1ecd009bd73421c94eecaec3f8e87e5"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-corefx-4d1af962ca0f",
+        "commit": "4d1af962ca0fede10beb01d197367c2f90e92c97",
+        "tree": "73ef6817341be03c62fb97b1b9704a960c6377c1",
+        "files": 10597,
+        "licenses": [
+          {
+            "path": "LICENSE",
+            "bytes": 1094,
+            "sha256": "18647d26bc4c4d892a5fd29de1264d10906b3124cafa98313300ff300441c7f0"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES",
+            "bytes": 3672,
+            "sha256": "28f39f3ef955042b0908fd762bdfd511ff8c3fc0f4ccb357f6998a5f0ea102af"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-corefx-7601f4f62250",
+        "commit": "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
+        "tree": "711a0cab00d055132c81d1b483e05c021419ec7a",
+        "files": 18691,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1116,
+            "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 15526,
+            "sha256": "06cf69d8c3f1170895d57ce881d3e0ab22676fc2cfa41459d035c4f699f2fa83"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-corefx-8321c729934c",
+        "commit": "8321c729934c0f8be754953439b88e6e1c120c24",
+        "tree": "c19049409e3596a11e85b8426aa63469d2c94e17",
+        "files": 15141,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1116,
+            "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 11365,
+            "sha256": "a8bc8b3b6cababd6da43e4c776a77cceb4859eb4df06d5e5da2aabb22d19542d"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-corefx-9688ddbb62c0",
+        "commit": "9688ddbb62c04189cac4c4a06e31e93377dccd41",
+        "tree": "8ca9825a77cd229f9064125ae47359f42c3c4610",
+        "files": 10226,
+        "licenses": [
+          {
+            "path": "LICENSE",
+            "bytes": 1094,
+            "sha256": "18647d26bc4c4d892a5fd29de1264d10906b3124cafa98313300ff300441c7f0"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES",
+            "bytes": 3672,
+            "sha256": "28f39f3ef955042b0908fd762bdfd511ff8c3fc0f4ccb357f6998a5f0ea102af"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-diagnostics-47296ca69bb6",
+        "commit": "47296ca69bb66180c132f3b16667f904dfc7c6c7",
+        "tree": "0c3e1f9a2926fe7de2892c5ad550e5f6801a7466",
+        "files": 1693,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1116,
+            "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 14108,
+            "sha256": "42acfc5de22649bbd38f4a9df92a4b588792d52f2366cb510f0e6a8b1dc7d840"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-filesystem-96bf83a6c1ab",
+        "commit": "96bf83a6c1ab6f6801130150c27282c49030c8e1",
+        "tree": "fbc3ed70f576944da070b06a0376d6672b9c5ce0",
+        "files": 143,
+        "licenses": [
+          {
+            "path": "LICENSE.txt",
+            "bytes": 575,
+            "sha256": "6c9045c1cf391713484e2b7ee3e766ceae5f4696c111abaf53ed5e23e129ce24"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-fsharp-7ce7132f1459",
+        "commit": "7ce7132f1459095e635194d09d6f73265352029a",
+        "tree": "83ac7531a9d8b0706d7670df5f12bd8519008f47",
+        "files": 10201,
+        "licenses": [
+          {
+            "path": "License.txt",
+            "bytes": 1106,
+            "sha256": "480d420fd388a3ce0cecb73d79aee3f02f70fee060e95f4727b1335feff33201"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-linker-a3cca7a168d8",
+        "commit": "a3cca7a168d83444e833eceac61e721f97d5cfb2",
+        "tree": "356f564a98276b6e1c228da28f84b40301c4965d",
+        "files": 1422,
+        "licenses": [
+          {
+            "path": "LICENSE",
+            "bytes": 1115,
+            "sha256": "ae48df11a335dc1a615f4f938b69cba73bcf4485c4f97af49b38efb0f216353b"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-linker-a3cca7a168d8-sub-40dcc83e79b5",
+        "commit": "75fc419764f239dcdd679657316e6eae31e04dc2",
+        "tree": "3763e97908a4405eefffbcb636e3a3ce06bcd23f",
+        "files": 376,
+        "licenses": [
+          {
+            "path": "LICENSE.txt",
+            "bytes": 1098,
+            "sha256": "13d58ecbed676511c0c4c4009bff107025e50007ff5e7901dc562700ec62509e"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-msbuild-57a23d249aaf",
+        "commit": "57a23d249aafe6409b3e24836a486f769cb74c2c",
+        "tree": "121ec6d5e47964fbfefc484f7a3d6c0f3aaf2b04",
+        "files": 2259,
+        "licenses": [
+          {
+            "path": "LICENSE",
+            "bytes": 1117,
+            "sha256": "9aebac42398b50e652a84a7b92d70e85cd1a9c8746558a743dc6cec11b8d7d3e"
+          },
+          {
+            "path": "THIRDPARTYNOTICES.txt",
+            "bytes": 1983,
+            "sha256": "1b558b1506eff1c66d76ec2ae80592dff268512647f499113f27d36f7e3f6a02"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-msbuild-5e4b48a27efc",
+        "commit": "5e4b48a27efce55a613664b58d353ab4c8d1f6c1",
+        "tree": "c03699431763733c5dbb7285e318774da2504f2f",
+        "files": 2259,
+        "licenses": [
+          {
+            "path": "LICENSE",
+            "bytes": 1117,
+            "sha256": "9aebac42398b50e652a84a7b92d70e85cd1a9c8746558a743dc6cec11b8d7d3e"
+          },
+          {
+            "path": "THIRDPARTYNOTICES.txt",
+            "bytes": 1983,
+            "sha256": "1b558b1506eff1c66d76ec2ae80592dff268512647f499113f27d36f7e3f6a02"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-msbuild-5ff7b0c9e829",
+        "commit": "5ff7b0c9e829bb22e21e1738b42c7fcef051dfb2",
+        "tree": "ba0b38a107bf17f1e5b0cc42afc31e8653283a25",
+        "files": 2199,
+        "licenses": [
+          {
+            "path": "LICENSE",
+            "bytes": 1117,
+            "sha256": "9aebac42398b50e652a84a7b92d70e85cd1a9c8746558a743dc6cec11b8d7d3e"
+          },
+          {
+            "path": "THIRDPARTYNOTICES.txt",
+            "bytes": 1983,
+            "sha256": "1b558b1506eff1c66d76ec2ae80592dff268512647f499113f27d36f7e3f6a02"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-newtonsoft.json-4ab34b0461fb",
+        "commit": "4ab34b0461fb595805d092a46a58f35f66c84d6a",
+        "tree": "07fe8c8e5527bb061eef1fce578af556411c8687",
+        "files": 1127,
+        "licenses": [
+          {
+            "path": "LICENSE.md",
+            "bytes": 1084,
+            "sha256": "d7f83bbea3264a8e23d7739e44d9db1a4994b357274df6f00876eb2e623827ad"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-nuget.client-d525b0e670f3",
+        "commit": "d525b0e670f3b6cbd5c73a35f04730a9f658c852",
+        "tree": "196d72db5e574cf7ca35f53d0113fb1bcc5cb847",
+        "files": 4773,
+        "licenses": [
+          {
+            "path": "LICENSE.txt",
+            "bytes": 594,
+            "sha256": "f1e3c903178e459ebd0c25d2dc65ebf11163c0a0d3ae46690943dffd5813040e"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.txt",
+            "bytes": 40645,
+            "sha256": "e8382927810042cae65e7bf20457283ba11ed5217a9ef9068bcbc283fa0c56fb"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-nuget.client-d525b0e670f3-sub-b3f116767ae0",
+        "commit": "e6fac8061686c18531e2621ccef97dd5e0687a65",
+        "tree": "11c9e8afb728e49c161c02a6d05b17bea009aacd",
+        "files": 69,
+        "licenses": [
+          {
+            "path": "LICENSE.txt",
+            "bytes": 575,
+            "sha256": "6c9045c1cf391713484e2b7ee3e766ceae5f4696c111abaf53ed5e23e129ce24"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-nuget.client-d525b0e670f3-sub-72f42d6fc834",
+        "commit": "f1f3f0820a573b96b2faaf5b7e6be9a036e4c7aa",
+        "tree": "2b74396a18f39043faa686296473c383b86f6bc7",
+        "files": 109,
+        "licenses": [
+          {
+            "path": "LICENSE.txt",
+            "bytes": 575,
+            "sha256": "6c9045c1cf391713484e2b7ee3e766ceae5f4696c111abaf53ed5e23e129ce24"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-nuget.client-d525b0e670f3-sub-ce10f248a375",
+        "commit": "f15db7b7c6f5affbea268632ef8333d2687c8031",
+        "tree": "4b825dc642cb6eb9a060e54bf8d69288fbee4904",
+        "files": 0,
+        "licenses": []
+      },
+      {
+        "name": "sdk5-source-roslyn-4c195c3ac197",
+        "commit": "4c195c3ac1974edcefa76774d7a59a2350ec55fa",
+        "tree": "b2f3cc606846765b830b6841d8078d7a5443d314",
+        "files": 15487,
+        "licenses": [
+          {
+            "path": "License.txt",
+            "bytes": 1115,
+            "sha256": "ae48df11a335dc1a615f4f938b69cba73bcf4485c4f97af49b38efb0f216353b"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.txt",
+            "bytes": 4928,
+            "sha256": "e7a615b3761dbbbf21da3171313e7c4eb2aeee6b4d423d465f194b0e2a03550e"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-roslyn-8de9e4b2beba",
+        "commit": "8de9e4b2beba5b7c0edd6f1e6a4f192a51fdc872",
+        "tree": "21f2a3ce6e3dfc87c2c40f7855f4c10daa30aa11",
+        "files": 15487,
+        "licenses": [
+          {
+            "path": "License.txt",
+            "bytes": 1115,
+            "sha256": "ae48df11a335dc1a615f4f938b69cba73bcf4485c4f97af49b38efb0f216353b"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.txt",
+            "bytes": 4928,
+            "sha256": "e7a615b3761dbbbf21da3171313e7c4eb2aeee6b4d423d465f194b0e2a03550e"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-roslyn-analyzers-294f95cd91a3",
+        "commit": "294f95cd91a33365aa80117421aed139d8fe5a75",
+        "tree": "c922f5b93a3e6f9878379119cc5cf5345a67cbff",
+        "files": 2032,
+        "licenses": [
+          {
+            "path": "License.txt",
+            "bytes": 11358,
+            "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+          },
+          {
+            "path": "CopyrightHeader.md",
+            "bytes": 161,
+            "sha256": "e90bbcf2cf8ad8bc67d85a024c87c05ed81ec1b008b44fd6e48c026dc535ddd4"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.txt",
+            "bytes": 3585,
+            "sha256": "2d7cac2519ca0ac590c9740cbd03f5fd921a6e4f3b4fd6ced3bc1e90a6684161"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-roslyn-f8111b17631a",
+        "commit": "f8111b17631aa5e2703dc11acd671c6ea22c3af1",
+        "tree": "566cdb9528481aa49dc01e8fe7d519467dacb219",
+        "files": 15810,
+        "licenses": [
+          {
+            "path": "License.txt",
+            "bytes": 1115,
+            "sha256": "ae48df11a335dc1a615f4f938b69cba73bcf4485c4f97af49b38efb0f216353b"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.txt",
+            "bytes": 4928,
+            "sha256": "e7a615b3761dbbbf21da3171313e7c4eb2aeee6b4d423d465f194b0e2a03550e"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-runtime-2f740adc1457",
+        "commit": "2f740adc1457e8a28c1c072993b66f515977eb51",
+        "tree": "d4a1c37f100f343835f8bd13cf384a01a33c4a1e",
+        "files": 56709,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1116,
+            "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 43395,
+            "sha256": "723c221df67cb638f983d38e01c30a8975a8c184d2351bb874b5b1e05e01d4fc"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-runtime-3065735be79d",
+        "commit": "3065735be79d6b7d17e8e3a723115810b43c9b3a",
+        "tree": "560d5ec8dc053ae0e391bd1600f099714f6bd286",
+        "files": 56719,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1116,
+            "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 43395,
+            "sha256": "723c221df67cb638f983d38e01c30a8975a8c184d2351bb874b5b1e05e01d4fc"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-runtime-35964c921561",
+        "commit": "35964c9215613d66a687ebcb2d7fcd9496390ee7",
+        "tree": "07ef5cb173c923fc41ed988e8fe2059cc097af0d",
+        "files": 56712,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1116,
+            "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 43395,
+            "sha256": "723c221df67cb638f983d38e01c30a8975a8c184d2351bb874b5b1e05e01d4fc"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-runtime-6a984143635b",
+        "commit": "6a984143635bde23e728abaaccbde52f5ea8fa3e",
+        "tree": "40ca76ac8df97a2ee75519a1ec821957007449f0",
+        "files": 56719,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1116,
+            "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 43395,
+            "sha256": "723c221df67cb638f983d38e01c30a8975a8c184d2351bb874b5b1e05e01d4fc"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-runtime-7211aa01b34b",
+        "commit": "7211aa01b34bb55ca67bdddd6e80ce23ee201bd2",
+        "tree": "f02d0e11ff46947fc9c507ef16cb06121b194850",
+        "files": 56713,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1116,
+            "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 43395,
+            "sha256": "723c221df67cb638f983d38e01c30a8975a8c184d2351bb874b5b1e05e01d4fc"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-runtime-b02e13abab3d",
+        "commit": "b02e13abab3d6f499751af2ad1ae6333fb4e633d",
+        "tree": "e2740b22cb6d32b9e4ceb56390112fe7cceee4b9",
+        "files": 56485,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1116,
+            "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 43395,
+            "sha256": "723c221df67cb638f983d38e01c30a8975a8c184d2351bb874b5b1e05e01d4fc"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-runtime-b143003882d7",
+        "commit": "b143003882d7fd3e93927363c3f4ac33b340bf65",
+        "tree": "83b83cf4bafe50768a7c08c11535754475ef1d12",
+        "files": 55083,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1116,
+            "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 42365,
+            "sha256": "1814b52ea9fff4140692467c60059e916db66b80f2aae000ee429f27e56a1f72"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-runtime-c636bbdc8a2d",
+        "commit": "c636bbdc8a2d393d07c0e9407a4f8923ba1a21cb",
+        "tree": "8c7d3457221868adbe6b86ab694def3072c0db55",
+        "files": 56702,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1116,
+            "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 43395,
+            "sha256": "723c221df67cb638f983d38e01c30a8975a8c184d2351bb874b5b1e05e01d4fc"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-runtime-cf258a14b70a",
+        "commit": "cf258a14b70ad9069470a108f13765e0e5988f51",
+        "tree": "6e56ba41176cabda581f7b5d62f70ab3ba083209",
+        "files": 56479,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1116,
+            "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 43395,
+            "sha256": "723c221df67cb638f983d38e01c30a8975a8c184d2351bb874b5b1e05e01d4fc"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-standard-18a36291e488",
+        "commit": "18a36291e48808fa7ef2d00a764ceb1ec95645a5",
+        "tree": "fc9ba2e6386a4b96ab9aff9ccdd8e3c3d5d2ae1e",
+        "files": 754,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1094,
+            "sha256": "18647d26bc4c4d892a5fd29de1264d10906b3124cafa98313300ff300441c7f0"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 1587,
+            "sha256": "fd880d29a522f238c178452b38cbf196bb5c0dab7ebfdc590b02b8e5019ebc71"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-standard-a5b5f2e1e369",
+        "commit": "a5b5f2e1e369972c8ff1e2183979fab6099f52ef",
+        "tree": "d8f914173942229bd7532d650c3174b3cae7e0e9",
+        "files": 1511,
+        "licenses": [
+          {
+            "path": "LICENSE.TXT",
+            "bytes": 1116,
+            "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES.TXT",
+            "bytes": 1587,
+            "sha256": "fd880d29a522f238c178452b38cbf196bb5c0dab7ebfdc590b02b8e5019ebc71"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-templating-5a6c095df390",
+        "commit": "5a6c095df390fbb5c3f232ab0adedda53d4e2206",
+        "tree": "eee10589974c0cdd9156e5a67cc1d4c7b58f4991",
+        "files": 1184,
+        "licenses": [
+          {
+            "path": "LICENSE",
+            "bytes": 1104,
+            "sha256": "25626de6ac49462ee7ce16f453746729889615bf5efb9d0b705ae645bd792eff"
+          },
+          {
+            "path": "THIRD-PARTY-NOTICES",
+            "bytes": 1138,
+            "sha256": "7faae5493d9f1df9f9a6b5788d57fda8ccf827855f2b567dd1d68b4e76e15fa7"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-vstest-99b911a57a02",
+        "commit": "99b911a57a02fc5d2eeef23e9ab8cbea4505678b",
+        "tree": "c9bcaf08d956526caf1374c9bb1340a367843604",
+        "files": 1773,
+        "licenses": [
+          {
+            "path": "LICENSE",
+            "bytes": 1065,
+            "sha256": "306b179d35ef7d9a38a4d54508e81929c9e884ad1b371f76337fb78ef23f2df9"
+          }
+        ]
+      },
+      {
+        "name": "sdk5-source-xdt-5b67dee04d86",
+        "commit": "5b67dee04d86740575f0f5022b79833213cc024a",
+        "tree": "e7f17c790d0ede422e683f8617173df0ac63f1f1",
+        "files": 172,
+        "licenses": [
+          {
+            "path": "LICENSE.txt",
+            "bytes": 11356,
+            "sha256": "43070e2d4e532684de521b885f385d0841030efa2b1a20bafb76133a5e1379c1"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,246 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "5.0.214",
+  "sources": [
+    {
+      "name": "sdk5-source-corefx-02b11eeee1fb",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "02b11eeee1fbc5f3ef43a1452fe07efd25fa1715",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-aspnetcore-02c6de4ba602",
+      "repository": "https://github.com/dotnet/aspnetcore",
+      "commit": "02c6de4ba6022025fcda7581415f310f8c73cdc3",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-command-line-api-0581713635ab",
+      "repository": "https://github.com/dotnet/command-line-api",
+      "commit": "0581713635ab5930125c47d8a384d6594679849e",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-clicommandlineparser-0e89c2116ad2",
+      "repository": "https://github.com/dotnet/clicommandlineparser",
+      "commit": "0e89c2116ad28e404ba56c14d1c3f938caa25a01",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-corefx-0f7f38c4fd32",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "0f7f38c4fd323b26da10cce95f857f77f0f09b48",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-standard-18a36291e488",
+      "repository": "https://github.com/dotnet/standard",
+      "commit": "18a36291e48808fa7ef2d00a764ceb1ec95645a5",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-roslyn-analyzers-294f95cd91a3",
+      "repository": "https://github.com/dotnet/roslyn-analyzers",
+      "commit": "294f95cd91a33365aa80117421aed139d8fe5a75",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-runtime-2f740adc1457",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "2f740adc1457e8a28c1c072993b66f515977eb51",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-runtime-3065735be79d",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "3065735be79d6b7d17e8e3a723115810b43c9b3a",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-corefx-30ab651fcb43",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "30ab651fcb4354552bd4891619a0bdd81e0ebdbf",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-runtime-35964c921561",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "35964c9215613d66a687ebcb2d7fcd9496390ee7",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-aspnetcore-371a26f07b23",
+      "repository": "https://github.com/dotnet/aspnetcore",
+      "commit": "371a26f07b23ad77c636332c2dfc0cbd1d8137ba",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-diagnostics-47296ca69bb6",
+      "repository": "https://github.com/dotnet/diagnostics",
+      "commit": "47296ca69bb66180c132f3b16667f904dfc7c6c7",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-newtonsoft.json-4ab34b0461fb",
+      "repository": "https://github.com/JamesNK/Newtonsoft.Json",
+      "commit": "4ab34b0461fb595805d092a46a58f35f66c84d6a",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-corefx-4ac4c0367003",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "4ac4c0367003fe3973a3648eb0715ddb0e3bbcea",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-roslyn-4c195c3ac197",
+      "repository": "https://github.com/dotnet/roslyn",
+      "commit": "4c195c3ac1974edcefa76774d7a59a2350ec55fa",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-corefx-4d1af962ca0f",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "4d1af962ca0fede10beb01d197367c2f90e92c97",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-common-4f17c0aaa62b",
+      "repository": "https://github.com/aspnet/common",
+      "commit": "4f17c0aaa62b4608ee9ae8c33dee3944383d36f2",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-msbuild-57a23d249aaf",
+      "repository": "https://github.com/microsoft/msbuild",
+      "commit": "57a23d249aafe6409b3e24836a486f769cb74c2c",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-templating-5a6c095df390",
+      "repository": "https://github.com/dotnet/templating",
+      "commit": "5a6c095df390fbb5c3f232ab0adedda53d4e2206",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-xdt-5b67dee04d86",
+      "repository": "https://github.com/dotnet/xdt",
+      "commit": "5b67dee04d86740575f0f5022b79833213cc024a",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-msbuild-5e4b48a27efc",
+      "repository": "https://github.com/dotnet/msbuild",
+      "commit": "5e4b48a27efce55a613664b58d353ab4c8d1f6c1",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-msbuild-5ff7b0c9e829",
+      "repository": "https://github.com/microsoft/msbuild",
+      "commit": "5ff7b0c9e829bb22e21e1738b42c7fcef051dfb2",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-runtime-6a984143635b",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "6a984143635bde23e728abaaccbde52f5ea8fa3e",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-runtime-7211aa01b34b",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "7211aa01b34bb55ca67bdddd6e80ce23ee201bd2",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-corefx-7601f4f62250",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-fsharp-7ce7132f1459",
+      "repository": "https://github.com/dotnet/fsharp",
+      "commit": "7ce7132f1459095e635194d09d6f73265352029a",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-corefx-8321c729934c",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "8321c729934c0f8be754953439b88e6e1c120c24",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-roslyn-8de9e4b2beba",
+      "repository": "https://github.com/dotnet/roslyn",
+      "commit": "8de9e4b2beba5b7c0edd6f1e6a4f192a51fdc872",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-corefx-9688ddbb62c0",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "9688ddbb62c04189cac4c4a06e31e93377dccd41",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-filesystem-96bf83a6c1ab",
+      "repository": "https://github.com/aspnet/filesystem",
+      "commit": "96bf83a6c1ab6f6801130150c27282c49030c8e1",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-vstest-99b911a57a02",
+      "repository": "https://github.com/microsoft/vstest",
+      "commit": "99b911a57a02fc5d2eeef23e9ab8cbea4505678b",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-linker-a3cca7a168d8",
+      "repository": "https://github.com/dotnet/linker",
+      "commit": "a3cca7a168d83444e833eceac61e721f97d5cfb2",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-standard-a5b5f2e1e369",
+      "repository": "https://github.com/dotnet/standard",
+      "commit": "a5b5f2e1e369972c8ff1e2183979fab6099f52ef",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-runtime-b02e13abab3d",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "b02e13abab3d6f499751af2ad1ae6333fb4e633d",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-runtime-b143003882d7",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "b143003882d7fd3e93927363c3f4ac33b340bf65",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-runtime-c636bbdc8a2d",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "c636bbdc8a2d393d07c0e9407a4f8923ba1a21cb",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-runtime-cf258a14b70a",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "cf258a14b70ad9069470a108f13765e0e5988f51",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-nuget.client-d525b0e670f3",
+      "repository": "https://github.com/nuget/nuget.client",
+      "commit": "d525b0e670f3b6cbd5c73a35f04730a9f658c852",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "sdk5-source-roslyn-f8111b17631a",
+      "repository": "https://github.com/dotnet/roslyn",
+      "commit": "f8111b17631aa5e2703dc11acd671c6ea22c3af1",
+      "role": "source-for-serviced-imported-package"
+    }
+  ]
+}
