@@ -9,7 +9,7 @@ import sys
 from downstream_release import ordinary_file, require
 
 ROUTES = {'9.0.123': 'musl-modern-sdk.py', '8.0.133': 'musl-modern-sdk.py',
-          '7.0.120': 'musl-legacy-sdk.py'}
+          '7.0.120': 'musl-legacy-sdk.py', '6.0.136': 'musl-legacy-sdk.py'}
 
 
 def dispatch_identity(arguments):
@@ -47,8 +47,9 @@ def main():
         module('musl-modern-sdk.py').main()
         return
     command, version, release = dispatch_identity(sys.argv[1:])
-    if command == 'validate' and version == '7.0.120':
-        result = module('musl_legacy_admission.py').validate(release)
+    if command == 'validate' and version in ('7.0.120', '6.0.136'):
+        filename = 'musl_legacy6_admission.py' if version == '6.0.136' else 'musl_legacy_admission.py'
+        result = module(filename).validate(release)
         require(result.get('status') == 'passed' and result.get('sdkVersion') == version,
                 'Independent legacy producer validation did not pass')
         print(json.dumps({key: result[key] for key in ('status', 'sdkVersion', 'architecture', 'projectCommit',

@@ -122,6 +122,22 @@
       },
       "licensePaths": ["LICENSE.txt", "ThirdPartyNotices.txt"],
       "securitySupport": "community-build-no-additional-security-maintenance"
+    },
+    "6.0.136": {
+      "target": "net6-musl",
+      "producerWorkflow": ".github/workflows/musl-sdk-expand.yml",
+      "producerRevisions": [1],
+      "candidateVariants": ["alpine-3.24"],
+      "source": {
+        "sourceCommit": "d638663530d923adbe0442604b7a6562127321e9",
+        "sdkSourceCommit": "1d205826ddc14c8f868eb6373e7a6bafcb9fe5be",
+        "bootstrapSdk": "6.0.135",
+        "runtimeVersion": "6.0.36",
+        "runtimeSourceCommit": "f1dd57165bfd91875761329ac3a8b17f6606ad18",
+        "aspnetSourceCommit": "64ea4108e7dcf1ca575f8dd2028363b0b1ef6ebc"
+      },
+      "licensePaths": ["LICENSE.txt", "ThirdPartyNotices.txt"],
+      "securitySupport": "community-build-no-additional-security-maintenance"
     }
   },
   "operatingSystems": {

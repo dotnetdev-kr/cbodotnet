@@ -44,6 +44,11 @@ SOURCES = {
         bootstrapSdk='7.0.118', runtimeVersion='7.0.20',
         runtimeSourceCommit='0fb6ac59fb1edbe4ed3ad62661df0eb7eacd7903',
         aspnetSourceCommit='d9ba962869d1b1c410ea476b02de2f8e27eec762'),
+    '6.0.136': dict(sourceCommit='d638663530d923adbe0442604b7a6562127321e9',
+        sdkSourceCommit='1d205826ddc14c8f868eb6373e7a6bafcb9fe5be',
+        bootstrapSdk='6.0.135', runtimeVersion='6.0.36',
+        runtimeSourceCommit='f1dd57165bfd91875761329ac3a8b17f6606ad18',
+        aspnetSourceCommit='64ea4108e7dcf1ca575f8dd2028363b0b1ef6ebc'),
 }
 
 

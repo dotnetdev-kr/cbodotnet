@@ -652,7 +652,8 @@ def validate(args):
     release=P.ordinary(args.release_dir)
     record=json.loads((release/'producer-validation.json').read_text())
     if record.get('kind')=='musl-sdk-producer-validation':
-        module('strict_legacy_admission_cli','musl_legacy_admission.py').validate(release)
+        filename = 'musl_legacy6_admission.py' if record.get('sdkVersion') == '6.0.136' else 'musl_legacy_admission.py'
+        module('strict_legacy_admission_cli',filename).validate(release)
         for name,key in [('sdk_version','sdkVersion'),('arch','architecture'),('expected_project_commit','projectCommit'),
                          ('expected_run_id','runId'),('expected_run_attempt','runAttempt')]:
             value=getattr(args,name,None)
@@ -714,7 +715,10 @@ def main():
     if args.command=='validate':validate(args);return
     require(re.fullmatch(r'[0-9]{8}\.[1-9][0-9]*',args.build_id) and
         all(re.fullmatch('[1-9][0-9]*',value) for value in [args.run_id,args.run_attempt]),'Exact build/run identity required')
-    Producer(args).execute()
+    if args.sdk_version == '6.0.136':
+        module('isolated_sdk6_normal_producer','musl_legacy_sdk6.py').Producer(args).execute()
+    else:
+        Producer(args).execute()
 
 
 if __name__=='__main__':
