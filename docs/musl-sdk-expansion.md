@@ -122,14 +122,25 @@ official SDK files. Protected promotion replays the closed proof against the
 exact retained reference metadata and independently reconstructed candidate
 payload; a single Community series proof cannot qualify an expanded SDK.
 
-The SDK 9 regular adapter invokes its original `eng/common/build.sh -bl`, whose
-pinned scripts write `src/sdk/artifacts/log/Release/Build.binlog`. This differs
-from SDK 8's nested source-only installer log. Construction replay selects
-these two exact original paths and rejects absent or empty logs; it does not
-search for a convenient substitute. In run 42472010103 ARM64, the source build,
-original BinaryToolKit scan, all 522 common cases and all 34 scenario results
-(32 passed, 2 original skips) completed before the former log-path assumption
-stopped collection. The failed producer still needs a fresh complete run.
+The SDK 9 regular adapter invokes original Arcade tooling, whose outer
+`src/sdk/artifacts/log/Release/Build.binlog` records an `Exec` from
+`SourceBuildArcadeBuild.targets`. Its actual command adds
+`DotNetBuildInnerRepo=true` and a later
+`/bl:src/sdk/artifacts/log/Release/source-inner-build.binlog`. Construction
+replay requires that exact inner log. The outer log is separately retained,
+hashed and marked diagnostic only; it is never accepted as download evidence.
+SDK 8 retains its original nested source-only installer path. Both routes
+reject absent or empty consumer logs, with no substitute search. Complete
+successful replay and at least two actual successful `DownloadFile` tasks
+remain required, followed by the unchanged component archive/member bindings.
+
+Run 42480415265 ARM64 completed the source build, original BinaryToolKit scan,
+all 522 common cases and all 34 scenario results before collection replayed the
+outer log. Its complete 1,526-event replay succeeds but contains zero download
+tasks; typed event 62 records the original nested command. The retained 833-file
+artifact inventory has no inner SDK log, so this failure establishes the
+correct required path without retroactively validating inner consumption. A
+fresh complete producer must supply and pass the real inner-log proof.
 
 ## Original SDK 8 musl test inputs
 

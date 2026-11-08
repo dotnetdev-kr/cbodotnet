@@ -390,19 +390,22 @@ class AdditionalTargetingSupport(unittest.TestCase):
 
 
 class OriginalTestGraph(unittest.TestCase):
-    def test_consumer_log_uses_original_regular_or_source_only_build_layout(self):
-        paths = {'9.0.123': 'src/sdk/artifacts/log/Release/Build.binlog',
+    def test_consumer_log_requires_original_inner_or_source_only_build_layout(self):
+        paths = {'9.0.123': 'src/sdk/artifacts/log/Release/source-inner-build.binlog',
                  '8.0.133': 'src/installer/artifacts/source-build/self/src/artifacts/sourcebuild.binlog'}
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             wrong = root / 'src/sdk/artifacts/buildLogs/log/Release/source-inner-build.binlog'
             wrong.parent.mkdir(parents=True)
             wrong.write_bytes(b'wrong-build-route')
+            outer = root / 'src/sdk/artifacts/log/Release/Build.binlog'
+            outer.parent.mkdir(parents=True)
+            outer.write_bytes(b'successful-outer-orchestrator-with-no-download-tasks')
             for sdk, relative in paths.items():
                 with self.assertRaisesRegex(ValueError, 'Actual original SDK consumer'):
                     M.consumer_binlog(root, sdk)
                 expected = root / relative
-                expected.parent.mkdir(parents=True)
+                expected.parent.mkdir(parents=True, exist_ok=True)
                 expected.touch()
                 with self.assertRaisesRegex(ValueError, 'Actual original SDK consumer'):
                     M.consumer_binlog(root, sdk)
@@ -410,6 +413,26 @@ class OriginalTestGraph(unittest.TestCase):
                 self.assertEqual(expected, M.consumer_binlog(root, sdk))
             with self.assertRaisesRegex(ValueError, 'Unreviewed'):
                 M.consumer_binlog(root, '7.0.120')
+
+    def test_sdk9_outer_diagnostic_is_preserved_before_missing_inner_log_fails(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            producer = M.Producer.__new__(M.Producer)
+            producer.sdk = '9.0.123'
+            producer.source = root / 'source'
+            producer.reports = root / 'reports'
+            outer = producer.source / 'src/sdk/artifacts/log/Release/Build.binlog'
+            outer.parent.mkdir(parents=True)
+            original = b'actual-outer-exec-invokes-separate-inner-build'
+            outer.write_bytes(original)
+            with self.assertRaisesRegex(ValueError, 'Actual original SDK consumer'):
+                producer.replay_construction()
+            report = producer.reports / 'construction'
+            self.assertEqual(original, (report / 'orchestrator.binlog').read_bytes())
+            receipt = json.loads((report / 'orchestrator.json').read_text())
+            self.assertIs(receipt['diagnosticOnly'], True)
+            self.assertEqual(hashlib.sha256(original).hexdigest(), receipt['sha256'])
+            self.assertFalse((report / 'consumer.binlog').exists())
 
     def test_net8_missing_tests_or_new_skips_fail(self):
         with tempfile.TemporaryDirectory() as temporary:

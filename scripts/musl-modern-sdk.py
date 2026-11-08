@@ -42,8 +42,10 @@ def module(name, filename):
 
 def consumer_binlog(source, sdk):
     require(sdk in R.VERSIONS, 'Unreviewed original SDK consumer log route')
+    # NET9's outer Arcade build launches the actual repository build with a
+    # separate /bl in SourceBuildArcadeBuild.targets. DownloadFile runs there.
     relative = ('src/installer/artifacts/source-build/self/src/artifacts/sourcebuild.binlog'
-                if sdk.startswith('8.') else 'src/sdk/artifacts/log/Release/Build.binlog')
+                if sdk.startswith('8.') else 'src/sdk/artifacts/log/Release/source-inner-build.binlog')
     path = ordinary(source / relative)
     require(path.is_file() and path.stat().st_size > 0, 'Actual original SDK consumer binlog required')
     return path
@@ -866,9 +868,19 @@ class Producer(P.Producer):
 
     def replay_construction(self):
         """Retain/replay actual installer DownloadFile tasks using the native bootstrap."""
-        source = consumer_binlog(self.source, self.sdk)
         report = self.reports / 'construction'
         report.mkdir(parents=True)
+        if self.sdk.startswith('9.'):
+            outer = ordinary(self.source / 'src/sdk/artifacts/log/Release/Build.binlog')
+            require(outer.is_file() and outer.stat().st_size > 0, 'Actual original SDK orchestrator binlog required')
+            shutil.copyfile(outer, report / 'orchestrator.binlog')
+            require(fingerprint(outer) == fingerprint(report / 'orchestrator.binlog'),
+                    'Original SDK orchestrator diagnostic copy differs')
+            write(report / 'orchestrator.json', dict(sdkVersion=self.sdk, diagnosticOnly=True,
+                originalRelativePath=outer.relative_to(self.source).as_posix(),
+                retained='orchestrator.binlog', **fingerprint(outer),
+                scope='Outer Arcade Exec records the separate source-inner-build.binlog; this is not DownloadFile consumption proof'))
+        source = consumer_binlog(self.source, self.sdk)
         shutil.copyfile(source, report / 'consumer.binlog')
         analysis = report / 'analysis'
         shutil.copytree(ROOT / 'scripts/musl-modern-reader', analysis)
