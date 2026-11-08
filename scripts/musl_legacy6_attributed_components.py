@@ -135,17 +135,27 @@ def prepare(packages, destination):
         sourceAdmissionAllowed=False, qualificationAllowed=False)
 
 
+def source_roots(manifest, declared):
+    """Select the one pristine source role while retaining compiler Gitlinks."""
+    roots = {}
+    for role, expected in declared.items():
+        matches = [r for r in manifest['roots'] if r.get('kind') in ('git', 'git-export')
+            and r.get('commit') == expected['commit'] and r.get('tree') == expected['tree']]
+        preferred = [r for r in matches if r.get('role') == 'source-for-serviced-imported-package']
+        if preferred:
+            matches = preferred
+        require(len(matches) == 1 and not matches[0].get('deleted') and not matches[0].get('exclude'),
+                'Complete exact SDK6 component Git source required: ' + role)
+        roots[role] = matches[0]
+    return roots
+
+
 def validate(release, manifest, packages):
     """Authenticate complete source trees, original blobs and exact raw packages."""
     release = ordinary(release)
     p = policy()
     expected_bodies = data_bodies(packages)
-    roots = {}
-    for role, expected in p['sources'].items():
-        matches = [r for r in manifest['roots'] if r.get('kind') in ('git', 'git-export')
-            and r.get('commit') == expected['commit'] and r.get('tree') == expected['tree']]
-        require(len(matches) == 1 and not matches[0].get('deleted'), 'Complete exact SDK6 component Git source required: ' + role)
-        roots[role] = matches[0]
+    roots = source_roots(manifest, p['sources'])
     for parent, child_path, child in [('linker', 'external/cecil', 'cecil'), ('external', 'src/cssparser', 'css')]:
         require(any(s.get('path') == child_path and s.get('commit') == p['sources'][child]['commit']
             and s.get('root') == roots[child]['name'] for s in roots[parent].get('submodules', [])),

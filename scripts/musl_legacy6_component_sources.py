@@ -41,6 +41,9 @@ def register(sdk, sources, clone, expand_submodules, report_path):
     for row in policy():
         existing = [r for r in sources.values() if r.get('kind', 'git') in ('git', 'git-export')
                     and r.get('expectedCommit') == row['commit'] and r['name'] != 'msbuild-localization']
+        preferred = [r for r in existing if r.get('role') == ROLE]
+        if preferred:
+            existing = preferred
         require(len(existing) <= 1, 'Ambiguous SDK6 imported source commit')
         if existing: continue
         require(row['name'] not in sources, 'SDK6 component source name conflicts with another root')

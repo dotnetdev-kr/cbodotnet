@@ -68,3 +68,12 @@ gates are bound by immutable source, policy, package and manifest identities.
 Routing, fresh normal ARM64/x64 producer runs, publication and consumer delivery
 remain separate gates. Candidate registration keeps qualification, source
 admission and release availability false until their actual evidence is reviewed.
+
+Compiler worktrees and pristine imported-source parents can each retain a
+Gitlink at the same commit. Collection preserves both physical source paths.
+Imported component declarations select the unique
+`source-for-serviced-imported-package` role, while compiled products keep their
+actual compiler roots. Two pristine candidates remain ambiguous. Exact Git
+trees, original blobs, complete archives and publisher-to-child Gitlink names
+are still checked. A real two-parent Git fixture exercises collection, source
+packing and independent verification without rewriting either child checkout.

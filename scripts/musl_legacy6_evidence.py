@@ -37,12 +37,22 @@ RUNTIME = '6.0.36'
 NATIVE = {'libcoreclr.so', 'libclrjit.so', 'libmscordaccore.so', 'libmscordbi.so', 'libcoreclrtraceptprovider.so'}
 
 
-def package_inputs(context, release, roots, needed, built):
-    source_index = Path(context['restoredInputs']); observed = U.load(source_index)['packages']
+def source_commit_index(roots):
     commits = {}
     for name, row in roots.items():
         if row.get('kind', 'git') in ('git', 'git-export') and row.get('commit'):
             commits.setdefault(row['commit'], []).append(name)
+    for commit, names in commits.items():
+        preferred = [name for name in names if roots[name].get('role') == 'source-for-serviced-imported-package']
+        require(len(preferred) <= 1, 'Ambiguous SDK6 pristine imported source commit')
+        if preferred:
+            commits[commit] = preferred
+    return commits
+
+
+def package_inputs(context, release, roots, needed, built):
+    source_index = Path(context['restoredInputs']); observed = U.load(source_index)['packages']
+    commits = source_commit_index(roots)
     built_by_sha = {row['sha256']: name for name, proof in built.items() for row in proof['packages']}
     packages, index, records = {}, {}, []
     canonical = F.policy()['package']['fingerprint']
@@ -209,9 +219,7 @@ def emit(context):
     primary = [p for p in packages.values() if p['fingerprint'] == framework['package']['fingerprint']]
     require(len(primary) == 1 and F.ROOT_NAME in roots, 'Actual direct canonical SDK6 framework input and readable source required')
     primary = primary[0]
-    commits = {}
-    for name, row in roots.items():
-        if row.get('kind', 'git') in ('git', 'git-export') and row.get('commit'): commits.setdefault(row['commit'], []).append(name)
+    commits = source_commit_index(roots)
 
     def candidates(name, sha):
         matches = [r for r in index.get(sha, []) if r['package']['sourceRoot'] and
