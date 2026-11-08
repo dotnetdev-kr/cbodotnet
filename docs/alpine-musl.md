@@ -1,10 +1,12 @@
 # Alpine / musl qualification
 
-SDK 10.0.403 revision 1 is published and independently qualified on Alpine
+SDKs 10.0.403 and 9.0.123 revision 1 are published and independently qualified on Alpine
 3.24.4, using native x86_64 and AArch64 runners. Archive, APK and OCI delivery
 each passed qualification and anonymous installation from the published bytes.
-The [signed final verification](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/verification-musl-sdk-10.0.403-r1)
-binds all six public native reports. The separate
+The signed final verifications for
+[SDK10](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/verification-musl-sdk-10.0.403-r1) and
+[SDK9](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/verification-musl-sdk-9.0.123-r1)
+each bind all six public native reports. The separate
 [musl status](../releases/musl-status.json) is authoritative for availability.
 
 The [static musl contract](../releases/musl-distribution-contract.json) retains
@@ -25,6 +27,8 @@ does not identify libc, so Alpine images require their explicit musl tag.
 
 ## Published revision and evidence
 
+SDK10 revision 1:
+
 | Stage | Published evidence | Successful workflow |
 | --- | --- | --- |
 | Producer | [SDK, corresponding sources and retained evidence](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/musl-sdk-10.0.403-r1) | [Native SDK producer](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42368648443) |
@@ -39,6 +43,22 @@ It binds source manifest
 `04b3ff71eec9a508c65bf5c22c13f189def3ba576e55f5593cff7378224c3344`
 and the exact signed receipts for all three delivery channels. Verify the
 detached OpenPGP signature with the project's reviewed public signing key.
+
+SDK9 revision 1:
+
+| Stage | Published evidence | Successful workflow |
+| --- | --- | --- |
+| Producer | [SDK, corresponding sources and retained evidence](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/musl-sdk-9.0.123-r1) | [Native two-CPU producer](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42494792030) |
+| Archive | [Signed archives](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-musl-archive-sdk-9.0.123-r1) | [Both native CPUs and anonymous public checks](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42508486471) |
+| APK | [Signed packages, repositories and lifecycle records](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-musl-apk-sdk-9.0.123-r1) | [SDK9/10 coexistence and both public CPU installs](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42508494537) |
+| OCI | [Signed multi-platform descriptor](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-musl-oci-sdk-9.0.123-r1) | [Both native CPUs and anonymous digest pulls](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42508502441) |
+| Final verification | [Six public reports and signed manifest](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/verification-musl-sdk-9.0.123-r1) | [Independent final verification](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42510256509) |
+
+SDK9's final verification SHA-256 is
+`6adcbe15b260d7caf24b91b5a06f72e6e6e8bcd34fd3dd7d5968caa0a284b588`;
+its source manifest SHA-256 is
+`4ae52644bcdd6841f6d613c2c6d1e64719d9f7dbde45c4b650b85ae08c74b21a`.
+The original SDK10 publication history is retained unchanged.
 
 ## Evidence and support boundary
 
@@ -193,10 +213,11 @@ Alpine dependencies must be checked again when each follow-up starts.
 | SDK | Current disposition | Follow-up |
 | --- | --- | --- |
 | 10.0.403 | Published and post-verified: Alpine 3.24.4, native x64/AArch64, archive/APK/OCI r1 | [#24](https://github.com/dotnetdev-kr/cbodotnet/issues/24) |
-| 9.0.123, 8.0.133 | Pending; upstream musl SDK files exist for both CPUs | [#32](https://github.com/dotnetdev-kr/cbodotnet/issues/32) |
+| 9.0.123 | Published and post-verified: Alpine 3.24.4, native x64/AArch64, archive/APK/OCI r1 | [#32](https://github.com/dotnetdev-kr/cbodotnet/issues/32) |
+| 8.0.133 | Original native suites pass; fresh complete producer and publication remain pending | [#32](https://github.com/dotnetdev-kr/cbodotnet/issues/32) |
 | 7.0.120, 6.0.136 | Pending legacy source and dependency review; upstream EOL | [#33](https://github.com/dotnetdev-kr/cbodotnet/issues/33) |
 | 5.0.214 | Pending legacy musl producer and SSL/ICU/curl investigation; upstream EOL | [#34](https://github.com/dotnetdev-kr/cbodotnet/issues/34) |
-| 3.1.426, 3.0.103 | Two-CPU delivery blocked pending an ARM64 musl source/bootstrap route and dependency strategy | [#35](https://github.com/dotnetdev-kr/cbodotnet/issues/35) |
+| 3.1.426, 3.0.103 | Native ARM64 source/bootstrap demonstrated; complete source closure and normal two-CPU delivery remain pending | [#35](https://github.com/dotnetdev-kr/cbodotnet/issues/35) |
 
 Core 3 metadata lists selected x64 musl SDKs and no selected ARM64 musl SDK.
 This is an input gap, not proof that a source port is impossible. Existing glibc

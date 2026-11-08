@@ -103,10 +103,53 @@
           "hash": "8772b5fd3912cf9568a30a4dab6bdfaf929b6936e78335eac15e366129df1e4d1cd45814bf0f111eadc62a2f481f2188ab4f0c724dd224098e39e4e6c89ccc12"
         }
       },
-      "status": "pending",
-      "reason": "Upstream musl files exist for both CPUs; independent producer and current Alpine runtime evidence required.",
+      "status": "published-postverified",
+      "reason": "SDK 9.0.123 r1 is published and anonymously post-verified on native x64 and AArch64 Alpine 3.24.4 for archive, APK and OCI; the final signed verification binds all six public reports. NativeAOT, workloads and cbodotnetup musl admission remain separate.",
       "followUpIssue": 32,
-      "followUpUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/32"
+      "followUpUrl": "https://github.com/dotnetdev-kr/cbodotnet/issues/32",
+      "qualificationEvidence": {
+        "scope": "Alpine 3.24.4 native x64/AArch64 archive, APK and OCI r1 only",
+        "architectures": [
+          "x64",
+          "aarch64"
+        ],
+        "channels": [
+          "archive",
+          "apk",
+          "oci"
+        ],
+        "packageRevision": 1,
+        "sourceReleaseTag": "musl-sdk-9.0.123-r1",
+        "sourceManifestSha256": "4ae52644bcdd6841f6d613c2c6d1e64719d9f7dbde45c4b650b85ae08c74b21a",
+        "verificationReleaseTag": "verification-musl-sdk-9.0.123-r1",
+        "verificationManifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/verification-musl-sdk-9.0.123-r1/verification-manifest.json",
+        "verificationManifestSha256": "6adcbe15b260d7caf24b91b5a06f72e6e6e8bcd34fd3dd7d5968caa0a284b588",
+        "verificationWorkflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42510256509",
+        "workflowRuns": {
+          "producer": [
+            42494792030,
+            1
+          ],
+          "archive": [
+            42508486471,
+            1
+          ],
+          "apk": [
+            42508494537,
+            1
+          ],
+          "oci": [
+            42508502441,
+            1
+          ],
+          "verification": [
+            42510256509,
+            1
+          ]
+        },
+        "installerAdmission": "separate-issue-30",
+        "nativeAotAndWorkloads": "not-qualified"
+      }
     },
     {
       "sdkVersion": "8.0.133",

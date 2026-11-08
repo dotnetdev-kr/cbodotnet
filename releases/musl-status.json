@@ -825,6 +825,829 @@
         "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/verification-musl-sdk-10.0.403-r1/verification-manifest.json.asc",
         "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA"
       }
+    },
+    {
+      "assets": [
+        {
+          "name": "cbodotnet-sdk-9.0.123-linux-musl-aarch64-r1.tar.gz",
+          "sha256": "da6080556ef45c7399738e5a467e2108b7ade458922e3d80d79e591a2b02b8b0",
+          "size": 187958420,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-archive-sdk-9.0.123-r1/cbodotnet-sdk-9.0.123-linux-musl-aarch64-r1.tar.gz"
+        },
+        {
+          "name": "cbodotnet-sdk-9.0.123-linux-musl-x64-r1.tar.gz",
+          "sha256": "8051fb069a220a4a45f20cea26bef45938bc77a8cc8de2d671731c6c4882be6f",
+          "size": 192647626,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-archive-sdk-9.0.123-r1/cbodotnet-sdk-9.0.123-linux-musl-x64-r1.tar.gz"
+        },
+        {
+          "name": "qualification-aarch64.json",
+          "sha256": "9c9e31d4ae8e32eb49e108314a5665efce696cae94881e7c474fd91f3a75f893",
+          "size": 53021,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-archive-sdk-9.0.123-r1/qualification-aarch64.json"
+        },
+        {
+          "name": "qualification-x64.json",
+          "sha256": "f27e4501e6d3af44be82a2967bb19cd777d184ce76526206f69d3c8d52e3f8e2",
+          "size": 49629,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-archive-sdk-9.0.123-r1/qualification-x64.json"
+        }
+      ],
+      "identity": {
+        "channel": "archive",
+        "libc": "musl",
+        "packageRevision": 1,
+        "producerRevision": 1,
+        "sdkVersion": "9.0.123",
+        "sourceManifestSha256": "4ae52644bcdd6841f6d613c2c6d1e64719d9f7dbde45c4b650b85ae08c74b21a",
+        "sourceReleaseTag": "musl-sdk-9.0.123-r1"
+      },
+      "kind": "musl-distribution-publication-receipt",
+      "manifestSha256": "e0d6b3b9d4212cb0e0c3803fb354a91f64875378562368e989d99af439c6aedc",
+      "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-archive-sdk-9.0.123-r1/distribution-manifest.json",
+      "postVerification": {
+        "publication": {
+          "artifact": {
+            "archive_download_url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13628288353/zip",
+            "created_at": "2026-11-08T18:12:47Z",
+            "digest": "sha256:f74f36e6475feafca6f14480135b4ded44b88449133997041bec46022fef291e",
+            "expired": false,
+            "expires_at": "2026-12-08T18:12:46Z",
+            "id": 13628288353,
+            "name": "musl-archive-publication-42508486471-1",
+            "node_id": "MDg6QXJ0aWZhY3QxMzYyODI4ODM1Mw==",
+            "size_in_bytes": 944,
+            "updated_at": "2026-11-08T18:12:47Z",
+            "url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13628288353",
+            "workflow_run": {
+              "head_branch": "main",
+              "head_repository_id": 1437205689,
+              "head_sha": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+              "id": 42508486471,
+              "repository_id": 1437205689
+            }
+          },
+          "artifactZip": {
+            "name": "transport.zip",
+            "sha256": "f74f36e6475feafca6f14480135b4ded44b88449133997041bec46022fef291e",
+            "size": 944
+          },
+          "orchestration": {
+            "commit": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+            "repository": "dotnetdev-kr/cbodotnet",
+            "runAttempt": "1",
+            "runId": "42508486471",
+            "workflow": ".github/workflows/musl-release.yml"
+          },
+          "receipt": {
+            "name": "musl-archive-publication.json",
+            "sha256": "5c4c2f7f89498d35ff3d585cdfc68f5d1fe89b6e1800902d3d84327edfc1c6b1",
+            "size": 2391
+          },
+          "receiptCanonicalSha256": "5c4c2f7f89498d35ff3d585cdfc68f5d1fe89b6e1800902d3d84327edfc1c6b1"
+        },
+        "reports": [
+          {
+            "architecture": "x64",
+            "provenance": {
+              "artifact": {
+                "archive_download_url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13628182528/zip",
+                "created_at": "2026-11-08T18:13:39Z",
+                "digest": "sha256:33c92a61be84dc1ae8f089c6ee7ceb6070c25596b1baa67da0f816263ad9769f",
+                "expired": false,
+                "expires_at": "2026-12-08T18:13:38Z",
+                "id": 13628182528,
+                "name": "musl-public-archive-x64-42508486471-1",
+                "node_id": "MDg6QXJ0aWZhY3QxMzYyODE4MjUyOA==",
+                "size_in_bytes": 5915,
+                "updated_at": "2026-11-08T18:13:39Z",
+                "url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13628182528",
+                "workflow_run": {
+                  "head_branch": "main",
+                  "head_repository_id": 1437205689,
+                  "head_sha": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                  "id": 42508486471,
+                  "repository_id": 1437205689
+                }
+              },
+              "artifactZip": {
+                "name": "transport.zip",
+                "sha256": "33c92a61be84dc1ae8f089c6ee7ceb6070c25596b1baa67da0f816263ad9769f",
+                "size": 5915
+              },
+              "job": {
+                "completed_at": "2026-11-08T18:13:41Z",
+                "conclusion": "success",
+                "head_sha": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                "id": 128817278895,
+                "labels": [
+                  "ubuntu-24.04"
+                ],
+                "name": "Verify public musl archive native x64",
+                "runner_group_name": "GitHub Actions",
+                "runner_id": 1000002497,
+                "runner_name": "GitHub Actions 1000002497",
+                "started_at": "2026-11-08T18:12:53Z",
+                "status": "completed"
+              },
+              "orchestration": {
+                "commit": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                "repository": "dotnetdev-kr/cbodotnet",
+                "runAttempt": "1",
+                "runId": "42508486471",
+                "workflow": ".github/workflows/musl-release.yml"
+              }
+            },
+            "rawJsonSha256": "1c89e270119661973f0d33c3640777486c4bda69cbebc76af949502416343af4",
+            "rawJsonSize": 50268,
+            "report": {
+              "name": "archive-x64-public-report.json",
+              "sha256": "1c89e270119661973f0d33c3640777486c4bda69cbebc76af949502416343af4",
+              "size": 50268,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/verification-musl-sdk-9.0.123-r1/archive-x64-public-report.json"
+            }
+          },
+          {
+            "architecture": "aarch64",
+            "provenance": {
+              "artifact": {
+                "archive_download_url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13628552662/zip",
+                "created_at": "2026-11-08T18:13:30Z",
+                "digest": "sha256:a179c7cb558dc24f1b45ff87078950fb9b4216d79c4876c36b54bb3cf460527f",
+                "expired": false,
+                "expires_at": "2026-12-08T18:13:30Z",
+                "id": 13628552662,
+                "name": "musl-public-archive-aarch64-42508486471-1",
+                "node_id": "MDg6QXJ0aWZhY3QxMzYyODU1MjY2Mg==",
+                "size_in_bytes": 6043,
+                "updated_at": "2026-11-08T18:13:30Z",
+                "url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13628552662",
+                "workflow_run": {
+                  "head_branch": "main",
+                  "head_repository_id": 1437205689,
+                  "head_sha": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                  "id": 42508486471,
+                  "repository_id": 1437205689
+                }
+              },
+              "artifactZip": {
+                "name": "transport.zip",
+                "sha256": "a179c7cb558dc24f1b45ff87078950fb9b4216d79c4876c36b54bb3cf460527f",
+                "size": 6043
+              },
+              "job": {
+                "completed_at": "2026-11-08T18:13:32Z",
+                "conclusion": "success",
+                "head_sha": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                "id": 128817278908,
+                "labels": [
+                  "ubuntu-24.04-arm"
+                ],
+                "name": "Verify public musl archive native aarch64",
+                "runner_group_name": "GitHub Actions",
+                "runner_id": 1000002498,
+                "runner_name": "GitHub Actions 1000002498",
+                "started_at": "2026-11-08T18:12:55Z",
+                "status": "completed"
+              },
+              "orchestration": {
+                "commit": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                "repository": "dotnetdev-kr/cbodotnet",
+                "runAttempt": "1",
+                "runId": "42508486471",
+                "workflow": ".github/workflows/musl-release.yml"
+              }
+            },
+            "rawJsonSha256": "15d1a8c64d446c22e58cce496ac27a79e8269aba826e3af62c4e67bc39f6c658",
+            "rawJsonSize": 53664,
+            "report": {
+              "name": "archive-aarch64-public-report.json",
+              "sha256": "15d1a8c64d446c22e58cce496ac27a79e8269aba826e3af62c4e67bc39f6c658",
+              "size": 53664,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/verification-musl-sdk-9.0.123-r1/archive-aarch64-public-report.json"
+            }
+          }
+        ]
+      },
+      "releaseId": 438426733,
+      "releaseUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-musl-archive-sdk-9.0.123-r1",
+      "schemaVersion": 1,
+      "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-archive-sdk-9.0.123-r1/distribution-manifest.json.asc",
+      "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+      "status": "published-postverified",
+      "tag": "distribution-musl-archive-sdk-9.0.123-r1",
+      "verification": {
+        "manifestSha256": "6adcbe15b260d7caf24b91b5a06f72e6e6e8bcd34fd3dd7d5968caa0a284b588",
+        "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/verification-musl-sdk-9.0.123-r1/verification-manifest.json",
+        "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/verification-musl-sdk-9.0.123-r1/verification-manifest.json.asc",
+        "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA"
+      }
+    },
+    {
+      "assets": [
+        {
+          "name": "apk-aarch64--APKINDEX.tar.gz",
+          "sha256": "655f87f6ba6a249ed80cdd4e60080473ef6f59b4a6babfac4acc8d91870b8d33",
+          "size": 1132,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-aarch64--APKINDEX.tar.gz"
+        },
+        {
+          "name": "apk-aarch64--cbodotnet-host-1.0.0-r1.apk",
+          "sha256": "26130ef1a58fd953b8148b6295d857287c7255a0a715d0b5c9a76eda45fb0d34",
+          "size": 2894,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-aarch64--cbodotnet-host-1.0.0-r1.apk"
+        },
+        {
+          "name": "apk-aarch64--cbodotnet-sdk-9.0-9.0.123-r1.apk",
+          "sha256": "bf31ee8e39494a0aca68cd366ca8f3eab692b9d8b21d9abe84b6b4207544c4dd",
+          "size": 187871506,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-aarch64--cbodotnet-sdk-9.0-9.0.123-r1.apk"
+        },
+        {
+          "name": "apk-aarch64--command-inventory.json",
+          "sha256": "7bdf55240afaa2d1e0b11c68586ac76f9ca59d728dbcdc66c9bf56e2e8018ca0",
+          "size": 360,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-aarch64--command-inventory.json"
+        },
+        {
+          "name": "apk-aarch64--host-payload.tar.gz",
+          "sha256": "d037482b50675753bbecfb2409b697b450dc21dd31195964595109b9df1bbad1",
+          "size": 1479,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-aarch64--host-payload.tar.gz"
+        },
+        {
+          "name": "apk-aarch64--host.APKBUILD",
+          "sha256": "0fb0754a62c5469849db66e64587f51807d250b2761c62ebdf86b9db8787dcf6",
+          "size": 891,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-aarch64--host.APKBUILD"
+        },
+        {
+          "name": "apk-aarch64--package-build.json",
+          "sha256": "f04fbbdb210cf624cde6dd599dcb15d9c34a664db21d906923acfc8821603b88",
+          "size": 9711,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-aarch64--package-build.json"
+        },
+        {
+          "name": "apk-aarch64--payload-inventory.json",
+          "sha256": "48ea8c3b08f311afc2414fe5b6da4107186521294a96793217450ad0c5025d42",
+          "size": 962277,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-aarch64--payload-inventory.json"
+        },
+        {
+          "name": "apk-aarch64--plan.json",
+          "sha256": "2ed2f5090d8e17bd4a94b388092510e48b25281ebe88c1984422c00f51b25753",
+          "size": 3216,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-aarch64--plan.json"
+        },
+        {
+          "name": "apk-aarch64--sdk-payload.tar.gz",
+          "sha256": "89950567905a57e7845d90b0e7d1728b21a4b3012079d9fd976976f9369a2905",
+          "size": 187149254,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-aarch64--sdk-payload.tar.gz"
+        },
+        {
+          "name": "apk-aarch64--sdk.APKBUILD",
+          "sha256": "9e84547d00784e87603ed5bb6d1db782c82337f39d48b298560fc526a9b63efe",
+          "size": 1066,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-aarch64--sdk.APKBUILD"
+        },
+        {
+          "name": "apk-x64--APKINDEX.tar.gz",
+          "sha256": "672375685af7b5ad1c083af8c79a249f15e72a9cfecf406a083b461f533302ce",
+          "size": 1130,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-x64--APKINDEX.tar.gz"
+        },
+        {
+          "name": "apk-x64--cbodotnet-host-1.0.0-r1.apk",
+          "sha256": "26130ef1a58fd953b8148b6295d857287c7255a0a715d0b5c9a76eda45fb0d34",
+          "size": 2894,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-x64--cbodotnet-host-1.0.0-r1.apk"
+        },
+        {
+          "name": "apk-x64--cbodotnet-sdk-9.0-9.0.123-r1.apk",
+          "sha256": "c8a8ca50a0db927d6c89fb3bf43bbf4ac1eacfc65292345510e3772987dc2730",
+          "size": 192575242,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-x64--cbodotnet-sdk-9.0-9.0.123-r1.apk"
+        },
+        {
+          "name": "apk-x64--command-inventory.json",
+          "sha256": "fcdf5b3879fc14be38685e14f1ade27242f85bb862b0072d500326492f2c10f8",
+          "size": 360,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-x64--command-inventory.json"
+        },
+        {
+          "name": "apk-x64--host-payload.tar.gz",
+          "sha256": "d037482b50675753bbecfb2409b697b450dc21dd31195964595109b9df1bbad1",
+          "size": 1479,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-x64--host-payload.tar.gz"
+        },
+        {
+          "name": "apk-x64--host.APKBUILD",
+          "sha256": "0fb0754a62c5469849db66e64587f51807d250b2761c62ebdf86b9db8787dcf6",
+          "size": 891,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-x64--host.APKBUILD"
+        },
+        {
+          "name": "apk-x64--package-build.json",
+          "sha256": "3a23e0a7456317dcd878ff45e070ceae8b5aacaf3f3eacaa1ce5eda4a7933df0",
+          "size": 9707,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-x64--package-build.json"
+        },
+        {
+          "name": "apk-x64--payload-inventory.json",
+          "sha256": "a15415195742ba181418d34cf9f4f9226f9c2b1cad494f1b9909f652513853f9",
+          "size": 962235,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-x64--payload-inventory.json"
+        },
+        {
+          "name": "apk-x64--plan.json",
+          "sha256": "84cda8030878847826335d8f24c44e33be9d7246e0ef357275ad70ad3c35a10b",
+          "size": 3214,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-x64--plan.json"
+        },
+        {
+          "name": "apk-x64--sdk-payload.tar.gz",
+          "sha256": "ed24001121f24cc5270106b4ab47b9f3356c9ab2d8eb9f490842835523ecddb5",
+          "size": 191896031,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-x64--sdk-payload.tar.gz"
+        },
+        {
+          "name": "apk-x64--sdk.APKBUILD",
+          "sha256": "c414333ccd70f68d87ac6c5285199c89bf5a3d4d925e3996a4e050baa9c7828d",
+          "size": 1065,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/apk-x64--sdk.APKBUILD"
+        },
+        {
+          "name": "cbodotnet-apk-2026.rsa.pub",
+          "sha256": "d464a8e7c173c1a86ad65f92abb1d56fd1f362dbcaf30b4b3929355bc6a49c2d",
+          "size": 800,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/cbodotnet-apk-2026.rsa.pub"
+        },
+        {
+          "name": "lifecycle-aarch64.json",
+          "sha256": "8eb24b6c997f926339d74e4fbccae11a1e8be92d026dbe32429cae4d76332042",
+          "size": 36408,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/lifecycle-aarch64.json"
+        },
+        {
+          "name": "lifecycle-x64.json",
+          "sha256": "bd71aff2dc3809225e597720d284615265020a3cc6ba614f3f4e2a7f06b79f48",
+          "size": 36348,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/lifecycle-x64.json"
+        },
+        {
+          "name": "qualification-aarch64.json",
+          "sha256": "b41fef00ad1c7cf52d334c36878af04c906e55f9f28caf0de26d2f605d296f8c",
+          "size": 58361,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/qualification-aarch64.json"
+        },
+        {
+          "name": "qualification-x64.json",
+          "sha256": "0656a4e0b40efc3f2b2404841165b542933e72bf53c661ed81d4a3ccc81dea31",
+          "size": 54977,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/qualification-x64.json"
+        }
+      ],
+      "identity": {
+        "channel": "apk",
+        "libc": "musl",
+        "packageRevision": 1,
+        "producerRevision": 1,
+        "sdkVersion": "9.0.123",
+        "sourceManifestSha256": "4ae52644bcdd6841f6d613c2c6d1e64719d9f7dbde45c4b650b85ae08c74b21a",
+        "sourceReleaseTag": "musl-sdk-9.0.123-r1"
+      },
+      "kind": "musl-distribution-publication-receipt",
+      "manifestSha256": "d52771ba1ff61d3ed02e3b65e2c8092b5e43c9d5721edb4bdaead7af1be2515f",
+      "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/distribution-manifest.json",
+      "postVerification": {
+        "publication": {
+          "artifact": {
+            "archive_download_url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13629017300/zip",
+            "created_at": "2026-11-08T18:27:26Z",
+            "digest": "sha256:3cda84e22ab307250522bed05658a36c4a7a1add54feda257d63a945a0edf99b",
+            "expired": false,
+            "expires_at": "2026-12-08T18:27:25Z",
+            "id": 13629017300,
+            "name": "musl-apk-publication-42508494537-1",
+            "node_id": "MDg6QXJ0aWZhY3QxMzYyOTAxNzMwMA==",
+            "size_in_bytes": 10014,
+            "updated_at": "2026-11-08T18:27:26Z",
+            "url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13629017300",
+            "workflow_run": {
+              "head_branch": "main",
+              "head_repository_id": 1437205689,
+              "head_sha": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+              "id": 42508494537,
+              "repository_id": 1437205689
+            }
+          },
+          "artifactZip": {
+            "name": "transport.zip",
+            "sha256": "3cda84e22ab307250522bed05658a36c4a7a1add54feda257d63a945a0edf99b",
+            "size": 10014
+          },
+          "orchestration": {
+            "commit": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+            "repository": "dotnetdev-kr/cbodotnet",
+            "runAttempt": "1",
+            "runId": "42508494537",
+            "workflow": ".github/workflows/musl-release.yml"
+          },
+          "receipt": {
+            "name": "musl-apk-publication.json",
+            "sha256": "b1c289c6e01481e7154f986b679a5bb01f747d99e36ef92ec145daeddc9e3509",
+            "size": 9850
+          },
+          "receiptCanonicalSha256": "b1c289c6e01481e7154f986b679a5bb01f747d99e36ef92ec145daeddc9e3509"
+        },
+        "reports": [
+          {
+            "architecture": "x64",
+            "provenance": {
+              "artifact": {
+                "archive_download_url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13629430636/zip",
+                "created_at": "2026-11-08T18:28:54Z",
+                "digest": "sha256:e5e958704f965da86bd250af733a3215365e00ca27057b0cc83565f0a9b4dae8",
+                "expired": false,
+                "expires_at": "2026-12-08T18:28:53Z",
+                "id": 13629430636,
+                "name": "musl-public-apk-x64-42508494537-1",
+                "node_id": "MDg6QXJ0aWZhY3QxMzYyOTQzMDYzNg==",
+                "size_in_bytes": 57118,
+                "updated_at": "2026-11-08T18:28:54Z",
+                "url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13629430636",
+                "workflow_run": {
+                  "head_branch": "main",
+                  "head_repository_id": 1437205689,
+                  "head_sha": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                  "id": 42508494537,
+                  "repository_id": 1437205689
+                }
+              },
+              "artifactZip": {
+                "name": "transport.zip",
+                "sha256": "e5e958704f965da86bd250af733a3215365e00ca27057b0cc83565f0a9b4dae8",
+                "size": 57118
+              },
+              "job": {
+                "completed_at": "2026-11-08T18:28:56Z",
+                "conclusion": "success",
+                "head_sha": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                "id": 128821095068,
+                "labels": [
+                  "ubuntu-24.04"
+                ],
+                "name": "Verify public musl apk native x64",
+                "runner_group_name": "GitHub Actions",
+                "runner_id": 1000002507,
+                "runner_name": "GitHub Actions 1000002507",
+                "started_at": "2026-11-08T18:27:31Z",
+                "status": "completed"
+              },
+              "orchestration": {
+                "commit": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                "repository": "dotnetdev-kr/cbodotnet",
+                "runAttempt": "1",
+                "runId": "42508494537",
+                "workflow": ".github/workflows/musl-release.yml"
+              }
+            },
+            "rawJsonSha256": "568af0210e376e13556d5655bdfeaf1f3c521f7217661f3348406ae20f464cb0",
+            "rawJsonSize": 56968,
+            "report": {
+              "name": "apk-x64-public-report.json",
+              "sha256": "568af0210e376e13556d5655bdfeaf1f3c521f7217661f3348406ae20f464cb0",
+              "size": 56968,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/verification-musl-sdk-9.0.123-r1/apk-x64-public-report.json"
+            }
+          },
+          {
+            "architecture": "aarch64",
+            "provenance": {
+              "artifact": {
+                "archive_download_url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13628858744/zip",
+                "created_at": "2026-11-08T18:28:48Z",
+                "digest": "sha256:b1dc153a14c6a5646f07064330ef071de04b6ddbb5ea17183b2aa84500c4adb0",
+                "expired": false,
+                "expires_at": "2026-12-08T18:28:47Z",
+                "id": 13628858744,
+                "name": "musl-public-apk-aarch64-42508494537-1",
+                "node_id": "MDg6QXJ0aWZhY3QxMzYyODg1ODc0NA==",
+                "size_in_bytes": 60526,
+                "updated_at": "2026-11-08T18:28:48Z",
+                "url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13628858744",
+                "workflow_run": {
+                  "head_branch": "main",
+                  "head_repository_id": 1437205689,
+                  "head_sha": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                  "id": 42508494537,
+                  "repository_id": 1437205689
+                }
+              },
+              "artifactZip": {
+                "name": "transport.zip",
+                "sha256": "b1dc153a14c6a5646f07064330ef071de04b6ddbb5ea17183b2aa84500c4adb0",
+                "size": 60526
+              },
+              "job": {
+                "completed_at": "2026-11-08T18:28:50Z",
+                "conclusion": "success",
+                "head_sha": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                "id": 128821095058,
+                "labels": [
+                  "ubuntu-24.04-arm"
+                ],
+                "name": "Verify public musl apk native aarch64",
+                "runner_group_name": "GitHub Actions",
+                "runner_id": 1000002506,
+                "runner_name": "GitHub Actions 1000002506",
+                "started_at": "2026-11-08T18:27:33Z",
+                "status": "completed"
+              },
+              "orchestration": {
+                "commit": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                "repository": "dotnetdev-kr/cbodotnet",
+                "runAttempt": "1",
+                "runId": "42508494537",
+                "workflow": ".github/workflows/musl-release.yml"
+              }
+            },
+            "rawJsonSha256": "efcc038cb371034d62c370e105ba21a9979c77ff41c4446f9b3987aff9b2cd6c",
+            "rawJsonSize": 60376,
+            "report": {
+              "name": "apk-aarch64-public-report.json",
+              "sha256": "efcc038cb371034d62c370e105ba21a9979c77ff41c4446f9b3987aff9b2cd6c",
+              "size": 60376,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/verification-musl-sdk-9.0.123-r1/apk-aarch64-public-report.json"
+            }
+          }
+        ]
+      },
+      "releaseId": 438434272,
+      "releaseUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-musl-apk-sdk-9.0.123-r1",
+      "repositoryReleases": [
+        {
+          "architecture": "aarch64",
+          "releaseId": 438433733,
+          "releaseUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/musl-apk-repo-9.0.123-alpine324-aarch64-r1",
+          "tag": "musl-apk-repo-9.0.123-alpine324-aarch64-r1"
+        },
+        {
+          "architecture": "x64",
+          "releaseId": 438434021,
+          "releaseUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/musl-apk-repo-9.0.123-alpine324-x64-r1",
+          "tag": "musl-apk-repo-9.0.123-alpine324-x64-r1"
+        }
+      ],
+      "schemaVersion": 1,
+      "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-apk-sdk-9.0.123-r1/distribution-manifest.json.asc",
+      "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+      "status": "published-postverified",
+      "tag": "distribution-musl-apk-sdk-9.0.123-r1",
+      "verification": {
+        "manifestSha256": "6adcbe15b260d7caf24b91b5a06f72e6e6e8bcd34fd3dd7d5968caa0a284b588",
+        "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/verification-musl-sdk-9.0.123-r1/verification-manifest.json",
+        "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/verification-musl-sdk-9.0.123-r1/verification-manifest.json.asc",
+        "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA"
+      }
+    },
+    {
+      "assets": [
+        {
+          "name": "oci-index.json",
+          "sha256": "e6e57a3362bae6b3947634e42ed872aae62b942d2d56ff15a05af16ce9807d79",
+          "size": 1067,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-oci-sdk-9.0.123-r1/oci-index.json"
+        },
+        {
+          "name": "qualification-aarch64.json",
+          "sha256": "85c288b70905c9b77704950a7cc877fcfb9cefb7b4679f76e74623773e8b4260",
+          "size": 55862,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-oci-sdk-9.0.123-r1/qualification-aarch64.json"
+        },
+        {
+          "name": "qualification-x64.json",
+          "sha256": "7ec2f0606a63e1ec4db8673fd259dd814b8df842f518df829e6924e55fcc7fb0",
+          "size": 52474,
+          "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-oci-sdk-9.0.123-r1/qualification-x64.json"
+        }
+      ],
+      "identity": {
+        "channel": "oci",
+        "libc": "musl",
+        "packageRevision": 1,
+        "producerRevision": 1,
+        "sdkVersion": "9.0.123",
+        "sourceManifestSha256": "4ae52644bcdd6841f6d613c2c6d1e64719d9f7dbde45c4b650b85ae08c74b21a",
+        "sourceReleaseTag": "musl-sdk-9.0.123-r1"
+      },
+      "kind": "musl-distribution-publication-receipt",
+      "manifestSha256": "ecf148df6d33ed94e8d0467ed262d67c3928d29891f818b1a56d16f1c516f4c0",
+      "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-oci-sdk-9.0.123-r1/distribution-manifest.json",
+      "ociIndex": {
+        "digest": "sha256:353eb8252bb41a621baf62016405253a7fddb22450b884f323ed6a88687b68eb",
+        "mediaType": "application/vnd.oci.image.index.v1+json",
+        "platforms": {
+          "aarch64": {
+            "configDigest": "sha256:6f003b9b924b2721f37ad69288d236ee3da7f199077b08881b295b781a2db0f0",
+            "configSize": 4961,
+            "digest": "sha256:5ab51e6dc3c57b27f18dce07dc15cd2c3310034d1be6aa4283da9d8974b86142",
+            "manifestMediaType": "application/vnd.docker.distribution.manifest.v2+json",
+            "manifestSize": 1159,
+            "platform": "linux/arm64"
+          },
+          "x64": {
+            "configDigest": "sha256:f93dac3066c58564b56b637d567fb947c70e37f5cc9258318d6170a31a665e2a",
+            "configSize": 4946,
+            "digest": "sha256:0035efefb5f9da23105eb47f7d0126c803c7bdaf76a1dbb1a68617aa7865e730",
+            "manifestMediaType": "application/vnd.docker.distribution.manifest.v2+json",
+            "manifestSize": 1159,
+            "platform": "linux/amd64"
+          }
+        },
+        "rawManifestSize": 668,
+        "repository": "ghcr.io/dotnetdev-kr/cbodotnet-sdk",
+        "schemaVersion": 1,
+        "tag": "9.0.123-alpine324-musl-r1"
+      },
+      "postVerification": {
+        "publication": {
+          "artifact": {
+            "archive_download_url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13628741846/zip",
+            "created_at": "2026-11-08T18:11:30Z",
+            "digest": "sha256:8f77100e4db88ab0a178614912d8b918b8b8b01266b72b37c676ee630c00e25b",
+            "expired": false,
+            "expires_at": "2026-12-08T18:11:30Z",
+            "id": 13628741846,
+            "name": "musl-oci-publication-42508502441-1",
+            "node_id": "MDg6QXJ0aWZhY3QxMzYyODc0MTg0Ng==",
+            "size_in_bytes": 3229,
+            "updated_at": "2026-11-08T18:11:30Z",
+            "url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13628741846",
+            "workflow_run": {
+              "head_branch": "main",
+              "head_repository_id": 1437205689,
+              "head_sha": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+              "id": 42508502441,
+              "repository_id": 1437205689
+            }
+          },
+          "artifactZip": {
+            "name": "transport.zip",
+            "sha256": "8f77100e4db88ab0a178614912d8b918b8b8b01266b72b37c676ee630c00e25b",
+            "size": 3229
+          },
+          "orchestration": {
+            "commit": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+            "repository": "dotnetdev-kr/cbodotnet",
+            "runAttempt": "1",
+            "runId": "42508502441",
+            "workflow": ".github/workflows/musl-release.yml"
+          },
+          "receipt": {
+            "name": "musl-oci-publication.json",
+            "sha256": "d28f1e3b0f3ec5e06a3606bed1df71a1cb95741f981aa4e9fd1c5ac735429bf4",
+            "size": 3065
+          },
+          "receiptCanonicalSha256": "d28f1e3b0f3ec5e06a3606bed1df71a1cb95741f981aa4e9fd1c5ac735429bf4"
+        },
+        "reports": [
+          {
+            "architecture": "x64",
+            "provenance": {
+              "artifact": {
+                "archive_download_url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13627948331/zip",
+                "created_at": "2026-11-08T18:12:31Z",
+                "digest": "sha256:119da82d43777752d0a96bbf68ae4a9a9ba41725f621122fd42b44b1f8566c80",
+                "expired": false,
+                "expires_at": "2026-12-08T18:12:30Z",
+                "id": 13627948331,
+                "name": "musl-public-oci-x64-42508502441-1",
+                "node_id": "MDg6QXJ0aWZhY3QxMzYyNzk0ODMzMQ==",
+                "size_in_bytes": 53995,
+                "updated_at": "2026-11-08T18:12:31Z",
+                "url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13627948331",
+                "workflow_run": {
+                  "head_branch": "main",
+                  "head_repository_id": 1437205689,
+                  "head_sha": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                  "id": 42508502441,
+                  "repository_id": 1437205689
+                }
+              },
+              "artifactZip": {
+                "name": "transport.zip",
+                "sha256": "119da82d43777752d0a96bbf68ae4a9a9ba41725f621122fd42b44b1f8566c80",
+                "size": 53995
+              },
+              "job": {
+                "completed_at": "2026-11-08T18:12:34Z",
+                "conclusion": "success",
+                "head_sha": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                "id": 128816947364,
+                "labels": [
+                  "ubuntu-24.04"
+                ],
+                "name": "Verify public musl oci native x64",
+                "runner_group_name": "GitHub Actions",
+                "runner_id": 1000002494,
+                "runner_name": "GitHub Actions 1000002494",
+                "started_at": "2026-11-08T18:11:35Z",
+                "status": "completed"
+              },
+              "orchestration": {
+                "commit": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                "repository": "dotnetdev-kr/cbodotnet",
+                "runAttempt": "1",
+                "runId": "42508502441",
+                "workflow": ".github/workflows/musl-release.yml"
+              }
+            },
+            "rawJsonSha256": "2f509e760547ebfcbf20c8ac9daa8a123535bc55e89964e4eb5e047e24d2ed0c",
+            "rawJsonSize": 53845,
+            "report": {
+              "name": "oci-x64-public-report.json",
+              "sha256": "2f509e760547ebfcbf20c8ac9daa8a123535bc55e89964e4eb5e047e24d2ed0c",
+              "size": 53845,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/verification-musl-sdk-9.0.123-r1/oci-x64-public-report.json"
+            }
+          },
+          {
+            "architecture": "aarch64",
+            "provenance": {
+              "artifact": {
+                "archive_download_url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13628247165/zip",
+                "created_at": "2026-11-08T18:12:34Z",
+                "digest": "sha256:5a86d2a2a7e7b1bc24815b2f9c0e44352c0d84ae3339475c6cd5ba9e853ae470",
+                "expired": false,
+                "expires_at": "2026-12-08T18:12:34Z",
+                "id": 13628247165,
+                "name": "musl-public-oci-aarch64-42508502441-1",
+                "node_id": "MDg6QXJ0aWZhY3QxMzYyODI0NzE2NQ==",
+                "size_in_bytes": 57379,
+                "updated_at": "2026-11-08T18:12:34Z",
+                "url": "https://api.github.com/repos/dotnetdev-kr/cbodotnet/actions/artifacts/13628247165",
+                "workflow_run": {
+                  "head_branch": "main",
+                  "head_repository_id": 1437205689,
+                  "head_sha": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                  "id": 42508502441,
+                  "repository_id": 1437205689
+                }
+              },
+              "artifactZip": {
+                "name": "transport.zip",
+                "sha256": "5a86d2a2a7e7b1bc24815b2f9c0e44352c0d84ae3339475c6cd5ba9e853ae470",
+                "size": 57379
+              },
+              "job": {
+                "completed_at": "2026-11-08T18:12:36Z",
+                "conclusion": "success",
+                "head_sha": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                "id": 128816947399,
+                "labels": [
+                  "ubuntu-24.04-arm"
+                ],
+                "name": "Verify public musl oci native aarch64",
+                "runner_group_name": "GitHub Actions",
+                "runner_id": 1000002495,
+                "runner_name": "GitHub Actions 1000002495",
+                "started_at": "2026-11-08T18:11:37Z",
+                "status": "completed"
+              },
+              "orchestration": {
+                "commit": "1c751166c9b5956a3865dd2271d4cc5da653cda0",
+                "repository": "dotnetdev-kr/cbodotnet",
+                "runAttempt": "1",
+                "runId": "42508502441",
+                "workflow": ".github/workflows/musl-release.yml"
+              }
+            },
+            "rawJsonSha256": "a818720f7491e208b634dd94db11266bf7b732c2aab5cd850de2850a678a8565",
+            "rawJsonSize": 57229,
+            "report": {
+              "name": "oci-aarch64-public-report.json",
+              "sha256": "a818720f7491e208b634dd94db11266bf7b732c2aab5cd850de2850a678a8565",
+              "size": 57229,
+              "url": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/verification-musl-sdk-9.0.123-r1/oci-aarch64-public-report.json"
+            }
+          }
+        ]
+      },
+      "releaseId": 438426319,
+      "releaseUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-musl-oci-sdk-9.0.123-r1",
+      "schemaVersion": 1,
+      "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/distribution-musl-oci-sdk-9.0.123-r1/distribution-manifest.json.asc",
+      "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA",
+      "status": "published-postverified",
+      "tag": "distribution-musl-oci-sdk-9.0.123-r1",
+      "verification": {
+        "manifestSha256": "6adcbe15b260d7caf24b91b5a06f72e6e6e8bcd34fd3dd7d5968caa0a284b588",
+        "manifestUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/verification-musl-sdk-9.0.123-r1/verification-manifest.json",
+        "signatureUrl": "https://github.com/dotnetdev-kr/cbodotnet/releases/download/verification-musl-sdk-9.0.123-r1/verification-manifest.json.asc",
+        "signingFingerprint": "D7D154B4B33C19A82B95B13688135410ACD9C0EA"
+      }
     }
   ],
   "repository": "dotnetdev-kr/cbodotnet",
