@@ -167,7 +167,19 @@
       "sourceClosureComplete": false,
       "optimizationDisabled": false,
       "tracingDisabled": false,
-      "readyToRunDisabled": false
+      "readyToRunDisabled": false,
+      "requiredCompatibilityPatch": {
+        "path": "patches/net5-musl/0007-adapt-native-clr5-for-clang20.patch",
+        "bytes": 3999,
+        "sha256": "b53aee1f8bd38d352471e5aa87220beca4ad75bbd900ed008228f4e140b717e5",
+        "sha512": "e58492135c4695cead053058ee8c5bb50840431f698550f64aa27643803e1ac96ae602fc4b73911e6f3fbbea17873a0e800530d8acc95066ae6c0ed898827ec2"
+      },
+      "nativeRuntimeWorker": {
+        "path": "scripts/musl-legacy-coreclr5.py",
+        "bytes": 12880,
+        "sha256": "b5e8a924db269eeae71b83e344de6d855efeecf4f9a3b8eeaad0cd893a7baa49",
+        "sha512": "f75af625b150c70d8427474b7260d28e8bb3a98bd54de4867a18fb9330c68318a7301f6b5c80a024862908008854cd6784d41ad714ebad28bf61698fadb09c85"
+      }
     }
   }
 }

@@ -1,0 +1,106 @@
+Subject: Preserve the original optimized CLR5 graph with the stock Clang20 toolchain
+
+Runtime-only reflection-cache mutators are excluded from the DAC. The exact
+upstream35a39 metadata local-allocation marker is backported for LLVM. Two
+existing PAL null values receive their declared pointer types. ZapNodeType
+keeps its observed original unsigned-int storage for computed native codes.
+No optimization, feature, tracing or runtime-security setting is removed.
+The separate official f86caa header backport remains independently pinned.
+
+--- a/src/coreclr/src/vm/comreflectioncache.hpp
++++ b/src/coreclr/src/vm/comreflectioncache.hpp
+@@ -26,6 +26,8 @@
+ 
+     void Init();
+ 
++#ifndef DACCESS_COMPILE
++    // These cache operations mutate runtime state and use runtime-only locks.
+     BOOL GetFromCache(Element *pElement, CacheType& rv)
+     {
+         CONTRACTL
+@@ -102,6 +104,7 @@
+         AdjustStamp(TRUE);
+         this->LeaveWrite();
+     }
++#endif // !DACCESS_COMPILE
+ 
+ private:
+     // Lock must have been taken before calling this.
+@@ -141,6 +144,7 @@
+         return CacheSize;
+     }
+ 
++#ifndef DACCESS_COMPILE
+     void AdjustStamp(BOOL hasWriterLock)
+     {
+         CONTRACTL
+@@ -170,6 +174,7 @@
+         if (!hasWriterLock)
+             this->LeaveWrite();
+     }
++#endif // !DACCESS_COMPILE
+ 
+     void UpdateHashTable(SIZE_T hash, int slot)
+     {
+
+--- a/src/coreclr/src/md/runtime/metamodel.cpp
++++ b/src/coreclr/src/md/runtime/metamodel.cpp
+@@ -717,13 +717,17 @@
+                                     // should we write the data into the structure
+ {
+     const CMiniTableDef *pTemplate;     // Template table definition.
+-    CMiniColDef pCols[9];               // The col defs to init.
++    // Preserve the upstream metadata column allocation marker for the local buffer.
++    const uint8_t MAX_COL_COUNT = 9;
++    BYTE colData[1 + sizeof(CMiniColDef) * MAX_COL_COUNT];
++    colData[0] = 0;
++    CMiniColDef* pCols = BYTEARRAY_TO_COLDES(colData);
+     BYTE        iOffset;                // Running size of a record.
+     BYTE        iSize;                  // Size of a field.
+     HRESULT     hr = S_OK;
+ 
+     _ASSERTE((bExtra == 0) || (bExtra == 1));
+-    _ASSERTE(NumItems(pCols) >= pTable->m_cCols);
++    _ASSERTE(MAX_COL_COUNT >= pTable->m_cCols);
+ 
+     bExtra = 0;//<TODO>@FUTURE: save in schema header.  until then use 0.</TODO>
+
+Subject: Type the existing two PAL null arguments for modern template deduction
+
+--- a/src/coreclr/src/pal/src/init/pal.cpp
++++ b/src/coreclr/src/pal/src/init/pal.cpp
+@@ -359,7 +359,7 @@
+             // Want this critical section to NOT be internal to avoid the use of unsafe region markers.
+             InternalInitializeCriticalSectionAndSpinCount(&temp_critsec, 0, false);
+ 
+-            if(NULL != InterlockedCompareExchangePointer(&init_critsec, &temp_critsec, NULL))
++            if(NULL != InterlockedCompareExchangePointer(&init_critsec, &temp_critsec, (CRITICAL_SECTION*)NULL))
+             {
+                 // Another thread got in before us! shouldn't happen, if the PAL
+                 // isn't initialized there shouldn't be any other threads
+--- a/src/coreclr/src/pal/src/thread/process.cpp
++++ b/src/coreclr/src/pal/src/thread/process.cpp
+@@ -3186,7 +3186,7 @@
+ PROCNotifyProcessShutdown()
+ {
+     // Call back into the coreclr to clean up the debugger transport pipes
+-    PSHUTDOWN_CALLBACK callback = InterlockedExchangePointer(&g_shutdownCallback, NULL);
++    PSHUTDOWN_CALLBACK callback = InterlockedExchangePointer(&g_shutdownCallback, (PSHUTDOWN_CALLBACK)NULL);
+     if (callback != NULL)
+     {
+         callback();
+
+Subject: Preserve original native unsigned enum storage for computed node codes
+
+--- a/src/coreclr/src/zap/zapnodetype.h
++++ b/src/coreclr/src/zap/zapnodetype.h
+@@ -12,7 +12,8 @@
+ #ifndef __ZAPNODETYPE_H__
+ #define __ZAPNODETYPE_H__
+ 
+-enum ZapNodeType {
++// Preserve the proven native unsigned-int ABI and computed stored-structure codes.
++enum ZapNodeType : unsigned int {
+ 
+ // System types
+
