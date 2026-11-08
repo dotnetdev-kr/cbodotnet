@@ -1,0 +1,10 @@
+--- a/src/Layout/redist/targets/GenerateLayout.targets
++++ b/src/Layout/redist/targets/GenerateLayout.targets
+@@ -162,6 +162,7 @@
+     <PropertyGroup>
+       <TestCliNuGetDirectoryTargetFramework Condition="'$(DotNetBuildFromSource)' != 'true'" >netcoreapp3.1</TestCliNuGetDirectoryTargetFramework>
+       <TestCliNuGetDirectoryTargetFramework Condition="'$(DotNetBuildFromSource)' == 'true'" >net7.0</TestCliNuGetDirectoryTargetFramework>
++      <TestCliNuGetDirectoryTargetFramework Condition="'$(CommunityMuslTestCliFramework)' != ''">$(CommunityMuslTestCliFramework)</TestCliNuGetDirectoryTargetFramework>
+       <TestCliNuGetDirectory>$(NuGetPackageRoot)/microsoft.testplatform.cli/$(MicrosoftTestPlatformCLIPackageVersion)/contentFiles/any/$(TestCliNuGetDirectoryTargetFramework)/</TestCliNuGetDirectory>
+     </PropertyGroup>
+     <ItemGroup>

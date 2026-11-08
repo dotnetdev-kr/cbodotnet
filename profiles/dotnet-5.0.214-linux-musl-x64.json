@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "kind": "legacy-musl-diagnostic-profile",
+  "selectedAt": "2026-11-08",
+  "sdkVersion": "5.0.214",
+  "status": "source-producer-investigation",
+  "qualificationAllowed": false,
+  "sourceAdmissionAllowed": false,
+  "releaseAvailabilityAllowed": false,
+  "lifecycle": {
+    "supportPhase": "eol",
+    "additionalSecurityMaintenance": false,
+    "eolDate": "2022-05-10"
+  },
+  "source": {
+    "repository": "https://github.com/dotnet/source-build",
+    "tag": null,
+    "branch": "release/5.0",
+    "commit": "d414ecb2d997a9b3f38aaaeddace30ca097e546d"
+  },
+  "componentCommits": {
+    "installer": "430330f7c5428f031b4a835be3dcf5945f55a56a",
+    "runtime": "6a984143635bde23e728abaaccbde52f5ea8fa3e",
+    "aspnetcore": "02c6de4ba6022025fcda7581415f310f8c73cdc3",
+    "sdk": "3fdf76c35026e311b7edc245d4b3d9e812fe532e",
+    "arcade": "6eec4404c2df5bfa46e5da52383c881c5cca3a9f",
+    "source-build-reference-packages": "6ce5818b1c1828ccdc8ac63d460d029c6391a401"
+  },
+  "host": {
+    "os": "linux",
+    "architecture": "x64",
+    "emulation": false
+  },
+  "target": {
+    "rid": "linux-musl-x64",
+    "libc": "musl"
+  },
+  "container": {
+    "repository": "docker.io/library/alpine",
+    "version": "3.24.4",
+    "digest": "sha256:0f49f331d9212aff11b932863be4eb01cdf962969aa86dab7d1ee21ac6f5f52b",
+    "indexDigest": "sha256:93b41ef40b1677fce8fcc64ff4af09daddfacf5040afde618bc46c1e2d1cc7d4"
+  },
+  "bootstrap": {
+    "version": "5.0.212",
+    "rid": "linux-musl-x64",
+    "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/5.0.212/dotnet-sdk-5.0.212-linux-musl-x64.tar.gz",
+    "sha512": "341282d1187f118ca00c2e908c053d8722cb880671bb5d01b5616a525872b34bf23d024e786e1cc00418aba0fb13558da4080b74deeb8cefc6a1b465ab9a44d4",
+    "purpose": "Candidate regular SDK tooling/bootstrap input; not a previously source-built glibc archive"
+  },
+  "stockAlpine": {
+    "branch": "3.24",
+    "pointRelease": "3.24.4",
+    "referenceProfile": "profiles/dotnet-10.0.403-linux-musl-x64.json",
+    "referenceProfileSha256": "55d73112b1bb22a761141d5e11b8e2eb97863fadd05df35d84bedd1420751714",
+    "apkIndexes": {
+      "main": {
+        "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/APKINDEX.tar.gz",
+        "sha256": "f976c7888999de04ae70250f872ad85bdc52309d2a5e06597a77f634f912d895",
+        "snapshotPath": "inputs/alpine-3.24.4/x64/main-APKINDEX.tar.gz"
+      },
+      "community": {
+        "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/community/x86_64/APKINDEX.tar.gz",
+        "sha256": "072b5bd71bf3b1a21da3cc3232f6370a3936945c0644d973420e62c58a7453f8",
+        "snapshotPath": "inputs/alpine-3.24.4/x64/community-APKINDEX.tar.gz"
+      }
+    },
+    "openssl": "3.5.9-r0",
+    "icu": "78.1-r0",
+    "fullIcuDataRequired": true,
+    "curl": "8.23.0-r0",
+    "lttngUst": "2.14.2-r0"
+  },
+  "build": {
+    "system": "regular-sdk-redist-then-installer-candidate",
+    "configuration": "Release",
+    "sourceOnly": false,
+    "crossBuild": false,
+    "portableBuild": true,
+    "maxCpuCount": 2,
+    "productBuildQualified": false,
+    "rebuiltComponentsPlanned": [
+      "dotnet/sdk CLI, SDK tasks, resolvers and SDK redist",
+      "dotnet/installer core SDK tasks and redist"
+    ],
+    "importedComponentsPlanned": [
+      "matching official musl host/runtime/ASP.NET archives",
+      "pinned compiler, MSBuild, NuGet and other tool packages"
+    ],
+    "sourceCompleteness": "Full used source/license closure has not yet been retained and verified",
+    "sourceBuildWrappersReusable": false,
+    "glibcPatchesAssumedApplicable": false,
+    "unresolved": [
+      "Every host/runtime/tool ELF must close on stock Alpine, including legacy LTTng trace provider",
+      "Native successful regular tooling and installer build on each CPU",
+      "Bind all actual imported bytes and exact matching used sources/licenses"
+    ]
+  },
+  "diagnostics": {
+    "attribution": "Unmodified imported Microsoft SDK for feasibility diagnostics only",
+    "upstreamSdk": {
+      "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/5.0.214/dotnet-sdk-5.0.214-linux-musl-x64.tar.gz",
+      "path": "/mnt/d/Projects/cbodotnet/.build/musl-legacy-assessment-20261108/inputs/dotnet-sdk-5.0.214-linux-musl-x64.tar.gz",
+      "bytes": 139594458,
+      "sha256": "85188fa21aec15a406711bb8bef3dce5e8f898ac37bf6d931d70acde1d21aca9",
+      "sha512": "39261405f6c05216da2fbd6b3aaff1ac1ed4681bb017f0127edbf62935329acf4334ff889fce1273b65fe02d82efe4679dec050c74353717c16e7bbc10c3de24"
+    },
+    "staticReport": {
+      "path": ".build/musl-legacy-assessment-20261108/5.0.214/x64/payload.json",
+      "bytes": 15497,
+      "sha256": "bf3b53a86c6fc353e9e6ee5e478f95295efc4a06457168b2ce6e28242f8c3843",
+      "sha512": "46dfebea47af9f30e46ec701102169160b5bfb0eea0459ee6071996ca24e5b95434cb22b03cab912c4668d62ca7b68da5e5c70a2119cd797452426a2bd9b45cd"
+    },
+    "elfCount": 18,
+    "elfMachines": [
+      "Advanced Micro Devices X86-64"
+    ],
+    "nativeExecutionPerformed": false,
+    "nativeEvidence": "Stock dependency diagnostic only; no official workflow or release proof",
+    "stockComponentCandidate": null
+  },
+  "supportScope": "EOL community feasibility diagnostic on Alpine 3.24.4; not Microsoft support, source admission or release availability",
+  "nativeComponentPlan": {
+    "traceProvider": {
+      "action": "rebuild-own-exact-runtime-source-against-stock-lttng",
+      "sourceCommit": "6a984143635bde23e728abaaccbde52f5ea8fa3e",
+      "stockSoname": "liblttng-ust.so.1",
+      "nativeArm64Experiment": "passed",
+      "nativeX64Experiment": "not-executed"
+    },
+    "crypto": {
+      "action": "source-backport-and-direct-link-stock-openssl3",
+      "patch": "patches/net5-musl/0001-use-stock-openssl3.patch",
+      "patchSha256": "296afea408f56da84952491d05c9e226bd324fee27b42c33f3b96bebcd30e3ab",
+      "donorCommit": "f1dd57165bfd91875761329ac3a8b17f6606ad18",
+      "preservedManagedInvalidCa": 24,
+      "nativeOpenSsl3InvalidCa": 79,
+      "nativeArm64Experiment": "passed",
+      "nativeX64Experiment": "not-executed"
+    }
+  }
+}

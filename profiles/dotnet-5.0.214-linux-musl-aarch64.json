@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "kind": "legacy-musl-diagnostic-profile",
+  "selectedAt": "2026-11-08",
+  "sdkVersion": "5.0.214",
+  "status": "native-arm64-stock-openssl3-port-negative-certificates-passed-sdkproducer-in-progress",
+  "qualificationAllowed": false,
+  "sourceAdmissionAllowed": false,
+  "releaseAvailabilityAllowed": false,
+  "lifecycle": {
+    "supportPhase": "eol",
+    "additionalSecurityMaintenance": false,
+    "eolDate": "2022-05-10"
+  },
+  "source": {
+    "repository": "https://github.com/dotnet/source-build",
+    "tag": null,
+    "branch": "release/5.0",
+    "commit": "d414ecb2d997a9b3f38aaaeddace30ca097e546d"
+  },
+  "componentCommits": {
+    "installer": "430330f7c5428f031b4a835be3dcf5945f55a56a",
+    "runtime": "6a984143635bde23e728abaaccbde52f5ea8fa3e",
+    "aspnetcore": "02c6de4ba6022025fcda7581415f310f8c73cdc3",
+    "sdk": "3fdf76c35026e311b7edc245d4b3d9e812fe532e",
+    "arcade": "6eec4404c2df5bfa46e5da52383c881c5cca3a9f",
+    "source-build-reference-packages": "6ce5818b1c1828ccdc8ac63d460d029c6391a401"
+  },
+  "host": {
+    "os": "linux",
+    "architecture": "arm64",
+    "emulation": false
+  },
+  "target": {
+    "rid": "linux-musl-arm64",
+    "libc": "musl"
+  },
+  "container": {
+    "repository": "docker.io/library/alpine",
+    "version": "3.24.4",
+    "digest": "sha256:1829893486be257df5049ab3b7fc95afbd0fc09d89803cbc580bda1ba5386b29",
+    "indexDigest": "sha256:93b41ef40b1677fce8fcc64ff4af09daddfacf5040afde618bc46c1e2d1cc7d4"
+  },
+  "bootstrap": {
+    "version": "5.0.212",
+    "rid": "linux-musl-arm64",
+    "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/5.0.212/dotnet-sdk-5.0.212-linux-musl-arm64.tar.gz",
+    "sha512": "a84ff994602532a76f9494a8c408a8f6b4623b2f750d72e366bf130a0f2b7cd5e33fa46a56c02dd832e01ec90cba70f5dd0452f73d71922879bef358f79274d9",
+    "purpose": "Candidate regular SDK tooling/bootstrap input; not a previously source-built glibc archive"
+  },
+  "stockAlpine": {
+    "branch": "3.24",
+    "pointRelease": "3.24.4",
+    "referenceProfile": "profiles/dotnet-10.0.403-linux-musl-aarch64.json",
+    "referenceProfileSha256": "1ed03c63c5e805726154fb767a7ac6007cd5bed0a2afd50e3da65ae644a19333",
+    "apkIndexes": {
+      "main": {
+        "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/aarch64/APKINDEX.tar.gz",
+        "sha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540",
+        "snapshotPath": "inputs/alpine-3.24.4/aarch64/main-APKINDEX.tar.gz"
+      },
+      "community": {
+        "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/community/aarch64/APKINDEX.tar.gz",
+        "sha256": "ad8f92f7111c96240bc7ec595d78201a74e4fc1ef2d50658f3136a446e0c7f08",
+        "snapshotPath": "inputs/alpine-3.24.4/aarch64/community-APKINDEX.tar.gz"
+      }
+    },
+    "openssl": "3.5.9-r0",
+    "icu": "78.1-r0",
+    "fullIcuDataRequired": true,
+    "curl": "8.23.0-r0",
+    "lttngUst": "2.14.2-r0"
+  },
+  "build": {
+    "system": "regular-sdk-redist-then-installer-candidate",
+    "configuration": "Release",
+    "sourceOnly": false,
+    "crossBuild": false,
+    "portableBuild": true,
+    "maxCpuCount": 2,
+    "productBuildQualified": false,
+    "rebuiltComponentsPlanned": [
+      "dotnet/sdk CLI, SDK tasks, resolvers and SDK redist",
+      "dotnet/installer core SDK tasks and redist"
+    ],
+    "importedComponentsPlanned": [
+      "matching official musl host/runtime/ASP.NET archives",
+      "pinned compiler, MSBuild, NuGet and other tool packages"
+    ],
+    "sourceCompleteness": "Full used source/license closure has not yet been retained and verified",
+    "sourceBuildWrappersReusable": false,
+    "glibcPatchesAssumedApplicable": false,
+    "unresolved": [
+      "Every host/runtime/tool ELF must close on stock Alpine, including legacy LTTng trace provider",
+      "Native successful regular tooling and installer build on each CPU",
+      "Bind all actual imported bytes and exact matching used sources/licenses"
+    ]
+  },
+  "diagnostics": {
+    "attribution": "Unmodified imported Microsoft SDK for feasibility diagnostics only",
+    "upstreamSdk": {
+      "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/5.0.214/dotnet-sdk-5.0.214-linux-musl-arm64.tar.gz",
+      "path": "/mnt/d/Projects/cbodotnet/.build/musl-legacy-assessment-20261108/inputs/dotnet-sdk-5.0.214-linux-musl-arm64.tar.gz",
+      "bytes": 135182070,
+      "sha256": "ab631e8344ced139300246521f506d87eed10853ac428e7bbf7afdb921af1d1b",
+      "sha512": "92ce80320a73f742672c99318e66cfaf375876fb8320d053cd64d6b53a9c365bb2774fecbed3714646abf6f3eba72286246013cb8d80fc087b5908fcdfbfeffb"
+    },
+    "staticReport": {
+      "path": ".build/musl-legacy-assessment-20261108/5.0.214/aarch64/payload.json",
+      "bytes": 15477,
+      "sha256": "48ae3ceadae84c26aaca44f9d831aebdf8be5bcf8f1f66e9f803892ee182b03d",
+      "sha512": "c7c9939a2a5d58b319ba9f3296f3e4661a0d4f22609c81b3ceb1a0729b52965f2c0d0401f067671318fb5657e03f1aa1a0524e8464480e9b8d619b88741708b8"
+    },
+    "elfCount": 18,
+    "elfMachines": [
+      "AArch64"
+    ],
+    "nativeExecutionPerformed": true,
+    "nativeEvidence": "Stock dependency diagnostic only; no official workflow or release proof",
+    "stockComponentCandidate": {
+      "allNativePayloadLddEntries": 18,
+      "lddErrors": 0,
+      "offlineBuild": true,
+      "apphost": true,
+      "aspnetHttp": true,
+      "icuCultures": 13,
+      "crypto": [
+        "SHA256",
+        "RSA",
+        "ECDSA",
+        "AESGCM",
+        "X509",
+        "OID"
+      ],
+      "systemTrustTls": true,
+      "qualificationAllowed": false
+    }
+  },
+  "supportScope": "EOL community feasibility diagnostic on Alpine 3.24.4; not Microsoft support, source admission or release availability",
+  "nativeComponentPlan": {
+    "traceProvider": {
+      "action": "rebuild-own-exact-runtime-source-against-stock-lttng",
+      "sourceCommit": "6a984143635bde23e728abaaccbde52f5ea8fa3e",
+      "stockSoname": "liblttng-ust.so.1",
+      "nativeArm64Experiment": "passed",
+      "nativeX64Experiment": "not-executed"
+    },
+    "crypto": {
+      "action": "source-backport-and-direct-link-stock-openssl3",
+      "patch": "patches/net5-musl/0001-use-stock-openssl3.patch",
+      "patchSha256": "296afea408f56da84952491d05c9e226bd324fee27b42c33f3b96bebcd30e3ab",
+      "donorCommit": "f1dd57165bfd91875761329ac3a8b17f6606ad18",
+      "preservedManagedInvalidCa": 24,
+      "nativeOpenSsl3InvalidCa": 79,
+      "nativeArm64Experiment": "passed",
+      "nativeX64Experiment": "not-executed"
+    }
+  },
+  "localDiagnosticEvidence": {
+    "path": "docs/musl-legacy-feasibility.json",
+    "sha256": "1a88dd736500babbcef96eadc9e2f976ba5e0f5c0bb4822b07d21e8dca8343ff",
+    "officialWorkflowQualified": false,
+    "sourceClosureComplete": false,
+    "qualificationAllowed": false
+  }
+}

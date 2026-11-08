@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "kind": "legacy-musl-diagnostic-profile",
+  "selectedAt": "2026-11-08",
+  "sdkVersion": "6.0.136",
+  "status": "native-arm64-stock-component-closure-passed-sdkproducer-in-progress",
+  "qualificationAllowed": false,
+  "sourceAdmissionAllowed": false,
+  "releaseAvailabilityAllowed": false,
+  "lifecycle": {
+    "supportPhase": "eol",
+    "additionalSecurityMaintenance": false,
+    "eolDate": "2024-11-12"
+  },
+  "source": {
+    "repository": "https://github.com/dotnet/installer",
+    "tag": "v6.0.136",
+    "commit": "d638663530d923adbe0442604b7a6562127321e9"
+  },
+  "componentCommits": {
+    "installer": "d638663530d923adbe0442604b7a6562127321e9",
+    "runtime": "f1dd57165bfd91875761329ac3a8b17f6606ad18",
+    "aspnetcore": "64ea4108e7dcf1ca575f8dd2028363b0b1ef6ebc",
+    "sdk": "1d205826ddc14c8f868eb6373e7a6bafcb9fe5be",
+    "source-build": "7649ca7106e7e91ac06f169626bf01a77c2258eb"
+  },
+  "host": {
+    "os": "linux",
+    "architecture": "arm64",
+    "emulation": false
+  },
+  "target": {
+    "rid": "linux-musl-arm64",
+    "libc": "musl"
+  },
+  "container": {
+    "repository": "docker.io/library/alpine",
+    "version": "3.24.4",
+    "digest": "sha256:1829893486be257df5049ab3b7fc95afbd0fc09d89803cbc580bda1ba5386b29",
+    "indexDigest": "sha256:93b41ef40b1677fce8fcc64ff4af09daddfacf5040afde618bc46c1e2d1cc7d4"
+  },
+  "bootstrap": {
+    "version": "6.0.135",
+    "rid": "linux-musl-arm64",
+    "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/6.0.135/dotnet-sdk-6.0.135-linux-musl-arm64.tar.gz",
+    "sha512": "dc9c3b959fd66424fb9c37557ff65db07edd5ec816bcd0524cd60f8a879025ae1b40ecb775792da377adcfc2230e5d20f72e68946414f318bb33901d5e628969",
+    "purpose": "Candidate regular SDK tooling/bootstrap input; not a previously source-built glibc archive"
+  },
+  "stockAlpine": {
+    "branch": "3.24",
+    "pointRelease": "3.24.4",
+    "referenceProfile": "profiles/dotnet-10.0.403-linux-musl-aarch64.json",
+    "referenceProfileSha256": "1ed03c63c5e805726154fb767a7ac6007cd5bed0a2afd50e3da65ae644a19333",
+    "apkIndexes": {
+      "main": {
+        "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/aarch64/APKINDEX.tar.gz",
+        "sha256": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540",
+        "snapshotPath": "inputs/alpine-3.24.4/aarch64/main-APKINDEX.tar.gz"
+      },
+      "community": {
+        "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/community/aarch64/APKINDEX.tar.gz",
+        "sha256": "ad8f92f7111c96240bc7ec595d78201a74e4fc1ef2d50658f3136a446e0c7f08",
+        "snapshotPath": "inputs/alpine-3.24.4/aarch64/community-APKINDEX.tar.gz"
+      }
+    },
+    "openssl": "3.5.9-r0",
+    "icu": "78.1-r0",
+    "fullIcuDataRequired": true,
+    "curl": "8.23.0-r0",
+    "lttngUst": "2.14.2-r0"
+  },
+  "build": {
+    "system": "regular-sdk-redist-then-installer-candidate",
+    "configuration": "Release",
+    "sourceOnly": false,
+    "crossBuild": false,
+    "portableBuild": true,
+    "maxCpuCount": 2,
+    "productBuildQualified": false,
+    "rebuiltComponentsPlanned": [
+      "dotnet/sdk CLI, SDK tasks, resolvers and SDK redist",
+      "dotnet/installer core SDK tasks and redist"
+    ],
+    "importedComponentsPlanned": [
+      "matching official musl host/runtime/ASP.NET archives",
+      "pinned compiler, MSBuild, NuGet and other tool packages"
+    ],
+    "sourceCompleteness": "Full used source/license closure has not yet been retained and verified",
+    "sourceBuildWrappersReusable": false,
+    "glibcPatchesAssumedApplicable": false,
+    "unresolved": [
+      "Every host/runtime/tool ELF must close on stock Alpine, including legacy LTTng trace provider",
+      "Native successful regular tooling and installer build on each CPU",
+      "Bind all actual imported bytes and exact matching used sources/licenses"
+    ]
+  },
+  "diagnostics": {
+    "attribution": "Unmodified imported Microsoft SDK for feasibility diagnostics only",
+    "upstreamSdk": {
+      "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/6.0.136/dotnet-sdk-6.0.136-linux-musl-arm64.tar.gz",
+      "path": "/mnt/d/Projects/cbodotnet/.build/musl-legacy-assessment-20261108/inputs/dotnet-sdk-6.0.136-linux-musl-arm64.tar.gz",
+      "bytes": 171197234,
+      "sha256": "e7e2eea03ddcc662b91e6e906a0e76e366f454306bd22535388fd9a8fc1f9024",
+      "sha512": "2ccb4e58f9dfa0a09dce1687a60ae4911cf8c864abfc7d63cdc113bd228a253f9545d699e8709d1403ff28ce7cf8db0935e4796b05b0aa80eef6ae43d38b8537"
+    },
+    "staticReport": {
+      "path": ".build/musl-legacy-assessment-20261108/6.0.136/aarch64/payload.json",
+      "bytes": 15996,
+      "sha256": "323e2fe07fdf27601bd747c9df675c0f50eac4fbceb6bdf0dd8a7da9b1563e52",
+      "sha512": "2cedeb32add56f32781482e9807b9d1a2156503cf59150636c0c0bfe31cd0480d884320db224e1f49933f6995c815a47bf8492efbe6487ae2b6c870046140fa0"
+    },
+    "elfCount": 19,
+    "elfMachines": [
+      "AArch64"
+    ],
+    "nativeExecutionPerformed": true,
+    "nativeEvidence": "Stock dependency diagnostic only; no official workflow or release proof",
+    "stockComponentCandidate": {
+      "allNativePayloadLddEntries": 19,
+      "lddErrors": 0,
+      "offlineBuild": true,
+      "apphost": true,
+      "aspnetHttp": true,
+      "icuCultures": 13,
+      "crypto": [
+        "SHA256",
+        "RSA",
+        "ECDSA",
+        "AESGCM",
+        "X509",
+        "OID"
+      ],
+      "systemTrustTls": true,
+      "qualificationAllowed": false
+    }
+  },
+  "supportScope": "EOL community feasibility diagnostic on Alpine 3.24.4; not Microsoft support, source admission or release availability",
+  "nativeComponentPlan": {
+    "traceProvider": {
+      "action": "rebuild-own-exact-runtime-source-against-stock-lttng",
+      "sourceCommit": "f1dd57165bfd91875761329ac3a8b17f6606ad18",
+      "stockSoname": "liblttng-ust.so.1",
+      "nativeArm64Experiment": "passed",
+      "nativeX64Experiment": "not-executed"
+    }
+  },
+  "localDiagnosticEvidence": {
+    "path": "docs/musl-legacy-feasibility.json",
+    "sha256": "1a88dd736500babbcef96eadc9e2f976ba5e0f5c0bb4822b07d21e8dca8343ff",
+    "officialWorkflowQualified": false,
+    "sourceClosureComplete": false,
+    "qualificationAllowed": false
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "kind": "legacy-musl-diagnostic-profile",
+  "selectedAt": "2026-11-08",
+  "sdkVersion": "7.0.120",
+  "status": "source-producer-investigation",
+  "qualificationAllowed": false,
+  "sourceAdmissionAllowed": false,
+  "releaseAvailabilityAllowed": false,
+  "lifecycle": {
+    "supportPhase": "eol",
+    "additionalSecurityMaintenance": false,
+    "eolDate": "2024-05-14"
+  },
+  "source": {
+    "repository": "https://github.com/dotnet/installer",
+    "tag": "v7.0.120",
+    "commit": "25b977658c06fd0217ec0bc0714398bb9d0a7bb0"
+  },
+  "componentCommits": {
+    "installer": "25b977658c06fd0217ec0bc0714398bb9d0a7bb0",
+    "runtime": "0fb6ac59fb1edbe4ed3ad62661df0eb7eacd7903",
+    "aspnetcore": "d9ba962869d1b1c410ea476b02de2f8e27eec762",
+    "sdk": "a06803c09702777c6550fede13c8bdc52d780191",
+    "source-build-externals": "522d361e1cd703f1e8e526f5306e4ed18de1da41"
+  },
+  "host": {
+    "os": "linux",
+    "architecture": "x64",
+    "emulation": false
+  },
+  "target": {
+    "rid": "linux-musl-x64",
+    "libc": "musl"
+  },
+  "container": {
+    "repository": "docker.io/library/alpine",
+    "version": "3.24.4",
+    "digest": "sha256:0f49f331d9212aff11b932863be4eb01cdf962969aa86dab7d1ee21ac6f5f52b",
+    "indexDigest": "sha256:93b41ef40b1677fce8fcc64ff4af09daddfacf5040afde618bc46c1e2d1cc7d4"
+  },
+  "bootstrap": {
+    "version": "7.0.118",
+    "rid": "linux-musl-x64",
+    "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/7.0.118/dotnet-sdk-7.0.118-linux-musl-x64.tar.gz",
+    "sha512": "11d9daf0b80c4c735210c54eebda72c86e383a1cfee1129755ac2b06bd813e386d6650bd0ee54e7f8052f770ad15e3954fee2eb21258690ad59917823b01efee",
+    "purpose": "Candidate regular SDK tooling/bootstrap input; not a previously source-built glibc archive"
+  },
+  "stockAlpine": {
+    "branch": "3.24",
+    "pointRelease": "3.24.4",
+    "referenceProfile": "profiles/dotnet-10.0.403-linux-musl-x64.json",
+    "referenceProfileSha256": "55d73112b1bb22a761141d5e11b8e2eb97863fadd05df35d84bedd1420751714",
+    "apkIndexes": {
+      "main": {
+        "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/APKINDEX.tar.gz",
+        "sha256": "f976c7888999de04ae70250f872ad85bdc52309d2a5e06597a77f634f912d895",
+        "snapshotPath": "inputs/alpine-3.24.4/x64/main-APKINDEX.tar.gz"
+      },
+      "community": {
+        "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/community/x86_64/APKINDEX.tar.gz",
+        "sha256": "072b5bd71bf3b1a21da3cc3232f6370a3936945c0644d973420e62c58a7453f8",
+        "snapshotPath": "inputs/alpine-3.24.4/x64/community-APKINDEX.tar.gz"
+      }
+    },
+    "openssl": "3.5.9-r0",
+    "icu": "78.1-r0",
+    "fullIcuDataRequired": true,
+    "curl": "8.23.0-r0",
+    "lttngUst": "2.14.2-r0"
+  },
+  "build": {
+    "system": "regular-sdk-redist-then-installer-candidate",
+    "configuration": "Release",
+    "sourceOnly": false,
+    "crossBuild": false,
+    "portableBuild": true,
+    "maxCpuCount": 2,
+    "productBuildQualified": false,
+    "rebuiltComponentsPlanned": [
+      "dotnet/sdk CLI, SDK tasks, resolvers and SDK redist",
+      "dotnet/installer core SDK tasks and redist"
+    ],
+    "importedComponentsPlanned": [
+      "matching official musl host/runtime/ASP.NET archives",
+      "pinned compiler, MSBuild, NuGet and other tool packages"
+    ],
+    "sourceCompleteness": "Full used source/license closure has not yet been retained and verified",
+    "sourceBuildWrappersReusable": false,
+    "glibcPatchesAssumedApplicable": false,
+    "unresolved": [
+      "Every host/runtime/tool ELF must close on stock Alpine, including legacy LTTng trace provider",
+      "Native successful regular tooling and installer build on each CPU",
+      "Bind all actual imported bytes and exact matching used sources/licenses"
+    ]
+  },
+  "diagnostics": {
+    "attribution": "Unmodified imported Microsoft SDK for feasibility diagnostics only",
+    "upstreamSdk": {
+      "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/7.0.120/dotnet-sdk-7.0.120-linux-musl-x64.tar.gz",
+      "path": "/mnt/d/Projects/cbodotnet/.build/musl-legacy-assessment-20261108/inputs/dotnet-sdk-7.0.120-linux-musl-x64.tar.gz",
+      "bytes": 194502767,
+      "sha256": "a3137ad09782b622608cc450bc2d268fdd10eac03fea3cf55ec95a7f964209f9",
+      "sha512": "c508ab5310d743f57ea78611ffe354268fe883e7c673ee808daaa6dde30ba454d5d70f8191c49eb52ae4a80c062ed6490ba1d6b752fcc541b0eb7835f4eee87f"
+    },
+    "staticReport": {
+      "path": ".build/musl-legacy-assessment-20261108/7.0.120/x64/payload.json",
+      "bytes": 16321,
+      "sha256": "fd0ec201832fa1533e6b5eb12924ebe9108d334d90d6334d82a113fe7403ecc8",
+      "sha512": "d8fed86fe73e929ae3366351ddd22c47374cd2e15447171ba602f3c938a3d3ed9d2664dd334d27021359533737bbd7d96927d4cbdff1afc1b88a7fa2fcb949db"
+    },
+    "elfCount": 19,
+    "elfMachines": [
+      "Advanced Micro Devices X86-64"
+    ],
+    "nativeExecutionPerformed": false,
+    "nativeEvidence": "Stock dependency diagnostic only; no official workflow or release proof",
+    "stockComponentCandidate": null
+  },
+  "supportScope": "EOL community feasibility diagnostic on Alpine 3.24.4; not Microsoft support, source admission or release availability",
+  "nativeComponentPlan": {
+    "traceProvider": {
+      "action": "rebuild-own-exact-runtime-source-against-stock-lttng",
+      "sourceCommit": "0fb6ac59fb1edbe4ed3ad62661df0eb7eacd7903",
+      "stockSoname": "liblttng-ust.so.1",
+      "nativeArm64Experiment": "passed",
+      "nativeX64Experiment": "not-executed"
+    }
+  }
+}
