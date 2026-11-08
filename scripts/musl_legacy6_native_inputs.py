@@ -150,7 +150,8 @@ def build_boundary(B, manifest, stages, prepare, architecture, build_id):
     calls = [call for call in stages['build']['commands'] if '/project/scripts/musl-legacy6-coreclr.py' in call]
     require(len(calls) == 1, 'One actual SDK6 native worker required')
     call = calls[0]
-    require(call[:len(B.P.DOCKER_ENGINE) + 1] == B.P.DOCKER_ENGINE + ['run'] and prepare['imageId'] in call,
+    require(call[:len(B.P.DOCKER_ENGINE) + 1] == B.P.DOCKER_ENGINE + ['run'] and prepare['imageId'] in call
+            and not any(arg.startswith(('--mount', '--volumes-from', '--volume=', '-v')) for arg in call),
             'Actual SDK6 native worker must use the frozen native builder image')
     mapped = []
     for position, value in enumerate(call):

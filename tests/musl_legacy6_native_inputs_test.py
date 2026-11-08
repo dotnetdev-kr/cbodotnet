@@ -135,6 +135,12 @@ class Native6Inputs(unittest.TestCase):
         changed = command[:4] + ['--volume', '/other:/work/work/runtime/src'] + command[4:]
         with self.assertRaisesRegex(ValueError, 'shadows'):
             N.build_boundary(B, manifest, dict(build=dict(commands=[changed])), prepare, 'aarch64', '20261109.1')
+        for alias in (['-v', '/hidden:/work/work/runtime/src'], ['-v/hidden:/work/work/runtime/src'],
+                      ['--volume=/hidden:/work/work/runtime/src'],
+                      ['--mount', 'type=bind,src=/hidden,dst=/work/work/runtime/src'], ['--volumes-from=other']):
+            changed = command[:4] + alias + command[4:]
+            with self.subTest(alias=alias), self.assertRaises(ValueError):
+                N.build_boundary(B, manifest, dict(build=dict(commands=[changed])), prepare, 'aarch64', '20261109.1')
 
 
 if __name__ == '__main__':

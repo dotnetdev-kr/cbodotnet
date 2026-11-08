@@ -64,7 +64,7 @@ def validate_source_workers(record, prepare, stages, manifest):
         require(call[:len(P.DOCKER_ENGINE) + 1] == P.DOCKER_ENGINE + ['run']
                 and call.count(prepare['imageId']) == 1
                 and [arg for arg in call if arg.startswith('--network')] == ['--network=host']
-                and not any(arg.startswith(('--mount', '--volumes-from', '--device', '--entrypoint')) for arg in call),
+                and not any(arg.startswith(('--mount', '--volumes-from', '--volume=', '-v', '--device', '--entrypoint')) for arg in call),
                 'SDK6 source worker engine/image/network or mount mechanism differs')
         volumes, mapped = {}, []
         for index, value in enumerate(call):
@@ -297,7 +297,7 @@ def validate_verification_boundary(release, record, prepare, stages):
         PYTHONDONTWRITEBYTECODE='1', MSBUILDDEBUGPATH='/diag', MSBUILDDEBUGCOMM='1')
     for call in calls:
         require(call.count(prepare['verificationImageId']) == 1
-                and not any(value.startswith(('--mount', '--volumes-from', '--device', '--entrypoint')) for value in call),
+                and not any(value.startswith(('--mount', '--volumes-from', '--volume=', '-v', '--device', '--entrypoint')) for value in call),
                 'Every final SDK worker must use the frozen SDK-free image')
         mounts, environment = {}, {}
         for index, value in enumerate(call):
@@ -398,13 +398,15 @@ def validate_lttng(release, record, prepare, stages):
     require(call[:len(P.DOCKER_ENGINE) + 1] == P.DOCKER_ENGINE + ['run']
             and call.count(prepare['tracingImageId']) == 1 and '--network=none' in call
             and [arg for arg in call if arg.startswith('--network')] == ['--network=none']
-            and not any(arg.startswith(('--mount', '--volumes-from', '--device', '--entrypoint')) for arg in call),
+            and not any(arg.startswith(('--mount', '--volumes-from', '--volume=', '-v', '--device', '--entrypoint')) for arg in call),
             'Tracing test must run offline in the frozen SDK-free image without host overrides')
     mounts, environment = {}, {}
     allowed_environment = dict(HOME='/home/build', DOTNET_CLI_HOME='/home/build', DOTNET_CLI_TELEMETRY_OPTOUT='1',
         DOTNET_SKIP_FIRST_TIME_EXPERIENCE='1', DOTNET_MULTILEVEL_LOOKUP='0', DOTNET_PROCESSOR_COUNT='2',
         PYTHONDONTWRITEBYTECODE='1', MSBUILDDEBUGPATH='/diag', MSBUILDDEBUGCOMM='1')
     for position, arg in enumerate(call):
+        require(not arg.startswith('-e') and (not arg.startswith('--env') or arg == '--env'),
+                'Tracing SDK6 worker may use only explicit reviewed --env options')
         if arg == '--volume':
             fields = call[position + 1].split(':')
             require(len(fields) in {2, 3} and fields[1] not in mounts, 'Unexpected tracing worker volume syntax')
@@ -414,6 +416,7 @@ def validate_lttng(release, record, prepare, stages):
             require(separator and key not in environment and allowed_environment.get(key) == value,
                     'Tracing worker inherited an unreviewed SDK/library/runtime environment override')
             environment[key] = value
+    require(environment == allowed_environment, 'Complete original tracing SDK6 worker environment required')
     require(mounts == {'/project': 'ro', '/delivery': 'rw', '/home/build': 'rw', '/diag': 'rw'},
             'Tracing worker exposes a build/source/bootstrap workspace')
     for flag, value in [('--sdk', record['sdkVersion']), ('--arch', record['architecture']),
