@@ -33,5 +33,32 @@ class ObservedSourceBoundary(unittest.TestCase):
     def test_skipped_compilation_cannot_supply_source_coverage(self):
         with self.assertRaisesRegex(ValueError, 'executed'): M.task_inputs(task(skip=True), '/source')
 
+    def test_generator_scalar_message_must_match_actual_command_path(self):
+        values = task(command='dotnet exec csc.dll /generatedfilesout:/source/artifacts/obj//generated ../Shared.cs')
+        values['1:2:3:4']['events'].append(dict(kind='message', field=None,
+            text='Task Parameter:GeneratedFilesOutputPath=/source/artifacts/obj/generated'))
+        result = M.task_inputs(values, '/source')['1:2:3:4']
+        self.assertEqual('/source/artifacts/obj/generated', result['generatedDirectory'])
+        values['1:2:3:4']['events'][-1]['text'] = 'Task Parameter:GeneratedFilesOutputPath=/source/artifacts/other'
+        with self.assertRaisesRegex(ValueError, 'disagree'): M.task_inputs(values, '/source')
+
+    def test_generated_outputs_cannot_escape_or_omit_scalar_provenance(self):
+        values = task(command='dotnet exec csc.dll /generatedfilesout:/source/generated ../Shared.cs')
+        with self.assertRaisesRegex(ValueError, 'scalar'): M.task_inputs(values, '/source')
+        values['1:2:3:4']['events'].append(dict(kind='message', field=None,
+            text='Task Parameter:GeneratedFilesOutputPath=/outside/generated'))
+        with self.assertRaisesRegex(ValueError, 'escaped'): M.task_inputs(values, '/source')
+
+    def test_absence_is_limited_to_two_original_package_analyzer_paths(self):
+        project = dict(taskName='Csc', projectFile='/vstest/src/package/package/package.csproj')
+        relative = 'src/package/package/PublicAPI/net7.0/PublicAPI.Shipped.txt'
+        item = dict(field='AdditionalFiles', relativePath=relative, sourcePath='/vstest/' + relative)
+        self.assertTrue(M.reviewed_absence('vstest', project, item, '/vstest'))
+        for field in ('Sources', 'Resources', 'EmbeddedFiles'):
+            self.assertFalse(M.reviewed_absence('vstest', project, dict(item, field=field), '/vstest'))
+        self.assertFalse(M.reviewed_absence('sdk', project, item, '/vstest'))
+        self.assertFalse(M.reviewed_absence('vstest', dict(project, projectFile='/vstest/src/real/real.csproj'), item, '/vstest'))
+        self.assertFalse(M.reviewed_absence('vstest', project, dict(item, relativePath=relative.replace('net7.0', 'net6.0')), '/vstest'))
+
 
 if __name__ == '__main__': unittest.main()

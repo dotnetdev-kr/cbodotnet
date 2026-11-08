@@ -28,6 +28,10 @@ pins corresponding sources independently of their NuGet container. The
 Git submodules before requesting another clone, then registers nested consumers
 before construction evidence is emitted. It uses the producer's recorded clone
 boundary. Existing exact submodule sources are reused without a duplicate clone.
+Fresh corresponding-source clones retain literal Git blob bytes even when
+checkout attributes request different line endings. Per-file materialization
+records preserve checkout and retained hashes. This step is confined to new
+corresponding-source clones and their nested consumers.
 
 [`musl_legacy_manifest_inputs.py`](../scripts/musl_legacy_manifest_inputs.py)
 uses a [closed policy](../scripts/musl-legacy-workload-manifest-policy.json) for
@@ -68,6 +72,11 @@ replays and checks all source copies against the used-source index and archive.
 Source-less template metadata compilations are explicit and may not conceal
 source operands or response files. They do not establish source compilation
 for a primary shipping implementation.
+Scalar `GeneratedFilesOutputPath` messages must agree with the actual Csc
+command. Their readable generated outputs, including explicitly empty output
+directories, receive separate coverage. Two original VSTest aggregate-package
+analyzer paths that do not exist in its exact Git tree have explicit observed
+absence records. Source and resource inputs cannot use that exception.
 
 The musl CLI uses the .NET MSBuild host. Its scoped layout excludes the two
 Full MSBuild `net472` task directories from the SDK and Razor SDK. Mono/Full
@@ -94,6 +103,17 @@ implementations, linked resources, methods, fields and native CLI bodies fail
 the data-only boundary. Independent comparison with the framework PEReader
 matches all 87 metadata blocks, 3,881 exported-type declarations and 1,143
 custom attributes, including complete references and scope handles.
+
+[`musl_legacy_globbing_inputs.py`](../scripts/musl_legacy_globbing_inputs.py)
+binds the exact Globbing 1.1.1 binary's actual `CommitHash` to complete original
+FileSystem sources and the version-declared Common shared C# sources. The
+retired shared-source package itself was not recovered; its complete preferred
+source and original version declaration are retained. Original binary-license
+metadata, the raw publisher license and its corresponding VSTest Git text are
+preserved separately from Apache source licenses. An unchanged publisher CLI
+package supplies comparison evidence for the identical DLL and raw license;
+it supplies no SDK layout member. The closed source/license policy rejects a
+missing Common root, changed license bytes or forged source Git blobs.
 
 The metadata layout follows [ECMA-335, Partition II](https://www.ecma-international.org/wp-content/uploads/ECMA-335_6th_edition_june_2012.pdf)
 and the pinned runtime's [metadata size calculations](https://github.com/dotnet/runtime/blob/0fb6ac59fb1edbe4ed3ad62661df0eb7eacd7903/src/libraries/System.Reflection.Metadata/src/System/Reflection/Metadata/Ecma335/MetadataSizes.cs).

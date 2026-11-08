@@ -4,6 +4,18 @@
   "scope": "Exact additional corresponding Git sources for reviewed imported managed components; no local compilation claim.",
   "sources": [
     {
+      "name": "legacy-import-common-fab8d45f6be3",
+      "repository": "https://github.com/dotnet/extensions",
+      "commit": "fab8d45f6be307ae0b96b1860e516f8a7aa903b0",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
+      "name": "legacy-import-filesystem-96bf83a6c1ab",
+      "repository": "https://github.com/aspnet/FileSystem",
+      "commit": "96bf83a6c1ab6f6801130150c27282c49030c8e1",
+      "role": "source-for-serviced-imported-package"
+    },
+    {
       "name": "legacy-component-command-line-api-c776cd4e906b",
       "repository": "https://github.com/dotnet/command-line-api",
       "commit": "c776cd4e906b669b9cce1017fee7d0ba9845d163",

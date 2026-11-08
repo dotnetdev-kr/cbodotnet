@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "7.0.120",
+  "kind": "legacy-globbing-binary-preferred-source-and-license-policy",
+  "package": {
+    "bytes": 56122,
+    "sha256": "16600b068e1ff2072da4691db7cba75bf8795a91ab3ea0fbd084e9b3ec232646",
+    "sha512": "ea35fc7ea81e957cfe6f795df05dba42b42a4521fae3c6abd9528add57bbde2d11428c1b7aa3db03dd28deb3d5717eea62303f6602d12eb12cce39ccea76c154"
+  },
+  "publisherPackage": {
+    "bytes": 9055743,
+    "sha256": "12a6be3700ac802727aa8a1308230e0cfa4a6cb59ac66c3a9423da4270d8a475",
+    "sha512": "efceb96080cbc9859dc543cc09c13d9462915fe405f8aff10616aa628195d94bf4132a5f59540b8fcccf884be91e8aa0a473df208da08d997db6cbe1b56af3b9"
+  },
+  "binary": {
+    "bytes": 39416,
+    "sha256": "d485cef178eb4e1a64a2d13fae4c5744d99b4cc429b063e9cf39a6d66d12b713",
+    "sha512": "d53f0fa4ea21ca900e617c435107085592886c09c656d09e26367233a73b730778309740178456c546841b593f42de69efb3a9b70525a53fe3dac0d44ebd74f2"
+  },
+  "publisherLicense": {
+    "bytes": 9126,
+    "sha256": "511d5819fef5b09d6977cdd79399ff9c229debc8acd4dc9c6cd849f10b563536",
+    "sha512": "71d8beb9bc91324c638b767ddbb411d03b69992849c457fa387f80f73b296eec6c6b0badb43996a556e1b6de31f11ac48b46ea22dd367349848a50f588b5e80a"
+  },
+  "sourceLicense": {
+    "bytes": 9062,
+    "sha256": "eb6370966273e1dc5a801c093e68d5999b33858c28031f453ac4a6467d5380df",
+    "sha512": "2a0a00f5a448fd6338c6f27d60aeb579440d2db6e90ab62a0ec8bc2677cb437b073ffea65f8890c1f99829fc20b193b054e3d1f9c0499cc924dbaefd4b9098f7"
+  },
+  "nuspec": {
+    "bytes": 1143,
+    "sha256": "a9c8b3a03b822b585c443924af7a476f721d2a567db5b64366e0a73f1584901e",
+    "sha512": "08fcb28b080cccd5294e6c28d252dd628b45e36e2d0cb178cf88d3ce837666646f803cab1b2b7ba85c679677fe08eacd079f84d5e72e09f8459a6ef9d34f09d3"
+  },
+  "sources": {
+    "primary": {
+      "commit": "96bf83a6c1ab6f6801130150c27282c49030c8e1",
+      "files": {
+        "src/Microsoft.Extensions.FileSystemGlobbing/project.json": {
+          "gitBlob": "ad547f6871e8f73429fd1e1168c2bb85406e8441",
+          "bytes": 732,
+          "sha256": "17b9b53d66bb84c5fe9bdcfbba3588b58c0ee2187d169fb869fac06c41454947",
+          "sha512": "b71a5aec479433397da5238d9ddef2a9aaba6568d99dd8e90e719bef5c3457c66edd3d9330179f245b836d6f2313187a70da3cc40d7baa90a5fdcf41da412601"
+        },
+        "src/Microsoft.Extensions.FileSystemGlobbing/FilePatternMatch.cs": {
+          "gitBlob": "c2a76160a7841210f64fa0e918ef974d78678bb3",
+          "bytes": 3203,
+          "sha256": "7e3d846b3ba39202595b033ce0520836a33d1393555a08c4282fc0bd46bf83ad",
+          "sha512": "601cc531f1c921862fe45beb01cc734a10a2c841935a8f91baa41598c6c72c92ea09811c1e364a3eeddb14b4330b2e5e410e8a4f3b0d2cddc7ad70267c9427c4"
+        },
+        "LICENSE.txt": {
+          "gitBlob": "0bdc1962b61072fec286c90d320c47882092a5ae",
+          "bytes": 575,
+          "sha256": "6c9045c1cf391713484e2b7ee3e766ceae5f4696c111abaf53ed5e23e129ce24",
+          "sha512": "60412de326f7ed4dcaf22354b5a54c31201bc906af6aa6ef0be857e01946fd8fe592d82030d99f9346482de59a5ed9bbfc5c47c25d2a80f1200d85883cc1f6e4"
+        }
+      }
+    },
+    "shared": {
+      "commit": "fab8d45f6be307ae0b96b1860e516f8a7aa903b0",
+      "files": {
+        "src/Microsoft.Extensions.HashCodeCombiner.Sources/project.json": {
+          "gitBlob": "849259f03b3f19e512fea61f9501a4964f56dd1c",
+          "bytes": 152,
+          "sha256": "210b9463a2848cfffe4362a5180953496b663ac02bdd6cd5cb4a5769e08b2ad4",
+          "sha512": "8ff94090f30f43b0fd2621c780293733082e4f37331637149814b6d4192413c361da898132d4234a6b12357bb225e39f7543cde8b8da7c249370ca3ef25e32b5"
+        },
+        "src/Microsoft.Extensions.HashCodeCombiner.Sources/HashCodeCombiner.cs": {
+          "gitBlob": "4df8b46b058feec3ce3d5f72468cbdf2e8da9520",
+          "bytes": 2398,
+          "sha256": "dd358c9f1c867d84e35b6bb940887575b163773a92b9ae2f95b5ab779ca994f3",
+          "sha512": "bb482f9d23f737cf63fa44a382461e213dbcc3bd36878171a3a171987bb7e74d4ff2eb9c6bd14e27dd8449aab1c327268b3c6635e08133a951925a6317d6707b"
+        },
+        "LICENSE.txt": {
+          "gitBlob": "0bdc1962b61072fec286c90d320c47882092a5ae",
+          "bytes": 575,
+          "sha256": "6c9045c1cf391713484e2b7ee3e766ceae5f4696c111abaf53ed5e23e129ce24",
+          "sha512": "60412de326f7ed4dcaf22354b5a54c31201bc906af6aa6ef0be857e01946fd8fe592d82030d99f9346482de59a5ed9bbfc5c47c25d2a80f1200d85883cc1f6e4"
+        }
+      }
+    },
+    "vstest": {
+      "commit": "79d56b02b69a582cd90428878a5e9411ab7538f5",
+      "files": {
+        "src/package/licenses/LICENSE_NET.txt": {
+          "gitBlob": "5b03e9dce1e59a2cbbd0f323ece4cfff1835881f",
+          "bytes": 9062,
+          "sha256": "eb6370966273e1dc5a801c093e68d5999b33858c28031f453ac4a6467d5380df",
+          "sha512": "2a0a00f5a448fd6338c6f27d60aeb579440d2db6e90ab62a0ec8bc2677cb437b073ffea65f8890c1f99829fc20b193b054e3d1f9c0499cc924dbaefd4b9098f7"
+        }
+      }
+    }
+  },
+  "allowedLayoutPaths": [
+    "sdk/7.0.120/Microsoft.Extensions.FileSystemGlobbing.dll"
+  ],
+  "originalLicenseUrl": "http://www.microsoft.com/web/webpi/eula/net_library_eula_enu.htm",
+  "requireLicenseAcceptance": true,
+  "localBuildClaimed": false,
+  "byteIdenticalCompilationClaimed": false,
+  "sharedSourcePackageArtifactRecovered": false,
+  "sharedSourceBasis": "original-primary-project-declared-shared-source-package-version"
+}
