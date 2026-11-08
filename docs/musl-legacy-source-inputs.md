@@ -58,5 +58,22 @@ and the MIT license. Different projects cannot supply substitute translations.
 The package's missing repository field is preserved. This policy neither
 claims local compilation nor authorizes primary MSBuild implementation DLLs.
 
+[`musl_legacy_compiler_inputs.py`](../scripts/musl_legacy_compiler_inputs.py)
+retains every observed `Sources`, `Resources`, `EmbeddedFiles` and
+`AdditionalFiles` item from completed Csc/Fsc tasks, including generated
+assembly metadata and copied source consumers under `artifacts`. It records
+bytes observed after the completed build; compile-time hashing is not claimed.
+The independent reader recomputes task coverage from retained binary-log
+replays and checks all source copies against the used-source index and archive.
+Source-less template metadata compilations are explicit and may not conceal
+source operands or response files. They do not establish source compilation
+for a primary shipping implementation.
+
+The musl CLI uses the .NET MSBuild host. Its scoped layout excludes the two
+Full MSBuild `net472` task directories from the SDK and Razor SDK. Mono/Full
+MSBuild host task execution is outside this layout's scope. Cross-target
+reference packs, `Microsoft.NET.Build.Extensions/net46*/lib` inputs and the
+test-platform source layout retain their separate reviewed dispositions.
+
 The metadata layout follows [ECMA-335, Partition II](https://www.ecma-international.org/wp-content/uploads/ECMA-335_6th_edition_june_2012.pdf)
 and the pinned runtime's [metadata size calculations](https://github.com/dotnet/runtime/blob/0fb6ac59fb1edbe4ed3ad62661df0eb7eacd7903/src/libraries/System.Reflection.Metadata/src/System/Reflection/Metadata/Ecma335/MetadataSizes.cs).
