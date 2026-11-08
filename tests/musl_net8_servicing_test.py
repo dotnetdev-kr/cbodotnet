@@ -15,13 +15,14 @@ class Net8ServicingRegistry(unittest.TestCase):
         left = R.profile('8.0.133', 'x64')['supplementalSourceGit']
         right = R.profile('8.0.133', 'aarch64')['supplementalSourceGit']
         self.assertEqual(left, right)
-        self.assertEqual([5, 2, 1], [len(source['packages']) for source in left])
+        self.assertEqual([5, 2, 1, 1], [len(source['packages']) for source in left])
         packages = {package['id']: package['version'] for source in left for package in source['packages']}
         self.assertEqual({
             'microsoft.build': '17.8.43', 'microsoft.build.framework': '17.8.43',
             'microsoft.build.tasks.core': '17.8.43', 'microsoft.build.utilities.core': '17.8.43',
             'microsoft.net.stringtools': '17.8.43', 'system.security.cryptography.xml': '8.0.5',
             'system.security.cryptography.pkcs': '8.0.2', 'system.formats.asn1': '8.0.2',
+            'system.text.json': '8.0.6',
         }, packages)
 
     def test_protected_profile_rejects_source_license_byte_or_coverage_changes(self):
