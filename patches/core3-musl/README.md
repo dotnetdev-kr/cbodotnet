@@ -4,4 +4,6 @@ These are unpublished source-port candidates for issue #35. They do not qualify 
 
 `0002-clang20-typed-null.patch` makes two existing pointer arguments explicit for modern musl headers and Clang20 template deduction. It changes no CPU feature selection or pointer value.
 
+`0003-preserve-declared-vstest-ui-culture.patch` applies to VSTest `c1b6b2c1ab4c8f181f3cb1a436afb6428009c7ab`. It preserves an explicit neutral UI culture with `GetCultureInfo`, allowing original `zh-Hans`/`zh-Hant` resources to resolve under current ICU. All13 explicit original cultures pass the minimal native consumer; arbitrary regional Chinese fallback remains unqualified. See the [managed source checkpoint](../../docs/core3-musl-source-phase.md).
+
 The original .NET Foundation MIT licenses/notices remain in the complete CoreFX/CoreCLR/runtime donor archives. The investigation helper retains and hashes every notice in those archives. Keep those source archives with generated source, patch receipts, native artifacts and probe logs. No clean-bootstrap, extra security maintenance, Microsoft support, or release qualification is claimed.

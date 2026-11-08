@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "issue": 35,
   "date": "2026-11-08",
-  "status": "bounded-native-source-components-and-certificate-proof",
+  "status": "bounded-native-managed-toolset-and-source-consumer-proof",
   "qualification": false,
   "releaseAdmission": false,
   "sourceSdkProduct": false,
@@ -26,6 +26,41 @@
       "path": "scripts/musl-negative-certificates.cs",
       "bytes": 8255,
       "sha256": "3c88ee9eab40b2e096b96c73316e8af8f3a58ea11b40fa72a84d6c5a4de647cc"
+    },
+    {
+      "path": "scripts/core3-musl-fsharp-probe.py",
+      "bytes": 22425,
+      "sha256": "f907105bb33706ae243198507489cd83eecc97e35a6438ce9aaf8170f4482e55"
+    },
+    {
+      "path": "profiles/experimental/core3-musl-fsharp.json",
+      "bytes": 2466,
+      "sha256": "72cd68aa3b5188f4c178b9feeee3dc5967403435cb9e3dc7f2f0285acc6cb214"
+    },
+    {
+      "path": "scripts/core3_musl_vstest_resources.py",
+      "bytes": 7636,
+      "sha256": "c93a4ee0190337fb2bc87b2db17a173a402bd2e18308635de08fa2a39b3a678c"
+    },
+    {
+      "path": "scripts/core3_musl_restore_inputs.py",
+      "bytes": 7064,
+      "sha256": "e5d4b7e38e2eb08947b7241a3851707bdc489aa19ca30fbd197b24dec00e98c3"
+    },
+    {
+      "path": "scripts/musl_nuget_content_hash.py",
+      "bytes": 4466,
+      "sha256": "6e5ffb473498680fb04f4ea1cb009ad5e200cb986cba6be65797a73f0b800de9"
+    },
+    {
+      "path": "tests/core3_musl_restore_inputs_test.py",
+      "bytes": 4968,
+      "sha256": "2a5ae187188c6bf515fc735cc65226af7e502a22929865428b8e8aec16f85ff2"
+    },
+    {
+      "path": "patches/core3-musl/0003-preserve-declared-vstest-ui-culture.patch",
+      "bytes": 1020,
+      "sha256": "0a39b353824b1d2fdc9ad19db9ab356135594c452f89c179b51bdaa8f7b0de58"
     }
   ],
   "sharedAuditor": {
@@ -698,19 +733,22 @@
     "completeSdkToolsetLayout": false,
     "fullCoreClrJitCrossgenSourceBuild": false,
     "sourceBuiltCompilerMsbuildNugetAndOtherToolsetDependencies": false,
-    "actualNextDependency": "Source-build exact MSBuild16.7.3 and its compatible Arcade toolset, then CLI/toolset and full core-sdk GenerateLayout using local source-built inputs.",
+    "actualNextDependency": "Full native Core3.1 CoreCLR/JIT/DAC/DBI and actual managed-event tracing, F# localization, complete corresponding-source/license mapping of the diagnostic SDK/toolset and full native core-sdk/ASP.NET construction. Repeat complete Core3.0 and both native CPU producer/consumer qualification before any distribution admission.",
     "failedBoundedAttempts": [
       "Original CLI defaults request unpublished Microsoft.Build16.7.0-preview-20265-03; approximate matches were rejected by NU1603, never accepted as outputs.",
       "Authoritative source-build coherent Microsoft.Build16.7.3 is also absent from configured public feeds; source compilation is required.",
-      "Pristine six-project MSBuild.SourceBuild solution restored its project dependency graph but Build failed resolving exact Arcade1.0.0-beta.21065.4. The source-build Arcade override/source bootstrap route remains work to do."
+      "Historical pristine MSBuild build failed resolving Arcade1.0.0-beta.21065.4. The later unchanged original resolver selects explicit pinned private Arcade1.0.0-beta.22558.6 and the exact six-project MSBuild solution passes; this is not source-built Arcade or a recreated publisher package."
     ],
     "diagnosticOverrides": "CLI/toolset original tools SDK424 and pristine MSBuild420 were preserved; exploratory direct commands explicitly used private425. Coherent MSBuild16.7.3 comes from pinned source-build Version.Details.xml, not an approximate package upgrade. One exact retired dotnet-core index was mapped to official dotnet-public with version pins unchanged.",
     "architectureBlockerEstablished": false,
-    "scope": "Concrete dependency work; neither EOL nor absent published SDK is treated as proof a port cannot be built."
+    "scope": "Concrete dependency work; neither EOL nor absent published SDK is treated as proof a port cannot be built.",
+    "boundedManagedComponentsSucceeded": true,
+    "historicalBlockersDisposition": "The earlier missing MSBuild preview and Arcade SDK remain preserved as failed attempts. Native exact-source MSBuild16.7.3 now builds via the explicit pinned imported private Arcade22558 override; local component feeds close the demonstrated CLI/NuGet/VSTest/F# consumer paths, without claiming all remaining toolset imports have corresponding source."
   },
   "remainingGates": [
     "Complete genuine SDK/core-sdk/toolset source producer and full used-source/license audit",
     "Full native runtime/JIT/crossgen and ASP.NET producer graph",
+    "F# all13 original cultures and complete imported managed component corresponding-source/license mapping",
     "Normal optimization and native apphost in final SDK",
     "Native x64 and ARM64 final Docker-default GHA producer/consumer qualification",
     "Core3.0 and x64 certificate negative-case qualification",
@@ -771,6 +809,26 @@
       "path": ".build/core3-musl-source-phase/retained-glibc31-source-only.tar.gz",
       "bytes": 292507261,
       "sha256": "10e235b2c3d08f844aafbcbc6abd9a163fbc13dcc80ea3cd44853f777ec024a1"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/fsharp31.tar.gz",
+      "bytes": 18086620,
+      "sha256": "5f8127bcec8eb97b892978a30c9d10bea2bf02c2f82c6696a5084d926314e29e"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/vstest31.tar.gz",
+      "bytes": 1910641,
+      "sha256": "5d43f9285b8a5d46fcd60c744599d4df4bca13ab68408865f30e4a5e159d8f0b"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/nuget31.tar.gz",
+      "bytes": 6175681,
+      "sha256": "eca51d38bc4f03b8686caa99296844243ae045cc26b871a85d18c6792beb67b1"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/roslyn31.tar.gz",
+      "bytes": 42046531,
+      "sha256": "f565eeb3b36bc8b5cec723280800cf892ee26cd337851fae2f3bad191a6fe911"
     }
   ],
   "evidence": [
@@ -1073,6 +1131,555 @@
       "path": ".build/core3-musl-source-phase/msbuild-four/msbuild31-source-build.log",
       "bytes": 7350,
       "sha256": "423ef527fc9f743025936e6af9ec3d525784ad9f1b5908973383d4418991e65e"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/results.json",
+      "bytes": 26141,
+      "sha256": "630b78f406b0151d27223ca3b1e73c71904bad2b3c9abe1aa5426af1159b3033"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/private-bootstrap.json",
+      "bytes": 448721,
+      "sha256": "914da11a8684db9903a0a6d0261d08f976e95e04210a4c7f288e1ca3405929a2"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/source-built-msbuild-inputs.json",
+      "bytes": 2338,
+      "sha256": "95b3b013167bb83d701a03f5c5d0ec90fa60c249c29898da40ff31b2d99b05ca"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/actual-component-restore-closure.json",
+      "bytes": 2785181,
+      "sha256": "d7e1f0bb4a1ecd8d188922c31fc8b2c796336ecd46a25c85c6c753a8400c85f1"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/original-source-build-patch-chain.json",
+      "bytes": 5580,
+      "sha256": "042308bce83a28a8fb2675f4114d2ee74826b6bf2dac62aa97514649759a247a"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/command-progress.json",
+      "bytes": 24297,
+      "sha256": "c27d953bf8738f13d7334c6595e4cbd8a1a537205e803507365a6931c06d4abd"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-consumer-fiftyone/results.json",
+      "bytes": 17775,
+      "sha256": "7a385263da963d606497004aee2b1788ccedf98097c2d25296a13633af3433cc"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-consumer-fiftyone/targeting-inputs.json",
+      "bytes": 45386,
+      "sha256": "a910e9730995da13fe26b98b3ba028b925b596d7ea7a403dc45754598adab21e"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-vstest-source-data-fiftytwo-v2/results.json",
+      "bytes": 1187,
+      "sha256": "d38ef63127a93648834d41c803f7ec23c910a6f760009f0ba1db44debf574277"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-vstest-source-data-fiftytwo-v2/positive.json",
+      "bytes": 184770,
+      "sha256": "72a4073b220caeeae8d4d69d99100ad57e8e41162af927135cf8c97436930747"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-content-hash-fiftythree/results.json",
+      "bytes": 619,
+      "sha256": "c58836d3fcc73c4e2be3cfaa242e57284b60b819c0a33dde8cbce1b820f87676"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/vstest-source-thirtyfour/results.json",
+      "bytes": 56299,
+      "sha256": "68298267266932ad339980ba952c9a32e34af5e8619e74ea2735f4d2bbf10086"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/vstest-source-thirtyfour/source-built-feed.json",
+      "bytes": 834,
+      "sha256": "19ec2c09f6a0f19953011f0fa2ed224e4821a07c473ca0b263145dd7640feb21"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/vstest-source-thirtyfour/ui-culture-source-adaptation.json",
+      "bytes": 854,
+      "sha256": "b5da2fb1d8dd1e867bb256bc58e7dda7993d0093e9ed4229219dba59d82b79e3"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/vstest-source-thirtyfour/source-xlf-resource-generation.json",
+      "bytes": 184541,
+      "sha256": "5752d12f73a2bdb99fb7d8a09c4865cf6615d6d967b6f0738541b79b224ac8ea"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/vstest-native-consumer-thirtyfive/results.json",
+      "bytes": 8247,
+      "sha256": "5045e1aba2f193b352258a7c4c0e59b18a622096f08decfbfe9a4e6d40074778"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/vstest-native-consumer-thirtyfive/pe-metadata.json",
+      "bytes": 190568,
+      "sha256": "a255f4080743842da693b90904e7f4884b70111947c52d04d8a485a7380d45a8"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/vstest-source-thirtysix-retained-input-authentication.json",
+      "bytes": 404742,
+      "sha256": "b441afcd5f4ff35249b84a2b7255d8b94e3b66c9cc1a324b88f8bbfa82502aa6"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/nuget-content-hash-compatibility/results.json",
+      "bytes": 1254,
+      "sha256": "d0a102b926e913980967c3609b0c9e515622c5c4b33baf43ad77584b2fcee439"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/nuget-content-hash-compatibility/upstream-results.json",
+      "bytes": 30820,
+      "sha256": "8268ddba2564c5d9151b0cc78a9ddd50e1d394f7fb419ec7fe32c948ab942100"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/toolset-source-fortysix/recorded-command-progress.json",
+      "bytes": 11627,
+      "sha256": "3d35eab521f9f541d597ee35813df5ec6277d3118a3e03ae0932826c2758dc77"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/toolset-source-fortysix/actual-component-restore-closure.json",
+      "bytes": 1902474,
+      "sha256": "56f30c24ab9ff9e6639d466243a13d965093d97849d84905200d7e9ccc9dac85"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/toolset-source-fortyseven/results.json",
+      "bytes": 13141,
+      "sha256": "0591f033900dd2cf6e6bc9e06314012bb7501a333830d2ed70b7cb4bbc71e4e6"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/toolset-source-fortyseven/unqualified-toolset-layout.json",
+      "bytes": 159589,
+      "sha256": "9518d6be220b8dc50bf12f7b484264a12a3ddaad95bef7db5eea3fbd725e5d8c"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/toolset-source-thirtynine/actual-consumed-source-fsharp.json",
+      "bytes": 382,
+      "sha256": "6ff01b207f054f893189d2328cff9705b88fe958a8ca555e4ca0d377057162a1"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/msbuild-resolver-five/results.json",
+      "bytes": 10216,
+      "sha256": "36b8b487d58d994bae108bc6fb122db67797deb9f40aacde0b3ce22a61e60d64"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/roslyn-source-thirteen/results.json",
+      "bytes": 29296,
+      "sha256": "042da3f286c96bf1041677270b699045e462a2deb6f614df18444ec250bcb0a4"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/compiler-consumer-fifteen/results.json",
+      "bytes": 4019,
+      "sha256": "fa2438b5e3c7b964f6c9721e9ed09699a3751fad3c7427a32c6c877e15cf297f"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/nuget-source-twentythree/results.json",
+      "bytes": 72440,
+      "sha256": "bb721de04c60e08f0b3e03363775d665d07bc9eb767a770df95f3dc0d67c1a7d"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/nuget-source-twentythree/source-built-feed.json",
+      "bytes": 4374,
+      "sha256": "de81eb073dc605f31362b8fe8aa63ea70ff509a724cb1a9fe8c340c74364053f"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/cli-source-twentyfour/results.json",
+      "bytes": 40883,
+      "sha256": "31bba9668b149c4227fe607d573ead8ee88ef69f13ae687398169d13c8d6302b"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/apply-0001-Pin-some-system-package-versions.log",
+      "bytes": 173,
+      "sha256": "7319a8dc97447b9e4585eaf91e52ef102e4679c60d1a4853bd6c3ff6724965cb"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/apply-0002-Update-Microsoft-Build-to-reference-package-version.log",
+      "bytes": 192,
+      "sha256": "6bed51a18719725da7846498597012f09fee2ac834f958e30541e700fd77db72"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/apply-0003-revert-some-F-changes-for-new-APIs.log",
+      "bytes": 175,
+      "sha256": "c05405c115dc1e848cf0479ab49f1d4d41e456c2d6d6e6df77b8f4f4db43d5d0"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/apply-0004-Fix-package-version.log",
+      "bytes": 160,
+      "sha256": "4af4fa6e2674f0a7280b44d149546ba84f870290dad5b685372fbe61240862a0"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/check-0001-Pin-some-system-package-versions.log",
+      "bytes": 161,
+      "sha256": "e21d833ff9b71b1f68a55af0018280cb939e701304420e24cdc5abb91a761054"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/check-0002-Update-Microsoft-Build-to-reference-package-version.log",
+      "bytes": 180,
+      "sha256": "62966bc48f0e5f2241d6a66ace587de65dde0b74d9ee800b2990ab3cb3a47cb8"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/check-0003-revert-some-F-changes-for-new-APIs.log",
+      "bytes": 163,
+      "sha256": "081b1d2af5bac7280ad55b4c1e9010c702dbc70e8c8dca09b6c9be2b8124e58c"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/check-0004-Fix-package-version.log",
+      "bytes": 148,
+      "sha256": "8d5184e7cacb861ef7b4bc81b332d3de4609d06b6d8e12bfcca6e03e4ac92128"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/original-buildtools-proto.log",
+      "bytes": 6248,
+      "sha256": "f1cf7ad41555517e5dfdcfa4e8d0d9a2e8c1f7d394f78dfc28fcff9017c9b069"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/original-compiler-proto.log",
+      "bytes": 145832,
+      "sha256": "96fd11b1b949d599bd92985156459fe362e3fb385b0cc2af18e6cda9281147dc"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/original-release-FSharp.Build.log",
+      "bytes": 5186,
+      "sha256": "3b598a09dfdb509a922915b4d554936bcf1227d12919f54a39c728a099dae941"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/original-release-FSharp.Compiler.Interactive.Settings.log",
+      "bytes": 5498,
+      "sha256": "697ecb4588d29a061b9c9f6e2629a14ad121def9d427fe79836b2ec4f72aa782"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/original-release-fsc.log",
+      "bytes": 9332,
+      "sha256": "6f1484e769a4caa3cffcff39953699ed98cf16b04e7b9574a27629545033ab71"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/original-release-fsi.log",
+      "bytes": 9082,
+      "sha256": "8791e41edea1e8f1f73f4a1a1743de6f3babd5bbcecdd91ee9aac2a43ca9790d"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/original-release-pack.log",
+      "bytes": 8245,
+      "sha256": "05fa373eff6e83598ea5a73480ce82307871897d025aa98a62c4165b93d0ea3b"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/resolver-build.log",
+      "bytes": 477,
+      "sha256": "683309a0ba2f5b090aa379a0cff8947d58b36915192042b3562b3d46eb2007e1"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/resolver-restore.log",
+      "bytes": 217,
+      "sha256": "b51244e51e59263137af42910f32f64578e7262a49961fd8b40b1d1dd6d3cdea"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-consumer-fiftyone/source-fsc-compile.log",
+      "bytes": 228,
+      "sha256": "7ac0a5c2645e6fd6a8766f85a0ac20eeb7de93a8216fae647a90bff343dc810b"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-consumer-fiftyone/source-fsc-help.log",
+      "bytes": 9678,
+      "sha256": "6dc0c3afe614fe46bf13c13845122e8caa2b9f8d7c551efb0085897b465f53c0"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-consumer-fiftyone/source-fsharp-application.log",
+      "bytes": 121,
+      "sha256": "53c7caa50fb19dc5bdd49cee3e3e90ea09b4303d5f5aedf2d5c1cc0bd0a4200c"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-fsharp-consumer-fiftyone/source-fsi-script.log",
+      "bytes": 291,
+      "sha256": "2ec3c337c6c5c8d6147a89e7562c7a4f4c109acf3c1bd81844d6f80b0b1a87c6"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-vstest-source-data-fiftytwo-v3/results.json",
+      "bytes": 1339,
+      "sha256": "aa640b7ccc4f325014e8e7f8760f04eb15f9efb8702ba133e2add3aedad50d93"
+    },
+    {
+      "path": ".build/core3-musl-source-phase/tracked-vstest-source-data-fiftytwo-v3/positive.json",
+      "bytes": 184770,
+      "sha256": "72a4073b220caeeae8d4d69d99100ad57e8e41162af927135cf8c97436930747"
     }
-  ]
+  ],
+  "managedSourceCheckpoint": {
+    "qualification": false,
+    "releaseAdmission": false,
+    "sourceSdkProduct": false,
+    "completeUsedSourceAudit": false,
+    "scope": "Genuine managed component builds and bounded native consumers. The original toolset diagnostic layout still includes imported managed components and is not a complete source-built SDK.",
+    "msbuild": {
+      "sourceCommit": "2f374e28ea8abbeee841bf805955a72a39c88b81",
+      "version": "16.7.3",
+      "sourceSolution": "MSBuild.SourceBuild.sln",
+      "projects": 6,
+      "sourcePackages": 5,
+      "evidence": {
+        "path": ".build/core3-musl-source-phase/msbuild-resolver-five/results.json",
+        "bytes": 10216,
+        "sha256": "36b8b487d58d994bae108bc6fb122db67797deb9f40aacde0b3ce22a61e60d64"
+      },
+      "passedCommand": "msbuild31-source-build",
+      "entireHistoricalRunPassed": false,
+      "limit": "The targeted MSBuild solution passed; a subsequent unrelated CLI attempt in the same historical report failed and is not treated as successful."
+    },
+    "roslyn": {
+      "sourceCommit": "dc3f4eef2b4e609adbc4daf0c7c67e6212db6ad8",
+      "actualSourcePackageVersion": "3.7.0-dev.20570.4",
+      "vendorVersionRelabeled": false,
+      "sourceEvidence": {
+        "path": ".build/core3-musl-source-phase/roslyn-source-thirteen/results.json",
+        "bytes": 29296,
+        "sha256": "042da3f286c96bf1041677270b699045e462a2deb6f614df18444ec250bcb0a4"
+      },
+      "consumerEvidence": {
+        "path": ".build/core3-musl-source-phase/compiler-consumer-fifteen/results.json",
+        "bytes": 4019,
+        "sha256": "fa2438b5e3c7b964f6c9721e9ed09699a3751fad3c7427a32c6c877e15cf297f"
+      },
+      "sourceMainAssemblies": 7,
+      "cultures": 13,
+      "normalConsumerReadyToRun": true
+    },
+    "nuget": {
+      "sourceCommit": "e3675c6173f0e3e4f13272c814ff33c590defba9",
+      "sourcePackages": 15,
+      "evidence": {
+        "path": ".build/core3-musl-source-phase/nuget-source-twentythree/results.json",
+        "bytes": 72440,
+        "sha256": "bb721de04c60e08f0b3e03363775d665d07bc9eb767a770df95f3dc0d67c1a7d"
+      },
+      "feed": {
+        "path": ".build/core3-musl-source-phase/nuget-source-twentythree/source-built-feed.json",
+        "bytes": 4374,
+        "sha256": "de81eb073dc605f31362b8fe8aa63ea70ff509a724cb1a9fe8c340c74364053f"
+      }
+    },
+    "cli": {
+      "sourceCommit": "cca488d5d530e6ec291134abe3462fed613a4429",
+      "sourcePackages": 7,
+      "evidence": {
+        "path": ".build/core3-musl-source-phase/cli-source-twentyfour/results.json",
+        "bytes": 40883,
+        "sha256": "31bba9668b149c4227fe607d573ead8ee88ef69f13ae687398169d13c8d6302b"
+      }
+    },
+    "vstest": {
+      "sourceCommit": "c1b6b2c1ab4c8f181f3cb1a436afb6428009c7ab",
+      "actualSourcePackageVersion": "16.7.0-dev",
+      "vendor16_7_1EquivalenceClaimed": false,
+      "sourceEvidence": {
+        "path": ".build/core3-musl-source-phase/vstest-source-thirtyfour/results.json",
+        "bytes": 56299,
+        "sha256": "68298267266932ad339980ba952c9a32e34af5e8619e74ea2735f4d2bbf10086"
+      },
+      "consumerEvidence": {
+        "path": ".build/core3-musl-source-phase/vstest-native-consumer-thirtyfive/results.json",
+        "bytes": 8247,
+        "sha256": "5045e1aba2f193b352258a7c4c0e59b18a622096f08decfbfe9a4e6d40074778"
+      },
+      "packages": [
+        {
+          "name": "Microsoft.TestPlatform.Build.16.7.0-dev.nupkg",
+          "size": 41102,
+          "sha256": "e7773a2f3ddd3e682bfc7816bdc67dc6f0b24deae327eaca19d7010a9d4f61c4"
+        },
+        {
+          "name": "Microsoft.TestPlatform.CLI.16.7.0-dev.nupkg",
+          "size": 1365956,
+          "sha256": "e1cab6326b3974db4108ed576c86341aa677f918dbd3823a57e7108c1b48fc72"
+        }
+      ],
+      "managedProducts": 188,
+      "managedNativeHeadersZero": true,
+      "normalConsumerReadyToRun": true,
+      "explicitSourceCultures": [
+        "cs",
+        "de",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "ko",
+        "pl",
+        "pt-BR",
+        "ru",
+        "tr",
+        "zh-Hans",
+        "zh-Hant"
+      ],
+      "regionalChineseFallbackQualified": false,
+      "sourceDataGenerator": {
+        "evidence": {
+          "path": ".build/core3-musl-source-phase/tracked-vstest-source-data-fiftytwo-v3/results.json",
+          "bytes": 1339,
+          "sha256": "aa640b7ccc4f325014e8e7f8760f04eb15f9efb8702ba133e2add3aedad50d93"
+        },
+        "completeOriginalXlfFiles": 252,
+        "neutralFilesPreserved": 18,
+        "localizedFiles": 234,
+        "originalTargets": 5460,
+        "generatedHashesMatchNativeBuild": true,
+        "changedSourceExtraFilesAndOverwriteControlsRejected": true,
+        "sourceSymlinkRejected": true,
+        "negativeControls": 5
+      },
+      "sourcePackageAdaptations": [
+        "Follow original publish/package stage and extension file placement",
+        "Omit unbuilt Windows.NETFramework TestHost copying in native Linux source build; preserve native Core TestHost source output separately"
+      ]
+    },
+    "fsharp": {
+      "sourceCommit": "3ef6f0b514198c0bfa6c2c09fefe41a740b024d5",
+      "actualSourcePackageVersion": "10.10.0-dev",
+      "originalPublisherStamp": "10.10.0-beta.20361.3",
+      "publisherVersionEquivalenceClaimed": false,
+      "sourceEvidence": {
+        "path": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty/results.json",
+        "bytes": 26141,
+        "sha256": "630b78f406b0151d27223ca3b1e73c71904bad2b3c9abe1aa5426af1159b3033"
+      },
+      "consumerEvidence": {
+        "path": ".build/core3-musl-source-phase/tracked-fsharp-consumer-fiftyone/results.json",
+        "bytes": 17775,
+        "sha256": "7a385263da963d606497004aee2b1788ccedf98097c2d25296a13633af3433cc"
+      },
+      "sourceCommandsPassed": 17,
+      "sourceBuildtoolsProtoCompilerProtoReleaseAndPack": true,
+      "package": {
+        "path": "source-outputs/Microsoft.FSharp.Compiler.10.10.0-dev.nupkg",
+        "bytes": 6755277,
+        "sha256": "db44d6bdb5696d978b88e39cf1aa77d9f6b3e12ba2198a86b5492fd75bed44f9",
+        "sha512": "793d96ba3dc8a6987434006cbabbe9f7838548ca6f1b2ce695ef1a46361f6a94462e76ba72a8ccc416f2618c6f12d64aa880e68e0c475c1f42447239b2a662ad",
+        "retainedUnder": ".build/core3-musl-source-phase/tracked-fsharp-source-fifty"
+      },
+      "sourceRestoreClosure": {
+        "assets": 13,
+        "packages": 117,
+        "usedPackageBindings": 896
+      },
+      "consumerCommandsPassed": 4,
+      "sourceCompilerApplicationAndInteractiveInterpreterPassed": true,
+      "sourceManagedProducts": 8,
+      "normalConsumerReadyToRun": true,
+      "all13CulturesQualified": false,
+      "originalSdkSimpleResolutionApplied": true,
+      "originalTarDotPrefixNormalized": true,
+      "privateBootstrap": {
+        "sdk": "3.1.425",
+        "originalSourceSdkPin": "3.1.301",
+        "originalArcadePin": "1.0.0-beta.20326.2",
+        "explicitPrivateArcade": "1.0.0-beta.22558.6",
+        "originalGlobalJsonUnchanged": true,
+        "readyToRunDisabledOnlyPrivateBootstrap": true,
+        "importedArcadeProductClaimed": false,
+        "syntheticArchiveGitCommitCount": 0
+      }
+    },
+    "originalToolset": {
+      "sourceCommit": "1f49106259d62b22e818c0fa745788a79e067723",
+      "evidence": {
+        "path": ".build/core3-musl-source-phase/toolset-source-fortyseven/results.json",
+        "bytes": 13141,
+        "sha256": "0591f033900dd2cf6e6bc9e06314012bb7501a333830d2ed70b7cb4bbc71e4e6"
+      },
+      "commandEvidence": {
+        "path": ".build/core3-musl-source-phase/toolset-source-fortysix/recorded-command-progress.json",
+        "bytes": 11627,
+        "sha256": "3d35eab521f9f541d597ee35813df5ec6277d3118a3e03ae0932826c2758dc77"
+      },
+      "exactOriginalRestoreFSharpRestoreBuildCommandsPassed": true,
+      "nativeIncrementalReplay": true,
+      "cleanFullProducerQualified": false,
+      "sourceFSharpVersion": "10.10.0-dev",
+      "sourceFSharpPackageSha256": "c50715b23e176e80b68afe833b78a52cd6608fb52534d5688d368b22df703dbb",
+      "sourceFSharpPackageSourceRun": 38,
+      "trackedIndependentSourceAndConsumerRuns": [
+        50,
+        51
+      ],
+      "byteIdenticalSourceRebuildClaimed": false,
+      "restoreClosure": {
+        "path": "toolset-source-fortysix/actual-component-restore-closure.json",
+        "sha256": "56f30c24ab9ff9e6639d466243a13d965093d97849d84905200d7e9ccc9dac85",
+        "assets": 8,
+        "caches": [
+          "home/.nuget/packages"
+        ],
+        "packages": 269,
+        "bindings": 574,
+        "uniqueUsedPackages": 219
+      },
+      "diagnosticLayout": {
+        "files": 855,
+        "bytes": 96702154,
+        "scope": "Unqualified diagnostic original toolset layout. Imported managed components remain; this is not a complete source-built SDK or source-admission artifact."
+      }
+    },
+    "actualRestoreAccounting": {
+      "sourceVstestSnapshotInterrupted": true,
+      "interruptedSnapshotProducerSuccessInferred": false,
+      "retainedVstestAuthentication": {
+        "path": ".build/core3-musl-source-phase/vstest-source-thirtysix-retained-input-authentication.json",
+        "bytes": 404742,
+        "sha256": "b441afcd5f4ff35249b84a2b7255d8b94e3b66c9cc1a324b88f8bbfa82502aa6"
+      },
+      "vstestAssets": 19,
+      "vstestDeclaredCaches": 2,
+      "vstestRetainedPackages": 151,
+      "vstestActualPackageBindings": 629,
+      "vstestUniqueUsedPackages": 89,
+      "trackedHashReaderCompatibility": {
+        "path": ".build/core3-musl-source-phase/tracked-content-hash-fiftythree/results.json",
+        "bytes": 619,
+        "sha256": "c58836d3fcc73c4e2be3cfaa242e57284b60b819c0a33dde8cbce1b820f87676"
+      },
+      "independentlyMatchedTrustedNugetContentHashes": 151,
+      "originalNugetImplementationCommit": "e3675c6173f0e3e4f13272c814ff33c590defba9",
+      "wholeSignedZipRetainedUnchanged": true,
+      "wholeFileSha512DistinctFromNugetContentHash": true,
+      "packageSignatureTrustVerified": false,
+      "completeCorrespondingSourceAudit": false,
+      "controls": "Five focused tests cover unsigned/signed representations, three signature positions, duplicate ordinary names without extraction, malformed ZIPs, wrong assets hashes, omitted/foreign caches and escaped paths."
+    },
+    "preservedFailedAttempts": [
+      {
+        "run": 37,
+        "reason": "F# source prototype interrupted after Proto; no terminal result was inferred."
+      },
+      {
+        "run": 36,
+        "reason": "VSTest input snapshot completed, but producer lacked terminal result after interruption. Retained151input byte/content hashes were authenticated independently."
+      },
+      {
+        "run": 40,
+        "reason": "Direct F# fixture omitted original SDK SimpleResolution flag; compile failed before application."
+      },
+      {
+        "run": 42,
+        "reason": "Direct F# fixture did not normalize tar ./packs prefix and lacked actual targeting references; compile failed. Corrected43 and tracked51 pass."
+      },
+      {
+        "run": 39,
+        "reason": "Actual native toolset progressed, but post-build content-hash prototype rejected duplicate packageIcon.png entries in four unsigned source CLI packages. Their whole ZIP hashes preserve all duplicate bytes without entry extraction."
+      },
+      {
+        "run": 44,
+        "reason": "Replay preparation component path mapping failed before command execution."
+      },
+      {
+        "run": 45,
+        "reason": "Replay preparation did not yet handle explicitly skipped solution-only original patch records; failed before command execution."
+      },
+      {
+        "run": 46,
+        "reason": "All3original native commands and full input snapshot succeeded; copy2 file-metadata preservation then failed on the Windows-mounted evidence path. Fresh47 copied and verified bytes without altering46."
+      },
+      {
+        "run": "52initial",
+        "reason": "Source-data fixture initially expected only234translated XLF files; original archive also contains18neutral XLFs. Corrected helper preserves all252 originals and converts234translations; positive and4forgery controls pass."
+      }
+    ]
+  }
 }

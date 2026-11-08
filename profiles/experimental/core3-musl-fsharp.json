@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "kind": "core31-musl-fsharp-source-experiment",
+  "issue": 35,
+  "qualification": false,
+  "releaseAdmission": false,
+  "sourceSdkProduct": false,
+  "source": {
+    "repository": "https://github.com/dotnet/fsharp",
+    "commit": "3ef6f0b514198c0bfa6c2c09fefe41a740b024d5",
+    "archive": "fsharp31.tar.gz",
+    "bytes": 18086620,
+    "sha256": "5f8127bcec8eb97b892978a30c9d10bea2bf02c2f82c6696a5084d926314e29e",
+    "originalToolsSdk": "3.1.301",
+    "originalArcade": "1.0.0-beta.20326.2"
+  },
+  "sourceBuild": {
+    "repository": "https://github.com/dotnet/source-build",
+    "commit": "ab8b115b5658237ee8916ae3586600b39fb2fd19",
+    "archive": "source-build31.tar.gz",
+    "bytes": 372407,
+    "sha256": "67604043ce492fa7d201cff4c0374835323992b05cdb202baf890c9fab9ba5d8",
+    "patches": [
+      {"name": "0001-Pin-some-system-package-versions.patch", "sha256": "8eee4fd1a525d22c0466e77cae315d87e7990502a4f28d0c3e7cd161cbedb851"},
+      {"name": "0002-Update-Microsoft-Build-to-reference-package-version.patch", "sha256": "c10c81d7083d47755aa24e2b6372ed1e42d41f349735b6dd6562070242c5047a"},
+      {"name": "0003-revert-some-F-changes-for-new-APIs.patch", "sha256": "13301dc7be7a5736b5ee71e919e846d93a5b2d42e69a0427fb038248392e0445"},
+      {"name": "0004-Fix-package-version.patch", "sha256": "7ffddc198dd6d162d40a094cead45b77ca75990e8993b260255ae80ab9d4a4ac"}
+    ]
+  },
+  "privateBootstrapArcade": {
+    "version": "1.0.0-beta.22558.6",
+    "sha256": "f26110866f88369c604d7fbfb1da2d83440a68d3cb3d4050caf989e3ce5b1801",
+    "sourceCommit": "7120a7d1b74dcbce97e34dded2c9e9011639b175",
+    "productInputClaimed": false
+  },
+  "sourceBuiltMsbuild": {
+    "commit": "2f374e28ea8abbeee841bf805955a72a39c88b81",
+    "version": "16.7.3",
+    "requiredPackageIds": ["Microsoft.Build", "Microsoft.Build.Framework", "Microsoft.Build.Runtime", "Microsoft.Build.Tasks.Core", "Microsoft.Build.Utilities.Core"]
+  },
+  "actualSourcePackageVersion": "10.10.0-dev",
+  "originalToolsetPublisherRequest": "10.10.0-beta.20361.3",
+  "publisherVersionEquivalenceClaimed": false,
+  "all13CulturesQualified": false,
+  "scope": "Original buildtools Proto, compiler Proto, Release compiler/interpreter and package. Imported compiler/Arcade run only in the private R2R-disabled bootstrap. The SDK-free consumer enables normal R2R. Full localization, complete used-source review, final SDK construction and two-CPU qualification remain mandatory separate gates."
+}
