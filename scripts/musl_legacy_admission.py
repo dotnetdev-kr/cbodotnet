@@ -1629,6 +1629,8 @@ def validate_native_runtime(release, artifacts, policy, record, source_manifest,
     # Version commands consist of the executable plus ten arguments.
     require(results.get('nativeVersionBinlog') == fingerprint(directory / 'native-version.binlog'),
             'Actual upstream native version binary log bytes differ')
+    version_marker = native_version_marker((directory / 'generated/runtime_version.h').read_bytes(),
+        (directory / 'generated/_version.c').read_bytes(), results)
     outputs = results.get('shippingFiles', [])
     require(len(outputs) == len(NATIVE_CORECLR) and {row.get('path') for row in outputs} == set(NATIVE_CORECLR)
             and len({row.get('sha256') for row in outputs}) == len(outputs),
@@ -1641,6 +1643,7 @@ def validate_native_runtime(release, artifacts, policy, record, source_manifest,
                 and sum(all(artifact.get(key) == row[key] for key in FP) for artifact in native_artifacts) == 1,
                 'Native source product bytes or actual CMake output path differs')
         data = (directory / row['path']).read_bytes()
+        validate_native_elf_version(data, version_marker)
         require(data[:6] == b'\x7fELF\x02\x01' and struct.unpack_from('<H', data, 18)[0] ==
                 {'aarch64': 183, 'x64': 62}[record['architecture']], 'Matching native ELF64 output required')
         dynamic = elf_dynamic(data)
@@ -1717,13 +1720,61 @@ def validate_native_generated_source(release, directory, results, manifest, sour
     validate_native_cache(cache, source, results['architecture'])
     compile_commands = load(directory / 'compile_commands.json')
     validate_native_compile_commands(compile_commands, source, obj)
-    header = (generated / 'runtime_version.h').read_text()
-    require('#define RuntimeProductVersion ' + results['runtimeVersion'] in header
-            and results['sourceCommit'] in (generated / '_version.c').read_text()
-            and results.get('runtimeAssemblyVersion') == '7.0'
-            and isinstance(results.get('buildId'), str) and re.fullmatch(r'[0-9]{8}\.[1-9][0-9]*', results['buildId'])
-            and re.fullmatch(r'7\.0\.[0-9]+\.[0-9]+', results.get('nativeFileVersion', '')),
-            'Original upstream native product, assembly, source and community file versions required')
+    validate_native_version_compilation(compile_commands, source, obj)
+    native_version_marker((generated / 'runtime_version.h').read_bytes(), (generated / '_version.c').read_bytes(), results)
+
+
+def native_version_marker(header, version_source, results):
+    names = ['RuntimeAssemblyMajorVersion', 'RuntimeAssemblyMinorVersion', 'RuntimeFileMajorVersion',
+        'RuntimeFileMinorVersion', 'RuntimeFileBuildVersion', 'RuntimeFileRevisionVersion',
+        'RuntimeProductMajorVersion', 'RuntimeProductMinorVersion', 'RuntimeProductPatchVersion']
+    values = re.findall(rb'^#define (Runtime(?:Assembly|File|Product)(?:Major|Minor|Build|Revision|Patch)Version) ([0-9]+)$',
+                        header, re.MULTILINE)
+    require(len(values) == len(names) and len({key for key, value in values}) == len(names)
+            and {key.decode() for key, value in values} == set(names), 'Complete unique original SDK7 native version macros required')
+    macros = {key.decode(): value.decode() for key, value in values}
+    assembly = '.'.join(macros[name] for name in names[:2])
+    file_version = '.'.join(macros[name] for name in names[2:6])
+    product = '.'.join(macros[name] for name in names[6:])
+    require(assembly == results.get('runtimeAssemblyVersion') == '7.0'
+            and product == results.get('runtimeVersion') == '7.0.20'
+            and results.get('sourceCommit') == POLICIES['7.0.120']['runtimeCommit']
+            and file_version == results.get('nativeFileVersion') and re.fullmatch(r'7\.0\.[0-9]+\.[0-9]+', file_version)
+            and isinstance(results.get('buildId'), str) and re.fullmatch(r'[0-9]{8}\.[1-9][0-9]*', results['buildId']),
+            'Original SDK7 native product, assembly, dated file version and commit differ')
+    expected_header = ('\n'.join('#define ' + name + ' ' + macros[name] for name in names[:2]) + '\n\n'
+        + '\n'.join('#define ' + name + ' ' + macros[name] for name in names[2:6]) + '\n\n'
+        + '\n'.join('#define ' + name + ' ' + macros[name] for name in names[6:])
+        + '\n\n#define RuntimeProductVersion ' + product + '\n').encode()
+    marker = ('@(#)Version ' + file_version + ' @Commit: ' + results['sourceCommit']).encode()
+    require(header == expected_header and version_source == b'static char sccsid[] __attribute__((used)) = "' + marker + b'";\n'
+            and b'42.42.42.42424' not in version_source,
+            'Original SDK7 generated native version source/header template differs')
+    return marker
+
+
+def validate_native_elf_version(raw, marker):
+    require(re.findall(rb'@\(#\)Version [^\x00\r\n]+', raw) == [marker]
+            and b'42.42.42.42424' not in raw,
+            'Actual SDK7 native ELF has missing, fallback or mixed version identities')
+
+
+def validate_native_version_compilation(rows, source, obj):
+    version = source + '/artifacts/obj/_version.c'
+    expected = {obj + '/' + relative.rsplit('/', 1)[0] + '/CMakeFiles/' + name + '.dir/': library
+        for library, relative, name in [(library, relative, library.removeprefix('lib').removesuffix('.so'))
+                                       for library, relative in NATIVE_CORECLR.items()]}
+    found = {name: [] for name in NATIVE_CORECLR}
+    for row in rows:
+        output = posixpath.normpath(posixpath.join(obj, row['output']))
+        for prefix, library in expected.items():
+            if output.startswith(prefix) and PurePosixPath(row['file']).name in {'_version.c', 'version.c'}:
+                require(row['file'] == version and row['directory'] == prefix.split('/CMakeFiles/', 1)[0]
+                        and output == prefix + version.lstrip('/') + '.o',
+                        'Actual SDK7 shipping target compiled a different native version source')
+                found[library].append(row)
+    require(all(len(records) == 1 for records in found.values()),
+            'Every SDK7 CoreCLR/JIT/debugger target must compile the original dated version source exactly once')
 
 
 def validate_native_cache(cache, source, architecture):
@@ -1744,10 +1795,14 @@ def validate_native_compile_commands(compile_commands, source, obj):
                 and row['file'] == posixpath.normpath(row['file']),
                 'A native compiler command refers to an unrelated source or build directory')
         args = shlex.split(row['command'])
+        optimization = [arg for arg in args if arg.startswith('-O')]
+        allowed = {'-O2', '-O3', '-Os'}
+        ilasm_only = row['file'] == source + '/src/coreclr/ilasm/prebuilt/asmparse.cpp'
         require(args.count('-c') == args.count('-o') == 1
                 and args.index('-c') + 1 < len(args) and args.index('-o') + 1 < len(args)
-                and ('-O0' not in args or row['file'] == source + '/src/coreclr/ilasm/prebuilt/asmparse.cpp')
-                and any(flag in args for flag in ('-O2', '-O3', '-Os'))
+                and optimization and (all(flag in allowed for flag in optimization)
+                    or (ilasm_only and optimization[-1] == '-O0'
+                        and len(optimization) > 1 and all(flag in allowed for flag in optimization[:-1])))
                 and args[args.index('-c') + 1] == row['file'],
                 'Original native Release compile command lost its source, output or optimization')
         # CMake records -o relative to the command's directory, while its export

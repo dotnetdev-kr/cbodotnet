@@ -398,6 +398,54 @@ class ElfDataBoundary(unittest.TestCase):
 
 
 class NativeSourceBoundary(unittest.TestCase):
+    def version_fixture(self):
+        header = (b'#define RuntimeAssemblyMajorVersion 7\n#define RuntimeAssemblyMinorVersion 0\n\n'
+            b'#define RuntimeFileMajorVersion 7\n#define RuntimeFileMinorVersion 0\n#define RuntimeFileBuildVersion 2026\n'
+            b'#define RuntimeFileRevisionVersion 55801\n\n#define RuntimeProductMajorVersion 7\n'
+            b'#define RuntimeProductMinorVersion 0\n#define RuntimeProductPatchVersion 20\n\n#define RuntimeProductVersion 7.0.20\n')
+        result = dict(runtimeAssemblyVersion='7.0', runtimeVersion='7.0.20', nativeFileVersion='7.0.2026.55801',
+            sourceCommit=M.POLICIES['7.0.120']['runtimeCommit'], buildId='20261108.1')
+        marker = b'@(#)Version 7.0.2026.55801 @Commit: ' + result['sourceCommit'].encode()
+        source = b'static char sccsid[] __attribute__((used)) = "' + marker + b'";\n'
+        return header, source, result, marker
+
+    def test_original_generated_version_templates_bind_all_macros_and_result_identities(self):
+        header, source, result, marker = self.version_fixture()
+        self.assertEqual(marker, M.native_version_marker(header, source, result))
+        for h, s, r in [(header.replace(b'55801', b'55802'), source, result),
+                        (header + b'#define RuntimeFileBuildVersion 2026\n', source, result),
+                        (header, source + b'void unrelated_code() {}\n', result),
+                        (header, source.replace(b'7.0.2026.55801', b'42.42.42.42424'), result),
+                        (header.replace(b'7.0.20', b'7.0.21'), source, result),
+                        (header, source, dict(result, nativeFileVersion='7.0.2026.55802'))]:
+            with self.subTest(header=h[-40:], source=s[-40:]), self.assertRaises(ValueError):
+                M.native_version_marker(h, s, r)
+
+    def test_each_native_elf_must_have_one_exact_expected_marker_without_fallback_or_mixture(self):
+        marker = self.version_fixture()[-1]
+        M.validate_native_elf_version(b'\x7fELF\0' + marker + b'\0', marker)
+        for raw in (b'no marker', marker + b'\0' + marker + b'\0',
+                    marker + b'\0@(#)Version 7.0.2026.55901 @Commit: other\0',
+                    marker + b'\0fallback 42.42.42.42424\0', marker.replace(b'55801', b'55802') + b'\0'):
+            with self.subTest(raw=raw[-50:]), self.assertRaises(ValueError):
+                M.validate_native_elf_version(raw, marker)
+
+    def test_all_four_native_shipping_targets_must_compile_the_original_dated_version_source(self):
+        source = '/work/work/runtime'; obj = source + '/artifacts/obj/coreclr/Linux.arm64.Release'
+        version = source + '/artifacts/obj/_version.c'; rows = []
+        for library, relative in M.NATIVE_CORECLR.items():
+            target = library.removeprefix('lib').removesuffix('.so')
+            directory = obj + '/' + relative.rsplit('/', 1)[0]
+            rows.append(dict(directory=directory, file=version,
+                command='clang -O3 -O3 -o CMakeFiles/' + target + '.dir/' + version.lstrip('/') + '.o -c ' + version,
+                output=directory + '/CMakeFiles/' + target + '.dir/' + version.lstrip('/') + '.o'))
+        M.validate_native_version_compilation(rows, source, obj)
+        for selected in (rows[:-1], rows + [rows[0]],
+                         [dict(row, file=obj + '/version.c') if index == 0 else row for index, row in enumerate(rows)],
+                         [dict(row, directory=source + '/unrelated') if index == 0 else row for index, row in enumerate(rows)]):
+            with self.assertRaises(ValueError):
+                M.validate_native_version_compilation(selected, source, obj)
+
     def test_original_uppercase_native_release_cache_keeps_target_and_optimization_contract(self):
         cache = dict(CMAKE_BUILD_TYPE='RELEASE', CMAKE_HOME_DIRECTORY='/runtime/src/coreclr',
             CMAKE_EXPORT_COMPILE_COMMANDS='ON', CLR_CMAKE_TARGET_ARCH='arm64')
@@ -424,9 +472,24 @@ class NativeSourceBoundary(unittest.TestCase):
                         dict(directory='/unrelated/build'), dict(file='/unrelated/threads.cpp'),
                         dict(command=row['command'].replace('-O3', '-O0')),
                         dict(command=row['command'].replace('-O3', '')),
+                        dict(command=row['command'].replace('-O3', '-O3 -O1')),
+                        dict(command=row['command'].replace('-O3', '-O3 -Og')),
+                        dict(command=row['command'].replace('-O3', '-O3 -Ofast')),
                         dict(command=row['command'] + ' -o CMakeFiles/vm.dir/hidden.cpp.o')]:
             with self.subTest(changes=changes), self.assertRaises(ValueError):
                 M.validate_native_compile_commands(rows + [dict(row, **changes)], '/runtime', obj)
+
+    def test_only_original_nonshipping_ilasm_source_may_end_in_o0(self):
+        obj = '/runtime/artifacts/obj/coreclr/Linux.arm64.Release'
+        path = '/runtime/src/coreclr/ilasm/prebuilt/asmparse.cpp'
+        row = dict(directory=obj + '/ilasm', file=path,
+            command='clang++ -O3 -O3 -O0 -o CMakeFiles/ilasm.dir/asmparse.cpp.o -c ' + path,
+            output='ilasm/CMakeFiles/ilasm.dir/asmparse.cpp.o')
+        M.validate_native_compile_commands([copy.deepcopy(row) for _ in range(100)], '/runtime', obj)
+        for flags in ('-O0 -O3 -O0', '-O3 -O1 -O0', '-O3 -O0 -Og', '-O0'):
+            changed = dict(row, command=row['command'].replace('-O3 -O3 -O0', flags))
+            with self.subTest(flags=flags), self.assertRaises(ValueError):
+                M.validate_native_compile_commands([copy.deepcopy(changed) for _ in range(100)], '/runtime', obj)
 
     def test_exact_reviewed_patch_result_recovers_the_original_git_blob(self):
         pristine = b'first\nold\nthird\nfourth\nlast\n'
