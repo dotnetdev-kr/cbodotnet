@@ -108,6 +108,20 @@ The producer catalog preserves both original artifact/run/source identities.
 This producer admission permits the separate native consumer workflows; it
 does not activate download availability or installer admission.
 
+SDK8's native R12 completed all 46 original smoke results on both CPUs
+(44 passed, two original skips), then stopped at reference inventory because
+the original SDK runtime packs contain internal symbolic links into their
+shared frameworks. The retained ARM64 archive has SHA-256
+`b8268328c830d37e28181d113747d495e6e1d21482d91e784fd78042ec42eade`.
+The reference auditor now resolves each DLL/package alias to an ordinary file
+inside the same TAR without filesystem extraction, then inspects its bytes
+under the alias's own placement rules. It retains all 307 actual DLL alias
+names, exact link targets, resolved paths and byte hashes. External, dangling,
+cyclic, redirected-parent, duplicate and non-file targets fail. A reference
+stub aliased into a runtime path, including through a nested package, still
+fails. The retrospective check does not admit R12; a fresh complete native
+producer remains required.
+
 SDK 9's F# test tracing uses the maintained OTLP 1.15.3 exporter because the
 deprecated Jaeger exporter has no fixed release for its advisory. The original
 test graph, compiler activity source, spans, tags and flush/disposal lifecycle

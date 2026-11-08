@@ -74,9 +74,104 @@ def is_reference_path(name, *, nested=False):
             or len(parts) >= 4 and parts[:3] == ('sdk', '8.0.133', 'ref'))
 
 
-def sdk_reference_inventory(archive):
+def sdk_payloads(archive, resolved_links):
+    """Read regular payloads and archive-internal link bytes without extraction.
+
+    Original SDK8 runtime packs link back to shared-framework files. Inspect
+    those bytes under every alias as well as the original path: a reference
+    stub cannot become an implementation by passing through a link.
+    """
+    suffixes = ('.dll', '.nupkg', '.zip')
+
+    def name(value):
+        result = member_name(value.rstrip('/'))
+        require(result == PurePosixPath(result).as_posix() and ':' not in result,
+                'Noncanonical SDK reference inventory path')
+        return result
+
+    nodes = {}
+    with tarfile.open(ordinary_file(archive), 'r:gz') as source:
+        for member in source:
+            if member.isdir() and member.name in ('.', './'): continue
+            key = name(member.name)
+            require(key not in nodes and len(nodes) < 100000, 'Duplicate or oversized SDK reference inventory')
+            require(member.isdir() or member.isfile() or member.issym() or member.islnk(), 'Special SDK archive member is forbidden')
+            nodes[key] = member
+
+    def parents(key):
+        for parent in PurePosixPath(key).parents:
+            if parent.as_posix() == '.': continue
+            require(parent.as_posix() not in nodes or nodes[parent.as_posix()].isdir(),
+                    'SDK reference payload has a redirected archive parent')
+
+    directories = {parent.as_posix() for key in nodes for parent in PurePosixPath(key).parents}
+    directories.update(key for key, member in nodes.items() if member.isdir())
+
+    def link_path(key, member):
+        target = member.linkname
+        require(target and not target.startswith('/') and not target.endswith('/')
+                and not any(c in target for c in ('\\', ':', '\0', '\r', '\n')),
+                'SDK reference payload link escapes the archive')
+        parts = list(PurePosixPath(key).parent.parts) if member.issym() else []
+        segments = target.split('/')
+        for index, segment in enumerate(segments):
+            if segment in ('', '.'): continue
+            if segment == '..':
+                require(parts, 'SDK reference payload link escapes the archive')
+                parts.pop()
+            else:
+                parts.append(segment)
+                if index < len(segments) - 1:
+                    prefix = '/'.join(parts)
+                    # A later '..' cannot cancel traversal through a symlink,
+                    # ordinary file or absent directory on the real filesystem.
+                    require(prefix in directories and (prefix not in nodes or nodes[prefix].isdir()),
+                            'SDK reference link traverses a redirected or absent target parent')
+        return name('/'.join(parts))
+
+    def resolve(key):
+        visited = set()
+        for _ in range(32):
+            require(key in nodes and key not in visited, 'Dangling or cyclic SDK reference payload link')
+            visited.add(key); parents(key); member = nodes[key]
+            if member.isfile(): return key
+            require(member.issym() or member.islnk(), 'SDK reference link must resolve to a regular archive file')
+            key = link_path(key, member)
+        raise ValueError('SDK reference payload link depth exceeds its limit')
+
+    aliases, targets = [], set()
+    for key, member in nodes.items():
+        if not key.lower().endswith(suffixes): continue
+        parents(key)
+        if member.isfile():
+            require(member.size <= 512 * 1024**2, 'Oversized SDK reference inventory input')
+        else:
+            target = resolve(key)
+            require(nodes[target].size <= 512 * 1024**2, 'Oversized linked SDK reference inventory input')
+            aliases.append((key, target, member)); targets.add(target)
+    require(sum(nodes[target].size for target in targets) <= 512 * 1024**2,
+            'SDK reference link target cache exceeds its limit')
+    cached = {}
+    with tarfile.open(ordinary_file(archive), 'r|gz') as source:
+        for member in source:
+            if not member.isfile(): continue
+            key = name(member.name)
+            if key not in targets and not key.lower().endswith(suffixes): continue
+            require(member.size <= 512 * 1024**2, 'Oversized SDK reference inventory input')
+            raw = source.extractfile(member).read(member.size + 1)
+            require(len(raw) == member.size, 'Truncated SDK reference inventory input')
+            if key in targets: cached[key] = raw
+            if key.lower().endswith(suffixes): yield key, raw
+    require(cached.keys() == targets, 'An SDK reference link target was not read from the actual archive')
+    for key, target, member in aliases:
+        raw = cached[target]
+        resolved_links.append(dict(path=key, type='symlink' if member.issym() else 'hardlink',
+            linkTarget=member.linkname, resolvedTarget=target, bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest()))
+        yield key, raw
+
+
+def sdk_reference_inventory(archive, *, resolved_links=None):
     result = []
-    seen = set()
     budget = dict(entries=0, bytes=0)
 
     def inspect(name, raw, allowed):
@@ -109,24 +204,11 @@ def sdk_reference_inventory(archive):
                 else:
                     inspect_package(contents, name, depth + 1)
 
-    with tarfile.open(ordinary_file(archive), 'r|gz') as source:
-        for member in source:
-            if member.isdir() and member.name in ('.', './'):
-                continue
-            name = member_name(member.name)
-            if not member.isfile():
-                require(not name.lower().endswith(('.dll', '.nupkg', '.zip')), 'Linked reference payload is forbidden')
-                continue
-            require(name not in seen, 'Duplicate SDK file in reference inventory')
-            seen.add(name)
-            if not name.lower().endswith(('.dll', '.nupkg', '.zip')):
-                continue
-            require(member.size <= 512 * 1024 * 1024, 'Oversized SDK reference inventory input')
-            raw = source.extractfile(member).read()
-            if name.lower().endswith('.dll'):
-                inspect(name, raw, is_reference_path(name))
-            else:
-                inspect_package(raw, name, 1)
+    for name, raw in sdk_payloads(archive, resolved_links if resolved_links is not None else []):
+        if name.lower().endswith('.dll'):
+            inspect(name, raw, is_reference_path(name))
+        else:
+            inspect_package(raw, name, 1)
     return sorted(result, key=lambda row: row['path'])
 
 
@@ -141,11 +223,13 @@ def fingerprint(path):
 
 def report(release, archive):
     log = release / 'reports/build/reference-audit.log'
+    links = []
+    references = sdk_reference_inventory(archive, resolved_links=links)
     return dict(schemaVersion=1, kind='reviewed-reference-only-audit-proof', status='passed', sdkVersion='8.0.133',
         policy=dict(path='scripts/musl-reference-audit-policy.json', sha256=POLICY_SHA256),
         sdk=dict(name=archive.name, **fingerprint(archive)), log=dict(path='reports/build/reference-audit.log', **fingerprint(log)),
         nuGetAuditEnabled=True, warningsRemainVisible=True, runtimeImplementationExceptionAllowed=False,
-        warnings=warning_graph(ordinary_file(log).read_text()), referenceApiFiles=sdk_reference_inventory(archive))
+        warnings=warning_graph(ordinary_file(log).read_text()), referenceApiFiles=references, resolvedPayloadLinks=links)
 
 
 def validate(release, archive):
