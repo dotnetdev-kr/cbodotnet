@@ -568,6 +568,8 @@ def publish_producer(directory, *, gh='gh'):
         body = body.replace(
             'The original source build reconstructs SDK tooling; the evidence records rebuilt and imported shared-framework inputs. ',
             'This regular VMR build rebuilds SDK tooling and imports attributed upstream musl shared-framework inputs. ')
+    else:
+        body = body.replace('These unchanged upstream CLI payloads', 'These source-produced SDK payloads')
     release = api.find(tag)
     if release is None:
         require(api.api(f'repos/{REPOSITORY}/git/ref/tags/{tag}') is None,
