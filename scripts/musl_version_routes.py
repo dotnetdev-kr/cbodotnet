@@ -82,7 +82,9 @@ def profile(sdk, arch, root=ROOT):
                          'patches/musl/net8/0001-retain-reference-audit-warnings.patch':
                          'ab698abeac802febfd8dc1f27c7c05784911bed55c84d1df49f3de5e98f45daf',
                          'patches/musl/net8/0002-service-arcade-build-dependencies.patch':
-                         '639c9cb360475f35a87db9bd338c3165ab909f7d5d698b57df1e0d8edfc5a434'} if expected['sourceOnly'] else {
+                         '639c9cb360475f35a87db9bd338c3165ab909f7d5d698b57df1e0d8edfc5a434',
+                         'patches/musl/net8/0003-select-native-musl-aspnet-crossgen-host.patch':
+                         '8a2ef25b59eedac11d4b061048be3d4b93796399899e7bf9e1884d7220f9cec4'} if expected['sourceOnly'] else {
                          'patches/musl/net9/0001-use-fixed-build-helper-msbuild.patch':
                          '444916928c5c78a8232c3baba53b7d0c2d09ea4ad9bd4fe3536b1b11055b823e',
                          'patches/musl/net9/0002-use-fixed-build-helper-asn1.patch':
@@ -96,7 +98,9 @@ def profile(sdk, arch, root=ROOT):
                          'patches/musl/net9/0006-use-maintained-fsharp-test-telemetry.patch':
                          'a9c383a8f9d6b55c702698aec507025948cb21eeedb047801e7128eb84a7409f',
                          'patches/musl/net9/0007-stabilize-locally-built-nuget-version.patch':
-                         '437746010a829cb1ec9be55e730c62a6c0a4ee0a0c600062340ff40accf71774'})
+                         '437746010a829cb1ec9be55e730c62a6c0a4ee0a0c600062340ff40accf71774',
+                         'patches/musl/net9/0008-use-native-musl-sdk-installer-crossgen-host.patch':
+                         'a548dfb8f18250d1f634d4aafd24bbdc132c4dd81ee03946560d252209351ff4'})
     require(len(build['patches']) == len(expected_patches)
             and {p['path'] for p in build['patches']} == set(expected_patches), 'Unreviewed source patch set')
     for patch in build['patches']:

@@ -75,6 +75,11 @@
         "path": "patches/musl/net9/0007-stabilize-locally-built-nuget-version.patch",
         "sha256": "437746010a829cb1ec9be55e730c62a6c0a4ee0a0c600062340ff40accf71774",
         "purpose": "Use the original NuGet BuildRTM switch for the genuinely rebuilt coherent 6.12.5 product family, satisfying stable serviced templating dependencies without suppressing downgrade errors."
+      },
+      {
+        "path": "patches/musl/net9/0008-use-native-musl-sdk-installer-crossgen-host.patch",
+        "sha256": "a548dfb8f18250d1f634d4aafd24bbdc132c4dd81ee03946560d252209351ff4",
+        "purpose": "Select the SDK installer Crossgen2 compiler for the actual private musl SDK host while preserving the original source-only override, native target architecture and complete ReadyToRun compilation."
       }
     ]
   },

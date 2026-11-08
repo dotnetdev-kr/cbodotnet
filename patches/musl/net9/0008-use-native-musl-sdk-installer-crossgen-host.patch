@@ -1,0 +1,21 @@
+Subject: [PATCH] Select SDK installer crossgen for the actual native musl host
+
+The regular SDK installer selects linux crossgen2 from HostOSName, even when
+the private SDK and compiler process run on musl. Select the exact private SDK
+host RID in that case. Keep the later upstream source-only override, native
+target architecture, all ReadyToRun inputs and non-musl behavior unchanged.
+
+Base-VMR: 9f04b57d1366e21b3178648493d6edffeff2216e
+
+--- a/src/sdk/src/Installer/redist-installer/targets/GenerateLayout.targets
++++ b/src/sdk/src/Installer/redist-installer/targets/GenerateLayout.targets
+@@ -81,6 +81,9 @@
+       <WinFormsAndWpfSharedFxArchiveFileName>windowsdesktop-runtime-$(MicrosoftWindowsDesktopAppRuntimePackageVersion)-$(SharedFrameworkRid)$(ArchiveExtension)</WinFormsAndWpfSharedFxArchiveFileName>
+ 
+       <Crossgen2Rid>$(HostOSName)-$(BuildArchitecture)</Crossgen2Rid>
++      <!-- The compiler runs on the private SDK host, whose libc can differ
++           from HostOSName's generic linux value. -->
++      <Crossgen2Rid Condition="$(NETCoreSdkRuntimeIdentifier.StartsWith('linux-musl-'))">$(NETCoreSdkRuntimeIdentifier)</Crossgen2Rid>
+       <Crossgen2Rid Condition="'$(DotNetBuildSourceOnly)' == 'true'">$(SharedFrameworkRid)</Crossgen2Rid>
+ 
+       <AspNetCoreInstallerRid Condition="'$(AspNetCoreInstallerRid)' == ''">$(SharedFrameworkRid)</AspNetCoreInstallerRid>
