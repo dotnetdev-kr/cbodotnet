@@ -993,6 +993,12 @@ class FunctionalEvidence(unittest.TestCase):
             mutations = [lambda call: call.__setitem__(call.index(prepare['verificationImageId']), prepare['imageId']),
                          lambda call: call.extend(['--volume', '/bootstrap:/work']),
                          lambda call: call.extend(['--env', 'NUGET_PACKAGES=/home/build/.nuget/packages']),
+                         lambda call: call.extend(['--env', 'COMPlus_ReadyToRun=0']),
+                         lambda call: call.extend(['--env', 'DOTNET_ReadyToRun=0']),
+                         lambda call: call.extend(['--env-file', '/hidden/environment']),
+                         lambda call: call.extend(['--env=COMPlus_ReadyToRun=0']),
+                         lambda call: call.extend(['-e', 'COMPlus_ReadyToRun=0']),
+                         lambda call: call.extend(['--env', 'HOME=/home/build', '--env', 'HOME=/other']),
                          lambda call: call.__setitem__(call.index('--network=none'), '--network=host'),
                          lambda call: call.__setitem__(call.index('/delivery/genuine.tar.gz'), '/delivery/imported.tar.gz')]
             for mutation in mutations:

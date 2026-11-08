@@ -2643,21 +2643,27 @@ def validate_verification_boundary(release, record, prepare, stages):
     calls = [call for call in stages['verify']['commands'] if call[:len(P.DOCKER_ENGINE) + 1] == P.DOCKER_ENGINE + ['run']]
     require(len(calls) == 4, 'Exactly four reviewed cold verification workers required')
     workers = {}
-    forbidden_environment = {'LD_LIBRARY_PATH', 'LD_PRELOAD', 'DOTNET_ROOT', 'DOTNET_ROOT_ARM64', 'DOTNET_ROOT_X64',
-                             'DOTNET_HOST_PATH', 'DOTNET_SHARED_STORE', 'DOTNET_ADDITIONAL_DEPS', 'NUGET_PACKAGES'}
+    allowed_environment = dict(HOME='/home/build', DOTNET_CLI_HOME='/home/build', DOTNET_CLI_TELEMETRY_OPTOUT='1',
+        DOTNET_SKIP_FIRST_TIME_EXPERIENCE='1', DOTNET_MULTILEVEL_LOOKUP='0', DOTNET_PROCESSOR_COUNT='2',
+        PYTHONDONTWRITEBYTECODE='1', MSBUILDDEBUGPATH='/diag', MSBUILDDEBUGCOMM='1')
     for call in calls:
         require(call.count(prepare['verificationImageId']) == 1
                 and not any(value.startswith(('--mount', '--volumes-from', '--device', '--entrypoint')) for value in call),
                 'Every final SDK worker must use the frozen SDK-free image')
-        mounts = {}
+        require(not any(value in ('-e', '--env-file') or value.startswith(('--env=', '--env-file=')) for value in call),
+                'Cold verification requires explicit reviewed environment options')
+        mounts, environment = {}, {}
         for index, value in enumerate(call):
             if value == '--volume':
                 fields = call[index + 1].split(':')
                 require(len(fields) in {2, 3} and fields[1] not in mounts, 'Unexpected cold verifier mount syntax')
                 mounts[fields[1]] = fields[2] if len(fields) == 3 else 'rw'
             if value == '--env':
-                require(call[index + 1].split('=', 1)[0] not in forbidden_environment,
-                        'Cold verification inherited bootstrap/library/package-cache overrides')
+                require(index + 1 < len(call), 'Complete cold verification environment option required')
+                key, separator, incoming = call[index + 1].partition('=')
+                require(separator and key not in environment and allowed_environment.get(key) == incoming,
+                        'Cold verification inherited an unreviewed runtime or bootstrap override')
+                environment[key] = incoming
         require(mounts == {'/project': 'ro', '/delivery': 'rw', '/home/build': 'rw', '/diag': 'rw'},
                 'Cold verification exposes a build/source/bootstrap workspace')
         scripts = [script for script in ('verify-sdk.sh', 'musl-sdk-audit.py', 'musl-legacy-functional.py')
