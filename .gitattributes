@@ -5,3 +5,8 @@
 
 # Pinned patch payloads and control manifests must retain their exact hashes.
 patches/** -text -whitespace
+
+# Retain the exact App5 worker bytes used by the frozen execution evidence.
+scripts/musl_legacy5_appinsights.py -text -whitespace
+scripts/musl_legacy5_appinsights_api.py -text -whitespace
+scripts/musl-legacy5-appinsights-build-policy.json -text -whitespace
