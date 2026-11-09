@@ -375,7 +375,10 @@ class EvidenceProducerStageTests(unittest.TestCase):
                     name=C.producer_artifact_name(version, arch, 123, 1), expired=False, size_in_bytes=100, digest='sha256:'+'b'*64,
                     workflow_run=dict(id=123, head_sha=commit, head_branch='main', repository_id=10, head_repository_id=10)))
             (received/'received.json').write_bytes(encoded(receiving)); (received/'run.json').write_bytes(encoded(run))
-            with mock.patch.object(R.subprocess, 'run') as validate, mock.patch.object(R, '_source_module') as packer:
+            # This fixture isolates evidence bytes; scheduling uses its own complete metadata fixtures.
+            with (mock.patch.object(R.subprocess, 'run') as validate,
+                  mock.patch.object(R, '_source_module') as packer,
+                  mock.patch.object(R, '_sdk6_pair_capacity', return_value=dict(workers=1, reason='evidence-byte-fixture'))):
                 manifest = R.stage_producer(received, base/'stage')
                 self.assertEqual(2, validate.call_count); self.assertEqual(2, packer.return_value.verify.call_count)
             _, physical = R.validate_source_stage(base/'stage')
