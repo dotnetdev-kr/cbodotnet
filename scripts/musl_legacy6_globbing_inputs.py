@@ -14,6 +14,7 @@ import subprocess
 import tarfile
 import xml.etree.ElementTree as ET
 import zipfile
+from musl_source_archive import open_source_archive
 
 ROOT_NAME = 'sdk6-globbing-source-inputs'
 ROLE = 'sdk6-globbing-preferred-source-and-consumed-license-inputs'
@@ -183,7 +184,7 @@ def validate(release, manifest, package):
         for sub in roots[key].get('submodules', []): baseline[sub['path']] = dict(mode='160000', blob=sub['commit'])
         require(packer.baseline_tree(baseline) == p['sources'][key]['tree'], 'Full original SDK6 Globbing source tree differs')
     seen, data, sources = set(), {}, {key: {} for key in roots}
-    with tarfile.open(release / 'sources' / portable(manifest['archive']['path']), 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in indexed: continue
             key, name, expected = indexed[entry.name]

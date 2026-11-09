@@ -12,6 +12,7 @@ from pathlib import Path, PurePosixPath
 import tarfile
 import xml.etree.ElementTree as ET
 import zipfile
+from musl_source_archive import open_source_archive
 
 ROOT_NAME = 'sdk6-attributed-component-inputs'
 ROLE = 'sdk6-original-package-component-source-correspondence-inputs'
@@ -188,7 +189,7 @@ def validate(release, manifest, packages):
             baseline[sub['path']] = dict(mode='160000', blob=sub['commit'])
         require(packer.baseline_tree(baseline) == p['sources'][role]['tree'], 'Complete original SDK6 component Git tree differs')
     found, data, sources = set(), {}, {role: {} for role in roots}
-    with tarfile.open(release / 'sources' / portable(manifest['archive']['path']), 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in indexed:
                 continue

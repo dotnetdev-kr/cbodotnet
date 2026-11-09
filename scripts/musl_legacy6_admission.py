@@ -13,6 +13,7 @@ import re
 import tarfile
 from types import SimpleNamespace
 import zipfile
+from musl_source_archive import open_source_archive, source_session
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -108,7 +109,7 @@ def source_archive_members(release, manifest, wanted):
                 require(row['path'] not in expected, 'Duplicate SDK6 source archive member'); expected[row['path']] = row
     require(expected.keys() == wanted, 'Complete SDK6 source member coverage required')
     found = {}
-    with tarfile.open(release / 'sources' / portable(manifest['archive']['path']), 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in expected: continue
             require(entry.name not in found and entry.isfile() and entry.size == expected[entry.name]['bytes']
@@ -142,7 +143,7 @@ def validate_sdk_sources(release, manifest, roots):
     for child in source.get('submodules', []): baseline[child['path']] = dict(mode='160000', blob=child['commit'])
     require(indexed and packer.baseline_tree(baseline) == source['tree'], 'Full original SDK6 tooling tree differs')
     seen, changed = set(), {}
-    with tarfile.open(release / 'sources' / portable(manifest['archive']['path']), 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if not entry.name.startswith('sdk/'): continue
             name = entry.name[len('sdk/'):]
@@ -775,23 +776,24 @@ def validate(release):
     packer = module('sdk6_normal_used_source_contract', 'package-used-source.py')
     manifest = packer.verify(SimpleNamespace(release_dir=release, expected_project_commit=record['projectCommit'],
         expected_run_id=record['runId'], expected_run_attempt=record['runAttempt'], expected_target_rid=record['targetRid']))
-    BOUNDARY.validate_source_workers(record, prepare, stages, manifest)
-    validate_tooling_boundary(release, record, prepare, stages, manifest)
-    validate_reader_boundary(release, record, prepare, stages, manifest)
-    validate_installer_boundary(release, record, prepare, stages, manifest)
-    BOUNDARY.validate_scan_applicability(release, record, manifest)
-    validate_construction(release, record, manifest, stages=stages, prepare=prepare)
-    BOUNDARY.validate_original_smoke(release, record, manifest)
-    BOUNDARY.validate_lttng(release, record, prepare, stages)
-    BOUNDARY.validate_functional(release, record, stages)
-    report = load(release / 'reports/verify/elf.json'); native = B.P.identity(record['architecture'])
-    loader = '/lib/ld-musl-' + native['machine'] + '.so.1'
-    require(report.get('status') == 'passed' and report.get('libc') == 'musl' and report.get('architecture') == record['architecture']
-            and report.get('loader') == loader and report.get('uid', 0) > 0 and report.get('foreignTargetExceptions') == []
-            and report.get('closure', {}).get('status') == 'passed' and report['closure'].get('nonHostElfCount') == 0,
-            'Complete native SDK6 stock-provider ELF closure required')
-    BOUNDARY.validate_elf_closure(release, record, profile, report)
-    return record
+    with source_session(release, manifest):
+        BOUNDARY.validate_source_workers(record, prepare, stages, manifest)
+        validate_tooling_boundary(release, record, prepare, stages, manifest)
+        validate_reader_boundary(release, record, prepare, stages, manifest)
+        validate_installer_boundary(release, record, prepare, stages, manifest)
+        BOUNDARY.validate_scan_applicability(release, record, manifest)
+        validate_construction(release, record, manifest, stages=stages, prepare=prepare)
+        BOUNDARY.validate_original_smoke(release, record, manifest)
+        BOUNDARY.validate_lttng(release, record, prepare, stages)
+        BOUNDARY.validate_functional(release, record, stages)
+        report = load(release / 'reports/verify/elf.json'); native = B.P.identity(record['architecture'])
+        loader = '/lib/ld-musl-' + native['machine'] + '.so.1'
+        require(report.get('status') == 'passed' and report.get('libc') == 'musl' and report.get('architecture') == record['architecture']
+                and report.get('loader') == loader and report.get('uid', 0) > 0 and report.get('foreignTargetExceptions') == []
+                and report.get('closure', {}).get('status') == 'passed' and report['closure'].get('nonHostElfCount') == 0,
+                'Complete native SDK6 stock-provider ELF closure required')
+        BOUNDARY.validate_elf_closure(release, record, profile, report)
+        return record
 
 
 if __name__ == '__main__':

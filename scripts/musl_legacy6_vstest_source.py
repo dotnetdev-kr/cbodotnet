@@ -12,6 +12,7 @@ import tarfile
 import tempfile
 import xml.etree.ElementTree as ET
 import zipfile
+from musl_source_archive import open_source_archive
 
 ROOT = Path(__file__).resolve().parents[1]
 COMMIT = 'cc7fb0593127e24f55ce016fb3ac85b5b2857fec'
@@ -258,7 +259,7 @@ def validate(release, manifest, validated_vstest):
                     else: require(relative in generated_names, 'Unreviewed added file inside original VSTest source')
     require(P.baseline_tree(baseline) == TREE, 'Full original SDK6 VSTest Git tree differs')
     originals, generated, seen = {}, {}, set()
-    with tarfile.open(release / 'sources' / portable(manifest['archive']['path']), 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in indexed: continue
             row = indexed[entry.name]; require(entry.name not in seen and entry.isfile() and entry.size <= 32 * 1024**2,

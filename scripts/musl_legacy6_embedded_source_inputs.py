@@ -13,6 +13,7 @@ import subprocess
 import tarfile
 import xml.etree.ElementTree as ET
 import zipfile
+from musl_source_archive import open_source_archive
 
 ROOT_NAME = 'sdk6-embedded-origin-package-inputs'
 ROLE = 'sdk6-original-packages-and-per-member-embedded-source-inputs'
@@ -157,7 +158,7 @@ def validate(release, manifest, packages_by_sha):
         for child in roots[commit].get('submodules', []): baseline[child['path']] = dict(mode='160000', blob=child['commit'])
         require(P.baseline_tree(baseline) == p['sources'][commit]['tree'], 'Full original SDK6 member source tree differs')
     seen, data, licenses, license_reference = set(), {}, {}, None
-    with tarfile.open(release / 'sources' / manifest['archive']['path'], 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in indexed: continue
             commit, name, expected = indexed[entry.name]

@@ -13,6 +13,7 @@ import shlex
 import struct
 import tarfile
 import zlib
+from musl_source_archive import open_source_archive
 
 ROOT = Path(__file__).resolve().parents[1]
 SDK, RUNTIME = '6.0.136', '6.0.36'
@@ -202,7 +203,7 @@ def source_inputs(release, manifest, directory, result, source, obj):
             'All actual generated native inputs and worker/patch sources must be archived')
     seen, retained = set(), {}
     patched = {'runtime/' + target for _, target in PATCHES.values()}
-    with tarfile.open(release / 'sources' / B.portable(manifest['archive']['path']), 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in indexed: continue
             require(entry.name not in seen and (entry.isfile() or entry.issym()) and entry.size <= 64 * 1024**2,

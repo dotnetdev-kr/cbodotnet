@@ -1,4 +1,4 @@
-"""Optional private seekable byte transport for SDK7 source revalidation.
+"""Optional private seekable byte transport for SDK6/SDK7 source revalidation.
 
 This caches no validation result or source interpretation. Every consumer still
 reads and checks the original TAR headers and member bytes independently.
@@ -204,13 +204,13 @@ class ReadAt(io.RawIOBase):
 
 @contextmanager
 def _source_session(release, manifest, temporary_parent, observations):
-    """Optimize only SDK7, after its caller's complete original source verify.
+    """Optimize SDK6/SDK7, after the caller's complete original source verify.
 
     Unsupported platforms or insufficient preflight capacity retain the exact
     original gzip reader. Authentication, I/O and expansion failures never do.
     """
     require(_ACTIVE.get() is None, 'Nested source byte sessions are forbidden')
-    require(manifest.get('sdkVersion') == '7.0.120', 'Only reviewed SDK7 source byte sessions are supported')
+    require(manifest.get('sdkVersion') in ('6.0.136', '7.0.120'), 'Only reviewed SDK6/SDK7 source byte sessions are supported')
     if not supported():
         observe('fallback', reason='unsupported-platform', mode='gzip')
         yield False

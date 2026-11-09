@@ -13,6 +13,7 @@ from pathlib import Path
 import posixpath
 import tarfile
 import zipfile
+from musl_source_archive import open_source_archive
 
 FP = ('bytes', 'sha256', 'sha512')
 ORIGINAL_SHA = 'c38c7f751e334d9fdc9233f131cbea1505b4d5d1951489addb91fbc92fe8e397'
@@ -152,7 +153,7 @@ def _sources(release, manifest):
         require(P.baseline_tree(rows) == p['sources'][key]['tree'], 'Complete original literal Git tree differs')
     seen, bodies = set(), {key: {} for key in selected}
     attribute_proof, representations = None, {}
-    with tarfile.open(release / 'sources' / original().portable(manifest['archive']['path']), 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in indexed:
                 continue

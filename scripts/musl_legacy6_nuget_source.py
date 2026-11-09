@@ -9,6 +9,7 @@ import json
 from pathlib import Path, PurePosixPath
 import tarfile
 import zipfile
+from musl_source_archive import open_source_archive
 
 ROOT = Path(__file__).resolve().parents[1]
 SDK = '6.0.136'
@@ -164,7 +165,7 @@ def validate(release, manifest, validated_nuget):
     require(all(P.baseline_tree(baselines[name]) == row['tree'] for name, row in roots.items()),
             'Complete original NuGet6 parent/submodule Git trees differ')
     seen = set(); patched = None
-    with tarfile.open(release / 'sources' / portable(manifest['archive']['path']), 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in indexed: continue
             require(entry.name not in seen and (entry.isfile() or entry.issym()) and entry.size <= 32 * 1024**2,

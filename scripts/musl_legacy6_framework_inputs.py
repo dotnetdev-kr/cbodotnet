@@ -12,6 +12,7 @@ from pathlib import Path, PurePosixPath
 import tarfile
 import xml.etree.ElementTree as ET
 import zipfile
+from musl_source_archive import open_source_archive
 
 ROOT_NAME = 'sdk6-framework-corresponding-inputs'
 ROLE = 'sdk6-direct-canonical-framework-source-inputs'
@@ -215,7 +216,7 @@ def validate(release, manifest, package):
     require(expected.keys() <= index.keys() and all(all(index[name].get(k) == row[k] for k in FP) for name, row in expected.items()),
             'All original SDK6 recipe, license and preferred IL inputs must be indexed')
     found, sources, sdk, data = set(), {}, {}, {}
-    with tarfile.open(release / 'sources' / portable(manifest['archive']['path']), 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in index:
                 continue

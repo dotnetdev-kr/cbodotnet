@@ -16,6 +16,7 @@ import re
 import struct
 import tarfile
 import xml.etree.ElementTree as ET
+from musl_source_archive import open_source_archive
 
 ROOT = Path(__file__).resolve().parents[1]
 SDK = '6.0.136'
@@ -192,7 +193,7 @@ def validate_original_smoke(release, record, manifest):
                     for key in ('bytes', 'sha256')) for row in claimed), 'Actual original smoke source inventory differs')
     packer = module('legacy_original_smoke_pristine', 'package-used-source.py')
     config = None
-    with tarfile.open(release / 'sources' / manifest['archive']['path'], 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if not entry.name.startswith(prefix):
                 continue

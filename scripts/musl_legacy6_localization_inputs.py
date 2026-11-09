@@ -11,6 +11,7 @@ from pathlib import Path, PurePosixPath
 import subprocess
 import tarfile
 import zipfile
+from musl_source_archive import open_source_archive
 
 ROOT_NAME = 'sdk6-localization-source-inputs'
 ROLE = 'sdk6-source-built-localization-package-and-build-sdk-inputs'
@@ -205,7 +206,7 @@ def validate(release, manifest, package):
         for sub in roots[key].get('submodules', []): baseline[sub['path']] = dict(mode='160000', blob=sub['commit'])
         require(P.baseline_tree(baseline) == p['sources'][key]['tree'], 'Full original localization/build SDK source tree differs')
     seen, data, sources = set(), {}, {key: {} for key in roots}
-    with tarfile.open(release / 'sources' / B.portable(manifest['archive']['path']), 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in indexed: continue
             key, name, expected = indexed[entry.name]
