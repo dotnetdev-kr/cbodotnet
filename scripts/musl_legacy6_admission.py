@@ -32,7 +32,7 @@ T = module('sdk6_admission_translation_contract', 'musl_legacy6_translation_inpu
 MS = module('sdk6_admission_localization_contract', 'musl_legacy6_localization_inputs.py')
 APPHOST = module('sdk6_admission_unindexed_debug_inputs', 'musl_legacy6_package_inventory.py')
 BCL = module('sdk6_admission_embedded_package_sources', 'musl_legacy6_embedded_source_inputs.py')
-LITERAL = module('sdk6_admission_literal_package_sources', 'musl_legacy6_literal_inputs.py')
+LITERAL = module('sdk6_admission_literal_package_sources', 'musl_legacy6_literal_checkout_inputs.py')
 NUGET_SOURCE = module('sdk6_admission_original_nuget_source', 'musl_legacy6_nuget_source.py')
 VSTEST_SOURCE = module('sdk6_admission_original_vstest_source', 'musl_legacy6_vstest_source.py')
 NATIVE_INPUTS = module('sdk6_admission_original_native_source', 'musl_legacy6_native_inputs.py')
@@ -456,6 +456,36 @@ def validate_layout(proof, actual, inventories):
     require(seen == actual.keys(), 'SDK6 layout origin coverage is incomplete')
 
 
+def validate_literal_checkout_proof(literal):
+    """Bind the mandatory exact publisher-checkout result, not a legacy label."""
+    closed = LITERAL.checkout_policy()
+    proof = literal.get('publisherCheckoutRepresentations')
+    fields = {'kind', 'policySha256', 'sourceCommit', 'sourceTree', 'attribute',
+        'acceptedRepresentations', 'completeOriginalSourceFiles', 'originalSourceAnchors',
+        'sourceFilesRewritten', 'genericEolAcceptanceAllowed', 'qualificationAllowed', 'sourceAdmissionAllowed'}
+    require(literal.get('kind') == 'sdk6-original-literal-input-source-chains'
+            and isinstance(proof, dict) and proof.keys() == fields
+            and proof.get('kind') == 'sdk6-closed-original-publisher-checkout-representations'
+            and proof.get('policySha256') == LITERAL.CHECKOUT_POLICY_SHA
+            and proof.get('sourceCommit') == POLICY['aspnetcore'] == closed['commit']
+            and proof.get('sourceTree') == closed['tree'],
+            'Actual SDK6 closed publisher-checkout source proof is required')
+    attribute = {key: closed['attribute'][key] for key in ('path', 'gitBlob', 'fingerprint', 'mode')}
+    require(proof['attribute'] == attribute and proof['completeOriginalSourceFiles'] == 24722
+            and proof['originalSourceAnchors'] == 500
+            and all(proof[key] is False for key in ('sourceFilesRewritten', 'genericEolAcceptanceAllowed',
+                'qualificationAllowed', 'sourceAdmissionAllowed')),
+            'Complete SDK6 original attribute/source/anchor proof must remain bound')
+    accepted = proof['acceptedRepresentations']
+    require(isinstance(accepted, dict) and accepted.keys() <= closed['representations'].keys(),
+            'Only the ten exact SDK6 publisher checkouts may be represented')
+    for name, row in accepted.items():
+        require(row == {key: closed['representations'][name][key]
+                for key in ('fingerprint', 'rawGitBlob', 'canonicalGitBlob', 'mode')},
+                'SDK6 actual raw/canonical checkout identity differs')
+    return proof
+
+
 def validate_construction(release, record, manifest, *, allow_diagnostic=False, stages=None, prepare=None):
     """Validate source/layout prefix; consumer/native/normal gates remain separate."""
     release = Path(release); require(record['sdkVersion'] == SDK, 'Only the reviewed SDK6 policy may be selected')
@@ -508,7 +538,9 @@ def validate_construction(release, record, manifest, *, allow_diagnostic=False, 
     for sha, expected in LITERAL.policy()['packages'].items():
         require(sha in restored and all(restored[sha][k] == expected[k] for k in FP), 'Actual original SDK6 literal package required')
         literal_packages[sha] = release / restored[sha]['path']
-    literal = LITERAL.validate(release, manifest, literal_packages); layout_by_path = {r['path']: r for r in proof['layout']}
+    literal = LITERAL.validate(release, manifest, literal_packages)
+    validate_literal_checkout_proof(literal)
+    layout_by_path = {r['path']: r for r in proof['layout']}
     for name, expected in literal['products'].items():
         row = layout_by_path.get(name); require(row is not None and artifacts[row['input']]['sha256'] == expected['packageSha256']
             and row['member'] == (expected['member'] or '') and all(actual[name][k] == expected['fingerprint'][k] for k in ('bytes', 'sha256')),

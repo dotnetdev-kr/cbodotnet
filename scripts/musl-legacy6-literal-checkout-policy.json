@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "6.0.136",
+  "kind": "closed-sdk6-original-publisher-checkout-representations",
+  "originalLiteralModuleSha256": "c38c7f751e334d9fdc9233f131cbea1505b4d5d1951489addb91fbc92fe8e397",
+  "originalLiteralPolicySha256": "95d7d18006735ae27abebb5454031efb19d66ad117ec8953b56e7740153a7980",
+  "sourceKey": "aspnetcore",
+  "commit": "64ea4108e7dcf1ca575f8dd2028363b0b1ef6ebc",
+  "tree": "a85bad7ff48f23e2a19ad670359a474aa2ea7a63",
+  "attribute": {
+    "path": "src/Mvc/test/WebSites/HtmlGenerationWebSite/wwwroot/styles/.gitattributes",
+    "fingerprint": {
+      "bytes": 37,
+      "sha256": "ed501ef7fe1434b820036d4d9c91ee16865485a0d40632278443b85c6787fec5",
+      "sha512": "58b3b68bb591aed0f129e2509d74833ff09a459c20d775cb6f1af25ba21eb32c5d01e491ed5fbed6026c4a25e85dd73fcdbe0665c375be344221b75530e8ecdd"
+    },
+    "gitBlob": "54a3709b28e06ab33ffd545f855f8b5c9f95b220",
+    "rawBase64": "c2l0ZSouY3NzIGVvbD1jcmxmCnNpdGUqLmpzICBlb2w9Y3JsZg==",
+    "mode": "100644"
+  },
+  "representations": {
+    "src/Mvc/test/WebSites/HtmlGenerationWebSite/wwwroot/styles/site.css": {
+      "fingerprint": {
+        "bytes": 145,
+        "sha256": "5d8ed8b0c7a63dff00194e12217f440fd78e8cad4b3905aed9d98236687ea507",
+        "sha512": "1c6c4971e4641de543edea0716c56645d3f38d5200ff511bfbe8254ac32072f533850409fbd51ff210cabc24098d4b5e6e94f5674233b48837e6492da52b7751"
+      },
+      "rawBase64": "77u/Ym9keTo6YWZ0ZXIgew0KICAgIGRpc3BsYXk6IGJsb2NrOw0KICAgIGNvbG9yOiAjMGZhOTEyOw0KICAgIG1hcmdpbi10b3A6IDIuNGVtOw0KICAgIGNvbnRlbnQ6ICJTdHlsZXNoZWV0ICdzaXRlLmNzcycgbG9hZGVkIHN1Y2Nlc3NmdWxseSEiOw0KfQ==",
+      "rawGitBlob": "1310ab17dc652c6eea594bef722119718f128b2f",
+      "canonicalGitBlob": "5c98e1d66e5529f74c4a87146fcee9cefb573874",
+      "mode": "100644"
+    },
+    "src/Mvc/test/WebSites/HtmlGenerationWebSite/wwwroot/styles/site.js": {
+      "fingerprint": {
+        "bytes": 210,
+        "sha256": "8f1d4f2632d7df6fb1810431d81c6772453d407f4354a926e3e3396d22bcebd2",
+        "sha512": "3d9ac13ddfeba9769dd6dc82ece04456d69154ee23ceb7303f3ffa9f61ed51bb57fb17061ebb4f82bea97902cc89058fc3230a510aa2df7a0c6c07a8d731be46"
+      },
+      "rawBase64": "77u/KGZ1bmN0aW9uICgpIHsNCiAgICB2YXIgcCA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoIlAiKTsNCiAgICBwLmFwcGVuZENoaWxkKGRvY3VtZW50LmNyZWF0ZVRleHROb2RlKCJzaXRlLmpzIGxvYWRlZCBzdWNjZXNzZnVsbHkhIikpOw0KICAgIHAuc3R5bGUuY29sb3IgPSAiIzBmYTkxMiI7DQogICAgZG9jdW1lbnQuYm9keS5hcHBlbmRDaGlsZChwKTsNCn0pKCk7",
+      "rawGitBlob": "35acfb7d33bb1b41f5355b7bee59d01fe05e6d65",
+      "canonicalGitBlob": "f2d918ec950c87cd51c0eb4d427193ff87ff593b",
+      "mode": "100644"
+    },
+    "src/Mvc/test/WebSites/HtmlGenerationWebSite/wwwroot/styles/siteIntegrity.css": {
+      "fingerprint": {
+        "bytes": 156,
+        "sha256": "d8f243c536f979ae905a95b9a77befaef3f76dab7b975f1a98523433cfb1065b",
+        "sha512": "51000c1671d13e12cce40d55d67a81611da3bae6075e314270fb5f6e8035428b5bf3bca565293ad1ef4fba582267bfa365fc0e3b4362027dd18687bd41836090"
+      },
+      "rawBase64": "77u/Ym9keTo6YWZ0ZXIgew0KICAgIGRpc3BsYXk6IGJsb2NrOw0KICAgIGNvbG9yOiAjMGZhOTEyOw0KICAgIG1hcmdpbi10b3A6IDIuNGVtOw0KICAgIGNvbnRlbnQ6ICJTdHlsZXNoZWV0ICdzaXRlSW50ZWdyaXR5LmNzcycgbG9hZGVkIHN1Y2Nlc3NmdWxseSEiOw0KfQ0K",
+      "rawGitBlob": "139ce41c9c2ab28893ad0f5d68556e2d0b28081c",
+      "canonicalGitBlob": "b361db6e30e6c2ef8c70506c1dbe5a44b89d622d",
+      "mode": "100644"
+    },
+    "src/Mvc/test/WebSites/HtmlGenerationWebSite/wwwroot/styles/siteIntegrity.js": {
+      "fingerprint": {
+        "bytes": 219,
+        "sha256": "b4c40b38704d3c4f36f4c1d03cef267ad7a0b06a1b03f85e9c33cebed64e5a14",
+        "sha512": "7baaaae0c9dcf653fa3260bf099347fe81ba67b8acadf1f63b2496dc1866260ac876fc37188cf914a6b6beef8f07275730db38a6a70064fa5e6acc7234b22932"
+      },
+      "rawBase64": "77u/KGZ1bmN0aW9uICgpIHsNCiAgICB2YXIgcCA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoIlAiKTsNCiAgICBwLmFwcGVuZENoaWxkKGRvY3VtZW50LmNyZWF0ZVRleHROb2RlKCJJbnRlZ3JpdHkgU2NyaXB0IGxvYWRlZCBzdWNjZXNzZnVsbHkhIikpOw0KICAgIHAuc3R5bGUuY29sb3IgPSAiIzBmYTkxMiI7DQogICAgZG9jdW1lbnQuYm9keS5hcHBlbmRDaGlsZChwKTsNCn0pKCk7",
+      "rawGitBlob": "9a6d28662de6959d35a5289a97e024e2f67ac62a",
+      "canonicalGitBlob": "62cf67662f179a3034dbe0683a570375bc7e3820",
+      "mode": "100644"
+    },
+    "src/Mvc/test/WebSites/HtmlGenerationWebSite/wwwroot/styles/sub/site2.css": {
+      "fingerprint": {
+        "bytes": 146,
+        "sha256": "df47313dec74b40f7111ab56edfd508679fcb552c01e013ac702198444aad32d",
+        "sha512": "cb53d42a09aeb5258e8b68c448a8b0977afef81219eda67435243b2030a97bfcb48fb5c70e364e3d1fe57e7bbe4732b8c16eb94582c53f191eb81a110b89236f"
+      },
+      "rawBase64": "77u/Ym9keTo6YWZ0ZXIgew0KICAgIGRpc3BsYXk6IGJsb2NrOw0KICAgIGNvbG9yOiAjMGZhOTEyOw0KICAgIG1hcmdpbi10b3A6IDIuNGVtOw0KICAgIGNvbnRlbnQ6ICJTdHlsZXNoZWV0ICdzaXRlMi5jc3MnIGxvYWRlZCBzdWNjZXNzZnVsbHkhIjsNCn0=",
+      "rawGitBlob": "07eba0e941d92e216e6d501bda237b4378d8967d",
+      "canonicalGitBlob": "8bbb6ad4d5748db29ab422378d711c3ec0157a1e",
+      "mode": "100644"
+    },
+    "src/Mvc/test/WebSites/HtmlGenerationWebSite/wwwroot/styles/sub/site2.js": {
+      "fingerprint": {
+        "bytes": 211,
+        "sha256": "a7025ac5a4319dbfab3c0745d89940a78c623cdab55ee24577a4f238e7cd17ed",
+        "sha512": "bc48bcf4f227da1fc56f4ea1082eea8ba968f8a88da1f639611aeea9c938947f342956c04f4b75651a16cb5947dfcba6abd57f43e70bb2231fdca443321c5012"
+      },
+      "rawBase64": "77u/KGZ1bmN0aW9uICgpIHsNCiAgICB2YXIgcCA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoIlAiKTsNCiAgICBwLmFwcGVuZENoaWxkKGRvY3VtZW50LmNyZWF0ZVRleHROb2RlKCJzaXRlMi5qcyBsb2FkZWQgc3VjY2Vzc2Z1bGx5ISIpKTsNCiAgICBwLnN0eWxlLmNvbG9yID0gIiMwZmE5MTIiOw0KICAgIGRvY3VtZW50LmJvZHkuYXBwZW5kQ2hpbGQocCk7DQp9KSgpOw==",
+      "rawGitBlob": "29834b0b14e3f2cc4647db5a17375db2aa76e9d1",
+      "canonicalGitBlob": "48b6411f60c03351d258d8fb85cf699b8360dd4c",
+      "mode": "100644"
+    },
+    "src/Mvc/test/WebSites/HtmlGenerationWebSite/wwwroot/styles/sub/site3.css": {
+      "fingerprint": {
+        "bytes": 196,
+        "sha256": "7d2c713abd50e03ab6b8fbb3963bb95181ae2b448a00123e821bda20612c6437",
+        "sha512": "30a916cd55ec214909f645959108de9a781f2b364a04c4d95ea6f80f0cfa242367e965c3a342995671b1617b6663697fd67356afb2eda7dfc8df5c562040f0f0"
+      },
+      "rawBase64": "77u/Ym9keTo6YWZ0ZXIgew0KICAgIGRpc3BsYXk6IGJsb2NrOw0KICAgIGJhY2tncm91bmQtY29sb3I6ICNmZjAwMDA7DQogICAgY29sb3I6ICNmZmY7DQogICAgbWFyZ2luLXRvcDogMi40ZW07DQogICAgY29udGVudDogIkVSUk9SOiBTdHlsZXNoZWV0ICdzaXRlMy5jc3MnIHdhcyBsb2FkZWQgZGVzcGl0ZSBiZWluZyBleGNsdWRlZCEiOw0KfQ==",
+      "rawGitBlob": "3da82568a74b6c3384598f075f9fd4190a1839c0",
+      "canonicalGitBlob": "66c41540aa23f1ed8cc41855c834ce1a9478de37",
+      "mode": "100644"
+    },
+    "src/Mvc/test/WebSites/HtmlGenerationWebSite/wwwroot/styles/sub/site3.min.css": {
+      "fingerprint": {
+        "bytes": 200,
+        "sha256": "b3c24c980671067d1dcee851b50d3080ebcd04ae17449456102db07f3b1517d3",
+        "sha512": "02e33bf2d3e7330eb1d379ed1107fe1d998f50481edcb385852ef7f84d0e279c8409f14872029927d7491b3fb1f30f39d5e5d87d0a4ec67016eb670545695e96"
+      },
+      "rawBase64": "77u/Ym9keTo6YWZ0ZXIgew0KICAgIGRpc3BsYXk6IGJsb2NrOw0KICAgIGJhY2tncm91bmQtY29sb3I6ICNmZjAwMDA7DQogICAgY29sb3I6ICNmZmY7DQogICAgbWFyZ2luLXRvcDogMi40ZW07DQogICAgY29udGVudDogIkVSUk9SOiBTdHlsZXNoZWV0ICdzaXRlMy5taW4uY3NzJyB3YXMgbG9hZGVkIGRlc3BpdGUgYmVpbmcgZXhjbHVkZWQhIjsNCn0=",
+      "rawGitBlob": "0dc0e503f1f53fd8a29a522a0ece05ef58b0c5e1",
+      "canonicalGitBlob": "93bd141bdd26267670d24ee565f4e763a67085f1",
+      "mode": "100644"
+    },
+    "src/Mvc/test/WebSites/HtmlGenerationWebSite/wwwroot/styles/sub/siteIntegrity2.js": {
+      "fingerprint": {
+        "bytes": 219,
+        "sha256": "b4c40b38704d3c4f36f4c1d03cef267ad7a0b06a1b03f85e9c33cebed64e5a14",
+        "sha512": "7baaaae0c9dcf653fa3260bf099347fe81ba67b8acadf1f63b2496dc1866260ac876fc37188cf914a6b6beef8f07275730db38a6a70064fa5e6acc7234b22932"
+      },
+      "rawBase64": "77u/KGZ1bmN0aW9uICgpIHsNCiAgICB2YXIgcCA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoIlAiKTsNCiAgICBwLmFwcGVuZENoaWxkKGRvY3VtZW50LmNyZWF0ZVRleHROb2RlKCJJbnRlZ3JpdHkgU2NyaXB0IGxvYWRlZCBzdWNjZXNzZnVsbHkhIikpOw0KICAgIHAuc3R5bGUuY29sb3IgPSAiIzBmYTkxMiI7DQogICAgZG9jdW1lbnQuYm9keS5hcHBlbmRDaGlsZChwKTsNCn0pKCk7",
+      "rawGitBlob": "9a6d28662de6959d35a5289a97e024e2f67ac62a",
+      "canonicalGitBlob": "62cf67662f179a3034dbe0683a570375bc7e3820",
+      "mode": "100644"
+    },
+    "src/Mvc/test/WebSites/HtmlGenerationWebSite/wwwroot/styles/sub/siteIntegrity3.js": {
+      "fingerprint": {
+        "bytes": 239,
+        "sha256": "e88d67700a52cd3632b40085ef6e386e0ddafec1272ab187f2756e76868df7ce",
+        "sha512": "9620995f0598d737d7922b9be4a9a0b36d2e9b5cb1adb49d4d1fe045a512e8ca2138a655a3182a6d3f3a5c4d7fdebefea1e6138429fab5eaef396d17b71638ea"
+      },
+      "rawBase64": "77u/KGZ1bmN0aW9uICgpIHsNCiAgICB2YXIgcCA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoIlAiKTsNCiAgICBwLmFwcGVuZENoaWxkKGRvY3VtZW50LmNyZWF0ZVRleHROb2RlKCJJbnRlZ3JpdHkgU2NyaXB0IHdpdGggZGlmZmVyZW50IGhhc2ggbG9hZGVkIHN1Y2Nlc3NmdWxseSEiKSk7DQogICAgcC5zdHlsZS5jb2xvciA9ICIjMGZhOTEyIjsNCiAgICBkb2N1bWVudC5ib2R5LmFwcGVuZENoaWxkKHApOw0KfSkoKTs=",
+      "rawGitBlob": "384087c0634b667771c0d3c6d519ecf9a7240615",
+      "canonicalGitBlob": "dc53561b7c2ef25db65a9ea5367f163a00f015a4",
+      "mode": "100644"
+    }
+  },
+  "evidenceBasis": {
+    "kind": "original-publisher-attributes-and-authenticated-old-r2-observation",
+    "runId": "42538015685",
+    "originalSourceArchive": {
+      "bytes": 2344185132,
+      "sha256": "dba77468b1f4f809eadd9a97b513d8e20c48f852e6d69790ba41fa90f4846673",
+      "sha512": "ac586a15950733dc2cb8ff72b950006797d5f1f1247822fd03d18ddefacf53e7e8534cc7fe98efba4364de62409fcd2c2c91b8cb3e4c57f8417740003ae74136"
+    },
+    "oldR2DiagnosticSha256": "f22e5dc14995dd3c60552557213f05161c79ea25b0977c99a35e005b998fc1d7",
+    "r3ActualCauseEstablished": false
+  },
+  "compilerWorktreesRewritten": false,
+  "genericEolAcceptanceAllowed": false,
+  "publisherCompilationClaimed": false,
+  "qualificationAllowed": false,
+  "sourceAdmissionAllowed": false
+}
