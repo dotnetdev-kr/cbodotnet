@@ -1,12 +1,13 @@
 # Alpine / musl qualification
 
-SDKs 10.0.403, 9.0.123 and 8.0.133 revision 1 are published and independently qualified on Alpine
+SDKs 10.0.403, 9.0.123, 8.0.133 and 7.0.120 revision 1 are published and independently qualified on Alpine
 3.24.4, using native x86_64 and AArch64 runners. Archive, APK and OCI delivery
 each passed qualification and anonymous installation from the published bytes.
 The signed final verifications for
 [SDK10](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/verification-musl-sdk-10.0.403-r1),
-[SDK9](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/verification-musl-sdk-9.0.123-r1) and
-[SDK8](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/verification-musl-sdk-8.0.133-r1)
+[SDK9](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/verification-musl-sdk-9.0.123-r1),
+[SDK8](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/verification-musl-sdk-8.0.133-r1) and
+[SDK7](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/verification-musl-sdk-7.0.120-r1)
 each bind all six public native reports. The separate
 [musl status](../releases/musl-status.json) is authoritative for availability.
 
@@ -79,6 +80,24 @@ Both original native smoke suites report 44 passed and two original skips.
 All three consumer channels repeat installation from anonymous public bytes on
 both native CPUs. SDK8 installer admission remains a separate qualification.
 Existing SDK9 and SDK10 publication history is retained unchanged.
+
+SDK7 revision 1:
+
+| Stage | Published evidence | Successful workflow |
+| --- | --- | --- |
+| Producer | [SDK, corresponding sources and retained evidence](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/musl-sdk-7.0.120-r1) | [Native two-CPU producer](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42523142118) |
+| Archive | [Signed archives](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-musl-archive-sdk-7.0.120-r1) | [Both native CPUs and anonymous public checks](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42571073157) |
+| APK | [Signed packages, repositories and lifecycle records](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-musl-apk-sdk-7.0.120-r1) | [Community SDK coexistence and both public CPU installs](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42575899337) |
+| OCI | [Signed multi-platform descriptor](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/distribution-musl-oci-sdk-7.0.120-r1) | [Both native CPUs and anonymous digest pulls](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42571078419) |
+| Final verification | [Six public reports and signed manifest](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/verification-musl-sdk-7.0.120-r1) | [Independent final verification](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42578565504) |
+
+SDK7's final verification SHA-256 is
+`eb74c9f42bc45530cbd869e9fee3655fe9b3402fb277c8a4df21c87d20b2446d`;
+its source manifest SHA-256 is
+`671056f9397fb1d883dcd984b713c82973d258a62a89692a82fa0047ecea931e`.
+All three channels passed anonymous public installation on both native CPUs.
+SDK7 installer admission remains a separate qualification. Existing SDK8, SDK9
+and SDK10 publication history is retained unchanged.
 
 ## Evidence and support boundary
 
@@ -235,7 +254,8 @@ Alpine dependencies must be checked again when each follow-up starts.
 | 10.0.403 | Published and post-verified: Alpine 3.24.4, native x64/AArch64, archive/APK/OCI r1 | [#24](https://github.com/dotnetdev-kr/cbodotnet/issues/24) |
 | 9.0.123 | Published and post-verified: Alpine 3.24.4, native x64/AArch64, archive/APK/OCI r1 | [#32](https://github.com/dotnetdev-kr/cbodotnet/issues/32) |
 | 8.0.133 | Published and post-verified: Alpine 3.24.4, native x64/AArch64, archive/APK/OCI r1 | [#32](https://github.com/dotnetdev-kr/cbodotnet/issues/32) |
-| 7.0.120, 6.0.136 | Pending legacy source and dependency review; upstream EOL | [#33](https://github.com/dotnetdev-kr/cbodotnet/issues/33) |
+| 7.0.120 | Published and post-verified: Alpine 3.24.4, native x64/AArch64, archive/APK/OCI r1; upstream EOL | [#33](https://github.com/dotnetdev-kr/cbodotnet/issues/33) |
+| 6.0.136 | Pending legacy source and dependency review; upstream EOL | [#33](https://github.com/dotnetdev-kr/cbodotnet/issues/33) |
 | 5.0.214 | Pending legacy musl producer and SSL/ICU/curl investigation; upstream EOL | [#34](https://github.com/dotnetdev-kr/cbodotnet/issues/34) |
 | 3.1.426, 3.0.103 | Native ARM64 source/bootstrap demonstrated; complete source closure and normal two-CPU delivery remain pending | [#35](https://github.com/dotnetdev-kr/cbodotnet/issues/35) |
 
