@@ -92,6 +92,29 @@ class NormalAppEnvelope(unittest.TestCase):
 
     def test_complete_normal_envelope_fixture(self):self.fixture()
 
+    def test_finite_reference_context_is_explicit_and_outside_all_delivery(self):
+        import musl_legacy5_appinsights_reference_bootstrap as reference
+        state=self.fixture();old=state['context'];paths=old['paths']
+        context=reference.normal_context(old['recordIdentity'],state['bound']['prepare'],
+            **{key:paths[key]for key in('workspace','delivery','project','diagnostics')},uid=old['uid'],gid=old['gid'])
+        reference.finite_context(context)
+        self.assertEqual(context['schemaVersion'],2)
+        self.assertEqual(Path(context['paths']['attempt']),Path(paths['workspace'])/'private/appinsights')
+        self.assertNotIn(Path(paths['delivery']),Path(context['paths']['attempt']).parents)
+        self.assertEqual(old['schemaVersion'],1);self.assertNotIn('referenceBootstrap',old)
+        command=M.normal_container_command(context)
+        self.assertIn(str(Path(context['paths']['attempt'])/'inputs')+':/inputs:ro',command)
+
+    def test_finite_reference_context_cannot_relabel_delivery_attempt(self):
+        import musl_legacy5_appinsights_reference_bootstrap as reference
+        state=self.fixture();old=state['context'];context=copy.deepcopy(old)
+        context.update(schemaVersion=2,kind=reference.KIND,referenceBootstrap=reference.role_record())
+        with self.assertRaises(ValueError):M.validate_context(context)
+
+    def test_default_context_cannot_carry_implicit_reference_role(self):
+        state=self.fixture();context=copy.deepcopy(state['context']);context['referenceBootstrap']={'role':'arbitrary-reference'}
+        with self.assertRaises(ValueError):M.validate_context(context)
+
     def test_private_record_cannot_satisfy_normal_context(self):
         state=self.fixture();state['bound']['context']['kind']='one-authorized-offline-private-app5-compiler-attempt';self.reject(state,'Closed explicit normal')
 

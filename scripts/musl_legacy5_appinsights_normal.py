@@ -88,9 +88,13 @@ def tree_files(root):
     return rows
 
 
-def execution_sources():
+def execution_sources(reference_bootstrap=None):
     strong,worker=original_validators()
     names=[*strong.WORKER_SOURCES,'musl_legacy5_appinsights_validator.py',Path(__file__).name,'musl-sdk.py']
+    if reference_bootstrap is not None:
+        import musl_legacy5_appinsights_reference_bootstrap as reference
+        reference.validate_role(reference_bootstrap)
+        names+=['musl_legacy5_appinsights_reference_bootstrap.py',reference.POLICY_FILE]
     return {name:fingerprint(Path(__file__).with_name(name))for name in names}
 
 
@@ -99,7 +103,7 @@ def _identity(value):
     return {key:value[key]for key in IDENTITY}
 
 
-def normal_context(record,prepare,*,workspace,delivery,project,diagnostics,uid,gid):
+def normal_context(record,prepare,*,workspace,delivery,project,diagnostics,uid,gid,reference_bootstrap=None):
     """Build from caller-authenticated normal records and physical producer roots.
 
     A5 must supply its authenticated record/prepare/stages again at validation;
@@ -123,18 +127,30 @@ def normal_context(record,prepare,*,workspace,delivery,project,diagnostics,uid,g
         'One exact normal App5 diagnostic directory required')
     paths=dict(workspace=str(W),delivery=str(D),project=str(J),attempt=str(D/'reports/build/appinsights'),
         source=str(W/'work/appinsights'),bootstrap=str(W/'inputs/bootstrap5'),inspector=str(W/'inputs/bootstrap6'),diagnostics=str(diag))
-    return dict(schemaVersion=1,kind=KIND,**identity,sourceCommit=SOURCE,imageId=prepare['imageId'],uid=uid,gid=gid,
-        paths=paths,sources=execution_sources(),recordIdentity=identity,prepareIdentity=_identity(prepare))
+    result=dict(schemaVersion=1,kind=KIND,**identity,sourceCommit=SOURCE,imageId=prepare['imageId'],uid=uid,gid=gid,
+        paths=paths,sources=execution_sources(reference_bootstrap),recordIdentity=identity,prepareIdentity=_identity(prepare))
+    if reference_bootstrap is not None:
+        import musl_legacy5_appinsights_reference_bootstrap as reference
+        reference.validate_role(reference_bootstrap)
+        result.update(schemaVersion=2,kind=reference.KIND,referenceBootstrap=reference_bootstrap)
+        result['paths']['attempt']=str(W/'private/appinsights')
+    return result
 
 
 def validate_context(context):
-    require(set(context)==CONTEXT_KEYS and context['kind']==KIND and context['schemaVersion']==1,
+    finite='referenceBootstrap'in context
+    if finite:
+        import musl_legacy5_appinsights_reference_bootstrap as reference
+        reference.validate_role(context['referenceBootstrap'])
+    require(set(context)==CONTEXT_KEYS|({'referenceBootstrap'}if finite else set())
+        and context['kind']==(reference.KIND if finite else KIND)and context['schemaVersion']==(2 if finite else 1),
         'Closed explicit normal App5 context required; private records are not normal evidence')
     require(set(context['paths'])==PATH_KEYS,'Closed normal App5 physical path roles required')
     prepare=dict(context['prepareIdentity'],imageId=context['imageId'],emulation=False,diagnosticPodman=False,
         diagnosticPtrace=False,previousPrivateSdkArchiveUsed=False)
     expected=normal_context(context['recordIdentity'],prepare,
-        **{key:context['paths'][key]for key in('workspace','delivery','project','diagnostics')},uid=context['uid'],gid=context['gid'])
+        **{key:context['paths'][key]for key in('workspace','delivery','project','diagnostics')},uid=context['uid'],gid=context['gid'],
+        reference_bootstrap=context.get('referenceBootstrap'))
     require(context==expected,'Exact original normal App5 context/source/path identities required')
     return context
 
@@ -257,7 +273,7 @@ def execute_normal(context,*,producer):
         and producer.project==context['projectCommit'], 'Actual normal Docker producer object must match the bound App5 context')
     require(read(workspace/'normal-context.json')==context,'Actual normal App5 prepared context differs')
     prepare=read(Path(paths['delivery'])/'reports/prepare/identity.json')
-    expected=normal_context(context['recordIdentity'],prepare,**{k:paths[k]for k in('workspace','delivery','project','diagnostics')},uid=context['uid'],gid=context['gid'])
+    expected=normal_context(context['recordIdentity'],prepare,**{k:paths[k]for k in('workspace','delivery','project','diagnostics')},uid=context['uid'],gid=context['gid'],reference_bootstrap=context.get('referenceBootstrap'))
     require(expected==context,'Actual retained normal SDK5 prepare identity differs before App5 execution')
     prepare_stage=read(Path(paths['delivery'])/'reports/stages/prepare.json')
     require(prepare_stage['status']=='passed','Normal SDK5 preparation must complete before App5 execution')
@@ -273,7 +289,7 @@ def execute_normal(context,*,producer):
     if os.getuid()==0:
         for path in(workspace/'output',workspace/'home',diag):os.chown(path,context['uid'],context['gid'])
     command=normal_container_command(context)
-    write(workspace/'normal-container-invocation.json',dict(kind=KIND,context=context,command=command,
+    write(workspace/'normal-container-invocation.json',dict(kind=context['kind'],context=context,command=command,
         inputManifest=descriptor(workspace/'input-manifest.json'),inputFiles=before,automaticRetry=False))
     require(command not in producer.commands,'Only one actual normal App5 stage invocation permitted')
     producer.commands.append(command)
@@ -295,12 +311,12 @@ def validate_normal_boundary(workspace,host_roots,*,normal_context,require_paren
     require(set(bound)=={'context','record','prepare','stages'},'Explicit caller-authenticated normal App5 context/record/prepare/stages required')
     context=validate_context(bound['context']);paths=context['paths'];workspace=ordinary(workspace,directory=True)
     require(workspace==Path(paths['attempt']),'Current normal App5 attempt workspace required')
-    expected=globals()['normal_context'](bound['record'],bound['prepare'],**{k:paths[k]for k in('workspace','delivery','project','diagnostics')},uid=context['uid'],gid=context['gid'])
+    expected=globals()['normal_context'](bound['record'],bound['prepare'],**{k:paths[k]for k in('workspace','delivery','project','diagnostics')},uid=context['uid'],gid=context['gid'],reference_bootstrap=context.get('referenceBootstrap'))
     require(context==expected==read(workspace/'normal-context.json'),'Normal App5 context differs from actual authenticated producer identity')
     _host_roots(workspace,context,host_roots);verify_project(context)
     invocation=read(workspace/'normal-container-invocation.json');result=read(workspace/'normal-container-result.json');stage=read(workspace/'normal-app-stage.json')
     require(set(invocation)=={'kind','context','command','inputManifest','inputFiles','automaticRetry'}
-        and invocation['kind']==KIND and invocation['context']==context and invocation['automaticRetry']is False,
+        and invocation['kind']==context['kind'] and invocation['context']==context and invocation['automaticRetry']is False,
         'Closed actual normal App5 invocation required')
     command=normal_container_command(context)
     require(invocation['command']==result['command']==command and result['exitCode']==0,
