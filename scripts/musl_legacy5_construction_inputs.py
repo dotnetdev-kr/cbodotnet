@@ -127,3 +127,48 @@ def validate_byte_inputs(release, record, proof, roots, compiler, restored, inst
     layout = validate_layout(proof, artifacts, inventories, actual, installer)
     return dict(actual=actual, inventories=inventories, roles=roles, layout=layout,
                 sourceAdmissionAllowed=False, qualificationAllowed=False)
+
+
+def validate_raw_artifact_roles(release, record, proof, roots, compiler, installer):
+    """Authenticate literal package metadata separately from source decisions.
+
+    The existing strict named-artifact policy remains mandatory. Every raw
+    package is independently read by PACKAGES; absent original Git metadata
+    stays absent and cannot become an authored-source or consumption claim.
+    """
+    import musl_legacy5_package_inputs as PACKAGES
+    packages = PACKAGES.validate(release, proof, roots, compiler)
+    artifacts = proof['artifacts']
+    named = {name: row for name, row in artifacts.items() if not name.startswith('package-')}
+    roles = validate_artifact_roles(named, roots, packages['restored'], record, installer)
+    paths = [portable(row.get('path')) for row in artifacts.values()]
+    require(len(paths) == len(set(paths)), 'Each original SDK5 artifact path must carry exactly one role')
+    require({name for name in artifacts if name.startswith('package-')}
+            == set(packages['packageArtifacts']),
+            'All and only authenticated canonical SDK5 raw package roles required')
+    return dict(roles=roles, originalPackageEnvelopes=packages,
+                sourceCorrespondenceValidated=False, actualProducerConsumptionValidated=False,
+                sourceAdmissionAllowed=False, qualificationAllowed=False)
+
+
+def validate_raw_byte_inputs(release, record, proof, roots, compiler, installer):
+    """Check complete actual byte inventories while retaining raw source gaps."""
+    release = Path(release)
+    final = validate_final_sdk_archive(record, proof)
+    actual = B.members(B.checked(release, final), 'sdk')
+    require(proof.get('inventory') == actual, 'Complete actual final SDK5 member inventory required')
+    envelopes = validate_raw_artifact_roles(release, record, proof, roots, compiler, installer)
+    artifacts = proof['artifacts']
+    validate_toolset_binding(artifacts, compiler)
+    inventories = {}
+    for name, row in artifacts.items():
+        path = B.checked(release, {key: row[key] for key in ('path', *CE.FP)})
+        kind = 'native-coreclr' if row['kind'].startswith('native-') else row['kind']
+        inventories[name] = B.members(path, kind)
+        if row['kind'] == 'managed-package':
+            inventories[name][''] = dict(bytes=row['bytes'], sha256=row['sha256'], signature='504b0304')
+    layout = validate_layout(proof, artifacts, inventories, actual, installer)
+    return dict(actual=actual, inventories=inventories, roles=envelopes['roles'], layout=layout,
+                originalPackageEnvelopes=envelopes['originalPackageEnvelopes'],
+                sourceCorrespondenceValidated=False, actualProducerConsumptionValidated=False,
+                sourceAdmissionAllowed=False, qualificationAllowed=False)
