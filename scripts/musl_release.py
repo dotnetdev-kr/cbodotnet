@@ -4,6 +4,9 @@ from datetime import datetime, timezone
 import hashlib
 import importlib.util
 import json
+import os
+import signal
+import threading
 from pathlib import Path, PurePosixPath
 import re
 import shutil
@@ -396,6 +399,278 @@ def extract_delivery(path, output):
     return output / 'delivery'
 
 
+SDK6_PAIR_VERSION = '6.0.136'
+SDK6_PAIR_MEMORY = 8 * 1024**3
+SDK6_PAIR_MANIFEST = 1024**2
+SDK6_PAIR_INDEX = 1024**3
+SDK6_PAIR_LINE = 64 * 1024
+SDK6_PAIR_ROWS = 2000000
+
+
+def _pair_source_bytes(path, maximum):
+    path = ordinary_file(path)
+    first = path.stat()
+    require(0 < first.st_size <= maximum, 'SDK6 scheduling metadata exceeds its bound')
+    with path.open('rb') as stream:
+        before = os.fstat(stream.fileno())
+        raw = stream.read(maximum + 1)
+        after = os.fstat(stream.fileno())
+    last = path.stat()
+    fields = ('st_dev', 'st_ino', 'st_mode', 'st_nlink', 'st_size', 'st_mtime_ns', 'st_ctime_ns')
+    require(len(raw) <= maximum and len(raw) == first.st_size == after.st_size
+            and all(getattr(first, key) == getattr(last, key) for key in fields)
+            and all(getattr(before, key) == getattr(after, key) for key in fields)
+            and (os.name != 'posix' or all(getattr(first, key) == getattr(before, key) for key in fields)),
+            'SDK6 scheduling metadata changed while reading')
+    return raw
+
+
+def _pair_json(raw):
+    def pairs(items):
+        require(len(items) == len({key for key, _ in items}), 'Duplicate SDK6 scheduling JSON key')
+        return dict(items)
+    value = json.loads(raw, object_pairs_hook=pairs)
+    require(type(value) is dict, 'SDK6 scheduling JSON object required')
+    return value
+
+
+def _pair_host_bytes(path, maximum):
+    with Path(path).open('rb') as stream:
+        raw = stream.read(maximum + 1)
+    require(0 < len(raw) <= maximum, 'Host capacity metadata exceeds its bound')
+    return raw.decode('ascii')
+
+
+def _sdk6_host_capacity():
+    """Unknown or incompletely visible host limits choose the serial path."""
+    if not sys.platform.startswith('linux') or not hasattr(os, 'sched_getaffinity'):
+        return None
+    observed = {}
+    try:
+        cpus = len(os.sched_getaffinity(0)); observed['affinityCpus'] = cpus
+        memory = _pair_host_bytes('/proc/meminfo', 64 * 1024)
+        rows = [line.split() for line in memory.splitlines() if line.startswith('MemAvailable:')]
+        require(len(rows) == 1 and len(rows[0]) == 3 and rows[0][2] == 'kB', 'Unknown available host memory')
+        available = int(rows[0][1]) * 1024; observed['memAvailableBytes'] = available
+        groups = _pair_host_bytes('/proc/self/cgroup', 64 * 1024).splitlines()
+        require(len(groups) == 1 and groups[0].startswith('0::/'), 'Only an accounted unified cgroup hierarchy is scheduled')
+        group = PurePosixPath(groups[0][3:]); observed['currentCgroup'] = str(group)
+        require(group.is_absolute() and '..' not in group.parts, 'Unsafe current cgroup path')
+        mounts = []
+        for line in _pair_host_bytes('/proc/self/mountinfo', 256 * 1024).splitlines():
+            fields = line.split(); split = fields.index('-')
+            if fields[split + 1] == 'cgroup2': mounts.append(fields)
+        require(len(mounts) == 1 and mounts[0][3] == '/' and '\\' not in mounts[0][4],
+                'Cgroup ancestors are not completely visible')
+        mount = Path(mounts[0][4]); observed['cgroupMount'] = str(mount)
+        require(mount.is_absolute() and '..' not in mount.parts, 'Unsafe cgroup mount')
+        controllers = _pair_host_bytes(mount / 'cgroup.controllers', 4096).split()
+        require({'cpu', 'memory'} <= set(controllers), 'Required root cgroup controllers are unavailable')
+        witness = dict(controllers=controllers, missingNonrootMarkers=[], recognition='conservative-structural-inference')
+        observed['rootWitness'] = witness
+        for name in ('cgroup.type', 'cgroup.events'):
+            try:
+                _pair_host_bytes(mount / name, 4096)
+            except FileNotFoundError:
+                witness['missingNonrootMarkers'].append(name)
+            else:
+                raise ValueError('Visible cgroup mount is a hidden or non-root hierarchy view: ' + name)
+        current = mount.joinpath(*group.parts[1:])
+        require(current.is_dir() and len(group.parts) <= 128, 'Current cgroup hierarchy is unavailable')
+        ancestors = [current, *current.parents]
+        require(mount in ancestors, 'Cgroup mount does not contain current group')
+        observed.update(cgroupAncestorsChecked=0, quotaCpus=None, cgroupMemoryAvailableBytes=None)
+        for parent in ancestors[:ancestors.index(mount) + 1]:
+            observed['cgroupAncestorsChecked'] += 1
+            if parent == mount:
+                continue  # Kernel root has no non-root quota/memory-limit interfaces.
+            values = _pair_host_bytes(parent / 'cpu.max', 128).split()
+            require(len(values) == 2 and int(values[1]) > 0, 'Unknown non-root CPU quota')
+            if values[0] != 'max':
+                require(int(values[0]) > 0, 'Invalid non-root CPU quota')
+                amount = int(values[0]) // int(values[1]); cpus = min(cpus, amount)
+                observed['quotaCpus'] = amount if observed['quotaCpus'] is None else min(observed['quotaCpus'], amount)
+            used = int(_pair_host_bytes(parent / 'memory.current', 128).strip())
+            require(used >= 0, 'Invalid non-root memory use')
+            for name in ('memory.max', 'memory.high'):
+                value = _pair_host_bytes(parent / name, 128).strip()
+                if value != 'max':
+                    require(int(value) >= 0, 'Invalid non-root memory limit')
+                    amount = max(0, int(value) - used); available = min(available, amount)
+                    previous = observed['cgroupMemoryAvailableBytes']
+                    observed['cgroupMemoryAvailableBytes'] = amount if previous is None else min(previous, amount)
+        return dict(cpus=cpus, availableMemoryBytes=available, hostReason='observed', hostObservation=observed)
+    except (OSError, ValueError, IndexError, UnicodeError) as error:
+        observed['error'] = type(error).__name__ + ': ' + str(error)[:160]
+        return dict(cpus=0, availableMemoryBytes=0, hostReason='unaccounted-host-capacity', hostObservation=observed)
+
+
+def _sdk6_dispatch_identity(tree, arch, expected):
+    sealed = _pair_json(_pair_source_bytes(tree / 'producer-validation.json', 16 * 1024**2))
+    require(sealed.get('sdkVersion') == SDK6_PAIR_VERSION and sealed.get('architecture') == arch
+            and sealed.get('targetRid') == ARCHITECTURES[arch]['rid'] and sealed.get('libc') == 'musl'
+            and sealed.get('projectCommit') == expected['projectCommit']
+            and all(str(sealed.get(key)) == str(expected[key]) for key in ('runId', 'runAttempt')),
+            'SDK6 parallel dispatch identity differs from the authenticated producer')
+
+
+def _sdk6_source_requirement(tree, arch, expected):
+    """Bounded byte/index arithmetic only; no source-validation result is retained."""
+    import musl_source_archive as SA
+    _sdk6_dispatch_identity(tree, arch, expected)
+    path = ordinary_file(tree / 'sources/source-manifest.json')
+    if path.stat().st_size > SDK6_PAIR_MANIFEST:
+        return None
+    manifest = _pair_json(_pair_source_bytes(path, SDK6_PAIR_MANIFEST))
+    require(manifest.get('sdkVersion') == SDK6_PAIR_VERSION
+            and manifest.get('projectCommit') == expected['projectCommit']
+            and manifest.get('targetRid') == ARCHITECTURES[arch]['rid']
+            and all(manifest.get(key) == str(expected[key]) for key in ('runId', 'runAttempt'))
+            and type(manifest.get('files')) is int and manifest['files'] > 0,
+            'SDK6 source scheduling identity differs')
+    for key in ('archive', 'index'):
+        require(type(manifest.get(key)) is dict, 'SDK6 source scheduling descriptor is absent')
+        SA.identity(manifest[key])
+        name = SA.portable(manifest[key]['path'])
+        require(PurePosixPath(name).name == name, 'SDK6 source scheduling descriptor must be a basename')
+    source = ordinary_file(tree / 'sources' / manifest['archive']['path'])
+    require(source.stat().st_size == manifest['archive']['bytes'], 'SDK6 compressed source size changed')
+    index = ordinary_file(tree / 'sources' / manifest['index']['path'])
+    first = index.stat(); identity = SA.identity(manifest['index'])
+    require(first.st_size == identity['bytes'], 'SDK6 source index size changed')
+    if first.st_size > SDK6_PAIR_INDEX or manifest['files'] > SDK6_PAIR_ROWS:
+        return None
+    hashes = {key: hashlib.new(key) for key in ('sha256', 'sha512')}
+    size, count, bound = 0, 0, 10240
+    fields = ('st_dev', 'st_ino', 'st_mode', 'st_nlink', 'st_size', 'st_mtime_ns', 'st_ctime_ns')
+    with index.open('rb') as stream:
+        before = os.fstat(stream.fileno())
+        while line := stream.readline(SDK6_PAIR_LINE + 1):
+            size += len(line)
+            require(size <= identity['bytes'], 'SDK6 source index grew while scheduling')
+            if len(line) > SDK6_PAIR_LINE:
+                after = os.fstat(stream.fileno()); last = index.stat()
+                require(all(getattr(first, key) == getattr(last, key) for key in fields)
+                        and all(getattr(before, key) == getattr(after, key) for key in fields)
+                        and (os.name != 'posix' or all(getattr(first, key) == getattr(before, key) for key in fields)),
+                        'SDK6 source index changed before scheduling fallback')
+                return None
+            for digest in hashes.values(): digest.update(line)
+            row = _pair_json(line)
+            require(type(row) is dict and type(row.get('bytes')) is int and row['bytes'] >= 0
+                    and row.get('mode') in ('100644', '100755', '120000'), 'Malformed SDK6 capacity index row')
+            SA.portable(row.get('path'))
+            payload = 0 if row['mode'] == '120000' else row['bytes']
+            pax = 1024 + 2 * len(row['path'].encode('utf-8'))
+            if row['mode'] == '120000': pax += 2 * row['bytes']
+            bound += 512 + (payload + 511) // 512 * 512 + 512 + (pax + 511) // 512 * 512
+            count += 1
+            require(count <= manifest['files'], 'SDK6 source index count grew while scheduling')
+        after = os.fstat(stream.fileno())
+    last = index.stat()
+    require(all(getattr(first, key) == getattr(last, key) for key in fields)
+            and all(getattr(before, key) == getattr(after, key) for key in fields)
+            and (os.name != 'posix' or all(getattr(first, key) == getattr(before, key) for key in fields))
+            and dict(bytes=size, **{key: value.hexdigest() for key, value in hashes.items()}) == identity
+            and count == manifest['files'], 'SDK6 source capacity index changed or differs from its identity')
+    if bound > SA.MAX_RAW_BYTES:
+        return None
+    return bound + manifest['archive']['bytes'] + SA.RESERVE_BYTES
+
+
+def _sdk6_pair_capacity(trees, expected):
+    import musl_source_archive as SA
+    if threading.current_thread() is not threading.main_thread() or not SA.supported():
+        return dict(workers=1, reason='unsupported-platform-or-thread')
+    host = _sdk6_host_capacity()
+    if host is None or host['cpus'] < 4 or host['availableMemoryBytes'] < SDK6_PAIR_MEMORY:
+        return dict(workers=1, reason='unavailable-or-insufficient-host-capacity', **(host or {}))
+    temporary = SA.ordinary(tempfile.gettempdir(), directory=True)
+    requirements = []
+    for arch in ARCHITECTURES:
+        tree = SA.ordinary(trees[arch], directory=True)
+        require(tree not in (temporary, *temporary.parents), 'SDK6 cache workspace overlaps its delivery')
+        amount = _sdk6_source_requirement(tree, arch, expected)
+        if amount is None:
+            return dict(workers=1, reason='source-capacity-outside-scheduling-envelope')
+        requirements.append(amount)
+    required = sum(requirements) + 1024**3
+    free = shutil.disk_usage(temporary).free
+    return dict(workers=2 if required <= free else 1,
+                reason='combined-capacity' if required <= free else 'insufficient-combined-cache-capacity',
+                requiredTemporaryBytes=required, temporaryFreeBytes=free,
+                temporaryDevice=temporary.stat().st_dev, temporaryFilesystem=str(temporary), **host)
+
+
+def _sdk6_reap_workers(workers):
+    """Only owned new sessions are signalled; every handle is reaped."""
+    failures = []
+    for process in workers:
+        try: running = process.poll() is None
+        except OSError as error:
+            failures.append(error); running = True
+        if running:
+            try: os.killpg(process.pid, signal.SIGTERM)
+            except ProcessLookupError: pass
+            except OSError as error: failures.append(error)
+    for process in workers:
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            try: os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError: pass
+            except OSError as error: failures.append(error)
+            try: process.wait(timeout=5)
+            except (OSError, subprocess.TimeoutExpired) as error: failures.append(error)
+        except OSError as error:
+            failures.append(error)
+    if failures:
+        raise RuntimeError('SDK6 owned validator cleanup failed') from failures[0]
+
+
+def _validate_sdk6_pair(trees, expected, *, phase):
+    require(set(trees) == set(ARCHITECTURES) and phase in ('receive', 'stage'), 'Exact SDK6 validation pair required')
+    for arch in ARCHITECTURES:
+        _sdk6_dispatch_identity(trees[arch], arch, expected)
+    commands = [[sys.executable, str(ROOT/'scripts'/producer_script(SDK6_PAIR_VERSION)),
+                 'validate', '--release-dir', str(trees[arch])] for arch in ARCHITECTURES]
+    capacity = _sdk6_pair_capacity(trees, expected)
+    print(json.dumps(dict(kind='musl-sdk6-validator-scheduling', phase=phase, **capacity)), file=sys.stderr, flush=True)
+    if capacity['workers'] == 1:
+        for command in commands: subprocess.run(command, check=True)
+        return
+    require(capacity['workers'] == 2 and threading.current_thread() is threading.main_thread(),
+            'SDK6 full validators require exactly two main-thread child slots')
+    workers, failure = [], None
+    previous = {value: signal.getsignal(value) for value in (signal.SIGTERM, signal.SIGINT)}
+    interrupted = False
+    def terminate(signum, frame):
+        nonlocal interrupted
+        interrupted = True
+    try:
+        for value in previous: signal.signal(value, terminate)
+        for command in commands:
+            workers.append(subprocess.Popen(command, start_new_session=True))
+            if interrupted: raise KeyboardInterrupt('SDK6 validation pair interrupted during launch')
+        pending = list(range(2))
+        while pending:
+            if interrupted: raise KeyboardInterrupt('SDK6 validation pair interrupted')
+            for index in pending[:]:
+                code = workers[index].poll()
+                if code is not None:
+                    pending.remove(index)
+                    if code and failure is None: failure = subprocess.CalledProcessError(code, commands[index])
+            if pending: time.sleep(0.05)
+        if failure is not None: raise failure
+    finally:
+        try:
+            _sdk6_reap_workers(workers)
+        finally:
+            for value, handler in previous.items(): signal.signal(value, handler)
+    if interrupted: raise KeyboardInterrupt('SDK6 validation pair interrupted during cleanup')
+
+
+
 def receive_producer(run_id, attempt, output, *, gh='gh', sdk_version='10.0.403'):
     """Receive both exact native artifacts; never accept a path supplied by them."""
     api = GitHubReleases(gh=gh)
@@ -417,6 +692,7 @@ def receive_producer(run_id, attempt, output, *, gh='gh', sdk_version='10.0.403'
     output.mkdir()
     (output/'run.json').write_bytes(encoded(run))
     received = {}
+    deferred = {}
     for arch in ARCHITECTURES:
         name = producer_artifact_name(sdk_version, arch, run_id, attempt)
         matches = [row for row in artifacts if row.get('name') == name]
@@ -439,14 +715,29 @@ def receive_producer(run_id, attempt, output, *, gh='gh', sdk_version='10.0.403'
                 and transport.get('repository') == REPOSITORY and transport.get('libc') == 'musl'
                 and str(transport.get('runId')) == str(run_id) and str(transport.get('runAttempt')) == str(attempt)
                 and transport.get('bundle') == actual, 'Musl transport identity differs from exact requested run')
-        subprocess.run([sys.executable, str(ROOT/'scripts'/producer_script(sdk_version)), 'validate', '--release-dir', str(tree)], check=True)
-        sealed = json.loads(ordinary_file(tree/'producer-validation.json').read_bytes())
-        require(sealed.get('sdkVersion') == sdk_version and sealed.get('architecture') == arch and sealed.get('projectCommit') == commit
-                and str(sealed.get('runId')) == str(run_id) and str(sealed.get('runAttempt')) == str(attempt)
-                and sealed.get('targetRid') == ARCHITECTURES[arch]['rid'] and sealed.get('libc') == 'musl',
-                'Sealed musl delivery identity differs from the actual API-authenticated native run')
-        received[arch] = dict(artifact=artifact, artifactZip=producer_transport_descriptor(zip_path),
-            delivery=actual, directory=str(tree), commit=commit)
+        if sdk_version == SDK6_PAIR_VERSION:
+            deferred[arch] = dict(tree=tree, artifact=artifact, zip_path=zip_path, actual=actual)
+        else:
+            subprocess.run([sys.executable, str(ROOT/'scripts'/producer_script(sdk_version)), 'validate', '--release-dir', str(tree)], check=True)
+            sealed = json.loads(ordinary_file(tree/'producer-validation.json').read_bytes())
+            require(sealed.get('sdkVersion') == sdk_version and sealed.get('architecture') == arch and sealed.get('projectCommit') == commit
+                    and str(sealed.get('runId')) == str(run_id) and str(sealed.get('runAttempt')) == str(attempt)
+                    and sealed.get('targetRid') == ARCHITECTURES[arch]['rid'] and sealed.get('libc') == 'musl',
+                    'Sealed musl delivery identity differs from the actual API-authenticated native run')
+            received[arch] = dict(artifact=artifact, artifactZip=producer_transport_descriptor(zip_path),
+                delivery=actual, directory=str(tree), commit=commit)
+    if sdk_version == SDK6_PAIR_VERSION:
+        _validate_sdk6_pair({arch: deferred[arch]['tree'] for arch in ARCHITECTURES},
+            dict(projectCommit=commit, runId=run_id, runAttempt=attempt), phase='receive')
+        for arch in ARCHITECTURES:
+            tree, artifact, zip_path, actual = (deferred[arch][key] for key in ('tree', 'artifact', 'zip_path', 'actual'))
+            sealed = json.loads(ordinary_file(tree/'producer-validation.json').read_bytes())
+            require(sealed.get('sdkVersion') == sdk_version and sealed.get('architecture') == arch and sealed.get('projectCommit') == commit
+                    and str(sealed.get('runId')) == str(run_id) and str(sealed.get('runAttempt')) == str(attempt)
+                    and sealed.get('targetRid') == ARCHITECTURES[arch]['rid'] and sealed.get('libc') == 'musl',
+                    'Sealed musl delivery identity differs from the actual API-authenticated native run')
+            received[arch] = dict(artifact=artifact, artifactZip=producer_transport_descriptor(zip_path),
+                delivery=actual, directory=str(tree), commit=commit)
     result = dict(schemaVersion=1, kind='received-native-musl-producers', libc='musl',
         sdkVersion=sdk_version, runId=run_id, runAttempt=attempt, projectCommit=commit, architectures=received)
     (output/'received.json').write_bytes(encoded(result))
@@ -483,12 +774,20 @@ def stage_producer(received_directory, output):
     output.mkdir()
     manifest = dict(schemaVersion=1, kind='musl-sdk-producer-release', repository=REPOSITORY,
         sdkVersion=version, producerRevision=1, libc='musl', tag=producer_tag(version), architectures={})
+    if version == SDK6_PAIR_VERSION:
+        trees = {}
+        for arch in ARCHITECTURES:
+            validate_artifact(received['architectures'][arch]['artifact'], run,
+                producer_artifact_name(version, arch, run['id'], run['run_attempt']))
+            trees[arch] = received_directory/(arch+'-received')/'delivery'
+        _validate_sdk6_pair(trees, dict(projectCommit=commit, runId=run['id'], runAttempt=run['run_attempt']), phase='stage')
     for arch, target in ARCHITECTURES.items():
         row = received['architectures'][arch]
         validate_artifact(row['artifact'], run, producer_artifact_name(version, arch, run['id'], run['run_attempt']))
         # The receiving record's absolute paths are informational, never routing inputs.
         tree = received_directory/(arch+'-received')/'delivery'
-        subprocess.run([sys.executable, str(ROOT/'scripts'/producer_script(version)), 'validate', '--release-dir', str(tree)], check=True)
+        if version != SDK6_PAIR_VERSION:
+            subprocess.run([sys.executable, str(ROOT/'scripts'/producer_script(version)), 'validate', '--release-dir', str(tree)], check=True)
         sealed = json.loads(ordinary_file(tree/'producer-validation.json').read_bytes())
         producer = json.loads(ordinary_file(tree/'producer-sdk.json').read_bytes())
         for record in (sealed, producer):
