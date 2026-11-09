@@ -127,3 +127,14 @@ arguments; the Project getter conversion does not apply to `Condition`.
 Full BOOT archive/tree provenance, archive-backed normal proof and actual SDK
 consumption remain separate mandatory construction gates. This import policy
 does not establish a new actual normal positive or SDK source admission.
+
+Normal packaging also retains the two actual Csc intermediate DLLs and the
+three actual generated Reader C# sources needed for later archived validation.
+Their closed paths and full hashes come from the already verified App/Reader
+compiler records. `compiler-output-origins.json` binds each to its original
+Csc context, project/target, command-line hash, raw-log hash and normal boundary.
+Missing or changed files fail; final DLLs or saved hashes cannot reconstruct
+these observations. The five files and origin index enter private staging and
+the same complete exclusion scan before any immutable delivery publication.
+This additional retention keeps archived construction and parent SDK admission
+pending until their independent validators execute.

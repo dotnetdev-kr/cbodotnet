@@ -312,12 +312,72 @@ def export_retained_private_control(workspace,host_roots,destination):
     return _export_source(workspace,destination,proof,private_control=True)
 
 
+def compiler_output_origins(workspace,genuine,imports):
+    """Retain actual Csc intermediates/generated sources, never reconstruct them."""
+    workspace=N.ordinary(workspace,directory=True);execution=genuine['execution'];boundary=execution['boundary']
+    context=finite_context(boundary['context'])
+    require(genuine['kind']=='actual-normal-genuine-App5-package'
+        and execution['kind']=='actual-normal-offline-App5-and-frozen-reader-execution'
+        and boundary['kind']=='normal-App5-Docker-boundary'and boundary['normalAppWorkerBoundaryValidated']is True
+        and boundary['parentSdkBuildValidated']is False and workspace==Path(context['paths']['attempt'])
+        and imports['kind']=='scoped-normal-App-original-import-provenance'and imports['normalBoundary']==boundary
+        and imports['actualOriginalInputsAndProcessesRead']is True
+        and imports['normalParentBuildRequiredAtAdmission']is True,
+        'Actual matching finite normal compiler and import boundaries required for output origins')
+    normal_file=N.ordinary(workspace/'normal-context.json',file=True)
+    require(normal_file.stat().st_size<=1024**2 and N.read(normal_file)==context,
+        'Actual unchanged normal context required for compiler output origins')
+    for key,name in(('invocation','normal-container-invocation.json'),('result','normal-container-result.json'),('stage','normal-app-stage.json')):
+        require(boundary[key]==N.descriptor(workspace/name),'Actual original normal boundary descriptor differs')
+    generated=('reader-obj/Debug/net6.0/.NETCoreApp,Version=v6.0.AssemblyAttributes.cs',
+        'reader-obj/Debug/net6.0/Reader.AssemblyInfo.cs','reader-obj/Debug/net6.0/Reader.GlobalUsings.g.cs')
+    specifications=(('app','appCompiler','rawAppBinlog','obj/Microsoft.ApplicationInsights.dll',()),
+        ('reader-build','readerCompiler','rawReaderBuildBinlog','reader-obj/Debug/net6.0/Reader.dll',generated))
+    rows={};total=0;import_policy=IMPORTS.policy()
+    for role,compiler,key,compiled,source_names in specifications:
+        record=execution[compiler];log=imports['logs'][role]
+        expected_import=import_policy['logs'][role]
+        require(record['projectFile']==expected_import['project']and record['taskFile']==expected_import['compilerTarget']
+            and log['role']==role and log['actualMountedInputBytesCompared']is True
+            and log['binlog']==execution[key]==N.fingerprint(workspace/'output'/(role+'.binlog')),
+            'Actual original compiler raw-log identity required for output origins')
+        compiled_row=record['compiledOutput']
+        require(set(compiled_row)=={'path',*FP}and compiled_row['path']=='/output/'+compiled,
+            'One exact original Csc intermediate output path required')
+        if source_names:
+            require({name for name in record['sources']if name.startswith('/output/')}=={'/output/'+name for name in source_names},
+                'Exactly three original Reader generated Csc source paths required')
+        csc=record['context'];parts=csc.split(':')if isinstance(csc,str)else[]
+        require(len(parts)==4 and len(csc)<=128 and all(str(int(part))==part for part in parts),
+            'Original Csc context required for output origins')
+        command=record['commandLine'];require(isinstance(command,str)and 0<len(command)<=1024**2,
+            'Bounded original Csc argv required for output origins')
+        command_fp=IMPORTS.fingerprint(command.encode('utf-8'))
+        for name in(compiled,*source_names):
+            expected=({key:compiled_row[key]for key in FP}if name==compiled else record['sources']['/output/'+name])
+            require(set(expected)==set(FP)and type(expected['bytes'])is int and 0<expected['bytes']<=8*1024**2,
+                'Exact bounded original compiler output/source fingerprint required')
+            path=N.ordinary(workspace/'output'/name,file=True)
+            require(N.fingerprint(path)==expected,'Actual original compiler output/source bytes differ')
+            total+=expected['bytes'];require(total<=16*1024**2,'Five compiler output/source origin budget exceeded')
+            rows[name]=dict(originalLogicalPath='/output/'+name,originalPhysicalPath=str(path),fingerprint=expected,
+                originalMode=stat.S_IMODE(path.stat().st_mode),role='compiled-output'if name==compiled else'generated-reader-source',
+                compilerRole=role,cscContext=csc,projectFile=record['projectFile'],taskFile=record['taskFile'],
+                commandLineFingerprint=command_fp,rawBinlog=dict(path='/output/'+role+'.binlog',**log['binlog']))
+    require(len(rows)==5,'Exactly five actual compiler output/source origins required')
+    return dict(kind='scoped-actual-normal-App-compiler-output-origins',normalContext=N.descriptor(normal_file),
+        normalSourceBoundary={key:boundary[key]for key in('invocation','result','stage')},files=rows,
+        actualCurrentFilesCompared=True,originalReportPathsRewritten=False,parentSdkBuildValidated=False,
+        archivedConstructionValidated=False,wholeProducerSourceClosure=False,qualificationAllowed=False,sourceAdmissionAllowed=False)
+
+
 def package_normal(workspace,host_roots,*,normal_context):
     context=finite_context(normal_context['context']);require(Path(workspace)==Path(context['paths']['attempt']),
         'Exact current finite normal App attempt required')
     verify_private_inputs(workspace);_notice(Path(workspace)/'origin/historical-reference-notice.txt')
     genuine=N.package_normal(workspace,host_roots,normal_context=normal_context)
     imports=IMPORTS.validate_normal_logs(workspace,host_roots,normal_context=normal_context)
+    compiler_origins=compiler_output_origins(workspace,genuine,imports)
     destination=Path(context['paths']['delivery'])/'reports/build/appinsights'
     # The workflow archives all D even on failure. Assemble and check outside D,
     # including all dynamic logs/binlogs, before any delivery file is created.
@@ -338,17 +398,20 @@ def package_normal(workspace,host_roots,*,normal_context):
         'replay/app-status.json','replay/app-tasks.jsonl','replay/reader-build-status.json','replay/reader-build-tasks.jsonl',
         'app/Microsoft.ApplicationInsights.dll','app/Microsoft.ApplicationInsights.pdb','app/Microsoft.ApplicationInsights.xml']
     output_names+=list(IMPORTS.GENERATED)
+    output_names+=sorted(compiler_origins['files'])
     strong,worker=N.original_validators()
     output_names += [name[len('/output/'):]for name in strong.generated_metadata(worker.policy())]
     for name in output_names:
         expected=(imports['logs'][name[:-len('.binlog')]]['binlog']if name in('app.binlog','reader-build.binlog')
-            else imports['generatedReaderFiles'][name]if name in IMPORTS.GENERATED else N.fingerprint(output/name))
+            else imports['generatedReaderFiles'][name]if name in IMPORTS.GENERATED
+            else compiler_origins['files'][name]['fingerprint']if name in compiler_origins['files']else N.fingerprint(output/name))
         _copy(output/name,evidence/'output'/name,expected,0o644)
     product=staging/'product'/N.PACKAGE;_copy(output/N.PACKAGE,product,N.fingerprint(output/N.PACKAGE),0o644)
     N.write(staging/'finite-reference-use.json',dict(kind=KIND,role=role_record(),context=context,
         genuineNormalProof=genuine,privateInputManifest=exported['privateInputManifest'],
         payloadRole=False,referencePreferredSourceEstablished=False,wholeProducerSourceClosure=False,sourceAdmissionAllowed=False))
     N.write(staging/'original-import-bindings.json',imports)
+    N.write(staging/'compiler-output-origins.json',compiler_origins)
     publication=_publish_checked_public_tree(staging,destination,private_workspace=workspace,normal_imports=imports)
     exported.update(sourceTree=str(destination/'product-source'),publicExport=N.descriptor(destination/'export-record.json'))
     return dict(**exported,supplierPackage=N.descriptor(destination/'product'/N.PACKAGE),

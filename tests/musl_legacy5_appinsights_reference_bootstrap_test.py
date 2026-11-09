@@ -267,4 +267,103 @@ class OriginalBinlogPublication(unittest.TestCase):
                 self.assertFalse(target.exists());self.assertFalse(target.parent.exists())
 
 
+class ActualCompilerOutputOrigins(unittest.TestCase):
+    SECRET=b'MZ\x00PRIVATE-FINITE-REFERENCE-OUTPUT-CONTROL\xff'
+
+    def fixture(self,*,private_body=False):
+        temporary=tempfile.TemporaryDirectory();self.addCleanup(temporary.cleanup);root=Path(temporary.name)
+        identity=dict(sdkVersion='5.0.214',architecture='aarch64',targetRid='linux-musl-arm64',runId='fixture',
+            runAttempt='1',buildId='fixture',projectCommit='a'*40)
+        prepare=dict(identity,imageId='sha256:'+'1'*64,emulation=False,diagnosticPodman=False,
+            diagnosticPtrace=False,previousPrivateSdkArchiveUsed=False)
+        context=M.normal_context(identity,prepare,workspace=root/'work',delivery=root/'delivery',project=root/'project',
+            diagnostics=root/'delivery/reports/diagnostics/container-0001',uid=1000,gid=1000)
+        workspace=Path(context['paths']['attempt']);workspace.mkdir(parents=True);output=workspace/'output';output.mkdir()
+        (workspace/'normal-context.json').write_text(json.dumps(context),encoding='utf-8')
+        boundary=dict(kind='normal-App5-Docker-boundary',context=context,normalAppWorkerBoundaryValidated=True,parentSdkBuildValidated=False)
+        for key,name in(('invocation','normal-container-invocation.json'),('result','normal-container-result.json'),('stage','normal-app-stage.json')):
+            path=workspace/name;path.write_bytes(b'{}\n');boundary[key]=M.N.descriptor(path)
+        execution=dict(kind='actual-normal-offline-App5-and-frozen-reader-execution',boundary=boundary)
+        imports=dict(kind='scoped-normal-App-original-import-provenance',normalBoundary=copy.deepcopy(boundary),
+            actualOriginalInputsAndProcessesRead=True,normalParentBuildRequiredAtAdmission=True,logs={})
+        generated=('reader-obj/Debug/net6.0/.NETCoreApp,Version=v6.0.AssemblyAttributes.cs',
+            'reader-obj/Debug/net6.0/Reader.AssemblyInfo.cs','reader-obj/Debug/net6.0/Reader.GlobalUsings.g.cs')
+        policy=M.IMPORTS.policy()
+        for role,compiler,key,compiled,sources in(('app','appCompiler','rawAppBinlog','obj/Microsoft.ApplicationInsights.dll',()),
+            ('reader-build','readerCompiler','rawReaderBuildBinlog','reader-obj/Debug/net6.0/Reader.dll',generated)):
+            raw=output/(role+'.binlog');raw.write_bytes(('synthetic observed log '+role).encode());execution[key]=M.N.fingerprint(raw)
+            imports['logs'][role]=dict(role=role,actualMountedInputBytesCompared=True,binlog=execution[key])
+            fingerprints={}
+            for name in(compiled,*sources):
+                path=output/name;path.parent.mkdir(parents=True,exist_ok=True)
+                path.write_bytes(self.SECRET if private_body and name==compiled and role=='app'else('synthetic actual '+name).encode())
+                fingerprints[name]=M.N.fingerprint(path)
+            execution[compiler]=dict(context='1:2:3:4',projectFile=policy['logs'][role]['project'],taskFile=policy['logs'][role]['compilerTarget'],
+                commandLine='synthetic observed Csc argv '+role,compiledOutput=dict(path='/output/'+compiled,**fingerprints[compiled]),
+                sources={'/output/'+name:fingerprints[name]for name in sources})
+        return workspace,dict(kind='actual-normal-genuine-App5-package',execution=execution),imports
+
+    def test_five_actual_files_bind_original_csc_raw_log_and_normal_context(self):
+        workspace,genuine,imports=self.fixture();record=M.compiler_output_origins(workspace,genuine,imports)
+        self.assertEqual(len(record['files']),5);self.assertTrue(record['actualCurrentFilesCompared'])
+        self.assertEqual(sum(row['role']=='compiled-output'for row in record['files'].values()),2)
+        self.assertEqual(sum(row['role']=='generated-reader-source'for row in record['files'].values()),3)
+        for name,row in record['files'].items():
+            self.assertEqual(row['originalLogicalPath'],'/output/'+name)
+            self.assertEqual(row['fingerprint'],M.N.fingerprint(workspace/'output'/name))
+            self.assertEqual(row['cscContext'],'1:2:3:4')
+        self.assertFalse(record['parentSdkBuildValidated']);self.assertFalse(record['archivedConstructionValidated'])
+
+    def test_missing_actual_output_is_not_reconstructed_from_a_descriptor(self):
+        workspace,genuine,imports=self.fixture();path=workspace/'output/obj/Microsoft.ApplicationInsights.dll';path.unlink()
+        with self.assertRaises(ValueError):M.compiler_output_origins(workspace,genuine,imports)
+        self.assertFalse(path.exists())
+
+    def test_changed_actual_generated_source_rejects(self):
+        workspace,genuine,imports=self.fixture();(workspace/'output/reader-obj/Debug/net6.0/Reader.GlobalUsings.g.cs').write_bytes(b'changed')
+        with self.assertRaisesRegex(ValueError,'Actual original compiler output/source bytes differ'):
+            M.compiler_output_origins(workspace,genuine,imports)
+
+    def test_unknown_generated_path_and_compiled_alias_reject(self):
+        for change in('generated','compiled'):
+            workspace,genuine,imports=self.fixture();reader=genuine['execution']['readerCompiler']
+            if change=='generated':reader['sources']['/output/reader-obj/Unknown.cs']=next(iter(reader['sources'].values()))
+            else:reader['compiledOutput']['path']='/output/reader-obj/Debug/net6.0/../net6.0/Reader.dll'
+            with self.subTest(change=change),self.assertRaises(ValueError):M.compiler_output_origins(workspace,genuine,imports)
+
+    def test_cross_boundary_or_compiler_project_cannot_supply_origins(self):
+        for change in('boundary','project'):
+            workspace,genuine,imports=self.fixture()
+            if change=='boundary':imports['normalBoundary']['parentSdkBuildValidated']=True
+            else:genuine['execution']['appCompiler']['projectFile']='/inputs/reader/Reader.csproj'
+            with self.subTest(change=change),self.assertRaises(ValueError):M.compiler_output_origins(workspace,genuine,imports)
+
+    def test_changed_actual_raw_log_rejects(self):
+        workspace,genuine,imports=self.fixture();(workspace/'output/app.binlog').write_bytes(b'changed raw process log')
+        with self.assertRaisesRegex(ValueError,'raw-log identity'):M.compiler_output_origins(workspace,genuine,imports)
+
+    @unittest.skipIf(os.name=='nt','POSIX output symlink semantics')
+    def test_output_symlink_rejects(self):
+        workspace,genuine,imports=self.fixture();path=workspace/'output/obj/Microsoft.ApplicationInsights.dll'
+        other=workspace/'other';other.write_bytes(path.read_bytes());path.unlink();path.symlink_to(other)
+        with self.assertRaises(ValueError):M.compiler_output_origins(workspace,genuine,imports)
+
+    def test_private_body_in_a_bound_new_output_still_rejects_before_delivery(self):
+        workspace,genuine,imports=self.fixture(private_body=True);origins=M.compiler_output_origins(workspace,genuine,imports)
+        stage=workspace.parent/'stage';stage.mkdir();destination=workspace.parent/'delivery'
+        name='obj/Microsoft.ApplicationInsights.dll';source=workspace/'output'/name
+        retained=stage/'evidence/output'/name;retained.parent.mkdir(parents=True);retained.write_bytes(source.read_bytes())
+        self.assertEqual(M.N.fingerprint(retained),origins['files'][name]['fingerprint'])
+        with mock.patch.object(M,'_forbidden',return_value={'private':self.SECRET}),self.assertRaisesRegex(ValueError,'cannot be published'):
+            M._publish_checked_public_tree(stage,destination,private_workspace=workspace)
+        self.assertFalse(destination.exists())
+
+    def test_late_source_mutation_rejects_before_new_output_copy(self):
+        workspace,genuine,imports=self.fixture();origins=M.compiler_output_origins(workspace,genuine,imports)
+        name='obj/Microsoft.ApplicationInsights.dll';source=workspace/'output'/name;source.write_bytes(self.SECRET)
+        target=workspace.parent/'stage'/name
+        with self.assertRaises(ValueError):M._copy(source,target,origins['files'][name]['fingerprint'],0o644)
+        self.assertFalse(target.exists())
+
+
 if __name__=='__main__':unittest.main()
