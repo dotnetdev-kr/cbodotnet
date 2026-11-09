@@ -1,0 +1,1481 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdk5-exact-four-data-and-copied-task-provider-partial-policy",
+  "sdkVersion": "5.0.214",
+  "observedArchitecture": "aarch64",
+  "observedRid": "linux-musl-arm64",
+  "sources": {
+    "installer": {
+      "repository": "https://github.com/dotnet/installer",
+      "commit": "430330f7c5428f031b4a835be3dcf5945f55a56a",
+      "tree": "d3087a364c3598f1f4a82bb78e50a795ff5ca89f"
+    },
+    "aspnetcore": {
+      "repository": "https://github.com/dotnet/aspnetcore",
+      "commit": "02c6de4ba6022025fcda7581415f310f8c73cdc3",
+      "tree": "5f3c6a22910816d0aaa6475c8d8ee7d90957c3a4"
+    },
+    "platforms": {
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "f431858f8b1f1510723ace6343786c9194dbd7fc",
+      "tree": "39154a5e805c2698f5a4c85a2bed31d668742aeb"
+    },
+    "nuget-packaging58": {
+      "repository": "https://github.com/NuGet/NuGet.Client",
+      "commit": "ebc4f817473f08c3705ed0e5c58c223372f36f7b",
+      "tree": "a30ffb17b4573f6759fe8217ccdf88f107246287"
+    },
+    "nuget-common58": {
+      "repository": "https://github.com/NuGet/NuGet.Client",
+      "commit": "830c8be45dbbccd411ecf6080abff0c2c98079cf",
+      "tree": "3247913d01ca4c4d6cfbc36dffca74bc071f146c"
+    }
+  },
+  "sourceFiles": {
+    "installer:src/core-sdk-tasks/GenerateSdkRuntimeIdentifierChain.cs": {
+      "sourceRole": "installer",
+      "path": "src/core-sdk-tasks/GenerateSdkRuntimeIdentifierChain.cs",
+      "gitBlob": "028f1aa329e20421cbc23d1a3f548aa677ce9627",
+      "gitMode": "100644",
+      "fingerprint": {
+        "bytes": 935,
+        "sha256": "032a73d98c06111248d80144da97cc6176be9dfc2ed5c6b26f13d1849185f406",
+        "sha512": "28987b050ac4173467db4d4aa650a8ec21bbcf980704f16115a35bb12ebdbf648ccf2976405aaf6922caa67c40463b75207925106ba00c0b0be8c2890ea76f51"
+      },
+      "basis": "actual-original-Git-object"
+    },
+    "installer:src/core-sdk-tasks/ReplaceFileContents.cs": {
+      "sourceRole": "installer",
+      "path": "src/core-sdk-tasks/ReplaceFileContents.cs",
+      "gitBlob": "671b736746a049b5566fdb5ad52783fa237cd6f8",
+      "gitMode": "100644",
+      "fingerprint": {
+        "bytes": 5984,
+        "sha256": "e17124647e29952efb210c25f0dee411ef982db302c46c3063b268e06d81f8f1",
+        "sha512": "4341610160715671304f7575ca7c500abbb072a75a8abb75d5c606a79a32c1e9599192f474456ca44e29f7eeaaf712cdfe3e8e5bf2d555a65d77a175c5ddaed0"
+      },
+      "basis": "actual-original-Git-object"
+    },
+    "installer:src/core-sdk-tasks/core-sdk-tasks.csproj": {
+      "sourceRole": "installer",
+      "path": "src/core-sdk-tasks/core-sdk-tasks.csproj",
+      "gitBlob": "00420b6ba94e07732a9f0ef6e2d26140f6a9db46",
+      "gitMode": "100644",
+      "fingerprint": {
+        "bytes": 1314,
+        "sha256": "987ffb326e02b50f3e5262ade62386a6e8ce5c8ba10a5b5ce0f574321c6af05b",
+        "sha512": "1ce07de6e2d7c9cf97033c140ceb3038d2507698acf333f0f0e3c47a59ef245472c73292b957251dc1d93b0b5b2c34b548ba558829cfe34bea836ac2063225aa"
+      },
+      "basis": "actual-original-Git-object"
+    },
+    "installer:src/redist/targets/BuildCoreSdkTasks.targets": {
+      "sourceRole": "installer",
+      "path": "src/redist/targets/BuildCoreSdkTasks.targets",
+      "gitBlob": "b2f7b64faae2ab1948a8b12047d507235fb345c9",
+      "gitMode": "100644",
+      "fingerprint": {
+        "bytes": 2905,
+        "sha256": "daa9a1cbb35361d20b9c290cd09b69c6431104b156e7034b55508ca54aad96e2",
+        "sha512": "fd5ae5467aaa731fce92d0f6cd6a75e195b8a895e9a209c129e299d02a75c5759446428fd81f3bc3bea1f4778eab0b646ed4893bdd60c3bd944c80ad81331284"
+      },
+      "basis": "actual-original-Git-object"
+    },
+    "installer:src/redist/targets/GenerateBundledVersions.targets": {
+      "sourceRole": "installer",
+      "path": "src/redist/targets/GenerateBundledVersions.targets",
+      "gitBlob": "dbf4611e2dfedccd4249b1554d43fe9cee091b30",
+      "gitMode": "100644",
+      "fingerprint": {
+        "bytes": 32062,
+        "sha256": "b54054fdea4b51956cb0101c09f83f1c84c30973a1fa21fdce3a3324b2989fb9",
+        "sha512": "2937d50b82f54ede4e3fff80bce4593a5ab92f740e3d94f57b98bafbc4a71de2b8f31da36aaa965e60f80080aace2c9d646c1aa01cf68b91152a2f6d55d8bc22"
+      },
+      "basis": "actual-original-Git-object"
+    },
+    "installer:src/redist/targets/LayoutTool.csproj": {
+      "sourceRole": "installer",
+      "path": "src/redist/targets/LayoutTool.csproj",
+      "gitBlob": "1ce7612ba842f87914f81c2dc419f881f1543d65",
+      "gitMode": "100644",
+      "fingerprint": {
+        "bytes": 1016,
+        "sha256": "6d7c7c60c115bb0d47d264c83f04aec78d8bd77929c43f90c389d2cb2534175b",
+        "sha512": "dc769bb8367b46a6b991104f00714fbabcc4c50f84122b49600d77d5726a7aa2f3364bd67e5f8bd9a81a168f1d787df3f8990f93c3fbc1e93cbfcc1603e24536"
+      },
+      "basis": "actual-original-Git-object"
+    },
+    "installer:src/redist/targets/GenerateLayout.targets": {
+      "sourceRole": "installer",
+      "path": "src/redist/targets/GenerateLayout.targets",
+      "gitBlob": "8e50a8ff71e135a215d31ba30584b07cdd52f92d",
+      "gitMode": "100644",
+      "fingerprint": {
+        "bytes": 37023,
+        "sha256": "61ac01cb448a192b0f4bebeae7f035e604b70982ff8af0e214cfe91de219b754",
+        "sha512": "9cf7e3ef2bcbe18bc24a36b3714f5b57c2cdcd15e44d9e148ca3534c9b7104913ab081040f05d020b00fd55b8b499a509ce1176736fbbfc75c12665a3287287a"
+      },
+      "basis": "actual-original-Git-object"
+    },
+    "aspnetcore:src/Tools/dotnet-dev-certs/src/dotnet-dev-certs.csproj": {
+      "sourceRole": "aspnetcore",
+      "path": "src/Tools/dotnet-dev-certs/src/dotnet-dev-certs.csproj",
+      "gitBlob": "29f83b86430580a1a9cec7642f53a2ecf4522ffe",
+      "gitMode": "100644",
+      "fingerprint": {
+        "bytes": 1034,
+        "sha256": "6606f9faca9bb7df025c57c85584a814d723f26fa4d9ccf329e1d7c64f72fd3a",
+        "sha512": "1c0701b546be8f5ce0d06f3698f71cbf7da8111bc9fbf7109675da4c2c3cdcf61d19066ae9e5b8d987f9e2526d9474fc32273cf7f0405c87e701e76a77721572"
+      },
+      "basis": "actual-original-Git-object"
+    },
+    "aspnetcore:src/Tools/dotnet-user-secrets/src/dotnet-user-secrets.csproj": {
+      "sourceRole": "aspnetcore",
+      "path": "src/Tools/dotnet-user-secrets/src/dotnet-user-secrets.csproj",
+      "gitBlob": "1ef774e1c5e7c0f67861216cc9900275a5ccbdb7",
+      "gitMode": "100644",
+      "fingerprint": {
+        "bytes": 1199,
+        "sha256": "2cad8611b39eefd70b9c692c3068a9c2bc8749fc373b09aabed58b5cfccc05f5",
+        "sha512": "4d32f91a60604ecd1bc82a013255d365a6b93798ee15a5816ba2683495a4fa368908ea91e22437954d787e5382a0676adaab868805388fd755c1440688007072"
+      },
+      "basis": "actual-original-Git-object"
+    },
+    "aspnetcore:global.json": {
+      "sourceRole": "aspnetcore",
+      "path": "global.json",
+      "gitBlob": "b579ec6be4d2e101233ab4497c82b4fb3718220b",
+      "gitMode": "100644",
+      "fingerprint": {
+        "bytes": 847,
+        "sha256": "1505cf4309a0b6f62753155314fe2a718e5dd8ab3dd06ecc53cf87d5062de33e",
+        "sha512": "ad02852f5cad716c4304a9091a469168ef808ba472ae2490caf071124effdfb6497865f542d71a7dc544b48a3b8d8be7d265aba7965ee4cf2ce0e4343ba7e6a5"
+      },
+      "basis": "actual-original-Git-object"
+    },
+    "platforms:src/libraries/pkg/Microsoft.NETCore.Platforms/runtime.json": {
+      "sourceRole": "platforms",
+      "path": "src/libraries/pkg/Microsoft.NETCore.Platforms/runtime.json",
+      "gitBlob": "7d6aa102b506ea58f1d3b52e7f33496d9cc500c8",
+      "gitMode": "100644",
+      "fingerprint": {
+        "bytes": 51396,
+        "sha256": "77601e173b79bb690eaf85d1cbadbb36919a63c71f7e9c8497b9d4b972d60a3c",
+        "sha512": "33d43845a998a3fc499c6b4daccc13b4bbe0df53d048b0e7e6080f07426f462545b8284a1b92d098c19a2b9a9be7d9935075b2f980605beb916b6d4b141a6bbe"
+      },
+      "basis": "official-exact-ref-base64-Git-blob"
+    },
+    "nuget-packaging58:src/NuGet.Core/NuGet.Packaging/RuntimeModel/RuntimeGraph.cs": {
+      "sourceRole": "nuget-packaging58",
+      "path": "src/NuGet.Core/NuGet.Packaging/RuntimeModel/RuntimeGraph.cs",
+      "gitBlob": "7782636409463b2d71065224d2a9d6d335713aa0",
+      "gitMode": "100644",
+      "fingerprint": {
+        "bytes": 14071,
+        "sha256": "3ef4b57b912e0d650933840f32d6dd8c12e4878475550a978410498e134bac20",
+        "sha512": "2bb9cf295caec37c7dff8a362efdcfda765a8fb8acc9b8d731dad2e03904d02f6e63d47d111ec8b952404617c1f81e03a4f4addeb1b980167b7f787bb3c4b4a3"
+      },
+      "basis": "official-exact-ref-base64-Git-blob"
+    },
+    "nuget-packaging58:src/NuGet.Core/NuGet.Packaging/RuntimeModel/JsonRuntimeFormat.cs": {
+      "sourceRole": "nuget-packaging58",
+      "path": "src/NuGet.Core/NuGet.Packaging/RuntimeModel/JsonRuntimeFormat.cs",
+      "gitBlob": "7fd638ee26809c93f0fcdb9399d6e4afbbae7eff",
+      "gitMode": "100644",
+      "fingerprint": {
+        "bytes": 8883,
+        "sha256": "21d143b26e67c32f1be3c443f99c38d67428f8664bfc5ac13c13727b002c6fc9",
+        "sha512": "4c55b053b9e82909865e3e1e5a06788943a1e3bb0bd1b50f660c8d291203d305b520b87e46a5d9b2c8c35a6152d37f4e50c3d07fe04fd3ebd940a4231b1f533a"
+      },
+      "basis": "official-exact-ref-base64-Git-blob"
+    }
+  },
+  "dataPackages": {
+    "0a2b3bc77fba3a2b1d711b049115492d2e3dd0a8647c594c898964403fda0ec9": {
+      "id": "Microsoft.NETCore.Platforms",
+      "version": "5.0.4",
+      "fingerprint": {
+        "bytes": 39946,
+        "sha256": "0a2b3bc77fba3a2b1d711b049115492d2e3dd0a8647c594c898964403fda0ec9",
+        "sha512": "6186163ca53bfa982cd163d8ddfc2ff05832af70cfb321aa83c16090299bbbf2e6f29d411661dbaa43a0c21256eb80af3c85e245915d840ce3aed16a73c2946d"
+      },
+      "nuspec": {
+        "path": "Microsoft.NETCore.Platforms.nuspec",
+        "fingerprint": {
+          "bytes": 1264,
+          "sha256": "b5196d6bb739d71c29908b1c877a1f7a94eee93fff0c2f1ce947a3132f41a0ad",
+          "sha512": "599ee9501c045cb8ffdefc7c77c643f12d1b704c44825dabb70bcd214966042cd214c7e6c4029b0a592b207d1c7e989cef10c0f76317b7a675d5a21c2dcc2f4c"
+        }
+      },
+      "repository": {
+        "type": "git",
+        "url": "git://github.com/dotnet/runtime",
+        "commit": "f431858f8b1f1510723ace6343786c9194dbd7fc"
+      },
+      "members": {
+        "runtime.json": {
+          "bytes": 54594,
+          "sha256": "12a04f2ff7b585c1e83b171cd16db090ed92e0d2fad46bfe626949f89d232f1a",
+          "sha512": "1d9b6e4fe24ea364c4485a4c1b70b05f30b9cf23e9702713ba1426bcee1fcae0bb8c1648adb1780e1f17a98c0d9c87328e53b6039d45e09a2a721a5f817a04dd"
+        }
+      }
+    },
+    "3f1dc8597b592509fc4078e53f3db62834dfd53c5a621da8108ec102dc26c107": {
+      "id": "dotnet-dev-certs",
+      "version": "5.0.17-servicing.22215.7",
+      "fingerprint": {
+        "bytes": 80148,
+        "sha256": "3f1dc8597b592509fc4078e53f3db62834dfd53c5a621da8108ec102dc26c107",
+        "sha512": "d4b79a0dd216bf8272180f192a9be9d27b1c2db96fce6bb65acb1591e8063f57917d0a92c12b3831b3d3f011ffd10d19b30cfb86ceddfe39e5dc441429afaa5e"
+      },
+      "nuspec": {
+        "path": "dotnet-dev-certs.nuspec",
+        "fingerprint": {
+          "bytes": 1145,
+          "sha256": "a59ebf6d8f705b6e76fd2ca0c30d9a812135b5ff47c3872de23299aa03de1cac",
+          "sha512": "db822fd95972cdef78eab0b2108c8cced5a0cf819c7152af042a2d2517a01943ea917abb30803f5066ea6e7e93a07d1a13a0544b80ce8b62b21c532de0d6c9dd"
+        }
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/dotnet/aspnetcore",
+        "commit": "02c6de4ba6022025fcda7581415f310f8c73cdc3"
+      },
+      "members": {
+        "tools/net5.0/any/dotnet-dev-certs.runtimeconfig.json": {
+          "bytes": 147,
+          "sha256": "888ebf3b86aed002c04bcf406e2dadf656f5b004b9f7e530f71f745d3fb308d4",
+          "sha512": "ce02082ffb779d01295861e4afb828a21700271f1150a95a004ec4a8107c1a562fbe911417fb2bbfd38584da84fefcd04d5aa8d8043661748e957411063452ab"
+        }
+      }
+    },
+    "2f479840bf9b6eaaa28345280fab2628a94622611e0822b544e4043e3c8783fe": {
+      "id": "dotnet-user-secrets",
+      "version": "5.0.17-servicing.22215.7",
+      "fingerprint": {
+        "bytes": 471260,
+        "sha256": "2f479840bf9b6eaaa28345280fab2628a94622611e0822b544e4043e3c8783fe",
+        "sha512": "2834125a77c63f09a8909285a6623838558d5419cff0f33d2b4cf93e8bcfa26c5c97152d6f72670c1eb90621fb8f64f4b30bc443f907406312606f3689abe549"
+      },
+      "nuspec": {
+        "path": "dotnet-user-secrets.nuspec",
+        "fingerprint": {
+          "bytes": 1150,
+          "sha256": "7d64591bdcd1820d560a25af9ee808b1d26a745510a5cf86693974f69ea9d8ac",
+          "sha512": "0f6159f37f74d0baa1a9360c265fb0150fd4560bd0a925f93c2578fac1259f0e7c281dce1ee5457a29889bb24afac905db917bb087473a2c0b405230d1e9cd16"
+        }
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/dotnet/aspnetcore",
+        "commit": "02c6de4ba6022025fcda7581415f310f8c73cdc3"
+      },
+      "members": {
+        "tools/net5.0/any/dotnet-user-secrets.runtimeconfig.json": {
+          "bytes": 147,
+          "sha256": "888ebf3b86aed002c04bcf406e2dadf656f5b004b9f7e530f71f745d3fb308d4",
+          "sha512": "ce02082ffb779d01295861e4afb828a21700271f1150a95a004ec4a8107c1a562fbe911417fb2bbfd38584da84fefcd04d5aa8d8043661748e957411063452ab"
+        }
+      }
+    }
+  },
+  "dataOutputs": {
+    "sdk/5.0.214/RuntimeIdentifierGraph.json": {
+      "kind": "original-package-copy",
+      "fingerprint": {
+        "bytes": 54594,
+        "sha256": "12a04f2ff7b585c1e83b171cd16db090ed92e0d2fad46bfe626949f89d232f1a",
+        "sha512": "1d9b6e4fe24ea364c4485a4c1b70b05f30b9cf23e9702713ba1426bcee1fcae0bb8c1648adb1780e1f17a98c0d9c87328e53b6039d45e09a2a721a5f817a04dd"
+      },
+      "packageSha256": "0a2b3bc77fba3a2b1d711b049115492d2e3dd0a8647c594c898964403fda0ec9",
+      "member": "runtime.json",
+      "originalInput": {
+        "bytes": 54594,
+        "sha256": "12a04f2ff7b585c1e83b171cd16db090ed92e0d2fad46bfe626949f89d232f1a",
+        "sha512": "1d9b6e4fe24ea364c4485a4c1b70b05f30b9cf23e9702713ba1426bcee1fcae0bb8c1648adb1780e1f17a98c0d9c87328e53b6039d45e09a2a721a5f817a04dd"
+      }
+    },
+    "sdk/5.0.214/NETCoreSdkRuntimeIdentifierChain.txt": {
+      "kind": "original-runtime-graph-expansion",
+      "fingerprint": {
+        "bytes": 70,
+        "sha256": "11802a354f629ae84db535771675bc0e12b32df2f8de37be741a038157c00d49",
+        "sha512": "5f2567c306ce210865578ea3c78ee2e8fee49e0af297ef828f3669e5d12a5f8e89a75be29e31b7af815df066c3d7a2aef34e7a1833167aa5cc3cf2b13e2b2adf"
+      },
+      "observedRid": "linux-musl-arm64"
+    },
+    "sdk/5.0.214/DotnetTools/dotnet-dev-certs/5.0.17-servicing.22215.7/tools/net5.0/any/dotnet-dev-certs.runtimeconfig.json": {
+      "kind": "exact-original-runtime-version-replacement",
+      "fingerprint": {
+        "bytes": 148,
+        "sha256": "3c6c6d3eb715eb92f2a54428a83429e54b78cbdeaa03cb1fdf352d3e8e1dba69",
+        "sha512": "5fc7dffbd3ec48af4535f627ee0758504ddf85f3ddc351b2e95d49f775b261c48a707b04dff508d61efb539c2ffadfa0f74f5ceeb79539471e59121396bb748b"
+      },
+      "packageSha256": "3f1dc8597b592509fc4078e53f3db62834dfd53c5a621da8108ec102dc26c107",
+      "member": "tools/net5.0/any/dotnet-dev-certs.runtimeconfig.json",
+      "originalInput": {
+        "bytes": 147,
+        "sha256": "888ebf3b86aed002c04bcf406e2dadf656f5b004b9f7e530f71f745d3fb308d4",
+        "sha512": "ce02082ffb779d01295861e4afb828a21700271f1150a95a004ec4a8107c1a562fbe911417fb2bbfd38584da84fefcd04d5aa8d8043661748e957411063452ab"
+      }
+    },
+    "sdk/5.0.214/DotnetTools/dotnet-user-secrets/5.0.17-servicing.22215.7/tools/net5.0/any/dotnet-user-secrets.runtimeconfig.json": {
+      "kind": "exact-original-runtime-version-replacement",
+      "fingerprint": {
+        "bytes": 148,
+        "sha256": "3c6c6d3eb715eb92f2a54428a83429e54b78cbdeaa03cb1fdf352d3e8e1dba69",
+        "sha512": "5fc7dffbd3ec48af4535f627ee0758504ddf85f3ddc351b2e95d49f775b261c48a707b04dff508d61efb539c2ffadfa0f74f5ceeb79539471e59121396bb748b"
+      },
+      "packageSha256": "2f479840bf9b6eaaa28345280fab2628a94622611e0822b544e4043e3c8783fe",
+      "member": "tools/net5.0/any/dotnet-user-secrets.runtimeconfig.json",
+      "originalInput": {
+        "bytes": 147,
+        "sha256": "888ebf3b86aed002c04bcf406e2dadf656f5b004b9f7e530f71f745d3fb308d4",
+        "sha512": "ce02082ffb779d01295861e4afb828a21700271f1150a95a004ec4a8107c1a562fbe911417fb2bbfd38584da84fefcd04d5aa8d8043661748e957411063452ab"
+      }
+    }
+  },
+  "providerPackages": {
+    "95c2243f286d589f1cc936cdfaf4490cf533de9ffc616e5e535f5de63a7e819e": {
+      "id": "NuGet.Common",
+      "version": "5.8.0+830c8be45dbbccd411ecf6080abff0c2c98079cf",
+      "fingerprint": {
+        "bytes": 235641,
+        "sha256": "95c2243f286d589f1cc936cdfaf4490cf533de9ffc616e5e535f5de63a7e819e",
+        "sha512": "3b7eb15e8cc33d7e2a6f6a68afd4d897546c5d60a8dadf7a61a7f7cd5d77a6854bbed9c2f17ace4c6643e396dd69d2e56345b194ff38f8e7dcfd6157e748fd8b"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/NuGet/NuGet.Client",
+        "commit": "830c8be45dbbccd411ecf6080abff0c2c98079cf"
+      },
+      "nuspec": {
+        "path": "NuGet.Common.nuspec",
+        "fingerprint": {
+          "bytes": 1893,
+          "sha256": "d9798498ef00395e2045e3bd4fe1cab0a4fabb5e0d507d262f404a65d6b4e484",
+          "sha512": "a70e9d28c728bab9f4c9c0d381c4440aefe7d600f2072ad02bca493c2c3740701090c770a1e6838d9b1abc3ada07a04d5816bf45f9d0afb173ca28fc3edb2dcb"
+        }
+      }
+    },
+    "ba64811bd8fc3e1cb8bfde6df3e7901f6869f028764b8a0177baee34b11c54f8": {
+      "id": "Microsoft.Build.Framework",
+      "version": "15.7.179",
+      "fingerprint": {
+        "bytes": 237021,
+        "sha256": "ba64811bd8fc3e1cb8bfde6df3e7901f6869f028764b8a0177baee34b11c54f8",
+        "sha512": "f23cbeca4ff35b8d565068658531b70ea8633e3e0000f0a021acab6897218e0d518bf042254e60a2ae6ddae6c9fd5abeeb5e88931bf7a445095f3a627ce018fa"
+      },
+      "repository": {
+        "url": "https://github.com/microsoft/msbuild"
+      },
+      "nuspec": {
+        "path": "Microsoft.Build.Framework.nuspec",
+        "fingerprint": {
+          "bytes": 1449,
+          "sha256": "b7da498117c62a6604d16e6be3ba44fbc5d23adb0829fac7d81eb4e2f25e109c",
+          "sha512": "6a6f977305212fca849a0d836dbb1d2586bd39ede9f7740a8063a6e7ac59ec968c5f6ad8d73877124d5b0e2507d7c162ba5082dd98ea14bfdb7a4085eb59cf25"
+        }
+      }
+    },
+    "ca1ea8c40f477cf8a9762021c417ae29aa7dffbe6e5457cb3f79d9239641194f": {
+      "id": "Microsoft.Build.Utilities.Core",
+      "version": "15.7.179",
+      "fingerprint": {
+        "bytes": 714670,
+        "sha256": "ca1ea8c40f477cf8a9762021c417ae29aa7dffbe6e5457cb3f79d9239641194f",
+        "sha512": "555179d23a0e35573afb98c95b62d7d9c8ecc162e501c745baec176bffe0cfe75bc3078fda5ba8113c42d72e5b0531941c1531e9b6335511d380e21c8c4bbad1"
+      },
+      "repository": {
+        "url": "https://github.com/microsoft/msbuild"
+      },
+      "nuspec": {
+        "path": "Microsoft.Build.Utilities.Core.nuspec",
+        "fingerprint": {
+          "bytes": 2127,
+          "sha256": "3f9966631a516946fded47adb1a04b52f8471c36cb0404486cf4b9b08c44d787",
+          "sha512": "fd581515695afdd7dccaffd1b25058d45e35ab2c6f7308e67f40fde758ceaf3f6a4b21cc4bf7fc8722bb49065749a5347742c380b44e0acee57af82041b92af5"
+        }
+      }
+    },
+    "10031959128b34ca00405fcf5b439729eec0acace34c72c564f0dae40f7aa182": {
+      "id": "Microsoft.Build",
+      "version": "15.7.179",
+      "fingerprint": {
+        "bytes": 4036837,
+        "sha256": "10031959128b34ca00405fcf5b439729eec0acace34c72c564f0dae40f7aa182",
+        "sha512": "9f18de5b127054f5e7b9f6df87a2249f243fb4a83709a1dc57b76bc2dcad97c733beb7fde2a81b6630f77f5794ca64af74fc6e61037bfa73c05ab565ccbe6d53"
+      },
+      "repository": {
+        "url": "https://github.com/microsoft/msbuild"
+      },
+      "nuspec": {
+        "path": "Microsoft.Build.nuspec",
+        "fingerprint": {
+          "bytes": 4191,
+          "sha256": "990f3b85d5421b6d1a3ad3c39dc6b66da43861f1a08bcd7a5f5934a94ef14c49",
+          "sha512": "0af05af79f9d9bc9d0abae62bbba0373ca81650a60e617a0065cd9b1b3eaaae654fcdad190a0af9313083d4e260314754ac8ef578f6c34796dfaf45b116d9439"
+        }
+      }
+    },
+    "893bae5d3d2323bc6e178bf4645078c7fee9ce22c2eac390e8657968a44a6a15": {
+      "id": "NuGet.Packaging",
+      "version": "5.8.0+ebc4f817473f08c3705ed0e5c58c223372f36f7b",
+      "fingerprint": {
+        "bytes": 877560,
+        "sha256": "893bae5d3d2323bc6e178bf4645078c7fee9ce22c2eac390e8657968a44a6a15",
+        "sha512": "c687a9977b22ff2f79cfeda07b8ddc049a4bd8839b03d7bbab0134f9d1037b4e152490fd0a3e55ea70abfc44ebfe4df8831e217f9c16e24f5ae3d6c91cb09a38"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/NuGet/NuGet.Client",
+        "commit": "ebc4f817473f08c3705ed0e5c58c223372f36f7b"
+      },
+      "nuspec": {
+        "path": "NuGet.Packaging.nuspec",
+        "fingerprint": {
+          "bytes": 2989,
+          "sha256": "2225f88483e2d8b6a9a16053f5f7c8498239cbf5205c22440f196524b0afaf5d",
+          "sha512": "8e7eeda7688c2929624ad647eef644d34af92c265fa3635c001e406634f6ae44e4d3596f32e3f4c42da5dbb760c8dfb26fb1851225cf3bf3bb9e4c540346c4c8"
+        }
+      }
+    },
+    "25563150d47a7c9b49ad72113c8af1414dea8a883d02a71cf4d6e8cf0c655c99": {
+      "id": "NuGet.Versioning",
+      "version": "5.8.0+830c8be45dbbccd411ecf6080abff0c2c98079cf",
+      "fingerprint": {
+        "bytes": 146020,
+        "sha256": "25563150d47a7c9b49ad72113c8af1414dea8a883d02a71cf4d6e8cf0c655c99",
+        "sha512": "d74b9eddd3f30d6ca5ed15f29154ea0444a3a6392820e2c2e70caf20406e12c6b969bc4936643e70c5aa2a6ad85ecdc18fdd7032c51ca3cb11c1e7c3ed0586f1"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/NuGet/NuGet.Client",
+        "commit": "830c8be45dbbccd411ecf6080abff0c2c98079cf"
+      },
+      "nuspec": {
+        "path": "NuGet.Versioning.nuspec",
+        "fingerprint": {
+          "bytes": 1207,
+          "sha256": "5b5fa2465057bff2a8833f015d87b8214000e9b1cb50821646dc175a7e68eeec",
+          "sha512": "f888a26ed5335c1e4f67633a28d5b4a456be0ed3cf84f51513e231eadf6f9746aa590e0cf172b06ad8534045f01d831274849956fe235ec391bdd056817b4b33"
+        }
+      }
+    },
+    "3301cc47bf086027cd99a97d1985a00b0f81b936cf805a0e45ec7ef8efcf68e0": {
+      "id": "System.Security.Cryptography.Pkcs",
+      "version": "5.0.0-preview.3.20214.6",
+      "fingerprint": {
+        "bytes": 1304704,
+        "sha256": "3301cc47bf086027cd99a97d1985a00b0f81b936cf805a0e45ec7ef8efcf68e0",
+        "sha512": "f44f50d8b0007772c30897c23e76636fe417a9e61d800738734fc3a7b8e987ec26343b0818e908da4154e928d3a3373cb1f3b8844383b6545685df4a895cb05f"
+      },
+      "repository": null,
+      "nuspec": {
+        "path": "System.Security.Cryptography.Pkcs.nuspec",
+        "fingerprint": {
+          "bytes": 4498,
+          "sha256": "9f75c429e56db51ac430844ba07e9187d3ffff04a3cfe187b0f6432d5063aab9",
+          "sha512": "bf3ece1fc4f2696d164ba7af91c7801f559aaafc1c566bbc1e834d5845f64f2045f6d21abf8d6605bb666977e21454b33d0395e794275d959e786c60444332d8"
+        }
+      }
+    },
+    "32c5e8bdd0a665089a17a8a14ca7686a507bbf5c128a982fde7f697485bd5c99": {
+      "id": "NuGet.Frameworks",
+      "version": "5.8.0+830c8be45dbbccd411ecf6080abff0c2c98079cf",
+      "fingerprint": {
+        "bytes": 281067,
+        "sha256": "32c5e8bdd0a665089a17a8a14ca7686a507bbf5c128a982fde7f697485bd5c99",
+        "sha512": "ba414892dd547b26410ce1393d8cbdc5cf3cd8d90d9979cf3c212174ad567f1add57d89673fab028e89a58b37b5f8e19121cead0088f3873deef98b86b9ef356"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/NuGet/NuGet.Client",
+        "commit": "830c8be45dbbccd411ecf6080abff0c2c98079cf"
+      },
+      "nuspec": {
+        "path": "NuGet.Frameworks.nuspec",
+        "fingerprint": {
+          "bytes": 1235,
+          "sha256": "56583ed90d77af78e3fd8070fe7ec5feda8bd056cc54872871b3b43f0cea47bb",
+          "sha512": "4a54d78f0614e9d5493d970f7a2250a029b80544b39eaff1d69a1c74bc8c70633cdaf652db4d955fc50337887e18616d965ba707a3d4205b954777d39afdff83"
+        }
+      }
+    },
+    "998081ae052120917346e2cb57d488888147a2fcdf47c52ea9f83a7b4f049e55": {
+      "id": "Newtonsoft.Json",
+      "version": "9.0.1",
+      "fingerprint": {
+        "bytes": 1613054,
+        "sha256": "998081ae052120917346e2cb57d488888147a2fcdf47c52ea9f83a7b4f049e55",
+        "sha512": "da8917a5347051c8106f4ea9bade4bc300a3b60a05a3be3390f92c8dcbcea67223c7b4da8065b9228042000e25b99c75fad7e2221a0daa8888ed8ef3c161b228"
+      },
+      "repository": null,
+      "nuspec": {
+        "path": "Newtonsoft.Json.nuspec",
+        "fingerprint": {
+          "bytes": 2718,
+          "sha256": "3a47b376a0e604e46b2b8548b36dfdf7619e969889ca80488ccc8e9f7816df36",
+          "sha512": "6d05dbaaacd043eea2dca1db1fd5be88e96acef726f8e917e2bc8b7efd927b6a15ab8415af12fa255d0708f0c44a3a022b0a756bf9f459aa6e7b8bd3e63bf4e5"
+        }
+      }
+    },
+    "462e77426157f08f141f4c783e2910d59034ed94a70545d2b5de6b05f19614e1": {
+      "id": "System.Security.Cryptography.ProtectedData",
+      "version": "4.4.0",
+      "fingerprint": {
+        "bytes": 185701,
+        "sha256": "462e77426157f08f141f4c783e2910d59034ed94a70545d2b5de6b05f19614e1",
+        "sha512": "5b011ec6f05dfb5ef27d8edf712f9f04697e1c00c47c226e29e0c9a814fb0fa8fabcac18bdf2f21aeab6cbf326aca3910ba99b630b61ee48e29ced663e14cbde"
+      },
+      "repository": null,
+      "nuspec": {
+        "path": "System.Security.Cryptography.ProtectedData.nuspec",
+        "fingerprint": {
+          "bytes": 2293,
+          "sha256": "9aa835f3463ee38c346d875fea1a6df24ae520221f36d7cc67c82576b5184570",
+          "sha512": "698c14b3605eaab3ef8dea2477e646eb71db9e0783faa9527c9952a0002ab7218bd085950e6728c8cdb4e630184622b400786bc2147144338eb99ffe54bdb23b"
+        }
+      }
+    },
+    "81d06c34b4766af891c28f1afb0a67a8a00574c87872d94137fbeada95c29d09": {
+      "id": "NuGet.Configuration",
+      "version": "5.8.0+830c8be45dbbccd411ecf6080abff0c2c98079cf",
+      "fingerprint": {
+        "bytes": 274036,
+        "sha256": "81d06c34b4766af891c28f1afb0a67a8a00574c87872d94137fbeada95c29d09",
+        "sha512": "bb35bccef7e0c53528310da16b3fbe6ba71a0da6484ce20ffaf77aad08adba1883b7dbc09e037663fe8e357e6d9dbcd4ce88fa78829b6daaf904b413f049ab7e"
+      },
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/NuGet/NuGet.Client",
+        "commit": "830c8be45dbbccd411ecf6080abff0c2c98079cf"
+      },
+      "nuspec": {
+        "path": "NuGet.Configuration.nuspec",
+        "fingerprint": {
+          "bytes": 1992,
+          "sha256": "c65e9d2c2f5d22d7cc4f776680f9127fb093574571d5387887a1af8a52960f14",
+          "sha512": "402b2b1a2493b853ef91873cae710a595ce61348403a1d35291afb148e8be1152df747f3999a397a7492f44955f19ade8a49f3b33f84c9a05b19b1cd12354ce9"
+        }
+      }
+    }
+  },
+  "providerMembers": {
+    "NuGet.Common.dll": {
+      "packageSha256": "95c2243f286d589f1cc936cdfaf4490cf533de9ffc616e5e535f5de63a7e819e",
+      "member": "lib/netstandard2.0/NuGet.Common.dll",
+      "fingerprint": {
+        "bytes": 97672,
+        "sha256": "ac3faecd7e4759e1ab59805ff26b1224f02d85a713db8725aadd636000f4e148",
+        "sha512": "7d9f0f9a680c2fcf96a8568316f9be92cde08ccc3242d75d00ef6ad7867b2f0f3549c636d526a23536d9cf9fd2e4983bcca0f565317214fbc165ae36bdcc39e5"
+      },
+      "assemblyName": "NuGet.Common",
+      "assemblyVersion": "5.8.0.6930",
+      "originalEmbeddedSource": {
+        "sourceCommit": "830c8be45dbbccd411ecf6080abff0c2c98079cf",
+        "basis": "assembly-informational-version"
+      },
+      "assemblyInformationalVersions": [
+        "5.8.0+830c8be45dbbccd411ecf6080abff0c2c98079cf.830c8be45dbbccd411ecf6080abff0c2c98079cf"
+      ],
+      "assemblyReferences": [
+        {
+          "name": "netstandard",
+          "version": "2.0.0.0"
+        }
+      ],
+      "sourceRequirement": {
+        "kind": "original-full-assembly-informational-Git-identity",
+        "repository": "https://github.com/NuGet/NuGet.Client",
+        "commit": "830c8be45dbbccd411ecf6080abff0c2c98079cf",
+        "tree": "3247913d01ca4c4d6cfbc36dffca74bc071f146c"
+      },
+      "declaredAssetRole": "runtime"
+    },
+    "Microsoft.Build.Framework.dll": {
+      "packageSha256": "ba64811bd8fc3e1cb8bfde6df3e7901f6869f028764b8a0177baee34b11c54f8",
+      "member": "lib/netstandard2.0/Microsoft.Build.Framework.dll",
+      "fingerprint": {
+        "bytes": 70280,
+        "sha256": "b42ba416b5fce6487bb87e0a2ba805888e38ebc18c6cce1e459f58c228b6ad9b",
+        "sha512": "e7a24a8042f5027cb702f2fbf3deda38477aab558ac0d863012547045244d513adcd8f29c0a18d8f79f0da59726c401bacd50dd2476b1642f651adafeda7f543"
+      },
+      "assemblyName": "Microsoft.Build.Framework",
+      "assemblyVersion": "15.1.0.0",
+      "originalEmbeddedSource": null,
+      "assemblyInformationalVersions": [
+        "15.7.179+gac19036b0d"
+      ],
+      "assemblyReferences": [
+        {
+          "name": "netstandard",
+          "version": "2.0.0.0"
+        }
+      ],
+      "sourceRequirement": {
+        "kind": "original-short-Git-prefix-and-official-unique-commit-resolution",
+        "prefix": "ac19036b0d",
+        "repository": "https://github.com/microsoft/msbuild",
+        "commit": "ac19036b0de4f1b58c3be76d51000df8db98560c",
+        "tree": "3891ccd0c19aedd71265cd1b1d46edfafeab1db6"
+      },
+      "declaredAssetRole": "runtime"
+    },
+    "Microsoft.Build.Utilities.Core.dll": {
+      "packageSha256": "ca1ea8c40f477cf8a9762021c417ae29aa7dffbe6e5457cb3f79d9239641194f",
+      "member": "lib/netstandard2.0/Microsoft.Build.Utilities.Core.dll",
+      "fingerprint": {
+        "bytes": 289928,
+        "sha256": "af8e47c459b29d6628ec5648ea7c1d1486ea5c70061d021d8d5a3f92dc4c198d",
+        "sha512": "cdc59de2153ee92418ad5d192b2b87ae2351decaad6a3909875cdfd39e85757b79ccbba2dbc7d321340734fd654469ca86986b6980b5fc5973bc0c3beaf248d1"
+      },
+      "assemblyName": "Microsoft.Build.Utilities.Core",
+      "assemblyVersion": "15.1.0.0",
+      "originalEmbeddedSource": null,
+      "assemblyInformationalVersions": [
+        "15.7.179+gac19036b0d"
+      ],
+      "assemblyReferences": [
+        {
+          "name": "netstandard",
+          "version": "2.0.0.0"
+        },
+        {
+          "name": "Microsoft.Build.Framework",
+          "version": "15.1.0.0"
+        },
+        {
+          "name": "System.Collections.Immutable",
+          "version": "1.2.1.0"
+        },
+        {
+          "name": "System.Text.Encoding.CodePages",
+          "version": "4.1.0.0"
+        }
+      ],
+      "sourceRequirement": {
+        "kind": "original-short-Git-prefix-and-official-unique-commit-resolution",
+        "prefix": "ac19036b0d",
+        "repository": "https://github.com/microsoft/msbuild",
+        "commit": "ac19036b0de4f1b58c3be76d51000df8db98560c",
+        "tree": "3891ccd0c19aedd71265cd1b1d46edfafeab1db6"
+      },
+      "declaredAssetRole": "runtime"
+    },
+    "Microsoft.Build.dll": {
+      "packageSha256": "10031959128b34ca00405fcf5b439729eec0acace34c72c564f0dae40f7aa182",
+      "member": "lib/netcoreapp2.1/Microsoft.Build.dll",
+      "fingerprint": {
+        "bytes": 1536136,
+        "sha256": "72c4624e6f3055aa110c54dce86acca17b021ee59585ad443a55a3edb05bed73",
+        "sha512": "70a47f55004e20ddc1adaf32e813625e4b3259c71833a36a0ec0c105ba39c173e3da1c160e2505dba163c59191de58685b5319dd36675fe9fc5f16089d830f9a"
+      },
+      "assemblyName": "Microsoft.Build",
+      "assemblyVersion": "15.1.0.0",
+      "originalEmbeddedSource": null,
+      "assemblyInformationalVersions": [
+        "15.7.179+gac19036b0d"
+      ],
+      "assemblyReferences": [
+        {
+          "name": "System.Runtime",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "System.Runtime.InteropServices",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "System.Resources.ResourceManager",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Runtime.Extensions",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "System.Diagnostics.Debug",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Text.Encoding.Extensions",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Collections",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Collections.Concurrent",
+          "version": "4.0.14.0"
+        },
+        {
+          "name": "System.Text.RegularExpressions",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "System.Collections.Immutable",
+          "version": "1.2.3.0"
+        },
+        {
+          "name": "Microsoft.Build.Framework",
+          "version": "15.1.0.0"
+        },
+        {
+          "name": "System.Linq",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "System.Diagnostics.FileVersionInfo",
+          "version": "4.0.3.0"
+        },
+        {
+          "name": "System.Xml.ReaderWriter",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "System.Threading",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.IO.FileSystem",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.IO.Compression",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "System.Console",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.IO.Pipes",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Threading.Tasks",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Threading.Tasks.Dataflow",
+          "version": "4.6.3.0"
+        },
+        {
+          "name": "System.ObjectModel",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Threading.Thread",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Runtime.Serialization.Formatters",
+          "version": "4.0.3.0"
+        },
+        {
+          "name": "System.Diagnostics.Process",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "Microsoft.Win32.Primitives",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Runtime.Loader",
+          "version": "4.0.3.0"
+        },
+        {
+          "name": "System.Collections.NonGeneric",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Threading.ThreadPool",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Reflection.Metadata",
+          "version": "1.4.3.0"
+        },
+        {
+          "name": "System.Diagnostics.TraceSource",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Linq.Parallel",
+          "version": "4.0.3.0"
+        },
+        {
+          "name": "System.Runtime.InteropServices.RuntimeInformation",
+          "version": "4.0.3.0"
+        },
+        {
+          "name": "System.Text.Encoding.CodePages",
+          "version": "4.0.1.0"
+        },
+        {
+          "name": "System.Threading.Tasks.Parallel",
+          "version": "4.0.3.0"
+        },
+        {
+          "name": "System.ComponentModel.Primitives",
+          "version": "4.2.1.0"
+        }
+      ],
+      "sourceRequirement": {
+        "kind": "original-short-Git-prefix-and-official-unique-commit-resolution",
+        "prefix": "ac19036b0d",
+        "repository": "https://github.com/microsoft/msbuild",
+        "commit": "ac19036b0de4f1b58c3be76d51000df8db98560c",
+        "tree": "3891ccd0c19aedd71265cd1b1d46edfafeab1db6"
+      },
+      "declaredAssetRole": "runtime"
+    },
+    "NuGet.Packaging.dll": {
+      "packageSha256": "893bae5d3d2323bc6e178bf4645078c7fee9ce22c2eac390e8657968a44a6a15",
+      "member": "lib/net5.0/NuGet.Packaging.dll",
+      "fingerprint": {
+        "bytes": 629640,
+        "sha256": "59cee64e9fda5b09af4a8182d04626a5e65d41cfcba75ae2def66faa0d88609b",
+        "sha512": "b12533e1cae7903774a517882d486926bfa6a16e16d18023e5de64220e056881ee581c09da4357ab327fffca1d90d62c99b840105abb14440bcfdfb9d0bf6ede"
+      },
+      "assemblyName": "NuGet.Packaging",
+      "assemblyVersion": "5.8.0.6930",
+      "originalEmbeddedSource": {
+        "sourceCommit": "ebc4f817473f08c3705ed0e5c58c223372f36f7b",
+        "basis": "assembly-informational-version"
+      },
+      "assemblyInformationalVersions": [
+        "5.8.0+ebc4f817473f08c3705ed0e5c58c223372f36f7b.ebc4f817473f08c3705ed0e5c58c223372f36f7b"
+      ],
+      "assemblyReferences": [
+        {
+          "name": "System.Runtime",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.Collections",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "NuGet.Frameworks",
+          "version": "5.8.0.6930"
+        },
+        {
+          "name": "Newtonsoft.Json",
+          "version": "9.0.0.0"
+        },
+        {
+          "name": "System.Linq",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.Collections.Concurrent",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "NuGet.Versioning",
+          "version": "5.8.0.6930"
+        },
+        {
+          "name": "System.Threading",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "NuGet.Common",
+          "version": "5.8.0.6930"
+        },
+        {
+          "name": "System.Diagnostics.Process",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.Xml.XDocument",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.IO.Compression",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.Security.Cryptography.Primitives",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.Text.RegularExpressions",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.Xml.ReaderWriter",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.IO.MemoryMappedFiles",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.IO.FileSystem",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.Security.Cryptography.Algorithms",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.Security.Cryptography.Pkcs",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.Security.Cryptography.X509Certificates",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.Security.Cryptography.Cng",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.Security.Cryptography.Encoding",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.Net.Http",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.Runtime.InteropServices",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "NuGet.Configuration",
+          "version": "5.8.0.6930"
+        },
+        {
+          "name": "System.Runtime.Numerics",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.ObjectModel",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.Text.Encoding.Extensions",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.Collections.NonGeneric",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.Net.Primitives",
+          "version": "5.0.0.0"
+        }
+      ],
+      "sourceRequirement": {
+        "kind": "original-full-assembly-informational-Git-identity",
+        "repository": "https://github.com/NuGet/NuGet.Client",
+        "commit": "ebc4f817473f08c3705ed0e5c58c223372f36f7b",
+        "tree": "a30ffb17b4573f6759fe8217ccdf88f107246287"
+      },
+      "declaredAssetRole": "runtime"
+    },
+    "NuGet.Versioning.dll": {
+      "packageSha256": "25563150d47a7c9b49ad72113c8af1414dea8a883d02a71cf4d6e8cf0c655c99",
+      "member": "lib/netstandard2.0/NuGet.Versioning.dll",
+      "fingerprint": {
+        "bytes": 48008,
+        "sha256": "1754b84ac16c3c2fc2c23912fa47a2cadf0fd735d7993509d4789ed418783f23",
+        "sha512": "3aab99a36a52017c0b97e0dcb92497f5d3c8b534071c75da5238c1d7c8ed359f6d198a459a2763596a00b3ae8048ce0a566a302b60777fbfb3387041beab90a6"
+      },
+      "assemblyName": "NuGet.Versioning",
+      "assemblyVersion": "5.8.0.6930",
+      "originalEmbeddedSource": {
+        "sourceCommit": "830c8be45dbbccd411ecf6080abff0c2c98079cf",
+        "basis": "assembly-informational-version"
+      },
+      "assemblyInformationalVersions": [
+        "5.8.0+830c8be45dbbccd411ecf6080abff0c2c98079cf.830c8be45dbbccd411ecf6080abff0c2c98079cf"
+      ],
+      "assemblyReferences": [
+        {
+          "name": "netstandard",
+          "version": "2.0.0.0"
+        }
+      ],
+      "sourceRequirement": {
+        "kind": "original-full-assembly-informational-Git-identity",
+        "repository": "https://github.com/NuGet/NuGet.Client",
+        "commit": "830c8be45dbbccd411ecf6080abff0c2c98079cf",
+        "tree": "3247913d01ca4c4d6cfbc36dffca74bc071f146c"
+      },
+      "declaredAssetRole": "runtime"
+    },
+    "System.Security.Cryptography.Pkcs.dll": {
+      "packageSha256": "3301cc47bf086027cd99a97d1985a00b0f81b936cf805a0e45ec7ef8efcf68e0",
+      "member": "lib/netcoreapp3.0/System.Security.Cryptography.Pkcs.dll",
+      "fingerprint": {
+        "bytes": 260688,
+        "sha256": "d08940a3a8cf1364e390603f562e931e18417cf67dc82a5aed0db3e8e7ceafea",
+        "sha512": "c3062d52d170328477e34bfcfe53e6e120a459855e032530e666f50ceb9356b895a9e8d2f5f09ae297db70ffedf1e4d3f50e8228e617d7467c1311a88b05681c"
+      },
+      "assemblyName": "System.Security.Cryptography.Pkcs",
+      "assemblyVersion": "5.0.0.0",
+      "originalEmbeddedSource": {
+        "sourceCommit": "b03778465800e6d8a534b2fb79656a9f9ba7e245",
+        "basis": "assembly-informational-version"
+      },
+      "assemblyInformationalVersions": [
+        "5.0.0-preview.3.20214.6+b03778465800e6d8a534b2fb79656a9f9ba7e245"
+      ],
+      "assemblyReferences": [
+        {
+          "name": "System.Runtime",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "System.Runtime.InteropServices",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "System.Runtime.Extensions",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "System.Security.Cryptography.X509Certificates",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "System.Security.Cryptography.Primitives",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Security.Cryptography.Encoding",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Security.Cryptography.Algorithms",
+          "version": "4.3.1.0"
+        },
+        {
+          "name": "System.Collections",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Resources.ResourceManager",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Runtime.Numerics",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Security.Cryptography.Csp",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Memory",
+          "version": "4.2.0.0"
+        },
+        {
+          "name": "System.Collections.NonGeneric",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Buffers",
+          "version": "4.0.2.0"
+        },
+        {
+          "name": "System.Threading",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Linq",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "System.Text.Encoding.Extensions",
+          "version": "4.1.1.0"
+        }
+      ],
+      "sourceRequirement": {
+        "kind": "original-full-assembly-informational-Git-identity",
+        "repository": "https://github.com/dotnet/runtime",
+        "commit": "b03778465800e6d8a534b2fb79656a9f9ba7e245",
+        "tree": "f2cd481cec467522d3647f1d02696381347ea487"
+      },
+      "declaredAssetRole": "runtime"
+    },
+    "NuGet.Frameworks.dll": {
+      "packageSha256": "32c5e8bdd0a665089a17a8a14ca7686a507bbf5c128a982fde7f697485bd5c99",
+      "member": "lib/netstandard2.0/NuGet.Frameworks.dll",
+      "fingerprint": {
+        "bytes": 108424,
+        "sha256": "115cde90541a1bfa6a88979d7febdb033f1e19c4a7cd0ca79143499d08457070",
+        "sha512": "7c04d13442744364436af9f619d5c1144a5cce84e5328da2c5f8503dc2163136f85fd3153817a4c6dc9ee140f764b3d7774a8e65005f0504f02ad50b4947c454"
+      },
+      "assemblyName": "NuGet.Frameworks",
+      "assemblyVersion": "5.8.0.6930",
+      "originalEmbeddedSource": {
+        "sourceCommit": "830c8be45dbbccd411ecf6080abff0c2c98079cf",
+        "basis": "assembly-informational-version"
+      },
+      "assemblyInformationalVersions": [
+        "5.8.0+830c8be45dbbccd411ecf6080abff0c2c98079cf.830c8be45dbbccd411ecf6080abff0c2c98079cf"
+      ],
+      "assemblyReferences": [
+        {
+          "name": "netstandard",
+          "version": "2.0.0.0"
+        }
+      ],
+      "sourceRequirement": {
+        "kind": "original-full-assembly-informational-Git-identity",
+        "repository": "https://github.com/NuGet/NuGet.Client",
+        "commit": "830c8be45dbbccd411ecf6080abff0c2c98079cf",
+        "tree": "3247913d01ca4c4d6cfbc36dffca74bc071f146c"
+      },
+      "declaredAssetRole": "runtime"
+    },
+    "Newtonsoft.Json.dll": {
+      "packageSha256": "998081ae052120917346e2cb57d488888147a2fcdf47c52ea9f83a7b4f049e55",
+      "member": "lib/netstandard1.0/Newtonsoft.Json.dll",
+      "fingerprint": {
+        "bytes": 468480,
+        "sha256": "5d96ee51b2aff592039eebc2ed203d9f55fddf9c0882fb34d3f0e078374954a5",
+        "sha512": "7727d077c518d4931b80286edb981af0e46d792cb9976de286cd2dbb4270157c5fae14766b2a39d49b44b41e5ec113de104dd2264edd1dc6799c9919b2f76d04"
+      },
+      "assemblyName": "Newtonsoft.Json",
+      "assemblyVersion": "9.0.0.0",
+      "originalEmbeddedSource": null,
+      "assemblyInformationalVersions": [
+        "9.0.1"
+      ],
+      "assemblyReferences": [
+        {
+          "name": "System.Runtime",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Resources.ResourceManager",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.IO",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Threading.Tasks",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Xml.XDocument",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Collections",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Globalization",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Runtime.Serialization.Primitives",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Reflection",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Dynamic.Runtime",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Linq.Expressions",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Linq",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Diagnostics.Debug",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.ObjectModel",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Text.RegularExpressions",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Xml.ReaderWriter",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Text.Encoding",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Runtime.Extensions",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Threading",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Reflection.Extensions",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "System.Text.Encoding.Extensions",
+          "version": "4.0.0.0"
+        },
+        {
+          "name": "Microsoft.CSharp",
+          "version": "4.0.0.0"
+        }
+      ],
+      "sourceRequirement": {
+        "kind": "original-Json9-publisher-source-policy-required",
+        "sourcePolicySha256": "dbae1c394c84c3bc2f9d8077459db6a5829e8e47d711456d5fa9cc79e36545fa",
+        "actualPublisherSourceVerificationPerformed": false
+      },
+      "declaredAssetRole": "runtime"
+    },
+    "System.Security.Cryptography.ProtectedData.dll": {
+      "packageSha256": "462e77426157f08f141f4c783e2910d59034ed94a70545d2b5de6b05f19614e1",
+      "member": "lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll",
+      "fingerprint": {
+        "bytes": 24880,
+        "sha256": "81a0385cf1fed22f3153789d4ae1fee75719f23e72cd543edba1af48926fbf24",
+        "sha512": "0b660a4acb24d382bbd7058e2a3d21cdd741e7ed0a9d60672b0b667a75e145e229a594d302c78aecb5a729830092ba0117187665f8043a6590f8829d86991395"
+      },
+      "assemblyName": "System.Security.Cryptography.ProtectedData",
+      "assemblyVersion": "4.0.2.0",
+      "originalEmbeddedSource": {
+        "sourceCommit": "8321c729934c0f8be754953439b88e6e1c120c24",
+        "basis": "assembly-informational-version"
+      },
+      "assemblyInformationalVersions": [
+        "4.6.25519.03 built by: dlab-DDVSOWINAGE013. Commit Hash: 8321c729934c0f8be754953439b88e6e1c120c24"
+      ],
+      "assemblyReferences": [
+        {
+          "name": "netstandard",
+          "version": "2.0.0.0"
+        }
+      ],
+      "sourceRequirement": {
+        "kind": "original-full-assembly-informational-Git-identity",
+        "repository": "https://github.com/dotnet/corefx",
+        "commit": "8321c729934c0f8be754953439b88e6e1c120c24"
+      },
+      "declaredAssetRole": "runtime"
+    },
+    "NuGet.Configuration.dll": {
+      "packageSha256": "81d06c34b4766af891c28f1afb0a67a8a00574c87872d94137fbeada95c29d09",
+      "member": "lib/netstandard2.0/NuGet.Configuration.dll",
+      "fingerprint": {
+        "bytes": 141704,
+        "sha256": "12acb169f9601007a6d4cacc465d0cdfc9f0ae8f012905c9427d6afa3b6768bd",
+        "sha512": "5d59276cfbc0fe4072b29cdc84164e97232d17ec0322d90ac5e6dc09e1c1ffb17be6bff9e4eabc7b77f74a6ca421e6e248726578f403778234da201c240a74c3"
+      },
+      "assemblyName": "NuGet.Configuration",
+      "assemblyVersion": "5.8.0.6930",
+      "originalEmbeddedSource": {
+        "sourceCommit": "830c8be45dbbccd411ecf6080abff0c2c98079cf",
+        "basis": "assembly-informational-version"
+      },
+      "assemblyInformationalVersions": [
+        "5.8.0+830c8be45dbbccd411ecf6080abff0c2c98079cf.830c8be45dbbccd411ecf6080abff0c2c98079cf"
+      ],
+      "assemblyReferences": [
+        {
+          "name": "netstandard",
+          "version": "2.0.0.0"
+        },
+        {
+          "name": "NuGet.Common",
+          "version": "5.8.0.6930"
+        },
+        {
+          "name": "System.Security.Cryptography.ProtectedData",
+          "version": "4.0.2.0"
+        }
+      ],
+      "sourceRequirement": {
+        "kind": "original-full-assembly-informational-Git-identity",
+        "repository": "https://github.com/NuGet/NuGet.Client",
+        "commit": "830c8be45dbbccd411ecf6080abff0c2c98079cf",
+        "tree": "3247913d01ca4c4d6cfbc36dffca74bc071f146c"
+      },
+      "declaredAssetRole": "runtime"
+    },
+    "runtimes/win/lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll": {
+      "packageSha256": "462e77426157f08f141f4c783e2910d59034ed94a70545d2b5de6b05f19614e1",
+      "member": "runtimes/win/lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll",
+      "fingerprint": {
+        "bytes": 31688,
+        "sha256": "1c73a1b016cfc8d497106eec08af07616f2f4c07e4ddc807c9f120ceacd0a53a",
+        "sha512": "6e1f88fc7c1ed560c4ca6168fae9275583c7d664af1a70f2a0a97a717d4b7e1d40a33f06b2782bb4adb47afc8b30b136dc28c0487a9daee183d8156de5e5161b"
+      },
+      "assemblyName": "System.Security.Cryptography.ProtectedData",
+      "assemblyVersion": "4.0.2.0",
+      "originalEmbeddedSource": {
+        "sourceCommit": "8321c729934c0f8be754953439b88e6e1c120c24",
+        "basis": "assembly-informational-version"
+      },
+      "assemblyInformationalVersions": [
+        "4.6.25519.03 built by: dlab-DDVSOWINAGE013. Commit Hash: 8321c729934c0f8be754953439b88e6e1c120c24"
+      ],
+      "assemblyReferences": [
+        {
+          "name": "netstandard",
+          "version": "2.0.0.0"
+        }
+      ],
+      "sourceRequirement": {
+        "kind": "original-full-assembly-informational-Git-identity",
+        "repository": "https://github.com/dotnet/corefx",
+        "commit": "8321c729934c0f8be754953439b88e6e1c120c24"
+      },
+      "declaredAssetRole": "runtimeTargets"
+    },
+    "runtimes/win/lib/netcoreapp3.0/System.Security.Cryptography.Pkcs.dll": {
+      "packageSha256": "3301cc47bf086027cd99a97d1985a00b0f81b936cf805a0e45ec7ef8efcf68e0",
+      "member": "runtimes/win/lib/netcoreapp3.0/System.Security.Cryptography.Pkcs.dll",
+      "fingerprint": {
+        "bytes": 301440,
+        "sha256": "abcac9d65f2935e97744dad342cc8f7f80abd622914e5a4c77cf16f1d02de7d1",
+        "sha512": "7251fdd04b343ed54489f16962374be800b5a4fdf84ef584d57fb39d547e04d0e078162658a6b508742a8fa6dc379b40ab38101196137edd361f9b14f6fba49f"
+      },
+      "assemblyName": "System.Security.Cryptography.Pkcs",
+      "assemblyVersion": "5.0.0.0",
+      "originalEmbeddedSource": {
+        "sourceCommit": "b03778465800e6d8a534b2fb79656a9f9ba7e245",
+        "basis": "assembly-informational-version"
+      },
+      "assemblyInformationalVersions": [
+        "5.0.0-preview.3.20214.6+b03778465800e6d8a534b2fb79656a9f9ba7e245"
+      ],
+      "assemblyReferences": [
+        {
+          "name": "System.Runtime",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "System.Runtime.InteropServices",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "System.Runtime.Extensions",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "System.Security.Cryptography.Encoding",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Security.Cryptography.Cng",
+          "version": "5.0.0.0"
+        },
+        {
+          "name": "System.Security.Cryptography.X509Certificates",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "System.Security.Cryptography.Primitives",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Security.Cryptography.Algorithms",
+          "version": "4.3.1.0"
+        },
+        {
+          "name": "System.Collections",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Security.Cryptography.Csp",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Resources.ResourceManager",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Runtime.Numerics",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Memory",
+          "version": "4.2.0.0"
+        },
+        {
+          "name": "System.Threading",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Collections.NonGeneric",
+          "version": "4.1.1.0"
+        },
+        {
+          "name": "System.Buffers",
+          "version": "4.0.2.0"
+        },
+        {
+          "name": "System.Linq",
+          "version": "4.2.1.0"
+        },
+        {
+          "name": "System.Text.Encoding.Extensions",
+          "version": "4.1.1.0"
+        }
+      ],
+      "sourceRequirement": {
+        "kind": "original-full-assembly-informational-Git-identity",
+        "repository": "https://github.com/dotnet/runtime",
+        "commit": "b03778465800e6d8a534b2fb79656a9f9ba7e245",
+        "tree": "f2cd481cec467522d3647f1d02696381347ea487"
+      },
+      "declaredAssetRole": "runtimeTargets"
+    }
+  },
+  "ownedTaskFiles": {
+    "core-sdk-tasks.dll": {
+      "bytes": 68096,
+      "sha256": "a293be948e1d66b228177021a03a265effce19f416919102ce6b2f01fa5a1061",
+      "sha512": "aeff6d22a3c9999a76b95e827cf9443094a5b8871bf1afcd9775861a2f7325ee934d40ad6c202036d8f3ecdbb79708b08defe9502f511ec3d254c1692790617f"
+    },
+    "core-sdk-tasks.deps.json": {
+      "bytes": 54022,
+      "sha256": "ef0c5401850896540050b5bd78f5ba7d0092067bbaf74e09dd679fa0ff270ab1",
+      "sha512": "5fa3991f858b9d5c647f37954459625a856808979aa375c64f536f6fc7d78e5f667117d443d31bce239a506edb637937b5c36c6fd10bcd5ff2c114ed4ddd0dba"
+    },
+    "ref/core-sdk-tasks.dll": {
+      "bytes": 21504,
+      "sha256": "1b90d6c6dd1343a950250320913981a5242b75eb0b53a85ec6b737f0cce78dbe",
+      "sha512": "f49042d840a9c1756487dad171c67288afb59f5347c1b20fdbdeed61ef7005c6d7a50634f9895e0b360dbace35c1557f307c5a8630fda0485f748f064c0caf94"
+    }
+  },
+  "graphSourceKey": "platforms:src/libraries/pkg/Microsoft.NETCore.Platforms/runtime.json",
+  "referenceBootstrapPolicyBroadened": false,
+  "rawUnknownObservationsChanged": false,
+  "rawCorrespondenceChanged": false,
+  "publisherCompilerExecutionClaimed": false,
+  "actualRuntimeLoadsAuthenticated": false,
+  "fullProviderSourceClosure": false,
+  "wholeSourceClosure": false,
+  "qualificationAllowed": false,
+  "sourceAdmissionAllowed": false,
+  "pendingFullConstruction": [
+    "actual-archive-backed-source-trees-and-objects-modes",
+    "actual-original-installer-Csc-and-provider-load-binding",
+    "original-task-parameters-chronology-Copy-final-archive-binding",
+    "actual-both-CPU-normal-SDK-consumers"
+  ]
+}
