@@ -249,6 +249,7 @@ class Producer(L.Producer):
         self.source_worker(['/bootstrap/dotnet', 'msbuild', '/project/scripts/probe-source-cultures.proj',
             '/p:SourceCultureReport=/delivery/reports/prepare/source-cultures.json'], bootstrap='5',
             log=self.reports / 'prepare/source-cultures.log')
+        module('sdk5_normal_App_supplier', 'musl_legacy5_appinsights_producer.py').prepare_inputs(self)
 
     def _run_component(self, name, worker, bootstrap):
         directory = self.reports / 'build' / name
@@ -261,6 +262,7 @@ class Producer(L.Producer):
 
     def build(self):
         cpu = 'arm64' if self.args.arch == 'aarch64' else 'x64'; feed_rows = []
+        feed_rows.append(module('sdk5_normal_App_supplier', 'musl_legacy5_appinsights_producer.py').build_supplier(self))
         for name, worker, role, count in [('nuget', 'musl-legacy5-nuget.py', '5', 19),
                                          ('vstest', 'musl-legacy5-vstest.py', '6', 2)]:
             directory, result = self._run_component(name, worker, role)
@@ -309,7 +311,8 @@ class Producer(L.Producer):
             role='actual-imported-translation-data-and-generated-readable-source')
         self.source_worker(['python3', '/project/scripts/musl-legacy5-tooling.py', '--sdk', SDK, '--arch', self.args.arch,
             '--workspace', '/work/work', '--dotnet', '/bootstrap/dotnet', '--feed', '/work/inputs/bootstrap-feed',
-            '--translation-data', '/delivery/reports/build/nuget-translation-data', '--output', '/delivery/reports/build/sdk'],
+            '--translation-data', '/delivery/reports/build/nuget-translation-data', '--output', '/delivery/reports/build/sdk',
+            '--appinsights-package', '/work/inputs/bootstrap-feed/microsoft.applicationinsights.2.0.0-cbodotnet.1.nupkg'],
             bootstrap='5', log=self.reports / 'build/sdk.log')
         tooling = json.loads((self.reports / 'build/sdk/results.json').read_text())
         require(tooling['status'] == 'passed' and tooling['original68SmokeExclusions'] == [], 'Original SDK5 product graph failed')
