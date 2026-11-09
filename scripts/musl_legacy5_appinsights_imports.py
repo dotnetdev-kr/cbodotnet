@@ -19,7 +19,7 @@ import musl_legacy5_appinsights_normal as N
 require=N.require
 FP=N.FP
 POLICY_FILE='musl-legacy5-appinsights-import-policy.json'
-POLICY_SHA256='24881a617b51c26261471fe956ba0e55bc338ec3de1a617ec8daf92b7093e5f4'
+POLICY_SHA256='65edc5a6fd3ed0c8dbba49831289df52650ed22b9f2467d15341909d780e6484'
 MAX_COMPRESSED=16*1024**2
 MAX_EXPANDED=32*1024**2
 MAX_RECORDS=250000
