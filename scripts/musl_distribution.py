@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import tarfile
 import tempfile
+import time
 from types import SimpleNamespace
 import urllib.request
 import urllib.error
@@ -19,7 +20,7 @@ import musl_source_transport as SOURCE_TRANSPORT
 from downstream_release import descriptor, encoded, ordinary_file, require
 from downstream_publish import GitHubReleases
 from musl_release import WORKFLOW, verify_release_tag, _source_module
-from release_catalog import get_bytes, release_assets, validate_api_asset
+from release_catalog import fresh_release_url, get_bytes, release_assets, validate_api_asset
 
 ROOT = CONTRACT.ROOT
 
@@ -64,7 +65,22 @@ def download_asset(url, path, expected):
             'A canonical public musl release asset URL is required')
     path = Path(path)
     count = 0; digest = hashlib.sha256()
-    with urllib.request.urlopen(url,timeout=120) as incoming, path.open('xb') as stream:
+    # Retry only gateway failures before a response/file has been opened. A
+    # partial or mismatching body remains a failed immutable observation.
+    for attempt in range(3):
+        request = urllib.request.Request(fresh_release_url(url, attempt), headers={
+            'User-Agent': 'cbodotnet-musl-distribution', 'Accept': 'application/octet-stream',
+            **({'Cache-Control': 'no-cache', 'Pragma': 'no-cache'} if attempt else {})})
+        try:
+            incoming = urllib.request.urlopen(request, timeout=120)
+        except urllib.error.HTTPError as error:
+            if error.code not in {502, 503, 504} or attempt == 2:
+                raise
+            error.close()
+            time.sleep(2 * (attempt + 1))
+        else:
+            break
+    with incoming, path.open('xb') as stream:
         for block in iter(lambda:incoming.read(4*1024**2), b''):
             count += len(block)
             require(count <= expected['size'], 'Public musl artifact exceeds its authenticated size')
