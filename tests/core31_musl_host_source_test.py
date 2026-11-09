@@ -19,11 +19,11 @@ def fingerprint(raw):
 
 class PublishedAuditorTests(unittest.TestCase):
     def test_all_pinned_auditor_inputs_are_the_actual_files(self):
-        self.assertEqual(len(HOST.AUDIT_SOURCES), 9)
+        self.assertEqual(len(HOST.AUDIT_SOURCES), 10)
         for name, identity in HOST.AUDIT_SOURCES.items():
             self.assertEqual(fingerprint((ROOT / name).read_bytes()), identity, name)
         pins = json.loads((ROOT / 'scripts/core31-musl-host-elf-audit-pins.json').read_bytes())
-        self.assertEqual(len(pins['codeFiles']), 7)
+        self.assertEqual(len(pins['codeFiles']), 8)
         for name, identity in pins['codeFiles'].items():
             self.assertEqual(HOST.AUDIT_SOURCES[name], identity)
 

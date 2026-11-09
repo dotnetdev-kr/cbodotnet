@@ -12,9 +12,9 @@
       "sha512": "886a52db9e1a2f56ea8e29b00a3bf0e9c1e25d65b0c3eab300ec77c2d28ddad7960c9af177bde7bdde21a3ec43b26471c9af324fb475aeffc8bc84a9f2f21be6"
     },
     "scripts/musl_contract.py": {
-      "bytes": 20054,
-      "sha256": "c45d5f2c107e4944094f1c681d4681ce60ebc8889c372b67d22c7a33c18626f9",
-      "sha512": "d353c8410f6d5a701da4fd4e5c2f87b91952b4ebc1ac7238eee7b7431ade8bd3d04347aa4d24f7af6ad56e7653431cc67b9c2a16077da637d12b85a8123c8e5a"
+      "bytes": 20378,
+      "sha256": "191ae7d3d3d08f70b5cc77acea306c59a41f3991e23b773fe5455772c3b4ecfa",
+      "sha512": "1465dca8c070409b2dad457939c1ffaefde6b42947912469b78753b2faa5fbd553d0c983c3d29798d75ea0c11002830b5d71328ccb74b9a947be2ac199f877b5"
     },
     "scripts/sdk_runtime.py": {
       "bytes": 13126,
@@ -35,6 +35,11 @@
       "bytes": 13772,
       "sha256": "7acf0977e567b7f490faa7389925a135e2840208130fa31d08c94cdcae14fb18",
       "sha512": "3c18e7e9fd707bcc68758d274b1ea16700066add259d3c1e752fb4b110457fc86464b5f849465b98423676693b2f5a1cd11b79b5f47e69ea4f4ee222396d3696"
+    },
+    "scripts/musl_evidence_transport.py": {
+      "bytes": 9344,
+      "sha256": "02153b043d0e134a4af29967d551826bfe882ba05836a499c4cb4bc0d9f763e2",
+      "sha512": "b2a5fb7c2780c639f3804ad0e5be6b444be7dfcb1047a745bc78506478e8477be1a8eb30edcbafcc15a8d24f9ab991544092844d7298dab27b5edf403d4dab84"
     }
   },
   "apkIndexes": {
