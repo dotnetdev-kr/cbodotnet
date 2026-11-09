@@ -360,7 +360,8 @@ class Producer(L.Producer):
             '/p:CommunityMuslNativeRuntimeRoot=/work/inputs/installer-components/native-runtime',
             '/p:EmitCompilerGeneratedFiles=true', '/p:CommunityMuslNativeCrossgenPath=/work/inputs/installer-components/crossgen']
         self.source_worker(command, bootstrap='5', workdir='/work/work/installer', log=self.reports / 'build/installer.log',
-            environment=dict(DOTNET_INSTALL_DIR='/work/work/installer/.dotnet', NUGET_PACKAGES='/work/work/installer/.packages'))
+            environment=dict(DOTNET_INSTALL_DIR='/work/work/installer/.dotnet', NUGET_PACKAGES='/work/work/installer/.packages',
+                             _InitializeDotNetCli='/bootstrap', DotNetBuildFromSource='true'))
         archive = self.installer / 'artifacts/packages/Release/Shipping' / ('dotnet-sdk-' + SDK + '-' + self.id['rid'] + '.tar.gz')
         require(archive.is_file(), 'The original SDK5 installer did not produce its archive')
         self.archive = self.output / ('cbodotnet-sdk-' + SDK + '-linux-musl-' + self.args.arch + '-build.' + self.args.run_id + '.tar.gz')
