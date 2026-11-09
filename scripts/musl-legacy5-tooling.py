@@ -10,11 +10,13 @@ import base64
 from datetime import datetime, timezone
 import hashlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path, PureWindowsPath
 import platform
 import re
+import stat
 import subprocess
 import xml.etree.ElementTree as ET
 import zipfile
@@ -95,24 +97,117 @@ def product_filter(source, destination):
     return destination / 'source-build.slnf'
 
 
-def feed_packages(feed):
+def appinsights_contract():
+    # Keep the original24 mode independent of the additive App source contract.
+    import musl_legacy5_appinsights_consumption as M
+    return M
+
+
+def package_metadata(archive):
+    # The honest derived F# input retains an original nuspec under provenance.
+    # Only the single root nuspec supplies the actual package identity.
+    names = archive.namelist(); specs = [n for n in names if '/' not in n and n.endswith('.nuspec')]
+    require(len(names) == len(set(names)) and len(specs) == 1, 'Unique SDK5 source feed ZIP/nuspec members required')
+    raw = archive.read(specs[0]); require(len(raw) <= 1024**2 and b'<!DOCTYPE' not in raw.upper() and b'<!ENTITY' not in raw.upper(),
+                                        'Bounded plain original source package metadata required')
+    node = ET.fromstring(raw).find('{*}metadata')
+    require(node is not None, 'SDK5 source package metadata required')
+    return node.findtext('{*}id'), node.findtext('{*}version')
+
+
+def appinsights_package_input(feed, package):
+    """Bind actual NPK bytes, never infer a strong source supplier proof."""
+    M = appinsights_contract(); feed, package = Path(feed), Path(package)
+    ordinary(feed); ordinary(package)
+    require(feed.is_dir() and package.parent == feed and package.name == M.PACKAGE
+            and package == feed / M.PACKAGE and package.is_file()
+            and stat.S_ISREG(package.lstat().st_mode) and not package.lstat().st_mode & 0o7000,
+            'Actual ordinary canonical feed/' + M.PACKAGE + ' package required')
+    raw = package.read_bytes()
+    with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+        identity, version = package_metadata(archive)
+    require(identity and identity.lower() == M.ID.lower() and version == M.VERSION,
+            'Exact local SDK5 App package identity/version required')
+    return dict(path=str(package), file=M.PACKAGE, bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest(),
+                sha512=hashlib.sha512(raw).hexdigest()), raw
+
+
+def feed_packages(feed, appinsights_package=None):
+    M = appinsights_contract() if appinsights_package is not None else None
+    versions = M.tooling_packages() if M else VERSIONS
+    if M:
+        require({name: version for name, version in versions.items() if name != M.ID.lower()} == VERSIONS,
+                'Committed SDK5 App consumption and original24 package matrices differ')
+        provided, app_raw = appinsights_package_input(feed, appinsights_package)
+        paths = sorted(path for path in feed.iterdir() if path.suffix.lower() == '.nupkg')
+    else:
+        paths = sorted(feed.glob('*.nupkg'))
     records = []
-    for path in sorted(feed.glob('*.nupkg')):
+    for path in paths:
         ordinary(path)
-        with zipfile.ZipFile(path) as archive:
-            # The honest derived F# input also retains its original nuspec
-            # under cbodotnet-provenance/. Only the root nuspec is metadata.
-            names = archive.namelist(); specs = [n for n in names if '/' not in n and n.endswith('.nuspec')]
-            require(len(names) == len(set(names)) and len(specs) == 1, 'Unique SDK5 source feed ZIP/nuspec members required')
-            raw = archive.read(specs[0]); require(len(raw) <= 1024**2 and b'<!DOCTYPE' not in raw.upper() and b'<!ENTITY' not in raw.upper(),
-                                                'Bounded plain original source package metadata required')
-            node = ET.fromstring(raw).find('{*}metadata'); identity = node.findtext('{*}id'); version = node.findtext('{*}version')
-            require(identity and VERSIONS.get(identity.lower()) == version, 'An SDK5 source feed package/version is outside the original product matrix')
-        records.append(dict(id=identity, version=version, file=path.name, **fingerprint(path),
+        if M:
+            require(path.is_file() and stat.S_ISREG(path.lstat().st_mode) and not path.lstat().st_mode & 0o7000,
+                    'Ordinary SDK5 explicit25 feed package file required')
+        supplied_app = M is not None and path == Path(provided['path']) and path.name == M.PACKAGE
+        with zipfile.ZipFile(io.BytesIO(app_raw) if supplied_app else path) as archive:
+            identity, version = package_metadata(archive)
+            require(identity and versions.get(identity.lower()) == version, 'An SDK5 source feed package/version is outside the original product matrix')
+        actual = {key: provided[key] for key in ('bytes', 'sha256', 'sha512')} if supplied_app else fingerprint(path)
+        row = dict(id=identity, version=version, file=path.name, **actual,
             role='matching-original-sdk-derived-compiler-input' if identity.lower() not in NUGET | {'microsoft.testplatform.build', 'microsoft.testplatform.cli'}
-                 else 'local-source-component-product-requiring-independent-compiler-proof', compilerLocallySourceBuiltClaimed=False))
-    require(len(records) == 24 and {r['id'].lower() for r in records} == VERSIONS.keys(), 'Exactly24 unique SDK5 source/derived compiler package inputs required')
+                 else 'local-source-component-product-requiring-independent-compiler-proof', compilerLocallySourceBuiltClaimed=False)
+        if M and identity.lower() == M.ID.lower():
+            require(supplied_app, 'SDK5 App feed package must be the exact provided canonical package')
+            row.update(role='local-App-product-requiring-external-strong-supplier-proof',
+                       externalStrongSupplierProofRequired=True, externalStrongSupplierProofValidated=False)
+        records.append(row)
+    count = 25 if M else 24
+    require(len(records) == count and {r['id'].lower() for r in records} == versions.keys(),
+            'Exactly' + str(count) + ' unique SDK5 source/derived compiler package inputs required')
+    if M:
+        require(appinsights_package_input(feed, appinsights_package)[0] == provided,
+                'Provided SDK5 App package changed during feed inspection')
     return records
+
+
+def cache_prime_project(packages):
+    project = ET.Element('Project', Sdk='Microsoft.NET.Sdk')
+    properties = ET.SubElement(project, 'PropertyGroup'); ET.SubElement(properties, 'TargetFramework').text = 'net5.0'
+    ET.SubElement(properties, 'DisableImplicitFrameworkReferences').text = 'true'; items = ET.SubElement(project, 'ItemGroup')
+    for row in packages: ET.SubElement(items, 'PackageDownload', Include=row['id'], Version='[' + row['version'] + ']')
+    return ET.tostring(project, encoding='utf-8', xml_declaration=True)
+
+
+def product_commands(dotnet, source, filter, output, arch, feed, translation_data, appinsights_package=None):
+    cpu = 'arm64' if arch == 'aarch64' else 'x64'
+    props = ['/p:Configuration=Release', '/p:ArcadeBuildFromSource=false', '/p:DotNetBuildFromSource=true',
+        '/p:Architecture=' + cpu, '/p:OSName=linux-musl', '/p:Rid=linux-musl-' + cpu, '/p:PortableBuild=true', '/p:CrossBuild=false',
+        '/p:ContinuousIntegrationBuild=true', '/p:UseSharedCompilation=false', '/p:EmitCompilerGeneratedFiles=true',
+        '/p:RestoreAdditionalProjectSources=' + str(feed), '/p:MicrosoftTestPlatformCLIPackageVersion=16.9.4-dev',
+        '/p:MicrosoftTestPlatformBuildPackageVersion=16.9.4-dev', '/p:CommunityMuslNuGetTranslationRoot=' + str(translation_data / 'resources'), '/m:2']
+    if appinsights_package is not None:
+        appinsights_package_input(feed, appinsights_package)
+        props.append(appinsights_contract().PROPERTY)
+    commands = [
+        ('original-product-restore', [dotnet, 'restore', filter, *props, '/bl:' + str(output / 'restore.binlog')]),
+        ('original-product-build', [source / 'build.sh', '--configuration', 'Release', '--rebuild', '--projects', filter,
+            *props, '/bl:' + str(output / 'sdk.binlog')]),
+        ('original-redist-build-pack', [source / 'build.sh', '--configuration', 'Release', '--rebuild', '--pack', '--projects',
+            source / 'src/Layout/redist/redist.csproj', *props, '/bl:' + str(output / 'redist.binlog')])]
+    if appinsights_package is not None:
+        for _, command in commands: appinsights_contract().controlled_version_property(list(map(str, command)))
+    return commands
+
+
+def finalize_tooling_report(report, feed, appinsights_package=None, expected_app=None):
+    if appinsights_package is None:
+        require(expected_app is None, 'Legacy24 mode cannot bind an App input')
+        return report
+    provided, _ = appinsights_package_input(feed, appinsights_package)
+    require(provided == expected_app, 'Actual provided SDK5 App package bytes changed during tooling')
+    M = appinsights_contract(); M.validate_tooling(report, provided)
+    return dict(report, sourceFeedMode='explicit25-with-local-App-input', appinsightsPackageInput=provided,
+        externalStrongAppSupplierProofRequired=True, externalStrongAppSupplierProofValidated=False)
 
 
 def prepare_source(source, output):
@@ -155,17 +250,24 @@ def verify_cache(source, packages, feed):
     return result
 
 
-def main():
+def argument_parser():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--sdk', choices=[SDK], required=True); parser.add_argument('--arch', choices=['aarch64', 'x64'], required=True)
     for name in ['workspace', 'dotnet', 'feed', 'translation-data', 'output']:
         parser.add_argument('--' + name, type=Path, required=True)
-    args = parser.parse_args(); source = args.workspace / 'sdk'
+    parser.add_argument('--appinsights-package', type=Path,
+        help='Explicit canonical local App NPK; independent strong supplier proof remains mandatory outside this worker')
+    return parser
+
+
+def main():
+    args = argument_parser().parse_args(); source = args.workspace / 'sdk'
     for path in [args.workspace, source, args.dotnet, args.feed, args.translation_data, args.output]: ordinary(path)
     require(platform.system() == 'Linux' and os.getuid() != 0 and platform.machine() == {'aarch64': 'aarch64', 'x64': 'x86_64'}[args.arch]
             and Path('/etc/alpine-release').read_text().strip() == '3.24.4', 'Matching native non-root Alpine3.24.4 required')
     require(not args.output.exists(), 'Fresh SDK5 tooling output required'); args.output.mkdir(parents=True)
-    packages = feed_packages(args.feed)
+    app_input = appinsights_package_input(args.feed, args.appinsights_package)[0] if args.appinsights_package is not None else None
+    packages = feed_packages(args.feed, args.appinsights_package)
     data = json.loads((args.translation_data / 'origin.json').read_text())
     require(data['sdkVersion'] == SDK and data['sourceCommit'] == 'd525b0e670f3b6cbd5c73a35f04730a9f658c852'
             and data['architecture'] == args.arch and len(data['files']) == 286, 'Exact original SDK5 resource-only translation input required')
@@ -192,11 +294,8 @@ def main():
         return log.read_text()
     selected = run('bootstrap-sdk-version', [args.dotnet, '--version'])
     require(selected.partition('\n')[2].strip() == BOOTSTRAP, 'The original SDK5 global.json must select bootstrap5.0.401')
-    prime = args.output / 'cache-prime'; prime.mkdir(); project = ET.Element('Project', Sdk='Microsoft.NET.Sdk')
-    properties = ET.SubElement(project, 'PropertyGroup'); ET.SubElement(properties, 'TargetFramework').text = 'net5.0'
-    ET.SubElement(properties, 'DisableImplicitFrameworkReferences').text = 'true'; items = ET.SubElement(project, 'ItemGroup')
-    for row in packages: ET.SubElement(items, 'PackageDownload', Include=row['id'], Version='[' + row['version'] + ']')
-    (prime / 'SourcePackageDownloads.csproj').write_bytes(ET.tostring(project, encoding='utf-8', xml_declaration=True))
+    prime = args.output / 'cache-prime'; prime.mkdir()
+    (prime / 'SourcePackageDownloads.csproj').write_bytes(cache_prime_project(packages))
     config = ET.Element('configuration'); feeds = ET.SubElement(config, 'packageSources'); ET.SubElement(feeds, 'clear')
     ET.SubElement(feeds, 'add', key='exact-local-source-products', value=str(args.feed)); ET.SubElement(ET.SubElement(config, 'fallbackPackageFolders'), 'clear')
     (prime / 'NuGet.Config').write_bytes(ET.tostring(config, encoding='utf-8', xml_declaration=True))
@@ -207,17 +306,9 @@ def main():
     run('source-package-cache-prime', [args.dotnet, 'restore', prime / 'SourcePackageDownloads.csproj', '--configfile', prime / 'NuGet.Config',
         '--packages', source / '.packages', '/p:UseSharedCompilation=false', '/m:2', '/bl:' + str(args.output / 'source-package-cache-prime.binlog')])
     cache = verify_cache(source, packages, args.feed); write(args.output / 'source-package-cache.json', dict(packages=packages, checks=cache, metadataFabricated=False))
-    cpu = 'arm64' if args.arch == 'aarch64' else 'x64'
-    props = ['/p:Configuration=Release', '/p:ArcadeBuildFromSource=false', '/p:DotNetBuildFromSource=true',
-        '/p:Architecture=' + cpu, '/p:OSName=linux-musl', '/p:Rid=linux-musl-' + cpu, '/p:PortableBuild=true', '/p:CrossBuild=false',
-        '/p:ContinuousIntegrationBuild=true', '/p:UseSharedCompilation=false', '/p:EmitCompilerGeneratedFiles=true',
-        '/p:RestoreAdditionalProjectSources=' + str(args.feed), '/p:MicrosoftTestPlatformCLIPackageVersion=16.9.4-dev',
-        '/p:MicrosoftTestPlatformBuildPackageVersion=16.9.4-dev', '/p:CommunityMuslNuGetTranslationRoot=' + str(args.translation_data / 'resources'), '/m:2']
-    run('original-product-restore', [args.dotnet, 'restore', filter, *props, '/bl:' + str(args.output / 'restore.binlog')])
-    run('original-product-build', [source / 'build.sh', '--configuration', 'Release', '--rebuild', '--projects', filter,
-        *props, '/bl:' + str(args.output / 'sdk.binlog')])
-    run('original-redist-build-pack', [source / 'build.sh', '--configuration', 'Release', '--rebuild', '--pack', '--projects',
-        source / 'src/Layout/redist/redist.csproj', *props, '/bl:' + str(args.output / 'redist.binlog')])
+    for name, command in product_commands(args.dotnet, source, filter, args.output, args.arch, args.feed,
+                                          args.translation_data, args.appinsights_package):
+        run(name, command)
     require(verify_cache(source, packages, args.feed) == cache, 'Actual own SDK5 input packages/provenance changed during product build')
     toolset = source / 'artifacts/packages/Release/NonShipping/dotnet-toolset-internal-5.0.214-ci.zip'
     with zipfile.ZipFile(toolset) as archive:
@@ -225,14 +316,15 @@ def main():
         for sdk in ['Microsoft.NET.Sdk', 'Microsoft.NET.Sdk.Worker', 'Microsoft.NET.Sdk.Publish', 'Microsoft.NET.Sdk.Web', 'Microsoft.NET.Sdk.Web.ProjectSystem']:
             require('Sdks/' + sdk + '/Sdk/Sdk.props' in names and 'Sdks/' + sdk + '/Sdk/Sdk.targets' in names,
                     'An original SDK5 product SDK directory is absent after ordered redist packaging: ' + sdk)
-    write(args.output / 'results.json', dict(schemaVersion=1, kind='legacy-musl-sdk5-source-tooling', status='passed', sdkVersion=SDK,
+    report = dict(schemaVersion=1, kind='legacy-musl-sdk5-source-tooling', status='passed', sdkVersion=SDK,
         architecture=args.arch, sourceCommit=COMMIT, bootstrapSdkVersion=BOOTSTRAP, commands=commands, packages=packages,
         derivedProductFilter=str(filter), originalProducts=25, originalTestProjectsExcludedFromProductBuild=31,
         original68SmokeExclusions=[], originalProductGraphCompletedBeforeRedistPackaging=True,
         originalRedistProjectExplicitSecondInvocation=True, originalSourceTfmsUnchanged=True, noManualLayoutFileCopies=True,
         toolset=dict(path=str(toolset), **fingerprint(toolset)), actualCompilerReplaysAndConsumptionRequireIndependentGate=True,
         importedTranslationsAreDataOnly=True, derivedCompilerPackagesLocallySourceBuiltClaimed=False,
-        qualificationAllowed=False, sourceAdmissionAllowed=False))
+        qualificationAllowed=False, sourceAdmissionAllowed=False)
+    write(args.output / 'results.json', finalize_tooling_report(report, args.feed, args.appinsights_package, app_input))
     print(json.dumps(dict(status='passed', toolset=fingerprint(toolset), qualificationAllowed=False)))
 
 
