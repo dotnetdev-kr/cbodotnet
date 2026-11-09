@@ -2,6 +2,7 @@ import copy
 import hashlib
 from pathlib import Path
 import sys
+import tarfile
 import unittest
 from unittest.mock import patch
 
@@ -85,6 +86,27 @@ class SDK5NativeInputs(unittest.TestCase):
             self.assertFalse(N.pristine_runtime(P, row, b'changed\r\nsecond line\r\n'))
         row = dict(path='runtime/implementation.cpp', mode='100644', baseline=dict(mode='100644', blob=blob))
         self.assertFalse(N.pristine_runtime(P, row, original.replace(b'\n', b'\r\n')))
+
+    def test_every_declared_patch_keeps_original_git_mode(self):
+        for _, targets in N.PATCHES.values():
+            for target in targets:
+                row = dict(path='runtime/' + target, mode='100644', baseline=dict(mode='100644', blob='a' * 40))
+                entry = tarfile.TarInfo(row['path']); entry.mode = 0o644
+                with self.subTest(target=target):
+                    self.assertTrue(N.patched_source_mode(row, entry))
+                    entry.mode = 0o755
+                    self.assertFalse(N.patched_source_mode(dict(row, mode='100755'), entry))
+
+    def test_patched_original_cannot_be_link_sparse_or_special_mode(self):
+        row = dict(path='runtime/src/coreclr/src/jit/bitsetasshortlong.h', mode='100644', baseline=dict(mode='100644', blob='a' * 40))
+        entry = tarfile.TarInfo(row['path']); entry.mode = 0o644; entry.type = tarfile.SYMTYPE; entry.linkname = 'other.h'
+        self.assertFalse(N.patched_source_mode(row, entry))
+        entry.type = tarfile.REGTYPE; entry.sparse = []
+        self.assertFalse(N.patched_source_mode(row, entry))
+        entry.sparse = None
+        for mode in (0o4755, 0o1644, 0o100644, -1):
+            entry.mode = mode
+            with self.subTest(mode=mode): self.assertFalse(N.patched_source_mode(row, entry))
 
 
 if __name__ == '__main__': unittest.main()

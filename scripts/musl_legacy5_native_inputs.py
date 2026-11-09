@@ -64,6 +64,14 @@ def pristine_runtime(P, row, raw):
                            allow_audited_crlf=row['path'].lower().endswith('.sln'))
 
 
+def patched_source_mode(row, entry):
+    """A declared byte patch does not authorize a source type/mode change."""
+    baseline = row.get('baseline')
+    return (isinstance(baseline, dict) and row.get('mode') in ('100644', '100755')
+            and row['mode'] == baseline.get('mode') and entry.type == tarfile.REGTYPE
+            and entry.sparse is None and entry.mode == (0o755 if row['mode'] == '100755' else 0o644))
+
+
 def versions(first, header, compiled, compiled_header, result):
     require(first == compiled and header == compiled_header and b'42.42.42' not in compiled,
             'Actual compiled SDK5 version inputs must equal the original dated producer')
@@ -290,6 +298,9 @@ def source_inputs(release, manifest, directory):
             require(entry.name not in seen and (entry.isfile() or entry.issym()) and entry.size <= 64 * 1024**2, 'Unique bounded SDK5 native source member required')
             raw = entry.linkname.encode() if entry.issym() else archive.extractfile(entry).read(); row = indexed[entry.name]
             require(fingerprint(raw) == {k: row[k] for k in FP}, 'Archived actual SDK5 native source bytes differ')
+            if entry.name in changed:
+                require(patched_source_mode(row, entry),
+                        'SDK5 declared patched original must retain regular type and exact Git/index/TAR mode: ' + entry.name)
             if entry.name.startswith('runtime/') and entry.name not in changed:
                 require(pristine_runtime(P, row, raw), 'An unreviewed SDK5 native source change is present: ' + entry.name)
             elif entry.name.startswith('native-runtime-generated/'):

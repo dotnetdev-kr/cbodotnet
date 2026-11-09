@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdk5-original-bootstrap-native-source-and-generator-closure",
+  "sdkVersion": "5.0.214",
+  "sourceCommit": "6a984143635bde23e728abaaccbde52f5ea8fa3e",
+  "sourceTree": "40ca76ac8df97a2ee75519a1ec821957007449f0",
+  "generatorInputs": {
+    "src/coreclr/src/scripts/genLttngProvider.py": {
+      "bytes": 22173,
+      "sha256": "22247108ec1df6d8e5f28783997c25ee2b22ead67b6490ebd1ae0aa88fdf8be9",
+      "sha512": "3cee2a1601ebc1791b162c93e4ff927f85134e9c35cb182fa8bf94cd3bc3d247b4314d05cfeee310e52bbfd63096f2592e60aaf89931f9ab163420e4a1145986",
+      "gitBlob": "272e51dc1d189fad11c3212fce3af15eb2a3f8f4"
+    },
+    "src/coreclr/src/scripts/genEventing.py": {
+      "bytes": 27679,
+      "sha256": "aafc6885e441a4dea248a5e0bb5b0c687958f7b24f51a070ba0ec6bdff4e8933",
+      "sha512": "09924a8709d8d55f89f397540054462e02524cd3744dbdb0689e44620c75cd9078cff4000373a705e88f663854406c7b1a226994dc15dad6299b810998a2f66b",
+      "gitBlob": "a7919768c3abc1956aa7aed82dde6f7630b08599"
+    },
+    "src/coreclr/src/scripts/utilities.py": {
+      "bytes": 6027,
+      "sha256": "0e3395cfb49ce0ea644305632164a61aed66017e42b81e74aeaf13416046e9a4",
+      "sha512": "18e0efaf3ac31abb446106b23d09bb72000d893d9cf235c596839db905048e97fffb57f18025106d7b7414dbb0039800e57721143902ba4d119508c339bb7f10",
+      "gitBlob": "36b827df093d64cdd0641c0ed3e447ae5433d900"
+    },
+    "src/coreclr/src/vm/ClrEtwAll.man": {
+      "bytes": 593161,
+      "sha256": "8ea158eccae694b15bf43139e396d3a32a00d4e5115460130389c7c89a495300",
+      "sha512": "c6c6aaef88bb350594f926492fae39c3de33a1f5a062c977e3c6320c80ced7c3404f3f305437fff6270235eeeea4b63778c955f51e14034c887779c8976e4734",
+      "gitBlob": "f7fdca03d6b834f8cf8af4e2242515641e9372b3"
+    }
+  },
+  "generatorOutputs": {
+    "lttng/tpdotnetruntimerundown.h": {
+      "mode": 420,
+      "bytes": 24257,
+      "sha256": "7f7153d8f998a8c3ef78893008c52f86db3a5c350d0de9b724f64a90e710932b",
+      "sha512": "5b40b575d52a048cbf30d9d1d152ee1bc9b5c5e77ad348a33a7c357a04bb0f49fe6fa8739ddcbbe5c7cf98fd19a66ab50e2a50dfc92531b25d9b2dd62677a672"
+    },
+    "lttng/eventprovdotnetruntime.cpp": {
+      "mode": 420,
+      "bytes": 219596,
+      "sha256": "3a1032212bb7b55ad62fa7b0a0b0a6d86e023918dc3e2aa0c67f08531754b267",
+      "sha512": "93df221f76203ab86b432b5949467f7ebe24f4ec7114fe5622ccd30943a43517e240bcf2b6bbb14692757f61c0c12d60a4a56a79df2cbf6e16381e43e4cf907d"
+    },
+    "lttng/eventprovdotnetruntimeprivate.cpp": {
+      "mode": 420,
+      "bytes": 148807,
+      "sha256": "ddb530525c41b956065f37db246dff23b88c7aad85ed04b87df4b763e573df22",
+      "sha512": "89f8f1ba3a84681d9b91c3f372b5d26e1091465944414e08d2aac9aa07153efd59cd35b046340e2b56c2d07e4fb24202c87c559e68ce4a10acf51346b64940b3"
+    },
+    "lttng/tpdotnetruntime.h": {
+      "mode": 420,
+      "bytes": 101728,
+      "sha256": "dc220ee4fc9484e2f6756c843025a7ea6d284479bd89e24e2442ede5e5459c67",
+      "sha512": "dca1f4d43259d8eddf7c3a8d4c72d96c2094f7c153f9f9059d38793951e2e452823f62e6f5fb935cb2a178b6ac7d1ce644191dfc64ea4af4f477e45af45350fd"
+    },
+    "lttng/traceptprovdotnetruntimerundown.cpp": {
+      "mode": 420,
+      "bytes": 468,
+      "sha256": "8fe54b8d99ba1ba69c469131d69d6f3464f55687a5e6ca7e2cfe8a094707e89d",
+      "sha512": "33645d7cefcedea6533caebd082c6767f5e0d60b7fbbfb69217e74b808e0f36caff61111003fa2de59ec8eb687ba6cb2a6718d6720ca9ef503f6561021f9ce76"
+    },
+    "lttng/traceptprovdotnetruntimeprivate.cpp": {
+      "mode": 420,
+      "bytes": 468,
+      "sha256": "dcb26764e0507ca45cf959062ddd4522bc3a43627ae226c198a4b94849a4e8eb",
+      "sha512": "69670b0dc7c72f74b09e73c7c60578a1de0f7bed72324e9029a21c0fd9fbf3b1c82e51cbb25fe92e8f99bcdcb9f90b1a77d99835a4c6b43f65a63cf6a98db171"
+    },
+    "lttng/tpdotnetruntimeprivate.h": {
+      "mode": 420,
+      "bytes": 54749,
+      "sha256": "6a73fc5d1267bfe8995d0fc966480cc7cac4ac23dcba63e632007c1f8832f188",
+      "sha512": "7a06f2aea846e6419da7ab76d0851de443ddfcd56cb041511c1fcd8039670a034f6612c206bd8df35ef91a57b0b39b4ae11a9f382584d6fe2d8eac8ab453ab88"
+    },
+    "lttng/tpdotnetruntimestress.h": {
+      "mode": 420,
+      "bytes": 3401,
+      "sha256": "228fc8b5eb1e6be28eb5b0a37da0f5b823567b544d1523cd658f84810d6ccd88",
+      "sha512": "f5dddb747bed2c0cedad0c36bb5fc63298b6e347d6ec08e5402f3bebd9536e47b3039c408929a1d59d35d87a56f5ff28a816c9dfb83ec3b4c2edbd2f7824734f"
+    },
+    "lttng/eventprovdotnetruntimerundown.cpp": {
+      "mode": 420,
+      "bytes": 65373,
+      "sha256": "d26092f1128632259cb86aaaa022d1836fc324260774d340002c306cf3739c59",
+      "sha512": "5f330422ec836d47d22a509fac7d3706aaa44a7da12cf988fa78e0bd3a00f7f1600660c9e9b1f817850fa2850114cb977c64ac160a7594f713eb120e8e53d38d"
+    },
+    "lttng/traceptprovdotnetruntime.cpp": {
+      "mode": 420,
+      "bytes": 461,
+      "sha256": "03a702e068b0a88970d96653707ddc2949e7a634c0c5ca043f3c3dc68a070114",
+      "sha512": "6446ea0b0144a4e4b934d9f40ec900bcb78b87c30506f9de1fa3f1703013dc649010f983d9d296617fd91e08841243264219051a1fcf98bb9fd4acfe6d532865"
+    },
+    "lttng/eventprovdotnetruntimestress.cpp": {
+      "mode": 420,
+      "bytes": 3333,
+      "sha256": "59adcb47ebcdc12ef4f83e19ab455afa7461dd0191725d39d0f77aea0101093c",
+      "sha512": "41ee7165e21d4f2d430823747baa71345a534e2d8554bc898ec9f68bcdb1d1bffea9b1f2588ecef15c406f295483ccc920c0e6459f265c0e5428f20d6dd6b73d"
+    },
+    "lttng/traceptprovdotnetruntimestress.cpp": {
+      "mode": 420,
+      "bytes": 467,
+      "sha256": "53c194f275e93eb8d09fa898aa3f86568bee1a70cd5bc9883acbd2732919e9ad",
+      "sha512": "7e9bf5c7ed8cf582ea3c47943a316e9d4fbce2a7ffa470942c48bcdf967b791eb82a4d08703fd487d92179daea6600556c23212034cf2da872a80209677dba3a"
+    }
+  },
+  "generatorOutputBasis": "independent-offline-execution-of-original-authenticated-upstream-python-generator",
+  "qualificationAllowed": false,
+  "sourceAdmissionAllowed": false,
+  "cryptoGeneratedBuildGraph": {
+    "obj/crypto/CMakeFiles/objlib.dir/build.make": {
+      "mode": 420,
+      "bytes": 59599,
+      "sha256": "140740ede2a7f31fc289a12d43d73eb71b5e57ccba8cb21431adbad21f808281",
+      "sha512": "69770a3d2d85b80d2a8c662048c1798ed4826d9ac24b7015351254ac3bbbcaf1c42a8692a374b486e4708adc86ab99e8c90249d22bfcf15cb1357a3c575ed371"
+    },
+    "obj/crypto/CMakeFiles/objlib.dir/flags.make": {
+      "mode": 420,
+      "bytes": 541,
+      "sha256": "b98dadc0ee5ff8074d5a40f1790ba67d8d3489e48fa3e1358c59cdc08a2af00d",
+      "sha512": "cee12c61237b2dccb6bb68dedd0b3fb5f8f824842a02dc19e5a6963f376f0da0ed7331e80ba30bb364b2f969cc514f948f5815b50a121892b14b2e2b0e7ac07e"
+    },
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl.dir/link.txt": {
+      "mode": 420,
+      "bytes": 1431,
+      "sha256": "9320c8986fef599e7e719c8684311a84eb924f459187f95d8a6db5f4ef4d5db3",
+      "sha512": "62b16484c841521878972a7f6463d92cfb8c0b9b0accf891a2a5417ce96e25c7171a49823a4afbc32030935f03bc154958cee1d4d218f8490e6fdd7ef220c868"
+    },
+    "obj/Common/pal_config.h": {
+      "mode": 420,
+      "bytes": 3462,
+      "sha256": "c0de95be2365536e31c89d13c614d063e9b365e8f317beedb739c1db8f443ae6",
+      "sha512": "948f68117433ffeb7c258efd8d36fb7d15f6331e2ca52e3e467e266d994d61a55868f5f4c6d50e1111e765fd4b183310d4096b101510ac0063b8fc21e0faf347"
+    },
+    "obj/crypto/pal_crypto_config.h": {
+      "mode": 420,
+      "bytes": 70,
+      "sha256": "d4432b2f55acc136254b32d351c9c0f3e72afd61fb2c2f70e2c0571ab168a215",
+      "sha512": "ee5cc13cd50167322d7e0fac100508f361bb5995b4c47cae5844674d6d43bf293fab34af5a6dc539c15f5b6bfa7e6eb90a3699fd1e3ea6cdf807c93e9844a876"
+    }
+  },
+  "observedArchitecture": "aarch64",
+  "generatedIncludeDirectoryFiles": {
+    "obj/Common/pal_config.h": 420,
+    "obj/crypto/pal_crypto_config.h": 420,
+    "obj/crypto/libSystem.Security.Cryptography.Native.OpenSsl.so": 493,
+    "obj/crypto/Makefile": 420,
+    "obj/crypto/cmake_install.cmake": 420,
+    "obj/crypto/CMakeFiles/progress.marks": 420,
+    "obj/crypto/CMakeFiles/CMakeDirectoryInformation.cmake": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/flags.make": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_bio.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_bignum.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_rsa.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/depend.make": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_evp_pkey_rsa.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_ssl.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_evp_cipher.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_hmac.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_evp_pkey.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_x509.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_bignum.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_evp_pkey_eckey.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_evp.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_x509_name.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/cmake_clean.cmake": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_ecc_import_export.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_x509_root.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_evp_pkey_ecdh.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_ssl.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_pkcs7.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/apibridge.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_ocsp.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_ecdsa.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/openssl.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_pkcs7.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_dsa.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/DependInfo.cmake": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_pkcs12.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_err.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_ecdsa.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_evp_cipher.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_eckey.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_eckey.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_rsa.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_evp_pkey_dsa.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_x509_name.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_evp_pkey_dsa.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_x509ext.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_evp_pkey_eckey.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_ocsp.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_hmac.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_x509.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/apibridge.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/compiler_depend.ts": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/compiler_depend.make": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_evp_pkey_rsa.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/openssl.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_asn1.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_evp_pkey.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_dsa.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_ecc_import_export.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_asn1.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_pkcs12.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/progress.make": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_x509ext.c.o.d": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_bio.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_evp.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_err.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_evp_pkey_ecdh.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/build.make": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/pal_x509_root.c.o.d": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl-Static.dir/flags.make": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl-Static.dir/link.txt": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl-Static.dir/depend.make": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl-Static.dir/cmake_clean.cmake": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl-Static.dir/DependInfo.cmake": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl-Static.dir/cmake_clean_target.cmake": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl-Static.dir/compiler_depend.ts": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl-Static.dir/compiler_depend.make": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl-Static.dir/progress.make": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl-Static.dir/build.make": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl.dir/flags.make": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl.dir/link.txt": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl.dir/depend.make": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl.dir/cmake_clean.cmake": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl.dir/DependInfo.cmake": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl.dir/link.d": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl.dir/compiler_depend.ts": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl.dir/compiler_depend.make": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl.dir/progress.make": 420,
+    "obj/crypto/CMakeFiles/System.Security.Cryptography.Native.OpenSsl.dir/build.make": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/delivery/reports/prepare/bootstrap-crypto/driver/version.c.o": 420,
+    "obj/crypto/CMakeFiles/objlib.dir/delivery/reports/prepare/bootstrap-crypto/driver/version.c.o.d": 420
+  }
+}
