@@ -11,6 +11,7 @@ from pathlib import Path
 import struct
 import uuid
 import tarfile
+from musl_source_archive import open_source_archive
 import xml.etree.ElementTree as ET
 import zipfile
 
@@ -369,7 +370,7 @@ def validate(release,manifest,package):
     require(index[license['path']].get('baseline',{}).get('blob')==license['gitBlob'],
         'Complete retained MIT text differs from the original SDK Git blob')
     found=set()
-    with tarfile.open(release/'sources'/manifest['archive']['path'],'r|gz')as archive:
+    with open_source_archive(release,manifest)as archive:
         for entry in archive:
             if entry.name not in expected:continue
             require(entry.isfile()and entry.name not in found and entry.size==expected[entry.name]['bytes']and entry.size<=16*1024**2,

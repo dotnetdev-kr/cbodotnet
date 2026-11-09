@@ -12,6 +12,7 @@ import posixpath
 import shlex
 import subprocess
 import tarfile
+from musl_source_archive import open_source_archive
 
 ROOT_NAME = 'managed-compiler-inputs'
 ROLE = 'observed-managed-compiler-source-inputs'
@@ -231,7 +232,7 @@ def validate(release, manifest, replays):
     require(index.keys() == expected.keys() and all(all(index[name].get(key) == fp[key] for key in FP)
             for name, fp in expected.items()), 'Complete observed compiler source index required')
     seen = set()
-    with tarfile.open(release / 'sources' / reader.portable(manifest['archive']['path']), 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for member in archive:
             if member.name not in expected: continue
             require(member.isfile() and member.size == expected[member.name]['bytes'] and member.size <= 64 * 1024**2

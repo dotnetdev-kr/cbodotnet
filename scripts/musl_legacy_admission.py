@@ -21,6 +21,7 @@ import tarfile
 from types import SimpleNamespace
 import xml.etree.ElementTree as ET
 import zipfile
+from musl_source_archive import open_source_archive, source_session
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
@@ -400,7 +401,7 @@ def resource_strings(data):
 
 
 def source_member(release, manifest, name):
-    with tarfile.open(release / 'sources' / manifest['archive']['path'], 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name == name:
                 require(entry.isfile() and entry.size <= 2 * 1024**2, 'Bounded ordinary corresponding source required')
@@ -454,7 +455,7 @@ def validate_netstandard_source_chain(release, manifest, path):
             if row['path'] in wanted or row['path'].startswith(roots['api'] + '/'):
                 index[row['path']] = row
     bodies = {}
-    with tarfile.open(release / 'sources' / manifest['archive']['path'], 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in wanted and not (entry.name.startswith(roots['api'] + '/') and entry.name.endswith('.cs')):
                 continue
@@ -538,7 +539,7 @@ def validate_css_source_chain(release, manifest, path):
             and sum(name.startswith(prefix) and name.endswith('.cs') for name in index) == 167
             and not selected['css'].get('deleted'), 'All original CSS source, projects, tests and licenses must be retained')
     actual = set()
-    with tarfile.open(release / 'sources' / manifest['archive']['path'], 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in index:
                 continue
@@ -1709,7 +1710,7 @@ def validate_native_generated_source(release, directory, results, manifest, sour
                for name, row in index.items() if name.startswith('native-runtime-generated/')}
     require(actual == indexed and targets <= index.keys(), 'Full generated and patched native source index coverage differs')
     wanted, found = set(index), {}
-    with tarfile.open(release / 'sources' / manifest['archive']['path'], 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in wanted: continue
             require(entry.isfile() and entry.size <= 64 * 1024**2 and entry.name not in found,
@@ -2401,7 +2402,7 @@ def validate_vstest_source_contract(release, manifest, local_vstest):
                 and index[name].get('bytes') == value['bytes'] and index[name].get('sha256') == value['sha256']
                 for name, value in expected.items()), 'Exact original VSTest source-build, package and license Git blobs required')
     bodies = {}
-    with tarfile.open(release / 'sources' / manifest['archive']['path'], 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in expected: continue
             require(entry.isfile() and entry.size == expected[entry.name]['bytes'] and entry.size <= 1024**2 and entry.name not in bodies,
@@ -2577,7 +2578,7 @@ def validate_original_smoke(release, record, manifest):
                     for key in ('bytes', 'sha256')) for row in claimed), 'Actual original smoke source inventory differs')
     packer = module('legacy_original_smoke_pristine', 'package-used-source.py')
     config = None
-    with tarfile.open(release / 'sources' / manifest['archive']['path'], 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if not entry.name.startswith(prefix):
                 continue
@@ -2892,21 +2893,22 @@ def validate(release):
     source = module('legacy_admission_source_packer', 'package-used-source.py')
     manifest = source.verify(SimpleNamespace(release_dir=release, expected_project_commit=record['projectCommit'],
         expected_run_id=record['runId'], expected_run_attempt=record['runAttempt'], expected_target_rid=record['targetRid']))
-    validate_scan_applicability(release, record, manifest)
-    validate_construction(release, record, manifest, stages, prepare)
-    validate_original_smoke(release, record, manifest)
-    validate_lttng(release, record, prepare, stages)
-    validate_functional(release, record, stages)
-    elf = load(release / 'reports/verify/elf.json')
-    native = P.identity(arch)
-    loader = '/lib/ld-musl-' + native['machine'] + '.so.1'
-    require(elf.get('status') == 'passed' and elf.get('libc') == 'musl' and elf.get('architecture') == arch
-            and elf.get('loader') == loader and elf.get('uid', 0) > 0 and elf.get('foreignTargetExceptions') == []
-            and elf.get('closure', {}).get('status') == 'passed' and elf['closure'].get('nonHostElfCount') == 0,
-            'Complete native stock-provider legacy ELF closure required')
-    validate_elf_closure(release, record, profile, elf)
-    require(any('--network=none' in call and prepare['verificationImageId'] in call
-                for call in stages['verify']['commands']), 'Legacy final verification must use its frozen SDK-free image')
+    with source_session(release, manifest):
+        validate_scan_applicability(release, record, manifest)
+        validate_construction(release, record, manifest, stages, prepare)
+        validate_original_smoke(release, record, manifest)
+        validate_lttng(release, record, prepare, stages)
+        validate_functional(release, record, stages)
+        elf = load(release / 'reports/verify/elf.json')
+        native = P.identity(arch)
+        loader = '/lib/ld-musl-' + native['machine'] + '.so.1'
+        require(elf.get('status') == 'passed' and elf.get('libc') == 'musl' and elf.get('architecture') == arch
+                and elf.get('loader') == loader and elf.get('uid', 0) > 0 and elf.get('foreignTargetExceptions') == []
+                and elf.get('closure', {}).get('status') == 'passed' and elf['closure'].get('nonHostElfCount') == 0,
+                'Complete native stock-provider legacy ELF closure required')
+        validate_elf_closure(release, record, profile, elf)
+        require(any('--network=none' in call and prepare['verificationImageId'] in call
+                    for call in stages['verify']['commands']), 'Legacy final verification must use its frozen SDK-free image')
     return record
 
 

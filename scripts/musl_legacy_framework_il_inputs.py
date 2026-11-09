@@ -15,6 +15,7 @@ import re
 import struct
 import subprocess
 import tarfile
+from musl_source_archive import open_source_archive
 import uuid
 import xml.etree.ElementTree as ET
 import zipfile
@@ -365,7 +366,7 @@ def validate(release, manifest, package):
     require(set(expected) <= index.keys() and all(all(index[n].get(k) == value[k] for k in FP) for n, value in expected.items()),
             'Complete pinned upstream IL and original SDK copy source are required in the source index')
     actual, sources, sdk, data = set(), {}, {}, {}
-    with tarfile.open(release / 'sources' / portable(manifest['archive']['path']), 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in index: continue
             require(entry.isfile() and entry.name not in actual and entry.size == index[entry.name]['bytes'] and entry.size <= 16 * 1024**2,

@@ -9,6 +9,7 @@ import json
 from pathlib import Path, PurePosixPath
 import subprocess
 import tarfile
+from musl_source_archive import open_source_archive
 import urllib.request
 import xml.etree.ElementTree as ET
 import zipfile
@@ -215,7 +216,7 @@ def validate(release, manifest, package):
     require(index.keys() == expected.keys() and all(all(index[name].get(k) == identity[k] for k in FP)
             for name, identity in expected.items()), 'Complete exact Globbing sources and raw legal data required in the source index')
     sources = {key: {} for key in roots}; actual, bodies = set(), {}
-    with tarfile.open(release / 'sources' / portable(manifest['archive']['path']), 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in expected: continue
             require(entry.isfile() and entry.size == expected[entry.name]['bytes'] and entry.size <= 16 * 1024**2

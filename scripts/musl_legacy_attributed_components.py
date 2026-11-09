@@ -12,6 +12,7 @@ import importlib.util
 import json
 from pathlib import Path, PurePosixPath
 import tarfile
+from musl_source_archive import open_source_archive
 import xml.etree.ElementTree as ET
 import zipfile
 
@@ -221,7 +222,7 @@ def validate(release, manifest, packages):
             require(sub['path'] not in baseline, 'Gitlink cannot also be an ordinary component source')
             baseline[sub['path']] = dict(mode='160000', blob=sub['commit'])
         require(packer.baseline_tree(baseline) == p['sources'][role]['tree'], 'Complete original component Git tree differs')
-    with tarfile.open(release / 'sources' / portable(manifest['archive']['path']), 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in indexed: continue
             role, relative, row = indexed[entry.name]

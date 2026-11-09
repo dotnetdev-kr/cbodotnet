@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import subprocess
 import tarfile
+from musl_source_archive import open_source_archive
 import xml.etree.ElementTree as ET
 import zipfile
 
@@ -182,7 +183,7 @@ def validate(release, manifest, package):
     require(index.keys() == expected.keys() and all(all(index[name].get(key) == fp[key] for key in FP)
             for name, fp in expected.items()), 'Complete original input/resource/readable/XLF bytes required in source index')
     sources, actual = {}, set()
-    with tarfile.open(release / 'sources' / reader.portable(manifest['archive']['path']), 'r|gz') as archive:
+    with open_source_archive(release, manifest) as archive:
         for entry in archive:
             if entry.name not in expected: continue
             require(entry.isfile() and entry.size == expected[entry.name]['bytes'] and entry.size <= 16 * 1024**2
