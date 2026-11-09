@@ -6,6 +6,7 @@ import re
 import copy
 
 import musl_source_transport as SOURCE_TRANSPORT
+import musl_evidence_transport as EVIDENCE_TRANSPORT
 
 from distribution_contract import BRANDING, sha256_file
 from release_catalog import (asset_descriptor, positive_id, release_assets,
@@ -117,6 +118,8 @@ def producer_assets(manifest):
         for kind in KINDS:
             if kind == 'source':
                 yield from SOURCE_TRANSPORT.source_assets(entry)
+            elif kind == 'evidence':
+                yield from EVIDENCE_TRANSPORT.evidence_assets(entry)
             else:
                 yield entry[kind]
 
@@ -202,6 +205,7 @@ def validate_producer_manifest(manifest, *, release=None, contract=None):
             asset_descriptor(entry.get(kind), producer_asset_name(kind, version, arch, revision))
         if 'sourceTransport' in entry:
             SOURCE_TRANSPORT.validate(entry)
+        EVIDENCE_TRANSPORT.evidence_assets(entry)
         validate_provenance(entry.get('provenance'), arch, contract, version=version)
     asset_descriptor(manifest.get('checksums'), 'SHA256SUMS')
     if release is not None:
@@ -319,4 +323,6 @@ def verified_plan(release, manifest_bytes, checksum_bytes, sdk_path, channel, va
             containerDotnet=INSTALLATION['containerCommandDirectory'] + '/dotnet'))
     if 'sourceTransport' in entry:
         plan['sourceTransport'] = copy.deepcopy(entry['sourceTransport'])
+    if 'evidenceTransport' in entry:
+        plan['evidenceTransport'] = copy.deepcopy(entry['evidenceTransport'])
     return plan

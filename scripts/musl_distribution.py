@@ -17,6 +17,7 @@ import urllib.error
 import musl_archive as ARCHIVE
 import musl_contract as CONTRACT
 import musl_source_transport as SOURCE_TRANSPORT
+import musl_evidence_transport as EVIDENCE_TRANSPORT
 from downstream_release import descriptor, encoded, ordinary_file, require
 from downstream_publish import GitHubReleases
 from musl_release import WORKFLOW, verify_release_tag, _source_module
@@ -131,9 +132,18 @@ def receive_used_source(architecture, output, *, anonymous=True, sdk_version='10
     output = fresh(output)
     for name, data in [('release.json', encoded(release)), ('release-manifest.json', raw), ('SHA256SUMS', sums)]:
         (output / name).write_bytes(data)
-    evidence = entry['evidence']; evidence_path = output / evidence['name']
-    download_asset(base+evidence['name'], evidence_path, evidence)
-    SOURCE_TRANSPORT.source_controls(evidence_path, output, entry if 'sourceTransport' in entry else None)
+    if 'evidenceTransport' in entry:
+        transport = EVIDENCE_TRANSPORT.validate(entry)
+        sidecar = transport['descriptor']; sidecar_path = output / sidecar['name']
+        download_asset(base+sidecar['name'], sidecar_path, sidecar)
+        EVIDENCE_TRANSPORT.validate_sidecar(entry, sidecar_path.read_bytes())
+        with EVIDENCE_TRANSPORT.materialize(entry,
+                lambda part: urllib.request.urlopen(base+part['name'], timeout=120), temporary_parent=output.parent) as evidence_path:
+            SOURCE_TRANSPORT.source_controls(evidence_path, output, entry if 'sourceTransport' in entry else None)
+    else:
+        evidence = entry['evidence']; evidence_path = output / evidence['name']
+        download_asset(base+evidence['name'], evidence_path, evidence)
+        SOURCE_TRANSPORT.source_controls(evidence_path, output, entry if 'sourceTransport' in entry else None)
     source_manifest_path = output / 'sources/source-manifest.json'
     used = json.loads(ordinary_file(source_manifest_path).read_bytes())
     require(used.get('sdkVersion') == sdk_version and used.get('targetRid') == CONTRACT.ARCHITECTURES[architecture]['rid']
@@ -164,6 +174,8 @@ def receive_used_source(architecture, output, *, anonymous=True, sdk_version='10
         usedSourceManifestSha256=hashlib.sha256(source_manifest_path.read_bytes()).hexdigest(),
         archive=dict(name=archive_name, **{key: used['archive'][key] for key in ('bytes', 'sha256', 'sha512')}),
         multipart='sourceTransport' in entry, originalSourceArchiveChanged=False, sourceTarExtracted=False)
+    if 'evidenceTransport' in entry:
+        report.update(evidenceMultipart=True, evidenceArchive=dict(entry['evidence']))
     (output / 'used-source-receipt.json').write_bytes(encoded(report))
     return report
 

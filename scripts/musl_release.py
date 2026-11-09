@@ -10,9 +10,11 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import tempfile
 import time
 import zipfile
 import musl_source_transport as SOURCE_TRANSPORT
+import musl_evidence_transport as EVIDENCE_TRANSPORT
 
 from downstream_release import descriptor, encoded, ordinary_file, verify_report_signature
 from downstream_publish import GitHubReleases, verify_remote_assets
@@ -516,14 +518,19 @@ def stage_producer(received_directory, output):
             tree/'sources/source-manifest.json', tree/'sources'/source_manifest['index']['path'], source_manifest['archive'])
         if transport is not None:
             entry['sourceTransport'] = transport
-        evidence = output/producer_asset_name('evidence', version, arch)
-        exclude = {raw_sdk, source}
-        with tarfile.open(evidence, 'w:gz', compresslevel=6) as archive:
-            for path in sorted(tree.rglob('*')):
-                require(not path.is_symlink(), 'Musl evidence envelope must contain no symlinks')
-                if path.is_file() and path not in exclude:
-                    archive.add(path, arcname=path.relative_to(tree).as_posix(), recursive=False)
-        entry['evidence'] = descriptor(evidence)
+        # Keep the complete gzip private until its physical delivery form is known.
+        # Its basename, TAR members and compression are identical to the legacy envelope.
+        with tempfile.TemporaryDirectory(prefix='musl-evidence-pack-', dir=output.parent) as temporary:
+            evidence = Path(temporary)/producer_asset_name('evidence', version, arch)
+            exclude = {raw_sdk, source}
+            with tarfile.open(evidence, 'w:gz', compresslevel=6) as archive:
+                for path in sorted(tree.rglob('*')):
+                    require(not path.is_symlink(), 'Musl evidence envelope must contain no symlinks')
+                    if path.is_file() and path not in exclude:
+                        archive.add(path, arcname=path.relative_to(tree).as_posix(), recursive=False)
+            entry['evidence'], evidence_transport = EVIDENCE_TRANSPORT.stage(evidence, output, evidence.name)
+        if evidence_transport is not None:
+            entry['evidenceTransport'] = evidence_transport
         entry['provenance'] = dict(projectCommit=commit, runId=str(run['id']), runAttempt=str(run['run_attempt']),
             artifactId=str(row['artifact']['id']), workflow=workflow,
             workflowUrl=f'https://github.com/{REPOSITORY}/actions/runs/{run["id"]}', libc='musl', targetRid=target['rid'], **SOURCES[version])
@@ -554,7 +561,9 @@ def validate_source_stage(directory):
     for entry in manifest['architectures'].values():
         if 'sourceTransport' in entry:
             SOURCE_TRANSPORT.verify_directory(directory, entry)
-            SOURCE_TRANSPORT.source_controls(directory/entry['evidence']['name'], entry=entry)
+        if 'sourceTransport' in entry or 'evidenceTransport' in entry:
+            with EVIDENCE_TRANSPORT.materialize_directory(directory, entry) as evidence:
+                SOURCE_TRANSPORT.source_controls(evidence, entry=entry if 'sourceTransport' in entry else None)
     sums = ordinary_file(directory/'SHA256SUMS').read_bytes()
     checksum_bytes = producer_checksum_bytes(manifest)
     require(sums == checksum_bytes, 'Musl producer checksums differ from closed SDK/source/evidence inventory')
@@ -598,6 +607,12 @@ def publish_producer(directory, *, gh='gh'):
             'The matching .transport.json binds every ordered part and the unchanged complete archive with SHA-256 and SHA-512. '
             'Restore and verify sources with scripts/musl_distribution.py receive-used-source; '
             'see docs/musl-source-multipart-transport.md in the tagged source.\n')
+    if any('evidenceTransport' in entry for entry in manifest['architectures'].values()):
+        body += ('\nOversized complete evidence envelopes use a separate exact-byte multipart transport. '
+            'The evidence .transport.json binds every ordered part and the complete unchanged gzip with SHA-256 and SHA-512. '
+            'scripts/musl_distribution.py receive-used-source authenticates and privately reconstructs that envelope before '
+            'reading its original source controls; see '
+            'https://github.com/dotnetdev-kr/cbodotnet/blob/main/docs/musl-evidence-multipart-transport.md.\n')
     release = api.find(tag)
     if release is None:
         require(api.api(f'repos/{REPOSITORY}/git/ref/tags/{tag}') is None,

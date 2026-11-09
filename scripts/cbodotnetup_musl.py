@@ -107,16 +107,18 @@ def sdk_catalog_record(arch, *, policy=None, status=None, authenticator=None, fe
             and plan.get('sourceManifestSha256') == canonical['sha256'] and plan.get('sourceManifestUrl') == canonical['url']
             and plan.get('producer') == source['architectures'][arch]['provenance']
             and plan.get('evidence') == source['architectures'][arch]['evidence']
+            and plan.get('evidenceTransport') == source['architectures'][arch].get('evidenceTransport')
             and plan.get('dependencies') == CONTRACT.NATIVE_DEPENDENCIES
             and plan.get('licensePaths') == ['LICENSE.txt', 'ThirdPartyNotices.txt']
             and plan.get('securitySupport') == 'community-build-no-additional-security-maintenance'
             and row['build'].get('directory') == f'cbodotnet-{policy["sdkVersion"]}-linux-musl-{arch}-r{policy["revision"]}',
             'Musl SDK archive, RID, source, native dependencies or original notices differ from admission')
+    evidence = plan['evidenceTransport']['descriptor'] if 'evidenceTransport' in plan else plan['evidence']
     return dict(sdkVersion=policy['sdkVersion'], revision=policy['revision'], rid=rid,
         archiveRoot=row['build']['directory'], archive={key: archive[key] for key in ('url', 'size', 'sha256')},
         sourceManifestSha256=canonical['sha256'], sourceManifest=canonical, producer=plan['producer'],
-        evidence=dict(url=canonical['url'].rsplit('/',1)[0]+'/'+plan['evidence']['name'],
-            **{key: plan['evidence'][key] for key in ('size', 'sha256')}), licensePaths=plan['licensePaths'],
+        evidence=dict(url=canonical['url'].rsplit('/',1)[0]+'/'+evidence['name'],
+            **{key: evidence[key] for key in ('size', 'sha256')}), licensePaths=plan['licensePaths'],
         securitySupport=plan['securitySupport'], dependencies=sorted(plan['dependencies']),
         targets=[dict(policy['target'], rid=rid)], requiresLegacyProvider=False)
 

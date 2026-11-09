@@ -485,13 +485,15 @@ def build_oci_context(plan, archive, output, base_image):
         'kr.dotnetdev.cbodotnet.package.revision': str(plan['packageRevision'])})
     for kind in ('source','evidence'):
         if kind in plan:
-            linked = plan['sourceTransport']['descriptor'] if kind == 'source' and 'sourceTransport' in plan else plan[kind]
+            transport = plan.get(kind+'Transport')
+            linked = transport['descriptor'] if transport is not None else plan[kind]
             labels['kr.dotnetdev.cbodotnet.'+kind+'.url']=asset_url+linked['name']
             labels['kr.dotnetdev.cbodotnet.'+kind+'.sha256']=linked['sha256']
-    if 'sourceTransport' in plan:
-        labels['kr.dotnetdev.cbodotnet.source.transport']=plan['sourceTransport']['kind']
-        labels['kr.dotnetdev.cbodotnet.source.archive.sha256']=plan['source']['sha256']
-        labels['kr.dotnetdev.cbodotnet.source.archive.sha512']=plan['source']['sha512']
+    for kind in ('source', 'evidence'):
+        if kind+'Transport' in plan:
+            labels['kr.dotnetdev.cbodotnet.'+kind+'.transport']=plan[kind+'Transport']['kind']
+            labels['kr.dotnetdev.cbodotnet.'+kind+'.archive.sha256']=plan[kind]['sha256']
+            labels['kr.dotnetdev.cbodotnet.'+kind+'.archive.sha512']=plan[kind]['sha512']
     from musl_archive import RUNTIME_PACKAGES
     dependencies = [name + '=' + RUNTIME_PACKAGES[name] for name in plan['dependencies']]
     result = dict(schemaVersion=1, channel='oci', libc='musl', plan=plan, baseImage=base_image,
