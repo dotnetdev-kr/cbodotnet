@@ -9,14 +9,16 @@ import shutil
 import subprocess
 import tarfile
 import tempfile
+from types import SimpleNamespace
 import urllib.request
 import urllib.error
 
 import musl_archive as ARCHIVE
 import musl_contract as CONTRACT
+import musl_source_transport as SOURCE_TRANSPORT
 from downstream_release import descriptor, encoded, ordinary_file, require
 from downstream_publish import GitHubReleases
-from musl_release import WORKFLOW, verify_release_tag
+from musl_release import WORKFLOW, verify_release_tag, _source_module
 from release_catalog import get_bytes, release_assets, validate_api_asset
 
 ROOT = CONTRACT.ROOT
@@ -91,6 +93,60 @@ def receive_source(architecture, output, *, anonymous=False, sdk_version="10.0.4
     sdk = source['architectures'][architecture]['sdk']
     download_asset(base+sdk['name'],output/sdk['name'],sdk)
     return output
+
+
+def receive_used_source(architecture, output, *, anonymous=True, sdk_version='10.0.403'):
+    """Restore authenticated source bytes, then run the existing full verifier."""
+    require(architecture in CONTRACT.ARCHITECTURES, 'An exact public musl CPU is required')
+    catalog = CONTRACT.load_qualification_catalog()
+    rows = [row for row in catalog['builds'] if row['sdkVersion'] == sdk_version and row['producerRevision'] == 1]
+    require(len(rows) == 1, 'The exact musl source producer is not independently qualified')
+    tag = rows[0]['sourceReleaseTag']; api = AnonymousGitHubAPI() if anonymous else GitHubReleases()
+    release = api.api(f'repos/{CONTRACT.REPOSITORY}/releases/tags/{tag}')
+    base = f'https://github.com/{CONTRACT.REPOSITORY}/releases/download/{tag}/'
+    raw = get_bytes(base+'release-manifest.json', CONTRACT.MAX_MANIFEST_BYTES)
+    sums = get_bytes(base+'SHA256SUMS', CONTRACT.MAX_CHECKSUM_BYTES)
+    manifest = CONTRACT.validate_producer_release(release, raw, sums)
+    CONTRACT.require_qualified_producer(raw, catalog=catalog)
+    entry = manifest['architectures'][architecture]; provenance = entry['provenance']
+    output = fresh(output)
+    for name, data in [('release.json', encoded(release)), ('release-manifest.json', raw), ('SHA256SUMS', sums)]:
+        (output / name).write_bytes(data)
+    evidence = entry['evidence']; evidence_path = output / evidence['name']
+    download_asset(base+evidence['name'], evidence_path, evidence)
+    SOURCE_TRANSPORT.source_controls(evidence_path, output, entry if 'sourceTransport' in entry else None)
+    source_manifest_path = output / 'sources/source-manifest.json'
+    used = json.loads(ordinary_file(source_manifest_path).read_bytes())
+    require(used.get('sdkVersion') == sdk_version and used.get('targetRid') == CONTRACT.ARCHITECTURES[architecture]['rid']
+            and used.get('projectCommit') == provenance['projectCommit']
+            and str(used.get('runId')) == str(provenance['runId']) and str(used.get('runAttempt')) == str(provenance['runAttempt']),
+            'Original used-source controls differ from the qualified native producer')
+    archive_name = used['archive']['path']
+    require(isinstance(archive_name, str) and re.fullmatch(r'[A-Za-z0-9._+-]+\.tar\.gz', archive_name)
+            and used['index']['path'] == 'source-index.jsonl', 'Unsafe original used-source filename')
+    require(used['archive']['bytes'] == entry['source']['size'] and used['archive']['sha256'] == entry['source']['sha256'],
+            'Original used-source gzip differs from the release whole-archive identity')
+    archive_path = output / 'sources' / archive_name
+    if 'sourceTransport' in entry:
+        transport = SOURCE_TRANSPORT.validate(entry)
+        require(used['archive']['sha512'] == transport['archive']['sha512'], 'Original whole source gzip SHA-512 differs')
+        sidecar = transport['descriptor']; sidecar_path = output / sidecar['name']
+        download_asset(base+sidecar['name'], sidecar_path, sidecar)
+        SOURCE_TRANSPORT.validate_sidecar(entry, sidecar_path.read_bytes())
+        SOURCE_TRANSPORT.authenticate(entry,
+            lambda part: urllib.request.urlopen(base+part['name'], timeout=120), archive_path)
+    else:
+        download_asset(base+entry['source']['name'], archive_path, entry['source'])
+    _source_module().verify(SimpleNamespace(release_dir=output, expected_project_commit=provenance['projectCommit'],
+        expected_run_id=str(provenance['runId']), expected_run_attempt=str(provenance['runAttempt']),
+        expected_target_rid=CONTRACT.ARCHITECTURES[architecture]['rid']))
+    report = dict(schemaVersion=1, kind='verified-public-musl-used-source', sdkVersion=sdk_version,
+        architecture=architecture, sourceReleaseManifestSha256=hashlib.sha256(raw).hexdigest(),
+        usedSourceManifestSha256=hashlib.sha256(source_manifest_path.read_bytes()).hexdigest(),
+        archive=dict(name=archive_name, **{key: used['archive'][key] for key in ('bytes', 'sha256', 'sha512')}),
+        multipart='sourceTransport' in entry, originalSourceArchiveChanged=False, sourceTarExtracted=False)
+    (output / 'used-source-receipt.json').write_bytes(encoded(report))
+    return report
 
 
 def intake_plan(inputs, architecture, channel, revision):
@@ -384,6 +440,9 @@ def main():
     receive=commands.add_parser('receive-source')
     receive.add_argument('--arch',choices=tuple(CONTRACT.ARCHITECTURES),required=True)
     receive.add_argument('--output',type=Path,required=True)
+    used_source=commands.add_parser('receive-used-source')
+    used_source.add_argument('--arch',choices=tuple(CONTRACT.ARCHITECTURES),required=True)
+    used_source.add_argument('--output',type=Path,required=True)
     archive=commands.add_parser('archive-candidate')
     archive.add_argument('--arch',choices=tuple(CONTRACT.ARCHITECTURES),required=True)
     archive.add_argument('--revision',type=int,default=1)
@@ -409,12 +468,14 @@ def main():
     apk.add_argument('--revision',type=int,default=1)
     apk.add_argument('--workspace',type=Path,required=True)
     apk.add_argument('--output',type=Path,required=True)
-    for command in (receive,archive,public,public_apk_command,apk):
+    for command in (receive,used_source,archive,public,public_apk_command,apk):
         command.add_argument('--sdk-version',choices=sorted(CONTRACT.SOURCES),default='10.0.403')
     args=parser.parse_args()
     if args.command=='receive-source':
         result=receive_source(args.arch,args.output,sdk_version=args.sdk_version)
         print(json.dumps(dict(status='received-qualified',directory=str(result))))
+    elif args.command=='receive-used-source':
+        print(json.dumps(receive_used_source(args.arch,args.output,sdk_version=args.sdk_version)))
     elif args.command=='archive-candidate':
         print(json.dumps(archive_candidate(args.arch,args.revision,args.workspace,args.output,sdk_version=args.sdk_version)))
     elif args.command=='public-archive':

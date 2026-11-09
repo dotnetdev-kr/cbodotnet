@@ -3,6 +3,9 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import copy
+
+import musl_source_transport as SOURCE_TRANSPORT
 
 from distribution_contract import BRANDING, sha256_file
 from release_catalog import (asset_descriptor, positive_id, release_assets,
@@ -107,6 +110,17 @@ def producer_asset_name(kind, version, architecture, revision=1):
     return f'cbodotnet-musl-sdk-{version}-linux-musl-{architecture}-r{revision}-evidence.tar.gz'
 
 
+def producer_assets(manifest):
+    """Physical release assets; a multipart whole gzip is a logical identity."""
+    for arch in ARCHITECTURES:
+        entry = manifest['architectures'][arch]
+        for kind in KINDS:
+            if kind == 'source':
+                yield from SOURCE_TRANSPORT.source_assets(entry)
+            else:
+                yield entry[kind]
+
+
 def oci_tag(version, revision=1):
     version_revision(version, revision)
     return f'{version}-alpine324-musl-r{revision}'
@@ -186,6 +200,8 @@ def validate_producer_manifest(manifest, *, release=None, contract=None):
         require(isinstance(entry, dict) and entry.get('targetRid') == identity['rid'], 'Musl source entry target RID differs')
         for kind in KINDS:
             asset_descriptor(entry.get(kind), producer_asset_name(kind, version, arch, revision))
+        if 'sourceTransport' in entry:
+            SOURCE_TRANSPORT.validate(entry)
         validate_provenance(entry.get('provenance'), arch, contract, version=version)
     asset_descriptor(manifest.get('checksums'), 'SHA256SUMS')
     if release is not None:
@@ -202,7 +218,9 @@ def validate_producer_release(release, manifest_bytes, checksum_bytes, *, contra
             'Musl source metadata exceeds its bounds')
     manifest = validate_producer_manifest(json.loads(manifest_bytes), release=release, contract=contract)
     assets = release_assets(release)
-    expected = {entry[kind]['name']: entry[kind] for entry in manifest['architectures'].values() for kind in KINDS}
+    physical = list(producer_assets(manifest))
+    expected = {row['name']: row for row in physical}
+    require(len(expected) == len(physical), 'Duplicate musl physical producer asset')
     require(set(assets) == set(expected) | {'release-manifest.json', 'SHA256SUMS'},
             'Musl producer release asset list is incomplete or unexpected')
     validate_api_asset(assets['release-manifest.json'], 'release-manifest.json', REPOSITORY, manifest['tag'], content=manifest_bytes)
@@ -287,7 +305,7 @@ def verified_plan(release, manifest_bytes, checksum_bytes, sdk_path, channel, va
         root=INSTALLATION['rootTemplate'].format(series=series), launcher=INSTALLATION['launcherTemplate'].format(series=series))
     if channel == 'oci':
         package['image'] = contract['ociRepository'] + ':' + oci_tag(version, revision)
-    return dict(schemaVersion=1, kind='musl-distribution-plan', status='prepared-unqualified', publicationAllowed=False,
+    plan = dict(schemaVersion=1, kind='musl-distribution-plan', status='prepared-unqualified', publicationAllowed=False,
         contractVersion=contract['schemaVersion'], libc='musl', sdkVersion=version, producerRevision=manifest['producerRevision'],
         sourceReleaseTag=manifest['tag'], sourceManifestSha256=hashlib.sha256(manifest_bytes).hexdigest(),
         sourceManifestUrl=f'https://github.com/{REPOSITORY}/releases/download/{manifest["tag"]}/release-manifest.json',
@@ -299,3 +317,6 @@ def verified_plan(release, manifest_bytes, checksum_bytes, sdk_path, channel, va
             defaultOwner=INSTALLATION['commonPackage'], defaultSelection=INSTALLATION['defaultSelection'],
             containerDirectory=INSTALLATION['containerCommandDirectory'],
             containerDotnet=INSTALLATION['containerCommandDirectory'] + '/dotnet'))
+    if 'sourceTransport' in entry:
+        plan['sourceTransport'] = copy.deepcopy(entry['sourceTransport'])
+    return plan

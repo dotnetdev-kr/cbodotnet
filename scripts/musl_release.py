@@ -12,13 +12,14 @@ import sys
 import tarfile
 import time
 import zipfile
+import musl_source_transport as SOURCE_TRANSPORT
 
 from downstream_release import descriptor, encoded, ordinary_file, verify_report_signature
 from downstream_publish import GitHubReleases, verify_remote_assets
 from musl_contract import (ARCHITECTURES, REPOSITORY, SOURCES, KINDS, require,
     producer_asset_name, producer_tag, validate_producer_manifest, validate_producer_release,
     load_qualification_catalog, distribution_tag, oci_tag, producer_workflow,
-    producer_artifact_name, producer_script)
+    producer_artifact_name, producer_script, producer_assets)
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = '.github/workflows/musl-release.yml'
@@ -459,9 +460,7 @@ def _source_module():
 
 def producer_checksum_bytes(manifest):
     """Keep source checksums in declared CPU/kind order across JSON round trips."""
-    entries = (manifest['architectures'][arch] for arch in ARCHITECTURES)
-    return ''.join(f'{entry[kind]["sha256"]}  {entry[kind]["name"]}\n'
-        for entry in entries for kind in KINDS).encode('ascii')
+    return ''.join(f'{row["sha256"]}  {row["name"]}\n' for row in producer_assets(manifest)).encode('ascii')
 
 
 def stage_producer(received_directory, output):
@@ -509,11 +508,14 @@ def stage_producer(received_directory, output):
         require(isinstance(source_name, str) and re.fullmatch(r'[A-Za-z0-9._+-]+\.tar\.gz', source_name), 'Unsafe used-source archive name')
         source = ordinary_file(tree/'sources'/source_name)
         entry = dict(targetRid=target['rid'])
-        for kind, path in (('sdk', raw_sdk), ('source', source)):
-            destination = output/producer_asset_name(kind, version, arch)
-            shutil.copyfile(path, destination)
-            entry[kind] = descriptor(destination)
-            require(entry[kind]['sha256'] == descriptor(path)['sha256'], 'Musl producer staging copy changed bytes')
+        destination = output/producer_asset_name('sdk', version, arch)
+        shutil.copyfile(raw_sdk, destination)
+        entry['sdk'] = descriptor(destination)
+        require(entry['sdk']['sha256'] == descriptor(raw_sdk)['sha256'], 'Musl producer staging copy changed bytes')
+        entry['source'], transport = SOURCE_TRANSPORT.stage(source, output, producer_asset_name('source', version, arch),
+            tree/'sources/source-manifest.json', tree/'sources'/source_manifest['index']['path'], source_manifest['archive'])
+        if transport is not None:
+            entry['sourceTransport'] = transport
         evidence = output/producer_asset_name('evidence', version, arch)
         exclude = {raw_sdk, source}
         with tarfile.open(evidence, 'w:gz', compresslevel=6) as archive:
@@ -541,12 +543,18 @@ def validate_source_stage(directory):
     raw = ordinary_file(directory/'release-manifest.json').read_bytes()
     require(0 < len(raw) <= 16*1024**2, 'Oversized musl producer manifest')
     manifest = validate_producer_manifest(json.loads(raw))
-    expected = {entry[kind]['name']: entry[kind] for entry in manifest['architectures'].values() for kind in KINDS}
+    physical = list(producer_assets(manifest))
+    expected = {row['name']: row for row in physical}
+    require(len(expected) == len(physical), 'Duplicate musl physical source stage asset')
     expected['SHA256SUMS'] = manifest['checksums']
     expected['release-manifest.json'] = descriptor(directory/'release-manifest.json')
     require({path.name for path in directory.iterdir()} == set(expected), 'Musl producer stage is not a closed asset set')
     for name, wanted in expected.items():
         require(descriptor(directory/name) == wanted, 'Musl producer stage bytes changed: '+name)
+    for entry in manifest['architectures'].values():
+        if 'sourceTransport' in entry:
+            SOURCE_TRANSPORT.verify_directory(directory, entry)
+            SOURCE_TRANSPORT.source_controls(directory/entry['evidence']['name'], entry=entry)
     sums = ordinary_file(directory/'SHA256SUMS').read_bytes()
     checksum_bytes = producer_checksum_bytes(manifest)
     require(sums == checksum_bytes, 'Musl producer checksums differ from closed SDK/source/evidence inventory')
@@ -585,6 +593,11 @@ def publish_producer(directory, *, gh='gh'):
             'This regular VMR build rebuilds SDK tooling and imports attributed upstream musl shared-framework inputs. ')
     else:
         body = body.replace('These unchanged upstream CLI payloads', 'These source-produced SDK payloads')
+    if any('sourceTransport' in entry for entry in manifest['architectures'].values()):
+        body += ('\nOversized used-source gzip archives use explicit exact-byte multipart transport. '
+            'The matching .transport.json binds every ordered part and the unchanged complete archive with SHA-256 and SHA-512. '
+            'Restore and verify sources with scripts/musl_distribution.py receive-used-source; '
+            'see docs/musl-source-multipart-transport.md in the tagged source.\n')
     release = api.find(tag)
     if release is None:
         require(api.api(f'repos/{REPOSITORY}/git/ref/tags/{tag}') is None,
