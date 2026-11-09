@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdk5-generated-data-provider-corresponding-source-collection-policy",
+  "sdkVersion": "5.0.214",
+  "dataPolicySha256": "b2591d55209ab086a8a15bea8c38c90251d5f0b54aa41b28ff33135ce7c41970",
+  "jsonPublisherPolicySha256": "dbae1c394c84c3bc2f9d8077459db6a5829e8e47d711456d5fa9cc79e36545fa",
+  "sources": [
+    {
+      "dataRole": "platforms",
+      "futureName": "sdk5-generated-source-platforms-f431858f8b1f",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "f431858f8b1f1510723ace6343786c9194dbd7fc",
+      "tree": "39154a5e805c2698f5a4c85a2bed31d668742aeb",
+      "identityBasis": "exact-original-data-policy-source-origin",
+      "requirePreviouslyRegistered": false
+    },
+    {
+      "dataRole": "installer",
+      "futureName": "sdk5-generated-source-installer-430330f7c542",
+      "repository": "https://github.com/dotnet/installer",
+      "commit": "430330f7c5428f031b4a835be3dcf5945f55a56a",
+      "tree": "d3087a364c3598f1f4a82bb78e50a795ff5ca89f",
+      "identityBasis": "exact-original-data-policy-source-origin",
+      "requirePreviouslyRegistered": true
+    },
+    {
+      "dataRole": "aspnetcore",
+      "futureName": "sdk5-generated-source-aspnetcore-02c6de4ba602",
+      "repository": "https://github.com/dotnet/aspnetcore",
+      "commit": "02c6de4ba6022025fcda7581415f310f8c73cdc3",
+      "tree": "5f3c6a22910816d0aaa6475c8d8ee7d90957c3a4",
+      "identityBasis": "exact-original-data-policy-source-origin",
+      "requirePreviouslyRegistered": true
+    },
+    {
+      "dataRole": "nuget-common58",
+      "futureName": "sdk5-generated-source-nuget-common58-830c8be45dbb",
+      "repository": "https://github.com/NuGet/NuGet.Client",
+      "commit": "830c8be45dbbccd411ecf6080abff0c2c98079cf",
+      "tree": "3247913d01ca4c4d6cfbc36dffca74bc071f146c",
+      "identityBasis": "exact-original-data-policy-source-origin",
+      "requirePreviouslyRegistered": false
+    },
+    {
+      "dataRole": "nuget-packaging58",
+      "futureName": "sdk5-generated-source-nuget-packaging58-ebc4f817473f",
+      "repository": "https://github.com/NuGet/NuGet.Client",
+      "commit": "ebc4f817473f08c3705ed0e5c58c223372f36f7b",
+      "tree": "a30ffb17b4573f6759fe8217ccdf88f107246287",
+      "identityBasis": "exact-original-data-policy-source-origin",
+      "requirePreviouslyRegistered": false
+    },
+    {
+      "dataRole": "pkcs",
+      "futureName": "sdk5-generated-source-pkcs-b03778465800",
+      "repository": "https://github.com/dotnet/runtime",
+      "commit": "b03778465800e6d8a534b2fb79656a9f9ba7e245",
+      "tree": "f2cd481cec467522d3647f1d02696381347ea487",
+      "identityBasis": "original-full-assembly-informational-Git-identity",
+      "requirePreviouslyRegistered": false
+    },
+    {
+      "dataRole": "protected-data",
+      "futureName": "sdk5-generated-source-protected-data-8321c729934c",
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "8321c729934c0f8be754953439b88e6e1c120c24",
+      "tree": "c19049409e3596a11e85b8426aa63469d2c94e17",
+      "identityBasis": "original-full-assembly-informational-Git-identity",
+      "requirePreviouslyRegistered": true
+    },
+    {
+      "dataRole": "msbuild157",
+      "futureName": "sdk5-generated-source-msbuild157-ac19036b0de4",
+      "repository": "https://github.com/microsoft/msbuild",
+      "commit": "ac19036b0de4f1b58c3be76d51000df8db98560c",
+      "tree": "3891ccd0c19aedd71265cd1b1d46edfafeab1db6",
+      "identityBasis": "original-short-Git-prefix-and-official-unique-commit-resolution",
+      "requirePreviouslyRegistered": false,
+      "prefix": "ac19036b0d"
+    },
+    {
+      "dataRole": "json9-publisher",
+      "futureName": "sdk5-generated-source-json9-publisher-e5ac9a8473df",
+      "repository": "https://github.com/JamesNK/Newtonsoft.Json",
+      "commit": "e5ac9a8473dfdefb8fe2cddae433a9aaa94a5b37",
+      "tree": "369f1936fce5858212669ea36042965ca6164778",
+      "identityBasis": "original-publisher-ZIP-and-authored-source-policy",
+      "requirePreviouslyRegistered": true
+    }
+  ],
+  "futureAcquisitionBudget": {
+    "newParentRegularFiles": 550000,
+    "newParentContentBytes": 2415919104,
+    "newGitlinkRoots": 16,
+    "newGitlinkRegularFiles": 50000,
+    "newGitlinkContentBytes": 268435456,
+    "totalIncrementalRegularFiles": 600000,
+    "totalIncrementalContentBytes": 2684354560,
+    "gitObjectDiskBytes": 1073741824,
+    "receiptBytes": 16777216,
+    "reservedFreeBytes": 2147483648,
+    "minimumIncrementalFreeBytes": 5922357248,
+    "ceilingsAreNotObservedOrEstimatedActualTreeSizes": true,
+    "overBudgetStopsBeforeFurtherAcquisition": true
+  },
+  "futureAcquisitionBudgetIsProposedAndCallerEnforced": true,
+  "collectionCallbackGuaranteesAcquisitionBounds": false,
+  "originalPackageMetadataChanged": false,
+  "fullEmbeddedMsbuildGitShaClaimed": false,
+  "sourceArchiveValidated": false,
+  "actualProviderLoadsAuthenticated": false,
+  "qualificationAllowed": false,
+  "sourceAdmissionAllowed": false
+}
