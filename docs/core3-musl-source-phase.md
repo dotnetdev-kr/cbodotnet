@@ -191,3 +191,13 @@ Original control116 and five-source-native comparison117 each pass eight command
 Actual118 uses the new source crossgen and JIT to transform the unchanged IL cold fixture from no native header to a124-byte ReadyToRun header, then executes it successfully on the new source CLR. The10,752-byte R2R output has SHA256 `58524cc1ca6c5a6b97e76965d73b95766e444400466bc079d638be15e10f9885`. Separate119v2 records2,545 real DotNETRuntime events,80 GCStart,80 GCEnd, exactly one independent native LTTng control and READY/DONE. Initial119v1 failed before tracing because the selected runtime-only image lacks `lttng-sessiond`; the successful fresh attempt uses the existing pinned tracing image and retains the failed attempt separately.
 
 The machine-readable checkpoint contains232 independently hashable evidence descriptors. Exact pre-change documentation bytes and Git provenance are retained separately. Original3.0 CLI/toolset/F# preparation follows in120: all applicable original source-build patches are checked/applied, while the solution-only CLI test-exclusion patch is disclosed as omitted after its pristine serviced solution check fails. The original redist project is invoked directly and solution/test bytes remain unchanged. Private same-generation SDK3.0.103 host/MSBuild/compiler controls pass121. Original CLI restore122 then reports the unavailable exact Arcade1.0.0-beta.19607.3 as its first error; cascading unbounded dependency errors are not accepted as package pins. Exact corresponding Arcade source is `4d80b9cfa53e309c8f685abff3512f60c3d8a3d1` and is the next source producer. All Core3.0 SDK/source/license/platform/release admission gates remain closed.
+
+
+## Original Core3.1 native host source
+
+The [bounded original host component](core31-musl-host-source.md) now passes
+source production and complete stock-musl ELF/debug/version verification for
+all five ARM64 host products. Its exact inputs, two source adaptations, actual
+results and preserved failures are retained separately. Whole SDK construction,
+complete source/bootstrap admission, both normal CPUs and public delivery remain
+pending; the Core3.0 runtime blocker remains unresolved.

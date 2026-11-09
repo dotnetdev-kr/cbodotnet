@@ -1,0 +1,44 @@
+{
+  "sourceCommit": "2be3fe3f718b0c801fe11292373bf5d8b6a1bccc",
+  "codeFiles": {
+    "scripts/musl_archive.py": {
+      "bytes": 43570,
+      "sha256": "b216041e536491d8afc851938c31fd3163aff201ec24abba0a56e196b003014d",
+      "sha512": "c9d7832743cc5dbaebc4554a2cdda1052e7aa32bd356f53104a3648ecfbd1280908af37b8379a12eb2d8c31f9ccdac70cfe7a9c8ef675e8093f64a1b25f2bc38"
+    },
+    "scripts/downstream_release.py": {
+      "bytes": 31713,
+      "sha256": "a4ff0a7d89fc93cd813762413af89dfed315cc492b15e80b050e6ad8d8f6b668",
+      "sha512": "886a52db9e1a2f56ea8e29b00a3bf0e9c1e25d65b0c3eab300ec77c2d28ddad7960c9af177bde7bdde21a3ec43b26471c9af324fb475aeffc8bc84a9f2f21be6"
+    },
+    "scripts/musl_contract.py": {
+      "bytes": 20054,
+      "sha256": "c45d5f2c107e4944094f1c681d4681ce60ebc8889c372b67d22c7a33c18626f9",
+      "sha512": "d353c8410f6d5a701da4fd4e5c2f87b91952b4ebc1ac7238eee7b7431ade8bd3d04347aa4d24f7af6ad56e7653431cc67b9c2a16077da637d12b85a8123c8e5a"
+    },
+    "scripts/sdk_runtime.py": {
+      "bytes": 13126,
+      "sha256": "18b6baf81ef5aecb9f9472f9759a50b0a01695350b5797c3b037d6d1a8b7eb9c",
+      "sha512": "8f1b59cd93dccc6acacdb1f8b938d3822c73a0988ac90201b0b25534b29509f43be1b1633e4c2a50cb6af49a5f080516fbff12fbfdc09ba78d0942f25d555f8c"
+    },
+    "scripts/distribution_contract.py": {
+      "bytes": 17447,
+      "sha256": "a2ca4af9a1bd063d3229a0bb8b9160f52e561c37b6ed8442ce9bc6340938016f",
+      "sha512": "9129842f30b1957754d8bcf3efb81f58f13732584915b2384f5f0b62656bd1af0f9dfd1af1284ed32bb06f928d61c4adbb08b62bc98cd30b4940b6603f70e52a"
+    },
+    "scripts/release_catalog.py": {
+      "bytes": 22817,
+      "sha256": "6b8c51acb085672007e2f2464b7571fe734c6704b5fb7aecdc0932a005a4fb03",
+      "sha512": "d1bac5933b09c07761c9082f65d8201f6b252932b935dafee3efddf26bfcd37a73b5707ae89a2d0f0da762dce7d67d46bc938d7a9bfc3f8efff88b5fb171e9cf"
+    },
+    "scripts/musl_source_transport.py": {
+      "bytes": 13772,
+      "sha256": "7acf0977e567b7f490faa7389925a135e2840208130fa31d08c94cdcae14fb18",
+      "sha512": "3c18e7e9fd707bcc68758d274b1ea16700066add259d3c1e752fb4b110457fc86464b5f849465b98423676693b2f5a1cd11b79b5f47e69ea4f4ee222396d3696"
+    }
+  },
+  "apkIndexes": {
+    "main": "9a6918bdad9239435f2acb887b465c2c41ce121c5a745580cde569766f913540",
+    "community": "ad8f92f7111c96240bc7ec595d78201a74e4fc1ef2d50658f3136a446e0c7f08"
+  }
+}

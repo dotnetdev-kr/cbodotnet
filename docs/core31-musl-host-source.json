@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "status": "reviewed-private-original-Core31-host-source-component",
+  "sdkVersion": "3.1.426",
+  "runtimeVersion": "3.1.32",
+  "architecture": "aarch64",
+  "libc": "musl",
+  "alpineVersion": "3.24.4",
+  "source": {
+    "repository": "https://github.com/dotnet/core-setup",
+    "commit": "f94bb2c3ff432dcc4a6229eca2f978197bf06150",
+    "tree": "a2cd9841d6f8f666a0767f56a3636800866d2072",
+    "originalFiles": 998,
+    "declaredAdaptations": [
+      "src/corehost/build.sh portable musl RID",
+      "src/corehost/cli/fxr/sdk_resolver.cpp four std::move namespace qualifications"
+    ],
+    "globalPinsModified": false
+  },
+  "version": {
+    "fileVersion": "3.100.3226.55906",
+    "officialBuildId": "20261109.6",
+    "generatedByOriginalTargets": true,
+    "handwritten": false,
+    "compilerVersionBindings": 9
+  },
+  "toolInputs": {
+    "bootstrapVersion": "8.0.131",
+    "bootstrapRole": "version-generation-MSBuild-only-not-SDK3.1-product",
+    "bootstrapArchive": {
+      "path": ".build/musl-sdk8-input-review/bootstrap-sdk.tar.gz",
+      "bytes": 208913758,
+      "sha256": "032b96614e3ce12e1541c9105341394e75124d8a53440ef2b155422bf20326ca",
+      "sha512": "aaa3e485166a5779a41cc7ec33a03e322d57aaede0dc4afed850d56371e9fdf06fd458eef412660b82a4773a8b625b213a0db7202623206d72c6a68a4fb90032"
+    },
+    "originalArcadePackage": {
+      "path": ".build/core31-host-source-worker-v1/version-input-v2/microsoft.dotnet.arcade.sdk.1.0.0-beta.22314.5.nupkg",
+      "bytes": 1176271,
+      "sha256": "df1fc7f7afb96b726730d781d3a5a87855ce7c368c15a7e2242efd8fbaa974b2",
+      "sha512": "c8a1eb32709b75aba6ab6828982cc983a8f8a5dcf141c311efc1aad103a39fda355a7d1b1dffd33d62bbff13285349fb44e887ded8495b093fbc8558a75b9b80"
+    },
+    "stockCompiler": "Alpine-Clang20.1.8",
+    "cmake": "Alpine-CMake4.2.3"
+  },
+  "actualExecution": {
+    "exitCode": 0,
+    "wholeContainerSeconds": 90.027724153,
+    "originalBuildSeconds": 68.687,
+    "sourceBuildImage": "9e05963d169c92b85f488e56e164e661c435138d809e3f3e8bd77c34b5141cc2",
+    "readOnlyCodeFiles": 12,
+    "wholeWorkspaceMounted": false,
+    "compilerDatabaseEntries": 106
+  },
+  "products": [
+    {
+      "name": "dotnet",
+      "bytes": 67792,
+      "sha256": "40fd339797ae3ca9cb316e154acdce1680c7c65cc953a3cc5965b5ac8812e0d6",
+      "sha512": "ce254db05f19512824d0724211440402f43bd7e3013028d9aac7ca114e7b18c602743882587b8ef7b3a93cac1e7ebba9ac33da0c69b1475ebc24906c0c4a8cae",
+      "debug": {
+        "bytes": 479592,
+        "sha256": "8400633c4a95ce0a820a4758a88e49cae44ecf69b93370a2864723b2a2c00f52",
+        "sha512": "017044338f57d31a464fcf80ca618b88cb1d8ced11c773f8783d59a19ced015c59c1f20f05b0155ebfaeddc75d895bbd816a9dd8763c5f8d00630bd71fc57b4d"
+      },
+      "buildIdMatched": true,
+      "debuglinkCrcMatched": true,
+      "versionMatched": true,
+      "releaseHardening": true
+    },
+    {
+      "name": "libhostfxr.so",
+      "bytes": 395528,
+      "sha256": "5a83ddeaccedf03fcacdeca623662f5e3d5764e15a7fb34f4508eda5191aabd9",
+      "sha512": "2c4876ecbfb336ee55200a202a742ed5772c53a6716c4d802116b0e7b1ee4085b5e1fc34d306c4a44f5b5dce463a17cf634412bb793a67bcb6d39def8877d17c",
+      "debug": {
+        "bytes": 4504192,
+        "sha256": "f29522cbf89feb5462ac4a5b0da423b06ccc0491c3d859ce13296e8658c64449",
+        "sha512": "e877c5801be3e1528f2621bc38bde798e8888abe4f04495ec4c2f79dca9f5b1c6c873e38fc5100362ed09e793968d827d50881e292a9deed9cf389eda8eb951d"
+      },
+      "buildIdMatched": true,
+      "debuglinkCrcMatched": true,
+      "versionMatched": true,
+      "releaseHardening": true
+    },
+    {
+      "name": "libhostpolicy.so",
+      "bytes": 329976,
+      "sha256": "db41b0a0c4051afcade8705feaacc1cce0cc34bf4a9403a4f5d1dc7aefffe3b8",
+      "sha512": "d9f2d760fec1667a99b001d40798681a6b69cb17e8711ca6236c0f5437a06ab08c6fdffa02c370942ade0e3991c39cff518110f9ab72fb71b2b444de0e7bf227",
+      "debug": {
+        "bytes": 4096816,
+        "sha256": "803be605ce63297a7757eacb96c70ad686162c63abe9b646d407642bfa1ddd7b",
+        "sha512": "d267316ec7ef81f9c644ad1590d476074da4632cee53c244fc1027c9d1c4511155a57992d0aae9846022a75e88ccaad49c40080c4f161653005187842eb710f6"
+      },
+      "buildIdMatched": true,
+      "debuglinkCrcMatched": true,
+      "versionMatched": true,
+      "releaseHardening": true
+    },
+    {
+      "name": "apphost",
+      "bytes": 134480,
+      "sha256": "6f3ec2424d0215da09dc41ab84914e632fe0917be0a2f347b59d5d558efe6d51",
+      "sha512": "f83474ffbac1c8d6e897bdf4e057b047731f5a18c966fc523d6b4a5b993d6fe7bcbbbc754f53b198ec0da8679bc60debbaffed5eb87759d6acf5e49a6614fbe2",
+      "debug": {
+        "bytes": 695688,
+        "sha256": "b81913377a1e6497250b1fccc09de35bf8d0eed0c188347dd62e15fb6182dfaf",
+        "sha512": "9dd4fcc6043e7eae33dcd51a1f2ce50e4f7392bcd3ad36101c61f6357683d2ed96c8a1648ee6df865c09c6f4453ecc68ef6ccf77ca716dfaf4cbb2dc68f61a27"
+      },
+      "buildIdMatched": true,
+      "debuglinkCrcMatched": true,
+      "versionMatched": true,
+      "releaseHardening": true
+    },
+    {
+      "name": "libnethost.so",
+      "bytes": 67728,
+      "sha256": "e861bdfbdbce50dc3556f222798a34989c470107f0ead656734170fb944ca939",
+      "sha512": "a3bbb8d94b96ee4ed324f2d9663d9b2e6546b9294ab164058176252b5bd25ecb691b5ad12676156030f69557b34c448764a1730276452f97886d2d502732ad39",
+      "debug": {
+        "bytes": 483016,
+        "sha256": "f7633809e4cbbd52e25fe0c06d41725d6472f48f4395c73c828c0f8ff46e7b1e",
+        "sha512": "9d83d3377b31ed5f68db8eadbd2e25d9801830fe849ef2efb1861707027fb26f31244c0d88481c6423880179bd5c7d63bed7bdcfda8051cb090c31dd5653c53f"
+      },
+      "buildIdMatched": true,
+      "debuglinkCrcMatched": true,
+      "versionMatched": true,
+      "releaseHardening": true
+    }
+  ],
+  "nativeElfClosure": {
+    "products": 5,
+    "stockProviders": 3,
+    "unchangedAuditorModules": 7,
+    "signedApkIndexes": 2,
+    "generalGlibcException": false,
+    "compatibilityProviderAllowed": false,
+    "providerNegativeControls": 6,
+    "report": {
+      "completeClosure": {
+        "bytes": 12073,
+        "sha256": "7877475cee2e7b979e5efc0ea49355c85f128d6d9ab94d8aa7f8d96d047b48b6",
+        "sha512": "b88d64484ff3c5b614ca984ae100c408e47e7dbc41b4c975e349958bbfc806aa9b563681f397769c030cacd383a8dfc8e796f3f7d54a3926c23e0dc8b6280436"
+      },
+      "stockProviders": {
+        "bytes": 6606,
+        "sha256": "1c4c738deff62023c77d38491bdd3425f0a0479098fe569375ba983397ac2b72",
+        "sha512": "87fda4bca4f7abd10befcdda004e4527a02453042e470089873dc1b70f90f402aa8308a04e0bd30cb09fa89a88655f864b29b90d4cb0f9ab7f1e7408a91b0373"
+      },
+      "auditorSources": {
+        "scripts/musl_archive.py": {
+          "bytes": 43570,
+          "sha256": "b216041e536491d8afc851938c31fd3163aff201ec24abba0a56e196b003014d",
+          "sha512": "c9d7832743cc5dbaebc4554a2cdda1052e7aa32bd356f53104a3648ecfbd1280908af37b8379a12eb2d8c31f9ccdac70cfe7a9c8ef675e8093f64a1b25f2bc38"
+        },
+        "scripts/downstream_release.py": {
+          "bytes": 31713,
+          "sha256": "a4ff0a7d89fc93cd813762413af89dfed315cc492b15e80b050e6ad8d8f6b668",
+          "sha512": "886a52db9e1a2f56ea8e29b00a3bf0e9c1e25d65b0c3eab300ec77c2d28ddad7960c9af177bde7bdde21a3ec43b26471c9af324fb475aeffc8bc84a9f2f21be6"
+        },
+        "scripts/musl_contract.py": {
+          "bytes": 20054,
+          "sha256": "c45d5f2c107e4944094f1c681d4681ce60ebc8889c372b67d22c7a33c18626f9",
+          "sha512": "d353c8410f6d5a701da4fd4e5c2f87b91952b4ebc1ac7238eee7b7431ade8bd3d04347aa4d24f7af6ad56e7653431cc67b9c2a16077da637d12b85a8123c8e5a"
+        },
+        "scripts/sdk_runtime.py": {
+          "bytes": 13126,
+          "sha256": "18b6baf81ef5aecb9f9472f9759a50b0a01695350b5797c3b037d6d1a8b7eb9c",
+          "sha512": "8f1b59cd93dccc6acacdb1f8b938d3822c73a0988ac90201b0b25534b29509f43be1b1633e4c2a50cb6af49a5f080516fbff12fbfdc09ba78d0942f25d555f8c"
+        },
+        "scripts/distribution_contract.py": {
+          "bytes": 17447,
+          "sha256": "a2ca4af9a1bd063d3229a0bb8b9160f52e561c37b6ed8442ce9bc6340938016f",
+          "sha512": "9129842f30b1957754d8bcf3efb81f58f13732584915b2384f5f0b62656bd1af0f9dfd1af1284ed32bb06f928d61c4adbb08b62bc98cd30b4940b6603f70e52a"
+        },
+        "scripts/release_catalog.py": {
+          "bytes": 22817,
+          "sha256": "6b8c51acb085672007e2f2464b7571fe734c6704b5fb7aecdc0932a005a4fb03",
+          "sha512": "d1bac5933b09c07761c9082f65d8201f6b252932b935dafee3efddf26bfcd37a73b5707ae89a2d0f0da762dce7d67d46bc938d7a9bfc3f8efff88b5fb171e9cf"
+        },
+        "scripts/musl_source_transport.py": {
+          "bytes": 13772,
+          "sha256": "7acf0977e567b7f490faa7389925a135e2840208130fa31d08c94cdcae14fb18",
+          "sha512": "3c18e7e9fd707bcc68758d274b1ea16700066add259d3c1e752fb4b110457fc86464b5f849465b98423676693b2f5a1cd11b79b5f47e69ea4f4ee222396d3696"
+        },
+        ".build/core31-host-source-worker-v6/audit_native_products.py": {
+          "bytes": 4659,
+          "sha256": "9a5ec1aef9f80cb32cb29e63bf55186b79c8cb2bc73a07c15d3dd0183d620c60",
+          "sha512": "dc948ace9f533ea3c84d4d0ea0c3d3c3aa00b036e31faa52ea56e1b5e557b446bf721b9197df62d57d62cb13c9612dfe5a87d85996dd6d5e2474633ed46e1ccc"
+        },
+        ".build/core31-host-source-worker-v6/elf-audit-source-pins.json": {
+          "bytes": 2351,
+          "sha256": "59ef10f46b98fab4772f273eb319537ee3f3233797e5671ac9efffa1ad498222",
+          "sha512": "39f75380cc99b461e10a93a1e80766bc9b4f1cc601592fee43cd344c2462ac38a5964e1b7027411c42dd4f6855c8d5ca59317b0e39af47a3f7c5affb08f12b56"
+        }
+      },
+      "runtimeExecuted": false,
+      "compilerExecuted": false
+    }
+  },
+  "restoreInputs": {
+    "assets": 2,
+    "packages": 8,
+    "bindings": 5,
+    "completeCorrespondingSourceClaimed": false,
+    "reader": {
+      "bytes": 7772,
+      "sha256": "7cb6ea6292d443deb6b943015c273513352765cd463bb95ac817bdf222660b1a",
+      "sha512": "f5df5c629c751eb32bc4ee86c6a1f4002f56cd29a6e1250ff1fed1c2c5a4f7bd6b531050f2ded7b7603312b62d21201618cb576cc4d9698decc528f7a4821773"
+    }
+  },
+  "actualEvidence": [
+    {
+      "path": ".build/core31-host-source-worker-v6/attempt-v8/evidence/results.json",
+      "bytes": 27005,
+      "sha256": "77e0d288a40fdf4c7fa32c635ded31ad24245baf277957c1168620d0424e4941",
+      "sha512": "aaf53f0ef4d243bdeca667d85b0f6ca588d67afae33c8f234df877154a38e04f1f81e10c21b1c16ae898381edfeaa0c7033b9dff5a9a662bc4c2300b5271ab71"
+    },
+    {
+      "path": ".build/core31-host-source-execution-v8/execution-result.json",
+      "bytes": 264,
+      "sha256": "70ec0fbe214793f0b16377c3a94ff4b3a3a2ce12523ac9564c39d17b1405cd58",
+      "sha512": "3f1b44d5c99433d04411bbe04a329ed5a1b9c87633183579a4359c56c7ee1e0744eaea4d86392c9f554cd68edbf742485275eff60eca2f0ccaf1cc2b78d19927"
+    },
+    {
+      "path": ".build/core31-host-source-execution-v8/invocation.json",
+      "bytes": 10812,
+      "sha256": "602734b43483c3b191f78f697fc3c9f1551d147b207aa44fb9794823a822dc27",
+      "sha512": "dc6c9b639f5ccbe3daca00d655974858f2093da7f2023d026f7e21ddd84a222a0a1dccee9497efe697008f7e0ab3987c20dce4dfbca6d8cd73a2115fe8eb5a3c"
+    },
+    {
+      "path": ".build/review-core31-host-v8-readonly-v1/review.json",
+      "bytes": 5424,
+      "sha256": "a92bfbade0d10648128b394a1fd35a081c4b963a1b39c00506fcc9379f696b85",
+      "sha512": "ab98d5219e528020b20de21ae192eb0977eca57cf020d6ec9c4e4336c5bba5276c0290b61de8440f16898be785c98dad0cb952392b33fd1876bcb209047db134"
+    },
+    {
+      "path": ".build/review-core31-host-v8-readonly-v1/frozen-v8-evidence.json",
+      "bytes": 36515,
+      "sha256": "07d809c04fd9da54b1840586890e8119bffdd2a22291acc74a979cb9ebfd0398",
+      "sha512": "7b40e30b27ae6944b6dd565e842fb940a93ed1ffe809ddac68d6755153d08b69672804d34d4211869e6ee785d1af87d267d68994920e8b434def330f5e33090e"
+    }
+  ],
+  "publishedEntry": {
+    "files": {
+      "scripts/core31_musl_host_source.py": {
+        "bytes": 41209,
+        "sha256": "bacf2b64c3ccf74498d32762a3894106cd7e8171d96faded1126a6914910e296",
+        "sha512": "ddc9b2d28376dcf54faf03b21938a13ee78c31d6536860ea2cf4cccafc79bbb2dab427420336eb3073fe58913c735e0c7e558e706e2e9002b1565d7a26195ee4"
+      },
+      "scripts/core31_musl_host_elf.py": {
+        "bytes": 4641,
+        "sha256": "8cb927df3081c79bd7ee84bdb617064d6f1cab263f0b7a465b1bc53d2a91a746",
+        "sha512": "1a35d2693c141f4c0a8652f2d84949f1ad75525befeacd0254c6b274e29d44ae8cfbae6af04c1dc831be1861c4abebf87b91afe4f249b760d03649d0b1e987ff"
+      },
+      "scripts/core31-musl-host-elf-audit-pins.json": {
+        "bytes": 2351,
+        "sha256": "59ef10f46b98fab4772f273eb319537ee3f3233797e5671ac9efffa1ad498222",
+        "sha512": "39f75380cc99b461e10a93a1e80766bc9b4f1cc601592fee43cd344c2462ac38a5964e1b7027411c42dd4f6855c8d5ca59317b0e39af47a3f7c5affb08f12b56"
+      }
+    },
+    "reverseRelocationReconstructsActualExecutedBytes": true,
+    "newHostCompilationPerformed": false
+  },
+  "preservedV7Status": "failed-private-original-host-attempt",
+  "sourceSdkProduct": false,
+  "wholeNormalProducer": false,
+  "completeCorrespondingSource": false,
+  "nativeTwoCpuQualified": false,
+  "qualificationAllowed": false,
+  "sourceAdmissionAllowed": false,
+  "core30RuntimeBlockerResolved": false
+}
