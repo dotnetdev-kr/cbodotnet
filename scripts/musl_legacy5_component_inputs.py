@@ -47,6 +47,13 @@ def original_blob(raw):
     return hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest()
 
 
+def original_source_mode(row, entry):
+    """Declared byte edits never authorize a Git source type/mode change."""
+    if row.get('baseline', {}).get('mode') == '120000':
+        return (row.get('mode') == '120000' and entry.type == tarfile.SYMTYPE
+                and entry.sparse is None and entry.mode == 0o777)
+    return N.patched_source_mode(row, entry)
+
 def patched_project_text(component, name, raw):
     if b'\r' not in raw: return raw
     # Git applies this exact reviewed Pack patch with its original CRLF
@@ -128,9 +135,11 @@ def validate(release, manifest, component):
             if entry.name not in indexed: continue
             require(entry.name not in found and (entry.isfile() or entry.issym()) and entry.size <= 64 * 1024**2,
                     'Unique ordinary bounded SDK5 component source required')
-            raw = entry.linkname.encode() if entry.issym() else archive.extractfile(entry).read(); row = indexed[entry.name]
+            row = indexed[entry.name]; parent, _, relative = entry.name.partition('/')
+            if parent in roots and row.get('baseline'):
+                require(original_source_mode(row, entry), 'SDK5 original component source must retain exact Git/index/TAR type and mode: ' + entry.name)
+            raw = entry.linkname.encode() if entry.issym() else archive.extractfile(entry).read()
             require(N.fingerprint(raw) == {key: row[key] for key in N.FP}, 'Actual archived SDK5 component source bytes differ')
-            parent, _, relative = entry.name.partition('/')
             if parent in roots:
                 if parent == component and (relative in changed or component == 'nuget' and relative == NUGET_DRIVER): saved[relative] = raw
                 else: require(original_blob(raw) == row['baseline']['blob'], 'Unreviewed SDK5 original component source change: ' + entry.name)
