@@ -35,7 +35,7 @@ def materializer():
 def register(sdk, sources, clone, expand_submodules, report_path):
     require(sdk == '6.0.136', 'This source registry is exclusively SDK6')
     utility = materializer()
-    fresh, reports = [], []
+    fresh, reports, reused_source_only = [], [], []
     expanded = expand_submodules(list(sources.values())); sources.clear(); sources.update({r['name']: r for r in expanded})
     require(len(sources) == len(expanded), 'Duplicate SDK6 canonical Gitlink source name')
     for row in policy():
@@ -45,7 +45,16 @@ def register(sdk, sources, clone, expand_submodules, report_path):
         if preferred:
             existing = preferred
         require(len(existing) <= 1, 'Ambiguous SDK6 imported source commit')
-        if existing: continue
+        if existing:
+            # Prepared SDK dependency clones have never been compiler
+            # worktrees. Their checkout attributes still need the same exact
+            # Git-byte materialization as newly acquired publisher sources.
+            # Untyped or actual compiler roots must never enter this rewrite.
+            if existing[0].get('role') == 'source-for-reused-managed-input':
+                require(existing[0].get('kind') == 'git', 'Reused SDK6 source-only acquisition must retain its Git checkout')
+                fresh.append(Path(existing[0]['path']).absolute())
+                reused_source_only.append(existing[0]['name'])
+            continue
         require(row['name'] not in sources, 'SDK6 component source name conflicts with another root')
         clone(row['name'], row['repository'], row['commit']); sources[row['name']]['role'] = ROLE
         fresh.append(Path(sources[row['name']]['path']).absolute())
@@ -63,5 +72,6 @@ def register(sdk, sources, clone, expand_submodules, report_path):
     path = Path(report_path); require(not path.exists() and not any(p.is_symlink() for p in (path, *path.parents)), 'Fresh ordinary SDK6 source materialization report required')
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(dict(schemaVersion=1, kind='sdk6-fresh-corresponding-source-exact-Git-materialization',
-        sdkVersion=sdk, roots=reports, compilerWorktreesRewritten=False), indent=2) + '\n')
+        sdkVersion=sdk, roots=reports, reusedSourceOnlyDependencyRoots=reused_source_only,
+        compilerWorktreesRewritten=False), indent=2) + '\n')
     return reports
