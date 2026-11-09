@@ -1,0 +1,913 @@
+{
+  "schemaVersion": 1,
+  "kind": "core31-musl-construction-policy",
+  "sdkVersion": "3.1.426",
+  "status": "unregistered-incomplete-source-contract",
+  "normalAdmissionEnabled": false,
+  "sourceAdmissionAllowed": false,
+  "releaseAdmissionAllowed": false,
+  "architectures": {
+    "x64": {
+      "rid": "linux-musl-x64",
+      "nativeArchitecture": "x86_64",
+      "upstreamArchitecture": "x64",
+      "nativeOnly": true,
+      "normalProducerProven": false,
+      "normalConsumerProven": false,
+      "productRoots": {
+        "sdk": "sdk/3.1.426",
+        "runtime": "shared/Microsoft.NETCore.App/3.1.32",
+        "aspnetcore": "shared/Microsoft.AspNetCore.App/3.1.32",
+        "hostfxr": "host/fxr/3.1.32"
+      },
+      "unresolved": [
+        "Fresh native normal producer and independent consumers, exact image/tool/source/parent identities, original test/scan universe and complete corresponding-source/member/provider closure."
+      ]
+    },
+    "aarch64": {
+      "rid": "linux-musl-arm64",
+      "nativeArchitecture": "aarch64",
+      "upstreamArchitecture": "arm64",
+      "nativeOnly": true,
+      "normalProducerProven": false,
+      "normalConsumerProven": false,
+      "productRoots": {
+        "sdk": "sdk/3.1.426",
+        "runtime": "shared/Microsoft.NETCore.App/3.1.32",
+        "aspnetcore": "shared/Microsoft.AspNetCore.App/3.1.32",
+        "hostfxr": "host/fxr/3.1.32"
+      },
+      "unresolved": [
+        "Fresh native normal producer and independent consumers, exact image/tool/source/parent identities, original test/scan universe and complete corresponding-source/member/provider closure."
+      ]
+    }
+  },
+  "sourceRepositories": {
+    "source_build": {
+      "repository": "https://github.com/dotnet/source-build",
+      "commit": "ab8b115b5658237ee8916ae3586600b39fb2fd19",
+      "tree": null,
+      "preferredSourceManifestPin": null,
+      "licenseInventoryPin": null,
+      "knownLicensePaths": [],
+      "unresolved": [
+        "Bind complete preferred source, Gitlinks/submodules, shared and generated inputs with exact member identities.",
+        "Bind all original license/notice bytes and transitive source/license inventory; no repository-wide license assumption.",
+        "Exact source tree identity not bound by this first-slice policy."
+      ]
+    },
+    "core_sdk": {
+      "repository": "https://github.com/dotnet/core-sdk",
+      "commit": "e81f6c85654f91c5eab0cb78386db4b32df63b4b",
+      "tree": null,
+      "preferredSourceManifestPin": null,
+      "licenseInventoryPin": null,
+      "knownLicensePaths": [],
+      "unresolved": [
+        "Bind complete preferred source, Gitlinks/submodules, shared and generated inputs with exact member identities.",
+        "Bind all original license/notice bytes and transitive source/license inventory; no repository-wide license assumption.",
+        "Exact source tree identity not bound by this first-slice policy."
+      ]
+    },
+    "sdk": {
+      "repository": "https://github.com/dotnet/sdk",
+      "commit": "eb0cfa780959c0c63217a7d8225dc260e7f6ce65",
+      "tree": null,
+      "preferredSourceManifestPin": null,
+      "licenseInventoryPin": null,
+      "knownLicensePaths": [],
+      "unresolved": [
+        "Bind complete preferred source, Gitlinks/submodules, shared and generated inputs with exact member identities.",
+        "Bind all original license/notice bytes and transitive source/license inventory; no repository-wide license assumption.",
+        "Exact source tree identity not bound by this first-slice policy."
+      ]
+    },
+    "cli": {
+      "repository": "https://github.com/dotnet/cli",
+      "commit": "cca488d5d530e6ec291134abe3462fed613a4429",
+      "tree": null,
+      "preferredSourceManifestPin": null,
+      "licenseInventoryPin": null,
+      "knownLicensePaths": [],
+      "unresolved": [
+        "Bind complete preferred source, Gitlinks/submodules, shared and generated inputs with exact member identities.",
+        "Bind all original license/notice bytes and transitive source/license inventory; no repository-wide license assumption.",
+        "Exact source tree identity not bound by this first-slice policy."
+      ]
+    },
+    "toolset": {
+      "repository": "https://github.com/dotnet/toolset",
+      "commit": "1f49106259d62b22e818c0fa745788a79e067723",
+      "tree": null,
+      "preferredSourceManifestPin": null,
+      "licenseInventoryPin": null,
+      "knownLicensePaths": [],
+      "unresolved": [
+        "Bind complete preferred source, Gitlinks/submodules, shared and generated inputs with exact member identities.",
+        "Bind all original license/notice bytes and transitive source/license inventory; no repository-wide license assumption.",
+        "Exact source tree identity not bound by this first-slice policy."
+      ]
+    },
+    "fsharp": {
+      "repository": "https://github.com/dotnet/fsharp",
+      "commit": "3ef6f0b514198c0bfa6c2c09fefe41a740b024d5",
+      "tree": null,
+      "preferredSourceManifestPin": null,
+      "licenseInventoryPin": null,
+      "knownLicensePaths": [],
+      "unresolved": [
+        "Bind complete preferred source, Gitlinks/submodules, shared and generated inputs with exact member identities.",
+        "Bind all original license/notice bytes and transitive source/license inventory; no repository-wide license assumption.",
+        "Exact source tree identity not bound by this first-slice policy."
+      ]
+    },
+    "coreclr": {
+      "repository": "https://github.com/dotnet/coreclr",
+      "commit": "c17d273aa03d4b9d14c92248a91f0d0faa881b98",
+      "tree": null,
+      "preferredSourceManifestPin": null,
+      "licenseInventoryPin": null,
+      "knownLicensePaths": [],
+      "unresolved": [
+        "Bind complete preferred source, Gitlinks/submodules, shared and generated inputs with exact member identities.",
+        "Bind all original license/notice bytes and transitive source/license inventory; no repository-wide license assumption.",
+        "Exact source tree identity not bound by this first-slice policy."
+      ]
+    },
+    "corefx": {
+      "repository": "https://github.com/dotnet/corefx",
+      "commit": "b58ef0a19eca6269799664d6288be14b7f0cef3e",
+      "tree": null,
+      "preferredSourceManifestPin": null,
+      "licenseInventoryPin": null,
+      "knownLicensePaths": [],
+      "unresolved": [
+        "Bind complete preferred source, Gitlinks/submodules, shared and generated inputs with exact member identities.",
+        "Bind all original license/notice bytes and transitive source/license inventory; no repository-wide license assumption.",
+        "Exact source tree identity not bound by this first-slice policy."
+      ]
+    },
+    "core_setup": {
+      "repository": "https://github.com/dotnet/core-setup",
+      "commit": "f94bb2c3ff432dcc4a6229eca2f978197bf06150",
+      "tree": "a2cd9841d6f8f666a0767f56a3636800866d2072",
+      "preferredSourceManifestPin": null,
+      "licenseInventoryPin": null,
+      "knownLicensePaths": [],
+      "unresolved": [
+        "Bind complete preferred source, Gitlinks/submodules, shared and generated inputs with exact member identities.",
+        "Bind all original license/notice bytes and transitive source/license inventory; no repository-wide license assumption."
+      ]
+    },
+    "aspnetcore": {
+      "repository": "https://github.com/dotnet/aspnetcore",
+      "commit": "3eeb12e106b9e913c3a4dec1a7d16da7b74149eb",
+      "tree": null,
+      "preferredSourceManifestPin": null,
+      "licenseInventoryPin": null,
+      "knownLicensePaths": [],
+      "unresolved": [
+        "Bind complete preferred source, Gitlinks/submodules, shared and generated inputs with exact member identities.",
+        "Bind all original license/notice bytes and transitive source/license inventory; no repository-wide license assumption.",
+        "Exact source tree identity not bound by this first-slice policy."
+      ]
+    },
+    "razor": {
+      "repository": "https://github.com/dotnet/razor",
+      "commit": "1c563d7b069d3b5dfbab6fd2ea665adad8ab7dea",
+      "tree": null,
+      "preferredSourceManifestPin": null,
+      "licenseInventoryPin": null,
+      "knownLicensePaths": [],
+      "unresolved": [
+        "Bind complete preferred source, Gitlinks/submodules, shared and generated inputs with exact member identities.",
+        "Bind all original license/notice bytes and transitive source/license inventory; no repository-wide license assumption.",
+        "Exact source tree identity not bound by this first-slice policy."
+      ]
+    },
+    "arcade_sdk": {
+      "repository": "https://github.com/dotnet/arcade",
+      "commit": "7120a7d1b74dcbce97e34dded2c9e9011639b175",
+      "tree": null,
+      "preferredSourceManifestPin": null,
+      "licenseInventoryPin": null,
+      "knownLicensePaths": [],
+      "unresolved": [
+        "Complete exact Arcade source/tree/submodule/generated/license inventory remains unbound."
+      ]
+    }
+  },
+  "stageOrder": [
+    "sdk_tasks",
+    "cli",
+    "fsharp_proto",
+    "fsharp_release",
+    "toolset",
+    "core_sdk",
+    "collector"
+  ],
+  "stages": {
+    "sdk_tasks": {
+      "requiredParents": [],
+      "outputRoles": [
+        "source_sdk_task_package",
+        "sdk_tasks_and_satellites"
+      ],
+      "sourceRepositories": [
+        "source_build",
+        "sdk"
+      ],
+      "originalProject": "src/Tasks/Microsoft.NET.Build.Tasks/Microsoft.NET.Build.Tasks.csproj",
+      "originalTargetFrameworks": [
+        "netcoreapp2.1",
+        "net472"
+      ],
+      "unresolved": [
+        "Fresh original target-framework matrix and complete compiler/source/resource/reference/generated-input proof."
+      ],
+      "requiredInputRoles": []
+    },
+    "cli": {
+      "requiredParents": [
+        "sdk_tasks"
+      ],
+      "outputRoles": [
+        "cli",
+        "cli_runtime",
+        "cli_sln_internal",
+        "cli_utils",
+        "configurer",
+        "internal_abstractions",
+        "msbuild_sdk_resolver"
+      ],
+      "sourceRepositories": [
+        "source_build",
+        "cli",
+        "sdk"
+      ],
+      "originalProject": "src/redist/redist.csproj",
+      "unresolved": [
+        "Fresh original redist build and explicit original child-package construction, compiled C#/neutral/XLF branding and actual SDK-task carriage."
+      ],
+      "requiredInputRoles": [
+        "sdk_tasks_and_satellites"
+      ]
+    },
+    "fsharp_proto": {
+      "requiredParents": [],
+      "outputRoles": [
+        "fsharp_proto_compiler"
+      ],
+      "sourceRepositories": [
+        "source_build",
+        "fsharp"
+      ],
+      "localizedBuild": false,
+      "enableXlfLocalization": false,
+      "unresolved": [
+        "Fresh original Proto construction with exact compiler/generated-source/bootstrap inputs."
+      ],
+      "requiredInputRoles": []
+    },
+    "fsharp_release": {
+      "requiredParents": [
+        "fsharp_proto"
+      ],
+      "outputRoles": [
+        "localized_fsharp_compiler_package"
+      ],
+      "sourceRepositories": [
+        "source_build",
+        "fsharp"
+      ],
+      "localizedBuild": true,
+      "enableXlfLocalization": true,
+      "updateXlfOnBuild": false,
+      "requiredCultures": [
+        "cs",
+        "de",
+        "es",
+        "fr",
+        "it",
+        "ja",
+        "ko",
+        "pl",
+        "pt-BR",
+        "ru",
+        "tr",
+        "zh-Hans",
+        "zh-Hant"
+      ],
+      "unresolved": [
+        "Fresh original Release/localized construction and independent proof of all 13 cultures; historical all13CulturesQualified remains false."
+      ],
+      "requiredInputRoles": [
+        "fsharp_proto_compiler"
+      ]
+    },
+    "toolset": {
+      "requiredParents": [
+        "sdk_tasks",
+        "cli",
+        "fsharp_release"
+      ],
+      "outputRoles": [
+        "toolset_internal_zip",
+        "toolset_langpack_zip"
+      ],
+      "sourceRepositories": [
+        "source_build",
+        "toolset"
+      ],
+      "originalProjects": [
+        "src/redist/redist.csproj",
+        "src/tool_fsharp/tool_fsc.csproj"
+      ],
+      "requiredOperationOrder": [
+        "redist_restore",
+        "tool_fsc_restore",
+        "redist_build_pack"
+      ],
+      "unresolved": [
+        "Bind fresh six-CLI-package and localized-F# restore bytes, actual task/satellite carriage, assets/caches and both new ZIPs; optional resolver/standalone SDK are not inferred direct restores."
+      ],
+      "requiredInputRoles": [
+        "cli",
+        "cli_runtime",
+        "cli_sln_internal",
+        "cli_utils",
+        "configurer",
+        "internal_abstractions",
+        "localized_fsharp_compiler_package"
+      ]
+    },
+    "core_sdk": {
+      "requiredParents": [
+        "toolset"
+      ],
+      "outputRoles": [
+        "source_sdk_layout",
+        "generated_bundled_versions"
+      ],
+      "sourceRepositories": [
+        "source_build",
+        "core_sdk"
+      ],
+      "originalProject": "src/redist/redist.csproj",
+      "requiredInputRoles": [
+        "toolset_internal_zip",
+        "toolset_langpack_zip"
+      ],
+      "unresolved": [
+        "Fresh original file:// composition must consume exact new toolset/native/crossgen inputs, generated SDK3.1.426 RID metadata, normal optimization/ReadyToRun/apphost and original symbol requirements."
+      ],
+      "requiredNativeInputRoles": [
+        "selected_crypto",
+        "selected_coreclr",
+        "selected_trace",
+        "source_crossgen"
+      ]
+    },
+    "collector": {
+      "requiredParents": [
+        "core_sdk"
+      ],
+      "outputRoles": [
+        "candidate_sdk_archive",
+        "member_construction_inventory",
+        "corresponding_source_inventory"
+      ],
+      "sourceRepositories": [
+        "source_build",
+        "core_sdk"
+      ],
+      "unresolved": [
+        "Every final byte/mode/link must bind its real producing/import source and complete licenses; collector accounting cannot confer normal/source/release admission."
+      ],
+      "requiredInputRoles": [
+        "source_sdk_layout"
+      ]
+    }
+  },
+  "bootstrap": {
+    "purpose": "Private construction tooling only; no imported SDK product identity or bytes are promoted by this policy.",
+    "sdkVersion": "3.1.425",
+    "sdkInputDisposition": "PE-and-data-only",
+    "excludeEverySdkElf": true,
+    "privateBootstrapReadyToRun": false,
+    "normalProductReadyToRun": true,
+    "originalGlobalFilesMustRemainUnchanged": true,
+    "originalSdkAndCoreSdkGlobalPins": {
+      "dotnet": "3.1.425",
+      "arcade": "1.0.0-beta.22558.6",
+      "arcadeSourceCommit": "7120a7d1b74dcbce97e34dded2c9e9011639b175"
+    },
+    "originalCliGlobalFile": {
+      "path": "/var/tmp/cbodotnet-core3-community87-cli-20261108/dotnet-cli-cca488d/global.json",
+      "bytes": 232,
+      "sha256": "23cbc149567876b76a872ed74948640088d5b0cd3518cdb4c0ba1fd85188cb32"
+    },
+    "originalFsharpGlobalFile": {
+      "path": "/var/tmp/cbodotnet-core3-community87-fsharp-20261108/dotnet-fsharp-3ef6f0b/global.json",
+      "bytes": 306,
+      "sha256": "34d897e9d0d737843470d45fe26343490856ce6b93ce4ca9b39e35cd7c37328e"
+    },
+    "privateOverridesMustBeExplicit": true,
+    "privateRidAdaptation": {
+      "originalSha256": "ebb6c9cdfec0c2e15b336e39ea3176e9ee319bcb907cd419d699825525de544c",
+      "adaptedSha256": "1792caa3a2da9b9657fd5563e213fb573020b63e03adf93cf23ed5fed9e73136",
+      "property": "NETCoreSdkRuntimeIdentifier",
+      "original": "linux-arm64",
+      "adapted": "linux-musl-arm64"
+    },
+    "architectures": {
+      "aarch64": {
+        "sdkArchive": {
+          "version": "3.1.425",
+          "name": "bootstrap-sdk425.tar.gz",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/3.1.425/dotnet-sdk-3.1.425-linux-arm64.tar.gz",
+          "bytes": 123420296,
+          "sha256": "9ab32b375adc00abb0d984243a6b5fe583983813f7f419d380b5106b21a158b8",
+          "sha512": "f3c18acc094c19f3887f6598c34c9a2e1cfa94055f77aa4deae7e51e8d760ca87af7185cc9ed102e08f04d35f9a558894f04f7a44fa56b91232ccc895f4e5a5c"
+        },
+        "nativeRuntimeArchive": {
+          "version": "3.1.32",
+          "name": "product-runtime.tar.gz",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Runtime/3.1.32/dotnet-runtime-3.1.32-linux-musl-arm64.tar.gz",
+          "bytes": 30448634,
+          "sha256": "412851a6693958432488629c9fb84ce75981aadc8264494d9c5966e29dea3304",
+          "sha512": "c6699ddb9297340c2c9539fcc9eeb8b898397c26f2ca2f6162605bbbf54e3e8957148d93ef353f79ceb76c37ccfd8f7648383be64b6112de757312689de3cebf"
+        },
+        "sourceAdmissionAllowed": false,
+        "unresolved": [
+          "Close selected private PE/data/member exclusions, native runtime/provider and compiler/source/license bindings in fresh normal stage inputs."
+        ]
+      },
+      "x64": {
+        "sdkArchive": null,
+        "nativeRuntimeArchive": null,
+        "sourceAdmissionAllowed": false,
+        "unresolved": [
+          "Exact x64 SDK3.1.425 bootstrap and native musl runtime archive/member/source/license identities are not recorded here; ARM64 identities must not be reused."
+        ]
+      }
+    },
+    "separateNativeVersionToolingReference": {
+      "version": "8.0.131",
+      "archive": {
+        "path": ".build/musl-sdk8-input-review/bootstrap-sdk.tar.gz",
+        "bytes": 208913758,
+        "sha256": "032b96614e3ce12e1541c9105341394e75124d8a53440ef2b155422bf20326ca",
+        "sha512": "aaa3e485166a5779a41cc7ec33a03e322d57aaede0dc4afed850d56371e9fdf06fd458eef412660b82a4773a8b625b213a0db7202623206d72c6a68a4fb90032"
+      },
+      "role": "Native-version MSBuild and fixture tooling only, never target SDK3.1 product.",
+      "originalCoreclrArcadeVersion": "1.0.0-beta.22114.9",
+      "originalCoreSetupArcadeVersion": "1.0.0-beta.22314.5",
+      "unresolved": [
+        "Each selected native role needs its own exact original resolver/compiler/package/source/license contract; this reference grants no execution or product admission."
+      ]
+    },
+    "unresolved": [
+      "Bind original CLI/toolset/F#/MSBuild/other global and Arcade pins and every disclosed resolver override without rewriting original source files."
+    ]
+  },
+  "importCandidates": {
+    "official_runtime_arm64": {
+      "architectures": [
+        "aarch64"
+      ],
+      "runtimeVersion": "3.1.32",
+      "archive": {
+        "version": "3.1.32",
+        "name": "product-runtime.tar.gz",
+        "url": "https://builds.dotnet.microsoft.com/dotnet/Runtime/3.1.32/dotnet-runtime-3.1.32-linux-musl-arm64.tar.gz",
+        "bytes": 30448634,
+        "sha256": "412851a6693958432488629c9fb84ce75981aadc8264494d9c5966e29dea3304",
+        "sha512": "c6699ddb9297340c2c9539fcc9eeb8b898397c26f2ca2f6162605bbbf54e3e8957148d93ef353f79ceb76c37ccfd8f7648383be64b6112de757312689de3cebf"
+      },
+      "sourceRepositories": [
+        "coreclr",
+        "corefx",
+        "core_setup"
+      ],
+      "knownLicensePaths": [],
+      "licenseInventoryPin": null,
+      "memberManifestPin": null,
+      "allowed": false,
+      "scope": "Only exact unmodified upstream members left after separately selected own-built replacements; no blanket runtime or native-library allowlist.",
+      "unresolved": [
+        "Close selected member bytes/modes/link targets, original exact source/submodule/generated/license bindings, actual restore/final-member correspondence and complete stock musl ELF/version/provider closure.",
+        "No archive-specific runtime license member inventory is bound by this first slice."
+      ]
+    },
+    "official_aspnet_arm64": {
+      "architectures": [
+        "aarch64"
+      ],
+      "runtimeVersion": "3.1.32",
+      "archive": {
+        "url": "https://dotnetcli.blob.core.windows.net/dotnet/aspnetcore/Runtime/3.1.32/aspnetcore-runtime-3.1.32-linux-arm64.tar.gz",
+        "bytes": 38243451,
+        "sha256": "40f6b63c9fbeaa05f08ab3fdbd6e4d86fb5e5ff75f6b1e45a2330814e63e0908",
+        "sha512": null
+      },
+      "sourceRepositories": [
+        "aspnetcore",
+        "razor"
+      ],
+      "knownLicensePaths": [
+        "LICENSE.txt",
+        "ThirdPartyNotices.txt",
+        "shared/Microsoft.AspNetCore.App/3.1.32/THIRD-PARTY-NOTICES.txt"
+      ],
+      "licenseInventoryPin": null,
+      "memberManifestPin": null,
+      "allowed": false,
+      "scope": "Exact shared/Microsoft.AspNetCore.App/3.1.32 managed/data members of the recorded linux-arm64 archive only; historical elfCount=0 is not source or normal admission.",
+      "unresolved": [
+        "Whole archive SHA512 is absent from the reviewed retained metadata.",
+        "Close complete preferred source/transitive package/submodule/generated/license and selected member/actual consumption bindings; all foreign/native scopes stay excluded."
+      ]
+    }
+  },
+  "requiredOwnBuiltRoles": [
+    {
+      "id": "branded_sdk_tasks",
+      "sourceRepositories": [
+        "sdk"
+      ],
+      "selected": true,
+      "requiredWhen": "always",
+      "outputRoles": [
+        "source_sdk_task_package",
+        "sdk_tasks_and_satellites"
+      ],
+      "normalConstructionProven": false,
+      "unresolved": [
+        "Bind exact source/patch/compiler/generated/license/parent/restore/output identities and actual final consumption on both native architectures."
+      ]
+    },
+    {
+      "id": "branded_cli",
+      "sourceRepositories": [
+        "cli"
+      ],
+      "selected": true,
+      "requiredWhen": "always",
+      "outputRoles": [
+        "cli",
+        "cli_runtime",
+        "cli_sln_internal",
+        "cli_utils",
+        "configurer",
+        "internal_abstractions",
+        "msbuild_sdk_resolver"
+      ],
+      "normalConstructionProven": false,
+      "unresolved": [
+        "Bind exact source/patch/compiler/generated/license/parent/restore/output identities and actual final consumption on both native architectures."
+      ]
+    },
+    {
+      "id": "localized_fsharp",
+      "sourceRepositories": [
+        "fsharp"
+      ],
+      "selected": true,
+      "requiredWhen": "always",
+      "outputRoles": [
+        "fsharp_proto_compiler",
+        "localized_fsharp_compiler_package"
+      ],
+      "normalConstructionProven": false,
+      "unresolved": [
+        "Bind exact source/patch/compiler/generated/license/parent/restore/output identities and actual final consumption on both native architectures."
+      ]
+    },
+    {
+      "id": "source_toolset",
+      "sourceRepositories": [
+        "toolset"
+      ],
+      "selected": true,
+      "requiredWhen": "always",
+      "outputRoles": [
+        "toolset_internal_zip",
+        "toolset_langpack_zip"
+      ],
+      "normalConstructionProven": false,
+      "unresolved": [
+        "Bind exact source/patch/compiler/generated/license/parent/restore/output identities and actual final consumption on both native architectures."
+      ]
+    },
+    {
+      "id": "original_core_sdk",
+      "sourceRepositories": [
+        "core_sdk"
+      ],
+      "selected": true,
+      "requiredWhen": "always",
+      "outputRoles": [
+        "source_sdk_layout",
+        "generated_bundled_versions"
+      ],
+      "normalConstructionProven": false,
+      "unresolved": [
+        "Bind exact source/patch/compiler/generated/license/parent/restore/output identities and actual final consumption on both native architectures."
+      ]
+    },
+    {
+      "id": "selected_crypto",
+      "sourceRepositories": [
+        "corefx"
+      ],
+      "selected": true,
+      "requiredWhen": "selected modified OpenSSL3 compatibility source",
+      "outputRoles": [
+        "System.Security.Cryptography.Native.OpenSsl.so"
+      ],
+      "normalConstructionProven": false,
+      "unresolved": [
+        "Bind exact source/patch/compiler/generated/license/parent/restore/output identities and actual final consumption on both native architectures."
+      ]
+    },
+    {
+      "id": "selected_coreclr",
+      "sourceRepositories": [
+        "coreclr"
+      ],
+      "selected": true,
+      "requiredWhen": "selected modified compatibility runtime",
+      "outputRoles": [
+        "libcoreclr.so",
+        "libclrjit.so",
+        "libmscordaccore.so",
+        "libmscordbi.so"
+      ],
+      "normalConstructionProven": false,
+      "unresolved": [
+        "Bind exact source/patch/compiler/generated/license/parent/restore/output identities and actual final consumption on both native architectures."
+      ]
+    },
+    {
+      "id": "selected_trace",
+      "sourceRepositories": [
+        "coreclr"
+      ],
+      "selected": true,
+      "requiredWhen": "selected rebuilt managed tracing provider",
+      "outputRoles": [
+        "libcoreclrtraceptprovider.so"
+      ],
+      "normalConstructionProven": false,
+      "unresolved": [
+        "Bind exact source/patch/compiler/generated/license/parent/restore/output identities and actual final consumption on both native architectures."
+      ]
+    },
+    {
+      "id": "source_crossgen",
+      "sourceRepositories": [
+        "coreclr"
+      ],
+      "selected": true,
+      "requiredWhen": "selected genuine R2R construction tool",
+      "outputRoles": [
+        "crossgen_construction_input"
+      ],
+      "normalConstructionProven": false,
+      "unresolved": [
+        "Bind exact source/patch/compiler/generated/license/parent/restore/output identities and actual final consumption on both native architectures."
+      ]
+    },
+    {
+      "id": "adapted_host",
+      "sourceRepositories": [
+        "core_setup"
+      ],
+      "selected": false,
+      "requiredWhen": "only if portable-musl-RID/std::move adapted host outputs are selected instead of exact unchanged official host imports",
+      "outputRoles": [
+        "dotnet",
+        "libhostfxr.so",
+        "libhostpolicy.so",
+        "apphost",
+        "libnethost.so"
+      ],
+      "normalConstructionProven": false,
+      "unresolved": [
+        "Bind exact source/patch/compiler/generated/license/parent/restore/output identities and actual final consumption on both native architectures."
+      ]
+    },
+    {
+      "id": "source_replacement_dependencies",
+      "sourceRepositories": [
+        "source_build"
+      ],
+      "selected": true,
+      "requiredWhen": "selected replacements for unavailable exact requested publisher packages",
+      "outputRoles": [
+        "source_msbuild_16_7_3",
+        "source_platformabstractions_3_1_32",
+        "source_nuget_packages_exact_versions_pending",
+        "source_vstest_packages_exact_versions_pending"
+      ],
+      "normalConstructionProven": false,
+      "unresolved": [
+        "Bind exact source/patch/compiler/generated/license/parent/restore/output identities and actual final consumption on both native architectures.",
+        "Exact transitive source repositories/commits and package-specific production contracts remain incomplete; a source-build parent identity is not their substitute."
+      ]
+    }
+  ],
+  "unresolvedGates": [
+    "Dedicated Core3.1 producer and independent normal/source validator/registry are not registered; accounting is not admission.",
+    "Complete preferred-source trees/Gitlinks/submodules/shared/generated inputs, all shipped or executed package/component source and license inventories, and every final member disposition remain unclosed.",
+    "Real original Git history-derived GitCommitCount, SourceRevisionId and dated version inputs are required; synthetic GitCommitCount=0 and disabled source-control queries from private archive diagnostics are forbidden as normal provenance.",
+    "Fresh exact stage-parent/compiler/source/package/run/immutable image bindings must replace prior absolute-path or inherited-environment recipes.",
+    "Private SDK bootstrap PE/data/native exclusions and all original global/Arcade pins need independent per-architecture validation; x64 bootstrap/archive identities are not yet bound.",
+    "Selected modified native roles and package substitutions require genuine fresh normal source construction plus final member and crossgen/JIT/ReadyToRun consumption; unchanged imports require exact independently reviewed attribution and are never called locally rebuilt.",
+    "Original Core3.1 full scan/test universe and upstream test dispositions remain unreviewed; no SDK7/6/5 policy or test count may be relabeled.",
+    "Both native x64 and AArch64 normal rootful Docker producers/consumers, default enforced AppArmor/seccomp, dropped capabilities/no-new-privileges, exactly two assigned CPUs and /m:2 remain unqualified.",
+    "Normal optimized ReadyToRun/native apphost/full ICU, numeric CLI/branding/13-culture evidence, C#/VB/F#/FSI/Web consumers, default-trust TLS positive and four negative cases, actual managed LTTng GC plus independent native control remain required on both architectures.",
+    "Read-only candidate and SDK-free consumers, separate writable state, network-none/default security, complete native ELF/provider closure without glibc compatibility and no bootstrap leakage remain unclosed.",
+    "Source publication, catalog/signing, archive/APK/OCI anonymous public verification, signed final status and installer/release admission are separate later gates and stay disabled."
+  ],
+  "historicalReferenceEvidence": {
+    "purpose": "Private reference/accounting evidence only, never approved products, executable input allowlists, normal parent proof or a release seal.",
+    "inventoryCheckpoint": {
+      "path": ".build/core31-sdk-producer-gate-inventory-v1/checkpoint-frozen-inventory-v1.json",
+      "bytes": 13251,
+      "sha256": "a707ee3c93ea96074fa23fa82fdd171d810fde64df93fe7f0ccbf5401bdaf5e6",
+      "sha512": "e885f8ef6ae73f52077083bab5b35833b353b11141d396c1e38fb23cbcfd88f9c55884d1cdeb4433c2519ccd944983b62b3babfe80a80c5c903c6b5ddd8f76c7"
+    },
+    "chainSupplementCheckpoint": {
+      "path": ".build/core31-sdk-producer-gate-inventory-v1/checkpoint-frozen-chain-supplement-v1.json",
+      "bytes": 1742,
+      "sha256": "8994de3c7bc13a94b096e585dd3e89a0aafc2aa0fbb00f0871e5019464e6ba26",
+      "sha512": "de5ba8437eb32f81e1bac80565bf96cea05120ca0932d9d0bee892fd44a2a75d20321f119c39ea1e33d02b3895d8980fc4a148a80453f3630488ce32b8298ea0"
+    },
+    "chain": [
+      "SDK71",
+      "CLI72v3",
+      "localizedFSharp76",
+      "toolset79v3",
+      "originalCoreSDK80",
+      "collector81"
+    ],
+    "sourcePackageDescriptors": [
+      {
+        "id": "Microsoft.DotNet.Cli",
+        "version": "3.1.426-servicing.26558.1",
+        "descriptor": {
+          "path": "microsoft.dotnet.cli/3.1.426-servicing.26558.1/microsoft.dotnet.cli.3.1.426-servicing.26558.1.nupkg",
+          "bytes": 620456,
+          "sha256": "4186c84acf799e418ee214899305e33e2a60865eee511a64100baf12798c3449",
+          "sha512": "7f1c9f1253a320ddc72d997faa8cc18055b23ae9c0c39124b33ed4e7aea738c583ebba6c0f9d29f4d1afac672d4ef1bad36d69b524642ba2bb54f2daa4b25f36"
+        },
+        "completeRecorded3Fp": true,
+        "directToolsetRestore": true
+      },
+      {
+        "id": "Microsoft.DotNet.Cli.Runtime",
+        "version": "3.1.426-servicing.26558.1",
+        "descriptor": {
+          "path": "microsoft.dotnet.cli.runtime/3.1.426-servicing.26558.1/microsoft.dotnet.cli.runtime.3.1.426-servicing.26558.1.nupkg",
+          "bytes": 4486784,
+          "sha256": "f4bcc7ecae65ef811e466daf4caecfd4c0e96ab3141f702ea5f36a4dca84c2cb",
+          "sha512": "835c53d69b8c7ecff9b2130b0cad91702d8c965d041880e4459547504f70e9bf0ed44f98d430e5e1689ee52bec0a5d6c3171423303708709841ab26effb27e43"
+        },
+        "completeRecorded3Fp": true,
+        "directToolsetRestore": true
+      },
+      {
+        "id": "Microsoft.DotNet.Cli.Sln.Internal",
+        "version": "3.1.426-servicing.26558.1",
+        "descriptor": {
+          "path": "microsoft.dotnet.cli.sln.internal/3.1.426-servicing.26558.1/microsoft.dotnet.cli.sln.internal.3.1.426-servicing.26558.1.nupkg",
+          "bytes": 68642,
+          "sha256": "c0386538054926f076519f8807b0d5f00db5a7f1f98824ed3c192d55f9f1ebb0",
+          "sha512": "2d61ead1e6ca6536f21112814aaf0027e5d90bdd3f0a2efbf5ff00ca0beda2e6bae93a1c6071eaf9d88759c00adc115cb4785926be51f4bffbaf3d7d24da80a9"
+        },
+        "completeRecorded3Fp": true,
+        "directToolsetRestore": true
+      },
+      {
+        "id": "Microsoft.DotNet.Cli.Utils",
+        "version": "3.1.426-servicing.26558.1",
+        "descriptor": {
+          "path": "microsoft.dotnet.cli.utils/3.1.426-servicing.26558.1/microsoft.dotnet.cli.utils.3.1.426-servicing.26558.1.nupkg",
+          "bytes": 113047,
+          "sha256": "fc66e58c9d257b3391136549461f7232b6f305e5363c1ade7b079c6358bcc0e0",
+          "sha512": "4a25f02e17a1a5de77f3724ddc060efad52dd7066388bf91ee794b9844c827c7a0b8878432706e66307e11a28a20c0a46907b34dbb0c9ee0e861c1a71b198fc1"
+        },
+        "completeRecorded3Fp": true,
+        "directToolsetRestore": true
+      },
+      {
+        "id": "Microsoft.DotNet.Configurer",
+        "version": "3.1.426-servicing.26558.1",
+        "descriptor": {
+          "path": "microsoft.dotnet.configurer/3.1.426-servicing.26558.1/microsoft.dotnet.configurer.3.1.426-servicing.26558.1.nupkg",
+          "bytes": 62745,
+          "sha256": "13d918c301c39e3c3456cb93c6d6bff2e0aa109182e66f01a3443c828cebc0ce",
+          "sha512": "e10db48dc162b89f524f01ca4d184a1d1ecf21a7679ff3b41dcdfe93b9a2afbff8affeef9f075a18684ae3a064d37c84d7ea260d3f2e148a0f332259157f3a7f"
+        },
+        "completeRecorded3Fp": true,
+        "directToolsetRestore": true
+      },
+      {
+        "id": "Microsoft.DotNet.InternalAbstractions",
+        "version": "3.1.426-servicing.26558.1",
+        "descriptor": {
+          "path": "microsoft.dotnet.internalabstractions/3.1.426-servicing.26558.1/microsoft.dotnet.internalabstractions.3.1.426-servicing.26558.1.nupkg",
+          "bytes": 19100,
+          "sha256": "a74acee39d7de6526c74ee0a2b6664c491f7953c16ce785aed9478a375f62fc8",
+          "sha512": "0eaed3105df68ef1cda6eaf9928936010e60198a06e927949bd5ba819d544e100ff2405d1ee029527a55a1b38534c01e60984ce0fa8dbc8f05598c738bce3ad1"
+        },
+        "completeRecorded3Fp": true,
+        "directToolsetRestore": true
+      },
+      {
+        "id": "Microsoft.FSharp.Compiler",
+        "version": "10.10.0-beta.26558.1",
+        "descriptor": {
+          "path": "microsoft.fsharp.compiler/10.10.0-beta.26558.1/microsoft.fsharp.compiler.10.10.0-beta.26558.1.nupkg",
+          "bytes": 8159144,
+          "sha256": "2d7e63eaa51ec40608de6f65a59843ba4697c4f8c43786ead672b0f0cfd19f21",
+          "sha512": "5bccac5fd0a7e3a03b4efcca3a923baae168720597ecea3f101d966a9287284d4eb8fa858cb4624aded9670b39e21b6d5347471672a75200eca8bbb36fb24c3a"
+        },
+        "completeRecorded3Fp": true,
+        "directToolsetRestore": true
+      },
+      {
+        "id": "Microsoft.DotNet.MSBuildSdkResolver",
+        "version": "3.1.426-servicing.26558.1",
+        "descriptor": {
+          "path": "/tmp/workbench/cli72/dotnet-cli-cca488d/artifacts/packages/Release/NonShipping/Microsoft.DotNet.MSBuildSdkResolver.3.1.426-servicing.26558.1.nupkg",
+          "bytes": 60137,
+          "sha256": "a95884cd537366d5b0be64383312143dbe93539e1cbea96039fefb9e7416018c",
+          "sha512": null
+        },
+        "completeRecorded3Fp": false,
+        "directToolsetRestore": false
+      },
+      {
+        "id": "Microsoft.NET.Sdk",
+        "version": "3.1.426-servicing.26558.1",
+        "descriptor": {
+          "path": "microsoft.net.sdk/3.1.426-servicing.26558.1/microsoft.net.sdk.3.1.426-servicing.26558.1.nupkg",
+          "bytes": 1996198,
+          "sha256": "c827d65f56c3449df8297404de315325448034c8d83a1ef613c2e83d9d7b8ee3",
+          "sha512": "e1129922d3f36fc0c08ff9d3cfddda04eb1832f673dd872f128d24022e9a6a725e01d0201edeebf94f686484bad45163120404116085dc226762aceebd529ca0"
+        },
+        "completeRecorded3Fp": true,
+        "directToolsetRestore": false
+      }
+    ],
+    "toolsetArchives": [
+      {
+        "descriptor": {
+          "path": "source-archives/dotnet-toolset-internal-3.1.426-servicing.26558.1.zip",
+          "bytes": 35997469,
+          "sha256": "96e6b1b2b7e1366acd06c0c3c3bf2d3c44a93387e863d4c5561a95d14a69707f",
+          "sha512": null
+        },
+        "completeRecorded3Fp": false
+      },
+      {
+        "descriptor": {
+          "path": "source-archives/dotnet-toolset-langpack-3.1.426-servicing.26558.1.zip",
+          "bytes": 8349859,
+          "sha256": "583eb36bcc552749ca42c87af4d1cc90fd8a721859a19f612ee013ee86c0d1a3",
+          "sha512": null
+        },
+        "completeRecorded3Fp": false
+      }
+    ],
+    "finalArchive": {
+      "path": ".build/core3-musl-source-phase/community-sdk-accounting-eightyone-v1/evidence/final-sdk.tar.gz",
+      "bytes": 144942789,
+      "sha256": "efd14252752a536b4be030814408ab1c8f5bdc1e40715f61f59a1bc477ac13b1",
+      "sha512": "21b5385b89f564858f1d5cf9976f5eafa77ded4d9bfa587b221f238c8adcee5d69f4fb844bc0db515caab84fef364c80a1cce958dd03e5edeed2754301484111"
+    },
+    "observedVersions": {
+      "officialBuildId": "20261108.1",
+      "cliPackage": "3.1.426-servicing.26558.1",
+      "cliAssembly": "3.1.426.0",
+      "sdkTaskAssembly": "3.1.15.5801",
+      "fsharpPackage": "10.10.0-beta.26558.1"
+    },
+    "actualSdkTaskMembersCarriedByCliRuntime": 28,
+    "fsharp76All13CulturesQualified": false,
+    "originalGlobalsUnchanged": true,
+    "syntheticGitCommitCountZero": true,
+    "actualNewToolsetInternalZipSha256": "96e6b1b2b7e1366acd06c0c3c3bf2d3c44a93387e863d4c5561a95d14a69707f",
+    "actualSource54CrossgenSha256": "a0964905b6e455a16171a93388c6b17f24c0042d6dab021fab3213d79c1d129e",
+    "sourceAdmissionAllowed": false,
+    "normalAdmissionAllowed": false,
+    "releaseAdmissionAllowed": false,
+    "unresolved": [
+      "Optional MSBuildSdkResolver package and both toolset ZIPs lack recorded SHA512; no hash was fabricated.",
+      "Private ARM64 tests/component proofs do not establish fresh normal x64/AArch64 qualification or complete corresponding source/license closure."
+    ]
+  }
+}
