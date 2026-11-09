@@ -225,7 +225,7 @@ class PublicSourceRetrievalTests(unittest.TestCase):
         with mock.patch.object(C, 'load_qualification_catalog', return_value=catalog), \
                 mock.patch.object(D, 'AnonymousGitHubAPI', return_value=SimpleNamespace(api=lambda endpoint: release)), \
                 mock.patch.object(D, 'get_bytes', side_effect=lambda url, limit: payloads[url.rsplit('/', 1)[-1]]), \
-                mock.patch.object(D.urllib.request, 'urlopen', side_effect=lambda url, timeout: io.BytesIO(payloads[url.rsplit('/', 1)[-1]])):
+                mock.patch.object(D.urllib.request, 'urlopen', side_effect=lambda request, timeout: io.BytesIO(payloads[getattr(request, 'full_url', request).split('?', 1)[0].rsplit('/', 1)[-1]])):
             return D.receive_used_source('x64', base / 'received', sdk_version='6.0.136')
 
     def test_multipart_public_retrieval_runs_real_existing_verifier_without_source_extraction(self):
