@@ -115,6 +115,19 @@ The producer catalog preserves both original artifact/run/source identities.
 This producer admission permits the separate native consumer workflows; it
 does not activate download availability or installer admission.
 
+SDK8's complete normal two-CPU producer is
+[42533185946/1](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42533185946),
+from orchestration commit `4bd3c08017f369f14c4477b4a325c5f00007a1de`.
+Protected source publication
+[42543926621/1](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42543926621)
+passed. Its public source release is
+[`musl-sdk-8.0.133-r1`](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/musl-sdk-8.0.133-r1),
+with exact manifest SHA-256
+`cac633f6cb06d26429b48c2efb460ad0cd744a7424b06f8b2aa992b6e83dd2b5`.
+Independent public-byte and native default-security review preserves both
+original artifact/run identities. Separate native consumer workflows and
+anonymous public verification must pass before availability is activated.
+
 SDK8's native R12 completed all 46 original smoke results on both CPUs
 (44 passed, two original skips), then stopped at reference inventory because
 the original SDK runtime packs contain internal symbolic links into their

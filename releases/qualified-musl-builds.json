@@ -79,6 +79,46 @@
       "sourceManifestSha256": "4ae52644bcdd6841f6d613c2c6d1e64719d9f7dbde45c4b650b85ae08c74b21a",
       "sourceReleaseTag": "musl-sdk-9.0.123-r1",
       "target": "net9-musl"
+    },
+    {
+      "architectures": {
+        "aarch64": {
+          "artifactId": "13640954749",
+          "aspnetSourceCommit": "380bd0d498fbaa0a8ddd67c325aa748dd21f7596",
+          "bootstrapSdk": "8.0.131",
+          "libc": "musl",
+          "projectCommit": "4bd3c08017f369f14c4477b4a325c5f00007a1de",
+          "runAttempt": "1",
+          "runId": "42533185946",
+          "runtimeSourceCommit": "da7a9beabf4cccc624399d583f52f080a4c858c2",
+          "runtimeVersion": "8.0.33",
+          "sourceCommit": "7d1bf90885cff22e7da72b27e9848e42fd3cb1ae",
+          "targetRid": "linux-musl-arm64",
+          "workflow": ".github/workflows/musl-sdk-expand.yml",
+          "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42533185946"
+        },
+        "x64": {
+          "artifactId": "13642188154",
+          "aspnetSourceCommit": "380bd0d498fbaa0a8ddd67c325aa748dd21f7596",
+          "bootstrapSdk": "8.0.131",
+          "libc": "musl",
+          "projectCommit": "4bd3c08017f369f14c4477b4a325c5f00007a1de",
+          "runAttempt": "1",
+          "runId": "42533185946",
+          "runtimeSourceCommit": "da7a9beabf4cccc624399d583f52f080a4c858c2",
+          "runtimeVersion": "8.0.33",
+          "sourceCommit": "7d1bf90885cff22e7da72b27e9848e42fd3cb1ae",
+          "targetRid": "linux-musl-x64",
+          "workflow": ".github/workflows/musl-sdk-expand.yml",
+          "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42533185946"
+        }
+      },
+      "libc": "musl",
+      "producerRevision": 1,
+      "sdkVersion": "8.0.133",
+      "sourceManifestSha256": "cac633f6cb06d26429b48c2efb460ad0cd744a7424b06f8b2aa992b6e83dd2b5",
+      "sourceReleaseTag": "musl-sdk-8.0.133-r1",
+      "target": "net8-musl"
     }
   ],
   "kind": "qualified-musl-sdk-producers",
