@@ -4,6 +4,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 import zipfile
 
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'scripts'))
@@ -133,6 +134,41 @@ class AppConsumption(unittest.TestCase):
         for field in ('status','tasks','binlog'):
             rows=self.replay_fixture();rows[1][field]=dict(rows[0][field],path='different-file-name/'+field)
             with self.subTest(field=field),self.assertRaisesRegex(ValueError,'content identities'):M.distinct_consumer_replays(rows)
+
+    def test_default_supplier_keeps_original_strong_private_validator(self):
+        import musl_legacy5_appinsights_normal as N
+        expected=object()
+        with patch.object(M.STRONG,'validate',return_value=expected)as private,patch.object(N,'validate',side_effect=AssertionError('Implicit normal mode')):
+            self.assertIs(M.supplier_application('workspace',{'input':'actual'}),expected)
+        private.assert_called_once_with('workspace',{'input':'actual'})
+
+    def test_explicit_normal_supplier_requires_successful_parent_build_validator(self):
+        import musl_legacy5_appinsights_normal as N
+        context={'actual':'caller-bound-context'}
+        result=dict(kind='strong-normal-genuine-App5-execution-api-package-validation',normalAppWorkerBoundaryValidated=True,
+                    execution=dict(boundary=dict(parentSdkBuildValidated=True)))
+        with patch.object(N,'validate',return_value=result)as normal,patch.object(M.STRONG,'validate',side_effect=AssertionError('Private fallback')):
+            self.assertIs(M.supplier_application('workspace',{'input':'actual'},normal_context=context),result)
+        normal.assert_called_once_with('workspace',{'input':'actual'},normal_context=context)
+
+    def test_normal_supplier_failure_never_falls_back_to_private_proof(self):
+        import musl_legacy5_appinsights_normal as N
+        with patch.object(N,'validate',side_effect=ValueError('Actual parent build failed')),patch.object(M.STRONG,'validate',side_effect=AssertionError('Private fallback')):
+            with self.assertRaisesRegex(ValueError,'Actual parent build failed'):
+                M.supplier_application('workspace',{},normal_context={})
+
+    def test_private_or_preparent_result_cannot_label_normal_consumption(self):
+        import musl_legacy5_appinsights_normal as N
+        valid=dict(kind='strong-normal-genuine-App5-execution-api-package-validation',normalAppWorkerBoundaryValidated=True,
+                   execution=dict(boundary=dict(parentSdkBuildValidated=True)))
+        for changed in ('kind','normal','parent'):
+            result=copy.deepcopy(valid)
+            if changed=='kind':result['kind']='strong-private-retained-App5'
+            elif changed=='normal':result['normalAppWorkerBoundaryValidated']=False
+            else:result['execution']['boundary']['parentSdkBuildValidated']=False
+            with self.subTest(changed=changed),patch.object(N,'validate',return_value=result):
+                with self.assertRaisesRegex(ValueError,'successful parent SDK build'):
+                    M.supplier_application('workspace',{},normal_context={})
 
 
 if __name__=='__main__':unittest.main()

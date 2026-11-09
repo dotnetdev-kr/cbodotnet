@@ -181,9 +181,22 @@ def validate_sdk_tasks(release,source,compiler,product):
     return observed
 
 
-def validate(release,record,proof,roots,tooling,*,app_workspace,app_host_roots,sdk_source,feed):
+def supplier_application(workspace,host_roots,*,normal_context=None):
+    """Select only an explicit authenticated normal supplier or the old private entry."""
+    if normal_context is None:
+        return STRONG.validate(workspace,host_roots)
+    import musl_legacy5_appinsights_normal as NORMAL
+    application=NORMAL.validate(workspace,host_roots,normal_context=normal_context)
+    require(application.get('kind')=='strong-normal-genuine-App5-execution-api-package-validation'
+            and application.get('normalAppWorkerBoundaryValidated')is True
+            and application['execution']['boundary']['parentSdkBuildValidated']is True,
+            'Actual normal App supplier and successful parent SDK build boundary required')
+    return application
+
+
+def validate(release,record,proof,roots,tooling,*,app_workspace,app_host_roots,sdk_source,feed,normal_context=None):
     # The constructor's older verify_execution entry cannot substitute for this.
-    application=STRONG.validate(app_workspace,app_host_roots)
+    application=supplier_application(app_workspace,app_host_roots,normal_context=normal_context)
     package=application['package'];product=application['members'][MEMBER];release=Path(release)
     final=CONSTRUCTION.validate_final_sdk_archive(record,proof)
     B.checked(release,final)
@@ -223,9 +236,10 @@ def validate(release,record,proof,roots,tooling,*,app_workspace,app_host_roots,s
         sourceDisposition=dict(path=LAYOUT,sourceRoot=artifact['sourceRoot'],sourceCommit=SOURCE_COMMIT,
             fingerprint=product,allowedPackageMembers=[dict(packageSha256=package['sha256'],member=MEMBER)],
             sourceBasis='genuine-local-App5-original-source-build-and-actual-sdk-consumption'),
-        wholeProducerSourceClosure=False,normalSourceWorkerEnvelopeValidatedByThisPart=False,
+        wholeProducerSourceClosure=False,normalSourceWorkerEnvelopeValidatedByThisPart=normal_context is not None,
         referenceInputPreferredSourceAndLicenseClosureValidatedByThisPart=False,
         remainingWholeSourceGates=['original Profile7 ZIP65PE/baseXML preferred-source and license roles',
-            'original Mono4 target/license build-input source roles', 'normal App source-worker envelope',
+            'original Mono4 target/license build-input source roles',
+            *([]if normal_context is not None else['normal App source-worker envelope']),
             'complete combined source packet and every other producer/consumer guard'],
         qualificationAllowed=False,sourceAdmissionAllowed=False)
