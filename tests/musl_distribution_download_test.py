@@ -39,7 +39,9 @@ class PublicDownload(unittest.TestCase):
         return target, calls, sleeps
 
     def gateway(self, code=504):
-        return urllib.error.HTTPError(URL, code, 'gateway', {}, io.BytesIO())
+        error = urllib.error.HTTPError(URL, code, 'gateway', {}, io.BytesIO())
+        self.addCleanup(error.close)
+        return error
 
     def test_gateway_retry_uses_fresh_anonymous_redirect_and_same_authenticated_bytes(self):
         target, calls, sleeps = self.fixture([self.gateway(), io.BytesIO(BODY)])
@@ -51,11 +53,28 @@ class PublicDownload(unittest.TestCase):
         self.assertEqual('no-cache', calls[1].get_header('Cache-control'))
         self.assertEqual([2], sleeps)
 
-    def test_retry_budget_is_three_requests_and_six_seconds(self):
+    def test_gateway_budget_is_three_requests_before_one_api_resolution(self):
         target, calls, sleeps = self.fixture([self.gateway(502), self.gateway(503), self.gateway()])
-        with self.assertRaises(urllib.error.HTTPError): D.download_asset(URL, target, EXPECTED)
+        with patch.object(D, 'anonymous_release_download_request', side_effect=self.gateway()) as fallback:
+            with self.assertRaises(urllib.error.HTTPError): D.download_asset(URL, target, EXPECTED)
+        fallback.assert_called_once_with(URL, EXPECTED)
         self.assertEqual(3, len(calls)); self.assertEqual([2, 4], sleeps)
         self.assertFalse(target.exists())
+
+    def test_final_api_redirect_still_requires_exact_whole_asset_bytes(self):
+        for body in (BODY, b'x' * len(BODY)):
+            with self.subTest(body=body):
+                target, calls, sleeps = self.fixture([self.gateway(), self.gateway(), self.gateway(), io.BytesIO(body)])
+                request = D.urllib.request.Request('https://api.github.com/repos/dotnetdev-kr/cbodotnet/releases/assets/123',
+                                                   headers={'Accept': 'application/octet-stream'})
+                with patch.object(D, 'anonymous_release_download_request', return_value=request) as fallback:
+                    if body == BODY:
+                        self.assertEqual(EXPECTED['sha256'], D.download_asset(URL, target, EXPECTED)['sha256'])
+                    else:
+                        with self.assertRaises(ValueError): D.download_asset(URL, target, EXPECTED)
+                fallback.assert_called_once_with(URL, EXPECTED)
+                self.assertEqual(4, len(calls)); self.assertEqual([2, 4], sleeps)
+                self.assertEqual(body, target.read_bytes())
 
     def test_non_gateway_errors_fail_without_retry_or_output(self):
         for error in [self.gateway(404), self.gateway(403), TimeoutError('transport')]:

@@ -215,6 +215,38 @@ def anonymous_release_metadata(url, maximum):
     return data
 
 
+def anonymous_release_download_request(url, expected):
+    """Resolve a pinned public asset after gateway failures, without credentials.
+
+    The caller must still verify the complete downloaded size and hash. This
+    changes only the public redirect endpoint, never the selected release/file.
+    """
+    parsed = urllib.parse.urlsplit(url)
+    match = re.fullmatch(r"/([A-Za-z0-9][A-Za-z0-9_.-]*)/([A-Za-z0-9][A-Za-z0-9_.-]*)/releases/download/"
+                         r"([A-Za-z0-9][A-Za-z0-9_.+-]*)/([A-Za-z0-9][A-Za-z0-9_.+-]*)", parsed.path)
+    require(parsed.scheme == 'https' and parsed.netloc == 'github.com' and not parsed.query and not parsed.fragment
+            and match and type(expected.get('size')) is int and expected['size'] > 0
+            and re.fullmatch(r'[a-f0-9]{64}', expected.get('sha256', '')),
+            'An exact public release asset URL and authenticated size/hash are required')
+    owner, repository, tag, name = match.groups()
+    base = 'https://api.github.com/repos/' + owner + '/' + repository
+    release = json.loads(get_bytes(base + '/releases/tags/' + urllib.parse.quote(tag, safe=''), MAX_JSON_BYTES, api=True))
+    require(isinstance(release, dict) and release.get('tag_name') == tag and release.get('draft') is False
+            and isinstance(release.get('assets'), list), 'Anonymous public release API identity differs')
+    matches = [asset for asset in release['assets'] if isinstance(asset, dict) and asset.get('name') == name]
+    require(len(matches) == 1, 'The anonymous API must identify the exact public file once')
+    asset = matches[0]; asset_id = asset.get('id')
+    require(type(asset_id) is int and asset_id > 0 and asset.get('state') == 'uploaded'
+            and asset.get('browser_download_url') == url and type(asset.get('size')) is int
+            and asset['size'] == expected['size'] and asset.get('url') == base + '/releases/assets/' + str(asset_id)
+            and asset.get('digest') in (None, 'sha256:' + expected['sha256']),
+            'Anonymous public asset API URL, size or digest differs from the pinned input')
+    print('Public asset GET anonymous API fallback: ' + url, file=sys.stderr)
+    return urllib.request.Request(asset['url'], headers={
+        'User-Agent': 'cbodotnet-public-release-download', 'Accept': 'application/octet-stream',
+        'X-GitHub-Api-Version': '2022-11-28', 'Cache-Control': 'no-cache'})
+
+
 def get_bytes(url, maximum, token=None, api=False):
     parsed = urllib.parse.urlsplit(url)
     require(parsed.scheme == "https" and parsed.hostname in {"api.github.com", "github.com"}

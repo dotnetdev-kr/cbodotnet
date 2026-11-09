@@ -16,6 +16,8 @@ from pathlib import Path, PurePosixPath
 import stat
 import tarfile
 import tempfile
+import time
+import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 
@@ -29,6 +31,8 @@ DESTINATION = 'test/Microsoft.DotNet.SourceBuild.SmokeTests/bin/Release/net6.0/o
 CACHE_NAME = 'omnisharp-v1.39.6-linux-arm64-net6.0.tar.gz'
 ARCH_SPEC = importlib.util.spec_from_file_location('ci_arch_test_tools', Path(__file__).with_name('ci_arch.py'))
 ARCH = importlib.util.module_from_spec(ARCH_SPEC); ARCH_SPEC.loader.exec_module(ARCH)
+CATALOG_SPEC = importlib.util.spec_from_file_location('release_catalog_test_tools', Path(__file__).with_name('release_catalog.py'))
+CATALOG = importlib.util.module_from_spec(CATALOG_SPEC); CATALOG_SPEC.loader.exec_module(CATALOG)
 
 
 def tool_input(arch='arm64'):
@@ -75,6 +79,23 @@ def write_identical_or_new(path, contents):
         stream.write(contents)
 
 
+def archive_response(pin):
+    # Retry only opening failures, before reading any body or publishing cache
+    # bytes. A body/read/hash failure must remain a failed single observation.
+    for attempt in range(3):
+        try:
+            return urllib.request.urlopen(CATALOG.fresh_release_url(pin['url'], attempt), timeout=120)
+        except urllib.error.HTTPError as error:
+            if error.code not in {502, 503, 504}:
+                raise
+            error.close()
+            if attempt == 2:
+                request = CATALOG.anonymous_release_download_request(
+                    pin['url'], {'size': pin['bytes'], 'sha256': pin['sha256']})
+                return urllib.request.urlopen(request, timeout=120)
+            time.sleep(2 * (attempt + 1))
+
+
 def cached_archive(directory, arch='arm64'):
     pin = tool_input(arch)
     target = directory / pin['cacheName']
@@ -84,7 +105,7 @@ def cached_archive(directory, arch='arm64'):
         try:
             with tempfile.NamedTemporaryFile(dir=directory, prefix='.omnisharp-download-', delete=False) as output:
                 staged = Path(output.name)
-                with urllib.request.urlopen(pin['url'], timeout=120) as response:
+                with archive_response(pin) as response:
                     if not response.geturl().startswith('https://'):
                         raise ValueError('The official download redirected outside HTTPS')
                     size = 0

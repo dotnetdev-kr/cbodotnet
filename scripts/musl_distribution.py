@@ -20,7 +20,7 @@ import musl_source_transport as SOURCE_TRANSPORT
 from downstream_release import descriptor, encoded, ordinary_file, require
 from downstream_publish import GitHubReleases
 from musl_release import WORKFLOW, verify_release_tag, _source_module
-from release_catalog import fresh_release_url, get_bytes, release_assets, validate_api_asset
+from release_catalog import anonymous_release_download_request, fresh_release_url, get_bytes, release_assets, validate_api_asset
 
 ROOT = CONTRACT.ROOT
 
@@ -74,9 +74,12 @@ def download_asset(url, path, expected):
         try:
             incoming = urllib.request.urlopen(request, timeout=120)
         except urllib.error.HTTPError as error:
-            if error.code not in {502, 503, 504} or attempt == 2:
+            if error.code not in {502, 503, 504}:
                 raise
             error.close()
+            if attempt == 2:
+                incoming = urllib.request.urlopen(anonymous_release_download_request(url, expected), timeout=120)
+                break
             time.sleep(2 * (attempt + 1))
         else:
             break
