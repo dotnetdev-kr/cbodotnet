@@ -1,6 +1,6 @@
 # Native Alpine SDK expansion
 
-SDK 10 and SDK 9 have qualified musl distributions; SDK 10 remains the only SDK
+SDK 10, SDK 9 and SDK 8 have qualified musl distributions; SDK 10 remains the only SDK
 admitted to the signed `cbodotnetup` musl catalog. Candidate profiles and successful
 component experiments do not activate a source producer, download, APK, OCI
 image, or installer catalog entry.
@@ -241,6 +241,26 @@ old version. Actual binary hashes, authenticated SDK, current vulnerability
 audit, and fresh native candidate/public qualifications remain required during
 catalog renewal. A current build still needs the complete current helper,
 container, profile and frozen APK input inventory.
+
+## SDK 7 source producer
+
+SDK7's complete native two-CPU producer is
+[42523142118/1](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42523142118),
+from orchestration commit `c90b83c803eefd6d02beec3b5b1c76fba7bca7d6`.
+Protected independent source publication
+[42555804143/1](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42555804143)
+passed. Its immutable public source release is
+[`musl-sdk-7.0.120-r1`](https://github.com/dotnetdev-kr/cbodotnet/releases/tag/musl-sdk-7.0.120-r1),
+with exact manifest SHA256
+`671056f9397fb1d883dcd984b713c82973d258a62a89692a82fa0047ecea931e`.
+The fresh protected stage repacks its own evidence; its manifest is distinct
+from the earlier unpublished dry run. The original source/SDK artifacts,
+run/source identities and native default-security evidence remain unchanged.
+Independent anonymous public metadata and both CPU host proofs pass.
+
+This source-catalog entry enables the separate archive/APK/OCI consumers.
+Availability, signed final public verification and installer admission remain
+closed until their own complete native two-CPU gates pass.
 
 ## Older SDKs
 
