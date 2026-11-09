@@ -17,6 +17,7 @@ import tarfile
 import zipfile
 
 import musl_legacy5_appinsights_normal as N
+import musl_legacy5_appinsights_imports as IMPORTS
 
 require=N.require
 ROLE='sdk5-app-profile7-reference-bootstrap'
@@ -152,9 +153,7 @@ def _forbidden(workspace):
     return result
 
 
-def scan_content(raw,forbidden,*,name='public',depth=0,budget=None):
-    """Check real byte bodies, including bounded compressed/container members."""
-    if budget is None:budget={'bytes':0,'entries':0}
+def _scan_body(raw,forbidden,*,depth,budget):
     require(depth<=MAX_DEPTH,'Public App container nesting limit exceeded')
     budget['bytes']+=len(raw);budget['entries']+=1
     require(budget['bytes']<=MAX_EXPORT and budget['entries']<=MAX_ENTRIES,'Public App expanded content budget exceeded')
@@ -162,6 +161,12 @@ def scan_content(raw,forbidden,*,name='public',depth=0,budget=None):
         require(body and (len(body)>len(raw)or body not in raw),'Private reference/comparison bytes cannot be published: '+role)
         if (len(body)+2)//3*4<=len(raw):
             require(base64.b64encode(body)not in raw,'Encoded private reference/comparison bodies cannot be published: '+role)
+
+
+def scan_content(raw,forbidden,*,name='public',depth=0,budget=None):
+    """Check real byte bodies, including bounded compressed/container members."""
+    if budget is None:budget={'bytes':0,'entries':0}
+    _scan_body(raw,forbidden,depth=depth,budget=budget)
     if raw.startswith(b'\x1f\x8b'):
         with gzip.GzipFile(fileobj=io.BytesIO(raw))as stream:expanded=stream.read(MAX_EXPORT+1)
         require(len(expanded)<=MAX_EXPORT,'Bounded public gzip stream required')
@@ -199,37 +204,70 @@ def scan_content(raw,forbidden,*,name='public',depth=0,budget=None):
     return budget
 
 
-def scan_public_tree(root,*,private_workspace):
+def _scan_original_binlog(raw,forbidden,*,role,expected,budget):
+    """A parsed, policy-bound import ZIP is the only logical-name exception."""
+    p=IMPORTS.policy();require(role in p['logs'],'One exact original binlog role required')
+    decoded=IMPORTS.decode_binlog(raw,expected,expected_format=p['logs'][role]['format'])
+    members=IMPORTS.import_members(decoded,p['logs'][role]['originalMembers'])
+    _scan_body(raw,forbidden,depth=0,budget=budget)
+    _scan_body(decoded['expanded'],forbidden,depth=1,budget=budget)
+    archive=decoded['archive']
+    scan_content(decoded['expanded'][:archive['offset']],forbidden,depth=2,budget=budget)
+    scan_content(decoded['expanded'][archive['end']:],forbidden,depth=2,budget=budget)
+    for logical,row in members.items():scan_content(row['raw'],forbidden,name=logical,depth=2,budget=budget)
+
+
+def _normal_binlog_specs(value):
+    if value is None:return{}
+    require(type(value)is dict and value.get('kind')=='scoped-normal-App-original-import-provenance'
+        and set(value.get('logs',{}))=={'app','reader-build'}and value.get('actualOriginalInputsAndProcessesRead')is True,
+        'Current actual normal import provenance required for narrow binlog publication')
+    specs={}
+    for role,row in value['logs'].items():
+        require(row.get('kind')=='scoped-actual-original-App-import-bindings'and row.get('role')==role
+            and row.get('actualMountedInputBytesCompared')is True and set(row['binlog'])==set(FP),
+            'Exact actual normal binlog role and complete bytes identity required')
+        specs['evidence/output/'+role+'.binlog']=dict(role=role,expected=row['binlog'])
+    return specs
+
+
+def scan_public_tree(root,*,private_workspace,normal_imports=None):
     rows=N.tree_files(root);require(len(rows)<=MAX_ENTRIES,'Bounded public App tree required')
-    forbidden=_forbidden(private_workspace);budget={'bytes':0,'entries':0}
-    for name in rows:scan_content((Path(root)/name).read_bytes(),forbidden,name=name,budget=budget)
+    forbidden=_forbidden(private_workspace);budget={'bytes':0,'entries':0};binlogs=_normal_binlog_specs(normal_imports)
+    require(set(binlogs)<=set(rows),'Both bound original binlogs must exist in the scanned public tree')
+    for name in rows:
+        raw=(Path(root)/name).read_bytes()
+        if name in binlogs:_scan_original_binlog(raw,forbidden,budget=budget,**binlogs[name])
+        else:scan_content(raw,forbidden,name=name,budget=budget)
     return dict(kind='actual-public-App-content-exclusion',files=len(rows),expandedScanBytes=budget['bytes'],
         excludedPrivateInputs=73,excludedOriginalComparisonDll=True,allActualBodiesChecked=True)
 
 
-def _checked_public_buffers(root,*,private_workspace):
+def _checked_public_buffers(root,*,private_workspace,normal_imports=None):
     """Read and scan every candidate before a delivery target can be opened."""
     rows=N.tree_files(root)
     require(len(rows)<=MAX_ENTRIES and sum(row['bytes']for row in rows.values())<=MAX_EXPORT,
         'Bounded complete public App publication required')
-    forbidden=_forbidden(private_workspace);budget={'bytes':0,'entries':0};buffers={}
+    forbidden=_forbidden(private_workspace);budget={'bytes':0,'entries':0};buffers={};binlogs=_normal_binlog_specs(normal_imports)
+    require(set(binlogs)<=set(rows),'Both actual normal original binlog files must be staged for publication')
     for name,row in rows.items():
         path=N.ordinary(Path(root)/name,file=True)
         with path.open('rb')as stream:raw=stream.read(row['bytes']+1)
         actual=dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),sha512=hashlib.sha512(raw).hexdigest())
         require(actual=={key:row[key]for key in FP},'Public App candidate changed before publication')
-        scan_content(raw,forbidden,name=name,budget=budget)
+        if name in binlogs:_scan_original_binlog(raw,forbidden,budget=budget,**binlogs[name])
+        else:scan_content(raw,forbidden,name=name,budget=budget)
         buffers[name]=dict(raw=raw,mode=row['mode'],fingerprint=actual)
     require(N.tree_files(root)==rows,'Public App candidate tree changed before publication')
     return buffers
 
 
-def _publish_checked_public_tree(root,destination,*,private_workspace):
+def _publish_checked_public_tree(root,destination,*,private_workspace,normal_imports=None):
     """Publish exactly the checked immutable buffers, never reopen staged input."""
     root=N.ordinary(root,directory=True);destination=N.ordinary(destination)
     require(not destination.exists()and root not in destination.parents and destination not in root.parents,
         'Fresh distinct checked public App delivery root required')
-    buffers=_checked_public_buffers(root,private_workspace=private_workspace)
+    buffers=_checked_public_buffers(root,private_workspace=private_workspace,normal_imports=normal_imports)
     destination.mkdir(parents=True)
     for name,row in buffers.items():
         target=N.ordinary(destination/name);target.parent.mkdir(parents=True,exist_ok=True)
@@ -279,6 +317,7 @@ def package_normal(workspace,host_roots,*,normal_context):
         'Exact current finite normal App attempt required')
     verify_private_inputs(workspace);_notice(Path(workspace)/'origin/historical-reference-notice.txt')
     genuine=N.package_normal(workspace,host_roots,normal_context=normal_context)
+    imports=IMPORTS.validate_normal_logs(workspace,host_roots,normal_context=normal_context)
     destination=Path(context['paths']['delivery'])/'reports/build/appinsights'
     # The workflow archives all D even on failure. Assemble and check outside D,
     # including all dynamic logs/binlogs, before any delivery file is created.
@@ -298,14 +337,19 @@ def package_normal(workspace,host_roots,*,normal_context):
         'worker-completed.json','genuine-normal-package.json','reader/Reader.dll',
         'replay/app-status.json','replay/app-tasks.jsonl','replay/reader-build-status.json','replay/reader-build-tasks.jsonl',
         'app/Microsoft.ApplicationInsights.dll','app/Microsoft.ApplicationInsights.pdb','app/Microsoft.ApplicationInsights.xml']
+    output_names+=list(IMPORTS.GENERATED)
     strong,worker=N.original_validators()
     output_names += [name[len('/output/'):]for name in strong.generated_metadata(worker.policy())]
-    for name in output_names:_copy(output/name,evidence/'output'/name,N.fingerprint(output/name),0o644)
+    for name in output_names:
+        expected=(imports['logs'][name[:-len('.binlog')]]['binlog']if name in('app.binlog','reader-build.binlog')
+            else imports['generatedReaderFiles'][name]if name in IMPORTS.GENERATED else N.fingerprint(output/name))
+        _copy(output/name,evidence/'output'/name,expected,0o644)
     product=staging/'product'/N.PACKAGE;_copy(output/N.PACKAGE,product,N.fingerprint(output/N.PACKAGE),0o644)
     N.write(staging/'finite-reference-use.json',dict(kind=KIND,role=role_record(),context=context,
         genuineNormalProof=genuine,privateInputManifest=exported['privateInputManifest'],
         payloadRole=False,referencePreferredSourceEstablished=False,wholeProducerSourceClosure=False,sourceAdmissionAllowed=False))
-    publication=_publish_checked_public_tree(staging,destination,private_workspace=workspace)
+    N.write(staging/'original-import-bindings.json',imports)
+    publication=_publish_checked_public_tree(staging,destination,private_workspace=workspace,normal_imports=imports)
     exported.update(sourceTree=str(destination/'product-source'),publicExport=N.descriptor(destination/'export-record.json'))
     return dict(**exported,supplierPackage=N.descriptor(destination/'product'/N.PACKAGE),
         finiteBootstrapUse=N.descriptor(destination/'finite-reference-use.json'),publicContentPublication=publication,

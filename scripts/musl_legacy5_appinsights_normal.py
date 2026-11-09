@@ -94,7 +94,8 @@ def execution_sources(reference_bootstrap=None):
     if reference_bootstrap is not None:
         import musl_legacy5_appinsights_reference_bootstrap as reference
         reference.validate_role(reference_bootstrap)
-        names+=['musl_legacy5_appinsights_reference_bootstrap.py',reference.POLICY_FILE]
+        names+=['musl_legacy5_appinsights_reference_bootstrap.py',reference.POLICY_FILE,
+            'musl_legacy5_appinsights_imports.py',reference.IMPORTS.POLICY_FILE]
     return {name:fingerprint(Path(__file__).with_name(name))for name in names}
 
 

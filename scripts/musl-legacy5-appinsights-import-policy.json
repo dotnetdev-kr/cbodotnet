@@ -1,0 +1,629 @@
+{
+  "schemaVersion": 1,
+  "kind": "closed-original-App5-msbuild-import-role",
+  "sdkVersion": "5.0.214",
+  "logs": {
+    "app": {
+      "format": 13,
+      "msbuildCommit": "0538acc04cc2c953f220f9ec3f3764db1769defe",
+      "readerBlob": "47c1f6d8306b080e7bc95ddd27ac18623ae1b4d8",
+      "project": "/inputs/recipe/App.PCL.proj",
+      "compilerTarget": "/bootstrap/sdk/5.0.401/Roslyn/Microsoft.CSharp.Core.targets",
+      "originalMembers": {
+        "/bootstrap/sdk/5.0.401/Current/Microsoft.Common.props": {
+          "bytes": 15993,
+          "sha256": "de7312a59d027cc1965a2814de224651eadabd0f27f059fd2e1ccaab2a340491",
+          "sha512": "eb38f7a19af7da2196355a2803d62d6638d72e0dfc136ecd934f463442ea15fe310cbf623c5dd3f1d5fa81ed7e02f15f756511fa86c5e513105d80100283f36b"
+        },
+        "/bootstrap/sdk/5.0.401/NuGet.props": {
+          "bytes": 2523,
+          "sha256": "0bd56dea541dd607af6287264e4f5aa3dd223e42d2ffcac9a5230d41bbac3d7e",
+          "sha512": "9d127ef260418626f00419393df0d1b5f043ff805240962c3bb49cf97fdc1f39f90d44830ccba9d33afa79b49d86cf628149e948dd2d01d0b4575e3d01f1664b"
+        },
+        "/inputs/source/GlobalStaticVersion.props": {
+          "bytes": 844,
+          "sha256": "26357c810e1ad56bfd39d59ca6235f6bfcd2b153b5ca2c51233562d9c36198ee",
+          "sha512": "71a5dd35af3a95b4fd48ec9f470993d17117f06fe008bea48f66a61b3637797c4aa5a6e94536ac6b8da16f6edb0c931ff4cda12080e9f1f2ae8861c6c0f25916"
+        },
+        "/inputs/source/Signing.targets": {
+          "bytes": 1923,
+          "sha256": "46718b741c633cf275b3e05250d9f7cbccc92b3aa7b62d9d9b69871f5d05d382",
+          "sha512": "62f0b9fc3f3c8e0f791e91b62ce665410b2e3b58eb110791ebc542ca2d6834d7aaef839f885787128f7c4655b1921972be809ec8343a8857cb55a12d714add40"
+        },
+        "/inputs/portable/v4.5/Microsoft.Portable.CSharp.targets": {
+          "bytes": 867,
+          "sha256": "b40174a22183f4bcd52421601e7c541be4ba556d8abcb850abf9a302b0c1b89f",
+          "sha512": "8362fb6b613efcc0559be60596c3e3dbee206298f0af5e53f8e2b92d49b9b96db407221fc690b53844526d22827af2d776503376dcfcff64255994752019d94c"
+        },
+        "/inputs/portable/v4.5/Microsoft.Portable.Common.targets": {
+          "bytes": 717,
+          "sha256": "6f1899f7ec137960d5b2ac844ff217112218e93e08189089444943c4d0e3b591",
+          "sha512": "1e5328ff6430d5bb88e5a3dbacb78d50e9cb137e813f2439a11dbeaecad9aadeec492e03acefb94e66df5d69acbfc467454454d338023266fb0d8f1adb98fc6d"
+        },
+        "/inputs/portable/Microsoft.Portable.Core.props": {
+          "bytes": 1995,
+          "sha256": "ba9cb72b62383ee499a550144548bb32a5c55a310b87002fb97005301fedd697",
+          "sha512": "b25135092adc1eda6c84523c6cb3f1d3918092857d3fe70ca16cd8b54c1fa1bb80dd770da3a309b9394f05c37a3412fff9b6d1d0a5d1768875e6916724362747"
+        },
+        "/bootstrap/sdk/5.0.401/Microsoft.CSharp.targets": {
+          "bytes": 18595,
+          "sha256": "467e40a0b0940bd4b7c8cc6d30ab0fca3b8eea377448aece9e1e8b8edd8f1c52",
+          "sha512": "be7297afeb3b15e335bc2718007371e7c2c7bd65ee4826bb6fdb9a5bebb8d85ea9ae96b6ea6b3c0b78d9425229a8333afc13fbfcc69e4bb87593272e79e8c33a"
+        },
+        "/bootstrap/sdk/5.0.401/Microsoft.Managed.Before.targets": {
+          "bytes": 1187,
+          "sha256": "a20748a6a2ada11c749bd67087dd161b1b94acac5b5acf81013fdc16ebec4116",
+          "sha512": "32298b537667a594ed15686bddcbd3c37c850dfdad8f7bcfa0af30c43ba0bb0c3176cf41922b8fa96ac19e00abe84cf53ce1b9162b38fd5244f0ed775463c190"
+        },
+        "/bootstrap/sdk/5.0.401/Microsoft.CSharp.CurrentVersion.targets": {
+          "bytes": 21648,
+          "sha256": "f72ecf0adba61a423ee7471c39bf057f2070854f700230b33da7454d63680c95",
+          "sha512": "03db8c90a2b41fc33b4f2a86589997a2a07a6622b8e02c8e8cfeec8f784614e817c7a3bfc83dc009f595e8d347542576e6d76e15d9ad83dc35571e2c711cc61b"
+        },
+        "/bootstrap/sdk/5.0.401/Roslyn/Microsoft.CSharp.Core.targets": {
+          "bytes": 8618,
+          "sha256": "bb204dc58a802bbede9b2f7d2243d54bc4fcf984ffac6beaf774422ae9dbb8a8",
+          "sha512": "3720952f4dadf01c2e11d0701bf973ec6095bf7bdf2a4242bb27fb5f2d14541a678b7f40171012819598f40f2693319491719bb6735a63a242f7595bc9f86b6f"
+        },
+        "/bootstrap/sdk/5.0.401/Roslyn/Microsoft.Managed.Core.targets": {
+          "bytes": 16079,
+          "sha256": "9a503e7f720aec7bf767c34168c0cd6794c03cb9f1157ab8c7e46bde008721b0",
+          "sha512": "169124f591b2cf7de7194f1907f0e26050a6a62106aea3e76937d695c1482edecb545d0ac9ab6d8f0462e0f973e55e289b0bd45701fb66a1d6e00173739bc1a8"
+        },
+        "/bootstrap/sdk/5.0.401/Microsoft.Common.targets": {
+          "bytes": 14119,
+          "sha256": "d6115861338911a5e8e7c997fa36cf1af9fdee12fcd2fd15c98e687ccafefb95",
+          "sha512": "a0407f705365272861a3b5c3866dc723f52d24fa4c4e82ae20f30762005652102cb0d51ed13f1db16b43c1e6e21769610492554391596177ffcc6142645806ae"
+        },
+        "/bootstrap/sdk/5.0.401/Microsoft.Common.CurrentVersion.targets": {
+          "bytes": 354037,
+          "sha256": "11b0b114bbe376a5cdc970d05c575cef2207ce0ebf41632a4d0269bda9a990b1",
+          "sha512": "af94f0fd85d7e51aad42e765ba217dc3f23fc1f2e92603ff78c614e64e56ad6c964503b6359e37d4c15aa718e89428324be68cefed0ffb1227f4bdf4ce19a906"
+        },
+        "/bootstrap/sdk/5.0.401/NuGet.targets": {
+          "bytes": 60288,
+          "sha256": "bd0bc0030232c8baea34807a560215c3e4374cfdcba5ce5caab372e8016b1ded",
+          "sha512": "6959aa0806119ae4b288fbb9dfc0b5c586deda78a79427906e254fa0eb5b2c764020549970dfff5c599d3271f6c5050e35ccbf242c5427f73fd767f227548f92"
+        },
+        "/bootstrap/sdk/5.0.401/Current/Microsoft.Common.targets/ImportAfter/Microsoft.NET.Build.Extensions.targets": {
+          "bytes": 1042,
+          "sha256": "baca1184a3b2bd00e40b10ed401ca8cb9f2dfc845bddfe2e3fc2058bba841bf5",
+          "sha512": "75d29deff147f3b213b155c85b829df642ca905f26116ffe7e6791c38954c0ea1f9230b8d4dc142e2a5e3b07af47038c6e8870328067ef20f5cddb3d0eb5f34d"
+        },
+        "/bootstrap/sdk/5.0.401/Current/Microsoft.Common.targets/ImportAfter/Microsoft.TestPlatform.ImportAfter.targets": {
+          "bytes": 1053,
+          "sha256": "c4ca13f9ce8f9ab3581eebcc3edc35249520d918c7fe7dd97bdd12c5bc9f5365",
+          "sha512": "447ec82e2776752c67ba0e0b45316f03f4f96179ddf6ce49128a851f6878b41330d0c9a18945797a0c11d7c83b05dcbeb5dd8a1ba881d5b059e88c974a3e815a"
+        },
+        "/bootstrap/sdk/5.0.401/Microsoft/Microsoft.NET.Build.Extensions/Microsoft.NET.Build.Extensions.targets": {
+          "bytes": 2009,
+          "sha256": "aeb2bc1e66f0d43438a92c9c951146d237eec746fd45ead0bcae42fcfd309d45",
+          "sha512": "9bda2c8ebc3524b5cb7455ec0e6de0dc6c24f89cc7ab5cc6e4920dd00059c918907f71ccff6534a857cc1207c230c5af5d4fdcee6b91b363756aba4809362447"
+        },
+        "/bootstrap/sdk/5.0.401/Microsoft.TestPlatform.targets": {
+          "bytes": 6007,
+          "sha256": "cef89d466253dcf199f5b0c264e69987f6611da00fd9f49c0b5cc3a4ad9a8df7",
+          "sha512": "e1e64e842f62f3adfc977576feb9e7354dbeda1937a028dbb6de183a17f73b4508eb6628bf1c9ebfa357d7738fad51635161d8961c7f1e20a026d8e680d162ac"
+        },
+        "/bootstrap/sdk/5.0.401/Microsoft.Managed.After.targets": {
+          "bytes": 5756,
+          "sha256": "99a0626bb66765c0d051fd85aaec5fb4acde6a9c9bc0d6591052fb7b3f202907",
+          "sha512": "64d05ad3333a4c44255f7cd5ac40e91dae5c9e29535b5aa0f3f84feca5a330c68e0e0865395418f012871548d71cb7f9cbb1a853896b91b08f55a3d82b20c915"
+        },
+        "/inputs/portable/Microsoft.Portable.Core.targets": {
+          "bytes": 4102,
+          "sha256": "e28c0a83b7af485c128c6b7a5f632093d5bbec51012ce54dfefb7f59820e6c81",
+          "sha512": "7953480fdf5be09a18af2e00d0cb04ede84d57090ec11ca7a88bcffabd1d66170237a5b53c197041c4efca1328285e98f189c8970c442a8dc0739c5b48d4da81"
+        },
+        "/inputs/recipe/App.PCL.proj": {
+          "bytes": 15169,
+          "sha256": "5d25057c777c10292f4fd7bc730b5ac4667f3783fc65191fca2398fce87fef02",
+          "sha512": "961b190f3f24fb0f793af7fb15029f5886c553404b18a18cee00ac0a34cce0725f8ac03bab82740c44fd7228785196d980c55f088bef1ce708f5f57b73326101"
+        }
+      }
+    },
+    "reader-build": {
+      "format": 14,
+      "msbuildCommit": "85d71072f8fa22cc761d6b65954da263364bee4d",
+      "readerBlob": "c6be1d59db3852bdc6cb7aff628249810f8cf42a",
+      "project": "/inputs/reader/Reader.csproj",
+      "compilerTarget": "/inspector/sdk/6.0.135/Roslyn/Microsoft.CSharp.Core.targets",
+      "originalMembers": {
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/Sdk/Sdk.props": {
+          "bytes": 1953,
+          "sha256": "8ff55472005f2a6c009c61c08aa4fcb18a2454e07d38e6efd2d6a6b42583cd14",
+          "sha512": "4bcaaf0732a3f7d51c5db130ec43ee6294a99119a6798377ac29bd0fd8c315eb4a49ca39f5f18c898cc995e74682c258da145b38395ec5b561645cc1523f0e99"
+        },
+        "/inspector/sdk/6.0.135/Current/Microsoft.Common.props": {
+          "bytes": 16007,
+          "sha256": "2683491b0182510281d09ce42d9c15bc3ef1d5ef22770c8c396aa7537b206e1e",
+          "sha512": "1dec7681ac2d93177927d6b3c2121c1c5bea15ec846f9c2fab57346d23f16e14cc37f33b1a7c29d7a87a6f362c3797cb87dde7e45c9ef52a358de49dc890879a"
+        },
+        "/inspector/sdk/6.0.135/NuGet.props": {
+          "bytes": 2523,
+          "sha256": "0bd56dea541dd607af6287264e4f5aa3dd223e42d2ffcac9a5230d41bbac3d7e",
+          "sha512": "9d127ef260418626f00419393df0d1b5f043ff805240962c3bb49cf97fdc1f39f90d44830ccba9d33afa79b49d86cf628149e948dd2d01d0b4575e3d01f1664b"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.props": {
+          "bytes": 9786,
+          "sha256": "e0d05d66405b8d07fcc5c330b8a02a087e5f9ee4799c06357f52d7d4cd685040",
+          "sha512": "ab168b60a0b5799b031ee00e20bc38f9828956f97a2ff610aa578ae1d2fe0b3a1a1bda66b1f9e2d274c4af06f5d2c6abdfd9f94c6394a2ffd0c9786053bd1f56"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.DefaultItems.props": {
+          "bytes": 5525,
+          "sha256": "ead83b67123fdd0226cfa00802abe9ec02e778b99433425317a13a8e3f6bd5c7",
+          "sha512": "7e40a91c96299557797cbb6a082e092dc8683d23596c298607480d748a09a19d12f84972661a5811a2c3a38ffe2d729a8ed6de0860b3970f01f7ee2ec2a5acf3"
+        },
+        "/inspector/sdk/6.0.135/Microsoft.NETCoreSdk.BundledVersions.props": {
+          "bytes": 30077,
+          "sha256": "3298de49e0a7982db7a480a26e5965fcabf05bab12630de73ac405491a007476",
+          "sha512": "823828a969fe04520e69d74b4bd68b9c9917483f3fde9a949361b57740789685ad2c944b4d3512f845d7debcefd4a5c209e7a7a6b442114c478f54f02cb7db23"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.ImportWorkloads.props": {
+          "bytes": 769,
+          "sha256": "423997b0ac7253deb5ca155085b8761efc06e256482485c2740a1239c2681d3f",
+          "sha512": "a1e6b3918fb1460d087bd70eea87590cdc0f22d756b24fab6ab7a7c51c7bf262da84001ac215eef52a4c01b96a44a24ea715e4ee5b1155b95963008d0e6d9838"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.SupportedTargetFrameworks.props": {
+          "bytes": 5732,
+          "sha256": "c4231582d85b3fca2342c55907d3e4a17430324aba691305752d37e1a10f79e8",
+          "sha512": "18ad377dc96e40fe94a65fdc9af62964999b21484fe23071b9c0857520d7bd92d9690fd6124f20d334276a83fff1e628a5bdeedab760c6dfb42ffe0e53ffbc48"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.SupportedPlatforms.props": {
+          "bytes": 917,
+          "sha256": "cfe84e5627653a51a1959e9cc6bd36ba58701c239d3002cb3b62fbe6b5b651b0",
+          "sha512": "90e7dea130cddc8c276946b62b2ec5d1b0f320f2895252d8c6200b95c2013841f619baf3a76421eb2aaa93b955886b7d80654316db2048c2a749a77974ebac4d"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.WindowsSdkSupportedTargetPlatforms.props": {
+          "bytes": 1796,
+          "sha256": "15a34930355705e6f879604b973fb6e05caf8f81c1773ce28e0d0f18cbbbf658",
+          "sha512": "dc4f49928a67447d1ff8ffd54a4bd8b8bdb984f69a56d165905ecafe9ff0084717bd6030fb3e6f103271580376bfa2a275a4163ea3ae2ffc8e2be8bee04d16b1"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.CSharp.props": {
+          "bytes": 1618,
+          "sha256": "b3089dc04202b0354531db480e6660f55f629dd4579e10d6cec968819948e5a5",
+          "sha512": "ac0343aeb1ea9d7affd1d19f360acea3864b5a87e59d0fdc2c5e39e201aa7971ce91e1b6d8003cb01aeae229ba5ebed2d906d62ee4e32d135df3281a021ae769"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.ILLink.props": {
+          "bytes": 697,
+          "sha256": "432534a6110b21bec04dcd3b87cc976ae00123194ce87be633c4bcc41cc83775",
+          "sha512": "0ee1239f9c5ee17ea9c26038d86d52c511884796e01157cf0913f39b383e5a0a14336b57f4b443473b3960a044756c7a746d2adcaebef76a713b7363f38ac1d6"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.ILLink.Tasks/Sdk/Sdk.props": {
+          "bytes": 789,
+          "sha256": "0444489efffc92410192abd6f19e27c26cebbef4951b5c5a43c439e73d3151d0",
+          "sha512": "446d34f40bf6cb0fe0bf5e66caef7cd61bbe366ff1689a97e3c4a832c77b96d53b1587f9ec890dba7534e6203424bdf7da79641a581c9b12efbc4feeebd1f9dd"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.ILLink.Tasks/build/Microsoft.NET.ILLink.Tasks.props": {
+          "bytes": 976,
+          "sha256": "47e114d607c1b55ca0a28cd13efc51a177b6312b1ed81d339235ead64c32e783",
+          "sha512": "dbd67f50e05a8ef36606d1a59f721720d1bb7e8e70cb36b9dea50cf54a56174adb47fdcf581ac3dc7fa556758b94a6315527d766fdb69621db62391a3604a49e"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Compatibility.props": {
+          "bytes": 579,
+          "sha256": "2a41b4eaf2e0c9d2763791bcb9f5e49db222ad9750e93de919d5de273d9a592e",
+          "sha512": "07f6b35b55d21a0d1be3a1fcf007affd988024dafdc84c29b2cb1e495367d1004e956b85d0c463ca230b08b8e9a4dbace7ade4dbef37e0974606fa3bc1816a12"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.PackTool.props": {
+          "bytes": 803,
+          "sha256": "a02a2585e0a83f676d291f6eb613450db0337ceb87d38d9549caf293ffc1246d",
+          "sha512": "e306338ea3a95adbdc4a3b82183eb8318ff6755b1eb39724678fb440cf4520b5c774da7f8d02132774d163d1f073bc9d2733be4043e572d368a35bd964dc0505"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.PackProjectTool.props": {
+          "bytes": 828,
+          "sha256": "d8d7d9dd18b11e60bae2b143c126bd8111529d7e451e70190e96f4baa1018b77",
+          "sha512": "783724b622ce8f7772d20ef07476fbd1853a47e73ceb7512195b3fd1f9084293ebff6c98aab746f5c35191c5766ed5816f8662b034db6fc2aac75be98981c2fe"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk.WindowsDesktop/targets/Microsoft.NET.Sdk.WindowsDesktop.props": {
+          "bytes": 8957,
+          "sha256": "d13dde6a7cf8b16c28094ea7bb603e4888020ae908295613b9f07941a5f550b8",
+          "sha512": "9faaf5ee2dad675408b6dbd374f4b4384618a35b375ce08aa9fa17e959f34accae47a0084212021d78ded1c9dc78cd7b6740d15c207850f36d7cdffec83bc5b8"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk.WindowsDesktop/targets/Microsoft.NET.Sdk.WindowsDesktop.WindowsForms.props": {
+          "bytes": 1138,
+          "sha256": "7e8bc3f503cd1d0c547a9f286aca95083941eda37458467da399a6f42f6e77ec",
+          "sha512": "f3692bac6890423ec656c4f5a9c49febc8d3d70857668aed78a18c2d7122cf866cb7174af4384c2a0463fd89766e1633c6047f486c77d3a0a98fd786cd95f0b7"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk.WindowsDesktop/targets/System.Windows.Forms.Analyzers.props": {
+          "bytes": 1334,
+          "sha256": "99df70c0c8e429f833b6d827b7cad54eaa72fd735d2ef8002c1808a0b8fdfe5d",
+          "sha512": "6a4e8f2fab6633d27ff7e80b527f7a915678bc53c1812602946757baa7dd8deceede64cbad09b0c98b5e093986562f4131583d0e54e69bcf68983213e940a0be"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk.WindowsDesktop/targets/Microsoft.NET.Sdk.WindowsDesktop.WPF.props": {
+          "bytes": 353,
+          "sha256": "c4e371c48ea73ec7f055919d6d13c20521aaad73df2130b1342d308d3ad4c99d",
+          "sha512": "4bcac97661190d7d549c0f4bead6f6e7d0fdc234436f5419c24bfdbc34733e39ee0d55c787b0956bfdbbb3384fe22e67b859cd211a066dcb2319db4f6c51dab5"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Windows.props": {
+          "bytes": 1220,
+          "sha256": "a5920b61f95cb842e65a7c2cbe329e21a80792c67562513452ac313cbafd57a2",
+          "sha512": "be3658a78b81e6016ed9fb85a7a21665f4c2fc9bf7361e8b2a67db701f3d5692cdcf2bb01c304ca6edcfa59442b35359804398b202e48929f073b4b7d4e5d4e1"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/Sdk/Sdk.targets": {
+          "bytes": 3793,
+          "sha256": "b263f67db6cd2ecd67b967f4ce35ef6c16be3994d65b4e5e6be5d864848c9232",
+          "sha512": "9632ed7e57ae1e923708d79fe26c28a18d44122c106927f395539e9d041a258affaf99e3b7fc76f460abc921c74a5794b32e9378da2a4a8e2b9875962107c5a0"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.BeforeCommon.targets": {
+          "bytes": 19274,
+          "sha256": "70e0b98ae74483311f1ffe34dded5c5dcc9f2dcb08da49583c324bfe566b26c7",
+          "sha512": "c3beedd221c3e3a3ebcdcacb22bf6a0543c8d8791a91d6a538118a14a55b5c2193c13ee62ac6674321b754096568f80c6b16ed0acc996baf6b6f38d016909b0a"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.DefaultAssemblyInfo.targets": {
+          "bytes": 1310,
+          "sha256": "40fd84862735d33c434864aae190abc59191ac4717a499c456a9c87896228354",
+          "sha512": "5b6753285cdd2f0e9bf327dcccd1381b67a757d6ca38cf211a1a4846ea0e68635264e5bf6d866fc17918b3d024a6ab494ff8f2cdd7841504db12e79fd3cee6a1"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.DefaultOutputPaths.targets": {
+          "bytes": 3367,
+          "sha256": "e6f4924f858cb04e8917a82cba8201c7245d97e9abf28198ac7ae6702f0de5a3",
+          "sha512": "3de3d9822193b213af6e426d25ce39ff7a7ed54f7315848f822457fabd44e0951ca7eaa09914c5737d0628ea795acfa948db49ac291f20936391904a1e06a629"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.ImportPublishProfile.targets": {
+          "bytes": 2930,
+          "sha256": "a802eb4416ec62e2e8de151e77b830e5a66ec95c8c38bb3f06c47fab757abc53",
+          "sha512": "cc0e9965bdd5fe208c26e0e4e3ce1cea47553672f161a0a93c80ccff9405cd294e9effdffe0f0603293b59871d709e254c7e14b92865b18b5c46909577442688"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.TargetFrameworkInference.targets": {
+          "bytes": 16206,
+          "sha256": "138877b694422e3176198277de7bbf00551bdd4beeca61644e41489e01faa4cc",
+          "sha512": "4074476d9c8f8d13afb1cb81badcf1cc7399914ff8484aad29dfe2d8e46f42ed906b49c79db6c29d1afe89c990a761bfd72bcb6452ae69c5c2ac21fecbbd0da4"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.ImportWorkloads.targets": {
+          "bytes": 3405,
+          "sha256": "76a4458fcfa0eed8ba7f8f677c1244f68d78c7aa285a0a4c5c20eadeb15ee23a",
+          "sha512": "9a0900cdb9dd65f794c28e0690e3fa426f96e46b0540b64eb9da0eda92dff36fa5b9436cdc55d11ea1ca5bd21e50e2880afb9a99f46dd984e4f7d9174fc6e9ea"
+        },
+        "/inspector/sdk-manifests/6.0.100/microsoft.net.workload.emscripten/WorkloadManifest.targets": {
+          "bytes": 1852,
+          "sha256": "2212d481499520921decbe3037d4938c178e3a79e72329647d11d4007cff4225",
+          "sha512": "cf18008512085ecf50708f276c0792f656557411a24800965bd738580f5076e91c4e0f2e5e8f142837352048570b62b2c22fd5802032403509c5f6c7e054f4a3"
+        },
+        "/inspector/sdk-manifests/6.0.100/microsoft.net.workload.mono.toolchain/WorkloadManifest.targets": {
+          "bytes": 8338,
+          "sha256": "264b80033823a8c4fc35e0420035c5c103d481e697ff720f1f7e34846917e8b3",
+          "sha512": "5e312e64e2884966a6cf20fbca048cf8ca685ec5a518891d35de449ffd268b6893bb9716533103353d22201d3ad164a6a2c9b823895ba67ac359bd4922a50852"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.RuntimeIdentifierInference.targets": {
+          "bytes": 15304,
+          "sha256": "8cd0cf18896a44b00d8d2b5fedff9dcf96f3044f985052f4313cd79492e037bc",
+          "sha512": "2d53084f768179056237d90e7c1894fde94df38da2e6802122ad3a7394cb756d139b7963f43eb77c4ba5e8edb9c4b80c447da5dfa2194933c80fd73bb354adab"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.EolTargetFrameworks.targets": {
+          "bytes": 1717,
+          "sha256": "7dca811b6dcb3207f5140209f10b5168e5a62bd4145350cedaa9cf95443460b1",
+          "sha512": "f637f16390de443ec7a3fa3231edad4a5cbb698383db59cd9d7368de0a8c98872b8f63d0874db4e52f4fe49f82d35a0ddb887fb103ee3640e0b4606f3fa125ad"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.NuGetOfflineCache.targets": {
+          "bytes": 2227,
+          "sha256": "49eab259eeae8e85cfcc46801168831ab20d0ae780c3e4818c44c8b7100ba9a7",
+          "sha512": "5b9efb5cf8392c271d080e075a1679c4626e005ef4c08d3b79ab1d8c432a55bb06a79c22ed65c8bf937480b0f75bd50e8058f8b61bca88bee72e3c68f513d72e"
+        },
+        "/inspector/sdk/6.0.135/Microsoft.CSharp.targets": {
+          "bytes": 18595,
+          "sha256": "467e40a0b0940bd4b7c8cc6d30ab0fca3b8eea377448aece9e1e8b8edd8f1c52",
+          "sha512": "be7297afeb3b15e335bc2718007371e7c2c7bd65ee4826bb6fdb9a5bebb8d85ea9ae96b6ea6b3c0b78d9425229a8333afc13fbfcc69e4bb87593272e79e8c33a"
+        },
+        "/inspector/sdk/6.0.135/Microsoft.Managed.Before.targets": {
+          "bytes": 1187,
+          "sha256": "a20748a6a2ada11c749bd67087dd161b1b94acac5b5acf81013fdc16ebec4116",
+          "sha512": "32298b537667a594ed15686bddcbd3c37c850dfdad8f7bcfa0af30c43ba0bb0c3176cf41922b8fa96ac19e00abe84cf53ce1b9162b38fd5244f0ed775463c190"
+        },
+        "/inspector/sdk/6.0.135/Microsoft.CSharp.CurrentVersion.targets": {
+          "bytes": 21623,
+          "sha256": "c9ae03e2a90e3fbb1f9232a8d4d2a8f6a1f0905fa17b510052eaaa8af1dcb610",
+          "sha512": "78b845a0ac02976d16cd3503227b33e1ff5011034e9b8aee8cf5bbd460e6490bdd95ae354ab70fc75600d7a546c4d9658dad55139df45d685e7a5356e33527ab"
+        },
+        "/inspector/sdk/6.0.135/Roslyn/Microsoft.CSharp.Core.targets": {
+          "bytes": 8908,
+          "sha256": "89eb7ede67e2f642422c52fda6c17a256a391d3d7dd51f1b06861c3af071043e",
+          "sha512": "afe98150986c602675f16060d7309ca97010275eba2a124270fee284979432b159b95122d2bf55256346835d48207db21664495cae945ea1d599d2ed21e7e88f"
+        },
+        "/inspector/sdk/6.0.135/Roslyn/Microsoft.Managed.Core.targets": {
+          "bytes": 18990,
+          "sha256": "cadb1b9c125b60922890263577045c0aa6fab08324fd727edfa9b058dac4a013",
+          "sha512": "fb49709ca941717a3005d863fa06cd549393a217b060d0f2e9f43a714149f8bf835454ab186946dfda359f6e97657f84142f71e43566bfd0200256ef15a6ab72"
+        },
+        "/inspector/sdk/6.0.135/Roslyn/Microsoft.Managed.Core.CurrentVersions.targets": {
+          "bytes": 118,
+          "sha256": "6b5eddff8ee367ca79d9bafe85d7448f330c8e4eb8c8b6800479f1a10bb0b5e7",
+          "sha512": "3dbdb4a5a272ecb22b994f1a0b62695e93b632b9dda073d8be96bcfb0b536709a57ad72884acda37e45f3d64ed2e1c371f79207deabd03830cd6b5019f2e7bac"
+        },
+        "/inspector/sdk/6.0.135/Microsoft.Common.targets": {
+          "bytes": 14119,
+          "sha256": "d6115861338911a5e8e7c997fa36cf1af9fdee12fcd2fd15c98e687ccafefb95",
+          "sha512": "a0407f705365272861a3b5c3866dc723f52d24fa4c4e82ae20f30762005652102cb0d51ed13f1db16b43c1e6e21769610492554391596177ffcc6142645806ae"
+        },
+        "/inspector/sdk/6.0.135/Microsoft.Common.CurrentVersion.targets": {
+          "bytes": 362655,
+          "sha256": "a0efb924e6c8c2d5a110e8a09c1fe7267d7ab296c8db791a4d57ea83df0451e7",
+          "sha512": "a975ae43be9e2a4b358e061837be5251e4d90adced7259d4639186cfc785d3bcb7508e84a172930d308656de15b9bc293e8c8012588a41d8f6e87bcc2f15cbe7"
+        },
+        "/inspector/sdk/6.0.135/Microsoft.NET.props": {
+          "bytes": 2215,
+          "sha256": "fc9db1103dc35bf1ca574b1fb85e6c11e83a3959f948c46ea989fd13d34afa54",
+          "sha512": "6bbeadb29a5caf4c984e2fb37183fe13a2479b619bc4de2f9352522e48b2b44c7633f34a82c1704cc33e71deaa318dcbd7de2265b564eb0736ef2a308deadf7d"
+        },
+        "/inspector/sdk/6.0.135/NuGet.targets": {
+          "bytes": 60250,
+          "sha256": "0b248aef3612d721f2141377edda1c0f29d612d8597cf56cbcfa3e1e9449924b",
+          "sha512": "9f3f1a56c55bec5e46717ccc6053cf43088e24b66f2c95bbd63185c7fc9be21944b7e39655e320677fc07b129ca9714589225e200e898b45c05bb8fab66f3d49"
+        },
+        "/inspector/sdk/6.0.135/Current/Microsoft.Common.targets/ImportAfter/Microsoft.NET.Build.Extensions.targets": {
+          "bytes": 1042,
+          "sha256": "baca1184a3b2bd00e40b10ed401ca8cb9f2dfc845bddfe2e3fc2058bba841bf5",
+          "sha512": "75d29deff147f3b213b155c85b829df642ca905f26116ffe7e6791c38954c0ea1f9230b8d4dc142e2a5e3b07af47038c6e8870328067ef20f5cddb3d0eb5f34d"
+        },
+        "/inspector/sdk/6.0.135/Current/Microsoft.Common.targets/ImportAfter/Microsoft.TestPlatform.ImportAfter.targets": {
+          "bytes": 1053,
+          "sha256": "c4ca13f9ce8f9ab3581eebcc3edc35249520d918c7fe7dd97bdd12c5bc9f5365",
+          "sha512": "447ec82e2776752c67ba0e0b45316f03f4f96179ddf6ce49128a851f6878b41330d0c9a18945797a0c11d7c83b05dcbeb5dd8a1ba881d5b059e88c974a3e815a"
+        },
+        "/inspector/sdk/6.0.135/Microsoft/Microsoft.NET.Build.Extensions/Microsoft.NET.Build.Extensions.targets": {
+          "bytes": 2009,
+          "sha256": "a353f551b24a1e8a93b71d5435ce55da47aa42ea5275f4180433672eeb65d19f",
+          "sha512": "05d27396908f2f7f40b3d9aa3b22250962223fa9fc27a924c809de4a787648aedc66b06cef65314f63a89b1e72d3345bbfd80100ec4c54d0d171a672e390d7cb"
+        },
+        "/inspector/sdk/6.0.135/Microsoft.TestPlatform.targets": {
+          "bytes": 6007,
+          "sha256": "cef89d466253dcf199f5b0c264e69987f6611da00fd9f49c0b5cc3a4ad9a8df7",
+          "sha512": "e1e64e842f62f3adfc977576feb9e7354dbeda1937a028dbb6de183a17f73b4508eb6628bf1c9ebfa357d7738fad51635161d8961c7f1e20a026d8e680d162ac"
+        },
+        "/inspector/sdk/6.0.135/Microsoft.Managed.After.targets": {
+          "bytes": 5756,
+          "sha256": "99a0626bb66765c0d051fd85aaec5fb4acde6a9c9bc0d6591052fb7b3f202907",
+          "sha512": "64d05ad3333a4c44255f7cd5ac40e91dae5c9e29535b5aa0f3f84feca5a330c68e0e0865395418f012871548d71cb7f9cbb1a853896b91b08f55a3d82b20c915"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.targets": {
+          "bytes": 68544,
+          "sha256": "4a099ac21ab9005b5a3ca8b3a89f27c39ac057391031007f38ad5383383e2e1d",
+          "sha512": "52568c47b4c68e5282f4a60352bcc7833d3cdbc1d77762af171a6557ec3e9ad98d991f310854d123c09a451da1c9387d51681f5a19b7b39b22a17c234b7c9f01"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.Common.targets": {
+          "bytes": 3489,
+          "sha256": "7548e62c2d744b7e1ecfd9a5aae217eac7ce77e3be4425c886781bf4ff4a7481",
+          "sha512": "e5b590af746196c705a10b3c264536b3cef26a1078665cc1ee70af84b1492297e67d7a91dab77e53b00b146a3c43d7517399d1a97153a4d71c4163fdeb0d1081"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.PackageDependencyResolution.targets": {
+          "bytes": 28144,
+          "sha256": "c50cef2509c207009cda7ebcbbfce760e5282d0f4419f496e4ef8e67abf5484f",
+          "sha512": "540049003d5928d8a895ef2799b5df881932a7a801f9ce5333fe579d3515072dd1b82212bff394d437e6b59d11531cc5a1f84bd2533a9520d0ad9fa16471fa3e"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.DefaultItems.targets": {
+          "bytes": 10955,
+          "sha256": "212a0748a8369edeefa11d0836c4dcae7e6e6d80c5dec828d0e1a7c8ea59973b",
+          "sha512": "08db9b9e03060b339095c28c35b7f72b463a6cbadc762e1cd28407f15c24d6a604800681bd7b7f7ffd4f58a56c4e04f37ab3861e4012fac9aae7b1646c221b1f"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.DefaultItems.Shared.targets": {
+          "bytes": 14168,
+          "sha256": "42114bd24a86ef71bfc1a0c0b2e1f282ed9f078acd260b5b54492005fd7e6e78",
+          "sha512": "9c8d2930c63fc5dbc5b43bedb380ac1584a40a85ce54b59b4cacb48525f5db8c4b18c0a436dbd2c4703bf5d08810cc4dedf10e01b9d0f875848ac6868e29b816"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.FrameworkReferenceResolution.targets": {
+          "bytes": 25270,
+          "sha256": "d89a50ced4f2ba0090a3c8dcfae0447e02e208ffdad472f439555022261f2bdf",
+          "sha512": "1cb91a9df6d6e84fa986548dff41ff46bce00696eb2904a1f7794b487a9f2b62617266bebdbd09d5ead46192fcbc2496fc0dfc11187769c38fa3e25a3a9277dc"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.Shared.targets": {
+          "bytes": 5551,
+          "sha256": "214867f5434875725ec8832392c187c288dba3c124912234834587cc5d271ca9",
+          "sha512": "e1bc6b39193e45c92ef6e6ec83076a3d3195602ee39e57c5f4a42bd915540229fe1d816bbf7b20b9fccc9e03433d09251b143a73a9d24c3bc621bf6973b92e9d"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.DisableStandardFrameworkResolution.targets": {
+          "bytes": 988,
+          "sha256": "cfb34ba357268e92cb82d699cd4e2d0e37545081698ca259a84a720c818a0415",
+          "sha512": "add2fc8a242dd0bea63f7ead257b534dfbe5350116c65d52d7e086ddf7a8af76ddfcab327e161ceaf4d9a4f3f3d4bbcb846f32c7807feda50e1b625fed624b7b"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.DesignerSupport.targets": {
+          "bytes": 6246,
+          "sha256": "667a87e0d77c3bea44dd30d7f6ec6c754e8f72a572b9505996646e1941032ac6",
+          "sha512": "865a2df2b75b0a51ff753fd603453b79aa9cd538714d1788d3db3ae05adb99d3e65a7ffa59d5170967b27b1aa3ceea210e772e3498d9220149bdce80f7ec28c5"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.GenerateAssemblyInfo.targets": {
+          "bytes": 14800,
+          "sha256": "4bab2703679ae5e27e07fb512d41cb1beb0e564281983c59b41e1787889e72e2",
+          "sha512": "d18075d80898a7a7d4a727a9fa807a76677d2b7721734728f9522f2c6e2aa0a00660556a5c4c69a673b5bfb0ed95f962dea160b9ba755247bccfaa6a234add16"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.GenerateGlobalUsings.targets": {
+          "bytes": 2655,
+          "sha256": "dde0fcf5488dbac20d4f78a0b331c98bbe43a93e14572252c97a30899d9a6602",
+          "sha512": "0769d1135edc12767af49cf62b72e05d0ab969fdbb437aabadc2ce9a0564a6c8007cfd6a551aaff89a32c828081f89656cb4d468e43f9ebd1c6a0599abeda2db"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.GenerateSupportedRuntime.targets": {
+          "bytes": 2861,
+          "sha256": "38c886696151932db76122afcd509a9cf247b5415f14e0d0cb8b24e7cb5c3121",
+          "sha512": "af8a5ad04068d2cbfa82b90e841d8304d06911a3a4ef0a8c0f2716dd4427637330e56cdc4f876dae005ebd7a1680130baafba4c3edc1411831b1c3512088d6b4"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.ComposeStore.targets": {
+          "bytes": 21045,
+          "sha256": "9909e392786bf7f9c71d3eb4612d432787ea96bf3a5736d798566e092764a25a",
+          "sha512": "21a88434eaf8564199f182831a312d3dc2b92e5174c48ea6b6ab9816f07bca2c20a782c35075a7f8c1d3ae07cdeeeaba312e8de37d5608956c39bcba726e37ed"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.CrossGen.targets": {
+          "bytes": 29212,
+          "sha256": "feaac51c0ebb5170ea8a342ec3f7592a49816543a817e3ecae16ec0dfe6ae672",
+          "sha512": "77eb0319017cc1d21fb455b36723057944f01a6f150acc5e267b32ba26c220241d558c1494cc5236c8bbcde17c8c72f58c9b336b5075e4ca80c71cb1ac902a9c"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.ObsoleteReferences.targets": {
+          "bytes": 1737,
+          "sha256": "dc1e5dd1a750b9f39828666f878cbfd7455d690db632de57b76b5afd01280cdd",
+          "sha512": "472e3440122fbc122ed51138b0e40ee6aef38a7018515c52a7abd5d2d74f09195b33b90e657ef944811db1cedc9af4a56cd16f2f2d683be87c218dfae961c707"
+        },
+        "/inspector/sdk/6.0.135/Microsoft.NETCoreSdk.BundledCliTools.props": {
+          "bytes": 599,
+          "sha256": "02dc089591b12aba18b01391f85e0cf4151c7bdddc62905b921d60260c09ca33",
+          "sha512": "ac5b39fd1939db6c540eef69d3cbbdf9ddaa9ee3d07f4460510bef6f18ad1c7405e34a70fc81200e0a371f2c0d516b5e19f382445e045c1b211c23539aa559f7"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Publish.targets": {
+          "bytes": 59546,
+          "sha256": "374cdd809c61032e1c04c902daa28f4e67c055c9ad25f65b4fd2025ba397b5ef",
+          "sha512": "a4926103861697338763e7809d0a2850023db25dc6fe30f543b2cedbe02f8f429d678276e8ecc8d8bd821c43e27a37d8c4de87e3b5860f1eaa8a2563aaaac3f5"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.PackTool.targets": {
+          "bytes": 10430,
+          "sha256": "59855905fde4450ddda5f5baa6b1ccf21e9b725b1d5ea6c03912e350f87949c7",
+          "sha512": "2af7ebe42f688d62bf6c6a8bb59ea4f6520c1c738c7e5d737e066edbe88c6a93c8ab8359dd7853364f2072cd00536c4bcd5a66c7d0a78abcf48074f38b0f39d9"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.PackProjectTool.targets": {
+          "bytes": 966,
+          "sha256": "6bad326195c329ab2eb93b0f7ac23384883b4d3e479f7b4cd462e876bbd3f94d",
+          "sha512": "6264f47a17098a99489350a5951a59b9f8cde3912b55374af7b39721ada40a576756db59f41c0544408d914c16831f29f7b71c53e23a26af98c84c6880db7a71"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.PreserveCompilationContext.targets": {
+          "bytes": 4837,
+          "sha256": "b0c3adbe973857fe3004b5cc7dacfe28a8316d6ea1631530c1064f5d838adf88",
+          "sha512": "9d37cfc5a3aa8c279f003a78d3507d3a1bbd6b338eb66df1ea184a7e1497cd50720ffd775888c9d683bf0d1382c55cd0714269b57bc8cd1cf8c0ba0a60a4ef45"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.ConflictResolution.targets": {
+          "bytes": 6035,
+          "sha256": "e2b955b34e8a0b7d8439a3c7f11c1373d2117dcdbbe33ab217b95bb1b1f1cc44",
+          "sha512": "7262f6d2ad722a764cbdbdc8e576e5117f39210b603aeff3865067f70603363c316b36a15ae0c4231d9c1efeba2831c3cdac860fef7044d4fa21c61a4ee691bf"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.DefaultPackageConflictOverrides.targets": {
+          "bytes": 10860,
+          "sha256": "f0f69b2214dc59f1d131a82af2f4ab32dc85369ede72cdfe66b99bf529e53a76",
+          "sha512": "ad58c277242389dd761f9248cf8879ebefcfeac027f847dab062bee680bb173b1f38fbddabe55f90ad047210509a43ddab6d48be47be727f0fc4ed14b61c5e0b"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.CSharp.targets": {
+          "bytes": 2637,
+          "sha256": "b332ea43b3003f34c60b0bf2f590dc715e70899aaba4d93324e73ac4a9793f06",
+          "sha512": "87fd27c0c112a413d0fcd89f5db7a0f5160900d67e4fff9439cd01a467736a960fbf9894c526b8e6d40aba3bb2d9835e3184fa4f44a1db728ffc61912ce3ddbc"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.ILLink.targets": {
+          "bytes": 21225,
+          "sha256": "46f65eb27d20812b7ec1e68d582c2be56f33d3b54bae96d9efa1d7d9e972094e",
+          "sha512": "ec23f73710faa08a6afbdbae88f5f6d0c3cfd679722efa72e4e29e7f4fe47b4379564568f92a32983ff1f3f4282d78fbc39d0de1ec72f3de4516915727cd6114"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.Analyzers.targets": {
+          "bytes": 9679,
+          "sha256": "8a50c66500eec82b52921aa74a86789570a989766238cf583673858f39fe382a",
+          "sha512": "ce5f02a54bfd514bce025ce47d86bdfa49abe2499933a41019081c56d3113474e140e12023d147cf38ee70a04fd6e5ccdf80543253e4444c4ec77ef72ecc658a"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/analyzers/build/Microsoft.CodeAnalysis.NetAnalyzers.props": {
+          "bytes": 3169,
+          "sha256": "5446126443a0725edefc7add6251c63dbe44329c87c7cf0323a6226aee61cd95",
+          "sha512": "4e1727e983a410d513523c19f3d2f6298fcdca605be99b6d67570220e71db9fb5b99cc752aa9b87ece41e918eb5deedfa727ca8dccb8d95f86a096ead97712a6"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/analyzers/build/Microsoft.CodeAnalysis.NetAnalyzers.targets": {
+          "bytes": 79667,
+          "sha256": "8b7deb2bc41c882acbd6b4732731015cad5b7f517da18b270da20dfb1b53369f",
+          "sha512": "442fbde9c17bdeffc631190c6fda6e54906531d7a1d17f300ff43c43e466cd43bb817747c4596ee3f74c4df732f9155c46b81c4e1016a1489108d4da309920d1"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Compatibility.targets": {
+          "bytes": 675,
+          "sha256": "efc7ce7b3a45762da9c73e99a98807147cf9c234ce7bc8f9eb3dae913fa543e2",
+          "sha512": "84cca90c0ba31d6bda023b15eeedee4367b1789e71a1778a4a5dc12430007d5af410063ba0ee04589af05521039579f2731718e68a245000e2b6113f1a81f106"
+        },
+        "/inspector/sdk/6.0.135/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Compatibility.Common.targets": {
+          "bytes": 5504,
+          "sha256": "38b38daf0923eea3b6cd5bf0cca6ade7cc85acc3f958898648c1582a46c2604e",
+          "sha512": "51ed4990ce6fe05e8c1d759efc4239821287825d4ccc46ab5fbf478cad08cbb6e73c7d157364b5f546ceab20ff11e1cc0019dba3fbe049ca2db4278190e44f09"
+        },
+        "/inspector/sdk/6.0.135/Sdks/NuGet.Build.Tasks.Pack/build/NuGet.Build.Tasks.Pack.targets": {
+          "bytes": 27486,
+          "sha256": "471d2658e279faa178044306393b796d82612d13ac67ab397f6464ab7e7a52f9",
+          "sha512": "eac5fb8a3e3ff2492c8027f1e3b5b65d9082980d3d443185343ae100eb779f0dfcb6732579284f94112206b035e83d071624e3bd0c369882be45fc5ffd358b05"
+        },
+        "/inputs/reader/Reader.csproj": {
+          "bytes": 617,
+          "sha256": "87578d2a19433d7c207aa3b00ac98182424fffd6d896438cb0bb7b5b69d1ff9f",
+          "sha512": "db66c5e78c3d7659df3b9233e84f6bdff70a5ce31a13ea9b62efa85e71e6a04ff5a7c1dc1a1bb6087a0a1878eadf97f70b3b1b50442bd5e05d8219dd08a0e488"
+        },
+        "/output/reader-obj/Reader.csproj.nuget.g.props": {
+          "bytes": 1110,
+          "sha256": "5489b5686fb2384c14ac384dcc94bfa67db7604c5a67e04428c993eb417a0fde",
+          "sha512": "8e4ea689bd12be4710ba58c8328a5d65f8ef34b1e806775b26275845bce27877c4c315db38b36deb1a64b519128df326ec87b63f65edd385126556112da946e3"
+        },
+        "/output/reader-obj/Reader.csproj.nuget.g.targets": {
+          "bytes": 149,
+          "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c",
+          "sha512": "2bd278a78abc552b57723cd2b95ea6f352be597c6696788046934b2c5153db59aa478d9b88f2e9afe826b2b06bfbc83af3c9f20a5ac8758222ace2860d59dfd9"
+        },
+        "/output/reader-obj/project.assets.json": {
+          "bytes": 1407,
+          "sha256": "f88922157e7efe2e209c8fbdd8b7f2231dce92ba1dab48e6c15525b1e7f497af",
+          "sha512": "da554e7d6ce921a6d8b1fac396c21285197e93e90ddcbc664d0e47dc9980a8e72385826f30a42a9b52d5a905e92e46d670694b9e9c639e25a867b169d7e3db7c"
+        }
+      }
+    }
+  },
+  "closedEnums": {
+    "buildReason": [0, 1, 2, 3],
+    "skipReason": [0, 1, 2, 3, 4],
+    "parameterKind": [0, 1, 2, 3, 4, 5],
+    "evaluationLocationKind": [0, 1, 2],
+    "evaluationPass": [0, 1, 2, 3, 4, 5, 6, 7, 8]
+  },
+  "enumSources": {
+    "buildReason": {"path": "src/Framework/TargetBuiltReason.cs", "format13Blob": "d318a515819bf05b8e591ea0c450ae07451aca11", "format14Blob": "d318a515819bf05b8e591ea0c450ae07451aca11"},
+    "skipReason": {"path": "src/Framework/TargetSkippedEventArgs.cs", "format14Blob": "d34e468ff320e4057bc1f11476775862be58aa08"},
+    "parameterKind": {"path": "src/Framework/TaskParameterEventArgs.cs", "format13Blob": "b4efc953e847908462abd6ee7de05dd120aeafcf", "format14Blob": "1ca1a55f7ade39b332aeb751c762bb77d82c2562"},
+    "evaluationLocationKind": {"path": "src/Framework/Profiler/EvaluationLocation.cs", "format13Blob": "61ff4933c84738e18eed773fc44e2fa37269cc9e", "format14Blob": "61ff4933c84738e18eed773fc44e2fa37269cc9e"},
+    "evaluationPass": {"path": "src/Framework/Profiler/EvaluationLocation.cs", "format13Blob": "61ff4933c84738e18eed773fc44e2fa37269cc9e", "format14Blob": "61ff4933c84738e18eed773fc44e2fa37269cc9e"}
+  },
+  "monoSource": {
+    "repository": "https://github.com/mono/mono",
+    "commit": "0f53e9e151d92944cacab3e24ac359410c606df6"
+  },
+  "originalWorkerPolicy": {
+    "bytes": 247092,
+    "sha256": "91980fa1ed93367e346050ca2db3528bdbe86af359ba2c7fb69372bd87819b25",
+    "sha512": "e1aee622ea5777fa71932bc9a8e95c0f76da0a340dab6413e5e014fc04967df14ef9fcd29a2ead5d00a416d551d155b39c988d24739def30678e29e513d8fe13"
+  },
+  "generatedReaderMembers": [
+    "/output/reader-obj/Reader.csproj.nuget.g.props",
+    "/output/reader-obj/Reader.csproj.nuget.g.targets",
+    "/output/reader-obj/project.assets.json"
+  ],
+  "falseConditionMessage": "Project \"{0}\" was not imported by \"{1}\" at ({2},{3}), due to false condition; ({4}) was evaluated as ({5}).",
+  "falseConditionOrigin": {
+    "commit": "0538acc04cc2c953f220f9ec3f3764db1769defe",
+    "evaluatorBlob": "521a3ed2ac87501065b90736bc1edb95ee4be3b4",
+    "resourceBlob": "2441874fb8fd30d8add1f6ced238709b23b85382",
+    "originalImportIgnoredValue": false
+  },
+  "monoProjectAttributeSemantics": {
+    "msbuildCommit": "0538acc04cc2c953f220f9ec3f3764db1769defe",
+    "projectImportElementBlob": "0260a1eae4671c58335cfc807d33966164c17b6e",
+    "fileUtilitiesBlob": "1c50ccd6106846f887a19d4c1a6fc8bfecc50552",
+    "platform": "Unix",
+    "projectAttributeTransformation": "replace-backslash-with-forward-slash-only",
+    "conditionAttributeTransformation": "none",
+    "originalMonoRequiredEdges": [
+      {"parent": "/inputs/recipe/App.PCL.proj", "target": "/inputs/portable/v4.5/Microsoft.Portable.CSharp.targets", "unexpanded": "/inputs/portable/v4.5/Microsoft.Portable.CSharp.targets"},
+      {"parent": "/inputs/portable/v4.5/Microsoft.Portable.CSharp.targets", "target": "/inputs/portable/v4.5/Microsoft.Portable.Common.targets", "unexpanded": "Microsoft.Portable.Common.targets"},
+      {"parent": "/inputs/portable/v4.5/Microsoft.Portable.CSharp.targets", "target": "/bootstrap/sdk/5.0.401/Microsoft.CSharp.targets", "unexpanded": "$(MSBuildToolsPath)\\Microsoft.CSharp.targets"},
+      {"parent": "/inputs/portable/v4.5/Microsoft.Portable.CSharp.targets", "target": "/inputs/portable/Microsoft.Portable.Core.targets", "unexpanded": "..\\Microsoft.Portable.Core.targets"},
+      {"parent": "/inputs/portable/v4.5/Microsoft.Portable.Common.targets", "target": "/inputs/portable/Microsoft.Portable.Core.props", "unexpanded": "..\\Microsoft.Portable.Core.props"}
+    ],
+    "originalMonoConditionalProbes": [
+      {"parent": "/inputs/portable/Microsoft.Portable.Core.props", "unexpanded": "VisualStudio\\v$(VisualStudioVersion)\\Microsoft.Portable.CurrentVersion.props", "condition": "Exists('VisualStudio\\v$(VisualStudioVersion)\\Microsoft.Portable.CurrentVersion.props')"},
+      {"parent": "/inputs/portable/Microsoft.Portable.Core.targets", "unexpanded": "VisualStudio\\v$(VisualStudioVersion)\\Microsoft.Portable.CurrentVersion.targets", "condition": "Exists('VisualStudio\\v$(VisualStudioVersion)\\Microsoft.Portable.CurrentVersion.targets')"}
+    ]
+  },
+  "monoRequiredEdges": [
+    {"parent": "/inputs/recipe/App.PCL.proj", "target": "/inputs/portable/v4.5/Microsoft.Portable.CSharp.targets", "unexpanded": "/inputs/portable/v4.5/Microsoft.Portable.CSharp.targets"},
+    {"parent": "/inputs/portable/v4.5/Microsoft.Portable.CSharp.targets", "target": "/inputs/portable/v4.5/Microsoft.Portable.Common.targets", "unexpanded": "Microsoft.Portable.Common.targets"},
+    {"parent": "/inputs/portable/v4.5/Microsoft.Portable.CSharp.targets", "target": "/bootstrap/sdk/5.0.401/Microsoft.CSharp.targets", "unexpanded": "$(MSBuildToolsPath)/Microsoft.CSharp.targets"},
+    {"parent": "/inputs/portable/v4.5/Microsoft.Portable.CSharp.targets", "target": "/inputs/portable/Microsoft.Portable.Core.targets", "unexpanded": "../Microsoft.Portable.Core.targets"},
+    {"parent": "/inputs/portable/v4.5/Microsoft.Portable.Common.targets", "target": "/inputs/portable/Microsoft.Portable.Core.props", "unexpanded": "../Microsoft.Portable.Core.props"}
+  ],
+  "monoConditionalProbes": [
+    {
+      "parent": "/inputs/portable/Microsoft.Portable.Core.props",
+      "unexpanded": "VisualStudio/v$(VisualStudioVersion)/Microsoft.Portable.CurrentVersion.props",
+      "condition": "Exists('VisualStudio\\v$(VisualStudioVersion)\\Microsoft.Portable.CurrentVersion.props')"
+    },
+    {
+      "parent": "/inputs/portable/Microsoft.Portable.Core.targets",
+      "unexpanded": "VisualStudio/v$(VisualStudioVersion)/Microsoft.Portable.CurrentVersion.targets",
+      "condition": "Exists('VisualStudio\\v$(VisualStudioVersion)\\Microsoft.Portable.CurrentVersion.targets')"
+    }
+  ],
+  "compilerReferenceRoleOnly": true,
+  "bootstrapArchiveConstructionValidated": false,
+  "actualNormalProductionEstablishedByPolicy": false,
+  "wholeProducerSourceClosure": false,
+  "qualificationAllowed": false,
+  "sourceAdmissionAllowed": false
+}

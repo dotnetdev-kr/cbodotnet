@@ -115,6 +115,13 @@ class NormalAppEnvelope(unittest.TestCase):
         state=self.fixture();context=copy.deepcopy(state['context']);context['referenceBootstrap']={'role':'arbitrary-reference'}
         with self.assertRaises(ValueError):M.validate_context(context)
 
+    def test_only_explicit_finite_mode_pins_import_decoder_and_policy(self):
+        import musl_legacy5_appinsights_reference_bootstrap as reference
+        original=M.execution_sources();finite=M.execution_sources(reference.role_record())
+        names={'musl_legacy5_appinsights_imports.py',reference.IMPORTS.POLICY_FILE}
+        self.assertTrue(names<=finite.keys());self.assertFalse(names&original.keys())
+        for name in names:self.assertEqual(finite[name],M.fingerprint(ROOT/'scripts'/name))
+
     def test_private_record_cannot_satisfy_normal_context(self):
         state=self.fixture();state['bound']['context']['kind']='one-authorized-offline-private-app5-compiler-attempt';self.reject(state,'Closed explicit normal')
 

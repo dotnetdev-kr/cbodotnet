@@ -81,3 +81,49 @@ compiler/Reader/container/source archive or actual normal positive is supplied
 by this leaf. The complete public SDK/toolset/source packet also needs actual
 contents exclusion and genuine App cache/Csc/Copy/final consumed-byte proof.
 Whole SDK5 source admission and normal qualification remain closed.
+
+`musl_legacy5_appinsights_imports.py` adds a pure, bounded format13/14 decoder
+derived from the original MSBuild source commits. Every record is framed and
+consumed; unknown kinds, flags, versions, malformed indices, extra archives or
+trailing records fail. The decoded raw event/context/byte offsets remain
+available for separately reviewed later source guards. It never launches a
+compiler, MSBuild, Reader or container.
+Decoded wire collections have budgets of250,000 nodes and16MiB of text;
+counts are charged before allocating task items, arguments, name/value pairs,
+project groups, profile rows, contexts or strings, across all records. The
+original source-defined build/skip/parameter/profile enum sets are closed.
+
+The original MSBuild collector uses backslash logical names inside its embedded
+project-import ZIP. Only a complete framed binlog with the immutable original
+App/Reader member identities can use that spelling. Members are compared with
+actual current normal input/output/bootstrap mounts and original Csc context
+and argv. Names are never extracted as paths. Generic ZIP/TAR traversal and
+special-entry guards remain strict. Every decoded body/member still receives
+the private-byte exclusion scan before immutable-buffer delivery publication.
+The embedded ZIP has at most512 entries, checked before directory allocation.
+Every local header, compressed stream/data descriptor and central header must
+agree and cover the entire container contiguously. Entry extras/comments,
+padding, orphan/overlapping data and local/central disagreement fail. Deflate
+must end exactly at its declared compressed boundary; unused tail data fail.
+
+The actual current Reader restore-generated props, targets and project.assets
+file are retained explicitly (2,666 original bytes total), bound to the actual
+import/normal process and checked again during copying. No old private output
+is copied to manufacture a current build. Conditional Mono VS import absence
+is established only with explicit decoded false-condition evidence and the
+complete typed-input namespace; missing evidence remains a named pending gate.
+The original Evaluator leaves `ImportIgnored=false` for a false-condition
+record with no imported file. This case uses its exact original resource
+template and six arguments, parent/line/column and condition expression;
+`ImportIgnored` alone never turns a skipped event into a successful import.
+The original Unix `ProjectImportElement.Project` getter applies
+`FileUtilities.FixFilePath` before the Evaluator emits `UnexpandedProject`.
+Expected import expressions therefore replace source XML backslashes with
+forward slashes. The policy retains the original XML expressions and exact
+getter source identities. Decoded event strings are compared exactly; no
+event-side alias, path normalization or alternate expression is accepted.
+Condition text keeps its original backslashes, including false-condition
+arguments; the Project getter conversion does not apply to `Condition`.
+Full BOOT archive/tree provenance, archive-backed normal proof and actual SDK
+consumption remain separate mandatory construction gates. This import policy
+does not establish a new actual normal positive or SDK source admission.

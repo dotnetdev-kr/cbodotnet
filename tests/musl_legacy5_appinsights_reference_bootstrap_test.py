@@ -2,6 +2,7 @@
 import base64
 import copy
 import gzip
+import importlib.util
 import io
 import json
 import os
@@ -179,6 +180,91 @@ class CheckedDeliveryPublication(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'Bounded complete'):
                     M._publish_checked_public_tree(stage,delivery,private_workspace=Path(temp)/'private')
             self.assertFalse(delivery.exists());self.assertFalse(delivery.parent.exists())
+
+
+class OriginalBinlogPublication(unittest.TestCase):
+    """Synthetic framing/payload controls; no retained original log is read."""
+    SECRET=b'MZ\0SYNTHETIC-REFERENCE-FORBIDDEN-BODY\xff'
+
+    def fixture(self,role='app',secret=None):
+        spec=importlib.util.spec_from_file_location('synthetic_import_wire_fixture',ROOT/'tests/musl_legacy5_appinsights_imports_test.py')
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        return module.fixture(role,secret=secret)
+
+    def test_generic_zip_guards_still_reject_original_logical_backslash_names(self):
+        raw,_,_,_=self.fixture()
+        with self.assertRaisesRegex(ValueError,'Ordinary bounded unencrypted'):
+            M.scan_content(raw,{'private':self.SECRET})
+
+    def test_only_complete_framed_policy_members_receive_narrow_content_scan(self):
+        raw,p,_,_=self.fixture();budget={'bytes':0,'entries':0}
+        with mock.patch.object(M.IMPORTS,'policy',return_value=p):
+            M._scan_original_binlog(raw,{'private':self.SECRET},role='app',expected=M.IMPORTS.fingerprint(raw),budget=budget)
+        self.assertGreater(budget['entries'],4)
+
+    def test_foreign_member_or_changed_whole_log_rejects_narrow_route(self):
+        raw,p,_,_=self.fixture()
+        with mock.patch.object(M.IMPORTS,'policy',return_value=p):
+            with self.assertRaisesRegex(ValueError,'fingerprint'):
+                M._scan_original_binlog(raw,{'private':self.SECRET},role='app',expected=dict(M.IMPORTS.fingerprint(raw),bytes=1),budget={'bytes':0,'entries':0})
+            changed=copy.deepcopy(p);changed['logs']['app']['originalMembers']={}
+            with mock.patch.object(M.IMPORTS,'policy',return_value=changed),self.assertRaisesRegex(ValueError,'Unknown'):
+                M._scan_original_binlog(raw,{'private':self.SECRET},role='app',expected=M.IMPORTS.fingerprint(raw),budget={'bytes':0,'entries':0})
+
+    def test_private_body_inside_authenticated_import_zip_still_rejects(self):
+        raw,p,_,_=self.fixture(secret=self.SECRET)
+        with mock.patch.object(M.IMPORTS,'policy',return_value=p),self.assertRaisesRegex(ValueError,'cannot be published'):
+            M._scan_original_binlog(raw,{'private':self.SECRET},role='app',expected=M.IMPORTS.fingerprint(raw),budget={'bytes':0,'entries':0})
+
+    def test_binlog_filename_alone_cannot_bypass_generic_publication_guard(self):
+        raw,_,_,_=self.fixture()
+        with tempfile.TemporaryDirectory()as temp:
+            stage=Path(temp)/'private/stage';source=stage/'evidence/output/app.binlog';source.parent.mkdir(parents=True);source.write_bytes(raw)
+            target=Path(temp)/'delivery/app'
+            with mock.patch.object(M,'_forbidden',return_value={'private':self.SECRET}),self.assertRaisesRegex(ValueError,'Ordinary bounded unencrypted'):
+                M._publish_checked_public_tree(stage,target,private_workspace=Path(temp)/'private')
+            self.assertFalse(target.exists())
+
+    def test_two_explicit_bound_logs_publish_only_checked_original_buffers(self):
+        app,pa,_,_=self.fixture();reader,pr,_,_=self.fixture('reader-build')
+        policy=dict(logs={**pa['logs'],**pr['logs']});bindings=dict(kind='scoped-normal-App-original-import-provenance',
+            actualOriginalInputsAndProcessesRead=True,logs={role:dict(kind='scoped-actual-original-App-import-bindings',role=role,
+                actualMountedInputBytesCompared=True,binlog=M.IMPORTS.fingerprint(raw))for role,raw in [('app',app),('reader-build',reader)]})
+        with tempfile.TemporaryDirectory()as temp:
+            stage=Path(temp)/'private/stage';stage.mkdir(parents=True);target=Path(temp)/'delivery/app'
+            for role,raw in [('app',app),('reader-build',reader)]:
+                path=stage/'evidence/output'/(role+'.binlog');path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
+            with mock.patch.object(M.IMPORTS,'policy',return_value=policy),mock.patch.object(M,'_forbidden',return_value={'private':self.SECRET}):
+                result=M._publish_checked_public_tree(stage,target,private_workspace=Path(temp)/'private',normal_imports=bindings)
+            self.assertEqual((target/'evidence/output/app.binlog').read_bytes(),app)
+            self.assertEqual((target/'evidence/output/reader-build.binlog').read_bytes(),reader)
+            self.assertTrue(result['deliveryWrittenFromCheckedBuffers'])
+
+    def test_extra_comment_padding_and_local_metadata_fail_before_first_delivery_write(self):
+        spec=importlib.util.spec_from_file_location('synthetic_import_metadata_fixture',ROOT/'tests/musl_legacy5_appinsights_imports_test.py')
+        wire=importlib.util.module_from_spec(spec);spec.loader.exec_module(wire)
+        app,pa,_,bodies=wire.fixture();reader,pr,_,_=wire.fixture('reader-build')
+        secret=gzip.compress(self.SECRET);extra=wire.struct.pack('<HH',0xcafe,len(secret))+secret
+        def padding(blob):
+            offset=wire.struct.unpack_from('<I',blob,len(blob)-6)[0]
+            data=bytearray(blob[:offset]+secret+blob[offset:]);wire.struct.pack_into('<I',data,len(data)-6,offset+len(secret));return bytes(data)
+        def mismatch(blob):
+            data=bytearray(blob);data[30]=ord('X');return bytes(data)
+        originals={'\\'+name[1:].replace('/','\\'):body for name,body in bodies.items()}
+        mutations=[wire.Wire().finish(originals,entry_extra=extra),wire.Wire().finish(originals,entry_comment=secret),
+            wire.replace_archive(app,padding),wire.replace_archive(app,mismatch)]
+        for bad in mutations:
+            bindings=dict(kind='scoped-normal-App-original-import-provenance',actualOriginalInputsAndProcessesRead=True,
+                logs={role:dict(kind='scoped-actual-original-App-import-bindings',role=role,actualMountedInputBytesCompared=True,
+                    binlog=M.IMPORTS.fingerprint(raw))for role,raw in [('app',bad),('reader-build',reader)]})
+            with tempfile.TemporaryDirectory()as temp:
+                stage=Path(temp)/'private/stage';stage.mkdir(parents=True);target=Path(temp)/'delivery/app'
+                for role,raw in [('app',bad),('reader-build',reader)]:
+                    path=stage/'evidence/output'/(role+'.binlog');path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
+                with mock.patch.object(M.IMPORTS,'policy',return_value=dict(logs={**pa['logs'],**pr['logs']})),\
+                        mock.patch.object(M,'_forbidden',return_value={'private':self.SECRET}),self.assertRaises(ValueError):
+                    M._publish_checked_public_tree(stage,target,private_workspace=Path(temp)/'private',normal_imports=bindings)
+                self.assertFalse(target.exists());self.assertFalse(target.parent.exists())
 
 
 if __name__=='__main__':unittest.main()
