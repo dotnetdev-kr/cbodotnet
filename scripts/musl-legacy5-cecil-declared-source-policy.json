@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdk5-publisher-declared-linker-cecil-source-policy",
+  "sdkVersion": "5.0.214",
+  "package": {
+    "id": "Microsoft.NET.ILLink.Tasks",
+    "version": "5.0.0-rtm.21519.5",
+    "fingerprint": {
+      "bytes": 859727,
+      "sha256": "d09c32035492de2cd606eef4bc63faa1605c951f534a19ba710bb6f11f94e0bb",
+      "sha512": "61f8e9d47884fd21dc5fd055fd772ea7057bb444e77b8618fb15453e225c8bf52132baf71fd6dd70d5402364b5d801dc439b88403e9664b06bbcd62806eb5a72"
+    },
+    "nuspec": {
+      "path": "Microsoft.NET.ILLink.Tasks.nuspec",
+      "bytes": 1577,
+      "sha256": "58653217f1799c0e104b8353999d44b143656e411eff8893490325e5b2b852eb",
+      "sha512": "10d8b15209c4975ab2a29a130064a51f86d8d17a7b81dc9b49346e6f2b5ccfa629652dd683363cba0879202325060b782fd8c8973b4633037ae5f5b3d7d1aacf"
+    },
+    "notices": {}
+  },
+  "linker": {
+    "commit": "a3cca7a168d83444e833eceac61e721f97d5cfb2",
+    "tree": "356f564a98276b6e1c228da28f84b40301c4965d",
+    "files": {
+      ".gitmodules": {
+        "bytes": 106,
+        "sha256": "f4541a20ac787f82dbc5fbaad7e75456c6959fe7514e8cf0d0168a2c85d1b629",
+        "sha512": "ee1c1e93266915bd11e9128ccdf7bd709939eb259e5dce8b4e387b153060d53139f021c8b6288d4d7a9961ccc9eeb53bd91a1ba89454f80309677eb4d6e0b5d9",
+        "gitBlob": "7dfdf86f82b32a41cd66176a81956ba78c47de8e"
+      },
+      "Directory.Build.props": {
+        "bytes": 1795,
+        "sha256": "d0db9d568bc12a076c22d8caa860fd9208d25e386fc3b727dd155356f9c455e4",
+        "sha512": "c730a4304e714aa4e0564da160262356a940e825ec44949a6b12c63c1a20cfab1d252578884bea8302119627eccdc5e51f39e8ffd25c02cd2ef394446e0fec05",
+        "gitBlob": "084a40d9efc364974fd558aa9349bbed3dfa4a3a"
+      },
+      "LICENSE": {
+        "bytes": 1115,
+        "sha256": "ae48df11a335dc1a615f4f938b69cba73bcf4485c4f97af49b38efb0f216353b",
+        "sha512": "6510254503f741df06fbf015890b24cc49592ff3e7945114db6a8fa57a6bc9acb1655980339be6ab0bdec0617efde3e65816c3074612d5f8da2ca60f8bf3b0e8",
+        "gitBlob": "a616ed188dfce68ee308f674350ad242d8588c2b"
+      },
+      "eng/Versions.props": {
+        "bytes": 1746,
+        "sha256": "37becaf29589553e37e1210e702c901acb375c856c120cb1fb163f442bfd6c25",
+        "sha512": "6d62a1b18adbb830df3adddad8cf313a94db48825e62c595c902a216111c8afa25f2242288c69e4a996e788558c021465bb5d98659e118422057bff6bbed46ad",
+        "gitBlob": "b757c8d86ba6f6255dee879f3fff5add371b9946"
+      },
+      "src/ILLink.Tasks/ILLink.Tasks.csproj": {
+        "bytes": 3139,
+        "sha256": "bdbadd1e8a800094c8c2ae5e72532261e413b3d926b1e09f6f1ed25c9f9edabd",
+        "sha512": "ea57f1f612535cd1f3759174e43791e28009330d7d0173cbaa23962b36a169ad36d515d97245316f9e51db887d452fe74a712642dffa7c6aa2025714ad804041",
+        "gitBlob": "8f7a1145ad1cb7990f5385cba5a32b4e670b12de"
+      },
+      "src/linker/Mono.Linker.csproj": {
+        "bytes": 2771,
+        "sha256": "53ed87cf7198c1af03316685231fafccdfc6b66e011f7cff06d4c1b7aeaca291",
+        "sha512": "9c683dc62778d6ca904db39bd9c099b98ea3454d597cd775cd2bec718bee1cd991cf04caf6aa04070af0be33f4f4eba297212a07702a93578b859d078a750051",
+        "gitBlob": "20e60acaa00ed7bf4b8eb87b5cff7806560d676f"
+      }
+    }
+  },
+  "cecil": {
+    "commit": "75fc419764f239dcdd679657316e6eae31e04dc2",
+    "tree": "3763e97908a4405eefffbcb636e3a3ce06bcd23f",
+    "files": {
+      "Mono.Cecil.csproj": {
+        "bytes": 574,
+        "sha256": "e789d87eb4c2d888cfab2603c6084af6c70a1e53189479b01dd1a50178ca7716",
+        "sha512": "43f2dce8673f0778761bce43da0b61809740ec8dc376e7d137789a334abb0f840047b787680c63bea34531823dbc6eb9211ad9f6a7f109459bf2103061080b3e",
+        "gitBlob": "d3745519aa13899f8437199386945692604609c6"
+      },
+      "Directory.Build.props": {
+        "bytes": 1582,
+        "sha256": "1a934eeefb76fddb7eb75935be15de26575776b0fc3dad0ffd245ca929768fca",
+        "sha512": "715613e5d421f8b0f4a958f1cb1227ee8fb13e795c7bfb7e0b29b98dd6f8316d8867d1f3da886b71ee2752400a5eb73ac74a7a6b5c1dca5022bd8ef67a807159",
+        "gitBlob": "ee63f7aa9adaca91a45bdaa6a3ea2d3f2ae9ff1c"
+      },
+      "ProjectInfo.cs": {
+        "bytes": 490,
+        "sha256": "481ffe6d80046b007fb3930e5f79465bdfbf290223348e968b41d0015311ee0f",
+        "sha512": "d597ae0a9ee2f8528ce9dc840177786917138ff9cfda930a687d9929d361d2203e82ab00f6adac9ad551e0c8bd831dcf11010d92e74cb72d640793e046fd2a5c",
+        "gitBlob": "11151c9847ed53fc479247beba73078017362518"
+      },
+      "symbols/pdb/Mono.Cecil.Pdb.csproj": {
+        "bytes": 507,
+        "sha256": "0bec43ec03a6a3912b5288adca688737df0172409f9423b3541b63c57e3911ec",
+        "sha512": "bcfdfac9964a6e84930fe0ff54059b153f5ebba6f1e8b3672948cbecb958d82cb12f45e33a17cf392b4e15216b21a79a5564be36be46e456fca4ed811056c746",
+        "gitBlob": "265159d4829df26739955c43cf84339c2e37a5f3"
+      },
+      "LICENSE.txt": {
+        "bytes": 1098,
+        "sha256": "13d58ecbed676511c0c4c4009bff107025e50007ff5e7901dc562700ec62509e",
+        "sha512": "a5d2e9dbe1fd2040b3796b40844b82011c876e3917ae32070b11158e4e01e91e89a5f2b2b842c3e7080ea060aba16ed0ee74c131a9327fb238efdf405a52be6a",
+        "gitBlob": "afd0ae6818ed67ef4fef7edeb7e9580b9ef27bf8"
+      }
+    }
+  },
+  "gitlink": {
+    "path": "external/cecil",
+    "commit": "75fc419764f239dcdd679657316e6eae31e04dc2",
+    "repository": "https://github.com/mono/cecil.git"
+  },
+  "products": {
+    "sdk/5.0.214/Sdks/Microsoft.NET.ILLink.Tasks/tools/netcoreapp3.0/Mono.Cecil.dll": {
+      "packageSha256": "d09c32035492de2cd606eef4bc63faa1605c951f534a19ba710bb6f11f94e0bb",
+      "member": "tools/netcoreapp3.0/Mono.Cecil.dll",
+      "fingerprint": {
+        "bytes": 403856,
+        "sha256": "5cf6ee76fd40c6cf8f9a64854f5a1f37af2c35c306b7b816702621b03c9f173d",
+        "sha512": "38086f7b3f537fc4d196b8704857cc386218b7bb1df849f99dda0891eac6cffcc089fe31669dc96b4374cf08c1039405552f617883ecf975a62b69990697cc79"
+      },
+      "assemblyName": "Mono.Cecil",
+      "assemblyVersion": "0.11.2.0",
+      "publicKeyToken": "50cebf1cceb9d05e"
+    },
+    "sdk/5.0.214/Sdks/Microsoft.NET.ILLink.Tasks/tools/netcoreapp3.0/Mono.Cecil.Pdb.dll": {
+      "packageSha256": "d09c32035492de2cd606eef4bc63faa1605c951f534a19ba710bb6f11f94e0bb",
+      "member": "tools/netcoreapp3.0/Mono.Cecil.Pdb.dll",
+      "fingerprint": {
+        "bytes": 102296,
+        "sha256": "0ac48a0f548843ee83be9dd3597144cb445e2a1fc6bc05edcec48bfcbe8e9eac",
+        "sha512": "706fe73d18005dfa20b1135904a2a8223123d5158c2c23064568163626a69a065656e28d2f8e92248b18ff5227e97d20b39404bb29e26b43841eddfdfab8d599"
+      },
+      "assemblyName": "Mono.Cecil.Pdb",
+      "assemblyVersion": "0.11.2.0",
+      "publicKeyToken": "50cebf1cceb9d05e"
+    },
+    "sdk/5.0.214/Sdks/Microsoft.NET.ILLink.Tasks/tools/net472/Mono.Cecil.dll": {
+      "packageSha256": "d09c32035492de2cd606eef4bc63faa1605c951f534a19ba710bb6f11f94e0bb",
+      "member": "tools/net472/Mono.Cecil.dll",
+      "fingerprint": {
+        "bytes": 404896,
+        "sha256": "3e4b6c5ca290a2433605bd8150c7e993865883daa7c0bc37b877fafb532b3fa0",
+        "sha512": "8b3a97645fcc862d6421ae5bec83e9e04d877b8a7192747693cc832630bd9199ac0c125efbb83077ade65d929013a746e5fbd211ce8fbc0d56906c8abd70634f"
+      },
+      "assemblyName": "Mono.Cecil",
+      "assemblyVersion": "0.11.2.0",
+      "publicKeyToken": "50cebf1cceb9d05e"
+    }
+  },
+  "sourceBasis": "publisher-declared-repository-gitlink-project-recipe",
+  "publisherCompilerExecutionClaimed": false,
+  "localBuildClaimed": false,
+  "byteIdenticalCompilationClaimed": false
+}

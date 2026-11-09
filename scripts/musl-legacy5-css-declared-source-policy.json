@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "5.0.214",
+  "kind": "sdk5-unchanged-css-imported-source-policy",
+  "sources": {
+    "external": {
+      "commit": "522d361e1cd703f1e8e526f5306e4ed18de1da41",
+      "tree": "00234207f92101445ff3872e141f785df2525341",
+      "files": {
+        ".gitmodules": {
+          "bytes": 792,
+          "sha256": "fa169442379b39d5c461562b165cbce0655294fad3384c0e78c2bb0be7e8e63c",
+          "sha512": "4b18bb8bbb1540b4f5e72194910e00210af0467e4db2a4e3d39762ec92962f82156c1a02aa0a9a678b38f15901d981a4b7c94358c4989accc792c400aae07e40",
+          "gitBlob": "81e48f69ca466061ef3936e42bcbed39ff7a7309"
+        },
+        "LICENSE.txt": {
+          "bytes": 1116,
+          "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+          "sha512": "27f511fefea2390347bb7ea63f7795a26780ad43eca80d717c92c70a434d28fdf136c4b902750b52813ed9cf0d3c51af206062323a0496459461d985a34ac5c7",
+          "gitBlob": "984713a49622a96da110443c15477613bc12656b"
+        },
+        "repos/cssparser.proj": {
+          "bytes": 1597,
+          "sha256": "6e35bff2db56e203a8219f83d82830503d0d078c814419ed263f15de5b1263e7",
+          "sha512": "cde2af3542b803cce9a5c8c8b9ab9c855b30e5ebcaf5185b04085c02657c9005217663c77d3f8613d397d7a0e8bfc02ee7d4859b329928c7bb80044cef23b979",
+          "gitBlob": "800d5706fe5303790e58c89df9bed4e93fb99371"
+        }
+      }
+    },
+    "css": {
+      "commit": "d6d86bcd8c162b1ae22ef00955ff748d028dd0ee",
+      "tree": "0f73a376a1e92479de29e9e63b705986ffb3ce8a",
+      "files": {
+        "Directory.Build.props": {
+          "bytes": 244,
+          "sha256": "b45cf09a318a95a76da7c9a1b1b96dfc35fdf6701787fd9ed18b5b4b5b928ba0",
+          "sha512": "2abf8f555922a78d663345e59693b95eb212ad482285b4a307774ebc92f717d0fcda576b8d42b99e028235e6d56a02bf970acdee303928826e7874a4dfe4812f",
+          "gitBlob": "0b4c773555e6d4f11ea1eec43a98c56cd9ed8439"
+        },
+        "LICENSE.txt": {
+          "bytes": 1116,
+          "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+          "sha512": "27f511fefea2390347bb7ea63f7795a26780ad43eca80d717c92c70a434d28fdf136c4b902750b52813ed9cf0d3c51af206062323a0496459461d985a34ac5c7",
+          "gitBlob": "984713a49622a96da110443c15477613bc12656b"
+        },
+        "azure-pipelines.yml": {
+          "bytes": 907,
+          "sha256": "2708a9b5eda10217967b0df03122f50e55dafcae96c1bb18f6ea84a032292461",
+          "sha512": "5d38d77024b7b758531f4b19b1c4627d03130e38cc930a3aec355069623eeab2571fc870f349ec84595f76d0a1949a883270976ed4717f234aa0aad6310d0744",
+          "gitBlob": "7a31fa7f72f5da45cb6c6b6cd3ed87b4ef139819"
+        },
+        "src/Microsoft.Css.Parser/Microsoft.Css.Parser.csproj": {
+          "bytes": 976,
+          "sha256": "8320e792a90530ff2e1c388c51e7e232e5046f6a5b7443f6711b2057dcf671a1",
+          "sha512": "80b45289e8978bdc722e5f54607bca8fb6c421cb5b4182fbf664d773ad60a748b933fa0d8f305346682e3779f55729097a73b506eaaf0fa7e423a382a54e8892",
+          "gitBlob": "d22a38cf43f8290f1a47673f02978efc4435d47f"
+        }
+      }
+    },
+    "aspnetcore": {
+      "commit": "02c6de4ba6022025fcda7581415f310f8c73cdc3",
+      "tree": "5f3c6a22910816d0aaa6475c8d8ee7d90957c3a4",
+      "files": {
+        "LICENSE.txt": {
+          "bytes": 11357,
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "sha512": "dc6b68d13b8cf959644b935f1192b02c71aa7a5cf653bd43b4480fa89eec8d4d3f16a2278ec8c3b40ab1fdb233b3173a78fd83590d6f739e0c9e8ff56c282557",
+          "gitBlob": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64"
+        },
+        "THIRD-PARTY-NOTICES.txt": {
+          "bytes": 15732,
+          "sha256": "700e0a954f6bec7aa98eb1399931145a4a7e95ca0acf81220282ca50bc5b6ba4",
+          "sha512": "dc5d023d00df5c5cbfaa1ab997ffccddf1779b8b21fd5f83fe606674e46d792fca5a046da092890d6837c8d5edea90a170676ca11e329862a7d12fd6a5b0f7c8",
+          "gitBlob": "f2fdaf40929a07c0afa4e4199668e0362eb8beec"
+        },
+        "eng/Versions.props": {
+          "bytes": 26649,
+          "sha256": "aa0fe408838a75016223b5b61239556a939a4f73517952d7c1b9b148bc61b6db",
+          "sha512": "7a88960c5eb912cbc737b79446bd081eb9f815b11aa2acd73813b51cbf78e61d5f60efccc6e5b844a798d5670633830b8a230616aee070add41941efcb15151b",
+          "gitBlob": "faa313d270781dc6a3ac20c0ced619240c897167"
+        },
+        "src/Razor/Microsoft.AspNetCore.Razor.Tools/src/rzc.csproj": {
+          "bytes": 2026,
+          "sha256": "8c65e5ef4c1f267bfa98bacd2582511b701adf3a35dbf8c5ed548f6b448399d0",
+          "sha512": "51f0b2caeddccff0e6a7e8e727ae0633e5a8079843f51641c01841ea0c888a3bc12fbcc2538d0ae8ea2191d93be68efd15a4c0f3163a8bf81d699c211d422628",
+          "gitBlob": "279c92930bdc25d60f594242f39dcd48ccb3ff6c"
+        }
+      }
+    }
+  },
+  "packages": {
+    "canonical": {
+      "fingerprint": {
+        "bytes": 53267,
+        "sha256": "6eaaee47a12a96138731e9f42b117f62e7978982b3821290f77bd296d2903d0f",
+        "sha512": "9d7c3180c9856bff9202cc14a10c3dce68db6617871ac683b26d26c1ad1204264e2b347765b10d33f492d2a2a158842b1c965d9fa9f7f52ce962278e31b7d4bf"
+      },
+      "nuspec": {
+        "path": "Microsoft.Css.Parser.nuspec",
+        "bytes": 717,
+        "sha256": "59ae6da555b29acb4d3828f1f79eba7d35434f6dfbf8dec8cdf095a4af20ddf1",
+        "sha512": "e0ffa6eb98bc6778ca0d9d4b4f0fee20a8a1c5a5aa943ee04ac8974f7ec24796b3154a37ff6ed4d886e55dc708256c3e30e0c1b6bc89f470e87b9d104b728b84"
+      },
+      "member": "lib/netstandard2.0/Microsoft.Css.Parser.dll",
+      "memberFingerprint": {
+        "bytes": 128512,
+        "sha256": "1d56ee211e84156fe1a52f8c360ca2b966897f6dca08b9b65a35c607992c6c27",
+        "sha512": "d2c39a4f6d35114fe1f06e662d1b8efe64485998c0be9c1e9ead8d49c85c96da064f5330600cfd5c2b18c77f36736dfd150ddeca0d7e15b205087f6feccbfcee"
+      },
+      "notices": {}
+    },
+    "razor": {
+      "fingerprint": {
+        "bytes": 4130040,
+        "sha256": "4c4d1c73498365d4fc41bb6d3e5e4dee1884b3584cbb7eb420486a606f7f4c42",
+        "sha512": "0133e86e063642ccbe79d1a4ef5699dddd006b7355d3b4a3ccbd959b062b64dfbf80c8f5fa7596756c59a8548d40ed985eeb403bf74b4aa5d69b8f8218f26bee"
+      },
+      "nuspec": {
+        "path": "Microsoft.NET.Sdk.Razor.nuspec",
+        "bytes": 1148,
+        "sha256": "10245812125e907d61a3547a485b26f9881a7c41e196e05f56117dd5ed19b5bb",
+        "sha512": "5e8127029ab51246644fe85540f09080bc800b8a838b68d72a9744450859fe5e641220eae5d09ae697c8442dbf0a96de234aa219e0bbbcdf50948c117dc155d2"
+      },
+      "member": "tools/Microsoft.Css.Parser.dll",
+      "memberFingerprint": {
+        "bytes": 138640,
+        "sha256": "6f5f0e735e89277ec9acc16a74c82b98f9b72f75d0c656124e5f5670d9e18cf0",
+        "sha512": "f0fa15efa68d3c336e31a55baa04b6a128fd902676efcba28e4b4213cdcd610e142bf76febc536e1e44362ff1a263013481dc01b008adaa048011776c4f75b8e"
+      },
+      "notices": {}
+    }
+  },
+  "products": {
+    "sdk/5.0.214/Sdks/Microsoft.NET.Sdk.Razor/tools/Microsoft.Css.Parser.dll": {
+      "fingerprint": {
+        "bytes": 138640,
+        "sha256": "6f5f0e735e89277ec9acc16a74c82b98f9b72f75d0c656124e5f5670d9e18cf0",
+        "sha512": "f0fa15efa68d3c336e31a55baa04b6a128fd902676efcba28e4b4213cdcd610e142bf76febc536e1e44362ff1a263013481dc01b008adaa048011776c4f75b8e"
+      },
+      "allowedPackageMembers": [
+        {
+          "packageSha256": "4c4d1c73498365d4fc41bb6d3e5e4dee1884b3584cbb7eb420486a606f7f4c42",
+          "member": "tools/Microsoft.Css.Parser.dll"
+        }
+      ],
+      "canonicalPackageMember": {
+        "packageSha256": "6eaaee47a12a96138731e9f42b117f62e7978982b3821290f77bd296d2903d0f",
+        "member": "lib/netstandard2.0/Microsoft.Css.Parser.dll",
+        "fingerprint": {
+          "bytes": 128512,
+          "sha256": "1d56ee211e84156fe1a52f8c360ca2b966897f6dca08b9b65a35c607992c6c27",
+          "sha512": "d2c39a4f6d35114fe1f06e662d1b8efe64485998c0be9c1e9ead8d49c85c96da064f5330600cfd5c2b18c77f36736dfd150ddeca0d7e15b205087f6feccbfcee"
+        }
+      }
+    }
+  },
+  "sourceBasis": "canonical-image-certificate-append-and-independent-publisher-gitlink-recipe",
+  "certificate": {
+    "offset": 128512,
+    "region": {
+      "bytes": 10128,
+      "sha256": "bd5dbf7d08c369fb4d66dd7b214da9a050334ef1fc0e2a8c4a7669203420c07d",
+      "sha512": "f5f95713f5f6e12e83f919565a7228efb18d8f5865a43c1b42de806bf648b30d7bb3405f7dd48ce6d2163464666b60abf437823a0e27257673f0a7f6d2091c8a"
+    },
+    "dwLength": 10128,
+    "revision": 512,
+    "certificateType": 2,
+    "alignmentPadding": ""
+  },
+  "gitlink": {
+    "path": "src/cssparser",
+    "commit": "d6d86bcd8c162b1ae22ef00955ff748d028dd0ee",
+    "repository": "https://github.com/dotnet/cssparser"
+  },
+  "canonicalPackageVersion": "1.0.0-20200708.1",
+  "sdk5DeclaredPublisherGitlink": false,
+  "publisherCompilerExecutionClaimed": false,
+  "localBuildClaimed": false,
+  "byteIdenticalCompilationClaimed": false
+}

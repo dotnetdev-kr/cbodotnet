@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "5.0.214",
+  "kind": "sdk5-declared-unsafe-source-policy",
+  "package": {
+    "id": "System.Runtime.CompilerServices.Unsafe",
+    "version": "5.0.0",
+    "fingerprint": {
+      "bytes": 130329,
+      "sha256": "9de0114a92cf5333f110a849470a01ce13f12be70a222b4bc7b58162772c620a",
+      "sha512": "23226c503b06abecee5a9604a6e4dd3dabcdf921f55d6aa6dad2bab1ca12a001c7866af5a6de01cc9b4ace54e5c8ee1d5c2fd29dd9dfd7eda3ed86f9b35fa59f"
+    },
+    "nuspec": {
+      "path": "System.Runtime.CompilerServices.Unsafe.nuspec",
+      "bytes": 2220,
+      "sha256": "68c07407b0499332db66423e6f415e5417bfd781e2ef03215f66030d9dfabb17",
+      "sha512": "909851d240049408117a2505cba3d07fb25d899355bb2c177231a37f3447a97b41cb0638eff83761709e6f34646f903ea912581f048faa9b87453a5796b672aa"
+    },
+    "notices": {
+      "LICENSE.TXT": {
+        "bytes": 1139,
+        "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+        "sha512": "430f0a57ff6be9cb03316eb7312b70f5a2eb44175edacac242a9fd329257ae52c03de8add8a957cd3a336f99fd638eb89d8d3d1338525d5be21d8f4e22f86f97"
+      },
+      "THIRD-PARTY-NOTICES.TXT": {
+        "bytes": 44279,
+        "sha256": "78e22d4d24a710d2a09426c09060f3448204778ed506b1da55447a6089b54fae",
+        "sha512": "8eb7c07000ef65a8f1851f6cabd52cb8c7024b6d5f8c6f537a015b5eade72e67eede68e47e60d06f5bdd3312c5487dfea68175031f2d868446947439e207fc03"
+      }
+    },
+    "members": {
+      "lib/net45/System.Runtime.CompilerServices.Unsafe.dll": {
+        "bytes": 16768,
+        "sha256": "3cadcb6b8a7335141c7c357a1d77af1ff49b59b872df494f5025580191d1c0d5",
+        "sha512": "066984c83de975df03eee1c2b5150c6b9b2e852d9caf90cfd956e9f0f7bd5a956b96ea961b26f7cd14c089bc8a27f868b225167020c5eb6318f66e58113efa37"
+      },
+      "lib/netcoreapp2.0/System.Runtime.CompilerServices.Unsafe.dll": {
+        "bytes": 16776,
+        "sha256": "99edb8e60eef8448a31f96509ebd712eaf13a4c00f0c4986b47f6dd6d7256cfb",
+        "sha512": "d178fb4cc81efad66aae682fa2b09153cc1fc4250f28e0d886521937c76521487d9c59df9477692c301ae605662570af4e8a74f7ce076f9529c2058eddef7498"
+      }
+    }
+  },
+  "runtime": {
+    "commit": "cf258a14b70ad9069470a108f13765e0e5988f51",
+    "tree": "6e56ba41176cabda581f7b5d62f70ab3ba083209",
+    "files": {
+      "LICENSE.TXT": {
+        "bytes": 1116,
+        "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+        "sha512": "27f511fefea2390347bb7ea63f7795a26780ad43eca80d717c92c70a434d28fdf136c4b902750b52813ed9cf0d3c51af206062323a0496459461d985a34ac5c7",
+        "gitBlob": "984713a49622a96da110443c15477613bc12656b"
+      },
+      "THIRD-PARTY-NOTICES.TXT": {
+        "bytes": 43395,
+        "sha256": "723c221df67cb638f983d38e01c30a8975a8c184d2351bb874b5b1e05e01d4fc",
+        "sha512": "e1cc3c282cd54e302ff7099e8255aac3a960e01a55ccd35b8b63b971c79fa3195f2d815b20c87f561e830d67781263aa5fcb4d7985ba417db4fbc112b6e4eef1",
+        "gitBlob": "111dcf586ab5f2592b8a887e75576d9ccdec47dc"
+      },
+      "eng/Versions.props": {
+        "bytes": 13942,
+        "sha256": "edbab5691cb0e279972e3778a35362373abfa940133d96b103ab73cd6296d791",
+        "sha512": "276ab9a330a50c5039b3076b4e798d02c654b91e4fc0dd87d590051e4efb0ea708f65d366a649f1835cd11a273817e49f5053a7745a21d6c88e557d9c68d0b55",
+        "gitBlob": "094ff7afcee1a7f8f1d3fb27987157f54d6faa55"
+      },
+      "src/libraries/System.Runtime.CompilerServices.Unsafe/Directory.Build.props": {
+        "bytes": 158,
+        "sha256": "3bed4083d50990f72b68ac37cf00d0b734219d88aaa8eea1a7306cbe6519f9cc",
+        "sha512": "875c7e251daf69a38370f94db4c67be19b376263165c6fc4a069760305b79c8db153c45ceec960d4f2fe10e8c1918cc2e401120ffe28b693defda56d37c3d71d",
+        "gitBlob": "e8d65546d0c807b9831af395761fce12011d5fe7"
+      },
+      "src/libraries/System.Runtime.CompilerServices.Unsafe/System.Runtime.CompilerServices.Unsafe.sln": {
+        "bytes": 3773,
+        "sha256": "d043aa5e3bb548f8fbcb3839652b1b36a31c49f0e707ca5ee40aa590ddd8828c",
+        "sha512": "2a0299a64954cbe85fe4ca7b09b1a4e1327910fc1818092b6c76c5d84e91dc844199fa4383b49d8fad5c562815229a67162bd1e947255e76a29d3971cec64e1c",
+        "gitBlob": "8299c3e7ef2e2de435214000be4d9b87caf51f0b"
+      },
+      "src/libraries/System.Runtime.CompilerServices.Unsafe/pkg/System.Runtime.CompilerServices.Unsafe.pkgproj": {
+        "bytes": 1351,
+        "sha256": "caf61bb6328636d4ccb0ad759c38e95f392f84034ee26b8b7dbca691dce946ab",
+        "sha512": "43c98836bf4adfab5c0fd4ac57b5b9197fe715ae64f84fa41c395357877c89fbb69db75ada5af5d3f4d679aaaca876df4be24c76e912eec22c9bd25fe3bb0376",
+        "gitBlob": "d46b21c27009b86dde5c82039dc697cb0e246939"
+      },
+      "src/libraries/System.Runtime.CompilerServices.Unsafe/ref/System.Runtime.CompilerServices.Unsafe.cs": {
+        "bytes": 4156,
+        "sha256": "3288aae1c5f50231f1e91e502629396810f8dbb2d68f2d6cf69fe63941ca9bf7",
+        "sha512": "ad08adf1ab83dbeabcbc6b4d2eed708ec155cf86165c4071d09ab5bd231a91331600e5f384dcb3e0e46de45445a872f6a5eb5e8d06c723d5392f5f193b532c23",
+        "gitBlob": "319ca0735cb37e2cee85f62fd15510b0574605eb"
+      },
+      "src/libraries/System.Runtime.CompilerServices.Unsafe/ref/System.Runtime.CompilerServices.Unsafe.csproj": {
+        "bytes": 490,
+        "sha256": "d2285043b51ce401e689ed4e02a29df23adae2e0952486db882fd7a35077fdca",
+        "sha512": "7475868aec300c626833a7152b6280e6e588b0b15aae56b87625852a13d73073d018341ccf91207a59d3715775eca8af9311ead5c3122ee0b00f2f0c5a28f80e",
+        "gitBlob": "ebe1f4af9854a1f4a7422b9a6ebc6192909b4e01"
+      },
+      "src/libraries/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.il": {
+        "bytes": 20648,
+        "sha256": "072c569247614f2f013b32e7515ffec1398c5cae77c9e120c9a28ba045823d3f",
+        "sha512": "3cb03fe2bd0c9932ab59745a21fabac3556651914b218c616470848a7a2cb7f8c6d65a0e1b4aed6c31bbdb719c9736d2d1b4677a971521e1ec08a3ad2e5dd473",
+        "gitBlob": "ded3c717cb77151ed818b243cd97cc05f01310a2"
+      },
+      "src/libraries/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.ilproj": {
+        "bytes": 4248,
+        "sha256": "8d38315fe17d25da97a65d0b4a7c23343114cad17e07c6180169afaa10032b61",
+        "sha512": "06c88dc96f13e378a77d28a9fabfdd72b025cbbc9726b60ef01bdf67781b5718ef71a3b09706c505a93b430acc20e186d6051acd24bd65b930ae3efb1f28bcbe",
+        "gitBlob": "07e9ef8eac8f2a7907f33384d58b0886f67ce864"
+      },
+      "src/libraries/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.xml": {
+        "bytes": 19307,
+        "sha256": "1f533ebbbbbc8e40d4353e1732599a76ba9fc1fdef5e73ca7cb1b7fc4690c286",
+        "sha512": "0507c552672c5cf620311425a346badbbd72c68edf8c1765025812bc623d936179f747a1c55a1b916e77d30b48208c212d8c36ff8c9b78fa80a99b7fef04c685",
+        "gitBlob": "1979a5cb970523fc50d4bf1188073baa39a6e043"
+      },
+      "src/libraries/System.Runtime.CompilerServices.Unsafe/tests/System.Runtime.CompilerServices.Unsafe.Tests.csproj": {
+        "bytes": 428,
+        "sha256": "7ea6636240cd189e852a811dacf3ea691cf7e738841b3562ea76a753674461b0",
+        "sha512": "aa801a3a171c4fba532c1dfa2cba9e134efe70c7eaaca852f06299e5364c8446af343bae73ef75beb02def55df1d7de2fb090947c4da15db5d6dd350a59f777d",
+        "gitBlob": "8852455f78298dbf230b939d68b748500275c334"
+      },
+      "src/libraries/System.Runtime.CompilerServices.Unsafe/tests/UnsafeTests.cs": {
+        "bytes": 37212,
+        "sha256": "b0483dd1934cb1bbf6c7ad32aba48ebaecebcc03fc2acb2c7ac7bba12a699fbe",
+        "sha512": "551adc58154fbc460f2298148ba2044d850bb77b21fbe172f518dbc75e63e40bf7345ac716f18586742cf18dfafe9348b8a0380c957a2b4b3cc6c4264e0e1567",
+        "gitBlob": "34b0140aa23cf02cd4e58603fccef00dfddbaa26"
+      }
+    }
+  },
+  "products": {
+    "sdk/5.0.214/Roslyn/bincore/System.Runtime.CompilerServices.Unsafe.dll": {
+      "fingerprint": {
+        "bytes": 11776,
+        "sha256": "a08159734dbc69caba741c36bebc5870144f8c479dc28b7f4c7d3e0be678cfff",
+        "sha512": "ef2e42f2df72cdc7d2bed1fc509276c207c8d49c7cbde3a7b04cede4ecef187b6bc77b395b0948ed873ec8c404048c0bcc9bfbe6eb000cf377ae8f8d15f0414c"
+      },
+      "canonicalPackageSha256": "9de0114a92cf5333f110a849470a01ce13f12be70a222b4bc7b58162772c620a",
+      "canonicalMember": "lib/netcoreapp2.0/System.Runtime.CompilerServices.Unsafe.dll",
+      "managedCorrespondenceRequired": true,
+      "diagnosticObservedContainer": {
+        "packageSha256": "a6cb4b5ef2d176e27325bedebc710062e71c4554eac859bf604a1b9852fed7ba",
+        "member": "tasks/netcoreapp3.1/bincore/System.Runtime.CompilerServices.Unsafe.dll"
+      }
+    },
+    "sdk/5.0.214/Sdks/Microsoft.NET.Sdk/tools/net472/System.Runtime.CompilerServices.Unsafe.dll": {
+      "fingerprint": {
+        "bytes": 16768,
+        "sha256": "3cadcb6b8a7335141c7c357a1d77af1ff49b59b872df494f5025580191d1c0d5",
+        "sha512": "066984c83de975df03eee1c2b5150c6b9b2e852d9caf90cfd956e9f0f7bd5a956b96ea961b26f7cd14c089bc8a27f868b225167020c5eb6318f66e58113efa37"
+      },
+      "canonicalPackageSha256": "9de0114a92cf5333f110a849470a01ce13f12be70a222b4bc7b58162772c620a",
+      "canonicalMember": "lib/net45/System.Runtime.CompilerServices.Unsafe.dll",
+      "managedCorrespondenceRequired": false,
+      "diagnosticObservedContainer": {
+        "packageSha256": "9de0114a92cf5333f110a849470a01ce13f12be70a222b4bc7b58162772c620a",
+        "member": "lib/net45/System.Runtime.CompilerServices.Unsafe.dll"
+      }
+    }
+  },
+  "sourceBasis": "publisher-declared-repository-and-complete-managed-correspondence",
+  "publisherCompilerExecutionClaimed": false,
+  "localBuildClaimed": false,
+  "nativeCodeDerivationClaimed": false
+}
