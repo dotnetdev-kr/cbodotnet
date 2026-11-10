@@ -223,7 +223,7 @@ footer p { margin: 0; }
 {{CONSUMER_ARCHIVES}}
 <p class="archive-note">Archives provide <code>cbodotnet</code>, <code>cbodotnet-X.Y</code> and a local <code>dotnet</code> command. Distribution libraries are still required. SDK 5.0 and .NET Core 3.x need separate compatibility companions; find their downloads under each release&rsquo;s details.</p>
 </section>
-{{QUALIFICATION_SCORECARD}}
+<!-- QUALIFICATION_SCORECARD -->
 {{DOWNSTREAM_CHANNELS}}
 {{MUSL_DISTRIBUTIONS}}
 <section class="project-notes" aria-labelledby="about-title">

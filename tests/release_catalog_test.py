@@ -409,6 +409,8 @@ class CatalogTests(unittest.TestCase):
                  mock.patch("musl_site.load_status", return_value=empty_musl_status), \
                  mock.patch("musl_site.get_bytes", side_effect=AssertionError("Unexpected musl metadata fetch")):
                 CATALOG.write_site(catalog, template, output)
+            import release_scorecard
+            scorecard = release_scorecard.publish(output)
             self.assertEqual(image, (output / "assets/social-card.jpg").read_bytes())
             self.assertEqual(catalog, json.loads((output / "releases.json").read_text(encoding="utf-8")))
             availability = json.loads((output / "downstream-status.json").read_text(encoding="utf-8"))
@@ -419,7 +421,6 @@ class CatalogTests(unittest.TestCase):
             self.assertEqual("musl-download-catalog", musl_availability["kind"])
             self.assertEqual("not-published", musl_availability["status"])
             self.assertEqual([], musl_availability["publications"])
-            scorecard = json.loads((output / 'qualification-scorecard.json').read_text(encoding='utf-8'))
             self.assertEqual('release-qualification-scorecard', scorecard['kind'])
             self.assertEqual('separate', scorecard['installerAdmission'])
             self.assertTrue((output / ".nojekyll").is_file())

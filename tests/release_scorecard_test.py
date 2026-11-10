@@ -1,6 +1,8 @@
 """Scorecards must preserve verified identities and never infer failure."""
 from pathlib import Path
+import json
 import sys
+import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
@@ -83,6 +85,28 @@ class ScorecardTests(unittest.TestCase):
         self.assertIn('1' * 64, markup)
         self.assertIn('https://github.com/dotnetdev-kr/cbodotnet/blob/main/releases/cbodotnetup-status.json', markup)
         self.assertIn('SDK qualification is separate from cbodotnetup admission', markup)
+
+    def test_publish_replaces_one_marker_and_writes_the_scorecard_feed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary)
+            (output / 'index.html').write_text('before ' + S.MARKER + ' after', encoding='utf-8')
+            feeds = {'releases.json': self.catalog, 'archive-status.json': dict(archives=self.archives),
+                'downstream-status.json': self.downstream, 'musl-status.json': self.musl}
+            for name, value in feeds.items():
+                (output / name).write_text(json.dumps(value), encoding='utf-8')
+            result = S.publish(output)
+            document = (output / 'index.html').read_text(encoding='utf-8')
+            saved = json.loads((output / 'qualification-scorecard.json').read_text(encoding='utf-8'))
+        self.assertEqual(result, saved)
+        self.assertNotIn(S.MARKER, document)
+        self.assertIn('id="qualification-scorecard"', document)
+
+    def test_publish_rejects_missing_or_ambiguous_marker(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary)
+            (output / 'index.html').write_text('no marker', encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'exactly one scorecard marker'):
+                S.publish(output)
 
 
 if __name__ == '__main__':

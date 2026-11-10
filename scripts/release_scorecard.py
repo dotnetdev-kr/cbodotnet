@@ -1,10 +1,14 @@
 """Build a concise scorecard only from authenticated release and delivery feeds."""
 import html
+import json
+from pathlib import Path
 
 
 STATUSES = ('passed', 'pending', 'unsupported', 'failed')
 ARCHITECTURES = ('x64', 'aarch64')
 MUSL_CHANNELS = ('archive', 'apk', 'oci')
+ROOT = Path(__file__).resolve().parents[1]
+MARKER = '<!-- QUALIFICATION_SCORECARD -->'
 
 
 def _status(value, *, candidate=False):
@@ -179,3 +183,35 @@ def render(scorecard):
         '<a href="qualification-scorecard.json">Machine-readable scorecard</a> · '
         '<a href="' + escape(scorecard['installerStatusUrl'], quote=True) + '">installer admission status</a>.</p>'
         + ''.join(sections) + '</section>')
+
+
+def publish(output_dir):
+    """Finalize the scorecard from feeds already validated by the Pages build."""
+    output = Path(output_dir).absolute()
+    if not output.is_dir() or output.is_symlink():
+        raise ValueError('An ordinary completed Pages output directory is required')
+    index = output / 'index.html'
+    if not index.is_file() or index.is_symlink():
+        raise ValueError('An ordinary generated Pages index is required')
+    document = index.read_text(encoding='utf-8')
+    if document.count(MARKER) != 1:
+        raise ValueError('The generated Pages index must contain exactly one scorecard marker')
+
+    def load(name):
+        path = output / name
+        if not path.is_file() or path.is_symlink():
+            raise ValueError('A completed Pages feed is required: ' + name)
+        return json.loads(path.read_bytes())
+
+    policy_path = ROOT / 'releases/downstream-status.json'
+    musl_qualification_path = ROOT / 'releases/qualified-musl-builds.json'
+    policy = json.loads(policy_path.read_bytes())
+    musl_qualification = json.loads(musl_qualification_path.read_bytes())
+    scorecard = build(load('releases.json'), load('archive-status.json')['archives'], policy,
+        load('downstream-status.json'), load('musl-status.json'), musl_qualification)
+    index.write_text(document.replace(MARKER, render(scorecard)), encoding='utf-8')
+    scorecard_path = output / 'qualification-scorecard.json'
+    if scorecard_path.exists() or scorecard_path.is_symlink():
+        raise ValueError('A fresh scorecard output is required')
+    scorecard_path.write_text(json.dumps(scorecard, indent=2) + '\n', encoding='utf-8')
+    return scorecard
