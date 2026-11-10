@@ -1,5 +1,8 @@
 # Alpine APK signing and repository design
 
+See the [signing-key stewardship inventory](signing-key-stewardship.md) for the
+boundary between the APK RSA key, the OpenPGP release signer and vendor keys.
+
 SDK 10.0.403 APK revision 1 is published for native x64 and AArch64 on Alpine
 3.24.4. The [APK publication workflow](https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42376232763)
 completed native qualification, lifecycle tests, protected permanent signing,

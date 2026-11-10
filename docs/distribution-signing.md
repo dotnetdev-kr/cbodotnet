@@ -1,5 +1,8 @@
 # Distribution signing identity
 
+See the [complete signing-key stewardship inventory](signing-key-stewardship.md)
+for the separate APK signer, external vendor keys and continuity assessment.
+
 Community Build of .NET (built by .NET Dev) uses a dedicated Ed25519 distribution
 key. Its full primary fingerprint is:
 
