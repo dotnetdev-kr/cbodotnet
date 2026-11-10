@@ -61,6 +61,8 @@ The [release incident and recovery runbook](docs/release-incident-runbook.md)
 explains withdrawal notices, signed-status checks and immutable corrections.
 The [signing-key stewardship review](docs/signing-key-stewardship.md) inventories
 project and vendor trust identities without exposing private recovery data.
+See [Contributing](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md)
+for review expectations and community participation.
 
 The package contract provides `cbodotnet-X.Y` and a common `cbodotnet` command
 selecting the highest installed SDK series. OCI images expose
@@ -131,6 +133,8 @@ SDK archives and corresponding source bundles retain their upstream copyrights, 
 
 ## Documentation
 
+- [Contributing, review and maintainer continuity](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Downstream distribution contract and rollout](docs/distribution-contract.md)
 - [CLI branding and command aliases](docs/cli-branding.md)
 - [Consumer SDK images and provenance](docs/oci-delivery.md)
