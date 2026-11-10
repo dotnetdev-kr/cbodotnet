@@ -1,6 +1,7 @@
 # cbodotnet
 
 [Homepage and downloads](https://dotnetdev.kr/cbodotnet/) · [Releases](https://github.com/dotnetdev-kr/cbodotnet/releases) · [CI/CD](https://github.com/dotnetdev-kr/cbodotnet/actions)
+[Security policy and private vulnerability reporting](SECURITY.md)
 
 [![Repository checks](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/checks.yml/badge.svg?branch=main)](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/checks.yml)
 [![Linux AArch64 SDK builds](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/sdk-matrix.yml/badge.svg?branch=main)](https://github.com/dotnetdev-kr/cbodotnet/actions/workflows/sdk-matrix.yml)
