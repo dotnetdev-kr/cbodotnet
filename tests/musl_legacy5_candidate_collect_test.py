@@ -41,12 +41,19 @@ class CollectionFailures(unittest.TestCase):
         def pack(_):
             self.events.append('final-pack')
             if fail_at == 'pack': raise ValueError('ordinary pack rejection')
-        def verify(_): self.events.append('final-verify')
+        def verify(_):
+            self.events.append('final-verify')
+            return {'verifiedPacketOnly': True}
+        def generated_sources(_, manifest):
+            self.events.append('generated-source-validation')
+            self.assertEqual(manifest, {'verifiedPacketOnly': True})
+            return {'archivedGeneratedProviderSourceTreesValidated': True}
         def authenticate(*args, **kwargs):
             self.events.append('strict-authentication-boundary')
             raise ValueError('ordinary test stops; no genuine parent capability')
         modules = {'musl_legacy5_evidence.py': SimpleNamespace(emit=emit),
-                   'package-used-source.py': SimpleNamespace(pack=pack, verify=verify)}
+                   'package-used-source.py': SimpleNamespace(pack=pack, verify=verify),
+                   'musl_legacy5_generated_source_inputs.py': SimpleNamespace(validate=generated_sources)}
         with ExitStack() as stack:
             stack.enter_context(mock.patch.object(C, '_preflight', return_value=(self.delivery, self.metadata, self.expected, [], {}, {})))
             stack.enter_context(mock.patch.object(C, '_module', side_effect=lambda name: modules[name]))
@@ -78,11 +85,12 @@ class CollectionFailures(unittest.TestCase):
     def test_full_mocked_order_stops_at_real_auth_boundary_without_capability(self):
         self.run_mocked_order('authenticate')
         self.assertEqual(self.events, ['raw-emitter', 'actual-M-boundary', 'C-capture-boundary',
-            'final-pack', 'final-verify', 'strict-authentication-boundary'])
+            'final-pack', 'final-verify', 'generated-source-validation', 'strict-authentication-boundary'])
         gaps = V.load(self.delivery/'reports/candidate-source-gaps.json')
         self.assertEqual(gaps['rawEmitterUnknowns'], self.proof['unknowns'])
         self.assertEqual(gaps['unresolvedRawUnknowns'], self.proof['unknowns'])
         self.assertEqual(gaps['independentlyResolvedRawUnknowns'], [])
+        self.assertTrue(gaps['archivedGeneratedDataProviderSources']['archivedGeneratedProviderSourceTreesValidated'])
         self.assertTrue(all(gaps[key] is False for key in V.FLAGS))
 
     def test_unmocked_preflight_never_runs_a_mode_on_windows(self):

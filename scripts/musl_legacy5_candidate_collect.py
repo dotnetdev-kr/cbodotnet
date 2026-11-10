@@ -117,17 +117,19 @@ def collect_completed_normal(delivery, metadata_root, expected_identity, *, norm
         V.validate_capture(delivery, CAPTURE_RELATIVE, validated, actual)
         roots.append(dict(name=CAPTURE_ROOT, kind='tree', path=str(delivery / CAPTURE_RELATIVE), role=C.KIND))
         _write(roots_path, dict(schemaVersion=1, roots=roots), replace=True)
-        _write(delivery / 'reports/candidate-source-gaps.json', dict(schemaVersion=1,
-            kind='sdk5-unadmitted-candidate-source-gaps', rawConstructionProof=raw_fp,
-            rawEmitterUnknowns=emitted['unknowns'], independentlyResolvedRawUnknowns=[],
-            unresolvedRawUnknowns=emitted['unknowns'], semanticCorrespondenceNotDerivedByCollector=True,
-            actualNormalConsumptionCheckedSeparately=True, **{key: False for key in V.FLAGS}))
         packer = _module('package-used-source.py')
         packer.pack(SimpleNamespace(project_root=V.ROOT, project_commit=expected['projectCommit'],
             output_dir=delivery / 'sources', roots_json=roots_path, sdk_version=V.SDK,
             target_rid=expected['targetRid'], run_id=expected['runId'], run_attempt=expected['runAttempt']))
-        packer.verify(SimpleNamespace(release_dir=delivery, expected_project_commit=expected['projectCommit'],
+        source_manifest = packer.verify(SimpleNamespace(release_dir=delivery, expected_project_commit=expected['projectCommit'],
             expected_run_id=expected['runId'], expected_run_attempt=expected['runAttempt'], expected_target_rid=expected['targetRid']))
+        generated_sources = _module('musl_legacy5_generated_source_inputs.py').validate(delivery, source_manifest)
+        _write(delivery / 'reports/candidate-source-gaps.json', dict(schemaVersion=1,
+            kind='sdk5-unadmitted-candidate-source-gaps', rawConstructionProof=raw_fp,
+            rawEmitterUnknowns=emitted['unknowns'], independentlyResolvedRawUnknowns=[],
+            unresolvedRawUnknowns=emitted['unknowns'], semanticCorrespondenceNotDerivedByCollector=True,
+            archivedGeneratedDataProviderSources=generated_sources, actualNormalConsumptionCheckedSeparately=True,
+            **{key: False for key in V.FLAGS}))
         V.require(V.file_fingerprint(raw_path, V.MAX_JSON) == raw_fp and V.load(raw_path) == emitted,
             'Raw unknowns/repository observations changed during collection')
         _write(stage_path, dict(stage='collect', status='passed', startedAtUtc=started,
