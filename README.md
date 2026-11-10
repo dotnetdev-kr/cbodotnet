@@ -15,7 +15,7 @@ Community .NET SDK builds for **glibc Linux AArch64 and x64**, independently of 
 
 ## Download
 
-[Download builds](https://dotnetdev.kr/cbodotnet/) or open [GitHub Releases](https://github.com/dotnetdev-kr/cbodotnet/releases). Each version includes both SDK archives, the actual used sources for each architecture, complete qualification evidence, `SHA256SUMS` and `release-manifest.json`.
+[Download builds](https://dotnetdev.kr/cbodotnet/) or open [GitHub Releases](https://github.com/dotnetdev-kr/cbodotnet/releases). The [release qualification scorecard](https://dotnetdev.kr/cbodotnet/#qualification-scorecard) summarizes architecture, channel and verification evidence. Each version includes both SDK archives, the actual used sources for each architecture, complete qualification evidence, `SHA256SUMS` and `release-manifest.json`.
 
 Public names use `aarch64`. The official .NET RID remains `linux-arm64`; upstream package names, container-platform identities and historical evidence retain that spelling. SDK/source payload bytes are preserved when public filenames change.
 

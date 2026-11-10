@@ -47,6 +47,7 @@ pre code { padding: 0; background: none; color: inherit; font-size: inherit; }
 .wordmark span { color: var(--accent); }
 nav { display: flex; flex-wrap: wrap; gap: 1.3rem; font-size: .88rem; }
 nav a { color: var(--muted); text-decoration: none; }
+nav a:hover { color: var(--accent); }
 .hero { display: grid; grid-template-columns: 1.45fr 1fr; align-items: center; gap: 3.5rem; padding: 5rem 0 3.5rem; }
 .eyebrow { margin-bottom: .85rem; color: var(--accent); font-size: .75rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
 .hero .eyebrow { letter-spacing: .04em; }
@@ -97,6 +98,21 @@ summary { cursor: pointer; }
 .checksum-label { color: var(--muted); }
 .checksum { display: block; padding: 0; background: none; overflow-wrap: anywhere; font-size: .69rem; }
 .archive-note { margin: 1.25rem 0 0; padding-top: 1.25rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; }
+.score-release { border-top: 1px solid var(--line); }
+.score-release:last-child { border-bottom: 1px solid var(--line); }
+.score-release summary { padding: .9rem .2rem; color: var(--ink); font-size: .9rem; font-weight: 650; }
+.score-content { padding: 0 .2rem 1rem; }
+.score-content > p { color: var(--muted); font-size: .78rem; }
+.score-content code { overflow-wrap: anywhere; }
+.score-table { max-width: 100%; overflow-x: auto; }
+.score-table table { width: 100%; border-collapse: collapse; text-align: left; font-size: .78rem; }
+.score-table th, .score-table td { min-width: 6rem; padding: .65rem .5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.score-table th { color: var(--muted); font-size: .69rem; font-weight: 650; text-transform: uppercase; }
+.score-status { display: inline-block; padding: .12rem .45rem; border-radius: .25rem; font-size: .72rem; font-weight: 700; }
+.score-passed { color: #17613a; background: #e4f4e9; }
+.score-pending { color: #79500b; background: #fff1d2; }
+.score-unsupported { color: #565766; background: #ececf0; }
+.score-failed { color: #8d2929; background: #fbe5e3; }
 .installation-list { display: grid; gap: .7rem; }
 .install-details { min-width: 0; border: 1px solid var(--line); border-radius: .6rem; }
 .install-details > summary { padding: 1rem 1.2rem; font-size: .95rem; font-weight: 650; }
@@ -166,6 +182,7 @@ footer p { margin: 0; }
 <nav aria-label="Main navigation">
 <a href="#get-started">Get started</a>
 <a href="#downloads">SDK downloads</a>
+<a href="#qualification-scorecard">Qualification</a>
 <a class="desktop-link" href="{{REPOSITORY_URL}}">GitHub &nearr;</a>
 </nav>
 </header>
@@ -206,6 +223,7 @@ footer p { margin: 0; }
 {{CONSUMER_ARCHIVES}}
 <p class="archive-note">Archives provide <code>cbodotnet</code>, <code>cbodotnet-X.Y</code> and a local <code>dotnet</code> command. Distribution libraries are still required. SDK 5.0 and .NET Core 3.x need separate compatibility companions; find their downloads under each release&rsquo;s details.</p>
 </section>
+{{QUALIFICATION_SCORECARD}}
 {{DOWNSTREAM_CHANNELS}}
 {{MUSL_DISTRIBUTIONS}}
 <section class="project-notes" aria-labelledby="about-title">
@@ -228,7 +246,7 @@ footer p { margin: 0; }
 </section>
 </main>
 <footer>
-<div class="footer-links"><a href="{{REPOSITORY_URL}}">Source &amp; documentation</a><a href="archive-status.json">Archive catalog</a><a href="downstream-status.json">Distribution status</a></div>
+<div class="footer-links"><a href="{{REPOSITORY_URL}}">Source &amp; documentation</a><a href="qualification-scorecard.json">Qualification scorecard</a><a href="archive-status.json">Archive catalog</a><a href="downstream-status.json">Distribution status</a></div>
 <p>Updated {{GENERATED_AT}}</p>
 </footer>
 </div>

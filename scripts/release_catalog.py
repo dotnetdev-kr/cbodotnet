@@ -329,7 +329,8 @@ def build_catalog(releases, fetch_asset, repository, generated_at=None):
             datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"), "releases": records}
 
 
-def render_html(catalog, template, downstream_status=None, consumer_archives=None, installer_markup='', musl_markup=''):
+def render_html(catalog, template, downstream_status=None, consumer_archives=None, installer_markup='', musl_markup='',
+                scorecard_markup=''):
     from distribution_site import render_channels
     escape = html.escape
 
@@ -378,6 +379,7 @@ def render_html(catalog, template, downstream_status=None, consumer_archives=Non
     replacements = {"{{GENERATED_AT}}": escape(catalog["generatedAt"]),
                     "{{CONSUMER_ARCHIVES}}": consumer_markup,
                     "{{INSTALLER_PANEL}}": installer_markup or '<p>The SDK manager is not available yet. Choose an archive or a verified package below.</p>',
+                    "{{QUALIFICATION_SCORECARD}}": scorecard_markup or '<p class="empty-state">No authenticated release records are available.</p>',
                     "{{DOWNSTREAM_CHANNELS}}": render_channels(downstream_status or {}),
                     "{{REPOSITORY_URL}}": "https://github.com/" + escape(catalog["repository"], quote=True)}
     if '{{MUSL_DISTRIBUTIONS}}' in template or musl_markup:
@@ -403,12 +405,17 @@ def write_site(catalog, template_path, output_dir):
     from cbodotnetup_site import prepare as prepare_installer
     installer_markup = prepare_installer(output_dir)
     from musl_site import prepare as prepare_musl
-    musl_markup, _ = prepare_musl(output_dir)
+    musl_markup, musl_feed = prepare_musl(output_dir)
+    from release_scorecard import build as build_scorecard, render as render_scorecard
+    scorecard = build_scorecard(catalog, consumers, policy, public_status, musl_feed,
+        json.loads((ROOT / 'releases/qualified-musl-builds.json').read_text(encoding='utf-8')))
     output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / "index.html").write_text(render_html(catalog, template_path.read_text(encoding="utf-8"), public_status, consumers, installer_markup, musl_markup), encoding="utf-8")
+    (output_dir / "index.html").write_text(render_html(catalog, template_path.read_text(encoding="utf-8"), public_status,
+        consumers, installer_markup, musl_markup, render_scorecard(scorecard)), encoding="utf-8")
     (output_dir / 'archive-status.json').write_text(json.dumps(dict(schemaVersion=1, repository=catalog['repository'],
         status='published-postverified' if consumers else 'not-published', archives=consumers), indent=2) + '\n', encoding='utf-8')
     (output_dir / "releases.json").write_text(json.dumps(catalog, indent=2) + "\n", encoding="utf-8")
+    (output_dir / 'qualification-scorecard.json').write_text(json.dumps(scorecard, indent=2) + '\n', encoding='utf-8')
     (output_dir / "downstream-status.json").write_text(json.dumps(public_status, indent=2) + "\n", encoding="utf-8")
     (output_dir / ".nojekyll").write_text("", encoding="utf-8")
     shutil.copytree(assets, output_dir / "assets", dirs_exist_ok=True)

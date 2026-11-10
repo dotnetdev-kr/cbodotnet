@@ -12,6 +12,10 @@ on:
       - site/**
       - scripts/release-catalog.py
       - scripts/release_catalog.py
+      - scripts/release_scorecard.py
+      - releases/qualified-builds.json
+      - releases/qualified-musl-builds.json
+      - releases/archive-status.json
       - releases/downstream-status.json
       - releases/downstream-signing-key.asc
       - scripts/distribution_site.py
