@@ -11,6 +11,7 @@ on:
     paths:
       - site/**
       - docs/support-lifecycle.md
+      - docs/release-incident-runbook.md
       - scripts/release-catalog.py
       - scripts/release_catalog.py
       - scripts/release_scorecard.py

@@ -56,6 +56,8 @@ signed catalog and user-state namespace.
 The [SDK and platform lifecycle policy](docs/support-lifecycle.md) separates
 upstream support, Community qualification, project maintenance and artifact
 availability.
+The [release incident and recovery runbook](docs/release-incident-runbook.md)
+explains withdrawal notices, signed-status checks and immutable corrections.
 
 The package contract provides `cbodotnet-X.Y` and a common `cbodotnet` command
 selecting the highest installed SDK series. OCI images expose
@@ -135,6 +137,7 @@ SDK archives and corresponding source bundles retain their upstream copyrights, 
 - [Additional SDK sources, dependency gates and preparation plans](docs/additional-sdk-preparation.md)
 - [Current verified SDK distribution matrix](docs/all-sdk-distributions.md)
 - [SDK and platform support lifecycle](docs/support-lifecycle.md)
+- [Release incident, withdrawal and recovery runbook](docs/release-incident-runbook.md)
 - [cbodotnetup user installation, updates and recovery](docs/cbodotnetup.md)
 - [Project SDK selection and global.json limits](docs/cbodotnetup-project-selection.md)
 - [cbodotnetup legacy provider trust, consent and maintenance](docs/cbodotnetup-legacy-providers.md)

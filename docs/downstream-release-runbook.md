@@ -3,6 +3,8 @@
 Use the [verified SDK distribution matrix](all-sdk-distributions.md) for current
 published SDKs and revisions. Existing releases are immutable; choose an exact
 successful native cohort or its original frozen signed bytes for recovery.
+For bad or delayed releases, use the
+[incident, withdrawal and recovery runbook](release-incident-runbook.md).
 
 [Issue #7](https://github.com/dotnetdev-kr/cbodotnet/issues/7) uses the
 [shared command](../scripts/downstream-release.py),

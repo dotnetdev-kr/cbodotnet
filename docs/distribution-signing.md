@@ -52,7 +52,9 @@ For compromise, stop the publishing environment, mark the signer revoked in
 the encrypted revocation certificate through repository-owner administration.
 Publish the certificate, affected artifact/digest list and successor trust
 bootstrap through the established project channels. Keep immutable artifacts
-and their history; do not hide a revocation by replacing their bytes.
+and their history; do not hide a revocation by replacing their bytes. Follow the
+[release incident runbook](release-incident-runbook.md) for user notices,
+availability withdrawal and correction handling.
 
 For historical native commits, the current
 [REST release authorization rules](https://docs.github.com/en/rest/releases/releases#create-a-release)
