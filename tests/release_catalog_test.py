@@ -427,6 +427,7 @@ class CatalogTests(unittest.TestCase):
             document = (output / "index.html").read_text(encoding="utf-8")
             self.assertIn('id="qualification-scorecard"', document)
             self.assertIn('href="qualification-scorecard.json"', document)
+            self.assertIn('docs/support-lifecycle.md', document)
             self.assertIn('property="og:image" content="https://dotnetdev.kr/cbodotnet/assets/social-card.jpg"', document)
             self.assertIn('name="twitter:card" content="summary_large_image"', document)
             self.assertIn('rel="canonical" href="https://dotnetdev.kr/cbodotnet/"', document)

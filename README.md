@@ -53,6 +53,10 @@ Native [Alpine3.24.4 installation](docs/cbodotnetup-musl.md) separately admits
 SDK10.0.403 revision1 on x64/AArch64, using musl NativeAOT binaries and its own
 signed catalog and user-state namespace.
 
+The [SDK and platform lifecycle policy](docs/support-lifecycle.md) separates
+upstream support, Community qualification, project maintenance and artifact
+availability.
+
 The package contract provides `cbodotnet-X.Y` and a common `cbodotnet` command
 selecting the highest installed SDK series. OCI images expose
 `cbodotnet-X.Y`, `cbodotnet` and `dotnet` for the same SDK. Public launchers show
@@ -130,6 +134,7 @@ SDK archives and corresponding source bundles retain their upstream copyrights, 
 - [Validated Arch recipes and deferred AUR publication](docs/aur-delivery.md)
 - [Additional SDK sources, dependency gates and preparation plans](docs/additional-sdk-preparation.md)
 - [Current verified SDK distribution matrix](docs/all-sdk-distributions.md)
+- [SDK and platform support lifecycle](docs/support-lifecycle.md)
 - [cbodotnetup user installation, updates and recovery](docs/cbodotnetup.md)
 - [Project SDK selection and global.json limits](docs/cbodotnetup-project-selection.md)
 - [cbodotnetup legacy provider trust, consent and maintenance](docs/cbodotnetup-legacy-providers.md)
