@@ -428,6 +428,7 @@ class CatalogTests(unittest.TestCase):
             self.assertIn('id="qualification-scorecard"', document)
             self.assertIn('href="qualification-scorecard.json"', document)
             self.assertIn('docs/support-lifecycle.md', document)
+            self.assertIn('docs/maintenance-objectives.md', document)
             self.assertIn('docs/release-incident-runbook.md', document)
             self.assertIn('property="og:image" content="https://dotnetdev.kr/cbodotnet/assets/social-card.jpg"', document)
             self.assertIn('name="twitter:card" content="summary_large_image"', document)

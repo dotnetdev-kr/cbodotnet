@@ -57,6 +57,9 @@ signed catalog and user-state namespace.
 The [SDK and platform lifecycle policy](docs/support-lifecycle.md) separates
 upstream support, Community qualification, project maintenance and artifact
 availability.
+The [SDK update and maintenance objectives](docs/maintenance-objectives.md)
+describe the daily discovery target and the capacity/qualification gates without
+promising an update date.
 The [release incident and recovery runbook](docs/release-incident-runbook.md)
 explains withdrawal notices, signed-status checks and immutable corrections.
 The [signing-key stewardship review](docs/signing-key-stewardship.md) inventories
@@ -144,6 +147,7 @@ SDK archives and corresponding source bundles retain their upstream copyrights, 
 - [Additional SDK sources, dependency gates and preparation plans](docs/additional-sdk-preparation.md)
 - [Current verified SDK distribution matrix](docs/all-sdk-distributions.md)
 - [SDK and platform support lifecycle](docs/support-lifecycle.md)
+- [SDK update and maintenance objectives](docs/maintenance-objectives.md)
 - [Release incident, withdrawal and recovery runbook](docs/release-incident-runbook.md)
 - [Signing-key stewardship and trust boundaries](docs/signing-key-stewardship.md)
 - [cbodotnetup user installation, updates and recovery](docs/cbodotnetup.md)
