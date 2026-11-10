@@ -33,6 +33,7 @@ class ScorecardTests(unittest.TestCase):
             'aur': dict(status='not-published', candidateMatrix=[dict(architecture='x64', variant='arch-rolling')])})
         self.downstream = dict(channels={'deb': dict(publications=[dict(sdkVersion='10.0.403', channel='deb',
             variant='ubuntu-24.04', architecture='x64', status='published-postverified',
+            packageRevision=2,
             artifactUrl='https://example.invalid/deb', manifestUrl='https://example.invalid/deb-manifest',
             signatureUrl='https://example.invalid/deb-signature', verificationReportUrl='https://example.invalid/deb-report',
             signingFingerprint='E' * 40, sourceManifestSha256='f' * 64)])})
@@ -61,6 +62,23 @@ class ScorecardTests(unittest.TestCase):
             status='unsupported'), result['plannedCells'])
         self.assertEqual('b' * 64, release['glibcSourceIdentity']['x64']['sourceSha256'])
         self.assertEqual('1' * 64, release['muslSourceIdentity']['sourceManifestSha256'])
+
+    def test_latest_verified_package_revision_is_current_and_ties_are_rejected(self):
+        older = dict(self.downstream['channels']['deb']['publications'][0], packageRevision=1,
+            artifactUrl='https://example.invalid/old-deb')
+        self.downstream['channels']['deb']['publications'].append(older)
+        result = S.build(self.catalog, self.archives, self.policy, self.downstream, self.musl,
+            self.musl_qualification)
+        cell = next(cell for cell in result['releases'][0]['cells']
+            if (cell['channel'], cell['architecture'], cell['target']) == ('deb', 'x64', 'ubuntu-24.04'))
+        self.assertEqual(2, cell['packageRevision'])
+        self.assertIn('https://example.invalid/deb', [link['url'] for link in cell['evidence']])
+        self.assertNotIn('https://example.invalid/old-deb', [link['url'] for link in cell['evidence']])
+        self.downstream['channels']['deb']['publications'].append(
+            dict(self.downstream['channels']['deb']['publications'][0]))
+        with self.assertRaisesRegex(ValueError, 'Duplicate published scorecard revision'):
+            S.build(self.catalog, self.archives, self.policy, self.downstream, self.musl,
+                self.musl_qualification)
 
     def test_missing_records_are_not_promoted_to_passed_or_failed(self):
         self.downstream['channels']['deb']['publications'].clear()

@@ -31,9 +31,14 @@ def build(catalog, archive_rows, downstream_policy, downstream_status, musl_feed
     for channel, data in downstream_status.get('channels', {}).items():
         for row in data.get('publications', []):
             key = (row['sdkVersion'], channel, row['variant'], row['architecture'])
-            if key in distributions:
-                raise ValueError('Duplicate published scorecard cell: ' + str(key))
-            distributions[key] = row
+            previous = distributions.get(key)
+            revision = row.get('packageRevision')
+            if type(revision) is not int or revision <= 0:
+                raise ValueError('A positive package revision is required for a published scorecard cell')
+            if previous is None or revision > previous['packageRevision']:
+                distributions[key] = row
+            elif revision == previous['packageRevision']:
+                raise ValueError('Duplicate published scorecard revision: ' + str(key))
     musl = {}
     for row in musl_feed.get('publications', []):
         identity = row['identity']
@@ -89,7 +94,8 @@ def build(catalog, archive_rows, downstream_policy, downstream_status, musl_feed
                 else:
                     evidence, source_sha, signer = [], None, None
                 cells.append(dict(libc='glibc', channel=channel, architecture=architecture, target=variant,
-                    status=status, sourceManifestSha256=source_sha, signingFingerprint=signer, evidence=evidence))
+                    status=status, packageRevision=row.get('packageRevision') if row else None,
+                    sourceManifestSha256=source_sha, signingFingerprint=signer, evidence=evidence))
             if channel == 'aur' and 'aarch64' not in {row['architecture'] for row in candidates}:
                 cells.append(dict(libc='glibc', channel=channel, architecture='aarch64', target='arch-rolling',
                     status='unsupported', sourceManifestSha256=None, signingFingerprint=None, evidence=[]))
