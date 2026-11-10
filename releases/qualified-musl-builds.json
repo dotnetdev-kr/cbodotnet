@@ -161,6 +161,48 @@
       "sourceManifestSha256": "671056f9397fb1d883dcd984b713c82973d258a62a89692a82fa0047ecea931e",
       "sourceReleaseTag": "musl-sdk-7.0.120-r1",
       "target": "net7-musl"
+    },
+    {
+      "architectures": {
+        "aarch64": {
+          "artifactId": "13663334602",
+          "aspnetSourceCommit": "64ea4108e7dcf1ca575f8dd2028363b0b1ef6ebc",
+          "bootstrapSdk": "6.0.135",
+          "libc": "musl",
+          "projectCommit": "2e40f58eac7b0abb4a28747c6894d93655c482b7",
+          "runAttempt": "1",
+          "runId": "42575905760",
+          "runtimeSourceCommit": "f1dd57165bfd91875761329ac3a8b17f6606ad18",
+          "runtimeVersion": "6.0.36",
+          "sdkSourceCommit": "1d205826ddc14c8f868eb6373e7a6bafcb9fe5be",
+          "sourceCommit": "d638663530d923adbe0442604b7a6562127321e9",
+          "targetRid": "linux-musl-arm64",
+          "workflow": ".github/workflows/musl-sdk-expand.yml",
+          "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42575905760"
+        },
+        "x64": {
+          "artifactId": "13665351571",
+          "aspnetSourceCommit": "64ea4108e7dcf1ca575f8dd2028363b0b1ef6ebc",
+          "bootstrapSdk": "6.0.135",
+          "libc": "musl",
+          "projectCommit": "2e40f58eac7b0abb4a28747c6894d93655c482b7",
+          "runAttempt": "1",
+          "runId": "42575905760",
+          "runtimeSourceCommit": "f1dd57165bfd91875761329ac3a8b17f6606ad18",
+          "runtimeVersion": "6.0.36",
+          "sdkSourceCommit": "1d205826ddc14c8f868eb6373e7a6bafcb9fe5be",
+          "sourceCommit": "d638663530d923adbe0442604b7a6562127321e9",
+          "targetRid": "linux-musl-x64",
+          "workflow": ".github/workflows/musl-sdk-expand.yml",
+          "workflowUrl": "https://github.com/dotnetdev-kr/cbodotnet/actions/runs/42575905760"
+        }
+      },
+      "libc": "musl",
+      "producerRevision": 1,
+      "sdkVersion": "6.0.136",
+      "sourceManifestSha256": "8018f1fd9a2b82dff05f93acd757e117cc01c016d56f2d35c0557023da42f9e7",
+      "sourceReleaseTag": "musl-sdk-6.0.136-r1",
+      "target": "net6-musl"
     }
   ],
   "kind": "qualified-musl-sdk-producers",
