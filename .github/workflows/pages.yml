@@ -12,6 +12,7 @@ on:
       - site/**
       - docs/support-lifecycle.md
       - docs/maintenance-objectives.md
+      - docs/platform-roadmap.md
       - docs/release-incident-runbook.md
       - scripts/release-catalog.py
       - scripts/release_catalog.py
